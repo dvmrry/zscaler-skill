@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "id": "zia.authentication.surrogate-ip",
+  "title": "Surrogate IP: mapping a private IP to an authenticated user",
+  "aliases": [
+    "surrogate IP",
+    "IP surrogate",
+    "surrogate_ip",
+    "idle_time_in_minutes",
+    "surrogate_ip_enforced_for_known_browsers",
+    "surrogate_refresh_time_in_minutes",
+    "surrogate_refresh_time_unit",
+    "display_time_unit",
+    "enforce_surrogate_ip_for_windows_app",
+    "idle time to disassociation",
+    "wrong user attribution",
+    "NAT surrogate",
+    "VDI surrogate"
+  ],
+  "binds": [
+    "zia/locations"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.authentication.location-enforcement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.unauthenticated-traffic"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.field-fidelity"
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "Surrogate IP maps a user to a private IP address so the user's policies, rather than the location's, apply to traffic that cannot be authenticated: applications that do not support cookies, HTTPS that is not decrypted, and unknown user agents. All private IPs a user browses from are mapped to the user, and the transactions are attributed to the user in the logs. The mapping is created when the user authenticates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-surrogate-ip.md",
+          "quotes": [
+            "Applications that do not support cookies, such as Google Earth and SkyDrive.",
+            "HTTPS transactions that are not decrypted.",
+            "Transactions that use unknown user agents.",
+            "If a user browses the internet from multiple private IP addresses, the surrogate IP service maps all the private IP addresses to the user."
+          ]
+        }
+      ]
+    },
+    "browser-benefit": {
+      "statement": "With Surrogate IP a user authenticated in one browser is not asked again in another browser or a non-browser application; with it disabled, authenticating in Chrome then opening Firefox prompts again. Zscaler recommends it for non-browser apps such as Windows Store apps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-surrogate-ip.md",
+          "quotes": [
+            "With surrogate IP, a user can authenticate to the service in one web browser and does not have to authenticate again if they open another web browser or use non-browser applications.",
+            "then the user is prompted to authenticate again in Firefox.",
+            "Zscaler recommends that you enable surrogate IP for non-browser apps, such as Windows Store apps."
+          ]
+        }
+      ]
+    },
+    "one-user-at-a-time": {
+      "statement": "A private IP maps to only one user at a time. The mapping is kept until the configured idle time ends, the user logs out of the session or the service, or another user sends authenticated transactions from the same IP, which remaps it to the new user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-surrogate-ip.md",
+          "quotes": [
+            "The surrogate IP service maps a private IP address to only one user at a time and retains the mapping until:",
+            "This service maps the private IP address to a new user if a different user logs in to the Zscaler service from the same private IP address."
+          ]
+        }
+      ]
+    },
+    "churn-disables": {
+      "statement": "If the mapping for an IP changes more than 3 times in a minute (three different users authenticating from the same private IP within a minute), the service stops mapping users to that IP for 5 minutes and applies the location's policies to the transactions that cannot be authenticated during that time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-surrogate-ip.md",
+          "quotes": [
+            "If the mapping changes more than 3 times a minute",
+            "3 different users log in and surf the internet from the same private IP address within a minute",
+            "the service stops mapping users to the private IP address for 5 minutes and applies location policies to the transactions that do not support authentication during these 5 minutes."
+          ]
+        }
+      ]
+    },
+    "no-nat": {
+      "statement": "Surrogate IP requires one IP per user as the service sees it, so NAT cannot be used: all users behind it look like one address. Supported forwarding is a GRE or IPSec tunnel without NAT, forward proxy chaining with XFF forwarding turned on for the location or sublocation, or a dedicated proxy port, and Enforce Authentication must be on for the location or sublocation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-surrogate-ip.md",
+          "quotes": [
+            "A GRE or IPSec tunnel without NAT.",
+            "Forward proxy chaining with the Enable XFF Forwarding option turned on for the location or sublocation.",
+            "Also, the location or sublocation must have Enforce Authentication turned on."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Therefore, NAT cannot be used with Surrogate IP"
+          ]
+        }
+      ]
+    },
+    "dedicated-port": {
+      "statement": "On a location with at least one subscribed dedicated proxy port, Surrogate IP maps the public IP address rather than the private one to the user, so user-level policy can apply to remote user traffic that cannot be authenticated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-surrogate-ip.md",
+          "quotes": [
+            "the service maps the public IP address and not the internal or private IP address to the user"
+          ]
+        }
+      ]
+    },
+    "no-vdi": {
+      "statement": "Zscaler does not recommend Surrogate IP with multi-session VDI: every user on the machine shares one private IP, so transactions can be attributed to the wrong user in the logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-surrogate-ip.md",
+          "quotes": [
+            "Zscaler does not recommend using the surrogate IP service with multi-session Virtual Desktop Infrastructure (VDI) environments"
+          ]
+        }
+      ]
+    },
+    "not-inherited": {
+      "statement": "Sublocations associated with a location do not inherit its IP Surrogate setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.md",
+          "quotes": [
+            "Any sublocations associated with this location do not inherit this setting."
+          ]
+        }
+      ]
+    },
+    "location-fields": {
+      "statement": "The Terraform location resource carries the Surrogate IP configuration as surrogate_ip, idle_time_in_minutes (user mapping idle time in minutes) with display_time_unit, surrogate_ip_enforced_for_known_browsers, and surrogate_refresh_time_in_minutes with surrogate_refresh_time_unit. Both unit fields accept MINUTE, HOUR or DAY.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "Enable Surrogate IP. When set to true, users are mapped to internal device IP addresses.",
+            "Idle Time to Disassociation. The user mapping idle time (in minutes) is required if a Surrogate IP is enabled.",
+            "Display Time Unit. The time unit to display for IP Surrogate idle time to disassociation.",
+            "Refresh Time for re-validation of Surrogacy. The surrogate refresh time (in minutes) to re-validate the IP surrogates.",
+            "Display Refresh Time Unit. The time unit to display for refresh time for re-validation of surrogacy."
+          ]
+        }
+      ]
+    },
+    "known-browsers": {
+      "statement": "Enforce Surrogate IP for Known Browsers makes the service authenticate known browsers from the existing IP-to-user mapping even on sites that support cookies, so the browser does not complete HTTP redirects for every transaction (useful on high-latency links). The service authenticates known browsers from the existing mapping rather than waiting for a cookie. When off, browsers are authenticated by cookie or the other configured methods. Supported Authentication Methods must then be Cookie or Cookie and Proxy, and Basic authentication requires Cookie and Proxy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.md",
+          "quotes": [
+            "the Zscaler service uses existing IP-to-user mapping for authentication even if users go to sites that support cookies.",
+            "If the feature is disabled, the service authenticates users on browsers with cookies or other configured authentication mechanisms.",
+            "If you selected Enable Basic Authentication, you must select Cookie and Proxy for IP surrogacy to work.",
+            "in Supported Authentication Methods, select either Cookie or Cookie and Proxy."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "Enforce Surrogate IP for Known Browsers. When set to true, IP Surrogate is enforced for all known browsers."
+          ]
+        }
+      ]
+    },
+    "refresh-vs-lease": {
+      "statement": "The refresh time for re-validating surrogacy must be shorter than the DHCP lease time, otherwise wrong user policies might be applied, and Zscaler recommends a refresh shorter than the Idle Time to Disassociation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.md",
+          "quotes": [
+            "The refresh time for the revalidation of IP surrogacy must be shorter than the DHCP lease time, otherwise, the wrong user policies might be applied."
+          ]
+        }
+      ]
+    },
+    "provider-checks": {
+      "statement": "On create and update, before any API call, the provider rejects: surrogate_ip without an idle time; surrogate_ip without auth_required; enforcing for known browsers without surrogate_ip; and enforcing for known browsers when both the refresh minutes are 0 and the refresh unit is empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "surrogate IP requires setting of an idle timeout",
+            "authentication required must be enabled, when enabling surrogate IP",
+            "surrogate IP must be enabled, when enforcing surrogate IP for known browsers",
+            "enforcing surrogate IP for known browsers requires setting of refresh timeout",
+            "loc.SurrogateRefreshTimeInMinutes == 0 && loc.SurrogateRefreshTimeUnit == \"\""
+          ]
+        }
+      ]
+    },
+    "windows-app-flag": {
+      "statement": "A global advanced setting, enforce_surrogate_ip_for_windows_app, is described by the provider as enforcing Surrogate IP authentication for Windows app traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_advanced_settings.go",
+          "quotes": [
+            "Enforce Surrogate IP authentication for Windows app traffic"
+          ]
+        }
+      ],
+      "gaps": [
+        "windows-app-scope"
+      ]
+    }
+  },
+  "gaps": {
+    "idle-time-dhcp": {
+      "kind": "semantic",
+      "title": "Whether a long idle time attributes a reassigned IP to the previous user",
+      "status": "open",
+      "detail": "Unverified legacy statement: If idle_time_in_minutes is long (for example 480 minutes) and DHCP reassigns the IP within the shift, the next user from that IP inherits the previous user's identity for up to that long, so violations, reports and DLP incidents land on the wrong user. Also, non-browser devices (printers, scanners, servers) behind an IP shared with user workstations cannot authenticate, and their traffic either fails or contaminates another user's Surrogate IP binding. No registered source states this. A lab reassignment of an IP between two machines, with and without the new user authenticating, would settle it. The help article says a new authenticating user remaps the IP and that the refresh time, not the idle time, must be shorter than the DHCP lease.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "setting idle time for DHCP networks"
+    },
+    "windows-app-scope": {
+      "kind": "semantic",
+      "title": "What enforce_surrogate_ip_for_windows_app covers and how it relates to the per-location switch",
+      "status": "open",
+      "detail": "Unverified legacy statement: The flag extends IP Surrogate attribution to Zscaler Client Connector Windows app traffic, independent of the per-location toggle. No registered source states this. The provider text says only 'Windows app traffic'. A vendor statement on which client is meant and whether the per-location setting must also be on would settle it.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "explaining Client Connector traffic attribution"
+    }
+  }
+}

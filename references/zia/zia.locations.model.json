@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "id": "zia.locations.model",
+  "title": "What a ZIA location is and what the console enforces for it",
+  "aliases": [
+    "zia location",
+    "location management",
+    "known location",
+    "road warrior",
+    "location limits",
+    "ssl_scan_enabled location"
+  ],
+  "binds": [
+    "zia/locations",
+    "zia/locations-lite"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.locations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.sublocations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.groups"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.firewall"
+    }
+  ],
+  "claims": {
+    "identifies-networks": {
+      "statement": "A location identifies a network from which the organization sends internet traffic; the service checks whether arriving traffic comes from a configured (known) location or an unknown one (remote user traffic), and processes known-location traffic by the location's settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-locations.md",
+          "quotes": [
+            "Locations identify the various networks from which your organization sends its internet traffic.",
+            "it checks whether the traffic is from a known location (a location that is configured on the Zscaler Admin Console), or from an unknown location (remote user traffic)",
+            "If the traffic is from a known location, the service processes the traffic based on the location settings."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/locations"
+      ]
+    },
+    "road-warrior": {
+      "statement": "Zscaler Client Connector traffic that matches none of a location's listed IP addresses is tagged as Road Warrior in the logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.md",
+          "quotes": [
+            "If the Zscaler Client Connector traffic does not match any of the IP addresses listed here, the location is tagged as Road Warrior in the logs."
+          ]
+        }
+      ]
+    },
+    "what-a-location-holds": {
+      "statement": "A location associates a VPN credential, static IP address and GRE tunnel, Virtual Service Edges, and upload/download bandwidth limits, and enables per-location features: firewall control, AUP, Caution, authentication, and reading the XFF header from forwarded traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-locations.md",
+          "quotes": [
+            "Associate a VPN credential, Static IP address, and GRE tunnel with a location.",
+            "Associate Virtual Service Edges with a specific location.",
+            "Establish upload and download bandwidth limits.",
+            "Enable various features such as firewall control, AUP, Caution, authentication, and reading the XFF header from forwarded traffic."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/locations"
+      ]
+    },
+    "time-zone-in-policy": {
+      "statement": "When a location is named in a policy, the policy is applied according to that location's time zone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.md",
+          "quotes": [
+            "When you specify the location in a policy, the service applies the policy according to the location's time zone."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/locations#tz"
+      ]
+    },
+    "ssl-scan-flag-deprecated": {
+      "statement": "The per-location SSL Inspection flag (`sslScanEnabled`, Terraform `ssl_scan_enabled`) is deprecated and no longer affects SSL policy; it stays in the API payload for backward compatibility. SSL Inspection rules, not this flag, decide inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/sslScanEnabled",
+          "expect": {
+            "default": false,
+            "type": "boolean",
+            "x-applicableTo": "BOTH"
+          }
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_location_management.md",
+          "quotes": [
+            "This parameter was deprecated and no longer has an effect on SSL policy. It remains supported in the API payload in order to maintain backwards compatibility with existing scripts, but it will be removed in future."
+          ],
+          "after": "* `ssl_scan_enabled` - (Boolean)"
+        }
+      ],
+      "binds": [
+        "zia/locations#sslScanEnabled"
+      ],
+      "conditions": "The same deprecation text is attached to `zappSSLScanEnabled`; read the SSL Inspection subjects for what does decide inspection."
+    },
+    "org-limits": {
+      "statement": "Per organization the console allows 32K locations and sublocations in total, location names and states of up to 128 characters, and 1,000 entries per CSV import.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Locations and Sublocations per Organization | 32K locations",
+            "| Location Name | 128 characters",
+            "| Location State | 128 characters",
+            "| Imported Locations per CSV file | 1,000 entries"
+          ]
+        }
+      ]
+    },
+    "large-lists-slow": {
+      "statement": "With thousands of locations or sublocations, the Locations page and any policy that selects locations can take noticeable time to load the full list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-locations.md",
+          "quotes": [
+            "If your organization has thousands of locations or sublocations, then the Locations page and any policy that references locations when selected might cause noticeable loading time to retrieve and display the full location list."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "forwarding-primitive-wording": {
+      "kind": "semantic",
+      "title": "Legacy description of a location as a forwarding-grouping primitive with MTU and SSL toggles",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Locations are ZIA's forwarding-grouping primitive — the aggregation point that binds a forwarding method (GRE tunnel, IPSec tunnel, PAC, ZCC) to a set of client IPs\" and \"Forwarding-method-specific config (MTU, authentication toggle, SSL-inspection toggle)\". The help articles state what a location associates (see what-a-location-holds) but not this framing, PAC and ZCC as bound forwarding methods, an optional dedicated proxy port as a forwarding path, or an MTU setting. Resolve by reading the Add Location article's addressing section against a tenant export.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ],
+      "about": [
+        "zia/locations"
+      ]
+    }
+  }
+}

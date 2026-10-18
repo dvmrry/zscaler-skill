@@ -230,7 +230,7 @@ Kerberos transparent SSO works for domain-joined devices using Windows Integrate
 ## Cross-links
 
 - SCIM provisioning shared reference — [`../shared/scim-provisioning.md`](../shared/scim-provisioning.md)
-- ZIA locations and Surrogate IP model — [`./locations.md`](./locations.md)
+- ZIA locations and Surrogate IP model — [`zia.locations`](kb:zia.locations)
 - GRE/IPsec with Surrogate IP for user identity — [`../shared/gre-tunnels.md`](../shared/gre-tunnels.md)
 - SSL inspection — identity-based SSL rules require ZCC or Surrogate IP — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - ZIA web log schema — `%s{login}`, `%s{dept}` user attribution fields — [`./logs/web-log-schema.md`](./logs/web-log-schema.md)

@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "id": "zia.forwarding-control.sipa-direct",
+  "title": "Source IP Anchoring Direct during ZIA disaster recovery",
+  "aliases": [
+    "sipa direct",
+    "source ip anchoring direct",
+    "zia disaster recovery sipa",
+    "forward to zpa during dr"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.forwarding-control.sipa"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control"
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "Source IP Anchoring Direct is a set of Private Access configurations that keeps Source IP Anchoring forwarding working while ZIA is in disaster recovery mode; the Source IP Anchoring configurations must be changed to it for the duration of the event.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-source-ip-anchoring-direct.md",
+          "quotes": [
+            "Source IP Anchoring Direct is a set of Private Access (ZPA) configurations that supports Source IP Anchoring forwarding policies when Internet & SaaS (ZIA) is in disaster recovery mode."
+          ]
+        }
+      ]
+    },
+    "switch-rules": {
+      "statement": "To switch, change the domain-based client forwarding rule from Bypass ZPA to Forward to ZPA, and the IP-based rule from Only Forward Allowed Applications to Forward to ZPA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-source-ip-anchoring-direct.md",
+          "quotes": [
+            "change the Rule Action from Bypass ZPA to Forward to ZPA.",
+            "change the Rule Action from Only Forward Allowed Applications to Forward to ZPA."
+          ]
+        }
+      ]
+    },
+    "revert-rules": {
+      "statement": "When the disaster recovery event ends, revert both client forwarding rules (Forward to ZPA back to Bypass ZPA, and back to Only Forward Allowed Applications) and restore the Source IP Anchoring access policy rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-source-ip-anchoring-direct.md",
+          "quotes": [
+            "When the Internet & SaaS disaster recovery event ends, revert the client forwarding policy rule and access policy rule configured for Source IP Anchoring Direct back to the Source IP Anchoring configuration as follows:",
+            "change the Rule Action from Forward to ZPA to Bypass ZPA.",
+            "change the Rule Action from Forward to ZPA to Only Forward Allowed Applications."
+          ]
+        }
+      ]
+    },
+    "access-blockers": {
+      "statement": "Two access policy patterns prevent Source IP Anchoring Direct from working: any rule that blocks access to Zscaler Client Connector, and any rule that results in the Default Rule. Zscaler recommends an access policy that allows access to the applications from Zscaler Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-source-ip-anchoring-direct.md",
+          "quotes": [
+            "Any access policy rule that blocks access to Zscaler Client Connector.",
+            "Any access policy rule that results in the Default Rule.",
+            "Zscaler recommends that you ensure there is an access policy that allows access to the applications from Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "standard-block-conflict": {
+      "statement": "The standard IP-based Source IP Anchoring access policy contains a rule that blocks Client Connector client types, which is the pattern the Direct page says prevents Source IP Anchoring Direct, so IP-based segments need an access rule allowing Client Connector for the duration of the event.",
+      "tier": "B",
+      "derived_from": [
+        "zia.forwarding-control.sipa:access-policy",
+        "access-blockers"
+      ],
+      "conditions": "Inference from two pages: the Source IP Anchoring page prescribes a Block Access rule for all client types except ZIA Service Edge; the Direct page lists a rule blocking Client Connector as a blocker. The Direct page does not say which rule to change; lab-test before relying on it."
+    }
+  },
+  "gaps": {
+    "mechanism": {
+      "kind": "semantic",
+      "title": "Why the normal path breaks during ZIA disaster recovery",
+      "status": "open",
+      "about": [
+        "zia/zpa-gateways"
+      ],
+      "detail": "Unverified legacy statement: \"When ZIA is offline or in DR, the normal SIPA path breaks because ZIA cannot forward traffic to ZPA. SIPA Direct reconfigures ZPA's Client Forwarding Policy to route traffic directly through ZPA connectors, bypassing ZIA temporarily.\" The help gives the configuration changes only. Resolve with a vendor article or a DR lab test.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "explaining the mechanism of SIPA Direct"
+    }
+  }
+}

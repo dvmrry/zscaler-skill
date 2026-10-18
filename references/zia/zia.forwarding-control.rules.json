@@ -1,0 +1,357 @@
+{
+  "schema_version": 1,
+  "id": "zia.forwarding-control.rules",
+  "title": "Forwarding Control rule criteria, limits and ordering",
+  "aliases": [
+    "forwarding control criteria",
+    "forwarding rule limits",
+    "forwarding rule order",
+    "forwarding rule 1024",
+    "nw_services block",
+    "road warrior forwarding rule",
+    "advanced firewall subscription forwarding"
+  ],
+  "binds": [
+    "zia/forwarding-rules",
+    "zia/forwarding-rules#order",
+    "zia/forwarding-rules#rank",
+    "zia/forwarding-rules#state",
+    "zia/forwarding-rules#locations",
+    "zia/forwarding-rules#users",
+    "zia/forwarding-rules#nwServices",
+    "zia/forwarding-rules#srcIpv6Groups"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.forwarding-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.firewall.traffic-path"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.terraform.field-fidelity"
+    }
+  ],
+  "claims": {
+    "subscription": {
+      "statement": "Any Forwarding Control policy, including Source IP Anchoring, that uses user conditions (users, groups, departments or device groups) requires an Advanced Firewall subscription.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "quotes": [
+            "Any Forwarding Control policy (including Source IP Anchoring) based on user conditions such as users, groups, departments, or device groups requires a subscription to the Advanced Firewall."
+          ]
+        }
+      ]
+    },
+    "rule-limit": {
+      "statement": "A tenant can create up to 1,024 Forwarding rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "quotes": [
+            "You can create up to 1,024 Forwarding rules."
+          ]
+        }
+      ]
+    },
+    "criteria-logic": {
+      "statement": "Within the Who, Where and When tab, criteria combine as [Users OR Groups OR Departments] AND [Locations OR Location Groups] AND Device Groups; Services is Network Service Groups OR Network Services; Source is Source IPv4 Groups OR IP Addresses; Destination is Destination Groups OR Destination IP Address/Wildcard FQDN OR Countries OR URL Categories; and the tabs combine with AND.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "quotes": [
+            "Who, Where, & When: [Users (OR) Groups (OR) Departments] (AND) [Locations (OR) Location Groups] (AND) Device Groups.",
+            "Services: Network Service Groups (OR) Network Services.",
+            "Source: Source IPv4 Groups (OR) IP Addresses.",
+            "Destination: Destination Groups (OR) Destination IP Address/Wildcard FQDN (OR) Countries (OR) URL Categories.",
+            "In addition to the logical operators between criteria, the relationship between tabs is (AND)."
+          ]
+        }
+      ]
+    },
+    "unset-is-any": {
+      "statement": "A criterion left without values is set to Any and is ignored during policy evaluation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "quotes": [
+            "If you do not select specific values for any of these fields, the field is set to Any by default, and the criterion is ignored during policy evaluation."
+          ],
+          "after": "Configuring Forwarding Rules for Proxy Chaining"
+        }
+      ]
+    },
+    "identity-limits": {
+      "statement": "A rule can select up to 32 users, 32 groups, 32 departments, 32 locations and 32 location groups; Zscaler Support can raise the user, group, department and location limits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "quotes": [
+            "Contact Zscaler Support to increase the default limit for Users, Groups, or Departments.",
+            "Users: Select up to 32 organization users to which the rule applies.",
+            "Groups: Select up to 32 user groups to which this rule applies.",
+            "Departments: Select up to 32 departments to which the rule applies.",
+            "Contact Zscaler Support to increase the default limit for Locations.",
+            "Locations: Select up to 32 locations to which the rule applies.",
+            "Location Groups: Select up to 32 location groups to which the rule applies."
+          ],
+          "after": "Configuring Forwarding Rules for Proxy Chaining"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#users",
+        "zia/forwarding-rules#groups",
+        "zia/forwarding-rules#departments",
+        "zia/forwarding-rules#locations",
+        "zia/forwarding-rules#locationGroups"
+      ]
+    },
+    "road-warrior": {
+      "statement": "Selecting the Road Warrior location applies a rule only to remote users' traffic, and rules for other locations also apply to remote user traffic from those locations. Rules for the Road Warrior location apply to Z-Tunnel 1.0 and PAC only when Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors is on in Advanced Settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "quotes": [
+            "If you want to apply this rule only to remote users’ traffic, select Road Warrior from the Locations field. Rules configured for locations other than Road Warrior also apply to remote user traffic from those locations.",
+            "The rules configured for the Road Warrior location apply to Z-Tunnel 1.0 and PAC only when the Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors option is enabled in Advanced Settings."
+          ],
+          "after": "Configuring Forwarding Rules for Proxy Chaining"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#locations"
+      ]
+    },
+    "xff-uses-locations": {
+      "statement": "To match on the address in the X-Forwarded-For header, use the Locations criterion rather than Source IP Groups, because the sublocation is what detects the source address from that header.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "quotes": [
+            "If you want to use the IP address mentioned in the XFF header, use this option instead of the Source IPs Groups option under the Source IP criteria because the sublocation is used to detect the source IP addresses based on the XFF header."
+          ],
+          "after": "Configuring Forwarding Rules for Proxy Chaining"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#locations",
+        "zia/forwarding-rules#srcIpGroups"
+      ]
+    },
+    "ipv6-all-group": {
+      "statement": "For IPv6, the console accepts only the All IPv6 group as a source or destination group; custom IPv6 groups and individual, subnet or range IPv6 addresses are not supported. Source and destination IP address entries are IPv4 only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "quotes": [
+            "Source IPv6 Groups: To control source IPv6 addresses with this rule, select the All IPv6 group, which is the default source IPv6 group for all IPv6 addresses.",
+            "Custom source IPv6 groups are not currently supported.",
+            "Specifying individual, subnet, or range of IPv6 addresses is not currently supported.",
+            "IP Addresses: Enter the source IP address (IPv4 only) in any of the following formats:"
+          ],
+          "after": "Configuring Forwarding Rules for Proxy Chaining"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#srcIpv6Groups",
+        "zia/forwarding-rules#destIpv6Groups"
+      ]
+    },
+    "wildcard-fqdn-dns": {
+      "statement": "Forwarding rules that match on wildcard FQDNs only evaluate correctly if client DNS requests are forwarded to the Zscaler service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "quotes": [
+            "Forwarding rules based on Wildcard FQDNs require DNS requests from clients to be forwarded to the Zscaler service to evaluate criteria match."
+          ],
+          "after": "Configuring Forwarding Rules for Proxy Chaining"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#destAddresses"
+      ]
+    },
+    "order-and-rank": {
+      "statement": "Rules are evaluated in ascending rule order. With Admin Rank on, a rule's rank (0 to 7, 0 highest) bounds the order values an admin can select so that a higher-ranked rule always precedes a lower-ranked one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "quotes": [
+            "Rule Order: A rule order is automatically assigned and displayed. It determines the rule's position in the ascending order of evaluation used for all rules within the policy.",
+            "Admin Rank: Click Edit and select an admin rank 0 to 7 (0 is the highest rank)",
+            "so that a rule with a higher admin rank always precedes a rule with a lower admin rank."
+          ],
+          "after": "Configuring Forwarding Rules for Proxy Chaining"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#order",
+        "zia/forwarding-rules#rank"
+      ]
+    },
+    "disabled-rules": {
+      "statement": "A rule created in the console starts Disabled and must be enabled to be enforced. A disabled rule can hold a rule order; evaluation skips it and moves to the next rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "quotes": [
+            "Rule Status: By default, the status is Disabled. You need to enable the rule to activate and enforce it on your traffic.",
+            "Disabled rules can have a rule order assigned. During evaluation, the service skips the disabled rules and moves to the successive ones."
+          ],
+          "after": "Configuring Forwarding Rules for Proxy Chaining"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#state"
+      ]
+    },
+    "required-members": {
+      "statement": "The published contract requires `forwardMethod`, `name` and `rank` to create a rule; the Terraform resource instead requires `forward_method` and `order` and treats `rank` as optional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1forwardingRules/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "type": "object",
+            "required": [
+              "forwardMethod",
+              "name",
+              "rank"
+            ]
+          }
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "Type: schema.TypeInt, Optional: true, Description: \"Admin rank assigned to the forwarding rule\","
+          ],
+          "after": "\"rank\": {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "Required: true,"
+          ],
+          "after": "\"forward_method\": {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "Required: true,"
+          ],
+          "after": "\"order\": {"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#forwardMethod",
+        "zia/forwarding-rules#rank",
+        "zia/forwarding-rules#order"
+      ]
+    },
+    "nw-services-block": {
+      "statement": "In Terraform, `nw_services` on a forwarding rule is a nested block with an `id` list, not a scalar; resolve the named service first and pass its ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_forwarding_control_rule.md",
+          "quotes": [
+            "nw_services { id = [ data.zia_firewall_filtering_network_service.this.id ] }"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#nwServices"
+      ]
+    }
+  },
+  "divergences": {
+    "selector-limits": {
+      "summary": "How many users, groups and locations a Forwarding Control rule can select",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-forwarding-policy.md",
+            "quotes": [
+              "Locations: Select up to 32 locations to which the rule applies."
+            ],
+            "after": "Configuring Forwarding Rules for Proxy Chaining"
+          },
+          "says": "Up to 32 locations, 32 users, 32 groups and 32 departments, raisable through Support."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_forwarding_control_rule.md",
+            "quotes": [
+              "You can manually select up to `8` locations.",
+              "You can manually select up to `4` general and/or special users."
+            ]
+          },
+          "says": "The Terraform documentation says up to 8 locations and 4 users (and 8 groups); the resource schema sets no maximum for these blocks."
+        }
+      ],
+      "impact": "Do not reject a plan or design because of the Terraform documentation's smaller numbers; the console figure is 32, and the provider does not enforce the smaller ones."
+    }
+  },
+  "gaps": {
+    "first-match": {
+      "kind": "semantic",
+      "title": "Whether Forwarding Control stops at the first matching rule",
+      "status": "open",
+      "about": [
+        "zia/forwarding-rules#order"
+      ],
+      "detail": "Unverified legacy statement: \"Rule evaluation is first-match-wins in ascending Rule Order, with Admin Rank as a structural gate - same model as URL Filtering and Firewall.\" The captured Forwarding Control help states ascending evaluation order and that disabled rules are skipped, but not that evaluation ends at the first match. Resolve with a lab test of two overlapping enabled rules, or a vendor statement.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating which rule governs when two enabled rules both match"
+    }
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "id": "zia.file-type-control.pipeline",
+  "title": "Where File Type Control sits in the inspection order",
+  "aliases": [
+    "file type control before dlp",
+    "file type control order",
+    "file type control ssl bypass",
+    "400 mb file limit",
+    "file too large file type control",
+    "file size scan limit"
+  ],
+  "binds": [
+    "zia/file-type-rules"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.file-type-control"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.dlp.evaluation"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.bypass-impact"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.sandbox.coverage"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ftp-control.scope"
+    }
+  ],
+  "claims": {
+    "post-and-response-position": {
+      "statement": "For an HTTP POST request, File Type Control checks the POST after Malware Protection and before Data Loss Prevention. For a GET or POST response, it checks the files in the response after Malware Protection and before the Sandbox analysis of unknown files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-policy-enforcement.md",
+          "quotes": [
+            "Malware Protection: The Public Service Edge checks files in the request against anti-virus and anti-spyware signatures.",
+            "File Type Control: The Public Service Edge checks if the POST request violates your File Type Control policy.",
+            "Data Loss Prevention: The Public Service Edge checks if the POST request includes content that violates your organization's DLP policy.",
+            "File Type Control: The Public Service Edge checks if any files in the response violate your File Type Control policy.",
+            "Sandbox (check for unknown files): If a file in the response has not been previously identified as a malicious file by the Sandbox engine"
+          ]
+        }
+      ]
+    },
+    "scan-limit-400mb": {
+      "statement": "File scanning has a 400 MB file size limit, and the File Type Control Policy File Size entry in the ZIA limits table is also 400 MB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-file-type-control.md",
+          "quotes": [
+            "There is a 400MB file size limitation for file scanning."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "File Type Control Policy File Size"
+          ]
+        }
+      ]
+    },
+    "rule-count-limit": {
+      "statement": "The ZIA limits table allows 2,048 File Type Control Policy rules.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| File Type Control Policy | 2,048 rules |"
+          ]
+        }
+      ]
+    },
+    "limit-equals-size-field-max": {
+      "statement": "409,600 KB, the largest value the Minimum and Maximum File Size criteria accept, is 400 MB, so the per-rule size bounds can express the whole range up to the scanning limit and no further.",
+      "tier": "B",
+      "derived_from": [
+        "zia.file-type-control.criteria:size-bounds",
+        "zia.file-type-control.pipeline:scan-limit-400mb"
+      ],
+      "conditions": "Arithmetic only: 409,600 KB / 1,024 = 400 MB. The vendor does not state that the two numbers are the same limit."
+    }
+  },
+  "gaps": {
+    "over-limit-handling": {
+      "kind": "semantic",
+      "title": "What happens to files above 400 MB",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Files larger than 400 MB are passed through without inspection - the tenant-level decision on how to treat them falls to the Unscannable Files policy or to the default-rule behavior.' The vendor names excessive size as one reason a file is unscannable (see zia.file-type-control.criteria:unscannable), which suggests an Unscannable Files rule may catch over-limit files, but no source says over-limit files are passed through or that 400 MB is the 'excessive size' threshold. Related: zia.sandbox.coverage:out-of-scope-not-analyzed says over-size files are handled by File Type Control. Resolves with a lab test of a file just over 400 MB against an unscannable-only rule.",
+      "blocks": "advising whether a large download is blocked, allowed or skipped",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "archive-extraction-and-dlp-handoff": {
+      "kind": "semantic",
+      "title": "Archive extraction at File Type Control and the DLP handoff",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Archive extraction happens at FTC. DLP gets the extracted file list downstream - so a ZIP bomb or deeply nested archive can be terminated at FTC without stressing DLP.' The vendor says the service scans archive formats to recognize inner file types; it does not say where extraction happens or that DLP reuses the result. Resolves with a vendor statement or a lab test.",
+      "blocks": "advising where nested archives are stopped",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

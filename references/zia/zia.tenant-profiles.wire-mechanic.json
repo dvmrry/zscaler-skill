@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "id": "zia.tenant-profiles.wire-mechanic",
+  "title": "How a tenant profile is enforced: the headers ZIA inserts",
+  "aliases": [
+    "tenant restriction headers",
+    "Restrict-Access-To-Tenants",
+    "Restrict-Access-Context",
+    "X-GoogApps-Allowed-Domains",
+    "sec-Restrict-Tenant-Access-Policy",
+    "anthropic-allowed-org-ids",
+    "ChatGPT-Allowed-Workspace-Id",
+    "how tenant restriction works",
+    "tenant restriction mechanism",
+    "CiscoSpark-Allowed-Domains"
+  ],
+  "binds": [
+    "zia/tenancy-restriction-profiles"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.tenant-profiles.ssl-prerequisite"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.microsoft"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.bypass-impact"
+    }
+  ],
+  "claims": {
+    "microsoft-headers": {
+      "statement": "When a tenant profile is associated with a Cloud App Control rule and a request reaches login.microsoftonline.com, login.microsoft.com, login.windows.net or login.live.com, ZIA inserts `Restrict-Access-Context` (the Tenant Directory ID) and `Restrict-Access-To-Tenants` (the Office 365 Tenants or Tenant IDs). It inserts `sec-Restrict-Tenant-Access-Policy` only for login.live.com traffic, and only when Allow Personal Office 365 Domains is No.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "The Zscaler service inserts the following headers when a tenant profile is associated with the Cloud App Control policy rule and there is an incoming request to login.microsoftonline.com, login.microsoft.com, login.windows.net, or login.live.com:",
+            "The value of the Tenant Directory ID field is inserted into this header.",
+            "The values of the Office 365 Tenants or Tenant IDs field are inserted into this header.",
+            "The value of the Allow Personal Office 365 Domains field is inserted into this header only for login.live.com traffic when the field is set to No."
+          ]
+        }
+      ]
+    },
+    "google-header": {
+      "statement": "For any google.com request (or associated Google app), ZIA adds `X-GoogApps-Allowed-Domains` carrying the profile's Domains. Google apps that need no sign-in, such as Google search, are unaffected, but a user who signs in from Google search with an account that is not on the allowlist is blocked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "The service intercepts any google.com (or associated Google app) request and adds the HTTP header X-GoogApps-Allowed-Domains (values of the Domains field)",
+            "This feature does not affect Google apps that do not require users to sign in, such as Google search.",
+            "But a user who signs in from Google search with an account that is not placed on the allowlist is blocked."
+          ]
+        }
+      ]
+    },
+    "chatgpt-header": {
+      "statement": "For requests to chatgpt.com and its subdomains, ZIA adds `ChatGPT-Allowed-Workspace-Id` carrying the profile's workspace IDs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "The service intercepts requests related to chatgpt.com and its subdomain (*chatgpt.com) and adds the HTTP header ChatGPT-Allowed-Workspace-Id (values of the Workspace ID for ChatGPT field)."
+          ]
+        }
+      ]
+    },
+    "claude-header": {
+      "statement": "For requests to claude.ai, claude.com and anthropic.com, ZIA adds `anthropic-allowed-org-ids` carrying the profile's workspace IDs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "The service intercepts requests related to Claude (claude.ai and claude.com) and Anthropic (anthropic.com) and adds the HTTP header anthropic-allowed-org-ids (values of the Workspace ID for Claude field)."
+          ]
+        }
+      ]
+    },
+    "docusign-header": {
+      "statement": "For requests to docusign.com or docusign.net, ZIA adds `X-Docusign-Allow-Organization` carrying the profile's account IDs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "The service intercepts requests related to docusign.com or docusign.net and adds the HTTP header X-Docusign-Allow-Organization (values of the Account ID for Docusign field)."
+          ]
+        }
+      ]
+    },
+    "dropbox-header": {
+      "statement": "For Dropbox requests, ZIA adds `X-Dropbox-allowed-Team-Ids` carrying the profile's team IDs. Network control must be enabled in Dropbox for tenancy restriction.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "The service intercepts requests related to Dropbox and adds the HTTP header X-Dropbox-allowed-Team-Ids (values of the Dropbox Team ID field).",
+            "You must enable network control for tenancy restriction."
+          ]
+        }
+      ]
+    },
+    "ibm-header": {
+      "statement": "For requests to cloud.ibm.com and its subdomains, ZIA adds `IBM-Cloud-Tenant` carrying the profile's IBM account IDs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "The service intercepts incoming requests to cloud.ibm.com and its subdomain (*cloud.ibm.com) and adds the HTTP header IBM-Cloud-Tenant (values of the IBM Account IDs field)."
+          ]
+        }
+      ]
+    },
+    "slack-headers": {
+      "statement": "For Slack requests, ZIA adds `X-Slack-Allowed-Workspaces-Requester` (the Your Workspace ID) and `X-Slack-Allowed-Workspaces` (the Allowed Workspace IDs).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "The service intercepts requests related to Slack and adds the following headers:",
+            "X-Slack-Allowed-Workspaces-Requester (value of the Your Workspace ID field)",
+            "X-Slack-Allowed-Workspaces (values of the Allowed Workspace ID field)"
+          ]
+        }
+      ]
+    },
+    "webex-header": {
+      "statement": "For incoming requests to the Webex identity hosts (identity.webex.com, identity-eu.webex.com, idbroker.webex.com, idbroker-secondary.webex.com, idbroker-b-us.webex.com, idbroker-eu.webex.com, atlas-a.wbx2.com), ZIA adds `CiscoSpark-Allowed-Domains` carrying the profile's Webex tenants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "The service intercepts incoming requests to the following domains and adds the HTTP header CiscoSpark-Allowed-Domains (values of the Webex Tenants(Webex Teams and Meetings) field):",
+            "idbroker-secondary.webex.com",
+            "atlas-a.wbx2.com"
+          ]
+        }
+      ]
+    },
+    "github-zoom-header-names": {
+      "statement": "The Help form ties the GitHub field to the `sec-GitHub-allowed-enterprise` header and the Zoom Policy Label to the `X-ZoomApps-Policy` header. For these two it does not say that ZIA inserts the header, or on which hosts.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "associated with the sec-GitHub-allowed-enterprise header for GitHub.",
+            "enter the policy label associated with the X-ZoomApps-Policy header for Zoom."
+          ]
+        }
+      ],
+      "conditions": "The field descriptions name the header; the interception sentences that the other applications have are absent for GitHub and Zoom."
+    },
+    "header-insertion": {
+      "statement": "ZIA conveys the tenant constraint by inserting the SaaS vendor's own tenant-restriction request header into the inspected request; the vendor then decides. This is documented for nine applications; it is not documented for AWS, Google Cloud Platform, YouTube or Zoho.",
+      "tier": "B",
+      "derived_from": [
+        "microsoft-headers",
+        "google-header",
+        "chatgpt-header",
+        "claude-header",
+        "docusign-header",
+        "dropbox-header",
+        "ibm-header",
+        "slack-headers",
+        "webex-header"
+      ],
+      "conditions": "Generalized from the nine applications whose interception sentence names an inserted header. The decision being made by the vendor is inferred from the headers being the vendors' own."
+    },
+    "needs-decrypted-traffic": {
+      "statement": "Header insertion into HTTPS needs the request decrypted, so a tenant restriction can work only where the SSL/TLS inspection rule covers the login service.",
+      "tier": "B",
+      "derived_from": [
+        "header-insertion",
+        "zia.tenant-profiles.ssl-prerequisite:ssl-rule-required"
+      ],
+      "conditions": "Inference: an inserted header cannot be added to a request ZIA cannot read. The Help text states the inspection requirement, not this reason."
+    }
+  },
+  "gaps": {
+    "per-app-inspection-detail": {
+      "kind": "semantic",
+      "title": "How ZIA enforces tenant restriction for the applications whose header is not documented",
+      "status": "partial",
+      "detail": "AWS, Google Cloud Platform, YouTube and Zoho Login Services have no inserted header or interception sentence in the captured Help article, and GitHub and Zoom name a header without saying ZIA inserts it. Whether these use header insertion, parameter inspection, or another detection model is not stated. Per-app configuration guides that may state it are not captured.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "former_ids": [
+        "zia-08"
+      ],
+      "about": [
+        "zia.tenant-profiles.wire-mechanic"
+      ],
+      "blocks": "explaining how tenant restriction is detected for AWS, GCP, YouTube and Zoho"
+    },
+    "bypassed-traffic-behavior": {
+      "kind": "semantic",
+      "title": "What tenant restriction does when the login service is bypassed from SSL inspection",
+      "status": "open",
+      "detail": "The Help article requires SSL/TLS inspection for these applications but does not say whether a bypassed login flow passes without the restriction, is blocked, or fails some other way. For the general effect of bypass, see zia.ssl-inspection.bypass-impact.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "about": [
+        "zia.tenant-profiles.ssl-prerequisite"
+      ],
+      "blocks": "telling an operator whether a missing inspection rule fails open"
+    }
+  }
+}

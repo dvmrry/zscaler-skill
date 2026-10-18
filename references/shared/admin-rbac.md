@@ -40,7 +40,7 @@ A ZIA admin's scope must be **one** of:
 - **Organization** — full tenant visibility.
 - **Department** — a single department's users.
 - **Location** — a single location's traffic.
-- **Location Group** — a bundle of locations (Manual or Dynamic; see [`../zia/locations.md`](../zia/locations.md)).
+- **Location Group** — a bundle of locations (Manual or Dynamic; see [`zia.locations`](kb:zia.locations)).
 
 **You cannot combine scope types.** A department admin can't also be scoped to a specific location group. This is the skill-relevant footgun: "I made this admin department-scoped but also want them to see the NYC location" → impossible within ZIA's scope model; solution is either two admin accounts or scope-up to org.
 
@@ -241,7 +241,7 @@ Cannot combine scope types. Options:
 
 - ZIdentity unified auth: [`../zidentity/overview.md`](../zidentity/overview.md).
 - ZIdentity API Client creation: [`../zidentity/api-clients.md`](../zidentity/api-clients.md).
-- ZIA scope vs Location / Location Group: [`../zia/locations.md`](../zia/locations.md).
+- ZIA scope vs Location / Location Group: [`zia.locations`](kb:zia.locations).
 - OneAPI authentication flow: [`../zidentity/overview.md`](../zidentity/overview.md).
 - Audit log → SIEM streaming: [`./nss-architecture.md`](./nss-architecture.md).
 - ZCC admin users (separate surface — portal-only, not cross-federated): see ZCC product docs, not yet codified.

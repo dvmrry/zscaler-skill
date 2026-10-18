@@ -1,0 +1,617 @@
+{
+  "schema_version": 1,
+  "id": "zia.bandwidth-control.api-surface",
+  "title": "Bandwidth Control API, SDK and Terraform shape",
+  "aliases": [
+    "bandwidthClasses api",
+    "bandwidthControlRules api",
+    "bandwidth class type enum",
+    "minBandwidth maxBandwidth",
+    "terraform zia_bandwidth_classes",
+    "BANDWIDTH_CAT_LARGE_FILE",
+    "bandwidth rule protocols"
+  ],
+  "binds": [
+    "zia/bandwidth-classes",
+    "zia/bandwidth-control-rules",
+    "zia/bandwidth-classes#type"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.bandwidth-control.classes"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.bandwidth-control.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order.registry"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.delete-detach"
+    }
+  ],
+  "claims": {
+    "class-endpoints": {
+      "statement": "Bandwidth classes have list, lite list, add, get, update and delete operations: GET and POST /bandwidthClasses, GET /bandwidthClasses/lite, and GET, PUT and DELETE /bandwidthClasses/{bandwidthClassId}.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-classes"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthClasses/get",
+          "expect": {
+            "operationId": "Bandwidth Class Resource Get Bandwidth Classes"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthClasses/post",
+          "expect": {
+            "operationId": "Bandwidth Class Resource Add Bandwidth Class"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthClasses~1lite/get",
+          "expect": {
+            "operationId": "Bandwidth Class Resource Get Bandwidth Classes Summary"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthClasses~1{bandwidthClassId}/get",
+          "expect": {
+            "operationId": "Bandwidth Class Resource Get Bandwidth Class"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthClasses~1{bandwidthClassId}/put",
+          "expect": {
+            "operationId": "Bandwidth Class Resource Update Bandwidth Class"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthClasses~1{bandwidthClassId}/delete",
+          "expect": {
+            "operationId": "Bandwidth Class Resource Delete Bandwidth Class"
+          }
+        }
+      ]
+    },
+    "rule-endpoints": {
+      "statement": "Bandwidth Control rules have list, lite list, add, get, update and delete operations: GET and POST /bandwidthControlRules, GET /bandwidthControlRules/lite, and GET, PUT and DELETE /bandwidthControlRules/{ruleId}.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules/get",
+          "expect": {
+            "operationId": "Bandwidth Control Rule Resource Get Rules"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules/post",
+          "expect": {
+            "operationId": "Bandwidth Control Rule Resource Add Rule"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules~1lite/get",
+          "expect": {
+            "operationId": "Bandwidth Control Rule Resource Get Summary"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules~1{ruleId}/get",
+          "expect": {
+            "operationId": "Bandwidth Control Rule Resource Get Rule By ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules~1{ruleId}/put",
+          "expect": {
+            "operationId": "Bandwidth Control Rule Resource Update Rule"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules~1{ruleId}/delete",
+          "expect": {
+            "operationId": "Bandwidth Control Rule Resource Delete Rule"
+          }
+        }
+      ]
+    },
+    "min-max-fields": {
+      "statement": "The rule's minimum and maximum are the integer fields minBandwidth and maxBandwidth, documented as percentages of a location's bandwidth per selected class, covering uploads and downloads together.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#minBandwidth",
+        "zia/bandwidth-control-rules#maxBandwidth"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules/post/requestBody/content/application~1json/schema/properties/minBandwidth",
+          "expect": {
+            "type": "integer",
+            "description": "The minimum percentage of a location’s bandwidth you want to be guaranteed for each selected bandwidth class. This percentage includes bandwidth for uploads and downloads."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules/post/requestBody/content/application~1json/schema/properties/maxBandwidth",
+          "expect": {
+            "type": "integer",
+            "description": "The maximum percentage of a location’s bandwidth to be guaranteed for each selected bandwidth class. This percentage includes bandwidth for uploads and downloads."
+          }
+        }
+      ]
+    },
+    "rule-scope-fields": {
+      "statement": "Besides locations, location groups, time windows, labels, bandwidth classes and protocols, the rule schema also carries devices, deviceGroups and deviceTrustLevels, which the console Help does not list among the rule conditions.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#locations",
+        "zia/bandwidth-control-rules#locationGroups",
+        "zia/bandwidth-control-rules#timeWindows"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules/post/requestBody/content/application~1json/schema/properties/deviceGroups",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules/post/requestBody/content/application~1json/schema/properties/devices",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules/post/requestBody/content/application~1json/schema/properties/deviceTrustLevels",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules/post/requestBody/content/application~1json/schema/properties/defaultRule",
+          "expect": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates whether the rule is a default rule"
+          }
+        }
+      ]
+    },
+    "protocols-spec": {
+      "statement": "The API schema lists these rule protocol values: ANY_RULE, DOHTTPS_RULE, TUNNELSSL_RULE, HTTP_PROXY, FOHTTP_RULE, FTP_RULE, HTTPS_RULE, HTTP_RULE, SSL_RULE and TUNNEL_RULE.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#protocols"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules/post/requestBody/content/application~1json/schema/properties/protocols/items",
+          "expect": {
+            "enum": [
+              "ANY_RULE",
+              "DOHTTPS_RULE",
+              "TUNNELSSL_RULE",
+              "HTTP_PROXY",
+              "FOHTTP_RULE",
+              "FTP_RULE",
+              "HTTPS_RULE",
+              "HTTP_RULE",
+              "SSL_RULE",
+              "TUNNEL_RULE"
+            ]
+          }
+        }
+      ]
+    },
+    "protocols-terraform": {
+      "statement": "The Terraform bandwidth rule resource requires at least one protocol and validates it with the URL Filtering protocol list, which adds SMRULEF_ZPA_BROKERS_RULE, TCP_RULE, UDP_RULE, WEBSOCKETSSL_RULE and WEBSOCKET_RULE to the API list.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#protocols"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_bandwidth_control_rules.go",
+          "quotes": [
+            "\"protocols\":         getURLProtocols(),"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "ValidateDiagFunc: validateURLFilteringProtocols(), // Use ValidateDiagFunc here",
+            "MinItems:    1,"
+          ],
+          "after": "func getURLProtocols() *schema.Schema {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/validator.go",
+          "quotes": [
+            "\"HTTP_PROXY\", \"FOHTTP_RULE\", \"FTP_RULE\", \"HTTPS_RULE\", \"HTTP_RULE\", \"SSL_RULE\", \"TUNNEL_RULE\", \"WEBSOCKETSSL_RULE\","
+          ],
+          "after": "var supportedURLFilteringProtocols = []string{"
+        }
+      ]
+    },
+    "tf-location-caps": {
+      "statement": "The Terraform bandwidth rule schema allows at most 8 locations and 32 location groups per rule.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#locations",
+        "zia/bandwidth-control-rules#locationGroups"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_bandwidth_control_rules.go",
+          "quotes": [
+            "setIDsSchemaTypeCustom(intPtr(8), \"Name-ID pairs of locations for which rule must be applied\")",
+            "setIDsSchemaTypeCustom(intPtr(32), \"Name-ID pairs of the location groups to which the rule must be applied.\")"
+          ]
+        }
+      ]
+    },
+    "class-type-enum": {
+      "statement": "A bandwidth class has a read-only type with the values ANY, NONE, BANDWIDTH_CAT_WEBCONF, BANDWIDTH_CAT_VOIP, BANDWIDTH_CAT_GENERAL_SURFING, BANDWIDTH_CAT_LARGE_FILE, BANDWIDTH_CAT_SALES, BANDWIDTH_CAT_FINANCE, BANDWIDTH_CAT_MEDIA and BANDWIDTH_CAT_FSHARE.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-classes#type"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthClasses/post/requestBody/content/application~1json/schema/properties/type",
+          "expect": {
+            "readOnly": true,
+            "enum": [
+              "ANY",
+              "NONE",
+              "BANDWIDTH_CAT_WEBCONF",
+              "BANDWIDTH_CAT_VOIP",
+              "BANDWIDTH_CAT_GENERAL_SURFING",
+              "BANDWIDTH_CAT_LARGE_FILE",
+              "BANDWIDTH_CAT_SALES",
+              "BANDWIDTH_CAT_FINANCE",
+              "BANDWIDTH_CAT_MEDIA",
+              "BANDWIDTH_CAT_FSHARE"
+            ]
+          }
+        }
+      ]
+    },
+    "types-match-predefined": {
+      "statement": "The eight non-generic type values appear to correspond to the eight predefined classes: five Cloud Applications classes (General Surfing, Sales/Support Apps, Finance, Streaming Media, File Share), Large Files, Web Conferencing and VoIP.",
+      "tier": "B",
+      "derived_from": [
+        "class-type-enum",
+        "zia.bandwidth-control.classes:predefined-cloud-apps",
+        "zia.bandwidth-control.limits:predefined-8"
+      ],
+      "conditions": "Derived by matching the type names to the Help class names and the count of eight; no source states the mapping. How a custom class is typed on the wire is not shown."
+    },
+    "file-size-enum": {
+      "statement": "The Large Files size values are ANY, NONE, FILE_5MB, FILE_10MB, FILE_50MB, FILE_100MB, FILE_250MB, FILE_500MB and FILE_1GB in the API; the Terraform resource accepts FILE_5MB through FILE_1GB.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-classes#fileSize"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthClasses/post/requestBody/content/application~1json/schema/properties/getfileSize",
+          "expect": {
+            "enum": [
+              "ANY",
+              "NONE",
+              "FILE_5MB",
+              "FILE_10MB",
+              "FILE_50MB",
+              "FILE_100MB",
+              "FILE_250MB",
+              "FILE_500MB",
+              "FILE_1GB"
+            ]
+          }
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_bandwidth_classes_file_size.go",
+          "quotes": [
+            "\"FILE_5MB\",",
+            "\"FILE_1GB\","
+          ]
+        }
+      ]
+    },
+    "application-values": {
+      "statement": "The class applications field takes ANY, NONE, NETSUITE, DROPBOX, BOXNET, YOUTUBE, METACAFE, HULU, DAILYMOTION, SHOUTCAST, SALESFORCE_1, SKYPE, WEBEX, GOTOMEETING, LIVEMEETING, CONNECT and INTERCALL. Terraform accepts only WEBEX, GOTOMEETING, LIVEMEETING, INTERCALL and CONNECT for a web conferencing class, and SKYPE for a VoIP class.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-classes#applications"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthClasses/post/requestBody/content/application~1json/schema/properties/applications/items",
+          "expect": {
+            "enum": [
+              "ANY",
+              "NONE",
+              "NETSUITE",
+              "DROPBOX",
+              "BOXNET",
+              "YOUTUBE",
+              "METACAFE",
+              "HULU",
+              "DAILYMOTION",
+              "SHOUTCAST",
+              "SALESFORCE_1",
+              "SKYPE",
+              "WEBEX",
+              "GOTOMEETING",
+              "LIVEMEETING",
+              "CONNECT",
+              "INTERCALL"
+            ]
+          }
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_bandwidth_classes_web_conferencing.go",
+          "quotes": [
+            "case \"BANDWIDTH_CAT_WEBCONF\":",
+            "\"INTERCALL\":   {},",
+            "case \"BANDWIDTH_CAT_VOIP\":",
+            "\"SKYPE\": {},"
+          ],
+          "after": "switch classType {"
+        }
+      ]
+    },
+    "tf-class-resources": {
+      "statement": "Terraform splits the class object into three resources: zia_bandwidth_classes (urls, url_categories, web_applications; no type or applications field), zia_bandwidth_classes_file_size (defaults type to BANDWIDTH_CAT_LARGE_FILE) and zia_bandwidth_classes_web_conferencing (type BANDWIDTH_CAT_WEBCONF or BANDWIDTH_CAT_VOIP, plus applications).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_bandwidth_classes.go",
+          "quotes": [
+            "\"web_applications\": {",
+            "\"url_categories\": {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_bandwidth_classes_file_size.go",
+          "quotes": [
+            "Default:     \"BANDWIDTH_CAT_LARGE_FILE\","
+          ],
+          "after": "\"type\": {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_bandwidth_classes_web_conferencing.go",
+          "quotes": [
+            "\"BANDWIDTH_CAT_VOIP\","
+          ],
+          "after": "\"type\": {"
+        }
+      ]
+    },
+    "tf-wrappers-update-existing": {
+      "statement": "The file-size and web conferencing resources do not create a class: each finds the existing class by name and updates it with PUT. Destroying either is a no-op.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_bandwidth_classes_file_size.go",
+          "quotes": [
+            "// Lookup by name to get the ID",
+            "bandwidth_classes.Update(ctx, service, req.ID, &req)",
+            "DeleteContext: resourceFuncNoOp,"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_bandwidth_classes_web_conferencing.go",
+          "quotes": [
+            "DeleteContext: resourceFuncNoOp,"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_bandwidth_classes_web_conferencing.go",
+          "quotes": [
+            "existing, err := bandwidth_classes.GetByName(ctx, service, name)",
+            "if _, _, err := bandwidth_classes.Update(ctx, service, req.ID, &req); err != nil {"
+          ],
+          "after": "func resourceBandwdithClassesWebConferencingCreate("
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "protocol-vocabulary": {
+      "summary": "Which protocol values a Bandwidth Control rule accepts",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1bandwidthControlRules/post/requestBody/content/application~1json/schema/properties/protocols/items",
+            "expect": {
+              "enum": [
+                "ANY_RULE",
+                "DOHTTPS_RULE",
+                "TUNNELSSL_RULE",
+                "HTTP_PROXY",
+                "FOHTTP_RULE",
+                "FTP_RULE",
+                "HTTPS_RULE",
+                "HTTP_RULE",
+                "SSL_RULE",
+                "TUNNEL_RULE"
+              ]
+            }
+          },
+          "says": "The API schema lists ten values and none of WEBSOCKET_RULE, WEBSOCKETSSL_RULE, TCP_RULE, UDP_RULE or SMRULEF_ZPA_BROKERS_RULE."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/validator.go",
+            "quotes": [
+              "\"HTTP_PROXY\", \"FOHTTP_RULE\", \"FTP_RULE\", \"HTTPS_RULE\", \"HTTP_RULE\", \"SSL_RULE\", \"TUNNEL_RULE\", \"WEBSOCKETSSL_RULE\","
+            ],
+            "after": "var supportedURLFilteringProtocols = []string{"
+          },
+          "says": "The provider validates against the URL Filtering list, which includes the WebSocket values."
+        }
+      ],
+      "impact": "A configuration using a value only the provider accepts may be rejected by the service, and a value the provider rejects cannot be sent through Terraform even if the service accepts it."
+    },
+    "locations-per-rule": {
+      "summary": "How many locations one rule can reference",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/resource_zia_bandwidth_control_rules.go",
+            "quotes": [
+              "setIDsSchemaTypeCustom(intPtr(8), \"Name-ID pairs of locations for which rule must be applied\")"
+            ]
+          },
+          "says": "The Terraform schema caps locations at 8 per bandwidth rule."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.md",
+            "quotes": [
+              "Locations per Rule | 32 locations"
+            ]
+          },
+          "says": "Ranges and Limitations lists 32 locations per rule for all policy rule types."
+        }
+      ],
+      "impact": "A rule that needs 9 to 32 locations cannot be written through the provider; use location groups (32) or split the rule, even if the service would accept more."
+    },
+    "file-size-field-name": {
+      "summary": "Name of the file-size field on a class",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1bandwidthClasses/post/requestBody/content/application~1json/schema/properties/getfileSize",
+            "expect": {
+              "description": "The file size for a bandwidth class"
+            }
+          },
+          "says": "The API schema names the field getfileSize."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/models/bandwidth_classes.py",
+            "quotes": [
+              "self.file_size = config[\"fileSize\"] if \"fileSize\" in config else None"
+            ]
+          },
+          "says": "The Python SDK model reads fileSize."
+        }
+      ],
+      "impact": "One of the two spellings may never be populated; code that reads or writes the Large Files size should confirm the wire name against a live response."
+    }
+  },
+  "gaps": {
+    "custom-class-type": {
+      "kind": "data",
+      "title": "The type value of a custom class",
+      "status": "open",
+      "detail": "The API type enumeration lists only the eight predefined categories plus ANY and NONE. What type a custom class returns, and whether the general zia_bandwidth_classes resource ever sets one, is not shown.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zia bandwidth-classes list",
+      "about": [
+        "zia/bandwidth-classes#type"
+      ]
+    },
+    "file-size-wire-name": {
+      "kind": "data",
+      "title": "Live name of the Large Files size field",
+      "status": "open",
+      "detail": "See the file-size-field-name divergence: the schema says getfileSize, the SDK reads fileSize.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zia bandwidth-classes list",
+      "about": [
+        "zia/bandwidth-classes#fileSize"
+      ]
+    }
+  }
+}

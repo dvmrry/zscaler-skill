@@ -1,0 +1,375 @@
+{
+  "schema_version": 1,
+  "id": "zia.authentication.settings",
+  "title": "The organization-wide authentication settings object",
+  "aliases": [
+    "authSettings",
+    "auth settings",
+    "org_auth_type",
+    "orgAuthType",
+    "saml_enabled",
+    "kerberos_enabled",
+    "kerberos_pwd",
+    "auto_provision",
+    "directory_sync_migrate_to_scim_enabled",
+    "password_strength",
+    "password_expiry",
+    "one_time_auth",
+    "authentication_settings",
+    "authSettings/lite"
+  ],
+  "binds": [
+    "zia/auth-settings"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.frequency"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.methods"
+    }
+  ],
+  "claims": {
+    "org-object": {
+      "statement": "The organization's default authentication settings are one object, read and written at /authSettings. A separate GET /authSettings/lite returns the same model, but authFrequency, authCustomFrequency, lastSyncStartTime and lastSyncEndTime are not applicable to the Lite API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.md",
+          "quotes": [
+            "Retrieves organization's default authentication settings information. (Lightweight version",
+            "Updates the organization's default authentication settings information.",
+            "`authFrequency`, `authCustomFrequency`, `lastSyncStartTime`, `lastSyncEndTime` are not applicable in the Lite API."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/auth_settings/auth_settings.go",
+          "quotes": [
+            "authSettingsLiteEndpoint = \"/zia/api/v1/authSettings/lite\"",
+            "cookie expiration duration after a user is first authenticated). This field is not applicable to the Lite API."
+          ]
+        }
+      ]
+    },
+    "enum-values": {
+      "statement": "The spec lists these values: orgAuthType is ANY, NONE, SAFECHANNEL_DIR, MICROSOFT_ACTIVE_DIR, OPENLDAP_DIR, NOVELL_DIR, IBM_DOMINO_DIR, SUN_DIR or SMAUTH_ENTERPRISE_HOSTED; oneTimeAuth is OTP_DISABLED, OTP_TOKEN or OTP_LINK; passwordStrength is NONE, MEDIUM or STRONG; passwordExpiry is NEVER, ONE_MONTH, THREE_MONTHS or SIX_MONTHS. The Python SDK's passwordStrength and passwordExpiry docstrings give the same values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/orgAuthType",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "ANY",
+              "NONE",
+              "SAFECHANNEL_DIR",
+              "MICROSOFT_ACTIVE_DIR",
+              "OPENLDAP_DIR",
+              "NOVELL_DIR",
+              "IBM_DOMINO_DIR",
+              "SUN_DIR",
+              "SMAUTH_ENTERPRISE_HOSTED"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/oneTimeAuth",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "OTP_DISABLED",
+              "OTP_TOKEN",
+              "OTP_LINK"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/passwordStrength",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "MEDIUM",
+              "STRONG"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/passwordExpiry",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "NEVER",
+              "ONE_MONTH",
+              "THREE_MONTHS",
+              "SIX_MONTHS"
+            ]
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/authentication_settings.py",
+          "quotes": [
+            "Supported values: NONE, MEDIUM, STRONG.",
+            "Supported values: NEVER, ONE_MONTH, THREE_MONTHS, SIX_MONTHS."
+          ]
+        }
+      ]
+    },
+    "ldap-and-saml-completeness": {
+      "statement": "Setting orgAuthType to an LDAP-based type requires a complete LdapProperties configuration, and enabling SAML (samlEnabled) requires complete SamlSettings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/orgAuthType",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/authentication_settings.py",
+          "quotes": [
+            "User authentication type. Setting this to an LDAP-based authentication"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.md",
+          "quotes": [
+            "Enabling SAML requires complete SamlSettings."
+          ]
+        }
+      ]
+    },
+    "hosted-db-only": {
+      "statement": "passwordStrength and passwordExpiry apply to form-based authentication of hosted DB users only, not to SAML or directory authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.md",
+          "quotes": [
+            "Password strength required for form-based authentication of hosted DB users. Not applicable for other authentication types (e.g. SAML SSO or Directory).",
+            "Password expiration required for form-based authentication of hosted DB users. Not applicable for other authentication types (e.g. SAML SSO or Directory)."
+          ]
+        }
+      ]
+    },
+    "one-time-auth": {
+      "statement": "oneTimeAuth only matters when orgAuthType is NONE; with SAML single sign-on enabled the one-time token is not applicable and the field has no effect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.md",
+          "quotes": [
+            "When the orgAuthType is NONE, administrators must manually provide the password to new end users.",
+            "If SAML Single Sign-On is enabled, this one-time token is not applicable, and this field is ineffective."
+          ]
+        }
+      ]
+    },
+    "kerberos-pwd-read-only": {
+      "statement": "kerberosPwd is read-only and can be set only through the generateKerberosPassword API. The Python SDK's update still serializes kerberosPwd into the request body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/kerberosPwd",
+          "expect": {
+            "type": "string",
+            "readOnly": true
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/authentication_settings.py",
+          "quotes": [
+            "kerberos_pwd (str): Read-only. Can only be set through the generate KerberosPassword API."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/authentication_settings.py",
+          "quotes": [
+            "\"kerberosPwd\": self.kerberos_pwd,"
+          ]
+        }
+      ],
+      "gaps": [
+        "kerberos-pwd-write-behavior"
+      ]
+    },
+    "auto-provision": {
+      "statement": "autoProvision enables SAML auto-provisioning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/autoProvision",
+          "expect": {
+            "type": "boolean",
+            "description": "Enable SAML Auto-Provisioning"
+          }
+        }
+      ],
+      "gaps": [
+        "auto-provision-scope"
+      ]
+    },
+    "scim-migration-flag": {
+      "statement": "directorySyncMigrateToScimEnabled disables directory synchronization for the user repository type so that SCIM provisioning or SAML auto-provisioning can be enabled; it is the setting for migrating from directory synchronization to SCIM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.md",
+          "quotes": [
+            "Enable to disable directory synchronization for this user repository type so you can enable SCIM provisioning or SAML auto-provisioning.",
+            "Use this setting to migrate from directory synchronization to SCIM provisioning."
+          ]
+        }
+      ],
+      "gaps": [
+        "scim-migration-reversibility"
+      ]
+    }
+  },
+  "divergences": {
+    "enum-vocabulary": {
+      "summary": "The legacy API reference page and the OpenAPI document give different value sets for the same authSettings fields.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-authentication-settings.md",
+            "quotes": [
+              "Enum: [3 Items — NONE, LOW, HIGH]",
+              "Enum: [4 Items — NEVER, MONTHLY, QUARTERLY, SEMIANNUALLY]",
+              "Enum: [3 Items — OTP_DISABLED, OTP_ENABLED, OTP_MANDATORY]"
+            ]
+          },
+          "says": "passwordStrength is NONE, LOW or HIGH; passwordExpiry is NEVER, MONTHLY, QUARTERLY or SEMIANNUALLY; oneTimeAuth is OTP_DISABLED, OTP_ENABLED or OTP_MANDATORY."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/passwordStrength",
+            "expect": {
+              "type": "string",
+              "enum": [
+                "NONE",
+                "MEDIUM",
+                "STRONG"
+              ]
+            }
+          },
+          "says": "passwordStrength is NONE, MEDIUM or STRONG (and passwordExpiry and oneTimeAuth use the values in the enum-values claim)."
+        }
+      ],
+      "impact": "A write built from the legacy page's value names (LOW, HIGH, MONTHLY, OTP_ENABLED) uses names the current spec and the Python SDK do not list; use the spec's values.",
+      "resolution": {
+        "by": "enum-values",
+        "rule": "source-rank"
+      }
+    },
+    "org-auth-type-vocabulary": {
+      "summary": "The legacy KB doc, the legacy API page and the OpenAPI document give different orgAuthType values.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-authentication-settings.md",
+            "quotes": [
+              "Enum: [9 Items — ANY, NONE, LDAP_GROUP, LDAP_USER, SAML, AD_GROUP, AD_USER, ZIDENTITY, ZIDENTITY_GUEST]"
+            ]
+          },
+          "says": "orgAuthType is ANY, NONE, LDAP_GROUP, LDAP_USER, SAML, AD_GROUP, AD_USER, ZIDENTITY or ZIDENTITY_GUEST. (The retired KB doc also listed KERBEROS_SERVICE and LDAP; neither source has them.)"
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/orgAuthType",
+            "expect": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "NONE",
+                "SAFECHANNEL_DIR",
+                "MICROSOFT_ACTIVE_DIR",
+                "OPENLDAP_DIR",
+                "NOVELL_DIR",
+                "IBM_DOMINO_DIR",
+                "SUN_DIR",
+                "SMAUTH_ENTERPRISE_HOSTED"
+              ]
+            }
+          },
+          "says": "orgAuthType is ANY, NONE, SAFECHANNEL_DIR, MICROSOFT_ACTIVE_DIR, OPENLDAP_DIR, NOVELL_DIR, IBM_DOMINO_DIR, SUN_DIR or SMAUTH_ENTERPRISE_HOSTED."
+        }
+      ],
+      "impact": "SAML, KERBEROS_SERVICE and LDAP are not valid orgAuthType values in the spec; SAML is turned on with samlEnabled, Kerberos with kerberosEnabled.",
+      "resolution": {
+        "by": "enum-values",
+        "rule": "source-rank"
+      }
+    }
+  },
+  "gaps": {
+    "kerberos-pwd-write-behavior": {
+      "kind": "semantic",
+      "title": "What an update that includes kerberosPwd does",
+      "status": "open",
+      "detail": "Unverified legacy statement: Setting kerberosPwd in an update_authentication_settings call is silently ignored; the field is accepted in the payload and appears to succeed but does not change the credential. No registered source states this. A lab update that sends kerberosPwd, then a read of the credential's effect, would settle it.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "whether rotating the Kerberos password through the settings update can succeed, fail or be ignored"
+    },
+    "auto-provision-scope": {
+      "kind": "semantic",
+      "title": "Who gets a user record when SAML auto-provisioning is on",
+      "status": "open",
+      "detail": "Unverified legacy statement: With autoProvision true, any user whose IdP account is in scope for the ZIA SAML app has a ZIA user record created at first login, which can cause user-count surprises and license problems. No registered source states this. A vendor statement on auto-provisioning scope and licensing, or a lab login by an in-scope user, would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "answering how many users a tenant will end up with"
+    },
+    "scim-migration-reversibility": {
+      "kind": "semantic",
+      "title": "Whether turning off directory sync can be undone",
+      "status": "open",
+      "detail": "Unverified legacy statement: Setting directory_sync_migrate_to_scim_enabled to true disables the legacy LDAP sync, and rolling it back is not self-service; confirm SCIM is fully operational first. No registered source states this. A vendor statement or a lab toggle back would settle it.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "advice on whether the migration flag is safe to try"
+    }
+  }
+}

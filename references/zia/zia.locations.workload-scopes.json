@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "id": "zia.locations.workload-scopes",
+  "title": "AWS workload sublocation scopes (VPC endpoint, VPC, account, namespace)",
+  "aliases": [
+    "sub_loc_scope",
+    "sub_loc_scope_values",
+    "sub_loc_acc_ids",
+    "workload sublocation",
+    "vpc endpoint scope",
+    "namespace scope",
+    "cloud connector sublocation",
+    "overlapping ip workload"
+  ],
+  "binds": [
+    "zia/sublocations",
+    "zia/locations#subLocScope",
+    "zia/locations#subLocScopeValues",
+    "zia/locations#subLocAccIds"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.locations.sublocations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.ip-scoping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.group-assignment"
+    }
+  ],
+  "claims": {
+    "scope-types-and-availability": {
+      "statement": "A sublocation scope segregates workload traffic from one sublocation so different Cloud Connector and ZIA policies apply. It exists only for Workload-type sublocations whose parent location is tied to AWS Cloud Connector groups, with scope types Namespace, Account, VPC and VPC Endpoint (`NAMESPACE`, `ACCOUNT`, `VPC`, `VPC_ENDPOINT` in Terraform's `sub_loc_scope`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-sublocations.md",
+          "quotes": [
+            "This field is only available for the Workload traffic type sublocations whose parent locations are associated with Amazon Web Services (AWS) Cloud Connector groups."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_location_management.md",
+          "quotes": [
+            "The supported options are: `VPC_ENDPOINT`, `VPC`, `NAMESPACE`, `ACCOUNT`"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/locations#subLocScope"
+      ]
+    },
+    "discovery-required": {
+      "statement": "The VPC, Namespace and Account scope types need workload discovery enabled for the tenant; the VPC Endpoint scope type does not.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-sublocations.md",
+          "quotes": [
+            "To configure sublocations with the VPC, Namespace, and Account scope types, the workload discovery service must be enabled for the tenant. However, it is not required for configuring the VPC Endpoint scope type."
+          ]
+        }
+      ]
+    },
+    "same-criteria-in-a-location": {
+      "statement": "Every sublocation within one location must use the same criteria: scope only, scope plus IP address range, or IP address range only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-using-sublocation-scopes-group-cloud-connector-workloads-amazon-web.md",
+          "quotes": [
+            "All sublocations within a location must be configured with the same criteria: scope only, combination of scope and IP address range, or IP address range only."
+          ]
+        }
+      ]
+    },
+    "overlap-allowed-across-scopes": {
+      "statement": "Duplicate or overlapping IP address ranges are supported when the subnets sit in separate scoped sublocations, so scope lets policy lookup tell apart workloads that share an address space.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-using-sublocation-scopes-group-cloud-connector-workloads-amazon-web.md",
+          "quotes": [
+            "Duplicate or overlapping IP address ranges within the same namespace are supported if the subnets are in separate sublocations.",
+            "Policy lookup can distinguish between multiple workloads with the same source IP address space, even without using namespace tags or workload discovery."
+          ]
+        }
+      ],
+      "conditions": "This is the scoped-workload case; it does not relax the non-overlap rule for ordinary sublocations (see zia.locations.ip-scoping)."
+    },
+    "hub-vpc-only": {
+      "statement": "In a centralized VPC endpoint deployment a sublocation can be based on the hub VPC but not on the spoke VPCs; the hub VPC can be combined with a unique IP range for finer sublocations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-using-sublocation-scopes-group-cloud-connector-workloads-amazon-web.md",
+          "quotes": [
+            "You can create a sublocation based on the hub VPC, but not the spoke VPCs."
+          ]
+        }
+      ]
+    },
+    "no-authentication": {
+      "statement": "Authentication is not supported for Workload traffic type sublocations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-sublocations.md",
+          "quotes": [
+            "The Authentication feature is not supported for the Workload traffic type sublocations."
+          ]
+        }
+      ]
+    },
+    "scope-value-limits": {
+      "statement": "A scoped sublocation holds at most 10 namespace values, 10 account values, 50 VPC values and 50 VPC endpoint values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Namespace Scope per Sublocation 10 scope values | 10 scope values |",
+            "| Account Scope per Sublocation | 10 scope values |",
+            "| VPC Scope per Sublocation | 50 scope values |",
+            "| VPC Endpoint Scope per Sublocation | 50 scope values |"
+          ]
+        }
+      ]
+    },
+    "account-ids-field": {
+      "statement": "`sub_loc_acc_ids` lists the AWS account IDs associated with the parent location, which the Cloud and Branch Connector portal created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_location_management.md",
+          "quotes": [
+            "* `sub_loc_acc_ids` - (List of Strings) Specifies one or more Amazon Web Services (AWS) account IDs."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/locations#subLocAccIds"
+      ]
+    }
+  },
+  "gaps": {
+    "scope-fields-outside-aws": {
+      "kind": "semantic",
+      "title": "Effect of scope fields on non-workload or non-AWS sublocations",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Using these fields on non-workload or non-AWS sublocations has no defined effect.\" The help states only that the field is available for Workload sublocations of AWS Cloud Connector parents; whether the API rejects, ignores or stores scope values elsewhere is not stated. Resolve with a lab call.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "about": [
+        "zia/locations#subLocScope"
+      ]
+    }
+  }
+}

@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "id": "zia.tenant-profiles.applications",
+  "title": "Which applications support tenant profiles, and what each profile identifies",
+  "aliases": [
+    "tenant profile supported apps",
+    "tenant restriction applications",
+    "MSLOGINSERVICES",
+    "CHATGPT_AI",
+    "CLAUDE_AI",
+    "app_type",
+    "appType",
+    "Docusign tenant profile",
+    "Claude tenant profile"
+  ],
+  "binds": [
+    "zia/tenancy-restriction-profiles#appType"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.app-specifics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.ai-ml-rules"
+    }
+  ],
+  "claims": {
+    "help-app-list": {
+      "statement": "The Help form offers fifteen cloud applications: Amazon Web Services, ChatGPT, Claude, Docusign, Dropbox, GitHub, Google, Google Cloud Platform, IBM SmartCloud, Microsoft Login Services, Slack, Webex Login Services, YouTube, Zoho Login Services and Zoom.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "To configure the tenant profile for Amazon Web Services",
+            "To configure a tenant profile for ChatGPT",
+            "To configure a tenant profile for Claude",
+            "To configure a tenant profile for Docusign",
+            "To configure the tenant profile for Dropbox",
+            "To configure a tenant profile for GitHub",
+            "To configure the tenant profile for Google apps",
+            "To configure the tenant profile for the Google Cloud Platform",
+            "To configure a tenant profile for IBM SmartCloud",
+            "You can configure the following tenant profile types for Microsoft Login Services",
+            "To configure the tenant profile for Slack",
+            "To configure the tenant profile for Webex Teams and Webex Meetings",
+            "To configure the tenant profile for YouTube",
+            "To configure the tenant profile for Zoho Login Services",
+            "To configure a tenant profile for Zoom"
+          ]
+        }
+      ]
+    },
+    "api-app-enum": {
+      "statement": "The API `appType` accepts sixteen values: YOUTUBE, GOOGLE, MSLOGINSERVICES, SLACK, BOX, FACEBOOK, AWS, DROPBOX, WEBEX_LOGIN_SERVICES, AMAZON_S3, ZOHO_LOGIN_SERVICES, GOOGLE_CLOUD_PLATFORM, ZOOM, IBMSMARTCLOUD, GITHUB and CHATGPT_AI. Both SDKs and the Terraform provider carry the field as a plain string.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1tenancyRestrictionProfile/post/requestBody/content/application~1json/schema/properties/appType",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "YOUTUBE",
+              "GOOGLE",
+              "MSLOGINSERVICES",
+              "SLACK",
+              "BOX",
+              "FACEBOOK",
+              "AWS",
+              "DROPBOX",
+              "WEBEX_LOGIN_SERVICES",
+              "AMAZON_S3",
+              "ZOHO_LOGIN_SERVICES",
+              "GOOGLE_CLOUD_PLATFORM",
+              "ZOOM",
+              "IBMSMARTCLOUD",
+              "GITHUB",
+              "CHATGPT_AI"
+            ]
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/tenancy_restriction_profile.py",
+          "quotes": [
+            "`GITHUB`, `CHATGPT_AI`."
+          ],
+          "after": "def add_restriction_profile"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/tenancy_restriction/tenancy_restriction.go",
+          "quotes": [
+            "AppType string"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/tenancy_restriction_profile.py",
+          "quotes": [
+            "self.app_type = config[\"appType\"]"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_tenant_restriction_profile.go",
+          "quotes": [
+            "Restricted tenant profile application type."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/tenancy-restriction-profiles#appType"
+      ]
+    },
+    "no-claude-docusign-token": {
+      "statement": "No API `appType` value exists for Claude or Docusign, so an API, SDK or Terraform client cannot name them in the sixteen-value list. Do not infer `CLAUDE_AI` or `DOCUSIGN` from the Help labels.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1tenancyRestrictionProfile/post/requestBody/content/application~1json/schema/properties/appType",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "YOUTUBE",
+              "GOOGLE",
+              "MSLOGINSERVICES",
+              "SLACK",
+              "BOX",
+              "FACEBOOK",
+              "AWS",
+              "DROPBOX",
+              "WEBEX_LOGIN_SERVICES",
+              "AMAZON_S3",
+              "ZOHO_LOGIN_SERVICES",
+              "GOOGLE_CLOUD_PLATFORM",
+              "ZOOM",
+              "IBMSMARTCLOUD",
+              "GITHUB",
+              "CHATGPT_AI"
+            ]
+          }
+        }
+      ],
+      "conditions": "Absence from the captured OpenAPI enum and the SDK docstring list. A newer API version may add them."
+    },
+    "identifier-per-app": {
+      "statement": "The Help form asks for a different identifier per application: AWS account IDs; ChatGPT and Claude workspace IDs; Docusign account IDs; Dropbox team IDs; GitHub enterprise slug; Google domains; Google Cloud Platform allowed organization IDs; IBM account IDs; Microsoft Tenant Directory ID with tenants (Version 1) or Tenant Directory ID:Policy ID (Version 2); Slack Workspace ID and Allowed Workspace IDs; Webex tenants; Zoho ID; Zoom policy label; and for YouTube category, channel or school IDs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "in the Account IDs field, enter the account IDs (e.g., 123456789012)",
+            "in the Workspace ID for ChatGPT field",
+            "in the Workspace ID for Claude field",
+            "in the Account ID for Docusign field",
+            "in the Dropbox Team ID field",
+            "in the Enterprise Slug for GitHub field",
+            "In the Domains field, enter the domains",
+            "In the Allowed Organization IDs field",
+            "in the IBM Account IDs field",
+            "In the Tenant Directory ID:Policy ID field",
+            "In the Workspace ID field, enter your workspace ID (e.g., T2DQ3J9AA).",
+            "In the Allowed Workspace ID field",
+            "in the Webex Tenants(Webex Teams and Meetings) field",
+            "in the Zoho ID field",
+            "in the Policy Label field",
+            "In the YouTube Channel ID field, enter the YouTube channel IDs"
+          ]
+        }
+      ]
+    },
+    "shared-item-members": {
+      "statement": "A profile's identifiers are stored in the same API members whatever the application: `itemTypePrimary` and `itemDataPrimary`, optionally `itemTypeSecondary` and `itemDataSecondary`, plus `itemValue` for YouTube categories. Which `itemType` token each Help field maps to is not published.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1tenancyRestrictionProfile/post/requestBody/content/application~1json/schema/properties/itemDataPrimary",
+          "expect": {
+            "description": "Tenant profile primary item data",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1tenancyRestrictionProfile/post/requestBody/content/application~1json/schema/properties/itemDataSecondary",
+          "expect": {
+            "description": "Tenant profile secondary item data",
+            "type": "array"
+          }
+        }
+      ],
+      "binds": [
+        "zia/tenancy-restriction-profiles#itemTypePrimary",
+        "zia/tenancy-restriction-profiles#itemDataPrimary",
+        "zia/tenancy-restriction-profiles#itemTypeSecondary",
+        "zia/tenancy-restriction-profiles#itemDataSecondary",
+        "zia/tenancy-restriction-profiles#itemValue"
+      ],
+      "gaps": [
+        "item-type-per-app"
+      ]
+    }
+  },
+  "divergences": {
+    "help-vs-api-apps": {
+      "summary": "Which applications a tenant profile can be created for",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "adding-tenant-profiles.md",
+            "quotes": [
+              "To configure a tenant profile for Docusign",
+              "To configure a tenant profile for Claude"
+            ]
+          },
+          "says": "The Help form offers Claude and Docusign, and does not mention Box, Facebook or Amazon S3."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1tenancyRestrictionProfile/post/requestBody/content/application~1json/schema/properties/appType",
+            "expect": {
+              "type": "string",
+              "enum": [
+                "YOUTUBE",
+                "GOOGLE",
+                "MSLOGINSERVICES",
+                "SLACK",
+                "BOX",
+                "FACEBOOK",
+                "AWS",
+                "DROPBOX",
+                "WEBEX_LOGIN_SERVICES",
+                "AMAZON_S3",
+                "ZOHO_LOGIN_SERVICES",
+                "GOOGLE_CLOUD_PLATFORM",
+                "ZOOM",
+                "IBMSMARTCLOUD",
+                "GITHUB",
+                "CHATGPT_AI"
+              ]
+            }
+          },
+          "says": "The API enum has BOX, FACEBOOK and AMAZON_S3, and no Claude or Docusign value."
+        }
+      ],
+      "impact": "An automation built from the API enum cannot create the Claude or Docusign profiles the console offers, and a console-only reading hides three API values (BOX, FACEBOOK, AMAZON_S3) that may still be live."
+    }
+  },
+  "gaps": {
+    "item-type-per-app": {
+      "kind": "data",
+      "title": "Which itemType token each application's profile uses",
+      "status": "open",
+      "detail": "Only the Microsoft Login Services SDK example pairs an application with itemType tokens (see zia.tenant-profiles.microsoft). Nothing in the captured sources maps the other applications to a token; the Terraform provider deliberately does not validate the value. The legacy table that paired apps with tokens (Google/TENANT_RESTRICTION_DOMAIN, Slack/WORKSPACE_ID, GitHub/ENTERPRISE_SLUG, AWS/ACCOUNT_ID, Dropbox/TEAM_ID, Zoom/TENANT_ORG_ID) was inference from token names. Read an existing profile for the real pairing.",
+      "resolves_with": [
+        "tenant-data",
+        "operator-experience"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zia tenancy-restriction-profiles list",
+      "about": [
+        "zia/tenancy-restriction-profiles#itemTypePrimary",
+        "zia/tenancy-restriction-profiles#itemTypeSecondary"
+      ],
+      "blocks": "writing a profile for any application other than Microsoft without trial and error"
+    }
+  }
+}

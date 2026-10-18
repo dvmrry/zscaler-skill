@@ -1,0 +1,221 @@
+{
+  "schema_version": 1,
+  "id": "zia.locations.rule-scoping",
+  "title": "Which policies scope by location and location group",
+  "aliases": [
+    "rules by location",
+    "rule locations",
+    "location group in rule",
+    "scope a rule to a location",
+    "locations per rule",
+    "authentication location setting"
+  ],
+  "binds": [
+    "zia/location-groups",
+    "zia/locations",
+    "zia/url-filtering-rules",
+    "zia/ssl-inspection-rules",
+    "zia/firewall-filtering-rules",
+    "zia/dlp-web-rules",
+    "zia/bandwidth-control-rules"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.locations"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.locations.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.sublocations"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.dlp"
+    }
+  ],
+  "claims": {
+    "rules-take-both": {
+      "statement": "URL Filtering, SSL Inspection, Cloud App Control, Firewall Filtering, Web DLP and Bandwidth Control rules each carry both a `locations` array and a `locationGroups` array, so a rule can name individual locations as well as groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1urlFilteringRules/get/responses/200/content/application~1json/schema/items/properties/locations",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1urlFilteringRules/get/responses/200/content/application~1json/schema/items/properties/locationGroups",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/locations",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/locationGroups",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webApplicationRules~1{rule_type}/get/responses/200/content/application~1json/schema/items/properties/locations",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webApplicationRules~1{rule_type}/get/responses/200/content/application~1json/schema/items/properties/locationGroups",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallFilteringRules/get/responses/200/content/application~1json/schema/items/properties/locations",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallFilteringRules/get/responses/200/content/application~1json/schema/items/properties/locationGroups",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/get/responses/200/content/application~1json/schema/items/properties/locations",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/get/responses/200/content/application~1json/schema/items/properties/locationGroups",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules/get/responses/200/content/application~1json/schema/items/properties/locations",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules/get/responses/200/content/application~1json/schema/items/properties/locationGroups",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ],
+      "binds": [
+        "zia/url-filtering-rules",
+        "zia/ssl-inspection-rules",
+        "zia/firewall-filtering-rules",
+        "zia/dlp-web-rules",
+        "zia/bandwidth-control-rules"
+      ]
+    },
+    "sublocations-are-nameable": {
+      "statement": "Because a sublocation is a location, a rule's `locations` array can name a sublocation directly, as well as through a group.",
+      "tier": "B",
+      "derived_from": [
+        "rules-take-both",
+        "zia.locations.sublocations:what-it-is"
+      ],
+      "conditions": "Derived; the rule schemas describe the array as locations and do not mention sublocations."
+    },
+    "authentication-is-a-location-setting": {
+      "statement": "Authentication is enforced by the location's own setting (`authRequired`, Enforce Authentication), which the service checks when traffic arrives from a known location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/authRequired",
+          "expect": {
+            "description": "<p>Enforce Authentication. Required when ports are enabled, IP Surrogate is enabled, or Kerberos Authentication is enabled.</p>",
+            "x-applicableTo": "BOTH"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-locations.md",
+          "quotes": [
+            "For example, the service checks whether the location has authentication enabled and proceeds accordingly."
+          ]
+        }
+      ]
+    },
+    "per-rule-caps": {
+      "statement": "Any rule type is limited to 32 locations and 32 location groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Locations per Rule | 32 locations |",
+            "| Location Groups per Rule | 32 groups |"
+          ]
+        }
+      ]
+    },
+    "dynamic-group-for-populations": {
+      "statement": "To cover a changing population such as all corporate locations in one city, scoping a rule to a dynamic group (for example name starts with NYC and a Location Type condition) lets new matching locations join the rule's scope with no edit to the rule.",
+      "tier": "B",
+      "derived_from": [
+        "zia.locations.groups:two-types",
+        "zia.locations.group-assignment:dynamic-auto-update"
+      ],
+      "conditions": "Derived from automatic group updating; the example conditions are illustrative."
+    }
+  }
+}

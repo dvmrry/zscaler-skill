@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "id": "zia.authentication.methods",
+  "title": "SAML and Kerberos: what each needs to work",
+  "aliases": [
+    "SAML SSO",
+    "saml",
+    "kerberos",
+    "kerberos authentication",
+    "407 negotiate",
+    "service provider",
+    "IdP exemption",
+    "kerberos PAC"
+  ],
+  "binds": [
+    "zia/auth-settings"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.location-enforcement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.exemptions"
+    }
+  ],
+  "claims": {
+    "saml-sp": {
+      "statement": "With SAML single sign-on the Zscaler service is the service provider and the organization's IdP provisions and authenticates users. Before configuring it, the SAML SSL certificate and the XML metadata must be obtained from the IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-saml.md",
+          "quotes": [
+            "You can configure the Zscaler service as the service provider (SP) and use Security Assertion Markup Language (SAML) Single Sign-On (SSO) for provisioning and authenticating users.",
+            "Obtain the SAML SSL certificate from your identity provider (IdP)."
+          ]
+        }
+      ]
+    },
+    "saml-idp-reachability": {
+      "statement": "The IdP must be reachable without a user identity. With PAC-file forwarding, the redirected IdP URL must be in the PAC file's authentication exemption list or authentication fails; with transparent forwarding, the SAML IdP traffic must be exempted from the GRE or IPSec tunnel by a route at the gateway router.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-saml.md",
+          "quotes": [
+            "add the redirected URL to the authentication exemption list in the PAC files. Otherwise, the authentication fails.",
+            "you must exempt the SAML IdP traffic from the GRE or IPSec tunnel."
+          ]
+        }
+      ]
+    },
+    "kerberos-no-cookie": {
+      "statement": "Kerberos does not use cookies; it is ticket-based. When the Public Service Edge finds no Zscaler cookie for the domain in the request, it issues a 407 Negotiate challenge, and the client answers with a ticket in the proxy authorization header.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-kerberos-authentication.md",
+          "quotes": [
+            "Unlike the other supported authentication mechanisms, Kerberos doesn't use cookies for authentication.",
+            "it issues a 407 Negotiate challenge."
+          ]
+        }
+      ]
+    },
+    "kerberos-explicit-only": {
+      "statement": "Kerberos is supported only for traffic forwarded in explicit mode (a PAC file points the browser at the service). It is not supported for transparent forwarding through a GRE or IPSec tunnel when the browser is not using a PAC file, and users must already be provisioned: Kerberos authenticates, it does not provision.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-kerberos-authentication.md",
+          "quotes": [
+            "The service supports Kerberos authentication only for traffic forwarded in explicit mode.",
+            "Kerberos is an authentication mechanism. It is not a provisioning method"
+          ]
+        }
+      ]
+    },
+    "kerberos-clients": {
+      "statement": "Kerberos lets the service authenticate applications that do not support cookies, such as Office 365 and Windows Metro apps, and apply user, group and department policy to FTP and to HTTPS without decrypting it. It is not supported on Windows XP, iOS or Android.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-kerberos-authentication.md",
+          "quotes": [
+            "It enables the Zscaler service to authenticate users when they use applications that do not support cookies, such as Office 365 and Windows Metro apps.",
+            "The Zscaler service doesn't support Kerberos on Windows XP, Apple iOS, or Android devices."
+          ]
+        }
+      ]
+    },
+    "kerberos-network": {
+      "statement": "Kerberos needs the site's DNS to resolve the Zscaler service host names and the firewall to allow ports 88/8800, and the domain suffix of the client or server in the ticket must be a registered domain in the Zscaler account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-kerberos-authentication.md",
+          "quotes": [
+            "Ensure that your firewall allows connections to port 88/8800 to enable Kerberos authentication.",
+            "is a registered domain in the Zscaler account."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "deployment-defaults": {
+      "kind": "semantic",
+      "title": "Which authentication methods tenants use in practice",
+      "status": "open",
+      "detail": "Unverified legacy statement: SAML and Kerberos are the production defaults for enterprise tenants, and Hosted DB is used mainly for guest Wi-Fi or contractor populations without SSO coverage. No registered source states this. Only a vendor deployment guide or tenant survey could state it; it is a usage claim, not product behavior.",
+      "resolves_with": [
+        "support-ticket",
+        "operator-experience"
+      ],
+      "blocks": "recommending a method for a given population"
+    }
+  }
+}

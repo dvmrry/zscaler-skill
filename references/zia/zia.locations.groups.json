@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "id": "zia.locations.groups",
+  "title": "Location groups: manual and dynamic, conditions, limits, predefined groups",
+  "aliases": [
+    "location group",
+    "manual location group",
+    "dynamic location group",
+    "predefined location group",
+    "corporate user traffic group",
+    "guest wifi group",
+    "workload traffic group",
+    "location group limit",
+    "extranet location group"
+  ],
+  "binds": [
+    "zia/location-groups"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.locations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.group-assignment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.rule-scoping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.sublocations"
+    }
+  ],
+  "claims": {
+    "two-types": {
+      "statement": "A location group is manual (members assigned by hand) or dynamic (members are the locations and sublocations that match chosen attributes, and the group updates itself as they change). The API names the types `STATIC_GROUP` and `DYNAMIC_GROUP`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-location-groups.md",
+          "quotes": [
+            "Manual Location Groups: When creating a manual location group, you can manually assign any number of locations or sublocations to it.",
+            "A dynamic group automatically updates to include any matching locations or sublocations."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations~1groups/get/responses/200/content/application~1json/schema/items/properties/groupType",
+          "expect": {
+            "enum": [
+              "STATIC_GROUP",
+              "DYNAMIC_GROUP"
+            ]
+          }
+        }
+      ],
+      "binds": [
+        "zia/location-groups",
+        "zia/location-groups#groupType"
+      ]
+    },
+    "match-all-conditions": {
+      "statement": "A dynamic group takes the locations and sublocations that match all of its conditions; a location that matches them and also has other attributes set still qualifies (a group of name starts with NYC and Enforce Bandwidth Control enabled takes \"NYC Office 1\" even though that location also enforces firewall control).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-location-groups.md",
+          "quotes": [
+            "A location named \"NYC Office 1\" that has Enforce Bandwidth Control and Enforce Firewall Control enabled is assigned to this group."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dynamic-location-groups.md",
+          "quotes": [
+            "View the list of locations and sublocations that match all the group’s configured attributes."
+          ]
+        }
+      ]
+    },
+    "membership-independent": {
+      "statement": "A location can join a group independently of its sublocations and a sublocation independently of its parent, and a location or sublocation can belong to several manual and dynamic groups at once.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-location-groups.md",
+          "quotes": [
+            "A location can join a location group independently of its sublocations, and a sublocation independently of its parent location.",
+            "A location or sublocation can be a member of multiple manual and dynamic location groups."
+          ]
+        }
+      ]
+    },
+    "limits": {
+      "statement": "An organization can have 256 location groups (manual and dynamic together) and each group can hold up to 32K locations and sublocations. The limits table lists the 32K per group without separating manual from dynamic groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-manual-location-groups.md",
+          "quotes": [
+            "You can add up to 256 groups, inclusive of manual and dynamic location groups.",
+            "You can add up to 32K locations and sublocations to a group."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Location Groups per Organization | 256 groups |",
+            "| Locations and Sublocations per Group | 32K locations"
+          ]
+        }
+      ],
+      "conditions": "No source states a separate cap for dynamic groups or the absence of one."
+    },
+    "predefined-groups": {
+      "statement": "Five predefined dynamic groups are view-only: Corporate User Traffic, Guest Wifi, IoT Traffic, Server Traffic and Workload Traffic. The one matching a location's Location Type is filled in automatically and cannot be edited there.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dynamic-location-groups.md",
+          "quotes": [
+            "By default, the following predefined dynamic location groups are available in the Location Groups tab and are view-only:",
+            "One of these predefined dynamic location groups is automatically populated in the Dynamic Location Groups field of the Add Location or Add Sublocation window based on the location type selection."
+          ]
+        }
+      ]
+    },
+    "condition-attributes": {
+      "statement": "A dynamic group's conditions can use City/State/Province (Contains, Ends With, Equals or Starts With, with at least three letters), Country, Enable AUP, Enable Caution, Enforce Authentication, Enforce Bandwidth Control, Enforce Firewall Control, Location Type, Managed By (SD-WAN partner), Name (same operators) and Use XFF from Client Request. There is no condition on SSL Inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dynamic-location-groups.md",
+          "quotes": [
+            "City/State/Province: Select a Boolean operator from the drop-down menu (e.g., Contains, Ends With, Equals, Starts With), and then enter at least three letters of the name for a specific city, state, or province.",
+            "Managed By: Search for and select the SD-WAN partner name from the drop-down menu.",
+            "Use XFF from Client Request: Enable or disable the switch."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations~1groups/get/responses/200/content/application~1json/schema/items/properties/dynamicLocationGroupCriteria/properties/enforceFirewallControl",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations~1groups/get/responses/200/content/application~1json/schema/items/properties/dynamicLocationGroupCriteria/properties/enableXffForwarding",
+          "expect": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "conditions": "The criteria object in the API lists city, countries, the five toggles, managedBy, name and profiles; none is an SSL Inspection flag."
+    },
+    "extranet-groups": {
+      "statement": "A manual group can be an Extranet Location Type group tied to one extranet resource, after which only locations assigned to that extranet can be added; a dynamic group's Extranet Resource condition adds all locations assigned to the chosen extranet unless another condition excludes them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-manual-location-groups.md",
+          "quotes": [
+            "After you select an extranet, you can only add locations to the group that are assigned to the extranet you selected."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dynamic-location-groups.md",
+          "quotes": [
+            "Extranet Resource: All locations assigned to the extranet you select are added unless they are excluded by another condition."
+          ]
+        }
+      ]
+    },
+    "what-groups-are-for": {
+      "statement": "Location groups define an admin's scope and can be selected in policies and in reporting such as Insights and Dashboards.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-location-groups.md",
+          "quotes": [
+            "You can use location groups to define the scope of a new or existing admin. You can also select location groups for use in policies and reporting (i.e., Insights, Dashboards, etc.)."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "workload-group-meaning": {
+      "kind": "semantic",
+      "title": "Whether Workload Traffic Group membership shows that traffic came from Cloud Connector",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Workload Traffic Group membership is a cross-product signal: it indicates traffic originated from Cloud Connector, not from ZCC or a tunnel.\" The help says the Workload traffic type is applied to sublocations of a location created in the Zscaler Admin Console and to workload locations; it does not say the group proves the traffic source. The legacy wording \"sublocations created via the Cloud & Branch Connector Admin Portal\" also differs from the help's \"Zscaler Admin Console\".",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "about": [
+        "zia/location-groups"
+      ]
+    }
+  }
+}

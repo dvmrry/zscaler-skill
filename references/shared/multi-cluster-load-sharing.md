@@ -169,7 +169,7 @@ Source: `vendor/zscaler-help/about-public-service-edges-internet-saas.md`; `vend
 
 ## 9. SIPA and static egress IPs under MCLS
 
-Source IP Anchoring (SIPA) routes ZIA-inspected traffic to a ZPA App Connector, making the App Connector's IP the egress IP at the destination. SIPA is implemented via a Forwarding Control rule with `forward_method = ZPA`, independent of which cluster inspects the traffic. (Tier A — references/zia/forwarding-control.md; understanding-source-ip-anchoring.md)
+Source IP Anchoring (SIPA) routes ZIA-inspected traffic to a ZPA App Connector, making the App Connector's IP the egress IP at the destination. SIPA is implemented via a Forwarding Control rule with `forward_method = ZPA`, independent of which cluster inspects the traffic. (Tier A — `kb:zia.forwarding-control.sipa`; understanding-source-ip-anchoring.md)
 
 For tenants using the default ZIA egress path (`forward_method = ZIA` / no SIPA), traffic exits from the IP address pool of whichever Public Service Edge cluster processes the request. Under MCLS, this means the egress IP can be from any cluster participating in the VIP pool, and the source network address block will reflect that cluster's range — not a fixed tenant-owned IP.
 
@@ -237,5 +237,5 @@ Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`; `vend
 - Cloud architecture (Central Authority, Service Edges, Nanolog, BC Cloud, activation) — [`./cloud-architecture.md`](./cloud-architecture.md)
 - Subclouds (DC restriction for GDPR, private-DC enforcement, PAC variable forms) — [`./subclouds.md`](./subclouds.md)
 - Private Service Edge (PSE cluster design, DSR, tiers, open-proxy risk) — [`../zia/private-service-edge.md`](../zia/private-service-edge.md)
-- Forwarding Control + SIPA (forward methods, egress IP anchoring) — [`../zia/forwarding-control.md`](../zia/forwarding-control.md)
+- Forwarding Control + SIPA (forward methods, egress IP anchoring) — [`zia.forwarding-control`](kb:zia.forwarding-control)
 - ZCC fail-open and Forwarding Profile (client behavior when cloud is unreachable) — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)

@@ -319,7 +319,7 @@ To use Surrogate IP, the location must use either GRE or IPSec without NAT, or h
 
 Zscaler recommends enabling Surrogate IP for all fixed site locations (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:1208`).
 
-For dedicated proxy ports (a related fixed-site / remote-user forwarding option that interacts with Surrogate IP), see [`../zia/forwarding-control.md § Dedicated proxy ports`](../zia/forwarding-control.md).
+For dedicated proxy ports (a related fixed-site / remote-user forwarding option that interacts with Surrogate IP), see [`zia.forwarding-control`](kb:zia.forwarding-control).
 
 ## Open questions
 

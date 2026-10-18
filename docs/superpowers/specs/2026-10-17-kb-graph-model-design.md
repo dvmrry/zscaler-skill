@@ -435,6 +435,10 @@ This replaces the manual reverify cycle.
 - **JSON pointers are keyed.** A step into an array by index is rejected because it shifts when the
   source is regenerated. `[member=value]` selects the one element whose member matches. API facts
   cite the OpenAPI document, not the flattened field list. Every pointer carries `expect`.
+- **Drift in CI (planned).** A scheduled job runs `help_capture.py check`; on drift it rewrites the
+  changed captures, lets a small model re-anchor quotes under the re-anchoring rules, and opens a pull
+  request for review. It never merges; statement rewrites and gap-status changes are reviewed by a
+  person.
 
 ## Company index (overlay)
 

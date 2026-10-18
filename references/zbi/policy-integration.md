@@ -244,7 +244,7 @@ Source: `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `ve
 
 - Whether deleting an isolation profile that's still referenced by a rule breaks the rule silently or with an error — not documented.
 - How profile updates propagate to in-flight isolated sessions — change the profile while sessions are active: do they rebuild, finish on the old profile, or fail?
-- Whether Smart Isolation's AI/ML classifier is the same classifier as ATP's AI/ML (which recategorizes to Botnet / Phishing per [`../zia/malware-and-atp.md`](../zia/malware-and-atp.md)) or a separate model.
+- Whether Smart Isolation's AI/ML classifier is the same classifier as ATP's AI/ML (which recategorizes to Botnet / Phishing per [`zia.atp`](kb:zia.atp)) or a separate model.
 - Whether manual URL Filtering `Isolate` has the same SSL/TLS Inspection prerequisite as Smart Isolation — not stated in captured sources.
 
 ## Cross-links
@@ -252,7 +252,7 @@ Source: `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `ve
 - Overview (architecture + rendering) — [`./overview.md`](./overview.md)
 - Claims ledger for this refresh — [`./_claims-ledger.md`](./_claims-ledger.md)
 - ZIA URL Filtering (`Isolate` action origin) — [`zia.url-filtering`](kb:zia.url-filtering)
-- ZIA Malware Protection and ATP (prerequisites for Smart Isolation) — [`../zia/malware-and-atp.md`](../zia/malware-and-atp.md)
+- ZIA Malware Protection and ATP (prerequisites for Smart Isolation) — [`zia.atp`](kb:zia.atp)
 - ZPA policy precedence (Isolation Policy's place in family order) — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
 - SSL Inspection (prerequisite for HTTPS isolation) — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - Cross-product integration catalog — [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)

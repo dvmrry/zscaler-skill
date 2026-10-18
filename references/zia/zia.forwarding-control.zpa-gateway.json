@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "id": "zia.forwarding-control.zpa-gateway",
+  "title": "The Private Access gateway object in ZIA",
+  "aliases": [
+    "zpa gateway",
+    "private access gateway",
+    "zia_forwarding_control_zpa_gateway",
+    "Auto ZPA Gateway",
+    "zpa_server_group",
+    "zpa_tenant_id"
+  ],
+  "binds": [
+    "zia/zpa-gateways",
+    "zia/zpa-gateways#zpaServerGroup",
+    "zia/zpa-gateways#zpaAppSegments",
+    "zia/zpa-gateways#zpaTenantId",
+    "zia/zpa-gateways#type",
+    "zia/forwarding-rules#zpaGateway"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.forwarding-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.sipa"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.terraform"
+    }
+  ],
+  "claims": {
+    "zia-side-object": {
+      "statement": "A Private Access gateway is configured in the Zscaler Admin Console under Infrastructure > Internet & SaaS > Private Access GW, mapping a Private Access server group and its application segments that need Source IP Anchoring. Using it requires the ZIA tenant to be paired with the Private Access tenant with Source IP Anchoring enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-private-access-gateway.md",
+          "quotes": [
+            "You need to configure Private Access (ZPA) gateways in the Zscaler Admin Console to map them to the Private Access server groups and its associated application segments that require Source IP Anchoring.",
+            "To forward traffic through Private Access gateways, ensure that your Internet & SaaS (ZIA) tenant is paired with your Private Access tenant with Source IP Anchoring enabled."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/zpa-gateways"
+      ]
+    },
+    "segments-follow-group": {
+      "statement": "After a server group is chosen, the gateway form lists all application segments with Source IP Anchoring enabled that are associated with that server group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-private-access-gateway.md",
+          "quotes": [
+            "Application Segments: After you select the server group, all the application segments (with Source IP Anchoring enabled) associated with the server group appear in this field."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/zpa-gateways#zpaAppSegments"
+      ]
+    },
+    "fields": {
+      "statement": "In Terraform a gateway has a name, optional description, `type` (ZPA for Zscaler Internet Access or ECZPA for Cloud Connector), a required `zpa_server_group` (`external_id` and `name`) and optional `zpa_app_segments` (each `name` and `external_id`). The Python SDK adds `zpa_tenant_id`, the ZPA tenant where Source IP Anchoring is configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_zpa_gateway.go",
+          "quotes": [
+            "Required: true,"
+          ],
+          "after": "\"zpa_server_group\": {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_zpa_gateway.go",
+          "quotes": [
+            "Description: \"Indicates whether the ZPA gateway is configured for Zscaler Internet Access (using option ZPA) or Zscaler Cloud Connector (using option ECZPA)\",",
+            "Description: \"The ZPA Server Group that is configured for Source IP Anchoring\",",
+            "Description: \"The Application Segments to associate with this ZPA Gateway\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/zpa_gateway.py",
+          "quotes": [
+            "zpa_tenant_id (int): The ID of the ZPA tenant where Source IP Anchoring"
+          ],
+          "after": "def add_gateway("
+        }
+      ],
+      "binds": [
+        "zia/zpa-gateways#type",
+        "zia/zpa-gateways#zpaServerGroup",
+        "zia/zpa-gateways#zpaAppSegments",
+        "zia/zpa-gateways#zpaTenantId"
+      ]
+    },
+    "sdk-requires-segments": {
+      "statement": "The Python SDK raises an error when `zpa_app_segments` is missing on add or update, although the Terraform resource treats the argument as optional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/zpa_gateway.py",
+          "quotes": [
+            "return (None, None, ValueError(\"zpa_app_segments is required\"))"
+          ],
+          "after": "def add_gateway("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/zpa_gateway.py",
+          "quotes": [
+            "return (None, None, ValueError(\"zpa_app_segments is required\"))"
+          ],
+          "after": "def update_gateway("
+        }
+      ],
+      "binds": [
+        "zia/zpa-gateways#zpaAppSegments"
+      ]
+    },
+    "rule-needs-common-gateway": {
+      "statement": "In a ZPA forwarding rule the Forward to ZPA Gateway field is enabled only when the selected application segments require Source IP Anchoring and share a common gateway; an empty list means no common gateway exists for the selected segments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "quotes": [
+            "those application segments are associated with a common Private Access gateway.",
+            "An empty list indicates that there is no common gateway configured for the selected application segments."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#zpaGateway",
+        "zia/forwarding-rules#zpaAppSegments"
+      ]
+    },
+    "needs-zpa-provider": {
+      "statement": "Configuring a ZPA forwarding rule through Terraform needs the ZPA provider as well as the ZIA provider, because the server group and application segments are ZPA objects referenced by their external IDs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_forwarding_control_rule.md",
+          "quotes": [
+            "You must use the [ZPA provider](https://registry.terraform.io/providers/zscaler/zpa/latest/docs) in combination with the ZIA Terraform Provider to successfully configure a Forwarding control rule where the `forward_method` is `ZPA`"
+          ]
+        }
+      ]
+    },
+    "auto-gateway-name": {
+      "statement": "The provider refuses create, update and delete for a gateway named Auto ZPA Gateway, with an error saying the predefined gateway cannot be deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_zpa_gateway.go",
+          "quotes": [
+            "if req.Name == \"Auto ZPA Gateway\" {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_zpa_gateway.go",
+          "quotes": [
+            "if err := validatePredefinedObject(req); err != nil {"
+          ],
+          "after": "func resourceForwardingControlZPAGatewayCreate("
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_zpa_gateway.go",
+          "quotes": [
+            "if err := validatePredefinedObject(*gwObj); err != nil {"
+          ],
+          "after": "func resourceForwardingControlZPAGatewayDelete("
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_zpa_gateway.go",
+          "quotes": [
+            "if err := validatePredefinedObject(req); err != nil {"
+          ],
+          "after": "func resourceForwardingControlZPAGatewayUpdate("
+        }
+      ]
+    },
+    "read-via-get-all": {
+      "statement": "The provider reads a gateway by listing all gateways and filtering, and resolves an import by name the same way, because by its own comments the API returns incorrect application segments for a get by ID or by name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_zpa_gateway.go",
+          "quotes": [
+            "// Use GetAll to avoid API bug where Get by ID returns incorrect app segments"
+          ],
+          "after": "func resourceForwardingControlZPAGatewayRead("
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_zpa_gateway.go",
+          "quotes": [
+            "// Use GetAll to avoid API bug where GetByName returns incorrect app segments"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/zpa-gateways#zpaAppSegments"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "API behavior reported only by the provider's source comments; no vendor issue is cited."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "auto-gateway-behavior": {
+      "kind": "semantic",
+      "title": "What the Auto ZPA Gateway does",
+      "status": "open",
+      "about": [
+        "zia/zpa-gateways"
+      ],
+      "detail": "Unverified legacy statement: \"A predefined gateway named `Auto ZPA Gateway` exists in every tenant ... Its behavior and linkage to ZPA are managed by Zscaler; it is not operator-configurable.\" The only source is the provider's name check; no captured page describes the gateway, whether every tenant has it, or whether it is editable in the console. Resolve by listing gateways on a tenant, or a vendor article.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ],
+      "blocks": "advising whether to reference or avoid the Auto ZPA Gateway"
+    }
+  }
+}

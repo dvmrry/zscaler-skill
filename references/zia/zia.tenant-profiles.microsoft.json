@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "id": "zia.tenant-profiles.microsoft",
+  "title": "Microsoft Login Services tenant profiles: v1, v2, personal accounts",
+  "aliases": [
+    "microsoft tenant restriction",
+    "ms_login_services_tr_v2",
+    "restrict_personal_o365_domains",
+    "tenant restrictions v2",
+    "Tenant Directory ID",
+    "Policy ID",
+    "login.live.com personal accounts",
+    "office 365 tenant restriction"
+  ],
+  "binds": [
+    "zia/tenancy-restriction-profiles#restrictPersonalO365Domains",
+    "zia/tenancy-restriction-profiles#msLoginServicesTrV2"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.tenant-profiles.ssl-prerequisite"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.wire-mechanic"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.api-surface"
+    }
+  ],
+  "claims": {
+    "two-versions": {
+      "statement": "A Microsoft Login Services profile is Version 1 or Version 2. Version 1 takes a Tenant Directory ID plus Office 365 tenant names or IDs. Version 2 takes a single Tenant Directory ID:Policy ID value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "You can configure the following tenant profile types for Microsoft Login Services:",
+            "In the Tenant Directory ID field, enter the tenant directory ID",
+            "In the Tenant Directory ID:Policy ID field, enter the tenant directory ID of your organization"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/tenancy-restriction-profiles#msLoginServicesTrV2"
+      ]
+    },
+    "v2-policy-id-source": {
+      "statement": "The Version 2 Policy ID is found by calling `/crosstenantaccesspolicy/default` and using the `id` field of the response; the Tenant Directory ID comes from the Azure Active Directory portal Properties page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "Policy ID: Call the following API endpoint: /crosstenantaccesspolicy/default. Use the id field value in the Response preview.",
+            "Tenant Directory ID: Log in as an administrator to the Azure Active Directory portal, select Azure Active Directory, and then select Properties."
+          ]
+        }
+      ]
+    },
+    "version-lock": {
+      "statement": "The version of a Microsoft tenant profile can be changed only while the profile is not associated with any policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "The version of the tenant profiles can be changed only when the profiles are not associated with any policy."
+          ]
+        }
+      ]
+    },
+    "personal-domains-default": {
+      "statement": "Allow Personal Office 365 Domains defaults to Yes. Setting it to No blocks personal Microsoft accounts, by sending the personal-account header on login.live.com traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "This field is set to Yes by default.",
+            "select No to block the personal Office 365 domains in the tenant profile."
+          ]
+        }
+      ]
+    },
+    "api-flags": {
+      "statement": "The API carries the two Microsoft options as booleans on the profile: `restrictPersonalO365Domains` (restrict personal Office 365 domains) and `msLoginServicesTrV2` (choose between v1 and v2 for tenant restriction on MSLOGINSERVICES).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1tenancyRestrictionProfile/post/requestBody/content/application~1json/schema/properties/restrictPersonalO365Domains",
+          "expect": {
+            "description": "Flag to restrict personal domains for Office 365",
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1tenancyRestrictionProfile/post/requestBody/content/application~1json/schema/properties/msLoginServicesTrV2",
+          "expect": {
+            "description": "Flag to decide between v1 and v2 for tenant restriction on MSLOGINSERVICES",
+            "type": "boolean"
+          }
+        }
+      ],
+      "binds": [
+        "zia/tenancy-restriction-profiles#restrictPersonalO365Domains",
+        "zia/tenancy-restriction-profiles#msLoginServicesTrV2"
+      ]
+    },
+    "ui-to-api-inversion": {
+      "statement": "The console's Allow Personal Office 365 Domains = No corresponds to `restrictPersonalO365Domains = true`; the two read in opposite directions.",
+      "tier": "B",
+      "derived_from": [
+        "personal-domains-default",
+        "api-flags"
+      ],
+      "conditions": "Mapped from the field names and descriptions; no source states the correspondence."
+    },
+    "caveats": {
+      "statement": "A Microsoft Login Services profile takes only one tenant directory ID, does not allow wildcard domains, and several profiles may be associated with one rule only if their tenant directory IDs are the same.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "Add only one tenant directory ID per tenant profile.",
+            "Entry of wildcard domains is not allowed in the tenant profile.",
+            "Associate multiple tenant profiles with a Cloud App Control policy rule only if their tenant directory IDs are the same."
+          ]
+        }
+      ]
+    },
+    "sdk-example-tokens": {
+      "statement": "The Python SDK's documented Microsoft example creates the profile with `TENANT_RESTRICTION_TENANT_DIRECTORY` as the primary item type (the directory ID) and `TENANT_RESTRICTION_TENANT_NAME` as the secondary (the tenant domain names).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/tenancy_restriction_profile.py",
+          "quotes": [
+            "item_type_primary='TENANT_RESTRICTION_TENANT_DIRECTORY',",
+            "item_type_secondary=\"TENANT_RESTRICTION_TENANT_NAME\","
+          ],
+          "after": "def add_restriction_profile"
+        }
+      ],
+      "conditions": "It is the one application-to-token pairing any captured source shows."
+    }
+  },
+  "gaps": {
+    "v1-v2-semantics": {
+      "kind": "semantic",
+      "title": "What Version 1 and Version 2 differ in, and which Microsoft tenants need Version 2",
+      "status": "partial",
+      "detail": "The Help form shows the two shapes (Tenant Directory ID plus tenants, or Tenant Directory ID:Policy ID) and the Help limits table gives different identifier lengths, but no captured source says how the two protocol versions differ on the wire, which headers Version 2 inserts, or which tenants require it. The headers documented in wire-mechanic list the Version 1 fields.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "former_ids": [
+        "zia-67"
+      ],
+      "about": [
+        "zia.tenant-profiles.microsoft"
+      ],
+      "blocks": "choosing a version for a tenant, and diagnosing a v1/v2 mismatch"
+    },
+    "v1-for-v2-tenant-fails-open": {
+      "kind": "semantic",
+      "title": "Whether a Version 1 profile on a Version 2 tenant fails open",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"If the flag is false (v1) but the tenant requires v2, the restriction can fail open - symptom: corporate tenant restriction appears to allow all sign-ins. Fix: set ms_login_services_tr_v2 = true.\" No captured source describes a mismatch symptom. Resolve with a lab test of each version against a tenant, and by reading what the Go SDK sends (see api-surface: false booleans are omitted).",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "about": [
+        "zia/tenancy-restriction-profiles#msLoginServicesTrV2"
+      ],
+      "blocks": "a confident diagnosis of a restriction that allows other tenants"
+    }
+  }
+}

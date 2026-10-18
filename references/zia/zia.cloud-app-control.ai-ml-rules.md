@@ -4,4 +4,4 @@ AI & ML is the one category with a dedicated rule flow. {{separate-flow}}
 
 **Prompt capture.** {{capture-prompts}} Because prompts land in logs, treat the setting as a data-handling question, not only a policy one. In the API: {{prompt-capture-go-field}} {{prompt-capture-not-in-python}} See gap `prompt-capture-vs-denied-access` for what is not known.
 
-**Tenant restriction for AI apps.** {{tenant-profiles-visibility}} The Tenant Profiles feature itself, its supported application list, and the Claude token question belong to [Tenant Profiles](./tenant-profiles.md).
+**Tenant restriction for AI apps.** {{tenant-profiles-visibility}} The Tenant Profiles feature itself, its supported application list, and the Claude token question belong to [Tenant Profiles](kb:zia.tenant-profiles).

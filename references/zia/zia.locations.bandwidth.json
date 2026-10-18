@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "id": "zia.locations.bandwidth",
+  "title": "How a location and its sublocations share bandwidth limits",
+  "aliases": [
+    "sublocation bandwidth",
+    "shared bandwidth",
+    "use location bandwidth",
+    "override bandwidth",
+    "up_bandwidth",
+    "dn_bandwidth",
+    "bandwidth isolation sublocation",
+    "guest wifi bandwidth"
+  ],
+  "binds": [
+    "zia/locations#upBandwidth",
+    "zia/locations#dnBandwidth",
+    "zia/sublocations"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.locations.sublocations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.inheritance"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.locations.rule-scoping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.allocation"
+    }
+  ],
+  "claims": {
+    "units": {
+      "statement": "`upBandwidth` and `dnBandwidth` are in kbps and 0 means no Bandwidth Control enforcement; the console shows Mbps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/upBandwidth",
+          "expect": {
+            "description": "Upload bandwidth in kbps. The value 0 implies no Bandwidth Control enforcement.",
+            "x-applicableTo": "BOTH"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/dnBandwidth",
+          "expect": {
+            "description": "Download bandwidth in kbps. The value 0 implies no Bandwidth Control enforcement."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.md",
+          "quotes": [
+            "If enabled, specify the maximum bandwidth limits for Download (Mbps) and Upload (Mbps)."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/locations#upBandwidth",
+        "zia/locations#dnBandwidth"
+      ],
+      "conditions": "The Terraform docs and schema describe the same fields as \"in bytes\"; see the divergence."
+    },
+    "shared-by-default": {
+      "statement": "All sublocations share the bandwidth limits of their location unless a sublocation is given a fixed bandwidth of its own.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.md",
+          "quotes": [
+            "All sublocations share the bandwidth limits assigned to this location. However, you can override this behavior to assign a fixed bandwidth to a sublocation."
+          ]
+        }
+      ]
+    },
+    "three-modes": {
+      "statement": "When the parent enforces bandwidth control, a sublocation is set to Use Location Bandwidth (the parent's limits), Override (its own limits, dedicated and not shared), or Disable (exempt from Bandwidth Management policies, limited to the available Shared Bandwidth).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-sublocations.md",
+          "quotes": [
+            "Select Use Location Bandwidth to enable the sublocation and use the download and upload maximum bandwidth limits as specified for the parent location.",
+            "Select Override to enable the sublocation and then specify the maximum bandwidth limits for Download (Mbps) and Upload (Mbps).",
+            "This bandwidth is dedicated to the sublocation and not shared with others.",
+            "Select Disable to exempt traffic from any Bandwidth Management policies.",
+            "Sublocations with this option can only use up to a maximum of available Shared Bandwidth at any given time."
+          ]
+        }
+      ]
+    },
+    "unused-returns-to-parent": {
+      "statement": "With Use Location Bandwidth or Disable selected, a sublocation's unused bandwidth returns to the parent's bandwidth; the Shared Bandwidth shown is the parent's bandwidth plus every sublocation using Use Location Bandwidth.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-sublocations.md",
+          "quotes": [
+            "When Use Location Bandwidth or Disable is selected, any unused bandwidth returns to the parent location's bandwidth.",
+            "The shared bandwidth download/upload limit displayed is the parent location's bandwidth plus all sublocations that have Use Location Bandwidth enabled."
+          ]
+        }
+      ]
+    },
+    "parent-disable-cascades": {
+      "statement": "Disabling Enforce Bandwidth Control on a location disables it on all its sublocations, but a sublocation can still be enabled with its own download and upload limits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.md",
+          "quotes": [
+            "If you disable Enforce Bandwidth Control for a location, it also disables Enforce Bandwidth Control for all the sublocations configured for the location. However, you can still select Enable for the sublocations and then specify the maximum bandwidth limits for Download (Mbps) and Upload (Mbps)."
+          ]
+        }
+      ]
+    },
+    "parent-must-cover-children": {
+      "statement": "When the main location enables Bandwidth Control after its sublocations, its limits must be at least the total of its sublocations' limits; a sublocation set equal to the main location's bandwidth disables Bandwidth Control on all other sublocations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-bandwidth-control.md",
+          "quotes": [
+            "The value of upload and download limits added to the main location must be greater than or equal to the total value of limits used for all the sublocations.",
+            "If you manually set the Bandwidth Control on a sublocation to a number that is equal to the bandwidth of the main location, Bandwidth Control is disabled on all other sublocations."
+          ]
+        }
+      ]
+    },
+    "override-is-isolation": {
+      "statement": "A sublocation in Override mode holds dedicated bandwidth that other sublocations cannot use, so isolation within one location is possible; sublocations in the other modes share and can burst into idle bandwidth.",
+      "tier": "B",
+      "derived_from": [
+        "three-modes",
+        "unused-returns-to-parent"
+      ],
+      "conditions": "Derived from the dedicated-versus-shared wording; contention behavior between modes was not tested."
+    }
+  },
+  "divergences": {
+    "bytes-or-kbps": {
+      "summary": "Bandwidth fields are kbps in the API and SDK and bytes in the Terraform docs.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/dnBandwidth",
+            "expect": {
+              "description": "Download bandwidth in kbps. The value 0 implies no Bandwidth Control enforcement."
+            }
+          },
+          "says": "Download bandwidth in kbps; 0 means no enforcement."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_location_management.md",
+            "quotes": [
+              "Download bandwidth in bytes. The value `0` implies no Bandwidth Control enforcement."
+            ]
+          },
+          "says": "Download bandwidth in bytes."
+        }
+      ],
+      "impact": "A value copied from the console or an API read into Terraform, or the reverse, is off by a unit if either description is taken literally."
+    }
+  },
+  "gaps": {
+    "terraform-bandwidth-unit": {
+      "kind": "data",
+      "title": "Whether `up_bandwidth` and `dn_bandwidth` are kbps or bytes",
+      "status": "open",
+      "detail": "The API schema and Python SDK say kbps; the Terraform resource docs and schema description say \"Download bandwidth in bytes\". Resolve by applying a known value and reading it in the console in Mbps.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "resolvable_by": [
+        "iac",
+        "operator"
+      ],
+      "about": [
+        "zia/locations#upBandwidth"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_location_management.md",
+          "quotes": [
+            "Download bandwidth in bytes. The value `0` implies no Bandwidth Control enforcement."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/locations.py",
+          "quotes": [
+            "Download bandwidth in kbps. The value 0 implies no Bandwidth Control enforcement. Default: 0."
+          ]
+        }
+      ]
+    },
+    "legacy-bandwidth-isolation": {
+      "kind": "semantic",
+      "title": "Legacy claim that bandwidth is never isolated within a location",
+      "status": "partial",
+      "detail": "Unverified legacy statements, superseded by three-modes and override-is-isolation: \"True isolation requires separate parent locations\" and \"The parent location's Enforce Bandwidth Control toggle must be enabled for any bandwidth limit to have effect\". The help says a sublocation can be enabled with its own limits when the parent is disabled. What happens to an Override sublocation's limit when the parent later exceeds the sum is unstated.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

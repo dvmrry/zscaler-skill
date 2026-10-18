@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "id": "zia.tenant-profiles.app-specifics",
+  "title": "Per-application options and traps in tenant profiles",
+  "aliases": [
+    "google consumer access",
+    "allow_google_consumers",
+    "allow_google_visitors",
+    "allow_gcp_cloud_storage_read",
+    "slack workspace id",
+    "aws cli tenant restriction",
+    "youtube channel restriction",
+    "dropbox network control"
+  ],
+  "binds": [
+    "zia/tenancy-restriction-profiles#allowGoogleConsumers",
+    "zia/tenancy-restriction-profiles#allowGoogleVisitors",
+    "zia/tenancy-restriction-profiles#allowGcpCloudStorageRead"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.wire-mechanic"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.limits"
+    }
+  ],
+  "claims": {
+    "google-consumer-visitor": {
+      "statement": "A Google profile has two options, both defaulting to No: Allow Consumer Access (consumer access to the profile's domains) and Allow Visitor Access (visitor access to them). The API flags are `allowGoogleConsumers` and `allowGoogleVisitors`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "In the Allow Consumer Access field, select Yes to allow consumer access to the domains in the tenant profile. This field is set to No by default.",
+            "In the Allow Visitor Access field, select Yes to allow visitors access to the domains in the tenant profile. This field is set to No by default."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1tenancyRestrictionProfile/post/requestBody/content/application~1json/schema/properties/allowGoogleConsumers",
+          "expect": {
+            "description": "Flag to allow Google consumers",
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1tenancyRestrictionProfile/post/requestBody/content/application~1json/schema/properties/allowGoogleVisitors",
+          "expect": {
+            "description": "Flag to allow Google visitors",
+            "type": "boolean"
+          }
+        }
+      ],
+      "binds": [
+        "zia/tenancy-restriction-profiles#allowGoogleConsumers",
+        "zia/tenancy-restriction-profiles#allowGoogleVisitors"
+      ],
+      "gaps": [
+        "google-visitor-meaning"
+      ]
+    },
+    "gcp-cloud-storage": {
+      "statement": "A Google Cloud Platform profile has Allow Cloud Storage Resources (default No), which lets users access public cloud storage resources. The API flag is `allowGcpCloudStorageRead`, described as allowing or disallowing cloud storage resources for GCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "In the Allow Cloud Storage Resources field, select Yes to allow the users to access the public cloud storage resources. This field is set to No by default."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1tenancyRestrictionProfile/post/requestBody/content/application~1json/schema/properties/allowGcpCloudStorageRead",
+          "expect": {
+            "description": "Flag to allow or disallow cloud storage resources for GCP",
+            "type": "boolean"
+          }
+        }
+      ],
+      "binds": [
+        "zia/tenancy-restriction-profiles#allowGcpCloudStorageRead"
+      ]
+    },
+    "aws-login-methods": {
+      "statement": "ZIA supports tenancy restriction for AWS console sign-in (root or IAM user), federated identity sign-in, and AWS CLI or programmatic sign-in. Through the CLI it is not supported for a long list of named services, which the Help article enumerates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "Sign in to the AWS Management Console as a root user or IAM user.",
+            "Sign in as a federated identity.",
+            "However, the tenancy restrictions via CLI are not supported for the following services:",
+            "Amazon Bedrock",
+            "AWS Identity and Access Management",
+            "AWS Storage Gateway",
+            "AWS Network Firewall"
+          ]
+        }
+      ]
+    },
+    "slack-wrong-workspace": {
+      "statement": "A wrong value in the Slack Your Workspace ID field can let Slack traffic through to any Slack workspace, a security gap.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "If an incorrect value is entered in this field, Slack might allow traffic to any Slack workspace, resulting in a security gap."
+          ]
+        }
+      ]
+    },
+    "dropbox-team-id-source": {
+      "statement": "The Dropbox header value is the business account's team ID, which comes from the network control section of the Dropbox Business admin console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "This header's value is the business account's team ID, which can be obtained from the network control section of the Dropbox Business admin console."
+          ]
+        }
+      ]
+    },
+    "github-zoom-singletons": {
+      "statement": "A GitHub profile holds one enterprise slug, and only one Zoom tenant profile can be associated with a Cloud App Control rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "You can add only one enterprise slug per profile.",
+            "You can associate only one Zoom tenant profile with the Cloud App Control policy rule."
+          ]
+        }
+      ]
+    },
+    "youtube-config": {
+      "statement": "A YouTube profile is configured as one of three types: YouTube Category ID (a pick-list of categories, any number), YouTube Channel ID, or YouTube School ID. The API carries categories in `itemValue`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "in the YouTube Configuration field, select one of the following configuration types:",
+            "You can select any number of YouTube category IDs and also search for YouTube category IDs.",
+            "In the YouTube Channel ID field, enter the YouTube channel IDs",
+            "In the YouTube School ID field, enter the IDs YouTube assigned to your school network"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/tenancy_restriction_profile.py",
+          "quotes": [
+            "item_value (list): Tenant profile item value for YouTube categories."
+          ],
+          "after": "def add_restriction_profile"
+        }
+      ],
+      "binds": [
+        "zia/tenancy-restriction-profiles#itemValue"
+      ]
+    }
+  },
+  "gaps": {
+    "google-visitor-meaning": {
+      "kind": "semantic",
+      "title": "What a Google visitor session is",
+      "status": "open",
+      "detail": "The Help form and API say only that visitors can be allowed. The legacy wording, \"visitor sessions (Google account login flows used for external sharing)\", is not stated by any captured source. Resolve from the Google Workspace documentation of the header or a lab test.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "about": [
+        "zia/tenancy-restriction-profiles#allowGoogleVisitors"
+      ]
+    }
+  }
+}

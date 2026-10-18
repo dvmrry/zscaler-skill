@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "id": "zia.atp.botnet",
+  "title": "ATP Botnet Protection: C2 servers, C2 traffic, the alert toggle and DGA",
+  "aliases": [
+    "command and control",
+    "c2 detection",
+    "cobalt strike",
+    "mythic",
+    "brute ratel",
+    "poshc2",
+    "dga domains",
+    "alert for unknown c2",
+    "cmdCtlServerBlocked",
+    "botnet protection"
+  ],
+  "binds": [
+    "zia/advanced-threat-settings#cmdCtlServerBlocked",
+    "zia/advanced-threat-settings#cmdCtlTrafficBlocked",
+    "zia/advanced-threat-settings#alertForUnknownOrSuspiciousC2Traffic",
+    "zia/advanced-threat-settings#dgaDomainsBlocked"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.atp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.categories"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.bypass-impact"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.ai-ml-recategorization"
+    }
+  ],
+  "claims": {
+    "known-c2-servers": {
+      "statement": "Command & Control Servers allows or blocks connections to known C2 servers for profiles such as Cobalt Strike, Mythic, Brute Ratel and PoshC2. Known C2 botnet activity and the triggered policy actions can be viewed in the SaaS Security Insights Logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.md",
+          "quotes": [
+            "Command & Control Servers: Choose to Allow or Block connections to known C2 servers for profiles such as Cobalt Strike, Mythic, Brute Ratel, and PoshC2.",
+            "You can view known C2 botnet activity, including triggered policy actions, in the SaaS Security Insights Logs."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/advanced-threat-settings#cmdCtlServerBlocked"
+      ]
+    },
+    "rate-based-profiles": {
+      "statement": "The inspection uses rate-based control to detect and block connections for default profiles of popular security testing tools.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.md",
+          "quotes": [
+            "The inspection feature uses rate-based control to detect and block connections for default profiles for popular security testing tools"
+          ]
+        }
+      ]
+    },
+    "c2-traffic": {
+      "statement": "Command & Control Traffic allows or blocks botnets sending or receiving commands to unknown servers, by examining the content of requests and responses to those servers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.md",
+          "quotes": [
+            "Command & Control Traffic: Choose to Allow or Block botnets sending or receiving commands to unknown servers. The Zscaler service examines the content of the requests and responses to unknown servers."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/advanced-threat-settings#cmdCtlTrafficBlocked"
+      ]
+    },
+    "c2-traffic-needs-decryption": {
+      "statement": "Because Command & Control Traffic detection reads request and response content, it does not see inside HTTPS that is not decrypted.",
+      "tier": "B",
+      "derived_from": [
+        "c2-traffic",
+        "zia.ssl-inspection.bypass-impact:dependent-features"
+      ],
+      "conditions": "Derived from content examination plus the SSL bypass subject's list of features that need decrypted traffic. No source ties this toggle to decryption by name."
+    },
+    "alert-unknown-c2": {
+      "statement": "Alert for Unknown/Suspicious C2 Traffic sends alerts for C2-like traffic that matches no botnet callback or other blocking malware signature by reclassifying it to a new URL category, and is disabled by default. A matching alert subscription tells admins to investigate detections.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.md",
+          "quotes": [
+            "Alert for Unknown/Suspicious C2 Traffic: Enable to allow the service to send alerts for unknown or suspicious C2 traffic that does not match a botnet callback or other blocking malware signature by reclassifying the traffic to the new URL category. This feature is disabled by default.",
+            "To learn how to create a matching alert subscription for Zscaler admins to investigate detections, see Adding Alert Subscriptions."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/advanced-threat-settings#alertForUnknownOrSuspiciousC2Traffic"
+      ],
+      "gaps": [
+        "alert-category-name"
+      ]
+    },
+    "dga": {
+      "statement": "Domain Generation Algorithm (DGA) Domains allows or blocks domains suspected to be generated by domain generation algorithms, which malware families use to produce many domain names for reaching C2 servers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.md",
+          "quotes": [
+            "Domain Generation Algorithm (DGA) Domains: Choose to Allow or Block domains that are suspected to be generated using domain generation algorithms."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/advanced-threat-settings#dgaDomainsBlocked"
+      ]
+    },
+    "counter-based": {
+      "statement": "Counter-based detection of known C2 profiles, counting occurrences over a period, is supported but enabled through the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.md",
+          "quotes": [
+            "The Zscaler service also supports counter-based detection of known C2 profiles (i.e., number of occurrences during a specific period). To access this feature, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "dga-has-capture": {
+      "statement": "dgaDomainsCapture exists in the API next to dgaDomainsBlocked, so DGA has the same Blocked and Capture pair as the other threat classes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/dgaDomainsBlocked",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/dgaDomainsCapture",
+          "expect": {
+            "type": "boolean",
+            "description": "A Boolean value specifying whether packet capture (PCAP) is enabled or not for DGA domains"
+          }
+        }
+      ],
+      "binds": [
+        "zia/advanced-threat-settings#dgaDomainsCapture"
+      ]
+    }
+  },
+  "gaps": {
+    "alert-category-name": {
+      "kind": "data",
+      "title": "Name of the URL category used for unknown C2 alerts",
+      "status": "open",
+      "about": [
+        "zia/advanced-threat-settings#alertForUnknownOrSuspiciousC2Traffic"
+      ],
+      "detail": "The help page says traffic is reclassified to the new URL category but does not name it, so a log or alert filter on it cannot be written from the sources.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

@@ -572,7 +572,7 @@ Unlike inline DLP (see `kb:zia.dlp` and `kb:zia.ssl-inspection`), API CASB does 
 
 ### Tenant profiles vs. CASB tenants
 
-**Tenant Profiles** (Policy > Cloud App Control > Tenant Profiles) — used by inline Cloud App Control to restrict access to specific SaaS platform tenants (e.g., allow only the corporate Google Workspace). These are inline, proxy-path objects. See `references/zia/tenant-profiles.md`.
+**Tenant Profiles** (Policy > Cloud App Control > Tenant Profiles) — used by inline Cloud App Control to restrict access to specific SaaS platform tenants (e.g., allow only the corporate Google Workspace). These are inline, proxy-path objects. See `kb:zia.tenant-profiles`.
 
 **CASB Tenants** (`casbTenant`) — OAuth connection records used by API CASB to authenticate to a SaaS platform for out-of-band scanning. These are distinct objects, distinct API endpoints, and a different concept. Do not confuse them.
 

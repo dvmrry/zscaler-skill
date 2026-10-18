@@ -258,5 +258,5 @@ The following items could not be sourced from the available vendor documents. Re
 - VSE VM sizing, hardening, platform support, use cases — [`./private-service-edge.md`](./private-service-edge.md)
 - Service Edge taxonomy (Public / Private / Virtual form factors, CA connectivity) — [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md)
 - Public SE multi-cluster load sharing (Zscaler-cloud-managed; contrast to VSE clusters) — [`../shared/multi-cluster-load-sharing.md`](../shared/multi-cluster-load-sharing.md) (not yet written; vendor source at `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`)
-- Locations (traffic forwarding location object; binds to cluster for per-cluster policy scoping) — [`./locations.md`](./locations.md)
-- Source IP Anchoring (SIPA) — not supported on VSE; requires physical PSE — [`./forwarding-control.md`](./forwarding-control.md)
+- Locations (traffic forwarding location object; binds to cluster for per-cluster policy scoping) — [`zia.locations`](kb:zia.locations)
+- Source IP Anchoring (SIPA) — not supported on VSE; requires physical PSE — [`zia.forwarding-control`](kb:zia.forwarding-control)

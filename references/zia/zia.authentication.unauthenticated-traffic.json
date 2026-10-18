@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "id": "zia.authentication.unauthenticated-traffic",
+  "title": "What happens to traffic with no user identity",
+  "aliases": [
+    "unauthenticated traffic",
+    "anonymous user",
+    "enable_policy_for_unauthenticated_traffic",
+    "gateway cookie",
+    "domain cookie",
+    "AUP cookie",
+    "traffic marked against location",
+    "user rule did not match",
+    "CONNECT without user",
+    "authentication before policy"
+  ],
+  "binds": [
+    "zia/advanced-settings"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.surrogate-ip"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.exemptions"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.pipeline"
+    }
+  ],
+  "claims": {
+    "cookie-types": {
+      "statement": "The service uses a gateway cookie (login state and count), a per-domain cookie set after login for each domain the user browses, and an Acceptable Use Policy cookie set when the user accepts the AUP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-cookies.md",
+          "quotes": [
+            "Gateway cookie: This cookie contains a string that provides login information",
+            "Domain cookie: After a user logs in to the Zscaler service, the service sets an additional cookie for each domain to which a user browses.",
+            "Acceptable Usage Policy (AUP) cookie: The Zscaler service sets this cookie when a user accepts the AUP."
+          ]
+        }
+      ]
+    },
+    "no-cookie-traffic": {
+      "statement": "Traffic that cannot carry the authentication cookie is marked against the user's location instead of the user: all CONNECT requests, requests from unknown user agents that do not support cookies, traffic to globally exempted sites (the Exempted URL Categories), traffic to locally exempted sites (the Exempted URLs list), and SSL traffic that is not decrypted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-cookies.md",
+          "quotes": [
+            "The Zscaler service marks the following user traffic against the user's location instead of the user due to the absence of authentication cookies:",
+            "All the CONNECT method requests.",
+            "SSL traffic that is not decrypted."
+          ]
+        }
+      ]
+    },
+    "location-policy-fallback": {
+      "statement": "Without Surrogate IP, the location's policies apply to traffic from a user that cannot be authenticated; with it, the user's policies apply instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Without this service enabled, the location policies apply to unauthenticated user traffic."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-surrogate-ip.md",
+          "quotes": [
+            "map a user to a private IP address so it applies the user's policies, instead of the location's policies, to traffic that it cannot authenticate"
+          ]
+        }
+      ]
+    },
+    "unauthenticated-policy-setting": {
+      "statement": "The advanced setting enable_policy_for_unauthenticated_traffic controls whether policies that include user and department criteria can be configured and applied for unauthenticated traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_advanced_settings.go",
+          "quotes": [
+            "Value indicating whether policies that include user and department criteria can be configured and applied for unauthenticated traffic"
+          ]
+        }
+      ],
+      "gaps": [
+        "setting-live-value"
+      ]
+    },
+    "connect-sni-skip": {
+      "statement": "At the CONNECT request or TLS Client Hello, user context exists only with Surrogate IP or Zscaler Client Connector. If there is no user context and authentication is enabled for the location, the Public Service Edge skips policy evaluation at that stage to avoid a wrong decision; if the policy for unauthenticated traffic is enabled, it evaluates the policy there instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "If there is no user context and if authentication is enabled for the location, then the Public Service Edge skips the policy evaluation to avoid an incorrect decision.",
+            "when the user context is missing, but the policy for unauthenticated traffic is enabled, then the Public Service Edge evaluates the policy on the CONNECT request"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "auth-before-policy": {
+      "kind": "semantic",
+      "title": "Whether authentication is a gate that runs before every other policy",
+      "status": "open",
+      "detail": "Unverified legacy statement: ZIA Authentication Policy is the gate that runs before any other policy evaluates. No registered source states this. The policy-enforcement article states only the CONNECT/SNI case (see connect-sni-skip) and the cookie article says unauthenticated traffic is judged as the location, so the general ordering is unstated. A vendor statement of evaluation order would settle it.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "explaining why identity-scoped rules are skipped"
+    },
+    "setting-live-value": {
+      "kind": "data",
+      "title": "Whether the tenant has the unauthenticated-traffic policy setting on",
+      "status": "open",
+      "detail": "Whether user and department rules can apply to unauthenticated traffic depends on enable_policy_for_unauthenticated_traffic in the tenant's advanced settings, and no committed data holds that tenant's value.",
+      "resolvable_by": [
+        "iac",
+        "operator"
+      ],
+      "blocks": "deciding whether a user-scoped rule can match traffic with no identity"
+    }
+  }
+}

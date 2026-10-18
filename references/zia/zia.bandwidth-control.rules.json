@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "id": "zia.bandwidth-control.rules",
+  "title": "Bandwidth Control rules: terms, order and rank",
+  "aliases": [
+    "bandwidth control rule order",
+    "bandwidth rule not firing",
+    "bandwidth rule criteria",
+    "bandwidth control admin rank",
+    "disabled bandwidth rule"
+  ],
+  "binds": [
+    "zia/bandwidth-control-rules#order",
+    "zia/bandwidth-control-rules#state",
+    "zia/bandwidth-control-rules#rank",
+    "zia/bandwidth-control-rules#bandwidthClasses",
+    "zia/bandwidth-control-rules#protocols"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.bandwidth-control.classes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.default-rule"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.allocation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order.registry"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.rule-order"
+    }
+  ],
+  "claims": {
+    "rule-terms": {
+      "statement": "Each rule defines a maximum and minimum bandwidth for the bandwidth classes in the rule, along with other parameters such as location and time of day.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#minBandwidth",
+        "zia/bandwidth-control-rules#maxBandwidth"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-bandwidth-control.md",
+          "quotes": [
+            "Each rule defines a maximum and minimum bandwidth for the bandwidth classes in the rule along with other parameters, like location and time of day."
+          ]
+        }
+      ]
+    },
+    "criteria-expression": {
+      "statement": "Rule conditions are grouped: Locations OR Location Groups, AND Time, AND (Bandwidth Classes AND Protocols). The relationship between the categories is AND.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#locations",
+        "zia/bandwidth-control-rules#locationGroups",
+        "zia/bandwidth-control-rules#timeWindows",
+        "zia/bandwidth-control-rules#bandwidthClasses",
+        "zia/bandwidth-control-rules#protocols"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-bandwidth-control-policy.md",
+          "quotes": [
+            "The logical relationship between the categories is AND",
+            "Where [ Locations OR Location Groups ] AND",
+            "When: [ Time ] AND",
+            "What: [ Bandwidth Classes AND Protocols ]"
+          ]
+        }
+      ]
+    },
+    "ascending-order": {
+      "statement": "Bandwidth Control rules are evaluated in ascending numerical rule order, and the default rule is evaluated last.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#order"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-bandwidth-control.md",
+          "quotes": [
+            "Bandwidth Control rules are evaluated in ascending numerical order and the default rule is evaluated last."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules/post/requestBody/content/application~1json/schema/properties/order",
+          "expect": {
+            "description": "Rule order. Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and the Rule Order reflects this rule’s place in the order. You can change the value, but if you've enabled the Admin Rank, your assigned admin rank determines the Rule Order values you can select."
+          }
+        }
+      ]
+    },
+    "order-is-priority": {
+      "statement": "Bandwidth is allocated by rule order, so classes that need priority, such as business-critical applications, belong near the top of the rules.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#order"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-bandwidth-control.md",
+          "quotes": [
+            "Bandwidth is allocated based on the rule order.",
+            "that require priority Bandwidth Control should be placed at the top of the rule sets."
+          ]
+        }
+      ]
+    },
+    "disabled-holds-slot": {
+      "statement": "A disabled Bandwidth Control rule is not enforced but keeps its place in the rule order, and the service skips it and moves to the next rule.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#state",
+        "zia/bandwidth-control-rules#order"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules/post/requestBody/content/application~1json/schema/properties/state",
+          "expect": {
+            "description": "Indicates whether the rule is enabled or disabled. An enabled rule is actively enforced. A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule."
+          }
+        }
+      ]
+    },
+    "admin-rank": {
+      "statement": "With admin ranking enabled in Advanced Settings the rule list shows an Admin Rank column, and the admin rank limits the rule order values an administrator can select.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#rank",
+        "zia/bandwidth-control-rules#order"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-bandwidth-control.md",
+          "quotes": [
+            "This is only visible if you have enabled admin ranking in the Advanced Settings."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules/post/requestBody/content/application~1json/schema/properties/order",
+          "expect": {
+            "description": "Rule order. Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and the Rule Order reflects this rule’s place in the order. You can change the value, but if you've enabled the Admin Rank, your assigned admin rank determines the Rule Order values you can select."
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "multi-rule-class": {
+      "kind": "semantic",
+      "title": "A class referenced by more than one rule",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Rules are first-match-wins in ascending Rule Order. ... Same order-model as URL Filtering and Firewall.' The captured pages describe a top-to-bottom allocation in two passes, not a stop-at-first-match walk, and none states which rule's minimum and maximum apply when the same class appears in two rules.",
+      "blocks": "deterministic answers about which rule shapes a class that two rules reference",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "about": [
+        "zia/bandwidth-control-rules#bandwidthClasses"
+      ]
+    }
+  }
+}

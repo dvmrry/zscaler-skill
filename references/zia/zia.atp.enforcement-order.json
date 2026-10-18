@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "id": "zia.atp.enforcement-order",
+  "title": "Where Malware Protection and ATP checks fall in the web enforcement order",
+  "aliases": [
+    "policy enforcement order",
+    "order of enforcement atp",
+    "http get request order",
+    "http post request order",
+    "response scanning order",
+    "atp before url filtering",
+    "malware protection runs when"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.atp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.malware-protection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.security-exceptions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.blocked-urls"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.blocked-countries"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.precedence"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.rule-order"
+    }
+  ],
+  "claims": {
+    "first-violation-blocks": {
+      "statement": "When the web module finds a transaction violates a policy, the Public Service Edge blocks it immediately and does not enforce the policies that follow; the firewall module does not evaluate it, though firewall logs still show the web transaction as blocked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "the Public Service Edge immediately blocks that transaction and does not continue enforcing the policies that follow.",
+            "However, your firewall logs show that the user's web transaction is blocked."
+          ]
+        }
+      ]
+    },
+    "get-order": {
+      "statement": "For an HTTP GET request the order is: 1 Custom Malicious URLs (ATP denylist), 2 Cloud App Control, 3 URL Filtering, 4 Security Exceptions, 5 Browser Control, 6 Country-Based Blocking, 7 IPS Signature Detection, 8 Suspicious Content Protection (Page Risk), 9 P2P Control, 10 Bandwidth Control. Malware Protection and Sandbox are not in the GET request list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "1. Custom Malicious URLs (Advanced Threat Protection)",
+            "2. Cloud App Control:",
+            "3. URL Filtering:",
+            "4. Security Exceptions:",
+            "5. Browser Control:",
+            "6. Country-Based Blocking (Advanced Threat Protection)",
+            "7. IPS Signature Detection (Advanced Threat Protection)",
+            "8. Suspicious Content Protection (Advanced Threat Protection)",
+            "9. P2P Control (Advanced Threat Protection)",
+            "10. Bandwidth Control:"
+          ],
+          "after": "This is a user request to retrieve a resource from the web (e.g., a web page)."
+        }
+      ],
+      "conditions": "The absence of Malware Protection from the GET list is read from the document's list; files in GET responses are covered by the response order."
+    },
+    "post-order": {
+      "statement": "For an HTTP POST request the order is: 1 Custom Malicious URLs, 2 Cloud App Control, 3 URL Filtering, 4 Security Exceptions, 5 Browser Control, 6 Country-Based Blocking, 7 Malicious URL Block (the Zscaler URL database), 8 IPS Signature Detection, 9 Suspicious Content Protection, 10 Malware Protection, 11 File Type Control, 12 Data Loss Prevention, 13 P2P Controls, 14 Bandwidth Control.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "1. Custom Malicious URLs:",
+            "4. Security Exceptions:",
+            "6. Country-Based Blocking (Advanced Threat Protection)",
+            "7. Malicious URL Block (Advanced Threat Protection)",
+            "8. IPS Signature Detection (Advanced Threat Protection)",
+            "9. Suspicious Content Protection (Advanced Threat Protection)",
+            "10. Malware Protection:",
+            "11. File Type Control:",
+            "12. Data Loss Prevention:",
+            "13. P2P Controls:",
+            "14. Bandwidth Control:"
+          ],
+          "after": "This is a user request to submit or post data to the web"
+        }
+      ]
+    },
+    "response-order": {
+      "statement": "For an HTTP response the order is: 1 Security Exceptions, 2 IPS Signature Detection, 3 Suspicious Content Protection, 4 Sandbox check for known malicious files, 5 Malware Protection, 6 File Type Control, 7 Sandbox analysis of unknown files, then AI/ML-based content categorization. The custom malicious URL list and country blocking are not in the response list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "1. Security Exceptions:",
+            "2. IPS Signature Detection (Advanced Threat Protection)",
+            "3. Suspicious Content Protection:",
+            "4. Sandbox (check for known malicious files)",
+            "5. Malware Protection:",
+            "6. File Type Control:",
+            "7. Sandbox (check for unknown files)"
+          ],
+          "after": "This is data sent from the destination host back to the user in response to an HTTP GET"
+        }
+      ],
+      "conditions": "The absences are read from the document's response list."
+    },
+    "mp-after-atp-checks": {
+      "statement": "In the POST request and in the response, the Malware Protection check comes after the ATP checks, so an ATP block ends the transaction before file scanning would run.",
+      "tier": "B",
+      "derived_from": [
+        "post-order",
+        "response-order",
+        "first-violation-blocks"
+      ],
+      "conditions": "Derived from the listed order and the stop-at-first-violation rule."
+    }
+  }
+}

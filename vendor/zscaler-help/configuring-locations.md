@@ -1,0 +1,107 @@
+# Configuring Locations
+
+**Source:** https://help.zscaler.com/zia/configuring-locations
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1399246, revision 3246196
+
+---
+
+This article describes how to add a single location. You can add up to 32K locations. For a complete list of ranges and limits per feature, see Ranges & Limitations. You can also use a CSV file to import multiple locations and sublocations. To learn more, see Configuring Multiple Locations and Sublocations.
+To add a location:
+- From the navigation menu, go to Infrastructure > Location Management > Legacy Locations.
+- Click Add Location.
+- The Add Location window appears.
+- In the Add Location window, in the Location section:
+  - Name: Enter a name for the location. To learn more about naming a location, see Naming Locations & Sublocations.
+  - Country: Select the location's country.
+  - City/State/Province: Enter the location's city, state, or province, if applicable.
+  - Time Zone: Select the location's time zone.
+  - When you specify the location in a policy, the service applies the policy according to the location's time zone. For example, if a Cloud App Control policy blocks posting to Facebook between 8:00 AM and 5:00 PM, and the rule is applied to locations in Spain and California, users at each location are blocked during their respective daytime hours.
+  - Manual Location Groups: Search for and select the manual location group names. The location is added to the manual groups you selected. Otherwise, leave the selection as None.
+  - Dynamic Location Groups: This field shows the dynamic location groups that the location belongs to.
+  - A predefined dynamic location group corresponding to the location type selection is automatically populated, and this field is not editable.
+  - Exclude from Manual Location Groups: Enable or disable the switch. If enabled, the location cannot be added to manual location groups. The location is also removed from any manual groups it's already assigned to. If disabled, the location can be added to any manual groups.
+  - Exclude from Dynamic Location Groups: Enable or disable this option. If enabled, the location is not assigned to any matching dynamic location groups automatically. The location is also removed from any dynamic groups it is already assigned to. If disabled, the location is automatically assigned to all matching dynamic groups.
+  - This option only applies to the user-defined dynamic location groups. Disabling this option does not impact the association of the location to the predefined location groups.
+  - Location Type: Select a location type from the drop-down menu. You can also search for any one of the following location types:
+    - Corporate user traffic
+    - Extranet
+    - Selecting Extranet as the location type changes the configuration steps. To learn more, see Configuring an Extranet.
+    - Guest Wi-Fi traffic
+    - IoT traffic
+    - Server traffic
+  - Selecting a location type assigns the location automatically to a corresponding predefined location group.
+  - When you update an existing location or add a new location, ensure to select a value for this field.
+  - Managed By: If this location is being managed by an SD-WAN partner, search for and select their name from the drop-down menu. If this location is not being managed by a partner, select Self.
+  - Description: (Optional) Enter additional notes or information. The description cannot exceed 1,024 characters.
+- See image.
+- In the Addressing section:
+  - Static IP Addresses and GRE Tunnels: Choose the IP addresses of your local gateway. Ensure that you do not choose a shared public IP address for a specific tenant's location.
+  - The static IP addresses that appear in the drop-down menu are the addresses that are provisioned for your organization. To learn more, see Self-Provisioning of Static IP Addresses. If you want Zscaler to provision your static IP addresses, submit them to Zscaler Support so that they can be properly added to the menu. If the Zscaler Client Connector traffic does not match any of the IP addresses listed here, the location is tagged as Road Warrior in the logs.
+  - Proxy Ports: Search for and choose your organization's subscribed ports for the location.
+  - VPN Credentials: If you are configuring an IPSec VPN tunnel to forward traffic to the Zscaler service, search for and choose IP addresses or FQDNs for the location.
+  - The GRE Tunnel Information is displayed for the selected IP address if a GRE tunnel exists for it. You can also export this information. For each local gateway IP address, you can see the following information:
+    - Tunnel Source IP: The static IP address of the GRE tunnel.
+    - Primary Destination: The primary data center VIP of the GRE tunnel.
+    - Secondary Destination: The secondary data center VIP of the GRE tunnel.
+    - Primary Destination Internal Range: The primary destination internal GRE IP range.
+    - Secondary Destination Internal Range: The secondary destination internal GRE IP range.
+  - Virtual ZENs: Search for and select your organization's Virtual Service Edges for the location.
+  - Virtual ZEN Clusters: Search for and select your organization's Virtual Service Edge clusters for the location.
+- See image.
+- In the Gateway Options section:
+  - Use XFF from Client Request: Enable this option if this location uses proxy chaining to forward traffic to the Zscaler service, and you want the service to discover the client RFC 1918 IP address from the X-Forwarded-For (XFF) headers that your on-premises proxy server inserts in outbound HTTP requests. The XFF header identifies the client IP address, which can be leveraged by the service to identify the client’s sublocation.
+  - Using the XFF headers, the service can apply the appropriate sublocation policy to the transaction, and if Enable IP Surrogate is turned on for the location or sublocation, the appropriate user policy is applied to the transaction. When the service forwards the traffic to its destination, it removes the original XFF header and replaces it with an XFF header that contains the IP address of the client gateway (the organization’s public IP address), ensuring that an organization's internal IP addresses are never exposed externally.
+  - Enforce Authentication: Enable to require users from this location to authenticate to the service. To learn more, see About Provisioning and Authenticating Users.
+  - Enable Caution: If you disabled Enforce Authentication, you can enable this feature and set the Caution Interval to be greater than one minute to display a caution notification to unauthenticated users. To learn more, see Configuring Browser-Based Global End User Notifications. If you enable this feature, you must use one of the following methods to forward traffic to the service:
+    - A GRE or IPSec tunnel without NAT
+    - Forward proxy chaining with the Enable XFF Forwarding option turned on for the location
+  - Enable AUP: If you disabled Enforce Authentication, you can enable this feature to display an Acceptable Use Policy (AUP) for unauthenticated traffic and require users to accept it. If you enable this feature:
+    - In Custom AUP Frequency (Days) specify, in days, how frequently the AUP is displayed to users.
+    - A First Time AUP Behavior section appears, with the following settings:
+      - If Block Internet Access is enabled, the Zscaler service disables all access to the internet, including non-HTTP traffic, until the user accepts the AUP that is displayed to them.
+      - If Force SSL Inspection is enabled, the SSL Inspection enforces an AUP for HTTPS traffic.
+  - You can customize the AUP notification message on the Global EUN Configuration page. To learn more, see Configuring Browser-Based Global End User Notifications.
+  - See image.
+  - Authentication Profile: If you enabled Enforce Authentication, you can select a custom authentication timeout profile. The profile allows you to specify the authentication frequency for the location. To learn more, see About Authentication Profiles.
+  - Authentication profiles are a feature with limited availability. To access the feature, contact your Zscaler Account team.
+  - Enable Digest Authentication: If you enabled Enforce Authentication, select this option to enforce digest authentication on all web traffic explicitly forwarded from the location and its associated dedicated ports. To learn more, see Synchronizing User Data with an Active Directory or OpenLDAP.
+  - Enable Basic Authentication: If you enabled Enforce Authentication, select this option to enforce basic authentication on all web traffic explicitly forwarded from the location and its associated dedicated ports. To learn more, see Deploying Basic Authentication.
+  - The following caveats apply to Basic Authentication:
+    - The Cloud Service API Security feature must be enabled for your organization.
+    - The Hosted DB user repository type with the Form-Based authentication type is supported.
+    - The hosted users/passwords must be created or imported using a CSV file.
+    - The users must be enrolled for basic authentication using the following APIs:
+      - https://zsapi.<cloud>.net/api/v1/authenticatedSession
+      - https://zsapi.<cloud>.net/api/v1/users/<userid>/enroll
+  - For the authenticatedSession API endpoint, admin user credentials and an API key are required. For the users API endpoint, you can get the user IDs using the browser developer tool on the User Management page.
+  - After the user's enrollment, their credentials are used for basic proxy authentication.
+  - Here is an example of basic proxy authentication:
+  - curl -ivk -x gateway.<cloud>.net:<port> -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/109.0" -U "<username>@<domain.com>:<passwd>" example.com
+  - The user credentials are transferred in clear text when using basic authentication. So, you must use an IPSec tunnel from a router or firewall or an encrypted tunnel from cloud or branch connectors if you are forwarding the authenticated traffic over the public internet.
+  - Enable IP Surrogate: If you enabled Enforce Authentication, select this option if you want to map users to device IP addresses. Any sublocations associated with this location do not inherit this setting. To learn more, see About Surrogate IP.
+  - If you enable this feature on a location:
+    - In Idle Time to Disassociation, specify how long after a completed transaction the service retains the IP address-to-user mapping.
+    - If you want to use the existing IP address-to-user mapping (acquired from the surrogate IP) to authenticate users sending traffic from known browsers, enable Enforce Surrogate IP for Known Browsers.
+    - With this feature enabled, the Zscaler service uses existing IP-to-user mapping for authentication even if users go to sites that support cookies. This allows the service to authenticate without requiring the browser to complete HTTP redirects for every transaction, ensuring performance for users who connect over high-latency satellite links, for example. If the feature is disabled, the service authenticates users on browsers with cookies or other configured authentication mechanisms.
+      - If you enabled Enforce Surrogate IP for Known Browsers, in Refresh Time for re-validation of Surrogacy, specify the length of time that the Zscaler service can use IP address-to-user mapping for authenticating users sending traffic from known browsers. After the defined period of time elapses, the service refreshes and revalidates the existing IP-to-user mapping so that it can continue to use the mapping for authenticating users on browsers.
+      - The refresh time for the revalidation of IP surrogacy must be shorter than the DHCP lease time, otherwise, the wrong user policies might be applied. Also, Zscaler recommends setting the Refresh Time for re-validation of Surrogacy to a time period shorter than what you specified for Idle Time to Disassociation.
+      - If you enabled Enforce Surrogate IP for Known Browsers, in Supported Authentication Methods, select either Cookie or Cookie and Proxy. Selecting Cookie and Proxy prevents additional authentication challenges to traffic using both cookie and non-cookie-based authentication methods after the initial challenge. If Cookie is selected, all other methods are required to authenticate after each request.
+      - If you selected Enable Basic Authentication, you must select Cookie and Proxy for IP surrogacy to work.
+  - See image.
+  - Enable Proxy JWT Authentication: If you enabled Enforce Authentication, select this option to enforce JSON Web Token (JWT) authentication on all workload traffic explicitly forwarded from the location and its associated dedicated ports. To learn more, see Understanding JWT Authentication.
+  - JWT authentication is not supported for the Extranet and IoT Traffic location types.
+  - Enable Kerberos Authentication: If you enabled Enforce Authentication, you can enable this feature to enforce Kerberos authentication on all web traffic explicitly forwarded from the location and its associated dedicated ports. To learn more, see Deploying Kerberos Authentication.
+  - Enforce Firewall Control: Select to enable the service's firewall controls.
+    - Enable IPS Control: If you enabled Enforce Firewall Control, select to enable the service's IPS controls.
+  - See image.
+  - Enable IPv6: Enable this option to allow IPv6 traffic for the location.
+  - DNS64 Prefix: (Optional) If you enabled IPv6, select a DNS64 prefix for the IPv6 addresses. To learn more, see About the DNS64 Prefix.
+  - See image.
+  - If you add a sublocation to the location with this option enabled, the service automatically creates new sublocations called other and other6 for this location. All the existing policy rules referring to the parent location now refer to the other sublocation. You need to manually configure rules to apply to traffic from the sublocation created.
+- In the Bandwidth Control section, you can enforce bandwidth controls for the location. If enabled, specify the maximum bandwidth limits for Download (Mbps) and Upload (Mbps). All sublocations share the bandwidth limits assigned to this location. However, you can override this behavior to assign a fixed bandwidth to a sublocation.
+- See image.
+- If the location is enforcing bandwidth controls, and you have configured sublocations, this section displays Shared Bandwidth information in the Edit Location window. The shared bandwidth download/upload limit displayed is the location's bandwidth plus all sublocations that have Use Location Bandwidth enabled. It also displays Override Bandwidth information if any sublocations are overriding the parent location and using a fixed bandwidth.
+- See image.
+- If you disable Enforce Bandwidth Control for a location, it also disables Enforce Bandwidth Control for all the sublocations configured for the location. However, you can still select Enable for the sublocations and then specify the maximum bandwidth limits for Download (Mbps) and Upload (Mbps).
+- Click Save and activate the change.

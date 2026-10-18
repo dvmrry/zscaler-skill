@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "id": "zia.bandwidth-control.limits",
+  "title": "Bandwidth Control limits: rules, classes, domains",
+  "aliases": [
+    "bandwidth control rule limit",
+    "bandwidth class limit",
+    "245 custom classes",
+    "8 classes with domains",
+    "25000 bandwidth class domains",
+    "125 bandwidth rules"
+  ],
+  "binds": [
+    "zia/bandwidth-control-rules",
+    "zia/bandwidth-classes"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.bandwidth-control.classes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.api-surface"
+    }
+  ],
+  "claims": {
+    "rules-125": {
+      "statement": "An organization can have 125 Bandwidth Control policy rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "Bandwidth Control Policy Rules per Organization | 125 rules"
+          ]
+        }
+      ]
+    },
+    "custom-classes-245": {
+      "statement": "An organization can have up to 245 custom bandwidth classes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-bandwidth-classes.md",
+          "quotes": [
+            "You can add up to 245 custom bandwidth classes."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "Custom Bandwidth Classes | 245 classes"
+          ]
+        }
+      ]
+    },
+    "domain-classes-8": {
+      "statement": "At most 8 bandwidth classes can have custom domains. This is a cap on the number of classes that use the Domains field, not on domains.",
+      "tier": "A",
+      "conditions": "Stated under the Cloud Applications tab; the Help does not say how the cap applies to the other three tabs.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-bandwidth-classes.md",
+          "quotes": [
+            "You can have up to 8 bandwidth classes with custom domains.",
+            "You can add domains for up to 8 individual bandwidth classes."
+          ]
+        }
+      ]
+    },
+    "domains-25000": {
+      "statement": "Up to 25,000 domains can be added across all bandwidth classes, including those from URL categories.",
+      "tier": "A",
+      "conditions": "Stated under the Cloud Applications tab.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-bandwidth-classes.md",
+          "quotes": [
+            "You can add up to 25,000 domains across all bandwidth classes (including URL categories)."
+          ]
+        }
+      ]
+    },
+    "predefined-8": {
+      "statement": "The Ranges and Limitations page lists 8 predefined bandwidth classes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "Predefined Bandwidth Classes | 8 classes"
+          ]
+        }
+      ]
+    },
+    "name-255": {
+      "statement": "A bandwidth class name can be up to 255 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "Bandwidth Class Name | 255 characters"
+          ]
+        }
+      ]
+    },
+    "page-500": {
+      "statement": "The class Domains list shows up to 500 items per page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-bandwidth-classes.md",
+          "quotes": [
+            "For item lists, you can view up to 500 items on a page"
+          ]
+        }
+      ]
+    },
+    "counts-toward-custom-urls": {
+      "statement": "Bandwidth Class Domains are among the entries counted in the Custom URLs/TLDs limit (25K by default, extendable by subscription); duplicates are counted once.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "Bandwidth Class DomainsDuplicate URLs/TLDs are counted once.",
+            "The default limit for custom URLs/TLDs is 25K."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "caps-api-enforced": {
+      "kind": "semantic",
+      "title": "Whether the rule, class and domain caps are enforced by the API",
+      "status": "open",
+      "former_ids": [
+        "zia-56"
+      ],
+      "detail": "The caps come from console Help. No captured source shows whether the API rejects writes beyond them or only the console does.",
+      "blocks": "deciding whether automation needs its own guard before hitting a cap",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "domain-pool-relationship": {
+      "kind": "semantic",
+      "title": "Class domain cap versus the custom URL pool",
+      "status": "open",
+      "detail": "Class domains count toward the Custom URLs/TLDs limit, yet Help separately gives 25,000 domains across all classes, and the About Bandwidth Classes article gives 75,000 custom URLs and 64 custom categories. How the 25,000 class cap sits inside the 25K-plus-subscription pool is not stated.",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ]
+    }
+  }
+}

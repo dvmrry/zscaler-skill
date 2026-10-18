@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "id": "zia.atp.page-risk",
+  "title": "ATP Page Risk threshold and how the score is built",
+  "aliases": [
+    "page risk",
+    "page risk index",
+    "suspicious content protection",
+    "risk tolerance",
+    "riskTolerance",
+    "this page is unsafe",
+    "high pagerisk index",
+    "page risk 35"
+  ],
+  "binds": [
+    "zia/advanced-threat-settings#riskTolerance",
+    "zia/advanced-threat-settings#riskToleranceCapture"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.atp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.categories"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.block-diagnosis"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.atp.security-exceptions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.enforcement-order"
+    }
+  ],
+  "claims": {
+    "threshold-blocks-above": {
+      "statement": "A single slider sets the organization's page risk tolerance. The service blocks users from web pages whose Page Risk Index score is higher than the value set, and the score is computed in real time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.md",
+          "quotes": [
+            "Set the slider to the page risk tolerance score of your organization.",
+            "The Zscaler service blocks users from accessing web pages with a Page Risk Index score higher than the value you set.",
+            "The Zscaler service calculates the Page Risk Index score of a web page in real time."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/advanced-threat-settings#riskTolerance"
+      ]
+    },
+    "score-composition": {
+      "statement": "The Page Risk Index combines a page-level index (injected scripts, vulnerable ActiveX, zero-pixel iFrames) with a Domain Risk Index (hosting country, domain age, past results, links to high-risk top-level domains) into one score.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.md",
+          "quotes": [
+            "The Zscaler service analyzes malicious content on a web page (e.g., injected scripts, vulnerable ActiveX, zero-pixel iFrames, etc.) and creates a Page Risk Index.",
+            "The service also analyzes data from the domain (e.g., hosting country, domain age, past results, links to high-risk, top-level domains, etc.) and creates a Domain Risk Index.",
+            "The Page Risk and Domain Risk Index are combined to produce a single Page Risk Index score."
+          ]
+        }
+      ]
+    },
+    "tolerance-labels": {
+      "statement": "The slider's labels are Low Risk (no risk tolerance, only safe pages), Moderate Risk (slightly suspicious pages allowed) and High Risk (very risky pages allowed).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.md",
+          "quotes": [
+            "Low Risk: Allow users to access safe web pages. There is no risk tolerance.",
+            "Moderate Risk: Allow users to access slightly suspicious web pages. There is a moderate risk tolerance.",
+            "High Risk: Allow users to access very risky web pages. There is a high risk tolerance."
+          ]
+        }
+      ]
+    },
+    "recommended-35": {
+      "statement": "Zscaler recommends setting the Page Risk tolerance to 35.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.md",
+          "quotes": [
+            "Zscaler recommends setting it to 35."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "recommended-advanced-threat-protection-policy.md",
+          "quotes": [
+            "Suspicious Content Protection (Page Risk): 35"
+          ]
+        }
+      ]
+    },
+    "wire-range": {
+      "statement": "In the API the tolerance is the integer riskTolerance, a Page Risk index between 0 and 100 with 100 the highest risk; users are blocked from pages with a higher Page Risk than the value. riskToleranceCapture is its Capture flag.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/riskTolerance",
+          "expect": {
+            "type": "integer",
+            "description": "The Page Risk tolerance index set between 0 and 100 (100 being the highest risk). Users are blocked from accessing web pages with higher Page Risk than the specified value."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/riskToleranceCapture",
+          "expect": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "binds": [
+        "zia/advanced-threat-settings#riskTolerance",
+        "zia/advanced-threat-settings#riskToleranceCapture"
+      ]
+    },
+    "higher-is-more-permissive": {
+      "statement": "A higher tolerance value lets more pages through: raising the number from 35 allows pages with higher scores that the recommended value blocks.",
+      "tier": "B",
+      "derived_from": [
+        "threshold-blocks-above",
+        "wire-range"
+      ],
+      "conditions": "Derived from the block-above rule. The numeric ranges behind the Low, Moderate and High labels are not stated."
+    }
+  },
+  "gaps": {
+    "label-ranges": {
+      "kind": "data",
+      "title": "Which numeric values the Low, Moderate and High labels correspond to",
+      "status": "open",
+      "about": [
+        "zia/advanced-threat-settings#riskTolerance"
+      ],
+      "detail": "The help page names three tolerance labels and recommends 35, and the API takes 0 to 100. No source maps the labels to numbers.",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

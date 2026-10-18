@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "id": "zia.bandwidth-control.location-scope",
+  "title": "Which traffic Bandwidth Control covers: locations and limits",
+  "aliases": [
+    "enforce bandwidth control",
+    "sublocation bandwidth",
+    "guest sublocation using corporate bandwidth",
+    "remote users bandwidth control",
+    "location bandwidth limits",
+    "bandwidth control toggle"
+  ],
+  "binds": [
+    "zia/locations",
+    "zia/sublocations"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.bandwidth-control.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.allocation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.bandwidth"
+    }
+  ],
+  "claims": {
+    "limits-per-location": {
+      "statement": "Bandwidth Control starts with maximum upload and download limits per location, which apply to traffic proxied to Zscaler. These limits are required before the class-based rules (the second level) can be used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-bandwidth-control.md",
+          "quotes": [
+            "You can configure maximum upload and download bandwidth limits for each location in your organization.",
+            "These limits apply to the traffic that is proxied to Zscaler for Bandwidth Control.",
+            "You must configure upload and download bandwidth limits for your locations or sublocations to use the second level of bandwidth controls."
+          ]
+        }
+      ]
+    },
+    "known-locations-only": {
+      "statement": "Bandwidth controls apply to traffic from configured locations only. They do not apply to remote users, whose traffic does not come from a configured location and whose source IP has unknown upload and download bandwidth.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-bandwidth-control.md",
+          "quotes": [
+            "The service applies bandwidth controls to traffic from known locations only",
+            "The Bandwidth Control policy does not apply to remote users because their traffic does not come from a configured location"
+          ]
+        }
+      ]
+    },
+    "enforce-toggle": {
+      "statement": "A location's Bandwidth Control section has an Enforce Bandwidth Control switch plus Download and Upload maximums in Mbps.",
+      "tier": "A",
+      "binds": [
+        "zia/locations"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-bandwidth-control-policy.md",
+          "quotes": [
+            "Enforce Bandwidth Control: Enable to enforce Bandwidth Control for the location.",
+            "Download (Mbps): Specify the maximum bandwidth limit."
+          ]
+        }
+      ]
+    },
+    "toggle-gates-rules": {
+      "statement": "Bandwidth Control rules therefore shape a location's traffic only where that location enforces Bandwidth Control and has limits; with the switch off, rules and classes for that location have no effect.",
+      "tier": "B",
+      "derived_from": [
+        "enforce-toggle",
+        "limits-per-location"
+      ],
+      "conditions": "Derived from the toggle's description and the requirement for limits; no source states the outcome of a rule for a location with the toggle off."
+    },
+    "guest-wifi": {
+      "statement": "Enforcing fixed limits on a sublocation is described as particularly useful for guest Wi-Fi networks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-bandwidth-control.md",
+          "quotes": [
+            "Enforcing limits is particularly useful for guest Wi-Fi networks."
+          ]
+        }
+      ]
+    },
+    "sizing": {
+      "statement": "Location limits should leave out UDP traffic sent to Zscaler and traffic not forwarded to Zscaler, should exclude TCP overhead, and are best set to 70-80% of the location's overall bandwidth.",
+      "tier": "A",
+      "conditions": "The overhead figure is stated two ways in the same article; see the divergence.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-bandwidth-control.md",
+          "quotes": [
+            "Ensure that you exclude UDP traffic sent to Zscaler and traffic not forwarded to Zscaler while specifying the limits.",
+            "Only 70–80% of the overall bandwidth per location is the ideal setting for upload and download limits."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "overhead-percentage": {
+      "summary": "How much of a location's bandwidth to subtract as TCP overhead",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-bandwidth-control.md",
+            "quotes": [
+              "About 5–7% of TCP traffic is overhead, such as packet headers. The Zscaler service does not include these in its bandwidth calculations. It only includes the application traffic."
+            ]
+          },
+          "says": "About 5-7% of TCP traffic is overhead that the service leaves out of its bandwidth calculations."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-bandwidth-control.md",
+            "quotes": [
+              "(Actual bandwidth) – (10–15% overhead) = Upload and Download bandwidth"
+            ]
+          },
+          "says": "The sizing equation subtracts 10-15% overhead from actual bandwidth."
+        }
+      ],
+      "impact": "A limit computed with the wrong overhead is off by several percent of the link; use the 70-80% guidance as the planning point and treat the exact overhead as unresolved."
+    }
+  },
+  "gaps": {
+    "sublocation-share-detail": {
+      "kind": "semantic",
+      "title": "How shared sublocation bandwidth is divided under contention",
+      "status": "open",
+      "detail": "How a sublocation share of its location bandwidth interacts with rule minimums and maximums, both in [[zia.locations.bandwidth]] sharing and under Override, is not described by the captured pages.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

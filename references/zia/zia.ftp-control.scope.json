@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "id": "zia.ftp-control.scope",
+  "title": "FTP Control scope, protocols and precedence",
+  "aliases": [
+    "ftp control scope",
+    "ftp location",
+    "ftps",
+    "ftp malware scan",
+    "ftp url filtering precedence",
+    "ftp not working from home",
+    "remote user ftp"
+  ],
+  "binds": [
+    "zia/ftp-control-policy"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ftp-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ftp-control.settings"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering.rule-order"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.file-type-control"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.bypass-impact"
+    }
+  ],
+  "claims": {
+    "files-extracted-and-scanned": {
+      "statement": "FTP Control extracts files and runs a security scan. DLP, Sandbox, File Type Control, URL Filtering and Bandwidth Control can each be configured by protocol, FTP over HTTP or native FTP, and FTP is logged in full in Firewall Insights.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ftp-control.md",
+          "quotes": [
+            "FTP Control also extracts files and runs a security scan.",
+            "you can configure those policies based on protocols (e.g., FTP over HTTP and native FTP).",
+            "Complete FTP logging in Firewall Insights."
+          ]
+        }
+      ]
+    },
+    "malware-toggles": {
+      "statement": "Scanning FTP is switched on in Malware Protection, not in FTP Control: the Protocol Inspection section has Inspect FTP over HTTP and Inspect FTP toggles. Each scans all files, including those with up to 5 layers of recursive compression, in the direction the Traffic Inspection setting selects.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ftp-control-policy.md",
+          "quotes": [
+            "Inspect FTP over HTTP: Enable to scan FTP over HTTP traffic in real time.",
+            "Inspect FTP: Enable to scan FTP traffic in real time. The Traffic Inspection setting determines whether inbound, outbound, or both types of traffic is scanned. It scans all files, including those with up to 5 layers of recursive compression."
+          ]
+        }
+      ]
+    },
+    "dlp-sandbox-ftc-on-extracted": {
+      "statement": "DLP, Sandbox and File Type Control policies can also be applied to files extracted from FTP and FTP over HTTP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ftp-control-policy.md",
+          "quotes": [
+            "You can also apply Data Loss Prevention (DLP), Sandbox, and File Type Control policies to files extracted from the preceding protocols."
+          ]
+        }
+      ]
+    },
+    "ftps-supported": {
+      "statement": "The service supports FTPS (FTP over TLS) in passive mode, implicit or explicit. Explicit FTPS needs a proxy set in the FTP client. It also supports FTP over HTTPS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ftp-control.md",
+          "quotes": [
+            "The service also supports FTPS (FTP over TLS) in passive mode.",
+            "You can either set up implicit or explicit FTPS.",
+            "To use explicit FTPS, set a proxy in the FTP client.",
+            "FTPS, and FTP over HTTPS protocol"
+          ]
+        }
+      ]
+    },
+    "location-scope": {
+      "statement": "The FTP Control policy applies to traffic from the known locations of an organization. A remote user on a dedicated port gets FTP over HTTP instead, and the service can scan the content they download for viruses and spyware.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ftp-control.md",
+          "quotes": [
+            "The FTP Control policy applies to traffic from the known locations of an organization.",
+            "if a remote user uses a dedicated port, then the service supports FTP over HTTP for them.",
+            "the service is able to scan the content for viruses and spyware."
+          ]
+        }
+      ]
+    },
+    "url-filtering-only-all-user-rules": {
+      "statement": "URL Filtering rules scoped to a user, department or group are not enforced for FTP sites, because FTP does not support cookies. Only URL Filtering rules that apply to all users are enforced, so a catch-all rule that blocks gambling sites also blocks ftp://ftp.site.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ftp-control.md",
+          "quotes": [
+            "user-, department-, or group-level URL filtering rules blocking access to specific sites are not enforced for FTP sites because FTP does not support cookies.",
+            "Only rules applied to all users are enforced."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "remote-user-native-ftp": {
+      "kind": "semantic",
+      "title": "Native FTP for users outside a known location",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Road-warrior users not at a known location can't use native FTP through ZIA at all - they must use FTP over HTTP via dedicated ports.' The FTP Control page says the policy applies to traffic from known locations and that a remote user on a dedicated port gets FTP over HTTP, but does not say native FTP is impossible for remote users. Resolves with a lab test from an unlocated client.",
+      "blocks": "explaining 'FTP works in the office, not at home'",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "ftp-over-https-decrypt": {
+      "kind": "semantic",
+      "title": "Whether FTP over HTTPS content inspection needs SSL decryption",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'FTP over HTTPS is inspected like other HTTPS traffic (SSL decrypt required for content inspection).' The FTP Control page lists FTP over HTTPS as supported and scannable but names no decryption prerequisite. General decryption dependence is in zia.ssl-inspection.bypass-impact:dependent-features; whether FTP over HTTPS is covered by it is not stated.",
+      "blocks": "advising SSL bypass on FTP over HTTPS destinations",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

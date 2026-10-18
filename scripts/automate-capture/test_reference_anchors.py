@@ -20,8 +20,9 @@ class AnchorCase:
     needles: tuple[str, ...]
 
 
-# references/zia/dlp.md was converted to the knowledge graph; its content-location scopes are now
-# cited by keyed pointer in zia.dlp.rule-wire-shape and checked by `node scripts/kb.mjs validate`.
+# references/zia/dlp.md and content-inspection-extras.md were converted to the knowledge graph; their
+# API facts are now cited by keyed pointer (zia.dlp.rule-wire-shape, zia.file-type-control.api-shape) and
+# checked by `node scripts/kb.mjs validate`.
 CASES = [
     AnchorCase(
         "references/zia/api-divergences.md",
@@ -85,15 +86,6 @@ CASES = [
         21,
         21,
         ("| `zpa` | 220 | 149 | 0 |",),
-    ),
-    AnchorCase(
-        "references/zia/content-inspection-extras.md",
-        "The Automate contract now provides a static captured file-type vocabulary",
-        "vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:5382",
-        "vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json",
-        5382,
-        5382,
-        ('"tf": null',),
     ),
     AnchorCase(
         "references/ai-security/_claims-ledger.md",

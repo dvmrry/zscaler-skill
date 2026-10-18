@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "id": "zia.authentication.step-up",
+  "title": "Step-up authentication and ZIdentity authentication levels",
+  "aliases": [
+    "step-up authentication",
+    "step up",
+    "authentication levels",
+    "ZIdentity authentication level",
+    "AL1",
+    "acr values",
+    "MFA for sensitive resources",
+    "re-authenticate with stronger method"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.frequency"
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Step-up authentication prompts a user to re-authenticate at a higher assurance level, typically with MFA, when accessing a sensitive resource. It is configured with authentication levels that are hierarchical: higher levels are stronger, and a user authenticated at a higher level satisfies policies requiring a sub-level. The levels are mapped to access policies in supported Zscaler services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-step-up-authentication.md",
+          "quotes": [
+            "Step-up authentication is a method that prompts users to reauthenticate with a higher assurance level (e.g., using MFA) when accessing specific resources.",
+            "These levels are hierarchical, where higher levels provide stronger assurance."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-authentication-levels.md",
+          "quotes": [
+            "When users are authenticated at a higher level, their authentication level satisfies policies that require a sub-level of authentication.",
+            "These authentication levels are mapped with access policies in supported Zscaler services to enable step-up authentication for resources."
+          ]
+        }
+      ]
+    },
+    "flow": {
+      "statement": "The flow is: the user logs in with standard credentials; on reaching a sensitive resource defined by Internet & SaaS (ZIA) or Private Access (ZPA) policy, the Authentication Service checks the required level; if the current level is insufficient it prompts re-authentication, typically MFA through Zscaler Client Connector; on success access is granted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-step-up-authentication.md",
+          "quotes": [
+            "Authentication Service checks the required authentication level.",
+            "Authentication Service prompts the user to reauthenticate, typically using MFA via Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "oidc-only": {
+      "statement": "Step-up authentication is supported only with OIDC-based external IdP integrations; when an external IdP is used via OIDC, each authentication level must be mapped to its acr value in the IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-step-up-authentication.md",
+          "quotes": [
+            "Step-up authentication is supported only with OIDC-based external IdP integrations."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-authentication-levels.md",
+          "quotes": [
+            "you need to map the authentication levels to their respective acr values in the IdP."
+          ]
+        }
+      ]
+    },
+    "not-for-hosted-saml": {
+      "statement": "A tenant authenticating with Hosted DB or with SAML alone, without an OIDC external IdP, cannot use step-up authentication.",
+      "tier": "B",
+      "derived_from": [
+        "oidc-only"
+      ],
+      "conditions": "Follows from the OIDC-only statement; no source names Hosted DB or SAML-only tenants."
+    },
+    "level-limits": {
+      "statement": "Each level has a validity period in minutes, hours or days, and a parent level's validity must be less than that of any of its sub-levels. A tree of levels can hold at most 32 levels and no branch can be deeper than 4.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-authentication-levels.md",
+          "quotes": [
+            "The validity period for a parent level must be less than the validity period defined for any of its sub-levels.",
+            "A tree can contain a total of up to 32 authentication levels and the maximum depth for any branch cannot exceed 4."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-authentication-levels.md",
+          "quotes": [
+            "You can specify the validity period in minutes, hours, or days."
+          ],
+          "after": "Click New Authentication Level."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zia-layering": {
+      "kind": "semantic",
+      "title": "How ZIA's cookie and surrogate model combines with a ZIdentity level requirement",
+      "status": "open",
+      "detail": "Unverified legacy statement: ZIA enforces that the user is authenticated at all before any policy rule, then per-resource ZIA or ZPA rules can express a required ZIdentity level, triggering step-up if the current level is insufficient. No registered source states this. The step-up article confirms ZIA and ZPA policies can require a level; how that interacts with ZIA's cookie, Kerberos and surrogate identity is not stated. A lab rule requiring a level, hit by a cookie-less client, would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "predicting what a cookie-less or surrogate-attributed request does when a rule requires a stronger level"
+    }
+  }
+}

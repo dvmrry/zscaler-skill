@@ -1,0 +1,9 @@
+"Which policy applies to this traffic's location?" needs more than the location's name. A location identifies a network the service recognizes by its settings, it can be split into sublocations that match by IP, and rules reach both directly and through groups. Work down this list; the parent [[zia.firewall]] and rule subjects are linked at the end.
+
+1. **What is the location, and what does the service do with it?** Known locations are processed by their settings; anything else is remote-user traffic: [[zia.locations.model]].
+2. **Is the traffic in a sublocation?** Matching is by the IP inside the tunnel or the XFF address, sublocations cannot overlap, and unmatched traffic falls to `other`: [[zia.locations.sublocations]], [[zia.locations.ip-scoping]].
+3. **Which settings does the sublocation have of its own?** Some are parent-only in the API, and the console and API disagree on firewall: [[zia.locations.inheritance]]. Bandwidth has its own modes: [[zia.locations.bandwidth]].
+4. **Which groups is it in?** Location type, defaults and exclusion flags decide this at creation, and dynamic groups change it later: [[zia.locations.groups]], [[zia.locations.group-assignment]].
+5. **Which rules reach it?** Rules take locations and groups: [[zia.locations.rule-scoping]]. Per-module effects are in [[zia.url-filtering]], [[zia.ssl-inspection]], [[zia.cloud-app-control]], [[zia.firewall]] and [[zia.dlp]].
+
+Workload sublocations on AWS have scopes and different overlap rules: [[zia.locations.workload-scopes]]. Country and time zone values, including the `THE_` prefix: [[zia.locations.country-timezone]]. Writing locations through the API, Terraform or Ansible, including lookups that miss sublocations: [[zia.locations.automation]], [[zia.sdk-go.service-defects]], [[zia.terraform.data-source-fidelity]].

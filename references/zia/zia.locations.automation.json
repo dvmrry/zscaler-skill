@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "id": "zia.locations.automation",
+  "title": "Locations through the API, SDK, Terraform and Ansible",
+  "aliases": [
+    "zia_location_management",
+    "location bulk delete",
+    "location api",
+    "locations terraform import",
+    "ansible location",
+    "sub_loc terraform",
+    "profile values",
+    "description 1024",
+    "sublocation data source"
+  ],
+  "binds": [
+    "zia/locations",
+    "zia/sublocations",
+    "zia/locations-lite",
+    "zia/location-groups"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.locations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.sublocations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.data-source-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.field-fidelity"
+    }
+  ],
+  "claims": {
+    "bulk-delete-100": {
+      "statement": "Bulk deletion takes at most 100 location IDs per request, and the response returns the IDs that were deleted; the Python SDK rejects a larger list before sending.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations~1bulkDelete/post",
+          "expect": {
+            "description": "<p>Bulk delete locations up to a maximum of 100 users per request. The response returns the location IDs that were successfully deleted.</p>\n"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/locations.py",
+          "quotes": [
+            "return (None, ValueError(\"Maximum 100 location IDs allowed per bulk delete request\"))"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/locations"
+      ]
+    },
+    "description-1024": {
+      "statement": "A location or sublocation description cannot exceed 1,024 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/description",
+          "expect": {
+            "description": "<p>Additional notes or information regarding the location or sub-location. The description cannot exceed 1024 characters.</p>"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.md",
+          "quotes": [
+            "Description: (Optional) Enter additional notes or information. The description cannot exceed 1,024 characters."
+          ]
+        }
+      ]
+    },
+    "tf-one-resource": {
+      "statement": "Terraform manages locations and sublocations with one resource, `zia_location_management`; a sublocation is the same resource with `parent_id` set, and `other_sub_location` and `other6_sub_location` flag the auto-created catch-alls. Import takes the location ID or name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_location_management.md",
+          "quotes": [
+            "Otherwise, it is a sub-location whose parent has this ID.",
+            "**zia_location_management** can be imported by using `<LOCATION_ID>` or `<LOCATION_NAME>` as the import ID.",
+            "If set to true, indicates that this is a default sub-location created by the Zscaler service to accommodate IPv4 addresses that are not part of any user-defined sub-locations."
+          ]
+        }
+      ]
+    },
+    "tf-sublocation-search": {
+      "statement": "The Terraform `zia_location_management` data source also finds sublocations; the provider has no `zia_sub_location_management` data source in this version, and `parent_name` lets a lookup span parents when names repeat.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added to support to sub-location search within data source."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "specially when overlapping names are in use"
+          ]
+        }
+      ],
+      "conditions": "The absence of a `zia_sub_location_management` data source rests on a search of the provider's docs and source, not on a statement."
+    },
+    "profile-values": {
+      "statement": "Terraform lists `profile` values NONE, CORPORATE, SERVER, GUESTWIFI, IOT and WORKLOAD; the Ansible module lists NONE, CORPORATE, SERVER, GUESTWIFI, IOT and EXTRANET.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_location_management.md",
+          "quotes": [
+            "The supported options are: `NONE`, `CORPORATE`, `SERVER`, `GUESTWIFI`, `IOT`, `WORKLOAD`."
+          ]
+        },
+        {
+          "source": "ansible-zia",
+          "path": "plugins/modules/zia_location_management.py",
+          "quotes": [
+            "choices: ['NONE', 'CORPORATE', 'SERVER', 'GUESTWIFI', 'IOT', 'EXTRANET']"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/locations#profile"
+      ]
+    },
+    "ansible-extranet-fields": {
+      "statement": "The Ansible module takes `extranet`, `extranet_dns`, `extranet_ip_pool`, `default_extranet_dns` and `default_extranet_ts_pool` only when `profile` is EXTRANET; they are extranet-location fields, not group membership.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "ansible-zia",
+          "path": "plugins/modules/zia_location_management.py",
+          "quotes": [
+            "- The extranet resource that is assigned to the location.",
+            "- Indicates whether the default DNS server of the assigned extranet is used for the location."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/locations#extranet"
+      ]
+    }
+  },
+  "divergences": {
+    "profile-choices": {
+      "summary": "Terraform and Ansible list different `profile` values for a location: WORKLOAD only in Terraform, EXTRANET only in Ansible.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_location_management.md",
+            "quotes": [
+              "The supported options are: `NONE`, `CORPORATE`, `SERVER`, `GUESTWIFI`, `IOT`, `WORKLOAD`."
+            ]
+          },
+          "says": "WORKLOAD is a supported profile; EXTRANET is not listed."
+        },
+        {
+          "evidence": {
+            "source": "ansible-zia",
+            "path": "plugins/modules/zia_location_management.py",
+            "quotes": [
+              "choices: ['NONE', 'CORPORATE', 'SERVER', 'GUESTWIFI', 'IOT', 'EXTRANET']"
+            ]
+          },
+          "says": "EXTRANET is a supported profile; WORKLOAD is not listed."
+        }
+      ],
+      "impact": "A tool cannot set a Workload profile through Ansible or an Extranet profile through the documented Terraform list,."
+    }
+  },
+  "gaps": {
+    "extranet-locations-depth": {
+      "kind": "semantic",
+      "title": "How Extranet locations behave beyond group scoping",
+      "status": "open",
+      "detail": "Unverified legacy statement: an Extranet Location Type \"groups locations assigned to a specific extranet (third-party network connected via Zscaler). Used for B2B traffic segregation\" and \"extranet groups let you write rules that apply only to partner traffic\". The About Extranet article is captured but was not mined for location-level behavior; the group conditions are in zia.locations.groups. Resolve by reading About Extranet and Configuring an Extranet.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "about": [
+        "zia/locations#extranet"
+      ]
+    }
+  }
+}

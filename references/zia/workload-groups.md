@@ -57,7 +57,7 @@ SSL Inspection, DLP, and Traffic Capture rules at workloads rather than
 subnets.
 
 They are a counterpart to the predefined **Workload Traffic Group** dynamic
-Location Group (see [`./locations.md § Predefined dynamic groups`](./locations.md)):
+Location Group (see [`zia.locations`](kb:zia.locations)):
 Workload Traffic Group answers "which _locations_ carry workload traffic";
 Workload Groups answer "which _workloads within those locations_ match this
 policy."
@@ -344,7 +344,7 @@ All five are tracked together as `zia-69` in [`../_meta/clarifications.md`](../_
 ## Cross-links
 
 - **Workload Traffic Group (predefined dynamic Location Group):**
-  [`./locations.md § Predefined dynamic groups`](./locations.md) — explains
+  [`zia.locations`](kb:zia.locations) — explains
   how `Location Type = Workload traffic` auto-populates the dynamic LG that
   Cloud Connector sublocations land in.
 - **URL Filtering rules:** [`zia.url-filtering`](kb:zia.url-filtering) — lists
@@ -352,5 +352,5 @@ All five are tracked together as `zia-69` in [`../_meta/clarifications.md`](../_
 - **Cloud Connector:** [`../cloud-connector/overview.md`](../cloud-connector/overview.md)
   — the product that creates the workload sublocations and populates cloud
   identity tags consumed by Workload Group expressions.
-- **Forwarding Control:** [`./forwarding-control.md`](./forwarding-control.md)
+- **Forwarding Control:** [`zia.forwarding-control`](kb:zia.forwarding-control)
   — does not carry `workload_groups` in the TF source (confirmed absent).

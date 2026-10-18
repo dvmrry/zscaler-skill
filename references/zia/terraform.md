@@ -985,7 +985,7 @@ Location and sub-location objects that represent physical or logical network loc
 
 Gotcha: A location must have either `ip_addresses` or `vpn_credentials` (or both). Sub-locations are created by specifying `parent_id`. Import by numeric ID or name.
 
-Gotcha: `dynamic_location_groups` support is version-sensitive and currently ambiguous in the Terraform provider. Earlier provider work added manual and dynamic location-group fields to `zia_location_management`, but v4.6.0 later removed or commented out dynamic-group handling while preserving static/manual group behavior. See [clarification zia-46](../_meta/clarifications.md#zia-46-terraform-provider-dynamic-location-groups-removal) before treating Terraform location-management state as authoritative for Dynamic Location Group membership.
+Gotcha: `dynamic_location_groups` support is version-sensitive and currently ambiguous in the Terraform provider. Earlier provider work added manual and dynamic location-group fields to `zia_location_management`, but v4.6.0 later removed or commented out dynamic-group handling while preserving static/manual group behavior. See [clarification zia-46](kb:zia.locations.group-assignment:tf-dynamic-removal-reason) before treating Terraform location-management state as authoritative for Dynamic Location Group membership.
 
 ---
 

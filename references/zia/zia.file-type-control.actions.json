@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "id": "zia.file-type-control.actions",
+  "title": "File Type Control actions, direction and defaults",
+  "aliases": [
+    "file type control action",
+    "caution block allow file",
+    "upload download file type",
+    "file type default allow",
+    "file type control notification",
+    "file type control pcap"
+  ],
+  "binds": [
+    "zia/file-type-rules#filteringAction",
+    "zia/file-type-rules#operation",
+    "zia/file-type-rules#state",
+    "zia/file-type-rules#capturePCAP",
+    "zia/file-type-rules#browserEunTemplateId"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.file-type-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.file-type-control.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.file-type-control.pipeline"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ftp-control.settings"
+    }
+  ],
+  "claims": {
+    "default-allow-all": {
+      "statement": "By default the service allows upload and download of all file types. File Type Control restricts that; Zscaler also publishes a recommended policy. A newly added rule's status is Disabled until it is enabled.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#state"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-file-type-control.md",
+          "quotes": [
+            "By default, the Zscaler service allows the upload and download of all file types.",
+            "Zscaler also has a recommended policy for File Type Control."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-file-type-control-policy.md",
+          "quotes": [
+            "Rule Status: By default, the status is Disabled."
+          ]
+        }
+      ]
+    },
+    "actions": {
+      "statement": "A rule's action is Allow, Caution or Block. Caution displays a warning before the service lets the user perform the action. A block displays a notification whose content is set on the End User Notification page.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#filteringAction"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-file-type-control.md",
+          "quotes": [
+            "When you choose the Caution action, the Zscaler service displays a warning before it allows the user to perform the action.",
+            "The content of the block notification is configured in the End User Notification page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-file-type-control-policy.md",
+          "quotes": [
+            "Action: Choose to Allow, Block, or Caution users from uploading or downloading files."
+          ]
+        }
+      ]
+    },
+    "browser-notification-template": {
+      "statement": "A browser notification template can be selected for the rule; the field appears only when the action is Caution or Block.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#browserEunTemplateId"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-file-type-control-policy.md",
+          "quotes": [
+            "This field appears when the application access is set to either Caution or Block."
+          ]
+        }
+      ]
+    },
+    "operation": {
+      "statement": "Each rule's action applies to uploads, downloads or both, so a file type can be allowed one way and blocked the other.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#operation"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-file-type-control-policy.md",
+          "quotes": [
+            "Upload/Download: Choose whether the specified action applies to uploading files, downloading files, or both."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-file-type-control.md",
+          "quotes": [
+            "You can allow, caution or block uploading, downloading or both."
+          ]
+        }
+      ]
+    },
+    "capture-on-block": {
+      "statement": "When Traffic Capture is enabled, the Capture option appears for rules whose action is Block, and captured traffic is stored as PCAP files.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#capturePCAP"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-file-type-control-policy.md",
+          "quotes": [
+            "If Traffic Capture is enabled, the Capture option appears when Block is selected."
+          ]
+        }
+      ]
+    },
+    "disabled-rules-hold-order": {
+      "statement": "Disabled rules can hold a rule order; evaluation skips them and moves to the next rule. A rule can carry an expiration, after which it keeps its place in the order but is not evaluated.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#order",
+        "zia/file-type-rules#state"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-file-type-control-policy.md",
+          "quotes": [
+            "During evaluation, the service skips the disabled rules and moves to the successive ones.",
+            "The rule retains its place in the rule order but is not evaluated after it expires."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "caution-without-a-user": {
+      "kind": "semantic",
+      "title": "Caution for traffic with no interactive user",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'CAUTION is user-interactive. For API-only or headless flows (cloud workloads, CI runners), CAUTION effectively = BLOCK because there's no user to acknowledge.' The vendor says Caution displays a warning before allowing the action; it does not say what happens when no browser can display it. Resolves with a lab test from a non-browser client.",
+      "blocks": "choosing Caution versus Block for programmatic traffic",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "unscannable-and-unknown-default": {
+      "kind": "semantic",
+      "title": "Fail-open or fail-closed for unscannable and unknown files",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Default action for unscannables is a tenant choice: fail-open or fail-closed' and 'File Type Control on unidentifiable files is a tenant decision ... No middle ground without writing explicit rules.' The vendor documents Unscannable Files and Undetectable File as rule criteria, so an admin can write rules for them; it does not describe a separate Unscannable Files policy or a tenant-level fail-open setting. With no matching rule the default is allow all (claim default-allow-all). Resolves with the console's Unscannable Files option, if one exists, or a lab test.",
+      "blocks": "advising what happens to unscannable files with no explicit rule",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

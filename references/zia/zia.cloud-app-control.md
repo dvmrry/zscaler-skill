@@ -6,4 +6,4 @@
 4. **What does the matching rule do?** Console actions, granular action strings, and how to discover them: [[zia.cloud-app-control.actions]].
 5. **Could CAC see the app at all?** Identification depends on what is visible before decryption: [[zia.cloud-app-control.ssl-visibility]].
 
-For "users still reach a blocked app" or "an allowed app is blocked", start with [[zia.cloud-app-control.troubleshooting]]. For field-level questions about tenant snapshots and the SDKs, see [[zia.cloud-app-control.api-surface]]. Tenant restriction (Tenant Profiles) is a related feature documented in [Tenant Profiles](./tenant-profiles.md).
+For "users still reach a blocked app" or "an allowed app is blocked", start with [[zia.cloud-app-control.troubleshooting]]. For field-level questions about tenant snapshots and the SDKs, see [[zia.cloud-app-control.api-surface]]. Tenant restriction (Tenant Profiles) is a related feature documented in [Tenant Profiles](kb:zia.tenant-profiles).

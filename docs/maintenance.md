@@ -180,8 +180,9 @@ harness should expect a decline-with-helpful-pointers when no overlay IaC or liv
 
 - **Malware Protection and ATP settings are programmable, but transaction
   verdicts are not returned by those settings endpoints.**
-  `references/zia/malware-and-atp.md` covers the GET/PUT settings surfaces and
-  the separate Web Insights / log workflow needed to diagnose a specific block.
+  `kb:zia.atp.api-surface` and `kb:zia.malware-protection.api-surface` cover the
+  settings surfaces, and `kb:zia.atp.block-diagnosis` the log workflow needed to
+  diagnose a specific block.
 - **Credentialed live-tenant diagnostics are out of scope.** Tenant reads are
   handled by the read-only `zscalerctl` CLI; the never-validated SDK diagnostic
   scaffolds were removed (2026-06), as were the SDK snapshot / lookup / simulator

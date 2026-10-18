@@ -1,0 +1,331 @@
+{
+  "schema_version": 1,
+  "id": "zia.tenant-profiles.api-surface",
+  "title": "Tenant profile API, SDK and Terraform behavior",
+  "aliases": [
+    "tenancyRestrictionProfile api",
+    "list_restriction_profile",
+    "zia_tenant_restriction_profile",
+    "app-item-count",
+    "tenancy_profile_ids terraform limit",
+    "tenant profile sdk"
+  ],
+  "binds": [
+    "zia/tenancy-restriction-profiles"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.microsoft"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "shared.sdk-go.zero-value-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.field-fidelity"
+    }
+  ],
+  "claims": {
+    "endpoint": {
+      "statement": "Tenant profiles are read and written at `/zia/api/v1/tenancyRestrictionProfile` (list, create) and `/tenancyRestrictionProfile/{id}` (get, update by PUT, delete). The Go SDK updates with PUT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/tenancy_restriction/tenancy_restriction.go",
+          "quotes": [
+            "tenantRestrictionEndpoint = \"/zia/api/v1/tenancyRestrictionProfile\"",
+            "UpdateWithPut(ctx, fmt.Sprintf(\"%s/%d\", tenantRestrictionEndpoint, instanceID)"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/tenancy-restriction-profiles"
+      ]
+    },
+    "python-method-names": {
+      "statement": "The Python service `client.zia.tenancy_restriction_profile` names its methods `list_restriction_profile`, `get_restriction_profile`, `add_restriction_profile`, `update_restriction_profile`, `delete_restriction_profile` and `list_app_item_count`; the bare `*_profile` names do not exist.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/tenancy_restriction_profile.py",
+          "quotes": [
+            "def list_restriction_profile(",
+            "def get_restriction_profile(self, profile_id: int)",
+            "def add_restriction_profile(self, **kwargs)",
+            "def update_restriction_profile(self, profile_id: int, **kwargs)",
+            "def delete_restriction_profile(self, profile_id: int)"
+          ]
+        }
+      ]
+    },
+    "go-functions": {
+      "statement": "The Go SDK package `tenancy_restriction` exposes `Get`, `GetByName` (a case-insensitive name match across all pages), `Create`, `Update`, `Delete`, `GetAll` and `GetAppItemCount`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/tenancy_restriction/tenancy_restriction.go",
+          "quotes": [
+            "func GetByName(",
+            "strings.EqualFold(profile.Name, profileName)",
+            "func GetAppItemCount("
+          ]
+        }
+      ]
+    },
+    "item-type-enum": {
+      "statement": "The API accepts eighteen `itemTypePrimary` and `itemTypeSecondary` tokens, a single flat list with no per-application grouping.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1tenancyRestrictionProfile/post/requestBody/content/application~1json/schema/properties/itemTypePrimary",
+          "expect": {
+            "description": "Tenant profile primary item type",
+            "type": "string",
+            "enum": [
+              "TENANT_RESTRICTION_TEAM_ID",
+              "TENANT_RESTRICTION_ALLOWED_WORKSPACE_ID",
+              "TENANT_RESTRICTION_DOMAIN",
+              "TENANT_RESTRICTION_TENANT_NAME",
+              "TENANT_RESTRICTION_TENANT_DIRECTORY",
+              "TENANT_RESTRICTION_CHANNEL_ID",
+              "TENANT_RESTRICTION_CATEGORY_ID",
+              "TENANT_RESTRICTION_SCHOOL_ID",
+              "TENANT_RESTRICTION_REQUEST_WORKSPACE_ID",
+              "TENANT_RESTRICTION_EXP_BUCKET_OWNERID",
+              "TENANT_RESTRICTION_EXP_BUCKET_SRC_OWNERID",
+              "TENANT_RESTRICTION_RESTRICT_MSA",
+              "TENANT_RESTRICTION_TENANT_POLICY_ID",
+              "TENANT_RESTRICTION_ACCOUNT_ID",
+              "TENANT_RESTRICTION_TENANT_ORG_ID",
+              "TENANT_RESTRICTION_POLICY_LABEL",
+              "TENANT_RESTRICTION_ENTERPRISE_SLUG",
+              "TENANT_RESTRICTION_WORKSPACE_ID"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1tenancyRestrictionProfile/post/requestBody/content/application~1json/schema/properties/itemTypeSecondary",
+          "expect": {
+            "description": "Tenant profile secondary item type",
+            "type": "string",
+            "enum": [
+              "TENANT_RESTRICTION_TEAM_ID",
+              "TENANT_RESTRICTION_ALLOWED_WORKSPACE_ID",
+              "TENANT_RESTRICTION_DOMAIN",
+              "TENANT_RESTRICTION_TENANT_NAME",
+              "TENANT_RESTRICTION_TENANT_DIRECTORY",
+              "TENANT_RESTRICTION_CHANNEL_ID",
+              "TENANT_RESTRICTION_CATEGORY_ID",
+              "TENANT_RESTRICTION_SCHOOL_ID",
+              "TENANT_RESTRICTION_REQUEST_WORKSPACE_ID",
+              "TENANT_RESTRICTION_EXP_BUCKET_OWNERID",
+              "TENANT_RESTRICTION_EXP_BUCKET_SRC_OWNERID",
+              "TENANT_RESTRICTION_RESTRICT_MSA",
+              "TENANT_RESTRICTION_TENANT_POLICY_ID",
+              "TENANT_RESTRICTION_ACCOUNT_ID",
+              "TENANT_RESTRICTION_TENANT_ORG_ID",
+              "TENANT_RESTRICTION_POLICY_LABEL",
+              "TENANT_RESTRICTION_ENTERPRISE_SLUG",
+              "TENANT_RESTRICTION_WORKSPACE_ID"
+            ]
+          }
+        }
+      ],
+      "binds": [
+        "zia/tenancy-restriction-profiles#itemTypePrimary",
+        "zia/tenancy-restriction-profiles#itemTypeSecondary"
+      ],
+      "gaps": [
+        "zia.tenant-profiles.applications:item-type-per-app"
+      ]
+    },
+    "tf-tokens-unvalidated": {
+      "statement": "The Terraform resource does not validate `app_type`, `item_type_primary`, `item_type_secondary` or `item_value`; each is a free string whose description points to the API reference.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_tenant_restriction_profile.go",
+          "quotes": [
+            "Tenant profile primary item type.",
+            "Tenant profile secondary item type.",
+            "Restricted tenant profile application type."
+          ]
+        }
+      ]
+    },
+    "app-item-count": {
+      "statement": "A separate call returns how many items of an item type are already in use for an application, with an optional `excludeProfile` profile ID to leave out. The Go SDK sends the optional ID; the Python method does not accept it, although its docstring lists `exclude_profile`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1tenancyRestrictionProfile~1app-item-count~1{appType}~1{itemType}/get/parameters/[name=excludeProfile]",
+          "expect": {
+            "name": "excludeProfile",
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/tenancy_restriction/tenancy_restriction.go",
+          "quotes": [
+            "endpoint += fmt.Sprintf(\"?excludeProfile=%d\", excludeProfile[0])"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/tenancy_restriction_profile.py",
+          "quotes": [
+            "exclude_profile (int, optional): Profile ID to exclude from the item count calculation.",
+            "item_type: str, ) -> APIResult[List[Dict[str, Any]]]:"
+          ],
+          "after": "def list_app_item_count"
+        }
+      ],
+      "gaps": [
+        "zia.tenant-profiles.limits:live-count-vs-cap"
+      ]
+    },
+    "go-omits-false-flags": {
+      "statement": "The Go SDK tags all five boolean flags (`restrictPersonalO365Domains`, `allowGoogleConsumers`, `msLoginServicesTrV2`, `allowGoogleVisitors`, `allowGcpCloudStorageRead`) with `omitempty`, and the Terraform resource builds the struct directly from state. A flag set to false is therefore not sent, so Terraform or Go cannot write false explicitly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/tenancy_restriction/tenancy_restriction.go",
+          "quotes": [
+            "`json:\"restrictPersonalO365Domains,omitempty\"`",
+            "`json:\"allowGoogleConsumers,omitempty\"`",
+            "`json:\"msLoginServicesTrV2,omitempty\"`",
+            "`json:\"allowGoogleVisitors,omitempty\"`",
+            "`json:\"allowGcpCloudStorageRead,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_tenant_restriction_profile.go",
+          "quotes": [
+            "RestrictPersonalO365Domains: d.Get(\"restrict_personal_o365_domains\").(bool),",
+            "AllowGcpCloudStorageRead: d.Get(\"allow_gcp_cloud_storage_read\").(bool),"
+          ]
+        }
+      ],
+      "derived_from": [
+        "shared.sdk-go.zero-value-writes:omitempty-drops-zero-values"
+      ],
+      "gaps": [
+        "omitted-false-server-reaction"
+      ],
+      "binds": [
+        "zia/tenancy-restriction-profiles#restrictPersonalO365Domains",
+        "zia/tenancy-restriction-profiles#msLoginServicesTrV2"
+      ]
+    },
+    "last-modified-fields": {
+      "statement": "The Go struct carries read-only `lastModifiedTime` and `lastModifiedUserId`, which the Python model lacks; in Terraform they surface through the data source only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/tenancy_restriction/tenancy_restriction.go",
+          "quotes": [
+            "`json:\"lastModifiedTime,omitempty\"`",
+            "`json:\"lastModifiedUserId,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_tenant_restriction_profile.go",
+          "quotes": [
+            "The time the tenant was last modified"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/tenancy-restriction-profiles#lastModifiedTime",
+        "zia/tenancy-restriction-profiles#lastModifiedUserId"
+      ]
+    },
+    "tf-profile-ids-cap-8": {
+      "statement": "Terraform provider versions before 4.7.23 capped `tenancy_profile_ids` on `zia_cloud_app_control_rule` at eight, below the 16 profiles per rule the limits page documents. 4.7.23 removed the local cap, leaving the limit to the API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "at": [
+            "v4.7.22"
+          ],
+          "quotes": [
+            "\"tenancy_profile_ids\": setIDsSchemaTypeCustom(intPtr(8),"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "\"tenancy_profile_ids\": setIDsSchemaTypeCustom(nil,"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Removed `MaxItems` from attribute `tenancy_profile_ids` and `cloud_app_instances`"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/cloud-app-control#tenancyProfileIds"
+      ],
+      "upstream": [
+        {
+          "url": "https://github.com/zscaler/terraform-provider-zia/issues/577",
+          "status": "fixed",
+          "note": "Fixed in 4.7.23 (PR 578)."
+        }
+      ],
+      "conditions": "Version-scoped; a plan against an older provider that rejects more than eight profile IDs is this defect, not policy drift."
+    }
+  },
+  "gaps": {
+    "omitted-false-server-reaction": {
+      "kind": "semantic",
+      "title": "What the service does when a false flag is omitted from a PUT",
+      "status": "open",
+      "detail": "Because the Go SDK drops a false boolean, a Terraform change from true to false sends no member for the flag. No source says whether the service then keeps the stored value, resets it to the default, or clears it. For Allow Personal Office 365 Domains and the Google options the console defaults make false the default, but a change from true to false is the case to test.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "about": [
+        "zia/tenancy-restriction-profiles#restrictPersonalO365Domains",
+        "zia/tenancy-restriction-profiles#allowGoogleConsumers",
+        "zia/tenancy-restriction-profiles#msLoginServicesTrV2"
+      ],
+      "blocks": "whether Terraform can turn a tenant-profile flag off"
+    }
+  }
+}

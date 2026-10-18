@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "id": "zia.authentication.frequency",
+  "title": "Authentication frequency and cookie lifetime",
+  "aliases": [
+    "authFrequency",
+    "auth_frequency",
+    "authCustomFrequency",
+    "auth_custom_frequency",
+    "DAILY_COOKIE",
+    "SESSION_COOKIE",
+    "PERMANENT_COOKIE",
+    "CUSTOM_COOKIE",
+    "cookie expiration",
+    "how often users re-authenticate",
+    "authentication profile"
+  ],
+  "binds": [
+    "zia/auth-settings"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.authentication.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.unauthenticated-traffic"
+    }
+  ],
+  "claims": {
+    "meaning": {
+      "statement": "authFrequency is how often users must authenticate, expressed as the cookie expiration after a user is first authenticated. It is not applicable to the Lite API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.md",
+          "quotes": [
+            "How frequently the users are required to authenticate (i.e., cookie expiration duration after a user is first authenticated). This field is not applicable to the Lite API."
+          ]
+        }
+      ]
+    },
+    "frequency-values": {
+      "statement": "The spec lists authFrequency as DAILY_COOKIE, PERMANENT_COOKIE, SESSION_COOKIE or CUSTOM_COOKIE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/authFrequency",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "DAILY_COOKIE",
+              "PERMANENT_COOKIE",
+              "SESSION_COOKIE",
+              "CUSTOM_COOKIE"
+            ]
+          }
+        }
+      ],
+      "gaps": [
+        "value-meanings"
+      ]
+    },
+    "custom-range": {
+      "statement": "A custom frequency is set in whole days in authCustomFrequency, valid range 1 to 180; the admin console field takes the same 1 to 180.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/authentication_settings.py",
+          "quotes": [
+            "Custom frequency in days for authentication. Valid range: 1-180."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-saml.md",
+          "quotes": [
+            "Custom Authentication Frequency (days): Specify 1 to 180 days."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/authCustomFrequency",
+          "expect": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      ],
+      "gaps": [
+        "custom-without-days"
+      ]
+    },
+    "set-once": {
+      "statement": "The service needs to authenticate a user only once to set the gateway cookie, but an organization can require authentication more often.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-cookies.md",
+          "quotes": [
+            "The service needs to authenticate users only once to set the gateway cookie. However, you can require users to authenticate more often based on your organization's needs."
+          ]
+        }
+      ]
+    },
+    "location-profile": {
+      "statement": "A location with Enforce Authentication on can use a custom authentication timeout profile that sets the authentication frequency for that location. Authentication profiles are a feature with limited availability, enabled through the Zscaler account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.md",
+          "quotes": [
+            "The profile allows you to specify the authentication frequency for the location.",
+            "Authentication profiles are a feature with limited availability."
+          ]
+        }
+      ]
+    },
+    "browser-scope": {
+      "statement": "Frequency governs the cookie, so it applies to flows that carry the Zscaler cookie; Kerberos does not use cookies, and traffic that cannot hold a cookie is attributed to the location instead.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-kerberos-authentication.md",
+          "quotes": [
+            "Unlike the other supported authentication mechanisms, Kerberos doesn't use cookies for authentication."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-cookies.md",
+          "quotes": [
+            "Requests from UNKNOWN user agents that do not support cookies."
+          ]
+        }
+      ],
+      "conditions": "The cookie-lifetime reading follows from the field description; no source states in one place that frequency has no effect on Kerberos or cookie-less traffic."
+    }
+  },
+  "divergences": {
+    "frequency-vocabulary": {
+      "summary": "The legacy API reference page and the OpenAPI document list different authFrequency values.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-authentication-settings.md",
+            "quotes": [
+              "Enum: [4 Items — DAILY_COOKIE, WEEKLY_COOKIE, MONTHLY_COOKIE, SESSION_COOKIE]"
+            ]
+          },
+          "says": "authFrequency is DAILY_COOKIE, WEEKLY_COOKIE, MONTHLY_COOKIE or SESSION_COOKIE."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/authFrequency",
+            "expect": {
+              "type": "string",
+              "enum": [
+                "DAILY_COOKIE",
+                "PERMANENT_COOKIE",
+                "SESSION_COOKIE",
+                "CUSTOM_COOKIE"
+              ]
+            }
+          },
+          "says": "authFrequency is DAILY_COOKIE, PERMANENT_COOKIE, SESSION_COOKIE or CUSTOM_COOKIE."
+        }
+      ],
+      "impact": "WEEKLY_COOKIE and MONTHLY_COOKIE exist only on the older page and CUSTOM_COOKIE only in the spec; a write built from the wrong list can be rejected, and a custom frequency cannot be chosen by the older list's names.",
+      "resolution": {
+        "by": "frequency-values",
+        "rule": "source-rank"
+      }
+    }
+  },
+  "gaps": {
+    "value-meanings": {
+      "kind": "semantic",
+      "title": "What each authFrequency value means in time",
+      "status": "open",
+      "detail": "Unverified legacy statement: ALWAYS authenticates on every new browser session (session-only cookie), DAILY_COOKIE is valid one day, WEEKLY_COOKIE one week, MONTHLY_COOKIE one month, and CUSTOM_FREQUENCY uses authCustomFrequency. No registered source states this. A vendor statement mapping SESSION_COOKIE, PERMANENT_COOKIE and CUSTOM_COOKIE to durations, or a lab read after choosing each value in the console, would settle it. Neither the spec nor the SDK explains PERMANENT_COOKIE.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "converting a frequency value into how often a user sees a login"
+    },
+    "custom-without-days": {
+      "kind": "semantic",
+      "title": "What happens when the custom value is chosen without a valid number of days",
+      "status": "open",
+      "detail": "Unverified legacy statement: Choosing the custom frequency without a valid authCustomFrequency is an API-level error. No registered source states this. A lab write of CUSTOM_COOKIE with 0 and with 181 would settle it. The legacy text also named the value CUSTOM_FREQUENCY, which the spec does not list.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "predicting whether an invalid custom frequency is rejected or stored"
+    },
+    "redirect-failure-non-browser": {
+      "kind": "semantic",
+      "title": "How cookie-less non-browser clients fail at an authentication-required location",
+      "status": "open",
+      "detail": "Unverified legacy statement: Non-browser user agents cannot follow a SAML redirect, see the redirect as a failure, and an HTTP request from such an agent to an auth-required location returns an HTML redirect page that the agent treats as an error. No registered source states this. A lab request from a command-line client through an auth-required location with SAML on, with and without surrogate IP, would settle it. The cookie help article says only that such requests are marked against the location.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "diagnosing a service account or CLI tool that fails only at authenticated locations"
+    }
+  }
+}

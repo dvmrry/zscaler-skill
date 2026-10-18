@@ -55,16 +55,16 @@ OS-level CA install isn't enough for applications that bring their own trust bun
 Some auth flows require post-decrypt access for tenant-restriction or MFA validation; others **must not be inspected** because the auth surface pins or has its own truststore. The split matters:
 
 **Inspect** (post-decrypt access needed for tenant restriction / DLP):
-- **Microsoft login services** — `login.microsoftonline.com`, `login.windows.net`, `login.live.com` (for personal-MSA blocking via Tenant Profile). The SSL Inspection rule scoping these must beat the M365 One-Click bypass rule in order, otherwise tenant restriction silently stops working. See [`./tenant-profiles.md`](./tenant-profiles.md).
+- **Microsoft login services** — `login.microsoftonline.com`, `login.windows.net`, `login.live.com` (for personal-MSA blocking via Tenant Profile). The SSL Inspection rule scoping these must beat the M365 One-Click bypass rule in order, otherwise tenant restriction silently stops working. See [`zia.tenant-profiles`](kb:zia.tenant-profiles).
 - **Webex Login Services** — same pattern; `WEBEX_LOGIN_SERVICES` is a supported `app_type` for Tenant Profiles. (`vendor/zscaler-help/adding-tenant-profiles.md`.)
 
 **Bypass SSL inspection** (cert pinning / CA bundle pinning / auth-flow breakage):
 - **Duo endpoints** — `*.duosecurity.com`, `*.duo.com` plus `*.azureauth.duosecurity.com` for the Entra External MFA flow. CA-bundle pinning means inspection breaks the TLS channel before any auth happens. (`duo.com/docs/duo-desktop`.)
 - **Microsoft 365 Click-to-Run** — Zscaler's own predefined SSL rule uses `Do Not Inspect + Bypass Other Policies`. The only predefined rule using that more-dangerous variant. (*Leading Practices Guide*, p.10; [`zia.ssl-inspection`](kb:zia.ssl-inspection).)
 
-**Rule-order trap** — if an SSL bypass rule for an IdP fires before the rule that needs to inspect that IdP for tenant restriction, tenant restriction silently stops working. Header-injection requires post-decrypt access; bypass = no inspection = no header. Always order the **specific tenant-restriction rule above** the broad bypass. See [`./tenant-profiles.md`](./tenant-profiles.md).
+**Rule-order trap** — if an SSL bypass rule for an IdP fires before the rule that needs to inspect that IdP for tenant restriction, tenant restriction silently stops working. Header-injection requires post-decrypt access; bypass = no inspection = no header. Always order the **specific tenant-restriction rule above** the broad bypass. See [`zia.tenant-profiles`](kb:zia.tenant-profiles).
 
-**Auth Exemptions list** — separate from SSL bypass. The ZIA Authentication Policy maintains its own URL exempt list (up to 25,000 entries) for destinations that should skip the auth challenge entirely. Common entries: `login.windows.net`, `login.microsoftonline.com`, OS update endpoints, captive-portal probes. See [`./authentication.md`](./authentication.md).
+**Auth Exemptions list** — separate from SSL bypass. The ZIA Authentication Policy maintains its own URL exempt list (up to 25,000 entries) for destinations that should skip the auth challenge entirely. Common entries: `login.windows.net`, `login.microsoftonline.com`, OS update endpoints, captive-portal probes. See [`zia.authentication`](kb:zia.authentication).
 
 ## 4. Source IP and Conditional Access — the SIPA dependency
 
@@ -107,7 +107,7 @@ The most-misconfigured pattern across all of these. Reproducible failure mode:
 4. SSL bypass = no decrypt = no header injection (`Restrict-Access-To-Tenants`).
 5. Tenant restriction is silently disabled. Personal accounts work fine. Detection requires looking at log evidence, not console state.
 
-**Mitigation**: explicit SSL Inspection rule for **Microsoft Login Services** (Cloud App criterion, not domain wildcard), **ordered above** the M365 One-Click bypass. The same shape applies to Google Workspace and Webex Login Services tenant restriction. See [`./tenant-profiles.md`](./tenant-profiles.md).
+**Mitigation**: explicit SSL Inspection rule for **Microsoft Login Services** (Cloud App criterion, not domain wildcard), **ordered above** the M365 One-Click bypass. The same shape applies to Google Workspace and Webex Login Services tenant restriction. See [`zia.tenant-profiles`](kb:zia.tenant-profiles).
 
 **Microsoft v1/v2 protocol mismatch** is a separate documented failure mode for the same feature (`ms_login_services_tr_v2` flag). See same doc.
 
@@ -125,8 +125,8 @@ When a question lands about one of these, the right move is to point at the unde
 ## Cross-links
 
 - SSL trust mechanics + bypass-rule hygiene: [`zia.ssl-inspection`](kb:zia.ssl-inspection)
-- Tenant Profile mechanics (CAC tenant restriction): [`./tenant-profiles.md`](./tenant-profiles.md)
-- Authentication Policy + auth exemption list: [`./authentication.md`](./authentication.md)
+- Tenant Profile mechanics (CAC tenant restriction): [`zia.tenant-profiles`](kb:zia.tenant-profiles)
+- Authentication Policy + auth exemption list: [`zia.authentication`](kb:zia.authentication)
 - Source IP Anchoring (SIPA) for Conditional Access: [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md)
 - Z-Tunnel mode + QUIC interaction: [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md)
 - Cloud App Control mechanics: [`zia.cloud-app-control`](kb:zia.cloud-app-control)

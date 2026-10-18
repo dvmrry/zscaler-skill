@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "id": "zia.forwarding-control.methods",
+  "title": "Forwarding methods and their required fields",
+  "aliases": [
+    "forward_method",
+    "forwarding method",
+    "ZPA ECZPA DIRECT PROXYCHAIN",
+    "ENATDEDIP",
+    "GEOIP",
+    "dest_addresses cannot be set"
+  ],
+  "binds": [
+    "zia/forwarding-rules#forwardMethod",
+    "zia/forwarding-rules#zpaGateway",
+    "zia/forwarding-rules#zpaAppSegments",
+    "zia/forwarding-rules#proxyGateway",
+    "zia/forwarding-rules#dedicatedIPGateway",
+    "zia/forwarding-rules#destAddresses",
+    "zia/forwarding-rules#destCountries",
+    "zia/forwarding-rules#destIpCategories"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.forwarding-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.zpa-gateway"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.terraform"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.terraform.field-fidelity"
+    }
+  ],
+  "claims": {
+    "console-methods": {
+      "statement": "The console offers these forwarding methods: ZPA (to a Private Access App Connector through the Private Access gateway), Direct, Proxy Chaining (to a third-party proxy service), Dedicated IP (through a dedicated IP gateway) and GeoIP (source IP address mapped to the location of the originating request).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "quotes": [
+            "Forwarding Method: From the drop-down menu, choose ZPA to forward the traffic to a Private Access App Connector through the Private Access gateway",
+            "Forwarding Method: From the drop-down menu, choose Proxy Chaining to forward the traffic to a third-party proxy service.",
+            "Forwarding Method: From the drop-down menu, choose Dedicated IP to forward the traffic through a dedicated IP gateway.",
+            "Forwarding Method: From the drop-down menu, choose GeoIP to forward traffic with the source IP address mapped to the location of the originating request."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#forwardMethod"
+      ]
+    },
+    "direct-meaning": {
+      "statement": "Direct forwards the traffic to the destination server using the Zscaler service IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "quotes": [
+            "Select Direct to directly forward the traffic to the destination server using the Zscaler service IP address."
+          ],
+          "after": "Configuring Forwarding Rules for Proxy Chaining"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#forwardMethod"
+      ]
+    },
+    "enum-values": {
+      "statement": "The Terraform provider accepts ten `forward_method` values: INVALID, DIRECT, PROXYCHAIN, ZIA, ZPA, ECZPA, ECSELF, DROP, ENATDEDIP and GEOIP. The Python SDK's add-rule docstring lists the same ten; its update-rule docstring lists only the first eight.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "\"INVALID\", \"DIRECT\", \"PROXYCHAIN\", \"ZIA\", \"ZPA\", \"ECZPA\", \"ECSELF\", \"DROP\", \"ENATDEDIP\", \"GEOIP\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/forwarding_control.py",
+          "quotes": [
+            "`ECSELF`, `DROP`, `ENATDEDIP`, `GEOIP`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/forwarding_control.py",
+          "quotes": [
+            "Supported Values: `INVALID`, `DIRECT`, `PROXYCHAIN`, `ZIA`, `ZPA`, `ECZPA`, `ECSELF`, `DROP`"
+          ],
+          "after": "def update_rule(self, rule_id: str, **kwargs)"
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#forwardMethod"
+      ]
+    },
+    "tf-doc-meanings": {
+      "statement": "The Terraform documentation describes ENATDEDIP as the Dedicated IP method and GEOIP as Zscaler automatically selecting the nearest data center from the data center mappings on the Geo IP page. The documentation also says ZPA requires `zpa_gateway` and `zpa_app_segments`, and PROXYCHAIN requires `proxy_gateway`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_forwarding_control_rule.md",
+          "quotes": [
+            "`ENATDEDIP` - Dedicated IP method.",
+            "`GEOIP` - Zscaler automatically selects the nearest data center to forward the traffic based on the data center mappings in the Geo IP page.",
+            "If forward_method is `ZPA` the attributes `zpa_gateway` and `zpa_app_segments` are required.",
+            "If forward_method is `PROXYCHAIN` the attributes `proxy_gateway` is required."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#forwardMethod"
+      ]
+    },
+    "dedicated-ip-gateway": {
+      "statement": "A Dedicated IP rule chooses a dedicated IP gateway; selecting the Default gateway lets the Zscaler service pick the optimal data center. The default gateway is created when dedicated IP addresses are allocated, cannot be edited or deleted, and directs traffic to the geographically nearest data center that has a dedicated IP address assigned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "quotes": [
+            "Forward to Gateway: Choose the appropriate dedicated IP gateway. Select Default gateway to allow the Zscaler service to automatically choose the optimal data center based on your location."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-dedicated-ip.md",
+          "quotes": [
+            "the Zscaler service creates a default gateway that can neither be edited nor deleted.",
+            "the Zscaler service directs the traffic to the geographically nearest data center that has a dedicated IP address assigned."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#dedicatedIPGateway"
+      ]
+    },
+    "provider-field-requirements": {
+      "statement": "At plan time, for rules of type FORWARDING, the provider requires `zpa_app_segments` and `zpa_gateway` when the method is ZPA; requires `proxy_gateway` when it is PROXYCHAIN; and rejects `zpa_gateway`, `proxy_gateway`, `zpa_app_segments`, `zpa_application_segments` and `zpa_application_segment_groups` when it is DIRECT (PROXYCHAIN rejects the ZPA ones). These checks do not run for other methods or other rule types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "requiredAttrs := []string{\"zpa_app_segments\", \"zpa_gateway\"}",
+            "prohibitedAttrs := []string{\"zpa_gateway\", \"proxy_gateway\", \"zpa_app_segments\", \"zpa_application_segments\", \"zpa_application_segment_groups\"}",
+            "return fmt.Errorf(\"proxy gateway is mandatory for Proxy Chaining forwarding\")",
+            "prohibitedAttrs := []string{\"zpa_gateway\", \"zpa_app_segments\", \"zpa_application_segments\", \"zpa_application_segment_groups\"}"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#zpaGateway",
+        "zia/forwarding-rules#zpaAppSegments",
+        "zia/forwarding-rules#proxyGateway"
+      ],
+      "conditions": "Terraform plan-time validation only; the API's own acceptance of these combinations is not shown by these sources."
+    },
+    "eczpa-selectors": {
+      "statement": "ZPA rules reference application segments through `zpa_app_segments`; ECZPA rules (Zscaler Cloud Connector) use `zpa_application_segments` and `zpa_application_segment_groups` instead. The published API contract carries all three.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "List of ZPA Application Segments for which this rule is applicable. This field is applicable only for the ECZPA forwarding method",
+            "List of ZPA Application Segment Groups for which this rule is applicable. This field is applicable only for the ECZPA forwarding method"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1forwardingRules/post/requestBody/content/application~1json/schema/properties/zpaApplicationSegments",
+          "expect": {
+            "type": "array",
+            "description": "List of ZPA Application Segments for which this rule is applicable. This field is applicable only for the ECZPA forwarding method (used for Zscaler Cloud Connector)."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1forwardingRules/post/requestBody/content/application~1json/schema/properties/zpaAppSegments",
+          "expect": {
+            "type": "array",
+            "description": "The list of ZPA Application Segments for which this rule is applicable. This field is applicable only for the ZPA Gateway forwarding method."
+          }
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#zpaAppSegments",
+        "zia/forwarding-rules#zpaApplicationSegments",
+        "zia/forwarding-rules#zpaApplicationSegmentGroups"
+      ]
+    },
+    "dest-fields-gate": {
+      "statement": "The provider rejects `dest_addresses`, `dest_countries` and `dest_ip_categories` on any rule whose method is not PROXYCHAIN, DIRECT, ENATDEDIP or GEOIP. That excludes ZIA, ZPA, ECZPA, ECSELF, DROP and INVALID, not only ZPA, and the check is outside the type-FORWARDING condition.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "forwardMethod != \"PROXYCHAIN\" && forwardMethod != \"DIRECT\" && forwardMethod != \"ENATDEDIP\" && forwardMethod != \"GEOIP\" {",
+            "dest_addresses, dest_countries and dest_ip_categories can only be set when forward_method is either 'PROXYCHAIN' or 'DIRECT' or 'ENATDEDIP' or 'GEOIP'"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#destAddresses",
+        "zia/forwarding-rules#destCountries",
+        "zia/forwarding-rules#destIpCategories"
+      ],
+      "conditions": "Terraform plan-time validation. The check does not cover `dest_ip_groups`, `dest_ipv6_groups` or `res_categories`."
+    }
+  },
+  "divergences": {
+    "contract-enum": {
+      "summary": "Whether ENATDEDIP and GEOIP are valid forwardMethod values",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1forwardingRules/post/requestBody/content/application~1json/schema/properties/forwardMethod",
+            "expect": {
+              "type": "string",
+              "enum": [
+                "INVALID",
+                "DIRECT",
+                "PROXYCHAIN",
+                "ZIA",
+                "ZPA",
+                "ECZPA",
+                "ECSELF",
+                "DROP"
+              ]
+            }
+          },
+          "says": "The published ZIA OpenAPI contract for creating a forwarding rule lists eight values and not ENATDEDIP or GEOIP."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/resource_zia_forwarding_control_rule.go",
+            "quotes": [
+              "\"INVALID\", \"DIRECT\", \"PROXYCHAIN\", \"ZIA\", \"ZPA\", \"ECZPA\", \"ECSELF\", \"DROP\", \"ENATDEDIP\", \"GEOIP\","
+            ]
+          },
+          "says": "The Terraform provider accepts ten values, adding ENATDEDIP and GEOIP, and the console offers Dedicated IP and GeoIP methods."
+        }
+      ],
+      "impact": "Do not treat ENATDEDIP or GEOIP as invalid because the contract omits them, nor assume the API accepts every value the provider validates. Read existing rules from the tenant to see which values occur."
+    }
+  },
+  "gaps": {
+    "method-semantics": {
+      "kind": "semantic",
+      "title": "What ZIA, DROP, ECSELF and INVALID do",
+      "status": "open",
+      "about": [
+        "zia/forwarding-rules#forwardMethod"
+      ],
+      "detail": "Unverified legacy statement: ZIA is \"Default egress via Zscaler's cloud egress IPs. No special config required\"; DROP is \"Silently discard matching traffic\"; ECSELF is \"Cloud Connector self-forwarding\"; INVALID is a \"Placeholder / unconfigured state - not a valid production action\"; PROXYCHAIN is \"Forward to a downstream proxy\" (the console help says third-party proxy service, so that one is now sourced). The console help lists no ZIA, Drop or ECSELF method, and the Terraform and SDK sources give only the value names. Resolve with a lab rule per value, or a vendor article that names them.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "explaining the effect of a rule whose forwardMethod is ZIA, DROP, ECSELF or INVALID"
+    },
+    "no-match-default": {
+      "kind": "semantic",
+      "title": "What happens to traffic that matches no Forwarding Control rule",
+      "status": "open",
+      "about": [
+        "zia/forwarding-rules"
+      ],
+      "detail": "Unverified legacy statement: \"Default when no rule matches: traffic falls to the `ZIA` forward method - standard ZIA cloud egress. There is no implicit drop.\" No captured source states a default or an implicit drop. Resolve by a lab trace of traffic matching no rule, or a vendor statement.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "stating the egress path for unmatched traffic"
+    }
+  }
+}

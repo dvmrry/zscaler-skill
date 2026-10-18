@@ -1,0 +1,348 @@
+{
+  "schema_version": 1,
+  "id": "zia.locations.sublocations",
+  "title": "Sublocations: what they are, the auto-created other sublocations, naming and limits",
+  "aliases": [
+    "sublocation",
+    "sub-location",
+    "other sublocation",
+    "other6",
+    "nested location",
+    "sublocation limit",
+    "delete parent location",
+    "reparent sublocation",
+    "sublocation name uniqueness"
+  ],
+  "binds": [
+    "zia/sublocations",
+    "zia/locations#parentId",
+    "zia/locations#otherSubLocation",
+    "zia/locations#other6SubLocation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.locations"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.locations.model"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.ip-scoping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.inheritance"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.bandwidth"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.group-assignment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.automation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.rule-order"
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "A sublocation is a location nested under a parent location that references IP addresses encapsulated in the parent's GRE or IPSec tunnel, or passed to the service in X-Forwarded-For headers. It is the same location object as a parent, distinguished by `parentId`: a missing or 0 `parentId` means a parent location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-sublocations.md",
+          "quotes": [
+            "Sublocations enable an organization to create new locations that reference IP addresses that are encapsulated within a GRE or IPSec tunnel, or that are passed to the Zscaler service through X-Forwarded-For (XFF) headers."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/parentId",
+          "expect": {
+            "description": "Parent Location ID. If this ID does not exist or is 0, it is implied that it is a parent location. Otherwise, it is a sub-location whose parent has this ID. x-applicableTo: SUB"
+          }
+        }
+      ],
+      "binds": [
+        "zia/sublocations",
+        "zia/locations#parentId"
+      ]
+    },
+    "what-it-is-for": {
+      "statement": "Sublocations let one tunnel carry several networks with different treatment: policy by IP address, authentication enforced on the corporate network and off for guest, bandwidth control per sublocation with unused bandwidth staying available at the parent, and separate reporting for networks or offices that share an egress IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-sublocations.md",
+          "quotes": [
+            "Implement different policies based on IP addresses.",
+            "Enforce authentication on the internal corporate network, while disabling it for the guest network.",
+            "Enforce bandwidth control for sublocations while ensuring that unused bandwidth remains available at the parent location.",
+            "Provide reporting information for different internal networks or offices when they share the same egress IP address."
+          ]
+        }
+      ]
+    },
+    "separate-list-endpoint": {
+      "statement": "Sublocations are listed by parent through `GET /locations/{locationId}/sublocations`; the same `DELETE /locations/{locationId}` removes a location or a sublocation. The Ansible module records that the top-level `/locations` listing does not return sublocations, so a sublocation looked up there always looks missing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations~1{locationId}~1sublocations/get",
+          "expect": {
+            "operationId": "Get Sub Locations"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations~1{locationId}/delete",
+          "expect": {
+            "description": "<p>Deletes the location or sub-location for the specified ID.</p>\n"
+          }
+        },
+        {
+          "source": "ansible-zia",
+          "path": "plugins/modules/zia_location_management.py",
+          "quotes": [
+            "# Sublocations are NOT returned by the top-level /locations listing, so they",
+            "# must be looked up under their parent via /locations/{parent_id}/sublocations."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/sublocations"
+      ],
+      "conditions": "The Ansible comment states the listing behavior as a code-level fact; the OpenAPI document does not say it. A provider or script that infers an absent sublocation from the top-level list will try to recreate it."
+    },
+    "other-auto-created": {
+      "statement": "After the first sublocation is added to a location, the service creates a sublocation named `other` for traffic from that location whose IP address is not in any defined sublocation; with IPv6 enabled on the location it also creates `other6`. Both can be renamed, and the API flags them with `otherSubLocation` and `other6SubLocation`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-sublocations.md",
+          "quotes": [
+            "After you add a sublocation, the Zscaler service automatically creates a sublocation named other on the Locations page.",
+            "The other sublocation is created, by default, for IP addresses that are sent to the cloud from a location that is not already defined in the sublocation. You can rename the other sublocation if desired.",
+            "If the Enable IPv6 option is enabled for your location, the Zscaler service automatically creates a sublocation named other6 in addition to the other sublocation."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/otherSubLocation",
+          "expect": {
+            "x-applicableTo": "SUB",
+            "type": "boolean"
+          }
+        }
+      ],
+      "binds": [
+        "zia/locations#otherSubLocation",
+        "zia/locations#other6SubLocation"
+      ]
+    },
+    "other-takes-parent-rules": {
+      "statement": "When a sublocation is added to a location that has Enable IPv6 on, the service creates `other` and `other6`, existing rules that referred to the parent location now refer to the `other` sublocation, and rules must be configured by hand for the sublocation just created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.md",
+          "quotes": [
+            "All the existing policy rules referring to the parent location now refer to the other sublocation. You need to manually configure rules to apply to traffic from the sublocation created."
+          ]
+        }
+      ],
+      "conditions": "The article states this only in the Enable IPv6 step; whether rules also move to `other` when IPv6 is off is not stated."
+    },
+    "other-is-a-policy-gap": {
+      "statement": "Tightening policy on defined sublocations does not tighten `other`: traffic from unmatched IPs is handled under whatever rules reach `other`, so review the rules that apply to `other` whenever sublocation rules change.",
+      "tier": "B",
+      "derived_from": [
+        "other-auto-created",
+        "other-takes-parent-rules"
+      ],
+      "conditions": "Derived from where unmatched traffic lands; the rule-following part is sourced only for the IPv6 case and is generalized here. No source describes the tightened-sublocation scenario itself."
+    },
+    "cap-2000": {
+      "statement": "The documented limit is 2,000 sublocations per location, which Zscaler Support can raise to 16K; the Configuring Sublocations article states the limit as \"up to 16K sublocations per location\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Sublocations per Location | 2,000 sublocationsContact Zscaler Support for a possible increase in the limit from 2,000 sublocations to 16K sublocations."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-sublocations.md",
+          "quotes": [
+            "You can add up to 16K sublocations per location."
+          ]
+        }
+      ],
+      "conditions": "The two articles differ on the default; see the divergence."
+    },
+    "name-in-use-error": {
+      "statement": "The console rejects a location or sublocation name that already belongs to an existing location or sublocation; a previously deleted name can be reused when creating a new one but not when renaming an existing one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-locations.md",
+          "quotes": [
+            "You can use a previously deleted location or sublocation name when you create a new location or sublocation. However, you cannot use a deleted name when modifying an existing location or sublocation.",
+            "The Zscaler Admin Console displays an error if you attempt to use a name that already belongs to an existing location or sublocation."
+          ]
+        }
+      ],
+      "gaps": [
+        "name-uniqueness-scope"
+      ]
+    },
+    "parent-id-writable": {
+      "statement": "The Python SDK's `update_location` accepts `parent_id`, so a PUT can in principle move a location between parent and sublocation roles; no source says what the API requires of such a change.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/locations.py",
+          "quotes": [
+            "Parent Location ID. If this ID does not exist or is 0, it is implied that it is a parent location."
+          ],
+          "after": "def update_location(self, location_id: int, **kwargs)"
+        }
+      ],
+      "gaps": [
+        "reparenting-rules"
+      ],
+      "conditions": "Derived from the SDK's documented keyword list; the SDK does not validate and the API's behavior is untested."
+    }
+  },
+  "divergences": {
+    "default-cap": {
+      "summary": "The default number of sublocations per location is 2,000 in the limits table and 16K in the Configuring Sublocations article.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.md",
+            "quotes": [
+              "| Sublocations per Location | 2,000 sublocationsContact Zscaler Support for a possible increase in the limit from 2,000 sublocations to 16K sublocations."
+            ]
+          },
+          "says": "2,000 per location by default; Support can raise it to 16K."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-sublocations.md",
+            "quotes": [
+              "You can add up to 16K sublocations per location."
+            ]
+          },
+          "says": "Up to 16K per location, with no mention of a default or of a Support request."
+        }
+      ],
+      "impact": "Planning a large branch design against 16K may hit a 2,000 limit that needs a Support ticket first.",
+      "resolution": {
+        "by": "cap-2000",
+        "rule": "source-rank",
+        "note": "Both are help articles; the limits table is the dedicated statement of ranges, so plan on 2,000 and treat 16K as a ceiling needing a request."
+      }
+    }
+  },
+  "gaps": {
+    "depth-limit": {
+      "kind": "semantic",
+      "title": "Whether a sublocation can itself have sublocations",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"sublocations are a single level deep. A sublocation cannot itself have sublocations — the hierarchy is parent location → sublocation only\" (legacy Tier C, inferred from the flat API shape). The help articles describe only a location-to-sublocation relationship and the API has a single `parentId`; no source states the prohibition. Resolve with a lab call that sets `parentId` to a sublocation's id, or a Zscaler statement.",
+      "former_ids": [
+        "zia-20"
+      ],
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "about": [
+        "zia/locations#parentId"
+      ],
+      "blocks": "telling an operator a three-level hierarchy is impossible"
+    },
+    "name-uniqueness-scope": {
+      "kind": "semantic",
+      "title": "Whether sublocation names are unique per parent or across the tenant",
+      "status": "partial",
+      "detail": "The console error in name-in-use-error covers a name that belongs to \"an existing location or sublocation\" without saying per-parent or per-tenant. The Terraform provider added `parent_name` so a sublocation can be found across parents \"specially when overlapping names are in use\", which suggests API names can repeat under different parents. Unverified legacy statement: \"likely per-tenant (not per-parent)\".",
+      "former_ids": [
+        "zia-17"
+      ],
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "specially when overlapping names are in use"
+          ]
+        }
+      ]
+    },
+    "parent-delete-behavior": {
+      "kind": "semantic",
+      "title": "What deleting a parent location does to its sublocations",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"deleting a parent location while sublocations exist is likely blocked by the API (cascade-delete risk) or results in orphaned records; treat parent deletion as requiring prior deletion of all child sublocations\". No captured help page or code states the behavior. Resolve with a lab test of DELETE on a parent that has sublocations.",
+      "former_ids": [
+        "zia-18"
+      ],
+      "resolves_with": [
+        "lab-test"
+      ],
+      "about": [
+        "zia/sublocations"
+      ],
+      "blocks": "safe teardown order for Terraform destroy and cleanup scripts"
+    },
+    "reparenting-rules": {
+      "kind": "semantic",
+      "title": "API preconditions when `parent_id` changes on update",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Setting parent_id = 0 on an existing sublocation would, in principle, promote it to a parent location. Setting a non-zero parent_id on an existing parent location would demote it\". Whether the API refuses a demotion while the location still has sublocations, or any promotion, is not stated. Resolve with a lab test.",
+      "former_ids": [
+        "zia-19"
+      ],
+      "resolves_with": [
+        "lab-test"
+      ],
+      "about": [
+        "zia/locations#parentId"
+      ]
+    }
+  }
+}

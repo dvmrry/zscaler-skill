@@ -1,0 +1,105 @@
+# Configuring Sublocations
+
+**Source:** https://help.zscaler.com/zia/configuring-sublocations
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1401036, revision 3246192
+
+---
+
+This article describes how to add a single sublocation. You can add up to 16K sublocations per location. For a complete list of ranges and limits per feature, see Ranges & Limitations. You can also use a CSV file to import multiple locations and sublocations. To learn more, see Configuring Multiple Locations and Sublocations.
+To add a sublocation:
+- From the navigation menu, go to Infrastructure > Location Management > Legacy Locations.
+- On the Locations page, find the location you want to add a sublocation to, and click the Edit icon.
+- The Edit Location window appears.
+- In the Edit Location window, select the Use XFF from Client Request option if this location uses proxy chaining to forward traffic to the Zscaler service, and you want the service to discover the client RFC 1918 IP address from the X-Forwarded-For (XFF) headers that your on-premises proxy server inserts in outbound HTTP requests. The XFF header identifies the client's IP address, which can be leveraged by the service to identify the client's sublocation.
+- Using the XFF headers, the service can apply the appropriate sublocation policy to the transaction, and if Enable IP Surrogate is turned on for the location or sublocation, the appropriate user policy is applied to the transaction. When the service forwards the traffic to its destination, it removes the original XFF header and replaces it with an XFF header that contains the IP address of the client gateway (the organization's public IP address), ensuring that an organization's internal IP addresses are never exposed externally.
+- Go back to the Locations page and click the Add Sublocation icon for the location.
+- See image.
+- The Add Sublocation window appears.
+- In the Add Sublocation window, in the Location section:
+  - Name: Enter a name for the sublocation. To learn more, see Naming Locations & Sublocations.
+  - Country: Select the sublocation's country.
+  - City/State/Province: Enter the sublocation's state or province, if applicable.
+  - Time Zone: Select the sublocation's time zone.
+  - City Geolocation: Enter the city name for geolocation on the map.
+  - This field displays the values in the <City>, <State>, <Country> (<GeoID>) format. For example, Albany, Western Australia, Australia (2077963).
+  - Manual Location Groups: Search for and select the manual location group names. The sublocation is added to the manual groups you selected. Otherwise, leave the selection as None.
+  - Dynamic Location Groups: This field shows the dynamic location groups that the sublocation belongs to. A predefined dynamic location group is automatically populated corresponding to the selected location type. This field is not editable.
+  - For example, the Workload Traffic Group is automatically selected for the location type, Workload traffic type.
+  - Exclude from Manual Location Groups: Enable or disable the switch. If enabled, the sublocation cannot be added to manual location groups. The sublocation is also removed from any manual groups it's already assigned to. If disabled, the location can be added to any manual groups.
+  - Exclude from Dynamic Location Groups: Enable or disable the switch. If enabled, the sublocation is not automatically assigned to any matching dynamic location groups. The sublocation is also removed from any dynamic groups it's already assigned to. If disabled, the sublocation is automatically assigned to all matching dynamic groups.
+  - Disabling this option does not impact the association of the location to the predefined location groups.
+  - Location Type: Select a location type from the drop-down menu. You must select a value for this field when you update an existing location or add a new location. Selecting a location type automatically assigns the sublocation to a corresponding predefined location group. You can also search for any one of the following location types:
+    - Corporate user traffic
+    - Guest Wi-Fi traffic
+    - IoT traffic
+    - Server traffic
+    - Extranet
+    - The Extranet sublocation type is only available for and automatically assigned to sublocations created for extranet locations. To learn more about configuring Extranet locations, see Configuring an Extranet.
+    - Workload traffic type
+    - The Workload traffic type automatically applies to all sublocations of a location created in the Zscaler Admin Console.
+  - Description: (Optional) Enter additional notes or information. The description cannot exceed 1,024 characters.
+- In the Addressing section:
+  - Internal IP Addresses: Add the internal IP addresses for the sublocation. Enter the IP address or IP address range and click Add Items.
+  - Scope: You can define scope types to segregate workload traffic from a single sublocation to apply different Zscaler Cloud Connector and security policies. This field is only available for the Workload traffic type sublocations whose parent locations are associated with Amazon Web Services (AWS) Cloud Connector groups. Select one of the following scope types for the sublocation:
+    - Namespace: A tag assigned to virtual private clouds (VPCs) in the same or different AWS accounts to group all the workload resources in those VPCs under a single namespace. It is configured during AWS deployment with Cloud Connector.
+    - Account: The AWS accounts of your organization that are added in the Zscaler Admin Console.
+    - VPC: The VPC where the AWS Gateway Load Balancer VPC endpoint is located in Cloud Connector.
+    - VPC Endpoint: An endpoint network interface created for each VPC subnet that has IP addresses from within the VPC subnet IP address range.
+  - Account: Select one or more AWS account IDs. These AWS accounts are associated with the parent location of this sublocation created in the Zscaler Zscaler Admin Console.
+  - Namespace: Select the namespace tags to map to the sublocation. This list displays only those namespaces associated with the selected AWS accounts.
+  - VPC: Select the VPCs to map to the sublocation. The list displays only those VPCs that have a VPC endpoint and that are associated with the selected AWS accounts.
+  - VPC Endpoint: Enter the VPC endpoint ID, prefixed with vpce-0, to map to the sublocation. Zscaler recommends that you copy and paste the VPC endpoint ID from the AWS console to avoid errors.
+- To configure sublocations with the VPC, Namespace, and Account scope types, the workload discovery service must be enabled for the tenant. However, it is not required for configuring the VPC Endpoint scope type. To learn more, see Using Sublocation Scopes to Group Cloud Connector Workloads in Amazon Web Services.
+- See image.
+- In the Gateway Options section:
+  - Enforce Authentication: Enable to require users from this location to authenticate to the service. To learn more, see About Provisioning and Authenticating Users.
+  - The Authentication feature is not supported for the Workload traffic type sublocations.
+  - Enable Caution: If you disabled Enforce Authentication, you can enable this feature and set the Caution Interval to be greater than one minute to display a caution notification to unauthenticated users. To learn more, see Configuring Browser-Based Global End User Notifications. If you enable this feature, you must use one of the following methods to forward traffic to the service:
+    - A GRE or IPSec tunnel without NAT
+    - Forward proxy chaining with the Use XFF from Client Request option turned on for the parent location.
+  - Enable AUP: If you disabled Enforce Authentication, you can enable this feature to display an Acceptable Use Policy (AUP) for unauthenticated traffic and require users to accept it. If you enable this feature:
+    - In Custom AUP Frequency (Days), specify, in days, how frequently the AUP is displayed to users.
+    - A First Time AUP Behavior section appears, with the following settings:
+      - If Block Internet Access is enabled, the Zscaler service disables all access to the internet, including non-HTTP traffic, until the user accepts the AUP that is displayed to them.
+      - If Force SSL Inspection is enabled, SSL Inspection enforces an AUP for HTTPS traffic.
+  - You can customize the AUP notification message on the Global EUN Configuration page. To learn more, see Configuring Browser-Based Global End User Notifications.
+  - Enable Digest Authentication: If you enabled Enforce Authentication, select this option to enforce digest authentication on all web traffic explicitly forwarded from the location and its associated dedicated ports. To learn more, see Synchronizing User Data with an Active Directory or OpenLDAP.
+  - Enable Basic Authentication: If you enabled Enforce Authentication, select this option to enforce basic authentication on all web traffic explicitly forwarded from the sublocation and its associated dedicated ports.
+    - Basic Authentication Caveats
+    - The following caveats apply to basic authentication:
+      - The cloud service API Security feature must be enabled for your organization.
+      - The Hosted DB user repository type with the Form-Based authentication type is supported.
+      - The hosted users/passwords must be created or imported using a CSV file.
+      - The users must be enrolled for basic authentication using the following APIs:
+        - https://zsapi.<cloud>.net/api/v1/authenticatedSession
+        - https://zsapi.<cloud>.net/api/v1/users/<userid>/enroll
+    - For the authenticatedSession API endpoint, admin user credentials and an API key are required. For the users API endpoint, you can get the user IDs using the browser developer tool on the User Management page.
+    - After the user's enrollment, their credentials are used for basic proxy authentication.
+    - Here is an example of basic proxy authentication:
+    - curl -ivk -x gateway.<cloud>.net:<port> -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/109.0" -U "<username>@<domain.com>:<passwd>" example.com
+    - The user credentials are transferred in clear text when using basic authentication. So, you must use an IPSec tunnel from a router or firewall or an encrypted tunnel from Cloud Connector or Zscaler Branch Connector if you are forwarding the authenticated traffic over the public internet.
+  - Enable IP Surrogate: If you enabled Enforce Authentication, select this option if you want to map users to device IP addresses for a sublocation. To learn more, see About Surrogate IP.
+  - If you enable this feature on a sublocation:
+    - In Idle Time to Disassociation, specify how long after a completed transaction the service retains the IP address-to-user mapping.
+    - If you want to use the existing IP address-to-user mapping (acquired from the surrogate IP) to authenticate users sending traffic from known browsers, enable Enforce Surrogate IP for Known Browsers.
+    - With this feature enabled, the Zscaler service uses existing IP-to-user mapping for authentication even if users go to sites that support cookies. For example, this allows the service to authenticate without requiring the browser to complete HTTP redirects for every transaction, ensuring performance for users who connect over high-latency satellite links. If the feature is disabled, the service authenticates users on browsers with cookies or other configured authentication mechanisms.
+      - If you enabled Enforce Surrogate IP for Known Browsers, in Refresh Time for re-validation of Surrogacy, specify the length of time that the Zscaler service can use IP address-to-user mapping for authenticating users sending traffic from known browsers. After the defined period of time elapses, the service refreshes and revalidates the existing IP-to-user mapping so that it can continue to use the mapping for authenticating users on browsers.
+      - The refresh time for the revalidation of IP surrogacy must be shorter than the DHCP lease time; otherwise, the wrong user policies might be applied. Also, Zscaler recommends setting the Refresh Time for re-validation of Surrogacy to a time period shorter than what you specified for Idle Time to Disassociation.
+      - If you enabled Enforce Surrogate IP for Known Browsers, in Supported Authentication Methods, select either Cookie or Cookie and Proxy. Selecting Cookie and Proxy prevents additional authentication challenges to traffic using both cookie- and non-cookie-based authentication methods after the initial challenge. If Cookie is selected, all other methods are required to authenticate after each request.
+  - Enable Kerberos Authentication: If you enabled Enforce Authentication, you can enable this feature to enforce Kerberos authentication on all web traffic explicitly forwarded from the location and its associated dedicated ports. To learn more, see Deploying Kerberos Authentication.
+  - Enforce Firewall Control: Select to enable the service's firewall controls.
+    - Enable IPS Control: If you enabled Enforce Firewall Control, select to enable the service's IPS controls.
+  - Enable IoT Discovery: Enable to discover IoT/OT devices, servers, and unmanaged devices (e.g., personal user devices) at this location.
+    - Enforce IoT Policy Control: Enable to enforce URL Filtering and Cloud App Control policy rules for unauthenticated traffic from IoT devices at this location. The Enforce IoT Policy Control option appears when the Enable IoT Discovery option is enabled.
+  - See image.
+  - The Enable IoT Discovery and Enforce IoT Policy Control options are available only if IoT discovery and IoT policy control, respectively, are enabled for your organization.
+- In the Bandwidth Control section, you can enforce bandwidth controls for the sublocation:
+  - If you have bandwidth control disabled on the parent location, you can still select Enable for the sublocation and then specify the maximum bandwidth limits for Download (Mbps) and Upload (Mbps).
+  - If you have bandwidth control enabled on the parent location, you can:
+    - Select Use Location Bandwidth to enable the sublocation and use the download and upload maximum bandwidth limits as specified for the parent location.
+    - Select Override to enable the sublocation and then specify the maximum bandwidth limits for Download (Mbps) and Upload (Mbps). This bandwidth is dedicated to the sublocation and not shared with others.
+    - Select Disable to exempt traffic from any Bandwidth Management policies. Sublocations with this option can only use up to a maximum of available Shared Bandwidth at any given time.
+- When Use Location Bandwidth or Disable is selected, any unused bandwidth returns to the parent location's bandwidth. You can also view the amount of Shared Bandwidth available. The shared bandwidth download/upload limit displayed is the parent location's bandwidth plus all sublocations that have Use Location Bandwidth enabled.
+- See image.
+- Click Save and activate the change.

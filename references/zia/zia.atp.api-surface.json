@@ -1,0 +1,313 @@
+{
+  "schema_version": 1,
+  "id": "zia.atp.api-surface",
+  "title": "ATP API: one settings object, two URL lists, and the field-name traps",
+  "aliases": [
+    "advancedThreatSettings",
+    "update_atp_settings",
+    "get_atp_settings",
+    "fileFormatVunerabilitesBlocked",
+    "cookieStealingPCAPEnabled",
+    "atp put replace",
+    "atp settings api",
+    "zia_advanced_threat_settings"
+  ],
+  "binds": [
+    "zia/advanced-threat-settings",
+    "zia/security-exceptions",
+    "zia/malicious-urls"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.atp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.blocked-urls"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.security-exceptions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.categories"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.malware-protection.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.multi-step-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.error-handling"
+    }
+  ],
+  "claims": {
+    "endpoints": {
+      "statement": "ATP is three endpoints under cyberThreatProtection: advancedThreatSettings (one settings object), securityExceptions (the allowlist) and maliciousUrls (the denylist). The settings object and the allowlist are read with GET and written with PUT; the denylist is written with an action parameter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/put",
+          "expect": {
+            "description": "Updates the advanced threat configuration settings. To learn more, see <a href=\"https://help.zscaler.com/zia/configuring-advanced-threat-protection-policy\" target=\"_blank\">Configuring the Advanced Threat Protection Policy</a>."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1securityExceptions/put",
+          "expect": {
+            "description": "Updates security exceptions for the ATP policy.To learn more, see <a href=\"https://help.zscaler.com/zia/configuring-advanced-threat-protection-policy\" target=\"_blank\">Configuring the Advanced Threat Protection Policy</a>."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1maliciousUrls/put",
+          "expect": {
+            "description": "Updates the malicious URLs added to the denylist in ATP policy. To learn more, see <a href=\"https://help.zscaler.com/zia/configuring-advanced-threat-protection-policy\" target=\"_blank\">Configuring the Advanced Threat Protection Policy</a>."
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go",
+          "quotes": [
+            "advThreatSettingsEndpoint  = \"/zia/api/v1/cyberThreatProtection/advancedThreatSettings\"",
+            "maliciousUrlsEndpoint      = \"/zia/api/v1/cyberThreatProtection/maliciousUrls\"",
+            "securityExceptionsEndpoint = \"/zia/api/v1/cyberThreatProtection/securityExceptions\""
+          ]
+        }
+      ]
+    },
+    "settings-shape": {
+      "statement": "The settings object has 48 flat properties. riskTolerance is an integer, blockedCountries an array, and the rest booleans; most threat classes have a Blocked flag and a Capture flag, and the exceptions are cookie stealing (cookieStealingPCAPEnabled) maliciousUrlsCapture (no Blocked partner), blockCountriesCapture and riskToleranceCapture (attached to blockedCountries and riskTolerance), and alertForUnknownOrSuspiciousC2Traffic (no Capture flag).",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/riskTolerance",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/blockedCountries",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/maliciousUrlsCapture",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/blockCountriesCapture",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/riskToleranceCapture",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/alertForUnknownOrSuspiciousC2Traffic",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/cookieStealingPCAPEnabled",
+          "expect": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "binds": [
+        "zia/advanced-threat-settings"
+      ],
+      "conditions": "The count and the 'rest are booleans' reading come from the spec's property list; the validator checks only the pointed members."
+    },
+    "misspelled-file-format-key": {
+      "statement": "The file-format-vulnerability keys are misspelled on the wire: fileFormatVunerabilitesBlocked and fileFormatVunerabilitesCapture, missing the first l and an i. Both SDKs send the misspelled key: the Go field is spelled correctly but its json tag is not, and the Python model uses the misspelled attribute.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/fileFormatVunerabilitesBlocked",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/fileFormatVunerabilitesCapture",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go",
+          "quotes": [
+            "FileFormatVulnerabilitiesBlocked bool `json:\"fileFormatVunerabilitesBlocked\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/advanced_threat_settings.py",
+          "quotes": [
+            "self.file_format_vunerabilites_blocked = None"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/advanced-threat-settings#fileFormatVunerabilitesBlocked",
+        "zia/advanced-threat-settings#fileFormatVunerabilitesCapture"
+      ]
+    },
+    "cookie-stealing-pcap-key": {
+      "statement": "The cookie-stealing Capture flag is cookieStealingPCAPEnabled, not cookieStealingCapture, which the spec does not define.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/cookieStealingPCAPEnabled",
+          "expect": {
+            "type": "boolean",
+            "description": "A Boolean value specifying whether packet capture (PCAP) is enabled or not for cookie stealing"
+          }
+        }
+      ],
+      "binds": [
+        "zia/advanced-threat-settings#cookieStealingPCAPEnabled"
+      ],
+      "conditions": "The second half is an absence in the spec's property list."
+    },
+    "put-replaces-whole-object": {
+      "statement": "The Python update_atp_settings builds its request body from the keyword arguments alone, with no read and merge, and sends them verbatim as JSON keys. The MCP server describes the input as the complete ATP policy and tells callers to fetch and merge first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/atp_policy.py",
+          "quotes": [
+            "body = {} body.update(kwargs)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/atp_settings.py",
+          "quotes": [
+            "Complete ATP policy dict (PUT-replace). Fetch + merge first."
+          ]
+        }
+      ],
+      "conditions": "Because kwargs become wire keys, the snake_case attribute names listed in the SDK docstring are not valid keys. What the server does with keys left out of a PUT is not stated.",
+      "gaps": [
+        "omitted-key-server-behavior"
+      ]
+    },
+    "writes-staged": {
+      "statement": "The MCP server's ATP tools state that writes are staged until zia_activate_configuration is run, and the Python SDK PUT methods contain no activation call.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/atp_settings.py",
+          "quotes": [
+            "Writes are staged until ``zia_activate_configuration``."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/atp_policy.py",
+          "quotes": [
+            "def update_atp_security_exceptions(self, bypass_urls: list[str])"
+          ]
+        }
+      ],
+      "conditions": "The second half is read from the SDK source: no activation call appears in the update methods. Provider activation behavior is in zia.terraform.activation."
+    }
+  },
+  "gaps": {
+    "omitted-key-server-behavior": {
+      "kind": "semantic",
+      "title": "What the server does with ATP settings keys left out of a PUT",
+      "status": "open",
+      "about": [
+        "zia/advanced-threat-settings"
+      ],
+      "detail": "The SDK and MCP server treat the PUT as a full replacement, but no source states whether omitted keys reset to a default or keep their value.",
+      "blocks": "Whether a partial write is safe.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "tenant-defaults": {
+      "kind": "data",
+      "former_ids": [
+        "zia-61"
+      ],
+      "title": "What a fresh tenant ships with for the ATP and Malware toggles",
+      "status": "open",
+      "about": [
+        "zia/advanced-threat-settings",
+        "zia/atp-malware-settings"
+      ],
+      "detail": "The Python ATP model defaults absent fields to None and the malware settings model to False, but these are client construction defaults. Only the Password-Protected Files and Unscannable Files settings are documented as allowed by default. No source states what a new tenant's other toggles are set to. The recommended policies are in zia.atp and zia.malware-protection.",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zia advanced-threat-settings show"
+    },
+    "put-auto-activate": {
+      "kind": "semantic",
+      "title": "Whether a cyberThreatProtection PUT activates on its own",
+      "status": "partial",
+      "about": [
+        "zia.atp.api-surface:writes-staged"
+      ],
+      "detail": "The MCP server says writes are staged until activation and the SDK methods call no activation, which supports staging. No source tests it against a tenant.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

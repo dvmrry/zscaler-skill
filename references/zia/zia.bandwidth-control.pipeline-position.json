@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "id": "zia.bandwidth-control.pipeline-position",
+  "title": "Where Bandwidth Control sits in policy enforcement",
+  "aliases": [
+    "bandwidth control order of enforcement",
+    "bandwidth control after firewall",
+    "does blocked traffic reach bandwidth control"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.firewall.traffic-path"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.precedence"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.allocation"
+    }
+  ],
+  "claims": {
+    "block-stops-later-policies": {
+      "statement": "In the web module a transaction that violates a policy is blocked immediately and the policies that follow are not enforced.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-policy-enforcement.md",
+          "quotes": [
+            "the Public Service Edge immediately blocks that transaction and does not continue enforcing the policies that follow."
+          ]
+        }
+      ]
+    },
+    "last-in-web-order": {
+      "statement": "Bandwidth Control is the final entry in the ordered policy lists the web module applies to HTTP GET and POST requests, to responses, and to the domain-only pass on CONNECT or SNI.",
+      "tier": "B",
+      "conditions": "Read from the capture: Bandwidth Control is the last item in each of the four ordered lists. No sentence says in words that it is last.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-policy-enforcement.md",
+          "quotes": [
+            "Bandwidth Control: The Public Service Edge checks if the request is allowed full or reduced bandwidth"
+          ],
+          "after": "This is a user request to retrieve a resource from the web (e.g., a web page)."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-policy-enforcement.md",
+          "quotes": [
+            "Bandwidth Control: The Public Service Edge checks how much bandwidth to allocate the request"
+          ]
+        }
+      ]
+    },
+    "usage-decides": {
+      "statement": "Bandwidth Control decides whether a request gets full or reduced bandwidth from the organization's Bandwidth Control policy and the current bandwidth usage at the user's location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-policy-enforcement.md",
+          "quotes": [
+            "based on your organization's Bandwidth Control policy and the current bandwidth usage at the user"
+          ],
+          "after": "This is a user request to retrieve a resource from the web (e.g., a web page)."
+        }
+      ]
+    },
+    "only-surviving-traffic": {
+      "statement": "Traffic blocked by the Firewall module or by an earlier web policy never reaches Bandwidth Control, so Bandwidth Control only shapes transactions that every earlier stage allowed.",
+      "tier": "B",
+      "derived_from": [
+        "zia.firewall.traffic-path:firewall-first",
+        "block-stops-later-policies",
+        "last-in-web-order"
+      ],
+      "conditions": "Derived from the firewall-first rule, the immediate-block rule and Bandwidth Control's position at the end of the lists."
+    }
+  }
+}

@@ -1,0 +1,322 @@
+{
+  "schema_version": 1,
+  "id": "zia.locations.group-assignment",
+  "title": "How locations land in groups: location type, defaults, exclusion flags and Terraform support",
+  "aliases": [
+    "location type group",
+    "exclude_from_dynamic_groups",
+    "exclude_from_manual_groups",
+    "static_location_groups",
+    "dynamic_location_groups",
+    "profile default",
+    "policy scope changes without edit",
+    "other sublocation in dynamic group",
+    "terraform dynamic location groups"
+  ],
+  "binds": [
+    "zia/locations",
+    "zia/location-groups",
+    "zia/locations#profile"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.locations.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.sublocations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.rule-scoping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.data-source-fidelity"
+    }
+  ],
+  "claims": {
+    "type-assigns-predefined": {
+      "statement": "Choosing a Location Type on a location or sublocation assigns it to the matching predefined group automatically, so it is subject to every policy scoped to that group from creation, without an explicit membership choice.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.md",
+          "quotes": [
+            "Selecting a location type assigns the location automatically to a corresponding predefined location group."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-sublocations.md",
+          "quotes": [
+            "Selecting a location type automatically assigns the sublocation to a corresponding predefined location group."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/locations#profile"
+      ],
+      "conditions": "That policies scoped to the group then apply is derived from group scoping, not stated here."
+    },
+    "workload-default": {
+      "statement": "A sublocation added to a location created in the Zscaler Admin Console gets the Workload traffic type and the Workload Traffic Group by default; a sublocation added to an Extranet-type location gets the Extranet type and uses the extranet location's DNS server and traffic selector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-sublocations.md",
+          "quotes": [
+            "After you add a sublocation to a location created in the Zscaler Admin Console, the Workload traffic type and Workload Traffic Group are applied as the default location type and the location group for the sublocation, respectively.",
+            "When you add a sublocation to an Extranet-type location, the Extranet location type is applied automatically. The extranet sublocation uses the DNS server and traffic selector of the extranet location it was created for."
+          ]
+        }
+      ]
+    },
+    "profile-default": {
+      "statement": "When `profile` is omitted on the public API, the service sets CORPORATE if authentication is enabled, GUESTWIFI if authentication is disabled and the name contains \"guest\", and SERVER otherwise; with a partner API key it sets CORPORATE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/profile",
+          "expect": {
+            "description": "<p>(Optional) Profile tag that specifies the location traffic type. If not specified, this tag is automatically set to best possible value using certain criteria.</p><p>The criteria used for setting best possible value is as follows:</p>\n  <ul>\n  <li>When invoked with a partner API key, it automatically sets the profile attribute to <b>CORPORATE</b>.</li>\n  <li>When invoked using public API, it automatically sets the profile attribute based on the following criteria:\n    <ul>\n    <li>If the location has authentication enabled, then it sets profile to <b>CORPORATE</b>.</li>\n    <li>If the location has authentication disabled and name contains \"guest\", then it sets profile to <b>GUESTWIFI</b>.</li>\n    <li>For all other locations with authentication disabled, it sets profile to <b>SERVER</b>.</li></ul>\n    </li>\n    </ul>"
+          }
+        }
+      ],
+      "binds": [
+        "zia/locations#profile"
+      ]
+    },
+    "omitted-profile-picks-group": {
+      "statement": "A location created through the API without a profile therefore lands in the Corporate User Traffic, Guest Wifi or Server Traffic predefined group according to its authentication setting and name, whether or not the author intended that.",
+      "tier": "B",
+      "derived_from": [
+        "type-assigns-predefined",
+        "profile-default"
+      ],
+      "conditions": "Derived by joining the profile default to type-based group assignment; the mapping from profile values to location types is assumed to be one to one."
+    },
+    "dynamic-auto-update": {
+      "statement": "A saved dynamic group keeps updating to include new matching locations and sublocations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dynamic-location-groups.md",
+          "quotes": [
+            "When saved, the dynamic group continues to automatically update to include any new matching locations or sublocations."
+          ]
+        }
+      ]
+    },
+    "attribute-change-moves-policy": {
+      "statement": "Changing a location setting that a dynamic group tests (for example Enforce Firewall Control or Enforce Bandwidth Control) can move the location into or out of that group, and with it into or out of the policies scoped to the group, without any edit to a rule.",
+      "tier": "B",
+      "derived_from": [
+        "dynamic-auto-update",
+        "zia.locations.groups:condition-attributes"
+      ],
+      "conditions": "Derived from automatic group updating and the list of tested attributes."
+    },
+    "other-can-match-groups": {
+      "statement": "The `other` sublocation is an ordinary location object, so a dynamic group whose conditions it satisfies can include it, subjecting it to that group's policy.",
+      "tier": "B",
+      "derived_from": [
+        "zia.locations.groups:two-types",
+        "zia.locations.sublocations:other-auto-created"
+      ],
+      "conditions": "Derived; no source names `other` as a dynamic group member."
+    },
+    "exclude-flags": {
+      "statement": "Exclude from Manual Location Groups and Exclude from Dynamic Location Groups (`excludeFromManualGroups`, `excludeFromDynamicGroups`) stop a location being added to groups and remove it from groups it is already in. In Terraform they are `exclude_from_manual_groups` and `exclude_from_dynamic_groups`. (Dynamic scope: see divergence `exclude-dynamic-reach`.)",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.md",
+          "quotes": [
+            "Exclude from Manual Location Groups: Enable or disable the switch. If enabled, the location cannot be added to manual location groups. The location is also removed from any manual groups it's already assigned to."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_location_management.md",
+          "quotes": [
+            "* `exclude_from_manual_groups` - (Boolean) Enable to prevent the location from being added to manual groups and to remove it from any manual groups it's already assigned to"
+          ]
+        }
+      ]
+    },
+    "tf-exclusive-enforced-one-side": {
+      "statement": "Terraform's docs say `dynamic_location_groups` and `static_location_groups` cannot be set when the matching exclude flag is true; the provider enforces only the manual side, with a plan-time error when `static_location_groups` is set alongside `exclude_from_manual_groups = true`. The dynamic-side check is commented out in the source.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_location_management.md",
+          "quotes": [
+            "CANNOT be configured if the attributes `exclude_from_dynamic_groups` and/or `exclude_from_manual_groups` are set to `true`"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "return errors.New(\"static_location_groups cannot be set when exclude_from_manual_groups is set to true\")",
+            "// return errors.New(\"dynamic_location_groups cannot be set when exclude_from_dynamic_groups is set to true\")"
+          ]
+        }
+      ]
+    },
+    "tf-dynamic-field-not-in-schema": {
+      "statement": "In the provider source the resource's `dynamic_location_groups` schema entry, its read handling and its write handling are all commented out, while the resource documentation still lists the argument; only `static_location_groups` is wired.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "//\"dynamic_location_groups\": setIDsSchemaTypeCustomSpecial(nil, \"Name-ID pairs of locations for which rule must be applied\"),",
+            "// DynamiclocationGroups: expandIDNameExtensionsSet(d, \"dynamic_location_groups\"),"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_location_management.md",
+          "quotes": [
+            "* `dynamic_location_groups` - (List of Object) Dynamic location groups the location belongs to"
+          ]
+        }
+      ],
+      "gaps": [
+        "tf-dynamic-removal-reason"
+      ]
+    },
+    "ansible-reads-exclude-flags": {
+      "statement": "The ZIA Ansible location module lists both exclude flags in the computed values it strips before its idempotency comparison, so they are read-side only there.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "ansible-zia",
+          "path": "plugins/modules/zia_location_management.py",
+          "quotes": [
+            "\"exclude_from_dynamic_groups\", \"exclude_from_manual_groups\","
+          ],
+          "after": "Normalize location data by removing computed values."
+        }
+      ],
+      "conditions": "Absence from the module's settable arguments is inferred from this list; the argument spec was not enumerated for this claim."
+    },
+    "tf-static-drift-fix": {
+      "statement": "The provider changelog records a fix for drift in `static_location_groups` on `zia_location_management` (PR 496, release 4.6.0).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed drift with attribute `static_location_groups` in the resource `zia_location_management`"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "exclude-dynamic-reach": {
+      "summary": "The console limits the dynamic exclusion to user-defined groups; the Terraform docs describe it as covering any dynamic group.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-locations.md",
+            "quotes": [
+              "This option only applies to the user-defined dynamic location groups."
+            ]
+          },
+          "says": "The exclusion applies to user-defined dynamic groups and leaves predefined group association alone."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_location_management.md",
+            "quotes": [
+              "Enable to prevent the location from being assigned to any dynamic groups and to remove it from any dynamic groups it's already assigned to"
+            ]
+          },
+          "says": "The exclusion prevents assignment to, and removes from, any dynamic groups."
+        }
+      ],
+      "impact": "Whether the flag is a way to keep a Workload or Corporate location out of its predefined group, and so out of that group's policies, depends on which is right."
+    },
+    "dynamic-groups-docs-vs-schema": {
+      "summary": "The Terraform documentation lists `dynamic_location_groups` for the location resource, while the resource source has it commented out.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_location_management.md",
+            "quotes": [
+              "* `dynamic_location_groups` - (List of Object) Dynamic location groups the location belongs to"
+            ]
+          },
+          "says": "The argument exists."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/resource_zia_location_management.go",
+            "quotes": [
+              "//\"dynamic_location_groups\": setIDsSchemaTypeCustomSpecial(nil, \"Name-ID pairs of locations for which rule must be applied\"),"
+            ]
+          },
+          "says": "The schema entry is commented out."
+        }
+      ],
+      "impact": "A configuration that sets `dynamic_location_groups` is rejected as an unsupported argument even though the docs describe it.",
+      "resolution": {
+        "by": "tf-dynamic-field-not-in-schema",
+        "rule": "source-rank",
+        "note": "The provider source decides what the provider accepts."
+      }
+    }
+  },
+  "gaps": {
+    "tf-dynamic-removal-reason": {
+      "kind": "semantic",
+      "title": "Why Terraform no longer exposes dynamic location groups on locations",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Upstream issue zscaler/terraform-provider-zia#355 indicates the provider added Manual and Dynamic Location Group attributes to zia_location_management in v2.91.3. Later v4.6.0 work (#496) removed or commented out dynamic-location-group schema/read/write handling while the changelog only calls out static location-group drift.\" The source and changelog establish the current state (tf-dynamic-field-not-in-schema, tf-static-drift-fix) but not the cause: deprecation in the ZIA API, temporary drift removal, a separate resource shape, or read-only derived membership. Do not read the provider change as deprecation of the product feature. Resolve with a maintainer comment or provider history against live API behavior.",
+      "former_ids": [
+        "zia-46"
+      ],
+      "resolves_with": [
+        "support-ticket",
+        "code-read",
+        "lab-test"
+      ],
+      "about": [
+        "zia/locations"
+      ],
+      "blocks": "deterministic guidance for managing dynamic group membership through Terraform"
+    },
+    "exclude-dynamic-scope": {
+      "kind": "semantic",
+      "title": "Whether the dynamic-group exclusion also keeps a location out of predefined groups",
+      "status": "open",
+      "detail": "The console says Exclude from Dynamic Location Groups \"only applies to the user-defined dynamic location groups\" and does not change the association with predefined groups; the Terraform docs say it prevents assignment to \"any dynamic groups\". Unverified legacy statement: a Workload-type location created with `exclude_from_dynamic_groups = true` is created without landing in the Workload Traffic Group. Resolve by creating a Workload location with the flag set and reading its group membership.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "about": [
+        "zia/locations",
+        "zia/location-groups"
+      ]
+    }
+  }
+}

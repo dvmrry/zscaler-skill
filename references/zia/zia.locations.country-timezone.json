@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "id": "zia.locations.country-timezone",
+  "title": "Location country and time zone values, THE_ prefix and Terraform validation",
+  "aliases": [
+    "THE_NETHERLANDS",
+    "tz enum",
+    "country enum",
+    "timezone prefix",
+    "location tz drift",
+    "NETHERLANDS_EUROPE_AMSTERDAM",
+    "terraform tz validation"
+  ],
+  "binds": [
+    "zia/locations#tz",
+    "zia/locations#country"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.locations.automation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations"
+    }
+  ],
+  "claims": {
+    "validator-enum-prefixed": {
+      "statement": "The Terraform provider's validator enum, kept in its source, writes the Netherlands as `THE_NETHERLANDS` for country and `THE_NETHERLANDS_EUROPE_AMSTERDAM` for time zone, while Netherlands Antilles values (`NETHERLANDS_ANTILLES`, `NETHERLANDS_ANTILLES_AMERICA_CURACAO`) are unprefixed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/validator.go",
+          "quotes": [
+            "\"THE_NETHERLANDS\": {},",
+            "\"THE_NETHERLANDS_EUROPE_AMSTERDAM\": {},",
+            "\"NETHERLANDS_ANTILLES\": {},",
+            "\"NETHERLANDS_ANTILLES_AMERICA_CURACAO\": {},"
+          ]
+        }
+      ]
+    },
+    "prefix-is-selective": {
+      "statement": "The `THE_` prefix is applied to country names that carry the English article, not to every country; other such names were not checked.",
+      "tier": "B",
+      "derived_from": [
+        "validator-enum-prefixed"
+      ],
+      "conditions": "Derived from one country's prefixed values against its unprefixed neighbor; the full list was not audited."
+    },
+    "validators-removed": {
+      "statement": "Terraform 4.7.18 (April 17, 2026) removed `country` and `tz` validation from `zia_location_management` \"to align with recent API changes\"; the schema entries are commented out in the source, so the provider no longer rejects either value at plan time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Removed `country` and `tz` validation from resource `zia_location_management` to align with recent API changes."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "// \"country\": getLocationManagementCountries(),",
+            "// \"tz\": getLocationManagementTimeZones(),"
+          ]
+        }
+      ],
+      "gaps": [
+        "write-form-today",
+        "read-form"
+      ]
+    },
+    "python-sdk-passes-through": {
+      "statement": "The Python SDK's location model copies `tz` and `country` from the response unchanged, so any normalization happens in the API, not the SDK.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/location_management.py",
+          "quotes": [
+            "self.tz = config[\"tz\"] if \"tz\" in config else None",
+            "self.country = config[\"country\"] if \"country\" in config else None"
+          ]
+        }
+      ]
+    },
+    "check-which-layer-rejects": {
+      "statement": "Before 4.7.18 a Terraform value outside the validator enum failed at plan time; from 4.7.18 a rejected write comes from the ZIA API itself.",
+      "tier": "B",
+      "derived_from": [
+        "validators-removed"
+      ],
+      "conditions": "Derived from the removal of the plan-time validator; the API's error text was not captured, so which form it asks for is unknown."
+    }
+  },
+  "gaps": {
+    "read-form": {
+      "kind": "data",
+      "title": "Whether the API now returns country and time zone without the THE_ prefix",
+      "status": "open",
+      "detail": "Unverified legacy statement: reads of a Netherlands tenant return `country = NETHERLANDS` and `tz = NETHERLANDS_EUROPE_AMSTERDAM`, as reported in upstream issue tf-zia#562 (closed 2026-04-17), whose reporter wrote that this \"used to be THE_NETHERLANDS\". The issue is not a registered source. The 4.7.18 changelog (\"recent API changes\") and the SDK pass-through (python-sdk-passes-through) are consistent with it but do not show the value. Resolve by reading the value from GET /locations on a Netherlands location.",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "resolvable_by": [
+        "iac",
+        "operator"
+      ],
+      "about": [
+        "zia/locations#tz",
+        "zia/locations#country"
+      ]
+    },
+    "write-form-today": {
+      "kind": "semantic",
+      "title": "Which form of country and tz the write API accepts today",
+      "status": "open",
+      "detail": "Open question carried from the legacy doc. Scenario A: both forms accepted. Scenario B: only the unprefixed form accepted. Scenario C: only the prefixed form accepted, so read and write differ for the same key and apply fails. The legacy note reported scenario C originally; no source shows which holds now. Also unverified for other 'the'-article countries (Bahamas, Gambia, Philippines): only Netherlands was observed. The ZTC provider validator lists unprefixed values, but that is another product's provider and says nothing about ZIA. Resolve by writing each form to a test location.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "about": [
+        "zia/locations#tz",
+        "zia/locations#country"
+      ],
+      "blocks": "advising whether Python-read to Terraform-apply pipelines need value normalization"
+    }
+  }
+}

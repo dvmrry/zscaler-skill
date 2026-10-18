@@ -412,14 +412,25 @@ export function updateManifest(g) {
     if (src?.kind === "capture") cited.add(`${src.root}/${ev.path}`);
   }
   let changed = 0;
+  // A renamed or deleted capture leaves no file behind; its entry goes too.
+  for (const file of Object.keys(files)) {
+    if (!fs.existsSync(path.join(g.root, file))) {
+      delete files[file];
+      changed++;
+    }
+  }
   for (const file of [...cited].sort()) {
     const full = path.join(g.root, file);
     if (!fs.existsSync(full)) continue;
     const sha = sha256File(full);
     const prev = files[file];
-    if (prev?.sha256 === sha) continue;
     const head = fs.readFileSync(full, "utf8").slice(0, 600);
-    const url = head.match(/^URL:\s*(\S+)/m)?.[1] || head.match(/^Source:\s*(https?:\/\/\S+)/m)?.[1] || prev?.captured_from || null;
+    const url =
+      head.match(/^URL:\s*(\S+)/m)?.[1] ||
+      head.match(/^\*{0,2}Source:\*{0,2}\s*(https?:\/\/\S+)/m)?.[1] ||
+      prev?.captured_from ||
+      null;
+    if (prev?.sha256 === sha && prev.captured_from === url) continue;
     const captured = head.match(/Captured:\*{0,2}\s*(\d{4}-\d{2}-\d{2})/)?.[1] || gitDate(g.root, file);
     files[file] = { captured_from: url, captured_at: captured, sha256: sha };
     changed++;

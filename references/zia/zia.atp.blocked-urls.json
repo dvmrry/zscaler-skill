@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "id": "zia.atp.blocked-urls",
+  "title": "ATP Blocked Malicious URLs list: capacity, matching and API",
+  "aliases": [
+    "blocked malicious urls",
+    "atp denylist",
+    "atp url blocklist",
+    "maliciousUrls",
+    "custom malicious urls",
+    "ADD_TO_LIST atp",
+    "25k urls",
+    "add_atp_malicious_urls"
+  ],
+  "binds": [
+    "zia/malicious-urls",
+    "zia/advanced-threat-settings#maliciousUrlsCapture"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.atp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.security-exceptions"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.url-categories.entry-matching"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.url-categories.membership"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.enforcement-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.multi-step-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.write-encoding"
+    }
+  ],
+  "claims": {
+    "list-capacity": {
+      "statement": "The Blocked Malicious URLs list holds up to 25K URLs. Entries can be commented with two forward slashes (//), the list shows up to 500 items per page, and can be cleared 25K items at a time or one page at a time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.md",
+          "quotes": [
+            "You can add up to 25K URLs.",
+            "To add a comment to a URL, enter two forward slashes (//) after each URL entry",
+            "you can view up to 500 items on a page",
+            "remove the first 25K items from the list (Remove 25K Items) or only items from a specific page (Remove Page)."
+          ]
+        }
+      ]
+    },
+    "entry-format": {
+      "statement": "Entries follow the URL format guidelines used for URL Filtering.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.md",
+          "quotes": [
+            "For guidance on entering URLs, see the URL format guidelines."
+          ]
+        }
+      ]
+    },
+    "specificity-wins": {
+      "statement": "More specific blocked malicious URLs always take precedence: a rule is not applied to a category with a wildcard if the destination is defined more specifically in another category. The page reuses the CUSTOM_C1 and CUSTOM_C2 www.example.com example from URL Filtering.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.md",
+          "quotes": [
+            "More specific blocked malicious URLs always take precedence.",
+            "URL filtering rules are not applied to a category with a wildcard if the destination is defined more specifically in another category."
+          ]
+        }
+      ]
+    },
+    "wire-denylist": {
+      "statement": "The API object is maliciousUrls, an array of strings that the spec describes as URLs blocked by the ATP policy, labeled the ATP denylist. It is read with GET and written with PUT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1maliciousUrls/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "description": "Denylist URLs for ATP policy",
+            "required": [
+              "maliciousUrls"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1maliciousUrls/get/responses/200/content/application~1json/schema/properties/maliciousUrls",
+          "expect": {
+            "description": "List of malicious URLs that are blocked by the ATP policy",
+            "type": "array"
+          }
+        }
+      ],
+      "binds": [
+        "zia/malicious-urls#maliciousUrls"
+      ]
+    },
+    "add-remove-action": {
+      "statement": "A PUT to maliciousUrls takes an action query parameter, ADD_TO_LIST or REMOVE_FROM_LIST, so the endpoint adds or removes the URLs sent rather than replacing the list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1maliciousUrls/put/parameters/[name=action]",
+          "expect": {
+            "name": "action",
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1maliciousUrls/put/parameters/[name=action]/schema",
+          "expect": {
+            "enum": [
+              "ADD_TO_LIST",
+              "REMOVE_FROM_LIST"
+            ]
+          }
+        }
+      ],
+      "conditions": "The spec gives the parameter and its two values; the 'rather than replacing' reading comes from the action names and from the Python SDK's add and remove methods."
+    },
+    "python-add-delete": {
+      "statement": "The Python SDK has separate add_atp_malicious_urls and delete_atp_malicious_urls calls, each sending the matching action, and each returns the list re-read after the write. The delete call notes that the API does not allow an empty list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/atp_policy.py",
+          "quotes": [
+            "def add_atp_malicious_urls(self, malicious_urls: list)",
+            "def delete_atp_malicious_urls(self, malicious_urls: list)",
+            "/cyberThreatProtection/maliciousUrls?action=ADD_TO_LIST",
+            "/cyberThreatProtection/maliciousUrls?action=REMOVE_FROM_LIST",
+            "The API does not allow an empty list."
+          ]
+        }
+      ]
+    },
+    "capture-flag": {
+      "statement": "maliciousUrlsCapture is the Capture flag for malicious URLs; it lives in the ATP settings object, not in the URL list endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/maliciousUrlsCapture",
+          "expect": {
+            "type": "boolean",
+            "description": "A Boolean value specifying whether packet capture (PCAP) is enabled or not for malicious URLs"
+          }
+        }
+      ],
+      "binds": [
+        "zia/advanced-threat-settings#maliciousUrlsCapture"
+      ]
+    }
+  },
+  "divergences": {
+    "help-says-allowlist-or-denylist": {
+      "summary": "Whether the Blocked Malicious URLs box holds an allowlist as well as a denylist.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-advanced-threat-protection-policy.md",
+            "quotes": [
+              "Blocked Malicious URLs: Enter URLs you want to allowlist or denylist for ATP and click Add Items."
+            ]
+          },
+          "says": "The Blocked Malicious URLs box takes URLs to allowlist or denylist."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1cyberThreatProtection~1maliciousUrls/get/responses/200/content/application~1json/schema",
+            "expect": {
+              "description": "Denylist URLs for ATP policy"
+            }
+          },
+          "says": "The maliciousUrls endpoint is the denylist; the allowlist is the separate securityExceptions endpoint."
+        }
+      ],
+      "impact": "An agent reading the help page may expect to put allowed URLs in this list. The API and the policy-enforcement order treat the list as a denylist and Security Exceptions as the allowlist."
+    },
+    "go-comment-says-allowlist": {
+      "summary": "The Go SDK field comment on MaliciousUrls calls the list an allowlist.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go",
+            "quotes": [
+              "// Allowlist URLs that are not inspected by the ATP policy MaliciousUrls []string `json:\"maliciousUrls\"`"
+            ]
+          },
+          "says": "MaliciousUrls is described as an allowlist of URLs not inspected."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1cyberThreatProtection~1maliciousUrls/get/responses/200/content/application~1json/schema/properties/maliciousUrls",
+            "expect": {
+              "description": "List of malicious URLs that are blocked by the ATP policy"
+            }
+          },
+          "says": "maliciousUrls is the list of malicious URLs blocked by the ATP policy."
+        }
+      ],
+      "impact": "Treat maliciousUrls as a denylist; the Go comment was copied from the security-exceptions field."
+    }
+  },
+  "gaps": {}
+}

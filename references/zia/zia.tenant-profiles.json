@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "id": "zia.tenant-profiles",
+  "title": "Tenant Profiles: SaaS tenant restriction",
+  "aliases": [
+    "tenant profile",
+    "tenant profiles",
+    "tenancy restriction",
+    "tenant restriction",
+    "SaaS tenant restriction",
+    "corporate-only access",
+    "tenancyRestrictionProfile",
+    "zia_tenant_restriction_profile",
+    "tenancy_profile_ids",
+    "block personal accounts"
+  ],
+  "binds": [
+    "zia/tenancy-restriction-profiles",
+    "zia/cloud-app-control#tenancyProfileIds"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.cloud-app-control.rule-criteria"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.tenant-profiles.ssl-prerequisite"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.wire-mechanic"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.microsoft"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.app-specifics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.api-surface"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.ai-ml-rules"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.precedence"
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Tenancy restriction lets you restrict access to personal accounts, business accounts, or both for certain cloud applications. It has two parts: creating tenant profiles, and associating them with Cloud App Control policy rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-tenant-profiles.md",
+          "quotes": [
+            "Zscaler's tenancy restriction feature allows you to restrict access either to personal accounts, business accounts, or both for certain cloud applications.",
+            "It consists of two parts: creating tenant profiles and associating them with the Cloud App Control policy rules."
+          ]
+        }
+      ]
+    },
+    "one-app-per-profile": {
+      "statement": "Each tenant profile is created for one cloud application; the Tenant Profiles page lists a Cloud Application and its configuration details for every profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-tenant-profiles.md",
+          "quotes": [
+            "Cloud Application: The cloud application for which the tenant profile is created (e.g., Dropbox, Google, Microsoft Login Services)."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/tenancy-restriction-profiles#appType"
+      ]
+    },
+    "not-microtenants": {
+      "statement": "A tenant profile is a SaaS-application tenant object. It is not a ZIA sub-tenant, microtenant or MSP-scoping setting.",
+      "tier": "B",
+      "derived_from": [
+        "what-it-is",
+        "one-app-per-profile"
+      ],
+      "conditions": "No source contrasts tenant profiles with microtenants. This follows from the definition: the profile names a cloud application and identifiers inside it."
+    },
+    "create-form": {
+      "statement": "A tenant profile needs a unique name, which is the label shown when configuring Cloud App Control rules. The description is optional and cannot exceed 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "In the Tenant Profile Name field, enter a unique name for the tenant profile.",
+            "This name is displayed while configuring the respective Cloud App Control policy rules.",
+            "The description cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "rule-reference-field": {
+      "statement": "A Cloud App Control rule holds its tenant profiles in `tenancyProfileIds` (Terraform `tenancy_profile_ids`), a list of profile references.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "TenancyProfileIDs []common.IDNameExtensions"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/cloud-app-control#tenancyProfileIds"
+      ]
+    },
+    "allow-blocks-others": {
+      "statement": "Allowing a specific tenant automatically blocks other tenants for most cloud applications, and subsequent policies are not evaluated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "Allowing a specific tenant automatically blocks other tenants for most of the cloud applications, and subsequent policies are not evaluated."
+          ]
+        }
+      ]
+    },
+    "youtube-aws-explicit-block": {
+      "statement": "For YouTube and Amazon Web Services, subsequent policies are still evaluated after the allow, so an explicit block policy is required to block other tenants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-tenant-profiles.md",
+          "quotes": [
+            "However, for YouTube and Amazon Web Services, subsequent policies are evaluated, so an explicit block policy is required to block other tenants for them."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "delete-referenced-profile": {
+      "kind": "semantic",
+      "title": "What happens when a tenant profile in use by a rule is deleted",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"If a tenant profile is deleted, CAC rules referencing it may behave unexpectedly - the profile reference becomes stale. ZIA does not prevent deletion of profiles referenced by active rules.\" No captured source states whether the delete is refused, cascades, or leaves a dangling reference. The Help article says only that the profile version cannot be changed while the profile is associated with a policy (Microsoft). Resolve by deleting a referenced profile in a scratch tenant and re-reading the rule.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "about": [
+        "zia.tenant-profiles"
+      ],
+      "blocks": "advising whether a profile can be deleted before detaching it from rules"
+    },
+    "identity-change-staleness": {
+      "kind": "semantic",
+      "title": "What a stale tenant identifier does after a tenant migration or domain rename",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"If the Azure AD directory ID or Google Workspace primary domain changes (tenant migration, merger, domain rename), the Tenant Profile's item_data_primary becomes stale. The profile keeps matching at the rule level, but ... the SaaS vendor rejects or misidentifies the tenant. No Zscaler-side error is visible.\" No source describes validation of identifiers or what the vendor does with a wrong one, apart from Slack (see the app-specifics subject). Resolve with a lab test using a deliberately wrong identifier.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "knowing whether a wrong identifier fails closed or open"
+    }
+  }
+}

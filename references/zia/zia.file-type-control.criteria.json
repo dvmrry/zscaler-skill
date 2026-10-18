@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "id": "zia.file-type-control.criteria",
+  "title": "File Type Control rule criteria",
+  "aliases": [
+    "file type control criteria",
+    "file type control rule",
+    "unknown file type",
+    "undetectable file",
+    "active content",
+    "unscannable file",
+    "password-protected file",
+    "archive file types",
+    "file size min max"
+  ],
+  "binds": [
+    "zia/file-type-rules"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.file-type-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.file-type-control.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.file-type-control.api-shape"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.terraform.field-fidelity"
+    }
+  ],
+  "claims": {
+    "criteria-expression": {
+      "statement": "A rule fires when all of these hold: File Types AND URL Categories AND Cloud Applications AND Application Segment; Users OR Groups OR Departments; Location Groups OR Locations; Time; Device Groups OR Devices; Protocols; Device Trust Level; Minimum File Size; Maximum File Size.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#fileTypes",
+        "zia/file-type-rules#protocols",
+        "zia/file-type-rules#minSize",
+        "zia/file-type-rules#maxSize"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-file-type-control-policy.md",
+          "quotes": [
+            "[File Types (AND) URL Categories (AND) Cloud Applications (AND) Application Segment] (AND) [Users (OR) Groups (OR) Departments] (AND) [Location Groups (OR) Locations] (AND) Time (AND) [Device Groups (OR) Devices] (AND) Protocols (AND) Device Trust Level (AND) Minimum File Size (AND) Maximum File Size."
+          ]
+        }
+      ]
+    },
+    "empty-criteria-ignored": {
+      "statement": "For cloud applications, devices, device groups, device trust level and the file size bounds, selecting no value ignores the criterion. File Types is the one required criterion.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#fileTypes",
+        "zia/file-type-rules#cloudApplications"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-file-type-control-policy.md",
+          "quotes": [
+            "File Types: (Required) Select file types to which you want to apply the rule.",
+            "Cloud Applications: Select any number of cloud applications or cloud application classes. Selecting no value ignores the criterion in the policy evaluation.",
+            "Entering no value ignores the criteria in the policy evaluation.",
+            "Devices: Select the devices for which you want to apply the rule. You can also search for a device. Selecting no value ignores the criterion in the policy evaluation.",
+            "Unknown evaluation applies to all traffic. Selecting no value ignores the criterion in the policy evaluation.",
+            "Select Cloud Browser Isolation or No Client Connector to apply the rule to isolation traffic or to traffic that is not tunneled through Zscaler Client Connector, respectively. You can also search for a device group. Selecting no value ignores the criterion in the policy evaluation."
+          ]
+        }
+      ]
+    },
+    "unknown-file-types": {
+      "statement": "A rule reaches unknown file types by selecting Undetectable File under Other. The service first checks the file header using true file type detection; if the file is still unknown it performs MIME type checks and tags as unknown anything outside the well-defined MIME types for common applications.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#fileTypes"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-file-type-control-policy.md",
+          "quotes": [
+            "You can also select Undetectable File under Other to apply the rule to unknown file types.",
+            "the service checks for the file type in the file header using true file type detection.",
+            "tags as an unknown file type for any that fall outside of well-defined MIME types for common apps."
+          ]
+        }
+      ]
+    },
+    "custom-types-order": {
+      "statement": "Zscaler-defined file types are considered before custom file types, and custom file types inside archives are not detected.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#fileTypes"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-file-type-control-policy.md",
+          "quotes": [
+            "Zscaler-defined file types are considered before custom file types and custom file types inside archives are not detected."
+          ]
+        }
+      ]
+    },
+    "archive-formats-scanned": {
+      "statement": "To recognize the file types inside archives, the service scans ZIP, 7-Zip, GZIP, TAR and RAR files.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#fileTypes"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-file-type-control.md",
+          "quotes": [
+            "To recognize the file types inside archive files, the Zscaler service also scans ZIP, 7-Zip, GZIP, TAR, and RAR files."
+          ]
+        }
+      ]
+    },
+    "size-bounds": {
+      "statement": "Minimum and Maximum File Size take a value from 0 to 409,600 KB. The API field names are `minSize` and `maxSize`, in KB.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#minSize",
+        "zia/file-type-rules#maxSize"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-file-type-control-policy.md",
+          "quotes": [
+            "Enter a number value between 0 and 409,600 (KB) to apply a minimum and a maximum file size limit."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/maxSize",
+          "expect": {
+            "type": "integer",
+            "description": "Maximum file size (in KB) used for evaluation of the FTP rule"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/minSize",
+          "expect": {
+            "type": "integer",
+            "description": "Minimum file size (in KB) used for evaluation of the FTP rule"
+          }
+        }
+      ]
+    },
+    "active-content": {
+      "statement": "Active Content applies the rule to files with active content, and only for Microsoft Word, Excel, PowerPoint and PDF files. File Types must be set to one of those formats.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#activeContent"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-file-type-control-policy.md",
+          "quotes": [
+            "This criterion is applicable only to Microsoft Word, Microsoft Excel, Microsoft PowerPoint, and PDF file formats.",
+            "The File Types field must be set to one of the supported file formats in order to configure this criterion."
+          ]
+        }
+      ]
+    },
+    "unscannable": {
+      "statement": "Unscannable Files applies the rule only to files the service cannot scan: an unrecognized format, excessive size, corruption or recursive compression. With it on, the rule applies to no other files.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#unscannable"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-file-type-control-policy.md",
+          "quotes": [
+            "This might occur if the file is in an unrecognized file format, excessive size, corrupted, or recursively compressed.",
+            "The policy is not applied to any other file types."
+          ]
+        }
+      ]
+    },
+    "password-protected": {
+      "statement": "Password-Protected File applies the rule only to files with password protection, and only for 7-Zip, RAR, Zip, Zipx, password-protected Microsoft Office documents, password-protected or encrypted files, and PDF. The contract adds that traffic is evaluated against this criterion only when upload and download of password-protected files is allowed at the organization level through Security Exceptions in Malware Protection.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#passwordProtected"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-file-type-control-policy.md",
+          "quotes": [
+            "Password-Protected File: Enable the toggle button to apply the rule only to files with password protection.",
+            "This criterion is applicable only to 7-Zip, RAR, Zip, Zipx, Password-Protected Microsoft Office Documents, Password-Protected/Encrypted Files, and PDF file types."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/passwordProtected",
+          "expect": {
+            "type": "boolean",
+            "description": "<p>A Boolean field indicating whether the rule applies to password-protected files. This criterion is used in combination with the fileTypes criterion and is applicable only to specific file types such as 7-Zip, RAR, ZIP, ZIPx, PDF, password-protected Microsoft Office files, and other password-protected and encrypted files. So, when the passwordProtected field is set to true, only the applicable file types can be specified using the <b>fileTypes</b> field.</p><p><b>Note</b>: Traffic is evaluated against this criterion only when uploading and downloading of password-protected files is allowed at the organization level via the Security Exceptions in the Malware Protection policy.</p>"
+          },
+          "note": "description carries the Security Exceptions note"
+        }
+      ]
+    },
+    "provider-active-content-checks": {
+      "statement": "The Terraform provider rejects `active_content` at plan time unless `file_types` is set and holds only FTCATEGORY_MS_WORD, FTCATEGORY_MS_POWERPOINT, FTCATEGORY_PDF_DOCUMENT or FTCATEGORY_MS_EXCEL, and rejects `unscannable` together with `active_content`. These are provider checks, not API behavior.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#activeContent",
+        "zia/file-type-rules#unscannable"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_file_type_control_rules.go",
+          "quotes": [
+            "\"attribute 'active_content' can only be enabled when 'file_types' contains only the following: %v. Invalid value: %s\",",
+            "\"attribute 'unscannable' cannot be enabled when 'active_content' is enabled\","
+          ]
+        }
+      ],
+      "conditions": "Provider behavior only. Whether the API itself rejects these combinations is not shown: see gap zia.file-type-control.api-shape:filtering-action-dependencies."
+    },
+    "scope-limits": {
+      "statement": "A rule's Locations and Location Groups each take Any or up to 32 entries, and Time takes Always or up to two time intervals. A rule for unauthenticated traffic must apply to all Groups and Departments.",
+      "tier": "A",
+      "binds": [
+        "zia/file-type-rules#locations",
+        "zia/file-type-rules#locationGroups",
+        "zia/file-type-rules#timeWindows"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-file-type-control-policy.md",
+          "quotes": [
+            "Locations: Select Any to apply the rule to all locations, or select up to 32 locations.",
+            "Location Groups: Select Any to apply the rule to all location groups, or select up to 32 location groups.",
+            "Time: Select Always to apply this rule to all time intervals, or select up to two time intervals.",
+            "Any rule that applies to unauthenticated traffic must apply to all Groups and Departments."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "archive-contents-rules": {
+      "kind": "semantic",
+      "title": "Rules matching files inside archives and unlisted archive formats",
+      "status": "open",
+      "detail": "Unverified legacy statements: 'A ZIP of .exe files can be blocked even if .zip itself is allowed' and 'other archive formats (e.g., RPM, DEB) are treated as binary blobs; a malicious binary in a .deb lands as an opaque file.' The vendor says the service scans ZIP, 7-Zip, GZIP, TAR and RAR to recognize file types inside archives, but does not say that a rule on an inner type fires when the outer archive is allowed, or what happens to other archive formats. The contract's file type list does include DEB, ISO, DMG and CAB as file types. Resolves with a lab test.",
+      "blocks": "advising whether a rule on executables covers executables inside archives",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

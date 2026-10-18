@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "id": "zia.bandwidth-control.allocation",
+  "title": "How Bandwidth Control allocates bandwidth: minimum, maximum, contention",
+  "aliases": [
+    "bandwidth limits ignored",
+    "guaranteed bandwidth",
+    "maximum bandwidth percentage",
+    "bandwidth contention",
+    "when does bandwidth control enforce",
+    "bandwidth control not limiting off-peak"
+  ],
+  "binds": [
+    "zia/bandwidth-control-rules#minBandwidth",
+    "zia/bandwidth-control-rules#maxBandwidth",
+    "zia/bandwidth-control-rules#protocols"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.bandwidth-control.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.default-rule"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.location-scope"
+    }
+  ],
+  "claims": {
+    "contention": {
+      "statement": "Bandwidth Control matters most during contention, which occurs when bandwidth is saturated between the location and Zscaler and typically recurs at predictable periods on weekdays.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "bandwidth-control-policy-example.md",
+          "quotes": [
+            "Contention occurs when bandwidth is saturated between the location and Zscaler, which typically happens at predictable periods on any given weekday."
+          ]
+        }
+      ]
+    },
+    "observe-then-time-window": {
+      "statement": "Vendor guidance is to observe traffic patterns for a while and then create time-based policies for the contention periods.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "bandwidth-control-policy-example.md",
+          "quotes": [
+            "it helps to observe the traffic patterns for a while and then create time-based policies to address these contention periods."
+          ]
+        }
+      ]
+    },
+    "min-max-meaning": {
+      "statement": "A rule's maximum is the largest percentage of total bandwidth the class can use at a point in time; its minimum is the guaranteed percentage available to the class.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#minBandwidth",
+        "zia/bandwidth-control-rules#maxBandwidth"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-bandwidth-control.md",
+          "quotes": [
+            "The maximum bandwidth specifies the maximum percentage of the total bandwidth that the configured bandwidth class can use at a given point in time",
+            "the minimum bandwidth specifies the guaranteed minimum bandwidth percentage that is available for the bandwidth class."
+          ]
+        }
+      ]
+    },
+    "max-always": {
+      "statement": "The maximum percentage is applied at all times: traffic can only take up to that percentage of the location's bandwidth, whether or not there is congestion.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#maxBandwidth"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-bandwidth-control.md",
+          "quotes": [
+            "The maximum bandwidth percentage is applied at all times.",
+            "whether there is any congestion"
+          ]
+        }
+      ]
+    },
+    "min-only-in-contention": {
+      "statement": "The minimum percentage is enforced only when there is contention on the location's connection and traffic from the specified classes is present.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#minBandwidth"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-bandwidth-control.md",
+          "quotes": [
+            "The minimum bandwidth percentage is only enforced when there is contention on a location",
+            "and when traffic from the specified bandwidth classes is present."
+          ]
+        }
+      ]
+    },
+    "total-min-below-100": {
+      "statement": "Under contention the service gives each competing class its guaranteed minimum and divides the remainder by the prioritized rules; the total of the minimums must therefore be less than 100%.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#minBandwidth"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-bandwidth-control.md",
+          "quotes": [
+            "the service allocates the guaranteed minimum bandwidth percentage to the bandwidth classes and allocates the remaining bandwidth according to the prioritized rules.",
+            "the total minimum bandwidth must be less than 100%."
+          ]
+        }
+      ]
+    },
+    "two-pass": {
+      "statement": "The service distributes bandwidth rule by rule from top to bottom looking at the minimum first, then passes through each rule a second time to allocate what remains according to the maximums.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-bandwidth-control.md",
+          "quotes": [
+            "Zscaler distributes the bandwidth to each rule from top to bottom by looking at the minimum bandwidth first.",
+            "it passes through each rule a second time to allocate the remaining bandwidth"
+          ]
+        }
+      ]
+    },
+    "one-second-rebalance": {
+      "statement": "The service rebalances bandwidth in real time and buffers packets of classes that reach their quota during one-second intervals; remaining bandwidth is allocated per one-second interval from the traffic of the other classes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-bandwidth-control.md",
+          "quotes": [
+            "buffers packets for application classes that hit the bandwidth quota limit during one-second intervals."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "bandwidth-control-policy-example.md",
+          "quotes": [
+            "based on traffic from other application classes during each one-second interval."
+          ],
+          "after": "The service allocates the remaining 40% of the bandwidth (40 Mbps)"
+        }
+      ]
+    },
+    "idle-reallocated": {
+      "statement": "When a class uses less than its minimum, the service allocates the idle bandwidth to the other classes according to the prioritized rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "bandwidth-control-policy-example.md",
+          "quotes": [
+            "When an application class uses less than its minimum bandwidth, then the service allocates the idle bandwidth to the other classes"
+          ],
+          "after": "The service allocates the remaining 40% of the bandwidth (40 Mbps)"
+        }
+      ]
+    },
+    "tcp-protocols-only": {
+      "statement": "Bandwidth Control applies only to TCP traffic for HTTP, HTTPS, HTTP Proxy, SSL/TLS, Native FTP, DNS over HTTPS and Tunnel SSL/TLS, from known locations. SSL inspection is not required because it works at the TCP level.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#protocols"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-bandwidth-control.md",
+          "quotes": [
+            "Bandwidth Control only applies to the TCP traffic for the following protocols:",
+            "Native FTP",
+            "Tunnel SSL/TLS",
+            "You do not need to enable SSL interception because it works at the TCP level."
+          ]
+        }
+      ]
+    },
+    "dashboard-reports": {
+      "statement": "A Bandwidth Control dashboard shows organization bandwidth usage in real time, and Interactive Reports hold the standard Bandwidth Control reports and custom reports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-bandwidth-control.md",
+          "quotes": [
+            "You can go to the Bandwidth Control dashboard to view your organization",
+            "Interactive Reports to view the standard reports for bandwidth control and to create custom reports as well."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "contention-measure": {
+      "kind": "semantic",
+      "title": "What saturation is measured against",
+      "status": "open",
+      "detail": "Contention is described as saturation between the location and Zscaler. Whether the service measures it against the configured upload and download limits of the location or against the physical link is not stated.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

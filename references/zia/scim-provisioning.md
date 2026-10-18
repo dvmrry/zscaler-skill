@@ -396,6 +396,6 @@ These came up while documenting ZIA SCIM and could not be backed from any vendor
 - ZIA Go SDK SCIM API source — `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/`
 - ZIA Firewall identity criteria (users/groups/departments, Advanced Firewall requirement) — [`zia.firewall`](kb:zia.firewall)
 - ZIA URL Filtering identity criteria — [`zia.url-filtering`](kb:zia.url-filtering)
-- ZIA Forwarding Control identity criteria (users/groups/departments for SIPA scoping) — [`./forwarding-control.md`](./forwarding-control.md)
+- ZIA Forwarding Control identity criteria (users/groups/departments for SIPA scoping) — [`zia.forwarding-control`](kb:zia.forwarding-control)
 - ZIA DLP identity criteria — [`zia.dlp`](kb:zia.dlp)
 - Token revocation for hard access removal — [`../zidentity/api-clients.md`](../zidentity/api-clients.md)

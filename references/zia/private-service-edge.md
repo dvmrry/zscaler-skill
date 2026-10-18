@@ -159,7 +159,7 @@ ZIA has **no "PSE Group" admin object and no PSE provisioning key** — those ar
 - Per-cluster auth settings, IP Surrogacy, XFF consumption, and Location-group settings for SSL inspection and web filtering.
 - NAT-environment traffic mapping.
 
-The binding itself is a **Static IP** provisioned in the console (one per cluster) plus a manual CA-to-cluster mapping that only Zscaler Support can complete — the mechanics, sequence, and the open-proxy hazard if you skip it are in the Locations section below (`vendor/zscaler-help/understanding-private-service-edge-internet-saas.md:113`-`120`). See [`./locations.md`](./locations.md) for the Location primitive itself (forwarding methods, sublocations, XFF, Location Groups).
+The binding itself is a **Static IP** provisioned in the console (one per cluster) plus a manual CA-to-cluster mapping that only Zscaler Support can complete — the mechanics, sequence, and the open-proxy hazard if you skip it are in the Locations section below (`vendor/zscaler-help/understanding-private-service-edge-internet-saas.md:113`-`120`). See [`zia.locations`](kb:zia.locations) for the Location primitive itself (forwarding methods, sublocations, XFF, Location Groups).
 
 ## Business Continuity Cloud and PSE
 
@@ -171,7 +171,7 @@ PSE deployments that need to ensure business continuity should also verify their
 
 Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md`.
 
-Adding a **location** to a PSE cluster in the Admin Console enables per-cluster transaction-log viewing/categorization/reports, per-cluster auth settings, IP Surrogacy, XFF consumption, Location-group settings for SSL inspection and web filtering, and NAT-environment traffic mapping (`vendor/zscaler-help/understanding-private-service-edge-internet-saas.md:107`-`112`). See [`./locations.md`](./locations.md) for the location primitive itself.
+Adding a **location** to a PSE cluster in the Admin Console enables per-cluster transaction-log viewing/categorization/reports, per-cluster auth settings, IP Surrogacy, XFF consumption, Location-group settings for SSL inspection and web filtering, and NAT-environment traffic mapping (`vendor/zscaler-help/understanding-private-service-edge-internet-saas.md:107`-`112`). See [`zia.locations`](kb:zia.locations) for the location primitive itself.
 
 **Load-bearing gotcha — this is where deployments go wrong:**
 
@@ -238,8 +238,8 @@ Source: `vendor/zscaler-help/understanding-private-service-edge-internet-saas.md
 ## Cross-links
 
 - Service Edge taxonomy and CA connectivity model — [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md)
-- PSE deployments bind to Locations; location primitives (forwarding methods, sublocations, XFF, Location Groups) — [`./locations.md`](./locations.md)
-- Source IP Anchoring (SIPA) — the forwarding-control mechanism that routes traffic out through a specific egress IP, works with physical PSE — [`./forwarding-control.md`](./forwarding-control.md)
+- PSE deployments bind to Locations; location primitives (forwarding methods, sublocations, XFF, Location Groups) — [`zia.locations`](kb:zia.locations)
+- Source IP Anchoring (SIPA) — the forwarding-control mechanism that routes traffic out through a specific egress IP, works with physical PSE — [`zia.forwarding-control`](kb:zia.forwarding-control)
 - Log correlation and when to query ZIA logs — [`../shared/log-correlation.md`](../shared/log-correlation.md)
 - Subclouds — restricting which Service Edges handle tenant traffic — [`../shared/subclouds.md`](../shared/subclouds.md)
 - ZPA Private Service Edges (different product, similar name) — [`../zpa/private-service-edges.md`](../zpa/private-service-edges.md)

@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "id": "zia.authentication.exemptions",
+  "title": "Destinations that skip authentication",
+  "aliases": [
+    "exemptedUrls",
+    "authSettings/exemptedUrls",
+    "zia_auth_settings_urls",
+    "auth_bypass_urls",
+    "auth_bypass_apps",
+    "auth_bypass_url_categories",
+    "kerberos_bypass_urls",
+    "digest_auth_bypass_urls",
+    "basic_bypass_apps",
+    "basic_bypass_url_categories",
+    "authentication exemption",
+    "cookie authentication exempt list"
+  ],
+  "binds": [
+    "zia/auth-exempted-urls",
+    "zia/advanced-settings"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.unauthenticated-traffic"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.terraform.multi-step-writes"
+    }
+  ],
+  "claims": {
+    "exempt-list-endpoint": {
+      "statement": "The URL-level exempt list is read at GET /authSettings/exemptedUrls and changed with POST /authSettings/exemptedUrls, which requires an action query parameter of ADD_TO_LIST or REMOVE_FROM_LIST. It lists URLs exempted from cookie authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-user-authentication-settings.md",
+          "quotes": [
+            "Gets a list of URLs that were exempted from cookie authentication",
+            "Available values: `ADD_TO_LIST`, `REMOVE_FROM_LIST`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authSettings~1exemptedUrls/post/parameters/[name=action]",
+          "expect": {
+            "in": "query",
+            "name": "action",
+            "required": true
+          }
+        }
+      ]
+    },
+    "tf-list-resource": {
+      "statement": "The zia_auth_settings_urls resource holds the whole list in one urls set capped at 25,000 items in the schema; its delete is a no-op. Changing the list reads the current list, then adds and removes the differences in separate calls, with the partial-failure behavior described in the multi-step writes subject.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_auth_settings_urls.go",
+          "quotes": [
+            "DeleteContext: resourceFuncNoOp,",
+            "MaxItems: 25000,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/user_authentication_settings/user_authentication_settings.go",
+          "quotes": [
+            "currentUrls, err := Get(ctx, service)",
+            "%s?action=ADD_TO_LIST",
+            "%s?action=REMOVE_FROM_LIST"
+          ],
+          "after": "func Update(ctx context.Context"
+        }
+      ],
+      "derived_from": [
+        "zia.terraform.multi-step-writes:provider-calls-delta-helpers"
+      ]
+    },
+    "shared-url-pool": {
+      "statement": "The product's 25K limit for custom URLs and TLDs is one pool shared across custom URL categories, Auth Exemption URLs in Advanced settings, blocked malicious URLs, SSL inspection blocked URLs, FTP allowed URLs and bandwidth class domains; duplicates count once, and more can be subscribed to.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "Includes:Custom URLs/TLDs in all URL Categories/TLD CategoriesAuth Exemption URLs in Advanced settings",
+            "Duplicate URLs/TLDs are counted once."
+          ]
+        }
+      ]
+    },
+    "bypass-by-method": {
+      "statement": "Advanced settings carry exemptions per authentication method, each as lists of custom URLs, cloud applications and URL categories: cookie authentication (auth_bypass_urls, auth_bypass_apps, auth_bypass_url_categories), Kerberos (kerberos_bypass_urls, kerberos_bypass_apps, kerberos_bypass_url_categories), Digest (digest_auth_bypass_urls, digest_auth_bypass_apps, digest_auth_bypass_url_categories), and Basic (basic_bypass_apps, basic_bypass_url_categories; there is no Basic URL list).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_advanced_settings.go",
+          "quotes": [
+            "Custom URLs that are exempted from cookie authentication for users",
+            "Cloud applications that are exempted from cookie authentication",
+            "URL categories that are exempted from cookie authentication",
+            "Custom URLs that are exempted from Kerberos authentication",
+            "Cloud applications that are exempted from Kerberos authentication",
+            "URL categories that are exempted from Kerberos authentication",
+            "Cloud applications that are exempted from Basic authentication",
+            "URL categories that are exempted from Basic authentication",
+            "URL categories that are exempted from Digest authentication"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_advanced_settings.go",
+          "quotes": [
+            "Cloud applications that are exempted from Digest authentication"
+          ],
+          "after": "\"digest_auth_bypass_apps\": {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_advanced_settings.go",
+          "quotes": [
+            "Custom URLs that are exempted from Digest authentication."
+          ]
+        }
+      ]
+    },
+    "global-exempt-categories": {
+      "statement": "Exempted URL Categories are a global exemption and the Exempted URLs list is a local one; traffic to either is marked against the location, not the user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-cookies.md",
+          "quotes": [
+            "Traffic destined to globally exempted websites, i.e., all the websites that are included in the Exempted URL Categories.",
+            "Traffic destined to locally exempted websites, i.e., all the websites that are included in the Exempted URLs list."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "exempt-list-description": {
+      "summary": "The exempted-URLs endpoint is described as a cookie-authentication exemption, but the model field text says the entries are exempted from SSL Inspection.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-user-authentication-settings.md",
+            "quotes": [
+              "Gets a list of URLs that were exempted from cookie authentication"
+            ]
+          },
+          "says": "The list holds URLs exempted from cookie authentication."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-user-authentication-settings.md",
+            "quotes": [
+              "urls (array[string]): Domains or URLs which are exempted from SSL Inspection"
+            ],
+            "after": "Parameters: No parameters"
+          },
+          "says": "The urls field holds domains or URLs exempted from SSL Inspection."
+        }
+      ],
+      "impact": "Reading only the field description would suggest the list changes SSL inspection scope; the endpoint, the path and the cookie article all treat it as an authentication exemption."
+    }
+  },
+  "gaps": {
+    "typical-entries": {
+      "kind": "semantic",
+      "title": "What destinations are typically exempted",
+      "status": "open",
+      "detail": "Unverified legacy statement: Typical exempt entries are OS update endpoints, WPAD/PAC file servers and captive-portal detection URLs (connectivitycheck.gstatic.com, msftconnecttest.com), and ZCC registration endpoints are typically allowed through before identity is established. No registered source states this. A vendor deployment guide naming recommended exemptions would settle it. The SAML guide does require exempting the IdP; see the methods subject.",
+      "resolves_with": [
+        "support-ticket",
+        "operator-experience"
+      ],
+      "blocks": "advising which destinations to exempt"
+    }
+  }
+}

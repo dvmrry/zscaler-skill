@@ -105,7 +105,7 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 ## Status summary
 
 Skim this before reading the full entries. Summary refreshed 2026-08-14:
-19 entries are resolved or clarified, 31 are partially resolved, and 396 are open.
+19 entries are resolved or clarified, 28 are partially resolved, and 387 are open.
 The three exact memberships below are checked against every detailed entry's
 explicit `Status`; range notation is inclusive and is expanded by the checker.
 Most open entries require lab tests,
@@ -114,7 +114,7 @@ public-doc reading.
 
 Entries migrated to the knowledge graph are no longer listed here; they are gaps
 with their old ID kept in `former_ids` (resolve with `node scripts/kb.mjs resolve <old-id>`):
-`zia-01` → [`zia.url-categories.membership:predefined-vs-custom`](kb:zia.url-categories.membership:predefined-vs-custom); `zia-02` → [`zia.url-categories.membership:same-specificity-collision`](kb:zia.url-categories.membership:same-specificity-collision); `zia-03` → [`zia.url-categories.entry-matching:wildcard-tokenization`](kb:zia.url-categories.entry-matching:wildcard-tokenization); `zia-04` → [`zia.url-filtering.advanced-settings:nrod-lag`](kb:zia.url-filtering.advanced-settings:nrod-lag); `zia-06` → [`zia.cloud-app-control.precedence:cac-disabled-rules`](kb:zia.cloud-app-control.precedence:cac-disabled-rules); `zia-10` → [`zia.cloud-app-control.precedence:default-allow-vs-explicit`](kb:zia.cloud-app-control.precedence:default-allow-vs-explicit); `zia-11` → [`zia.ssl-inspection.pipeline:mixed-forwarding`](kb:zia.ssl-inspection.pipeline:mixed-forwarding); `zia-12` → [`zia.ssl-inspection.pipeline:bypass-and-default-rule`](kb:zia.ssl-inspection.pipeline:bypass-and-default-rule); `zia-14` → [`zia.url-categories.entry-matching:exactly-five-levels`](kb:zia.url-categories.entry-matching:exactly-five-levels); `zia-15` → [`zia.url-categories.entry-matching:console-accepts-asterisk`](kb:zia.url-categories.entry-matching:console-accepts-asterisk); `zia-07` → [`zia.cloud-app-control.risk-profiles:composition`](kb:zia.cloud-app-control.risk-profiles:composition); `zia-09` → [`zia.cloud-app-control.rule-criteria:app-identity`](kb:zia.cloud-app-control.rule-criteria:app-identity); `zia-13` → [`zia.ssl-inspection.pipeline:first-pass-on-domain`](kb:zia.ssl-inspection.pipeline:first-pass-on-domain); `zia-47` → [`zia.dns-control.actions:block-response-code-values`](kb:zia.dns-control.actions:block-response-code-values); `zia-48` → [`zia.dns-control.actions:redirect-ip-binding`](kb:zia.dns-control.actions:redirect-ip-binding); `zia-58` → [`zia.dlp.rule-wire-shape:without-content-inspection-keying`](kb:zia.dlp.rule-wire-shape:without-content-inspection-keying); `zia-59` → [`zia.dns-control.actions:redir-req-gateway`](kb:zia.dns-control.actions:redir-req-gateway); `zia-60` → [`zia.firewall.network-services:type-meanings`](kb:zia.firewall.network-services:type-meanings); `zia-63` → [`zia.sandbox.md5-blocklist:quota-cap`](kb:zia.sandbox.md5-blocklist:quota-cap); `zia-66` → [`zia.ssl-inspection.rules:cap-raisable`](kb:zia.ssl-inspection.rules:cap-raisable); `zia-71` → [`zia.dns-control.api-rules:web-eun-false`](kb:zia.dns-control.api-rules:web-eun-false).
+`zia-01` → [`zia.url-categories.membership:predefined-vs-custom`](kb:zia.url-categories.membership:predefined-vs-custom); `zia-02` → [`zia.url-categories.membership:same-specificity-collision`](kb:zia.url-categories.membership:same-specificity-collision); `zia-03` → [`zia.url-categories.entry-matching:wildcard-tokenization`](kb:zia.url-categories.entry-matching:wildcard-tokenization); `zia-04` → [`zia.url-filtering.advanced-settings:nrod-lag`](kb:zia.url-filtering.advanced-settings:nrod-lag); `zia-06` → [`zia.cloud-app-control.precedence:cac-disabled-rules`](kb:zia.cloud-app-control.precedence:cac-disabled-rules); `zia-10` → [`zia.cloud-app-control.precedence:default-allow-vs-explicit`](kb:zia.cloud-app-control.precedence:default-allow-vs-explicit); `zia-11` → [`zia.ssl-inspection.pipeline:mixed-forwarding`](kb:zia.ssl-inspection.pipeline:mixed-forwarding); `zia-12` → [`zia.ssl-inspection.pipeline:bypass-and-default-rule`](kb:zia.ssl-inspection.pipeline:bypass-and-default-rule); `zia-14` → [`zia.url-categories.entry-matching:exactly-five-levels`](kb:zia.url-categories.entry-matching:exactly-five-levels); `zia-15` → [`zia.url-categories.entry-matching:console-accepts-asterisk`](kb:zia.url-categories.entry-matching:console-accepts-asterisk); `zia-07` → [`zia.cloud-app-control.risk-profiles:composition`](kb:zia.cloud-app-control.risk-profiles:composition); `zia-09` → [`zia.cloud-app-control.rule-criteria:app-identity`](kb:zia.cloud-app-control.rule-criteria:app-identity); `zia-13` → [`zia.ssl-inspection.pipeline:first-pass-on-domain`](kb:zia.ssl-inspection.pipeline:first-pass-on-domain); `zia-47` → [`zia.dns-control.actions:block-response-code-values`](kb:zia.dns-control.actions:block-response-code-values); `zia-48` → [`zia.dns-control.actions:redirect-ip-binding`](kb:zia.dns-control.actions:redirect-ip-binding); `zia-58` → [`zia.dlp.rule-wire-shape:without-content-inspection-keying`](kb:zia.dlp.rule-wire-shape:without-content-inspection-keying); `zia-59` → [`zia.dns-control.actions:redir-req-gateway`](kb:zia.dns-control.actions:redir-req-gateway); `zia-60` → [`zia.firewall.network-services:type-meanings`](kb:zia.firewall.network-services:type-meanings); `zia-63` → [`zia.sandbox.md5-blocklist:quota-cap`](kb:zia.sandbox.md5-blocklist:quota-cap); `zia-66` → [`zia.ssl-inspection.rules:cap-raisable`](kb:zia.ssl-inspection.rules:cap-raisable); `zia-71` → [`zia.dns-control.api-rules:web-eun-false`](kb:zia.dns-control.api-rules:web-eun-false); `zia-08` → [`zia.tenant-profiles.wire-mechanic:per-app-inspection-detail`](kb:zia.tenant-profiles.wire-mechanic:per-app-inspection-detail); `zia-16` → [`zia.locations.sublocations:cap-2000`](kb:zia.locations.sublocations:cap-2000); `zia-17` → [`zia.locations.sublocations:name-uniqueness-scope`](kb:zia.locations.sublocations:name-uniqueness-scope); `zia-18` → [`zia.locations.sublocations:parent-delete-behavior`](kb:zia.locations.sublocations:parent-delete-behavior); `zia-19` → [`zia.locations.sublocations:reparenting-rules`](kb:zia.locations.sublocations:reparenting-rules); `zia-20` → [`zia.locations.sublocations:depth-limit`](kb:zia.locations.sublocations:depth-limit); `zia-46` → [`zia.locations.group-assignment:tf-dynamic-removal-reason`](kb:zia.locations.group-assignment:tf-dynamic-removal-reason); `zia-56` → [`zia.bandwidth-control.limits:caps-api-enforced`](kb:zia.bandwidth-control.limits:caps-api-enforced); `zia-57` → [`zia.file-type-control.api-shape:filtering-action-dependencies`](kb:zia.file-type-control.api-shape:filtering-action-dependencies); `zia-61` → [`zia.atp.api-surface:tenant-defaults`](kb:zia.atp.api-surface:tenant-defaults); `zia-67` → [`zia.tenant-profiles.microsoft:v1-v2-semantics`](kb:zia.tenant-profiles.microsoft:v1-v2-semantics); `log-04` → [`zia.atp.block-diagnosis:ruletype-values`](kb:zia.atp.block-diagnosis:ruletype-values).
 
 The 2026-06-18 Automate-contract / rosetta closure pass narrowed several
 previously open source-surface questions without settling their runtime
@@ -219,10 +219,8 @@ families.
 
 | ID | Title | What's still open |
 |---|---|---|
-| [`zia-08`](#zia-08-cac-tenant-restrictions-mechanics) | CAC tenant restrictions mechanics | Supported apps + SSL-Inspection-required mechanic doc'd; per-app token-field inspection details in per-app config articles not yet vendored |
 | [`log-01`](#log-01-nss-feed-format-versions) | NSS feed format versions | Exact field-presence differences between CSV/JSON/TSV output templates |
 | [`log-02`](#log-02-cloud-nss-vs-legacy-nss-divergence) | Cloud NSS vs legacy NSS divergence | Both source from the same Nanolog — field content parity expected; branching most likely needed for format (Cloud NSS recommends JSON) and per-instance feed-count limits, not field presence |
-| [`log-04`](#log-04-mpatp-blocked-policy-type-log-field) | MP/ATP blocked-policy-type log field | Full `ruletype` and `reason` enums still require tenant evidence |
 | [`zcc-01`](#zcc-01-forwardingprofile-condition_type-enum) | ForwardingProfile `condition_type` enum | Integer datatype known; semantic mapping remains open |
 | [`zcc-02`](#zcc-02-forwardingprofile-actions-network_type-enum) | ForwardingProfile actions `network_type` enum | Integer datatype known; semantic mapping remains open |
 | [`zcc-03`](#zcc-03-forwardingprofile-action_type-enum) | ForwardingProfile `action_type` enum | Integer datatype known; semantic mapping remains open |
@@ -236,7 +234,6 @@ families.
 | [`shared-40`](#shared-40-oneapi-entitlement-prd-aliases-for-ztw-zid-and-zins) | OneAPI entitlement aliases for `ztw`, `zid`, and `zins` | The three observed aliases are mapped and tested; a complete cross-tenant alias taxonomy remains unpublished |
 | [`zia-49`](#zia-49-cac-per-app-action-validity) | CAC per-app action validity | Go exposes two discovery paths; their semantic relationship, single-app completeness, and multi-app aggregation remain unverified |
 | [`zia-53`](#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk) | CAC atomic-validation contract and representative-app quirk | The new path does not statically resolve representative-app or whole-create-rejection behavior |
-| [`zia-57`](#zia-57-ftp-and-file-type-control-field-dependency-and-enum-surfaces) | FTP and File Type Control field-dependency and enum surfaces | Contract now supplies the static `fileTypes` vocabulary; field dependencies, protocol acceptance, and FTP per-site scope remain open |
 | [`zia-68`](#zia-68-terraform-url_categories_predefined-ea-gating-sandbox-v1v2-endpoint-static-ip-throttle) | Terraform URL-category, sandbox, and static-IP questions | `/staticIP` guidance is now documented by the provider; URL-category EA eligibility, sandbox v1/v2 mapping, and primary rate-limit confirmation remain open |
 | [`zpa-49`](#zpa-49-supported-hypervisor-cloud-image-formats-for-zpa-pses) | Supported hypervisor / cloud-image formats for ZPA PSEs | RHEL 9 on AWS/GCP/Azure, Docker, Nutanix AHV, and VMware are confirmed; Hyper-V/KVM, exact formats, and distribution paths remain open |
 | [`zpa-41`](#zpa-41-format-only-log-type-codes-acceptance-on-a-receivers-sourcelogtype) | Format-only log-type-code acceptance | `zpn_pbroker_comprehensive_stats` is resolved; seven remaining codes still need live acceptance tests |
@@ -253,7 +250,7 @@ families.
 
 ### Open
 
-- **zia**: `zia-16`–`zia-46`, `zia-50`–`zia-52`, `zia-54`–`zia-56`, `zia-61`–`zia-62`, `zia-64`–`zia-65`, `zia-67`, `zia-69`–`zia-70`, `zia-72`
+- **zia**: `zia-21`–`zia-45`, `zia-50`–`zia-52`, `zia-54`–`zia-55`, `zia-62`, `zia-64`–`zia-65`, `zia-69`–`zia-70`, `zia-72`
 - **log**: `log-03`, `log-05`–`log-22`
 - **zpa**: `zpa-01`, `zpa-04`, `zpa-09`–`zpa-14`, `zpa-16`–`zpa-20`, `zpa-22`–`zpa-40`, `zpa-42`–`zpa-47`, `zpa-50`–`zpa-83`
 - **shared**: `shared-06`–`shared-16`, `shared-20`–`shared-39`
@@ -316,18 +313,18 @@ The 2026-06-15 ZIA refresh registered these open ZIA behavior/source questions s
 | [`zia-53`](#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk) | CAC atomic-validation contract and representative-app action quirk | lab test |
 | [`zia-54`](#zia-54-python-cloudappriskprofile-list-vs-single-shape) | Python `cloudAppRiskProfile` list-vs-single code shape | code read / lab test |
 | [`zia-55`](#zia-55-admin-audit-report-pagination-and-targetorgid-semantics) | Admin audit report pagination and `targetOrgId` MSP semantics | lab test / tenant read |
-| [`zia-56`](#zia-56-bandwidth-class-type-enum-vs-ui-predefined-classes-and-cap-enforcement) | Bandwidth class `type` enum vs UI predefined classes, and cap enforcement | zscaler doc not yet read / lab test |
-| [`zia-57`](#zia-57-ftp-and-file-type-control-field-dependency-and-enum-surfaces) | FTP and File Type Control field-dependency and enum surfaces | lab test / zscaler doc not yet read |
+| [`zia-56`](kb:zia.bandwidth-control.limits:caps-api-enforced) | Bandwidth class `type` enum vs UI predefined classes, and cap enforcement | zscaler doc not yet read / lab test |
+| [`zia-57`](kb:zia.file-type-control.api-shape:filtering-action-dependencies) | FTP and File Type Control field-dependency and enum surfaces | lab test / zscaler doc not yet read |
 | [`zia-58`](kb:zia.dlp.rule-wire-shape:without-content-inspection-keying) | DLP web rule action/severity enums, parent/sub-rule composition, EXTERNALDLP behavior | lab test / zscaler doc not yet read |
 | [`zia-59`](kb:zia.dns-control.actions:redir-req-gateway) | Plain `REDIR_REQ` `dns_gateway` requirement and `edns_ecs_object`/ZPA pairing | lab test |
 | [`zia-60`](kb:zia.firewall.network-services:type-meanings) | Network Service `type` behavior, country/category enums, and caps | lab test / zscaler doc not yet read |
-| [`zia-61`](#zia-61-atpmalware-tenant-defaults-singleton-interdependence-capture-vs-denylist) | ATP/Malware tenant defaults, singleton interdependence, capture-vs-denylist | lab test / zscaler doc not yet read |
+| [`zia-61`](kb:zia.atp.api-surface:tenant-defaults) | ATP/Malware tenant defaults, singleton interdependence, capture-vs-denylist | lab test / zscaler doc not yet read |
 | [`zia-62`](#zia-62-pse-shared-nat-rejection-zia-only-health-monitoring-hardware-pse-api) | PSE shared-NAT rejection, ZIA-only health monitoring, hardware-PSE API | zscaler doc not yet read / support ticket / code read |
 | [`zia-63`](kb:zia.sandbox.md5-blocklist:quota-cap) | Sandbox MD5 blocklist quota, help-portal enum, and the MP/ATP diagnosis API gap | lab test / zscaler doc not yet read |
 | [`zia-64`](#zia-64-scim-department-matching-attribute-length-activefalse-session-kill-and-caps) | SCIM department matching, attribute length, `active=false` session-kill, and caps | lab test / zscaler doc not yet read |
 | [`zia-65`](#zia-65-ucaas-one-click-toggle-field-location) | UCaaS One-Click toggle field location | tenant read / zscaler doc not yet read |
 | [`zia-66`](kb:zia.ssl-inspection.rules:cap-raisable) | Whether the 255 SSL Inspection rule cap is raisable | zscaler doc not yet read / support ticket |
-| [`zia-67`](#zia-67-tenant-profile-per-app-wire-mechanic-and-v1v2-protocol-semantics) | Tenant Profile per-app wire mechanic and v1/v2 protocol semantics | zscaler doc not yet read / lab test |
+| [`zia-67`](kb:zia.tenant-profiles.microsoft:v1-v2-semantics) | Tenant Profile per-app wire mechanic and v1/v2 protocol semantics | zscaler doc not yet read / lab test |
 | [`zia-68`](#zia-68-terraform-url_categories_predefined-ea-gating-sandbox-v1v2-endpoint-static-ip-throttle) | Terraform `url_categories_predefined` EA gating, sandbox v1/v2 endpoint, static-IP throttle | primary API rate-limit table / lab test |
 | [`zia-69`](#zia-69-workload-group-runtime-expression-evaluation-expressionjson-sync-and-tag-type-enum) | Workload-group runtime expression evaluation, `expressionJson` sync, and tag-type enum | lab test / zscaler doc not yet read |
 | [`zia-70`](#zia-70-dlp_web_rules-live-read-returns-undocumented-uctemplateid) | `dlp_web_rules` live read returns undocumented `ucTemplateId` | lab test / zscaler confirmation |
@@ -584,64 +581,6 @@ Admin Rank is an opt-in feature ("if you've enabled Admin Rank"); without it, ru
 Applies to ZIA URL Filtering, SSL Inspection, and other ZIA policy types that expose the Admin Rank field. ZPA access policies don't use the same admin-rank mechanism based on vendored material.
 
 ---
-### zia-08 — CAC tenant restrictions mechanics
-
-*Origin: `kb:zia.cloud-app-control` § Edge cases*
-
-Zscaler supports distinguishing corporate vs personal instances of the same SaaS app on shared hostnames (e.g., corporate Google Workspace vs personal Gmail both under `*.google.com`). The detection mechanism — header inspection post-decrypt, tenant ID parameter, OAuth audience claim, DNS-based hints — isn't described in the vendored CAC guide.
-
-**Status**: partially resolved (2026-04-23).
-
-**Answer**: Feature is called **Tenant Profiles** (or "tenancy restriction"), configured under Administration > Tenant Profiles and attached to Cloud App Control rules.
-
-From *About Tenant Profiles* (`vendor/zscaler-help/about-tenant-profiles.md`) and *Adding Tenant Profiles* (`vendor/zscaler-help/adding-tenant-profiles.md`):
-
-**Supported cloud applications** — the help article *Adding Tenant Profiles* lists 13, but the SDK's `tenancy_restriction_profile.py:146-149` enumerates **16**. SDK is authoritative; help article is stale.
-
-SDK-authoritative `app_type` enum values:
-
-- `YOUTUBE` (help-listed)
-- `GOOGLE` (help-listed as "Google Apps")
-- `MSLOGINSERVICES` (help-listed as "Microsoft Login Services")
-- `SLACK` (help-listed)
-- **`BOX`** — SDK-only
-- **`FACEBOOK`** — SDK-only
-- `AWS` (help-listed as "Amazon Web Services")
-- `DROPBOX` (help-listed)
-- `WEBEX_LOGIN_SERVICES` (help-listed)
-- **`AMAZON_S3`** — SDK-only
-- `ZOHO_LOGIN_SERVICES` (help-listed)
-- `GOOGLE_CLOUD_PLATFORM` (help-listed)
-- `ZOOM` (help-listed)
-- `IBMSMARTCLOUD` (help-listed)
-- `GITHUB` (help-listed)
-- `CHATGPT_AI` (help-listed as "ChatGPT")
-
-**Key mechanics:**
-
-1. **SSL Inspection is required** for tenant restrictions to function. The Tenant Profile article explicitly instructs adding the relevant login-service app as a criterion in an SSL Inspection rule (e.g., for Office 365 tenant restrictions, include "Microsoft Login Services" in an SSL Inspection rule with higher order than the Office 365 One Click Rule). This confirms the detection model: **post-SSL-decrypt inspection of the login/OAuth flow**, not DNS-based or connection-IP-based.
-2. **Identifier types are per-app-specific** (from *Ranges & Limitations — URL Filtering & Cloud App Control*, `ranges-limitations-zia.md`):
-   - AWS: account IDs (12 digits)
-   - ChatGPT: workspace IDs (up to 64 chars)
-   - Dropbox: team IDs
-   - GitHub: enterprise slugs
-   - Google Apps: domains (e.g., `yourcorp.com`)
-   - Google Cloud Platform: organization IDs
-   - IBM SmartCloud: account IDs
-   - Microsoft Login Services v1: Tenant Directory ID; v2: Tenant Directory ID:Policy ID; plus M365 Tenants or Tenant IDs
-   - Slack: Workspace ID (both "Your" and "Allowed" flavors)
-   - YouTube: Channel ID and School ID
-   - Webex Login Services: Webex tenants
-   - Zoho Login Services: Zoho IDs
-   - Zoom: policy label
-3. **Allow-to-block cascading**: allowing a specific tenant automatically blocks other tenants for most apps (subsequent policies not evaluated). **Exceptions**: YouTube and AWS still evaluate subsequent policies, so an **explicit block rule is required** to block other tenants for those two.
-4. **One tenant per SaaS application per organization for some apps** (see Ranges & Limitations for the full per-app matrix — GitHub is 1 profile/rule, Microsoft v1/v2 directory IDs are 1 each, Zoom is 1 policy label; most others support 100–500 identifiers per profile).
-
-**Still open**: the per-app inspection logic at the token level (OAuth audience claim, login-request header, SAML assertion attribute, etc.) isn't enumerated in the articles I captured. "Inspected post-decrypt in the login flow" is the mechanism class — the exact token field per app would be in per-app configuration guides (e.g., *Configuring a Microsoft Login Services Tenant Profile*, etc.) that weren't captured in this sweep. Low priority — the high-level mechanism is enough for skill answers, and per-app detail is operator-facing rather than skill-facing.
-
----
----
-
 ### log-01 — NSS feed format versions
 
 *Origin: `references/zia/logs/web-log-schema.md`, `firewall-log-schema.md`, `dns-log-schema.md`*
@@ -956,26 +895,6 @@ Rationale:
 - **Field shapes** come from `node scripts/kb.mjs resolve <type-id>` (for example `zia/url-filtering-rules`); the former `snapshot-schema.md` docs are retired (historical rationale in PLAN.md § 4).
 
 A paraphrased-markdown post-processing step remains an option for the future if a fork team wants it, but no current skill answer requires one.
-
----
-
-### log-04 — MP/ATP blocked-policy-type log field
-
-*Origin: `references/zia/malware-and-atp.md` § Console diagnosis workflow (log-based)*
-
-Malware Protection and Advanced Threat Protection **settings** have public SDK/API surfaces. Those endpoints do not return per-transaction verdicts, so attribution of an individual block still relies on Web Insights or equivalent log fields indicating which policy module fired.
-
-**Status**: partially resolved (2026-04-24).
-
-**Answer (partial)**: `references/zia/logs/web-log-schema.md` (derived from Zscaler's NSS web-log CSV reference) documents the Block-only field set:
-
-- **`%s{ruletype}`** — the field name on the wire. Insights column name: `Blocked Policy Type`. Example values from the schema: `File Type Control`, `Data Loss Prevention`, `Sandbox`. The MP/ATP values follow the same pattern — expected strings `Malware Protection` and `Advanced Threat Protection` respectively (not yet confirmed by a live tenant export but matches the pattern).
-- **`%s{rulelabel}`** — Block-only rule name (e.g. `URL_Filtering_1`).
-- **`%s{reason}`** — carries extended detail. Example values: `Virus/Spyware/Malware Blocked`, `This page is unsafe (high PageRisk index)`, `Not allowed to browse this category`. Likely the MP/ATP sub-category discriminator (Ransomware, Phishing, Botnet, etc.). Not in the Insights CSV column list but present in the NSS output.
-
-**Key property**: `ruletype` and `rulelabel` are **Block-only**. An Allow rule firing produces no value for these fields. Operators filtering logs for "which policy blocked this" should filter on `ruletype` non-null.
-
-**Still open**: the full enum of `ruletype` values (the examples above are illustrative, not exhaustive) and the full enum of `reason` sub-categories. A first fork-admin tenant export with at least one MP and one ATP block confirms the complete list.
 
 ---
 
@@ -1475,61 +1394,6 @@ Possible explanations:
 
 ---
 
-### zia-16 — Sublocation count cap per parent
-
-*Origin: `references/zia/sublocations.md` § Open questions*
-
-Whether a maximum number of sublocations per parent location is enforced by the API. No limit is documented in the vendor help doc, SDK source, or Terraform provider source.
-
-**Status**: open
-**Resolves with**: zscaler doc not yet read (Ranges & Limitations for locations) OR lab test
-
----
-
-### zia-17 — Sublocation name uniqueness scope
-
-*Origin: `references/zia/sublocations.md` § Open questions*
-
-Whether sublocation names must be unique within their parent location or across the entire ZIA tenant. No explicit statement found in any available vendor source.
-
-**Status**: open
-**Resolves with**: lab test (create two sublocations with the same name under different parents; observe whether the API rejects the second)
-
----
-
-### zia-18 — Parent location deletion behavior with sublocations
-
-*Origin: `references/zia/sublocations.md` § Open questions*
-
-Whether the API blocks deletion of a parent location that has active sublocations, cascade-deletes them, or returns an error. Not documented in `understanding-sublocations.md`, SDK delete method, or Terraform provider.
-
-**Status**: open
-**Resolves with**: lab test
-
----
-
-### zia-19 — Sublocation reparenting via `parent_id` update
-
-*Origin: `references/zia/sublocations.md` § Open questions*
-
-Whether the API enforces preconditions when a sublocation is promoted to top-level (removing its `parent_id`) — e.g., whether it blocks promotion if the location already has its own sublocations, given the 2-level depth limit.
-
-**Status**: open
-**Resolves with**: lab test
-
----
-
-### zia-20 — Explicit depth-limit prohibition text
-
-*Origin: `references/zia/sublocations.md` § Open questions*
-
-Available vendor sources show only 2-level hierarchy examples; no explicit vendor statement prohibiting sublocations from themselves having sublocations was found. Matters for operators expecting a 3-level hierarchy.
-
-**Status**: open
-**Resolves with**: zscaler doc not yet read (Ranges & Limitations for locations)
-
----
-
 ### zia-21 — Time interval DST handling
 
 *Origin: `references/zia/time-intervals.md` § Open questions*
@@ -1817,35 +1681,6 @@ The exact sync frequency per IdP (Okta event-triggered vs scheduled batch, Entra
 
 ---
 
-### zia-46 — Terraform provider dynamic location groups removal
-
-*Origin: `references/zia/locations.md` § Surprises worth flagging*
-
-Why did the Terraform provider remove or comment out `dynamic_location_groups`
-handling in `zia_location_management` during the v4.6.0 era after earlier
-provider work added Manual and Dynamic Location Group attributes? Was the field
-deprecated by the ZIA API, temporarily removed due provider drift, moved to a
-separate API/resource shape, or intentionally hidden because dynamic membership
-is read-only/API-derived?
-
-**Status**: open — last updated 2026-05-30
-**Resolves with**: support ticket OR upstream maintainer comment OR code read
-against provider history plus live API behavior
-**Blocks**: deterministic guidance for managing Dynamic Location Group
-membership through Terraform. Public docs still describe Dynamic Location
-Groups as a ZIA product feature, so provider removal must not be interpreted as
-product deprecation without additional evidence.
-
-Known evidence: [zscaler/terraform-provider-zia#355](https://github.com/zscaler/terraform-provider-zia/issues/355)
-states that v2.91.3 added Manual and Dynamic Location Group attributes to
-`zia_location_management`. Later v4.6.0 work
-([zscaler/terraform-provider-zia#496](https://github.com/zscaler/terraform-provider-zia/pull/496))
-removed or commented dynamic-location-group handling while release notes only
-call out static location-group drift. The missing rationale is the clarification
-gap.
-
----
-
 ### zpa-11 — Machine group creation endpoint
 
 *Origin: `references/zpa/machine-groups.md` § Open questions*
@@ -2048,7 +1883,7 @@ Whether Azure AD Continuous Access Evaluation (CAE) in tenants with IP-binding p
 
 *Origin: `references/shared/m365-conditional-access.md` § Open questions*
 
-Whether the predefined `Fallback mode of ZPA Forwarding` ZIA forwarding rule routes SIPA-destined M365 traffic to PSE egress or drops it when all connectors in the designated SIPA connector group are unhealthy. The predefined rule exists (see `references/zia/forwarding-control.md`) but its exact fallback action for SIPA traffic is not source-confirmed.
+Whether the predefined `Fallback mode of ZPA Forwarding` ZIA forwarding rule routes SIPA-destined M365 traffic to PSE egress or drops it when all connectors in the designated SIPA connector group are unhealthy. The predefined rule exists (see `kb:zia.forwarding-control.predefined-rules`) but its exact fallback action for SIPA traffic is not source-confirmed.
 
 **Status**: open
 **Resolves with**: lab test OR operator experience
@@ -2127,11 +1962,11 @@ This affects two operational questions: "why is user X's traffic on Service Edge
 
 *Origin: chain-coverage review 2026-05-06 — request flow phase 4 (Service Edge ingress + auth)*
 
-The skill has individual refs covering pieces of the auth timeline (`zia/authentication.md` for the auth gate and frequency model, `zia/locations.md` for surrogate IP, `shared/oneapi.md` for OAuth, ZIdentity refs for step-up) but no consolidated walk-through of when each event fires across a request's lifetime.
+The skill has individual refs covering pieces of the auth timeline (`kb:zia.authentication` for the auth gate and frequency model, `kb:zia.authentication.surrogate-ip` for surrogate IP, `shared/oneapi.md` for OAuth, ZIdentity refs for step-up) but no consolidated walk-through of when each event fires across a request's lifetime.
 
 **Doc sweep 2026-05-06** (partial resolution):
 
-`references/zia/authentication.md` already covers more than the original framing assumed:
+`kb:zia.authentication` already covers more than the original framing assumed:
 
 - **Auth-frequency enum is fully documented** with cookie semantics: `ALWAYS` (per browser session, cookie discarded at close), `DAILY_COOKIE` (1 day), `WEEKLY_COOKIE`, `MONTHLY_COOKIE`, `CUSTOM_FREQUENCY` (1–180 days via `authCustomFrequency`). Cited from `authentication_settings.py:41-42, 243`.
 - **Surrogate IP TTL fields documented**: `idle_time_in_minutes` (TTL for IP-to-user binding), `surrogate_refresh_time_in_minutes` (revalidation interval), `surrogate_refresh_time_unit` (`MINUTE` / `HOUR` / `DAY`), `surrogate_ip_enforced_for_known_browsers` (force browsers to also re-auth via cookie).
@@ -2226,14 +2061,14 @@ This is the canonical "HA-on-HA stacking" question: customer's HA design (F5 + r
 
 `references/zia/workload-groups.md` documents Workload Groups as the policy-scope primitive for Cloud Connector traffic — workload-tag-based attribution replaces the user-identity-based attribution that ZCC traffic carries. But the **Service Edge ingress behavior for traffic without a user identity** is not laid out:
 
-1. **Auth gate behavior** — `zia/authentication.md` says auth runs before all other policies. For a workload session arriving via CC's GRE/IPSec tunnel with no user identity to authenticate, does the auth gate skip (workload tag is sufficient), block (non-browser UA fails SAML), or apply a different mechanism? Per-location `auth_required` setting on the CC-fronted location should make this configurable but the actual handling isn't documented.
+1. **Auth gate behavior** — `kb:zia.authentication` records the legacy statement that auth runs before all other policies (unverified: gap `zia.authentication.unauthenticated-traffic:auth-before-policy`). For a workload session arriving via CC's GRE/IPSec tunnel with no user identity to authenticate, does the auth gate skip (workload tag is sufficient), block (non-browser UA fails SAML), or apply a different mechanism? Per-location `auth_required` setting on the CC-fronted location should make this configurable but the actual handling isn't documented.
 2. **Surrogate IP behavior on workload IPs** — does a CC-fronted location with `surrogate_ip = true` bind workload identity to source IP? If multiple workloads share a CC's NAT IP, is the binding shared (correct for traffic-volume attribution but wrong for per-workload policy)?
 3. **Auth-frequency setting interaction** — workload sessions are typically long-lived (microservice keepalives, persistent connections). What does `MONTHLY_COOKIE` or `ALWAYS` mean for a session that has no user-side cookie?
 4. **NSS feed identity-field population** — the `cloud-connector/logs/log-schema.md` ref lists fields like `login`, `dept`, `deviceowner`, `devicehostname` from the ZIA firewall log schema. For workload traffic with no user identity, are these fields empty, populated with a workload-derived value, or populated with a tag-derived stub?
 
 This matters operationally because operators investigating "why is workload X being blocked by ZIA" need to know whether the blocking subsystem evaluated a user-identity-scoped rule that didn't match (because workloads have no user) or a workload-group-scoped rule (which should match).
 
-**Resolves with**: tenant lab walkthrough — deploy a CC, send known workload traffic, observe: (a) auth gate behavior at the per-location setting, (b) NSS feed field population for the workload session, (c) whether Surrogate IP fires. Plus vendor doc consolidating workload identity semantics (the skill currently has it spread across `zia/workload-groups.md` + `zia/authentication.md` + `zia/locations.md`). **Status**: open — 2026-05-06.
+**Resolves with**: tenant lab walkthrough — deploy a CC, send known workload traffic, observe: (a) auth gate behavior at the per-location setting, (b) NSS feed field population for the workload session, (c) whether Surrogate IP fires. Plus vendor doc consolidating workload identity semantics (the skill currently has it spread across `zia/workload-groups.md` + `kb:zia.authentication` + `kb:zia.locations`). **Status**: open — 2026-05-06.
 
 ---
 
@@ -2292,7 +2127,7 @@ For incident response — "we just rolled back a bad PAC, when do we know it's a
 
 *Origin: `references/shared/pac-files.md` § PAC mode authentication review 2026-05-06*
 
-The high-level auth methods (SAML SSO / Hosted DB / Kerberos) and the Surrogate IP mechanic are well-documented in `references/zia/authentication.md`. What's not documented is the **PAC-mode-specific handshake sequence**:
+The high-level auth methods (SAML SSO / Hosted DB / Kerberos) and the Surrogate IP mechanic are well-documented in `kb:zia.authentication`. What's not documented is the **PAC-mode-specific handshake sequence**:
 
 1. **407 Proxy-Authentication challenge handling** — when a non-cookie-bearing client (curl, script, non-browser) hits the PSE via a PAC-resolved proxy, does the PSE issue a 407 challenge or a 302 SAML redirect? Browser response to each differs; non-browser HTTP clients often fail on either.
 2. **Cookie domain / scope** — the ZIA session cookie issued on SAML completion is scoped to the PSE's domain. In PAC mode (where each request hits a `PROXY h:80` resolution), how is the cookie attached to subsequent requests? Browsers handle this transparently but the cookie domain rules aren't documented.
@@ -4194,61 +4029,6 @@ Two open items on the ZIA admin audit log report endpoint. First, pagination: th
 
 ---
 
-### zia-56 — Bandwidth class type enum vs UI predefined classes, and cap enforcement
-
-*Origin: `references/zia/bandwidth-control.md` § Open questions*
-
-The Help-reading gap was narrowed on **2026-09-09**: the current overview
-documents Cloud Applications, Large Files, Web Conference Applications, and
-VoIP Applications tabs (`vendor/zscaler-help/zia-about-bandwidth-classes-20260909.md:14-19`).
-The Cloud Applications article names File Share, Finance, General Surfing,
-Sales/Support Apps, and Streaming Media as predefined classes
-(`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:23-29`).
-Large Files Help describes throttling uploads or downloads at or above the
-selected minimum file size (`vendor/zscaler-help/zia-large-files-bandwidth-class-20260909.md:10`).
-
-Three questions remain. First, these Help UI categories do not provide a wire
-mapping to class `type` values such as `BANDWIDTH_CAT_WEBCONF`
-(`vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes_web_conferencing.go:98-105`).
-Second, the full API type enumeration and the default type of a plain class
-remain unverified. Third, current Help corroborates 245 custom classes,
-eight classes with custom domains, and 25,000 domains across bandwidth classes
-(`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:16-18`),
-but does not establish whether those caps or the separately documented rule cap
-are API-enforced. UI documentation does not close those API questions.
-
-**Status**: open
-**Resolves with**: a published API per-class `type` contract OR an authorized lab test of a plain class and over-limit requests to establish defaults and enforcement
-
----
-
-### zia-57 — FTP and File Type Control field-dependency and enum surfaces
-
-*Origin: `references/zia/content-inspection-extras.md` § Open questions*
-
-Four source-unresolvable items on the content-inspection surfaces. (1) Whether a per-site FTP Control rule layer exists outside the SDK — the help docs describe FTP Control with multiple levels and per-site access (`vendor/zscaler-help/about-ftp-control.md:17-21`) but the SDK exposes only the tenant-wide `/ftpSettings` object (`vendor/zscaler-sdk-python/zscaler/zia/ftp_control_policy.py:35`, `:77`); whether per-site FTP allow/deny lives elsewhere (URL Filtering on FTP-protocol conditions, or a UI-only surface) is not determinable from SDK source. (2) The File Type Control `filtering_action`-to-field dependency contract is not encoded in source — `min_size`/`max_size`/`operation`/`active_content`/`unscannable`/`password_protected` are flat kwargs with no client-side validation tying any to a `filtering_action` value, so which combinations the API accepts/rejects (e.g. whether `active_content` is meaningful with `ALLOW`) is unstated. (3) The full `file_types` enum is not statically available — the model treats it as a free string list (`vendor/zscaler-sdk-python/zscaler/zia/models/filetyperules.py:77`); the complete token set is returned at runtime by `/fileTypeCategories`, not hardcoded. (4) The `protocols` value set is only partially confirmed — `HTTP_RULE`/`HTTPS_RULE`/`FTP_RULE` are confirmed from help (`vendor/zscaler-help/about-file-type-control.md:29`), but the model stores `protocols` as an unconstrained string list (`vendor/zscaler-sdk-python/zscaler/zia/models/filetyperules.py:49`) with no enum, so whether additional tokens are accepted is undeterminable from this source.
-
-**Status**: partially resolved — last updated 2026-06-18
-**Resolves with**: lab test (read `/fileTypeCategories` and probe `filtering_action`/field and `protocols` combinations on a live tenant) OR zscaler doc not yet read (FTP Control configuration reference)
-
-**2026-06-18 narrowing**: the Automate contract/reconciler now captures a static documented `fileTypes` vocabulary for `POST /zia/api/v1/fileTypeRules`; the generated report shows `filteringAction`, `operation`, and `state` as enum matches, and `fileTypes` as a contract-only enum beginning with `ANY`, `NONE`, and `FTCATEGORY_*` values and ending at `FTCATEGORY_TS` (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:5032-5035`, `:5087-5090`, `:5093-5384`). That resolves the "no static enum source" sub-question for `fileTypes`. It does not resolve FTP per-site scope, field-dependency validation, or whether `protocols` accepts any values beyond `HTTP_RULE`, `HTTPS_RULE`, and `FTP_RULE`.
-
----
----
-
----
-
-### zia-61 — ATP/Malware tenant defaults, singleton interdependence, capture-vs-denylist
-
-*Origin: `references/zia/malware-and-atp.md` § Open questions*
-
-Several Malware Protection / Advanced Threat Protection behaviors are not backed by vendor source. Default tenant state of any ATP/Malware toggle is not stated: the Python ATP model defaults absent fields to `None` (`vendor/zscaler-sdk-python/zscaler/zia/models/advanced_threat_settings.py:113-160`) and the MalwareSettings model defaults to `False` (`vendor/zscaler-sdk-python/zscaler/zia/models/malware_protection_settings.py:62-77`), but these are client-side construction defaults, not stated API/tenant defaults. Server-side validation rules are not stated beyond `risk_tolerance`'s 0-100 range (`vendor/zscaler-sdk-go/zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go:18-20`) — e.g. whether `blocked_countries` is validated against ISO 3166 server-side is unstated. The interdependence of the four malware singletons is undocumented (source does not say whether turning off inspection direction disables threat-class enforcement; they are independent endpoints per structure only). The relationship between `maliciousUrlsCapture` (a PCAP toggle inside the ATP settings block, `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_threat_settings.py:111`) and the separate `maliciousUrls` denylist endpoint is not explained, and `dgaDomainsCapture` (`:110`) has no `dgaDomainsBlocked` `*Capture` partner — source asserts no significance to the ordering. Whether `cyberThreatProtection` PUTs auto-activate is not stated in the SDK (the "staged until activation" note is MCP-tooling plumbing, not product API behavior). Adjacent: whether MP/ATP PCAP traffic is API-accessible (vs console-only), and the recommended Malware Protection Policy content (image-only on the live help page), are undocumented in captured source.
-
-**Status**: open
-**Resolves with**: lab test (read a fresh tenant's ATP/Malware settings to observe shipped defaults and whether PUTs auto-activate; probe `blocked_countries` validation) OR zscaler doc not yet read (ATP/Malware policy reference and recommended-content page)
-
----
-
 ### zia-62 — PSE shared-NAT rejection, ZIA-only health monitoring, hardware-PSE API
 
 *Origin: `references/zia/private-service-edge.md` § Open questions*
@@ -4280,17 +4060,6 @@ The snapshot doc's "Check One-Click bypass states" jq query probes `enableMsftO3
 **Resolves with**: tenant read (a tenant with the UCaaS One-Click apps enabled, to locate the real field names/endpoint) OR zscaler doc not yet read
 
 ---
-### zia-67 — Tenant Profile per-app wire mechanic and v1/v2 protocol semantics
-
-*Origin: `references/zia/tenant-profiles.md` § Open questions*
-
-Tenant-restriction wire mechanics are documented by the SaaS vendors but not by any vendored Zscaler source (a grep of `about-tenant-profiles.md` / `adding-tenant-profiles.md` returns zero hits for "header", "Restrict-Access", "X-GoogApps", or "inject"). (1) Microsoft 365: Microsoft defines the `Restrict-Access-To-Tenants` and `Restrict-Access-Context` request headers, presumed injected by ZIA into the inspected login flow — only the SSL-inspection prerequisite is confirmed in Zscaler source. (2) Google Workspace: Google defines the `X-GoogApps-Allowed-Domains` header for the same purpose — same status. (3) v1 vs v2 protocol semantics: the `ms_login_services_tr_v2` flag selects "v2 for tenant restriction on MSLOGINSERVICES" (`vendor/terraform-provider-zia/zia/resource_zia_tenant_restriction_profile.go:100-103`) and the limits table distinguishes v1 (Tenant Directory ID, up to 64 chars) from v2 (Tenant Directory ID:Policy ID, up to 256 chars — `vendor/zscaler-help/ranges-limitations-zia.md:260-261`), but what the two protocol versions differ in on the wire, and which Microsoft tenants require v2, is not described in vendored source.
-
-**Status**: open
-**Resolves with**: zscaler doc not yet read (a Zscaler tenant-restriction header-mechanic article and a v1-vs-v2 configuration guide) OR lab test (capture the injected headers post-decrypt)
-
----
-
 ### zia-68 — Terraform url_categories_predefined EA gating, sandbox v1/v2 endpoint, static-IP throttle
 
 *Origin: `references/zia/terraform.md` § Open questions*

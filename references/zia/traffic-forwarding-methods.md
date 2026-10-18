@@ -27,7 +27,7 @@ author-status: draft
 
 Source: `vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md`; `vendor/zscaler-help/best-practices-deploying-gre-tunnels.md`; `vendor/zscaler-help/gre-deployment-scenarios.md`; `vendor/zscaler-help/choosing-traffic-forwarding-methods.md`; `vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md`; `vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md`.
 
-This doc covers how traffic gets **into** ZIA from a customer location or endpoint — the ingestion layer. It does not cover Forwarding Control policy, which governs where ZIA sends traffic after inspecting it (ZPA via SIPA, DIRECT, DROP, etc.) — see [`./forwarding-control.md`](./forwarding-control.md).
+This doc covers how traffic gets **into** ZIA from a customer location or endpoint — the ingestion layer. It does not cover Forwarding Control policy, which governs where ZIA sends traffic after inspecting it (ZPA via SIPA, DIRECT, DROP, etc.) — see [`zia.forwarding-control`](kb:zia.forwarding-control).
 
 ## The four methods at a glance
 
@@ -38,7 +38,7 @@ This doc covers how traffic gets **into** ZIA from a customer location or endpoi
 | **PAC file** | Browser/OS explicit proxy → ZIA Public Service Edge | User (via auth) or IP (via Surrogate IP); no location binding required | BYOD, web-only scenarios, no-tunnel environments, off-LAN managed devices |
 | **ZCC** | Per-app ZCC agent → ZIA Public Service Edge | User + device identity; forwarding profile drives per-app rules | Mobile/remote users, off-network endpoints, full protocol forwarding |
 
-Every method ultimately surfaces inside ZIA as a **Location** (or is associated with one). The Location is the forwarding-grouping primitive that all ZIA policy rules scope by. See [`./locations.md`](./locations.md) for the full Location/Sublocation/Location Group model.
+Every method ultimately surfaces inside ZIA as a **Location** (or is associated with one). The Location is the forwarding-grouping primitive that all ZIA policy rules scope by. See [`zia.locations`](kb:zia.locations) for the full Location/Sublocation/Location Group model.
 
 Source: `vendor/zscaler-help/choosing-traffic-forwarding-methods.md`; `vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md`; `vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md`.
 
@@ -300,8 +300,8 @@ Large enterprises often run GRE at main offices, IPsec at smaller branches (dyna
 
 ## Cross-links
 
-- Location / Sublocation / Location Group model (prerequisite) — [`./locations.md`](./locations.md)
-- Post-inspection forwarding decisions (ZPA / DIRECT / DROP) — [`./forwarding-control.md`](./forwarding-control.md)
+- Location / Sublocation / Location Group model (prerequisite) — [`zia.locations`](kb:zia.locations)
+- Post-inspection forwarding decisions (ZPA / DIRECT / DROP) — [`zia.forwarding-control`](kb:zia.forwarding-control)
 - SSL inspection — transparent vs explicit forwarding, SNI-only vs IP+SNI matching — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - ZCC Z-Tunnel 1.0 vs 2.0 mechanics — [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md)
 - ZCC Forwarding Profile — per-app routing, trusted networks, ZPA segment forwarding — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)

@@ -1,0 +1,318 @@
+{
+  "schema_version": 1,
+  "id": "zia.locations.inheritance",
+  "title": "Which location settings a sublocation has of its own and which it takes from the parent",
+  "aliases": [
+    "sublocation inherit",
+    "sublocation settings",
+    "sublocation firewall",
+    "sublocation xff read-only",
+    "top applicableTo",
+    "ip surrogate sublocation",
+    "sublocation authentication"
+  ],
+  "binds": [
+    "zia/sublocations",
+    "zia/locations"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.locations.sublocations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.ip-scoping"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.surrogate-ip"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.location-enforcement"
+    }
+  ],
+  "claims": {
+    "parent-only-fields": {
+      "statement": "The OpenAPI schema marks `ofwEnabled` (Enable Firewall), `ipsControl`, `xffForwardEnabled`, `ports`, `vpnCredentials`, `ipv6Enabled` and `ipv6Dns64Prefix` as applying to top-level locations only. For a sublocation `xffForwardEnabled` is read-only and inherited from the parent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/ofwEnabled",
+          "expect": {
+            "x-applicableTo": "TOP"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/ipsControl",
+          "expect": {
+            "x-applicableTo": "TOP"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/ports",
+          "expect": {
+            "x-applicableTo": "TOP"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/vpnCredentials",
+          "expect": {
+            "x-applicableTo": "TOP"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/ipv6Enabled",
+          "expect": {
+            "x-applicableTo": "TOP"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/ipv6Dns64Prefix",
+          "expect": {
+            "x-applicableTo": "TOP"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/xffForwardEnabled",
+          "expect": {
+            "x-applicableTo": "TOP",
+            "description": "<p>Enable XFF Forwarding for a location. When set to true, traffic is passed to Zscaler Cloud via the X-Forwarded-For (XFF) header.</p><p><b>Note:</b> For sub-locations, this attribute is a read-only field as the  value is inherited from the parent location.</p>"
+          }
+        }
+      ],
+      "binds": [
+        "zia/locations#ofwEnabled",
+        "zia/locations#ipsControl",
+        "zia/locations#xffForwardEnabled"
+      ]
+    },
+    "shared-fields": {
+      "statement": "The schema applies `authRequired`, `aupEnabled`, `cautionEnabled`, `surrogateIP`, `upBandwidth`, `dnBandwidth`, `profile` and `ipAddresses` to both parent locations and sublocations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/authRequired",
+          "expect": {
+            "x-applicableTo": "BOTH"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/aupEnabled",
+          "expect": {
+            "x-applicableTo": "BOTH"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/cautionEnabled",
+          "expect": {
+            "x-applicableTo": "BOTH"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/surrogateIP",
+          "expect": {
+            "x-applicableTo": "BOTH"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/upBandwidth",
+          "expect": {
+            "x-applicableTo": "BOTH"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/dnBandwidth",
+          "expect": {
+            "x-applicableTo": "BOTH"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/profile",
+          "expect": {
+            "x-applicableTo": "BOTH"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/ipAddresses",
+          "expect": {
+            "x-applicableTo": "BOTH"
+          }
+        }
+      ],
+      "binds": [
+        "zia/locations#authRequired",
+        "zia/locations#surrogateIP"
+      ]
+    },
+    "surrogate-not-inherited": {
+      "statement": "A sublocation does not inherit its parent's IP Surrogate setting; it is configured on the sublocation separately, and its Idle Time to Disassociation and known-browser options are set there.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-locations.md",
+          "quotes": [
+            "Enable IP Surrogate: If you enabled Enforce Authentication, select this option if you want to map users to device IP addresses. Any sublocations associated with this location do not inherit this setting."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-sublocations.md",
+          "quotes": [
+            "Enable IP Surrogate: If you enabled Enforce Authentication, select this option if you want to map users to device IP addresses for a sublocation."
+          ]
+        }
+      ]
+    },
+    "sublocation-auth-per-sublocation": {
+      "statement": "Enforce Authentication is a per-sublocation setting, which is what lets a corporate sublocation authenticate while a guest sublocation under the same tunnel does not.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-sublocations.md",
+          "quotes": [
+            "Enforce authentication on the internal corporate network, while disabling it for the guest network."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-sublocations.md",
+          "quotes": [
+            "Enforce Authentication: Enable to require users from this location to authenticate to the service."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/locations#authRequired"
+      ]
+    },
+    "console-sublocation-firewall-toggles": {
+      "statement": "The Add Sublocation window offers Enforce Firewall Control and Enable IPS Control among its Gateway Options.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-sublocations.md",
+          "quotes": [
+            "Enforce Firewall Control: Select to enable the service's firewall controls.",
+            "Enable IPS Control: If you enabled Enforce Firewall Control, select to enable the service's IPS controls."
+          ]
+        }
+      ],
+      "gaps": [
+        "sublocation-firewall-source"
+      ]
+    }
+  },
+  "divergences": {
+    "sublocation-firewall-and-ips": {
+      "summary": "The console presents firewall and IPS enablement as sublocation settings, while the API schema limits them to top-level locations.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-sublocations.md",
+            "quotes": [
+              "Enforce Firewall Control: Select to enable the service's firewall controls."
+            ]
+          },
+          "says": "Enforce Firewall Control and Enable IPS Control are set in the Add Sublocation window."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/ofwEnabled",
+            "expect": {
+              "x-applicableTo": "TOP"
+            }
+          },
+          "says": "`ofwEnabled` is marked as applying to top-level locations only (TOP)."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/ipsControl",
+            "expect": {
+              "x-applicableTo": "TOP"
+            }
+          },
+          "says": "`ipsControl` is likewise marked top-level only (TOP)."
+        }
+      ],
+      "impact": "An agent or script that sets `ofwEnabled` on a sublocation through the API may be writing a value that is ignored or overridden, and a legacy note that sublocations carry their own firewall flag is not safe to repeat."
+    }
+  },
+  "gaps": {
+    "inherit-everything": {
+      "kind": "semantic",
+      "title": "Whether a new sublocation starts from the parent's settings",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"A newly created sublocation does not automatically pick up the parent's auth, firewall, or SSL settings\" and \"A newly created sublocation does not inherit the parent's `auth_required`, `ofw_enabled`, `ssl_scan_enabled`, or other toggles. Each sublocation must be explicitly configured.\" Only IP Surrogate is documented as not inherited (surrogate-not-inherited); `xffForwardEnabled` is documented as inherited, and `ofwEnabled` is parent-only in the schema. Resolve by creating a sublocation through the API and comparing it to its parent.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "about": [
+        "zia/sublocations"
+      ]
+    },
+    "sublocation-firewall-source": {
+      "kind": "semantic",
+      "title": "Where a sublocation's firewall enablement comes from",
+      "status": "open",
+      "detail": "The schema marks `ofwEnabled` and `ipsControl` as parent-only while the console offers both on a sublocation (see the divergence). Whether the sublocation's value is stored, ignored, or inherited, and which one the firewall rules honor for sublocation traffic, is not stated. Resolve by reading a sublocation's `ofwEnabled` after changing the parent and the sublocation in turn.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "about": [
+        "zia/locations#ofwEnabled",
+        "zia.firewall"
+      ],
+      "blocks": "stating whether a location-scoped firewall rule can reach a sublocation's traffic"
+    }
+  }
+}

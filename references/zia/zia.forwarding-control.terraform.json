@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "id": "zia.forwarding-control.terraform",
+  "title": "Terraform behavior of ZPA-method forwarding rules",
+  "aliases": [
+    "60 second delay zpa forwarding rule",
+    "no longer an active Source IP Anchored App Segment",
+    "forwarding control terraform retry"
+  ],
+  "binds": [
+    "zia/forwarding-rules#forwardMethod"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.forwarding-control.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.zpa-gateway"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order"
+    }
+  ],
+  "claims": {
+    "zpa-delay": {
+      "statement": "When a forwarding rule's planned method is ZPA, the provider sleeps 60 seconds before creating or updating it. The provider's documentation gives the reason as letting ZIA and ZPA synchronize and replicate resource IDs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "// Sleep for 60 seconds before invoking Create"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "// Sleep for 60 seconds before invoking Update"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_forwarding_control_rule.md",
+          "quotes": [
+            "now pauses for 60 seconds before proceeding with the create or update process whenever the `forward_method` attribute is set to `ZPA`.",
+            "ensures that ZIA and ZPA have sufficient time to synchronize and replicate the necessary resource IDs"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#forwardMethod"
+      ]
+    },
+    "zpa-retry": {
+      "statement": "For ZPA-method rules, a 400 response containing \"is no longer an active Source IP Anchored App Segment\" is retried, up to three attempts in all, with a 30 second wait after each failed attempt, on both create and update.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "strings.Contains(respErr.Message, \"is no longer an active Source IP Anchored App Segment\")",
+            "time.Sleep(30 * time.Second) // Wait for 30 seconds before retrying"
+          ],
+          "after": "func resourceForwardingControlRuleCreate("
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "strings.Contains(respErr.Message, \"is no longer an active Source IP Anchored App Segment\")",
+            "time.Sleep(30 * time.Second) // Wait for 30 seconds before retrying"
+          ],
+          "after": "func resourceForwardingControlRuleUpdate("
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_forwarding_control_rule.md",
+          "quotes": [
+            "the provider will retry the resource creation or update up to 3 times, waiting 30 seconds between each retry."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#forwardMethod"
+      ]
+    },
+    "other-methods-unaffected": {
+      "statement": "The delay and retry do not apply to forwarding rules with other methods such as DIRECT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_forwarding_control_rule.md",
+          "quotes": [
+            "This behavior does not affect forwarding rules configured with other forward_methods such as `DIRECT`."
+          ]
+        }
+      ]
+    }
+  }
+}

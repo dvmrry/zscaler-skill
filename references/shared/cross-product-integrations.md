@@ -10,7 +10,7 @@ sources:
   - "kb:zia.ssl-inspection"
   - "kb:zia.cloud-app-control"
   - "kb:zia.url-filtering"
-  - "references/zia/malware-and-atp.md"
+  - "kb:zia.atp"
   - "references/zpa/app-segments.md"
   - "references/zpa/policy-precedence.md"
   - "references/zcc/forwarding-profile.md"
@@ -95,7 +95,7 @@ Fields on ZPA objects that invoke ZIA processing.
 
 ZPA Access Policy rules can gate on ZIA-computed user-risk signals.
 
-**`RISK_FACTOR_TYPE` condition in ZPA Access Policy** pulls the user's risk score from ZIA's Security Dashboard (see `references/zia/malware-and-atp.md` for what contributes — Page Risk score, ATP detections, Suspicious Content Protection). Lets a ZPA rule say "block this user from reaching the app if their ZIA user risk is elevated."
+**`RISK_FACTOR_TYPE` condition in ZPA Access Policy** pulls the user's risk score from ZIA's Security Dashboard (see `kb:zia.atp` for what contributes — Page Risk score, ATP detections, Suspicious Content Protection). Lets a ZPA rule say "block this user from reaching the app if their ZIA user risk is elevated."
 
 **Prerequisite**: the tenant must use both products, and the user must have enough ZIA activity for a risk score to exist. Users with no ZIA history get a default-low score — the rule never fires for them. See [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md).
 
@@ -246,7 +246,7 @@ See [`../cloud-connector/overview.md § Cloud Connector vs App Connector`](../cl
 
 **ATP's AI/ML tools reclassify uncategorized URLs into Botnet Protection or Fraud Protection (Phishing) categories.** When enabled, this silently changes what category a URL "belongs to" — which is the input to URL Filtering's rule evaluation.
 
-A URL that was `MISCELLANEOUS_OR_UNKNOWN` yesterday and matched no URL Filtering rule can be recategorized to "Phishing" today and block unexpectedly. See [`../zia/malware-and-atp.md § AI/ML-driven recategorization`](../zia/malware-and-atp.md).
+A URL that was `MISCELLANEOUS_OR_UNKNOWN` yesterday and matched no URL Filtering rule can be recategorized to "Phishing" today and block unexpectedly. See [`zia.atp`](kb:zia.atp).
 
 **Failure mode**: operator reports "users could reach this URL last week and now can't" — no rule changed, but ATP's AI/ML classifier updated the URL's category. Check the Security Dashboard for recent ATP recategorizations before assuming a rule edit.
 
@@ -330,7 +330,7 @@ Routing hints for question patterns that often hit these hooks. Use this section
 | "CAC can't tell apart these two Google apps" | SSL Inspection bypass prevents app identification | [`zia.cloud-app-control`](kb:zia.cloud-app-control) |
 | "DLP/Sandbox/Malware aren't catching this" | SSL Inspection bypass for the URL's category | [`zia.ssl-inspection`](kb:zia.ssl-inspection) |
 | "macOS users see cert errors but Windows doesn't" | `install_ssl_certs` per-platform on Web Policy | [`../zcc/web-policy.md`](../zcc/web-policy.md) |
-| "URL was accessible last week, blocked now, no rule change" | ATP AI/ML recategorized to Botnet or Phishing | [`../zia/malware-and-atp.md § AI/ML-driven recategorization`](../zia/malware-and-atp.md) |
+| "URL was accessible last week, blocked now, no rule change" | ATP AI/ML recategorized to Botnet or Phishing | [`zia.atp`](kb:zia.atp) |
 | "Conditional / Require Approval rule doesn't fire for GRE users" | Step-up auth needs ZCC forwarding, not GRE | [`zia.url-filtering`](kb:zia.url-filtering) and `../zpa/policy-precedence.md` |
 | "Activated my ZIA rule, still not working" | Activation gate — `GET /status` — or quota/validation activation failure | [`./activation.md`](./activation.md) |
 | "Changes propagated for ZPA but not ZIA" | Product-specific activation model — not a bug | [`./activation.md`](./activation.md) |
@@ -374,7 +374,7 @@ Three themes show up across the hooks:
 - ZIA SSL inspection — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - ZIA URL filtering — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZIA CAC — [`zia.cloud-app-control`](kb:zia.cloud-app-control)
-- ZIA Malware Protection / ATP — [`../zia/malware-and-atp.md`](../zia/malware-and-atp.md)
+- ZIA Malware Protection / ATP — [`zia.atp`](kb:zia.atp)
 - ZPA app segments — [`../zpa/app-segments.md`](../zpa/app-segments.md)
 - ZPA policy precedence — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
 - ZCC forwarding profile — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)

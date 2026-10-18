@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "id": "zia.forwarding-control",
+  "title": "ZIA Forwarding Control and Source IP Anchoring",
+  "aliases": [
+    "forwarding control",
+    "forwarding control policy",
+    "zia forwarding rules",
+    "egress routing",
+    "source ip anchoring",
+    "sipa"
+  ],
+  "binds": [
+    "zia/forwarding-rules"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.forwarding-control.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.predefined-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.zpa-gateway"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.sipa"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.sipa-direct"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.terraform"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.byoip"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.proxy-ports"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.dns-control.predefined-rules"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.terraform.field-fidelity"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.firewall.traffic-path"
+    }
+  ],
+  "claims": {
+    "overview": {
+      "statement": "Forwarding Control policy forwards selected Zscaler traffic to specific endpoints: directly, through a third-party proxy service, through a Zscaler-assigned dedicated IP address or GeoIP address, or to a Private Access App Connector through a Private Access gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "quotes": [
+            "Zscaler uses forwarding control policies to forward selective Zscaler traffic to specific endpoints.",
+            "You can also configure rules to forward application traffic to a Private Access (ZPA) App Connector via Private Access gateways."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/forwarding-rules#forwardMethod"
+      ]
+    }
+  },
+  "gaps": {
+    "pipeline-position": {
+      "kind": "semantic",
+      "title": "Where Forwarding Control sits in the module order",
+      "status": "open",
+      "about": [
+        "zia/forwarding-rules"
+      ],
+      "detail": "Unverified legacy statement: \"Forwarding Control is the ZIA policy that decides what happens to traffic after inspection ... It sits at the end of the ZIA pipeline, after URL Filtering, SSL Inspection, CAC, DLP, and all other content-inspection modules have had their say.\" The legacy diagram ordered Firewall Control, SSL Inspection, URL Filtering/CAC/DLP/Sandbox/Malware/ATP, then Forwarding Control, then egress. No captured source states that order. The Source IP Anchoring help says only that anchored traffic is forwarded to Private Access through the threat and data protection engines. Resolve by a lab trace of a Forwarding Control rule against a blocking URL Filtering or DLP rule on the same flow, or a vendor statement of the order.",
+      "blocks": "answering whether a Forwarding Control rule can send traffic out before a content rule has judged it, for methods other than ZPA",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

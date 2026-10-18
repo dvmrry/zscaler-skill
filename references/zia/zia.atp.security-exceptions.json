@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "id": "zia.atp.security-exceptions",
+  "title": "ATP Security Exceptions (the allowlist): what it skips and what it does not",
+  "aliases": [
+    "atp allowlist",
+    "security exceptions",
+    "bypassUrls",
+    "atp bypass urls",
+    "allowlist cryptomining",
+    "exempt from atp",
+    "allowlist skips sandbox"
+  ],
+  "binds": [
+    "zia/security-exceptions"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.atp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.blocked-urls"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.enforcement-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.malware-protection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.blocked-countries"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.api-surface"
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "Trusted partner or vendor sites whose webmail or file downloads might be blocked by antivirus, anti-spyware or anti-malware policies can be exempted from inspection by adding them to the ATP security exceptions list; users can then download content from those URLs without the traffic being inspected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.md",
+          "quotes": [
+            "You can exempt these sites from inspection by adding them to the ATP security exceptions list. The service allows users to download content from these URLs without inspecting the traffic."
+          ]
+        }
+      ]
+    },
+    "precedence-over-options": {
+      "statement": "URLs on the allowlist take precedence over the ATP options on the policy page: an allowlisted URL hosted on a web server in a blocked country is still reachable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.md",
+          "quotes": [
+            "URLs on the allowlist take precedence over all the following options. For example, if a URL on the allowlist is hosted on a web server in a blocked country, the service allows users to download content from that website."
+          ]
+        }
+      ]
+    },
+    "skips-mp-atp-sandbox": {
+      "statement": "A URL in Security Exceptions makes the Public Service Edge skip the Malware Protection, Advanced Threat Protection and Sandbox policies for that transaction.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "If the URL is included under Security Exceptions, the Public Service Edge skips over the Malware Protection, Advanced Threat Protection, and Sandbox policies listed."
+          ],
+          "after": "This is a user request to retrieve a resource from the web (e.g., a web page)."
+        }
+      ]
+    },
+    "exempt-from-all-scanning": {
+      "statement": "Allowlisted sites are exempted from any form of security scanning, so Zscaler recommends keeping the number of trusted sites on the allowlist to a minimum. Specific cryptomining destinations are a named use of exceptions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-advanced-threat-protection-policy.md",
+          "quotes": [
+            "Security exceptions can be used to exempt and allowlist specific cryptomining destinations.",
+            "However, sites on the allowlist are exempted from any form of security scanning. Therefore, Zscaler recommends keeping the number of trusted sites on the allowlist to a minimum."
+          ]
+        }
+      ]
+    },
+    "shared-list": {
+      "statement": "The allowlist is entered as Do Not Scan Content from these URLs on the Security Exceptions tab of either the Malware Protection or the ATP page, and it also applies to Sandbox. The Malware Protection page says the same allowlist applies to ATP and Sandbox.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-urls-allowlist.md",
+          "quotes": [
+            "In Do Not Scan Content from these URLs, enter the URLs you want to allowlist and click Add Items.",
+            "This allowlist also applies to the Sandbox policy."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-security-exceptions-malware-protection-policy.md",
+          "quotes": [
+            "This allowlist also applies to the Advanced Threat Protection and Sandbox policies."
+          ]
+        }
+      ]
+    },
+    "allowlist-capacity": {
+      "statement": "The allowlist holds up to 1,024 URLs, shows up to 500 items per page, and can be cleared with Remove All or one page at a time with Remove Page. This is far smaller than the 25K Blocked Malicious URLs list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-urls-allowlist.md",
+          "quotes": [
+            "You can add up to 1,024 URLs.",
+            "remove all items from the list (Remove All) or only items from a specific page (Remove Page)."
+          ]
+        }
+      ]
+    },
+    "url-filtering-separate": {
+      "statement": "URL Filtering is exempted by a separate procedure from the scan allowlist: the URLs go in a custom URL category with a URL Filtering Allow rule ordered above the rule that blocks them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-urls-allowlist.md",
+          "quotes": [
+            "You can exempt URLs from security scans, URL filtering, or both.",
+            "Configure a URL Filtering rule to allow the custom URL category.",
+            "Ensure that the rule order of this rule is higher than the URL Filtering rule that blocks these URLs."
+          ]
+        }
+      ]
+    },
+    "wire-allowlist": {
+      "statement": "The API object is securityExceptions, whose required bypassUrls array the spec describes as allowlist URLs not inspected by the ATP policy. It is read with GET and written with PUT of the whole list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1securityExceptions/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "required": [
+              "bypassUrls"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1securityExceptions/get/responses/200/content/application~1json/schema/properties/bypassUrls",
+          "expect": {
+            "description": "Allowlist URLs that are not inspected by the ATP policy",
+            "type": "array"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/atp_policy.py",
+          "quotes": [
+            "payload = {\"bypassUrls\": bypass_urls}"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/atp_settings.py",
+          "quotes": [
+            "Full bypass-URL allowlist (replaces existing list)."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/security-exceptions#bypassUrls"
+      ],
+      "conditions": "The spec and Go comment describe this as the ATP list; that it is the same list the Malware Protection tab edits rests on the shared-list claim.",
+      "gaps": [
+        "empty-replacement"
+      ]
+    }
+  },
+  "divergences": {
+    "allowlist-vs-url-filtering-order": {
+      "summary": "Whether the Security Exceptions allowlist applies to URL Filtering.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "adding-urls-allowlist.md",
+            "quotes": [
+              "The allowlist applies to Malware Protection, Advanced Threat Protection, Sandbox, and URL Filtering policies."
+            ]
+          },
+          "says": "The allowlist applies to URL Filtering as well as the security policies."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "Understanding_Policy_Enforcement.txt",
+            "quotes": [
+              "3. URL Filtering:",
+              "4. Security Exceptions:"
+            ],
+            "after": "This is a user request to retrieve a resource from the web (e.g., a web page)."
+          },
+          "says": "URL Filtering is step 3 and Security Exceptions step 4 of the GET request order, so URL Filtering is evaluated before the exception can skip anything."
+        }
+      ],
+      "impact": "Do not tell an operator that a Security Exceptions entry stops a URL Filtering block; use the custom category and Allow rule procedure."
+    },
+    "allowlist-vs-malicious-url-check": {
+      "summary": "Whether an allowlisted URL is still stopped by the Blocked Malicious URLs list.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-advanced-threat-protection-policy.md",
+            "quotes": [
+              "URLs on the allowlist take precedence over all the following options."
+            ]
+          },
+          "says": "The allowlist takes precedence over all the options listed after it, which include Blocked Malicious URLs."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "Understanding_Policy_Enforcement.txt",
+            "quotes": [
+              "1. Custom Malicious URLs (Advanced Threat Protection)",
+              "4. Security Exceptions:"
+            ],
+            "after": "This is a user request to retrieve a resource from the web (e.g., a web page)."
+          },
+          "says": "In the GET request order the custom malicious URL (denylist) check is step 1 and Security Exceptions is step 4, so the denylist is checked before the exception can skip anything."
+        }
+      ],
+      "impact": "A URL on both the denylist and the allowlist may still be blocked on the request. Do not tell an operator that adding a URL to Security Exceptions overrides an entry in Blocked Malicious URLs."
+    }
+  },
+  "gaps": {
+    "empty-replacement": {
+      "kind": "semantic",
+      "title": "Whether PUT with an empty bypassUrls list clears every exception",
+      "status": "open",
+      "about": [
+        "zia/security-exceptions#bypassUrls"
+      ],
+      "detail": "The Python SDK and MCP server send the whole list as a replacement, so an empty list is sent as the full payload. No source states the server result as clearing all exceptions.",
+      "blocks": "Whether a write built from an empty list removes every exception.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "order-vs-allowlist-live": {
+      "kind": "semantic",
+      "title": "Observed result for a URL on both the denylist and the allowlist",
+      "status": "open",
+      "about": [
+        "zia.atp.security-exceptions:allowlist-vs-malicious-url-check"
+      ],
+      "detail": "The help page and the enforcement-order document disagree about the allowlist and the custom malicious URL check. No source shows what a tenant does for a URL on both lists.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

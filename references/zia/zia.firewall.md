@@ -11,6 +11,6 @@ When traffic is blocked and no URL Filtering rule explains it, the cause is ofte
 
 Two settings gate everything else. {{per-location}} And the ports matter: {{default-ports}} What the service does with traffic on a non-default port is not stated by the sources; see the gap below.
 
-**FTP Control** is the fifth surface in the firewall section. {{ftp-sits-in-firewall}} {{ftp-default}} {{ftp-passive-only}} {{ftp-url-filtering-precedence}} The actions and scoping of FTP Control rules are not in the captures; see the gap.
+**FTP Control** is the fifth surface in the firewall section. {{ftp-sits-in-firewall}} {{ftp-default}} {{ftp-passive-only}} {{ftp-url-filtering-precedence}} FTP Control itself is a settings object with no per-user rules: see [[zia.ftp-control]].
 
 What to check: whether the location has the firewall enabled at all, whether the tenant is licensed for the criterion the rule needs, and whether the traffic is on a port the service treats as HTTP, DNS or FTP.
