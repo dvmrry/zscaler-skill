@@ -45,6 +45,13 @@
         "provider-field-requirements",
         "dest-fields-gate"
       ]
+    },
+    {
+      "do": "When a rule exists but forwards unexpectedly, read its `forwardMethod` from the tenant before reasoning about its other fields, since the method decides which of them are required, allowed or ignored.",
+      "uses": [
+        "provider-field-requirements",
+        "dest-fields-gate"
+      ]
     }
   ],
   "claims": {
@@ -236,6 +243,18 @@
         "zia/forwarding-rules#destIpCategories"
       ],
       "conditions": "Terraform plan-time validation. The check does not cover `dest_ip_groups`, `dest_ipv6_groups` or `res_categories`."
+    },
+    "provider-exceeds-console": {
+      "statement": "The Terraform provider's accepted forward_method values include INVALID, ZIA, ECZPA, ECSELF and DROP, none of which is among the methods the console offers (ZPA, Direct, Proxy Chaining, Dedicated IP, GeoIP).",
+      "tier": "B",
+      "derived_from": [
+        "console-methods",
+        "enum-values"
+      ],
+      "conditions": "Compares the provider's value list with the console method list captured from the help page; the help page lists the drop-down choices but does not say the list is exhaustive.",
+      "binds": [
+        "zia/forwarding-rules#forwardMethod"
+      ]
     }
   },
   "divergences": {

@@ -760,6 +760,33 @@
           "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
         }
       ]
+    },
+    "v1-backend-serves-tenants-without-v2": {
+      "statement": "The ZCC provider's trusted-network resource calls the SDK's v1 create (`CreateTrustedNetwork`) only from its v1 backend, which serves tenants where the v2 trusted-networks endpoints are not enabled: the first trusted-network operation probes the v2 list endpoint once and caches the verdict for the provider's SDK service handle.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/tnbackend.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "resource and data source keep working on tenants where the newer",
+            "trusted-network operation probes the v2 list endpoint once and caches"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/backend_v1.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "created, _, err := tnv1.CreateTrustedNetwork(ctx, b.svc, payload)"
+          ]
+        }
+      ]
     }
   },
   "gaps": {

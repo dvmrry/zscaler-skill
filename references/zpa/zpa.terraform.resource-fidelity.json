@@ -765,6 +765,47 @@
           "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
         }
       ]
+    },
+    "assistant-schedules-share-one-shape": {
+      "statement": "The App Connector and Service Edge assistant schedule SDK packages define the same schedule type and the same UpdateSchedule checks (interval validation and a refusal to update a disabled schedule), and differ in the endpoint, /connectorSchedule and /serviceEdgeSchedule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "scheduleEndpoint = \"/connectorSchedule\"",
+            "validIntervals := map[string]bool{\"5\": true, \"7\": true, \"14\": true, \"30\": true, \"60\": true, \"90\": true}",
+            "return nil, fmt.Errorf(\"cannot update a disabled schedule\")"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgeschedule/serviceedgeschedule.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "scheduleEndpoint = \"/serviceEdgeSchedule\"",
+            "validIntervals := map[string]bool{\"5\": true, \"7\": true, \"14\": true, \"30\": true, \"60\": true, \"90\": true}",
+            "return nil, fmt.Errorf(\"cannot update a disabled schedule\")"
+          ]
+        }
+      ]
+    },
+    "stale-state-hides-out-of-band-removal": {
+      "statement": "Where a Read sets a block only inside a condition on the response, a block or capability removed out of band leaves the previous value in state, so a plan can show no difference from a configuration that still holds it.",
+      "tier": "B",
+      "derived_from": [
+        "capabilities-read-never-clears",
+        "pra-console-read-never-clears-application"
+      ],
+      "conditions": "Assumes the plan compares the configuration with the refreshed state and that the configuration still holds the removed value; that plan behavior is Terraform core, not shown by these sources."
     }
   },
   "gaps": {
@@ -777,6 +818,16 @@
       ],
       "blocks": "saying whether an ordinary server group update blanks, keeps or rejects the name",
       "detail": "The client sends no name member when only other attributes changed. Whether ZPA keeps the stored name, clears it or returns an error is not shown by any captured source. Test in a scratch tenant: change only the description of a server group through Terraform and re-read the name."
+    },
+    "api-approval-window-validation": {
+      "kind": "semantic",
+      "title": "Whether the ZPA API rejects a privileged approval whose end is before its start",
+      "status": "open",
+      "blocks": "saying whether a backwards approval window is caught at all",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified statement: The approval validator runs at apply, so a backwards window is reported by the API, if at all, not by the provider. The provider validator is read in pra-approval-end-not-checked-against-start; the OpenAPI approval operations give startTime and endTime as plain integers with no stated ordering rule. What would resolve it: create an approval with an end before its start in a scratch tenant and record the response."
     }
   }
 }

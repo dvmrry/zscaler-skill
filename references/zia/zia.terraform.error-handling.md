@@ -8,9 +8,9 @@ The ZIA provider (writes it makes are activated separately, see [[zia.terraform.
 
 **Create retries and starting order.** {{create-reposts-after-read-error}} {{create-reposts-after-read-error-sites}} {{duplicate-post-result}} {{create-order-from-ignored-list-error}} {{create-order-from-ignored-list-error-sites}} Where a rule ends up afterwards is decided by the reorder worker; see [[zia.terraform.rule-order]].
 
-**Crashes on update.** {{sandbox-update-index-after-logged-error}} {{update-index-panic-sites}} URL Filtering is covered in [[zia.terraform.rule-order]].
+**Crashes on update.** {{sandbox-update-index-after-logged-error}} {{update-index-panic-sites}} {{update-parks-at-last-rule-order}} URL Filtering is covered in [[zia.terraform.rule-order]].
 
-**Empty update replies.** {{rule-labels-update-same-assertion}} {{empty-body-panic-sites}} The mechanism and the URL Filtering instance are in [[zia.sdk-go.write-encoding]].
+**Empty update replies.** {{rule-labels-update-same-assertion}} {{empty-body-panic-sites}} {{empty-reply-panic-follows-server-answer}} The mechanism and the URL Filtering instance are in [[zia.sdk-go.write-encoding]].
 
 **DLP web rule create.** {{dlp-web-subrule-create-nil-deref-under-lock}} {{dlp-web-lock-not-released-on-error}}
 

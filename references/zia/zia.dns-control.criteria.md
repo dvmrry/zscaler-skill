@@ -1,4 +1,4 @@
-{{condition-list}} {{console-dns-conditions}} {{condition-logic}} {{unset-ignored}} {{limits-32}}
+{{condition-list}} {{scope-reference-fields}} {{console-dns-conditions}} {{condition-logic}} {{unset-ignored}} {{limits-32}}
 
 {{request-types-field}} {{res-categories-field}} The mapping between the console's resolved-IP conditions and those fields is open {{gap:resolved-ip-field-mapping}}. Whether identity criteria need Advanced Firewall is open {{gap:advanced-firewall-criteria}}.
 

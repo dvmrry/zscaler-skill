@@ -10,4 +10,4 @@ The Blocked Malicious URLs list is the tenant's own denylist inside ATP. It is n
 
 **The Go comment.** The Go field comment calls the list an allowlist {{divergence:go-comment-says-allowlist}}.
 
-The check is the first ATP check on an HTTP request: [[zia.atp.enforcement-order]].
+{{first-request-check}} The full order is in [[zia.atp.enforcement-order]].

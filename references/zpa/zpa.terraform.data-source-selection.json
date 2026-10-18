@@ -596,6 +596,48 @@
         "by-type-takes-first-element"
       ],
       "conditions": "Follows from the quoted control flow. Whether a wrong object is a security problem depends on what the configuration does with its ID (for example attaching it to an access policy or application segment); that is not shown by this code."
+    },
+    "id-wins-name-ignored": {
+      "statement": "The CBI certificate, SCIM group and location summary data sources look up by `id` when it is non-empty and run the `name` lookup only otherwise, so a `name` given with an `id` is not used for the lookup and no error reports it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_cloud_browser_isolation_certificate.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if idOk && id != \"\" {",
+            "} else if nameOk && name != \"\" {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_scim_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if idExists && id != \"\" {",
+            "} else if nameExists && name != \"\" && idpResp != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_location_controller_summary.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if idOk && id != \"\" {",
+            "} else if nameOk && name != \"\" {"
+          ]
+        }
+      ]
     }
   },
   "gaps": {

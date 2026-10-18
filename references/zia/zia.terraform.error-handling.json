@@ -546,6 +546,47 @@
           "note": "Filing 5 (success-shaped errors and panics) of the 2026-08 provider audit."
         }
       ]
+    },
+    "update-parks-at-last-rule-order": {
+      "statement": "In the sandbox rules and firewall DNS rules update paths, the order of the last rule in the sorted list of existing rules is taken as `nextAvailableOrder`, and the rule is then updated with rank 7 and that order, so it is parked at the end of the policy before the reorder helper is called. The same three-line sequence follows the same index in the other rule resources listed under the index-panic claim.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "req.Rank = 7",
+            "req.Order = nextAvailableOrder"
+          ],
+          "after": "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_dns_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "req.Rank = 7",
+            "req.Order = nextAvailableOrder"
+          ],
+          "after": "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
+        }
+      ]
+    },
+    "empty-reply-panic-follows-server-answer": {
+      "statement": "The nil dereference on an empty update reply happens after the SDK has received the server's answer to the PUT, so the panic cannot undo a change the server has already applied.",
+      "tier": "B",
+      "derived_from": [
+        "zia.sdk-go.write-encoding:empty-body-nil-nil",
+        "empty-body-panic-sites"
+      ],
+      "conditions": "Assumes the empty body arrives with a success status such as 204, which is the case the helper treats as a nil result with a nil error; whether any ZIA update endpoint answers that way is open (gap zia.sdk-go.write-encoding:rule-update-empty-body)."
     }
   },
   "gaps": {

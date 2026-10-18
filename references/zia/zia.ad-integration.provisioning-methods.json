@@ -141,6 +141,22 @@
           ]
         }
       ]
+    },
+    "pairing-consequences": {
+      "statement": "Under the pairing table a tenant that provisions by SCIM can authenticate with SAML only, and directory server synchronization offers LDAP BIND, one-time link and one-time token, so it offers neither SAML nor Kerberos.",
+      "tier": "B",
+      "derived_from": [
+        "auth-pairing"
+      ],
+      "conditions": "Reads the pairing table as exhaustive: a method not listed for a provisioning method is not offered with it."
+    },
+    "zab-to-scim-cutover": {
+      "statement": "A tenant moving from ZAB provisioning to SCIM cannot run both at once: SCIM cannot be enabled on any IdP while the ZAB is used for provisioning, so the move is a cutover rather than an overlap.",
+      "tier": "B",
+      "derived_from": [
+        "zab-exclusions"
+      ],
+      "conditions": "Assumes the ZAB is still the provisioning method until it is stopped; a ZAB used only to authenticate is not covered by the exclusion as worded."
     }
   }
 }

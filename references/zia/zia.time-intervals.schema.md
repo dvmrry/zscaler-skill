@@ -2,7 +2,7 @@
 
 **Times are minutes, not clock strings.** {{minutes-from-midnight}} What the API does with a string such as `"08:00"` is open {{gap:string-times}}. In the Go SDK, {{go-starttime-always-sent}}
 
-**Days.** {{days-values}}
+**Days.** {{days-values}} {{weekday-schedule-lists-days}}
 
 **One period only.** {{one-period}} {{weekly-recurrence-only}} For date exclusions such as holidays see [[zia.time-intervals.evaluation]].
 

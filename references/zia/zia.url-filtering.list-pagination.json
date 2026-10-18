@@ -146,6 +146,29 @@
           ]
         }
       ]
+    },
+    "zscalerctl-url-rules-reader-pages-100": {
+      "statement": "zscalerctl's URL Filtering rules reader requests pageSize 100 and advances until a page holds fewer than 100 records, and it fails rather than return a partial result when a later page fails or 1,000 full pages are returned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscalerctl",
+          "path": "docs/URL_FILTERING_PAGINATION_VALIDATION.md",
+          "quotes": [
+            "The reader requests `page=1&pageSize=100` and advances until a page contains fewer than 100 records.",
+            "It fails instead of returning a partial result when a later page fails or when 1,000 full pages are returned."
+          ]
+        }
+      ]
+    },
+    "incomplete-list-misleads-precedence": {
+      "statement": "Because evaluation stops at the first matching rule, a rule list that stops short can leave out rules that bear on which rule wins, so a precedence answer built from it can be wrong.",
+      "tier": "B",
+      "derived_from": [
+        "silent-truncation",
+        "zia.url-filtering.rule-order:first-match"
+      ],
+      "conditions": "Assumes the list is truncated; which rules are missing depends on the order the endpoint lists them in, which no source states."
     }
   },
   "gaps": {

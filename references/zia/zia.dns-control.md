@@ -1,6 +1,6 @@
 {{firewall-module}} {{scope}} Whether a URL Filtering block also affects resolution is open {{gap:url-filtering-independent}}. The web side is in [[zia.url-filtering]].
 
-{{firewall-prereq}} {{iterative-needs-config}}
+{{firewall-prereq}} {{dns-via-forwarding}} {{iterative-needs-config}}
 
 **Evaluation.** {{ascending-order}} {{disabled-skipped}} Whether a match stops evaluation is open {{gap:first-match}}. {{default-rules}} {{limits}}
 

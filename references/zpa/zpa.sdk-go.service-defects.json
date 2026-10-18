@@ -759,6 +759,39 @@
           "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
         }
       ]
+    },
+    "provisioning-key-api-requires-association-type": {
+      "statement": "In the ZPA OpenAPI document the provisioning-key list is GET .../associationType/{associationType}/provisioningKey, with associationType a required path parameter, so the documented list is per association type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1associationType~1{associationType}~1provisioningKey/get/parameters/[name=associationType]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        }
+      ]
+    },
+    "provider-segment-group-resource-writes-application-ids-only": {
+      "statement": "The provider's segment group resource declares each application with only an `id`, expands each one into a `segmentgroup.Application` with only its ID, and reads back only the ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "segmentGroupApplications[i] = segmentgroup.Application{\n\t\t\tID: segmentGroupItem[\"id\"].(string),",
+            "\"id\": segmentGroupApplication.ID,"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -791,6 +824,16 @@
       ],
       "blocks": "telling whether the sanitizer and the plus-encoded spaces cause missed lookups",
       "detail": "In a scratch tenant, create objects named with a space, `+`, and parentheses. Search each by exact name with `+` and with `%20` for spaces, with and without the characters the SDK strips, and record which requests return the object."
+    },
+    "panic-effect": {
+      "kind": "semantic",
+      "title": "Whether a panic in the provider ends the process or becomes a diagnostic",
+      "status": "open",
+      "blocks": "saying what an operator sees when a nil-pointer panic fires during a plan or apply",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified statement: A panic ends the provider process rather than producing a diagnostic. Neither the provider nor the Go SDK calls recover() at the pins, but what the Terraform plugin SDK does with a panic in a resource function is not in a registered source. What would resolve it: a provider test or a run that triggers one of the nil dereferences and records the Terraform output."
     }
   }
 }

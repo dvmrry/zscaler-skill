@@ -4,7 +4,7 @@ Sandbox rules decide what happens to a file the engine has not seen before, whic
 
 **Scope.** {{scope-fields}} {{zpa-uploads}} Which file types exist for the tenant's tier is in [[zia.sandbox.coverage]].
 
-**Order.** {{rule-ordering}}
+**Order.** {{rule-ordering}} Whether the first matching rule decides or later rules also apply is open {{gap:first-match-semantics}}.
 
 **Default rule.** {{default-rule-marker}} {{default-rule-last}} The provider hard-codes 127 for it, and whether the API reserves that slot is open {{gap:default-order-semantics}}. Reorder handling in the provider is in [[zia.terraform.rule-order]], and the update path that indexes an empty rule list is in [[zia.terraform.error-handling]].
 

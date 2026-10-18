@@ -4,6 +4,6 @@ Creation: {{manual-or-scheduled}} The page that lists them: {{page-columns}} Nam
 
 The cap: {{limit-12}} {{golden}}
 
-**At the cap.** {{manual-blocked-at-limit}} {{scheduled-evicts}}
+**At the cap.** {{manual-blocked-at-limit}} {{scheduled-evicts}} {{golden-survives-eviction}}
 
 A Backup & Restore category exists in the audit log filters: [[zia.audit-logs.what-is-recorded]]. What a restore does to the live configuration is in [[zia.backup-restore.restore-semantics]].

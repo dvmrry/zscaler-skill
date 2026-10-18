@@ -4,7 +4,7 @@ There are two layers of exemption, and they are managed in different places.
 
 **Through Terraform.** {{tf-list-resource}} Updating it reads the current list, then adds and removes the differences in separate calls, so a failure between them leaves the list half-changed: [[zia.terraform.multi-step-writes]].
 
-**Capacity.** {{shared-url-pool}}
+**Capacity.** {{shared-url-pool}} {{schema-cap-exceeds-pool-share}}
 
 **Per-method exemptions in advanced settings.** {{bypass-by-method}} Category-based exemptions rely on category membership, which is covered in [[zia.url-filtering]] and the category subjects it links.
 

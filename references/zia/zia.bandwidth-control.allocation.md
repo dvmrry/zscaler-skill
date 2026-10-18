@@ -1,6 +1,6 @@
 Minimum and maximum behave differently. {{min-max-meaning}}
 
-**Maximum is a standing cap.** {{max-always}}
+**Maximum is a standing cap.** {{max-always}} {{max-suppress-not-block}}
 
 **Minimum is a contention guarantee.** {{min-only-in-contention}} {{total-min-below-100}}
 

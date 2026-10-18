@@ -4,7 +4,7 @@ A Terraform attribute can be accepted, shown in a plan, and even stored in state
 
 **Forwarding control rules.** {{fwd-control-ipv6-eczpa-never-expanded}} {{fwd-control-update-drops-selectors}}
 
-**Selectors under the wrong key.** {{casb-dlp-excluded-domains-wrong-key}}
+**Selectors under the wrong key.** {{casb-dlp-excluded-domains-wrong-key}} {{casb-dlp-wrong-key-drops-scope-exclusion}}
 
 **Attributes with no SDK field.** {{cloud-nss-exclusions-dead}}
 

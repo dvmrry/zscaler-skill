@@ -1,4 +1,4 @@
-These are claims about the Go SDK's list helpers and the Terraform providers built on them, not about how ZPA, ZCC or ZTC behave. The helpers decide when a list is "finished" from the response they get.
+These are claims about the Go SDK's list helpers and the Terraform providers built on them, not about how ZPA, ZCC or ZTC behave. The helpers decide when a list is "finished" from the response they get. {{truncated-list-reads-as-absent-object}}
 
 **ZPA paging.** {{zpa-total-pages-parse-error-ignored}} {{zpa-loop-trusts-latest-total-pages}} {{zpa-post-search-same-parse}}
 

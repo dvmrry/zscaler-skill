@@ -1,4 +1,4 @@
-{{zpa-delay}}
+{{zpa-delay}} {{zpa-delay-expected}}
 
 {{zpa-retry}} The Private Access side of a persistent failure is in [[zia.forwarding-control.sipa]].
 

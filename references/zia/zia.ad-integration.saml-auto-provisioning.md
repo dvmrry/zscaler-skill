@@ -1,6 +1,6 @@
 SAML auto-provisioning also writes the user database. {{create-update}} {{scim-excludes}}
 
-{{response-limits}} {{attribute-scope}}
+{{response-limits}} {{attribute-scope}} {{no-other-assertion-attributes}}
 
 The org-level switch is [[zia.authentication.settings:auto-provision]], and the SAML service-provider and IdP reachability points are in [[zia.authentication.methods]].
 

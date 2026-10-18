@@ -1,6 +1,6 @@
 {{dnat-surface}} Whether NAT Control also does source NAT is open {{gap:source-nat-support}}.
 
-**The redirect.** {{redirect-targets}} {{res-categories}} {{no-action-field}} {{no-network-apps}} {{no-health-check}}
+**The redirect.** {{redirect-targets}} {{redirect-has-no-filtering-counterpart}} {{res-categories}} {{no-action-field}} {{no-network-apps}} {{no-health-check}}
 
 **The predefined DNS rule.** {{predefined-dns-rule}} {{trusted-resolver-rule}} {{nat-logs}}
 

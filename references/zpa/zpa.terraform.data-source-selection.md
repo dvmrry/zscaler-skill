@@ -2,7 +2,7 @@ A ZPA data source is a lookup, and its result is whatever object the provider ha
 
 ## Two selectors, one result
 
-{{id-and-name-both-run-name-wins}} {{overwrite-pattern-is-widespread}}
+{{id-and-name-both-run-name-wins}} {{overwrite-pattern-is-widespread}} {{id-wins-name-ignored}}
 
 **Name as fallback.** {{invalid-id-falls-back-to-name-region}} {{invalid-id-falls-back-to-name-isolation-profile}} {{id-fallback-only-two-sites}}
 

@@ -1,4 +1,4 @@
-{{groups}}
+{{groups}} {{toggles-tenant-wide-booleans}}
 
 **Malicious Active Content.** {{active-content}} The Blocked Malicious URLs list has its own subject: [[zia.atp.blocked-urls]].
 

@@ -1,4 +1,4 @@
-The ZPA provider orders policy rules differently from the ZIA provider described in [[zia.terraform.rule-order]]. The reorder resource computes one complete ordered list of rule IDs and replaces the policy set's order with a single request. {{sends-id-list-only}} {{synchronous-and-reports-failure}} {{delete-is-a-noop}}
+The ZPA provider orders policy rules differently from the ZIA provider described in [[zia.terraform.rule-order]]. The reorder resource computes one complete ordered list of rule IDs and replaces the policy set's order with a single request. {{sends-id-list-only}} {{synchronous-and-reports-failure}} {{delete-is-a-noop}} {{zia-zpa-failure-contrast}}
 
 **Sort order of the list.** {{comparator-managed-first}} {{default-rule-pinned-last-by-name}} {{map-holds-configured-rules}} {{unmanaged-rules-sent-below-managed}} {{terminal-rule-can-be-displaced}} {{configured-deception-rule-treated-as-unmanaged}}
 

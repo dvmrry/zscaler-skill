@@ -227,6 +227,15 @@
         "exhaustion-hid-api-error-before-3-8-43",
         "default-retries-connection-errors"
       ]
+    },
+    "replay-hazard-limited-to-writes": {
+      "statement": "Because the retry decision ignores the HTTP method, a GET is replayed on the same triggers as a POST or PUT, but the duplicate-change hazard needs a write the server may have committed: a replayed GET changes nothing on the server, and a request answered with 429 was declined rather than applied. The hazard is therefore confined to writes whose outcome the client did not see, or that failed with a retried 5xx or transport error.",
+      "tier": "B",
+      "derived_from": [
+        "retry-policy-ignores-method",
+        "write-replay-on-lost-response"
+      ],
+      "conditions": "Assumes GET handlers have no side effects and that a 429 is returned before the request is applied; neither was checked against a Zscaler API."
     }
   },
   "gaps": {

@@ -831,6 +831,51 @@
           "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
         }
       ]
+    },
+    "vzen-delete-comments-state-detach-intent": {
+      "statement": "The SDK's cluster delete is written to detach nodes before it deletes: its comments describe the PUT as a minimal update payload with empty `VirtualZenNodes` \"to detach\" and as an update \"to remove associations\", ahead of the DELETE step.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_clusters/vzen_clusters.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "// Step 2: Prepare minimal update payload with empty VirtualZenNodes to detach",
+            "// Step 3: Update the cluster to remove associations",
+            "// Step 4: Delete the cluster"
+          ],
+          "after": "func Delete(ctx context.Context, service *zscaler.Service, clusterID int) (*http.Response, error) {"
+        }
+      ]
+    },
+    "partial-apply-leaves-neither-old-nor-new": {
+      "statement": "When the second write of a delta update or of a custom category update fails, the object on the server holds neither its previous contents nor the intended ones: the additions are present while the entries meant to be removed remain, or the old entries are gone while the new ones are absent.",
+      "tier": "B",
+      "derived_from": [
+        "delta-partial-apply",
+        "custom-category-partial-state"
+      ],
+      "conditions": "Describes the server-side object after the second write fails. A following plan starts from that state only if it refreshes the resource from the API before comparing with configuration; the refresh behavior of these resources was not read."
+    },
+    "delta-lists-are-commonest-sequence": {
+      "statement": "Among the multi-request sequences found in the searched ZIA code, the list-by-delta shape is the most frequent: four sequences send ADD_TO_LIST and REMOVE_FROM_LIST writes (malicious URLs, exempted URLs, custom URL categories, predefined URL categories), two send paired writes to different endpoints (security policy lists, browser control), and Virtual Service Edge cluster deletion, static IP coordinate discovery and user enrollment are one sequence each.",
+      "tier": "B",
+      "derived_from": [
+        "multi-write-places",
+        "delta-helpers-read-then-add-then-remove",
+        "custom-category-remove-then-add",
+        "predefined-category-three-mutations",
+        "security-policy-urls-two-writes",
+        "browser-control-two-endpoint-write",
+        "vzen-delete-is-detach-update-delete",
+        "static-ip-temp-object-sequence",
+        "user-auth-enrollment-error-logged"
+      ],
+      "conditions": "A count over the sequences listed in multi-write-places and the claims above; it is exactly as complete as that search, and sequences are counted by the shape of their write pattern, not by number of resources or call sites."
     }
   },
   "gaps": {

@@ -1,4 +1,4 @@
-A network service is the port criterion that Firewall Filtering and IPS rules reference. {{type-values}} What STANDARD, PREDEFINED and CUSTOM mean is open {{gap:type-meanings}}. {{tag-values}}
+A network service is the port criterion that Firewall Filtering and IPS rules reference. {{object-shape}} {{type-values}} What STANDARD, PREDEFINED and CUSTOM mean is open {{gap:type-meanings}}. {{tag-values}}
 
 **Looking one up.** {{name-lookup-case}} {{protocol-filter-values}} {{endpoint}}
 

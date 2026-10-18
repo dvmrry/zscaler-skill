@@ -1,6 +1,6 @@
 There are two ways to read IoT data programmatically, with different contents: the ZIA REST endpoints give the device inventory, and Z-Insights GraphQL gives counts.
 
-**REST (per device).** {{rest-endpoints}} {{no-write-operations}} {{taxonomy-response-shape}} {{device-list-shape}} What the levels and UUIDs mean is in [[zia.iot.classification]].
+**REST (per device).** {{rest-endpoints}} {{no-write-operations}} {{taxonomy-response-shape}} {{device-list-shape}} {{device-names-from-taxonomy}} What the levels and UUIDs mean is in [[zia.iot.classification]].
 
 **Go SDK.** {{go-taxonomy-decodes-into-struct}}
 

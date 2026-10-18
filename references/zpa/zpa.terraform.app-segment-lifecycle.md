@@ -4,7 +4,7 @@ ZPA application segments come in four kinds (main, browser access, inspection, P
 
 **Empty objects.** {{phantom-shared-microtenant-object}}
 
-**Nested apps.** {{inspection-subapp-flags-always-serialized}} {{inspection-subapp-expand-subset}} {{inspection-update-may-reset-subapp-state}} {{browser-hidden-sent-false}} {{pra-update-sends-remote-values}}
+**Nested apps.** {{inspection-subapp-flags-always-serialized}} {{inspection-subapp-expand-subset}} {{inspection-update-may-reset-subapp-state}} {{browser-hidden-sent-false}} {{pra-update-sends-remote-values}} {{pra-update-returns-read-after-update}}
 
 **Child identity.** {{browser-child-id-positional-fallback}} {{browser-child-id-may-duplicate}} {{nested-apps-matched-by-name}}
 

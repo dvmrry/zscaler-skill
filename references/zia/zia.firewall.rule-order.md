@@ -2,7 +2,7 @@ Order and rank are described per policy. IPS and NAT Control state their order; 
 
 **IPS Control.** {{ips-ascending-order}} {{rank-bounds-order}} {{ips-allow-rules-need-precedence}} The default rule is in [[zia.firewall.ips]]. {{ips-views}}
 
-**NAT Control.** {{nat-order-nth}} Rule details are in [[zia.firewall.nat]].
+**NAT Control.** {{nat-order-nth}} {{nat-page-rank-column}} Rule details are in [[zia.firewall.nat]].
 
 **Firewall Filtering.** URL Filtering's documented behavior is in [[zia.url-filtering.rule-order]].
 

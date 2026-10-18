@@ -6,6 +6,6 @@ Surrogate IP is the answer to "this user is logged in, so why was this request t
 
 **Configuring it.** {{location-fields}} {{known-browsers}} {{refresh-vs-lease}}
 
-**What Terraform rejects.** {{provider-checks}} Other provider behavior for locations is in [[zia.terraform.field-fidelity]].
+**What Terraform rejects.** {{provider-checks}} {{provider-checks-apply-time}} Other provider behavior for locations is in [[zia.terraform.field-fidelity]].
 
 **Client Connector.** {{windows-app-flag}}

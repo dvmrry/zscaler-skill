@@ -8,7 +8,7 @@ These are defects in the Cloud and Branch Connector (ZTW) package of the Go SDK,
 
 ## Legacy routing
 
-**Generic calls in legacy mode.** {{ztw-services-use-generic-legacy-path}} {{legacy-ztw-only-client-fails-generic-calls}} The same defect in ZCC is in [[zcc.sdk-go.legacy-routing]].
+**Generic calls in legacy mode.** {{ztw-services-use-generic-legacy-path}} {{legacy-ztw-only-client-fails-generic-calls}} {{oneapi-mode-skips-legacy-client-check}} The same defect in ZCC is in [[zcc.sdk-go.legacy-routing]].
 
 ## Update results dereferenced without a check
 

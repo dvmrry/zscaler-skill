@@ -279,6 +279,35 @@
       "gaps": [
         "windows-app-scope"
       ]
+    },
+    "provider-checks-apply-time": {
+      "statement": "The Surrogate IP dependency checks run inside the provider's location create and update functions, not in a plan-time diff hook; the plan-time CustomizeDiff on the location resource checks only the manual group exclusion.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "after": "func resourceLocationManagementCreate(",
+          "quotes": [
+            "if err := checkSurrogateIPDependencies(req); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "after": "func resourceLocationManagementUpdate(",
+          "quotes": [
+            "if err := checkSurrogateIPDependencies(req); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "static_location_groups cannot be set when exclude_from_manual_groups is set to true"
+          ]
+        }
+      ]
     }
   },
   "gaps": {

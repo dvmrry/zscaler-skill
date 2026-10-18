@@ -1,6 +1,6 @@
 **One size.** {{single-vm-size}} {{throughput-listed-for-esxi-only}} The SKU wording elsewhere is not reconciled with a single size ([[zia.virtual-service-edge.sizing:sku-type-vs-single-size]]).
 
-**SSL inspection is what the card is for.** {{ssl-cps-without-card}} {{ssl-card-recommendation}} {{nitrox-card-esxi}}
+**SSL inspection is what the card is for.** {{ssl-cps-without-card}} {{ssl-card-recommendation}} {{nitrox-card-esxi}} {{card-esxi-scale-out-elsewhere}}
 
 **Resources.** {{vm-resources}} {{memory-48gb-standalone-and-cluster}} {{memory-64gb-large-files}}
 

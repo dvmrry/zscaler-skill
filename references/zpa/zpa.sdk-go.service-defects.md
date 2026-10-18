@@ -2,13 +2,13 @@ These are separate defects in individual ZPA SDK service packages and the shared
 
 ## Partial or incomplete results reported as success
 
-{{provisioning-key-all-associations-fixed-list}} {{provider-provisioning-key-schema-and-importer}} Keys of the two unprobed association types cannot be imported by name or by numeric ID without `association_type` set {{provisioning-key-all-associations-fixed-list|ref}}. Whether keys are stored under those two types, and how the API lists them, is open {{gap:provisioning-key-association-types}}.
+{{provisioning-key-api-requires-association-type}} {{provisioning-key-all-associations-fixed-list}} {{provider-provisioning-key-schema-and-importer}} Keys of the two unprobed association types cannot be imported by name or by numeric ID without `association_type` set {{provisioning-key-all-associations-fixed-list|ref}}. Whether keys are stored under those two types, and how the API lists them, is open {{gap:provisioning-key-association-types}}.
 
 {{provisioning-key-get-all-discards-errors}}
 
 ## Wrong keys on the wire
 
-{{segment-group-udp-key-misspelled}} {{provider-segment-group-data-source-omits-udp}}
+{{segment-group-udp-key-misspelled}} {{provider-segment-group-data-source-omits-udp}} {{provider-segment-group-resource-writes-application-ids-only}}
 
 ## Valid input rejected before any request
 
@@ -32,7 +32,7 @@ Paging itself is covered in [[shared.sdk-go.list-pagination]].
 
 ## Panics on nil input
 
-{{policy-update-rule-nil-deref}} {{other-mutators-dereference-unchecked-pointers}}
+{{policy-update-rule-nil-deref}} {{other-mutators-dereference-unchecked-pointers}} What such a panic does to the provider process is open {{gap:panic-effect}}.
 
 ## Response shape
 

@@ -10,6 +10,6 @@ The ZCC provider is a Plugin Framework provider whose forwarding profile resourc
 
 **Blocks that collapse.** {{duplicate-network-type-collapses}} {{duplicate-network-type-not-rejected}}
 
-**Defects on the SDK side.** {{intorstring-truncates-fractions}} {{trusted-network-create-sleeps-blindly}} {{emergency-access-create-clears-activate-now}} {{sdk-defects-reach}} Legacy-client routing for the same package is in [[zcc.sdk-go.legacy-routing]]; ZIA's equivalent field-fidelity mechanisms are in [[zia.terraform.field-fidelity]].
+**Defects on the SDK side.** {{intorstring-truncates-fractions}} {{trusted-network-create-sleeps-blindly}} {{emergency-access-create-clears-activate-now}} {{sdk-defects-reach}} {{v1-backend-serves-tenants-without-v2}} Legacy-client routing for the same package is in [[zcc.sdk-go.legacy-routing]]; ZIA's equivalent field-fidelity mechanisms are in [[zia.terraform.field-fidelity]].
 
 Whether the ZCC v2 create and update responses carry every field is open {{gap:partial-create-update-response}}.

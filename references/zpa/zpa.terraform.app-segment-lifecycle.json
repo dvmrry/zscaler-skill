@@ -934,6 +934,25 @@
           "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
         }
       ]
+    },
+    "pra-update-returns-read-after-update": {
+      "statement": "The PRA segment update's error returns cover only its initial Get, the app ID step, port validation and the SDK Update; on its normal path it ends by returning the result of a Read, with no comparison of the configured nested apps against what was sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_pra.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceApplicationSegmentPRAUpdate(",
+          "quotes": [
+            "_, err = applicationsegmentpra.Update(ctx, service, id, &req)",
+            "return resourceApplicationSegmentPRARead(ctx, d, meta)"
+          ]
+        }
+      ]
     }
   },
   "gaps": {

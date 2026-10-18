@@ -773,6 +773,71 @@
           "note": "Filing 20 (ZTW SDK services) of the 2026-08 provider audit."
         }
       ]
+    },
+    "oneapi-mode-skips-legacy-client-check": {
+      "statement": "The generic ZIA-routed `Read`, `Create`, `UpdateWithPut`, and `Delete` return the \"legacy client is not set\" error only inside the branch guarded by `UseLegacyClient`; when that flag is not set they send the request through the shared OneAPI request path. The ZTC provider's `use_legacy_client` argument is an optional boolean with no default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, _, _, err := c.ExecuteRequest(ctx, \"GET\", endpoint, nil, nil, contentTypeJSON)"
+          ],
+          "after": "func (c *Client) Read(ctx context.Context, endpoint string, o interface{}) error {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "if c.oauth2Credentials.UseLegacyClient {"
+          ],
+          "after": "func (c *Client) Read(ctx context.Context, endpoint string, o interface{}) error {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "respBody, response, _, err := c.ExecuteRequest(ctx, \"POST\", endpoint, bytes.NewReader(data), nil, contentTypeJSON)"
+          ],
+          "after": "func (c *Client) Create(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "if c.oauth2Credentials.UseLegacyClient {"
+          ],
+          "after": "func (c *Client) Delete(ctx context.Context, endpoint string) error {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/provider.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "Description: \"Enable ZTW API via Legacy Mode\","
+          ]
+        }
+      ]
     }
   },
   "gaps": {

@@ -4,4 +4,4 @@ Firewall Filtering rules point at destination groups for their destination crite
 
 **The list filter and the update call.** {{exclude-type-excludes}} The API capture words the same parameter differently {{divergence:exclude-type-wording}}. {{override-appends}}
 
-**Size.** {{fqdn-per-group-caps}} Other caps are in [[zia.firewall.limits]]. {{endpoint}}
+**Size.** {{fqdn-per-group-caps}} What happens past the FQDN cap is open {{gap:fqdn-cap-overflow}}. Other caps are in [[zia.firewall.limits]]. {{endpoint}}

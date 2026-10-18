@@ -1,4 +1,4 @@
-{{unset-unrestricted}} {{source-countries-ignored}} {{device-trust-scope}}
+{{unset-unrestricted}} {{source-countries-ignored}} {{device-trust-scope}} {{criteria-tier-gated}}
 
 Licensing for each criterion is in [[zia.firewall.licensing]]. How many of each a rule can hold is in [[zia.firewall.limits]], and the destination and port building blocks are in [[zia.firewall.destination-groups]] and [[zia.firewall.network-services]]. For the URL Filtering counterpart see [[zia.url-filtering.criteria]].
 

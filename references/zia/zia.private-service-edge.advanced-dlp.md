@@ -1,4 +1,4 @@
-{{complementary-role}} {{alongside-standard-cluster}}
+{{complementary-role}} {{alongside-standard-cluster}} {{requires-standard-cluster}}
 
 **Traffic.** {{traffic-path}} {{block-trigger}}
 

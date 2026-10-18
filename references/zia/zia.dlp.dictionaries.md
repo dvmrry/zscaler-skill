@@ -6,7 +6,7 @@ Dictionaries answer "what is being looked for". A dictionary never appears on a 
 
 {{confidence-threshold-decides-violation}} {{threshold-type-values}}
 
-{{custom-dictionary-types}} {{mip-labels-dictionary}} How exact data matching works operationally is open {{gap:edm-mechanics}}.
+{{custom-dictionary-types}} {{edm-idm-reference-objects}} The schemas and profiles themselves have their own endpoints: [[zia.dlp.incident-forwarding:supporting-objects-endpoints]]. {{mip-labels-dictionary}} How exact data matching works operationally is open {{gap:edm-mechanics}}.
 
 {{validate-pattern-unreliable}}
 

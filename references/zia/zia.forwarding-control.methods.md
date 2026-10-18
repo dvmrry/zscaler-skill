@@ -1,6 +1,6 @@
 Every rule has one forward method, and the method decides which other fields are required, allowed or ignored. {{console-methods}} {{direct-meaning}}
 
-{{enum-values}} The published contract disagrees on those values {{divergence:contract-enum}}. {{tf-doc-meanings}} {{dedicated-ip-gateway}}
+{{enum-values}} {{provider-exceeds-console}} The published contract disagrees on those values {{divergence:contract-enum}}. {{tf-doc-meanings}} {{dedicated-ip-gateway}}
 
 What ZIA, DROP, ECSELF and INVALID do is open {{gap:method-semantics}}, and what happens when no rule matches is open {{gap:no-match-default}}.
 
