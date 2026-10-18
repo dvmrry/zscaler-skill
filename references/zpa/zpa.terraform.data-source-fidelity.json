@@ -1,0 +1,764 @@
+{
+  "schema_version": 1,
+  "id": "zpa.terraform.data-source-fidelity",
+  "title": "What ZPA Terraform data sources return, drop, or get wrong",
+  "aliases": [
+    "zpa data source missing field",
+    "zpa data source empty block",
+    "zpa data source panic",
+    "zpa_policy_type data source error",
+    "zpa_lss_config_controller name not supported",
+    "zpa data source set error ignored",
+    "zpa data source partial state",
+    "zpa lss status codes wrong",
+    "zpa segment group data source udp port ranges",
+    "zpa cbi external profile banner_id empty",
+    "zpa data source phantom block",
+    "microtenant data source user block empty"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    }
+  ],
+  "claims": {
+    "policy-type-flattener-emits-undeclared-keys": {
+      "statement": "The `zpa_policy_type` flattener puts keys into every rule map (`microtenant_id`, `microtenant_name`, `zpn_isolation_profile_id`, `zpn_inspection_profile_name`), and into every condition and operand map (`microtenant_id`), that the nested `rules` schema does not declare. The read checks the error of `d.Set(\"rules\", ...)`, so a policy set that contains a rule is expected to return a diagnostic instead of state.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_policy_type.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenPolicySetRules(policySetRules *policysetcontroller.PolicySet) []interface{} {",
+          "quotes": [
+            "ruleItem.MicroTenantName,",
+            "ruleItem.ZpnIsolationProfileID,",
+            "ruleItem.ZpnInspectionProfileName,"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_policy_type.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenConditionOperands(",
+          "quotes": [
+            "conditionOperand.MicroTenantID,"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_policy_type.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := d.Set(\"rules\", flattenPolicySetRules(resp)); err != nil {"
+          ]
+        }
+      ],
+      "conditions": "Depends on two things not quoted here. (1) The schema search: at v4.4.10 and HEAD, the nested `rules` schema in data_source_zpa_policy_type.go (read in full) declares no `microtenant_id`, `microtenant_name`, `zpn_isolation_profile_id` or `zpn_inspection_profile_name` key, and its conditions and operands schemas declare no `microtenant_id`; those are absences. (2) Terraform plugin SDK v2 (v2.40.1 in go.mod) rejecting a nested map key that is not in the schema, which is not a registered source; see gap plugin-sdk-set-unknown-key. If the SDK ignores unknown keys, the read succeeds and only the fields in claim fields-declared-or-in-sdk-but-not-set are lost.",
+      "gaps": [
+        "plugin-sdk-set-unknown-key"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "lss-name-selector-not-top-level": {
+      "statement": "The LSS config data source read looks up by name through `d.Get(\"name\")` and `GetByName`, but the schema's only top-level selector is `id`: `name` is declared only inside the nested `config`, `policy_rule` and operand blocks. A configuration that sets `name` at the top level, as the provider's documentation example does, is not a valid argument, so only the ID path is reachable. A configuration that sets a top-level `name`, as the documentation's example does, fails validation at plan time.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_lss_config_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func dataSourceLSSConfigControllerRead(",
+          "quotes": [
+            "name, ok := d.Get(\"name\").(string)",
+            "res, _, err := lssconfigcontroller.GetByName(ctx, service, name)"
+          ]
+        }
+      ],
+      "conditions": "Absence claim. At v4.4.10 and HEAD, in data_source_zpa_lss_config_controller.go, the top-level keys of the data source schema are `id`, `config`, `connector_groups` and `policy_rule`; the three declarations of `\"name\"` are nested (inside `config`, the policy rule's operands, and the policy rule). That Terraform rejects an undeclared argument at validation time is Terraform core behavior, not shown by this code. The documentation example was not re-read.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "lss-config-flattened-without-nil-check": {
+      "statement": "The SDK declares an LSS resource's `config` as a pointer with no `omitempty`, and the data source passes it straight to `flattenLSSConfig`, which reads its fields with no nil check. A decoded response with no `config` (absent or null) makes the read dereference nil and panic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_lss_config_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func dataSourceLSSConfigControllerRead(",
+          "quotes": [
+            "flattenLSSConfig(resp.LSSConfig)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_lss_config_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenLSSConfig(",
+          "quotes": [
+            "html.UnescapeString(lssConfig.AuditMessage)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type LSSResource struct {",
+          "quotes": [
+            "json:\"config\""
+          ]
+        }
+      ],
+      "conditions": "The panic needs a successful API response whose `config` is missing or null; whether the API ever returns one is a server question (gap api-omits-nested-objects).",
+      "gaps": [
+        "api-omits-nested-objects"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "lss-by-name-dereferences-config": {
+      "statement": "The SDK's LSS `GetByName` scans the full list and compares `lss.LSSConfig.Name` with no nil check on the pointer, so one list item without a `config` object panics the name lookup before the provider sees a result.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "func GetByName(",
+          "quotes": [
+            "if strings.EqualFold(lss.LSSConfig.Name, lssName) {"
+          ]
+        }
+      ],
+      "conditions": "Needs a list item whose `config` is missing or null (gap api-omits-nested-objects). The name path is also unreachable from the data source at the top level (claim lss-name-selector-not-top-level), but the SDK function is public.",
+      "gaps": [
+        "api-omits-nested-objects"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "lss-condition-operands-dereferenced": {
+      "statement": "The SDK declares a policy-rule condition's `operands` as `*[]Operands`, and the LSS data source reads it as `len(*operands.Operands)` and ranges over `*operands.Operands` with no nil check. A condition whose operands are absent or null panics the read.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_lss_config_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenLSSConditionOperands(",
+          "quotes": [
+            "len(*operands.Operands)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type Conditions struct {",
+          "quotes": [
+            "*[]Operands"
+          ]
+        }
+      ],
+      "conditions": "Needs a condition with null or missing `operands` in the API response (gap api-omits-nested-objects).",
+      "gaps": [
+        "api-omits-nested-objects"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "lss-empty-config-becomes-a-block": {
+      "statement": "`flattenLSSConfig` returns a one-element list unconditionally, so a non-nil but empty `config` object becomes a `config` block of empty strings and false booleans. The sibling `flattenLSSPolicyRule` does check for nil and returns nothing, so the two nested objects of one response are treated differently.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_lss_config_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenLSSConfig(",
+          "quotes": [
+            "return []map[string]interface{}{"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_lss_config_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenLSSPolicyRule(",
+          "quotes": [
+            "if policySetRules == nil {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "app-connector-assistant-version-always-a-block": {
+      "statement": "The app connector controller data source takes the address of the SDK's value-typed `AssistantVersion` and passes it to `flattenAssistantVersion`, whose only guard is a nil-pointer check. The pointer is never nil, so the helper builds a map and the data source reports an `assistant_version` block even when the API sent no such object.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_app_connector_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func dataSourceAppConnectorControllerRead(",
+          "quotes": [
+            "flattenAssistantVersion(&resp.AssistantVersion)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_app_connector_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenAssistantVersion(",
+          "quotes": [
+            "if assistantVersion == nil {",
+            "result := make(map[string]interface{})"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type AppConnector struct {",
+          "quotes": [
+            "json:\"assistantVersion,omitempty\""
+          ]
+        }
+      ],
+      "conditions": "'Even when the API sent no such object' is the Go decoding of a missing JSON object into a value-typed field (zero value), not a server observation.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "service-edge-group-brokers-always-blocks": {
+      "statement": "Every service edge in a service edge group is flattened by passing the address of its value-typed `PrivateBrokerVersion` to a helper that only checks for a nil pointer, so each edge reports a `private_broker_version` block even when it has none. The single service edge data source handles the same shape correctly by testing the broker's `ID` first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_service_edge_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenServiceEdges(",
+          "quotes": [
+            "flattenPrivateBrokerVersion(&serviceEdge.PrivateBrokerVersion)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_service_edge.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if privateBrokerVersion == nil {",
+            "if resp.PrivateBrokerVersion.ID != \"\" {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgecontroller/zpa_service_edge_controller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "json:\"privateBrokerVersion,omitempty\""
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "customer-version-profile-empty-side-becomes-empty-id": {
+      "statement": "The customer version profile flattener returns a block when either request-ID string is non-empty and then calls `strings.Split(..., \",\")` on both. Go returns `[\"\"]` for an empty string, so a profile with only one side set reports the other side as a list holding one empty customer ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_customer_version_profile.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenScopeRequestCustomerIDs(",
+          "quotes": [
+            "if requestIDs.AddCustomerIDs == \"\" && requestIDs.DeletecustomerIDs == \"\" {",
+            "strings.Split(requestIDs.DeletecustomerIDs, \",\")"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "cbi-external-profile-empty-objects-become-blocks": {
+      "statement": "The CBI external profile data source flattens `security_controls` and `user_experience` whenever the SDK pointer is non-nil, and each flattener returns one outer block with every scalar copied. A decoded empty object therefore appears as a block of zero values. The same file's `flattenDebugMode` also builds its block from whatever it is given, so the three blocks cannot tell \"not configured\" from \"all off\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_cloud_browser_isolation_external_profile.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func dataSourceCBIExternalProfileRead(",
+          "quotes": [
+            "if resp.SecurityControls != nil {",
+            "if resp.UserExperience != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_cloud_browser_isolation_external_profile.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenSecurityControls(",
+          "quotes": [
+            "\"copy_paste\":          securityControls.CopyPaste,"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_cloud_browser_isolation_external_profile.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenUserExperience(",
+          "quotes": [
+            "\"zgpu\":                  userExperience.ZGPU,"
+          ]
+        }
+      ],
+      "conditions": "Whether the API returns `{}` for an unconfigured object is a server question (gap api-omits-nested-objects). The reader cannot clear a block on a later read, but a data source reads into fresh state, so the stale-state variant in the audit lead is not claimed.",
+      "gaps": [
+        "api-omits-nested-objects"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "cbi-external-profile-associations-never-set": {
+      "statement": "The CBI external profile data source declares `banner_id` and `certificate_ids` as outputs and the SDK profile model carries both, but the read sets only name, description, default flag, href, regions and the three nested blocks. A profile's banner and certificate associations are never returned.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_cloud_browser_isolation_external_profile.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func dataSourceCBIExternalProfileRead(",
+          "quotes": [
+            "_ = d.Set(\"regions\", flattenRegions(resp))",
+            "_ = d.Set(\"href\", resp.Href)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "json:\"bannerId,omitempty\"",
+            "json:\"certificateIds,omitempty\""
+          ]
+        }
+      ],
+      "conditions": "Absence claim. At v4.4.10 and HEAD, `banner_id` and `certificate_ids` occur in data_source_zpa_cloud_browser_isolation_external_profile.go only in the schema (`git grep -nE 'banner_id|certificate_ids|BannerID|CertificateIDs'` over that file); neither appears in any `d.Set`. SDK fields quoted at v3.8.42 and HEAD.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "fields-declared-or-in-sdk-but-not-set": {
+      "statement": "Many ZPA data sources return a smaller object than the SDK model holds: a field is declared in the schema (or exists in the SDK struct) but the read or its flattener never sets it, so it reads as empty or absent with no error. Representative cases: application segment `default_idle_timeout` and `default_max_age`; Browser Access nested `clientless_apps` `certificate_name`, `hidden`, `local_domain`, `path`; PRA application segment (no `creation_time`, `modified_time`, `icmp_access_type`, `use_in_dr_mode`, `is_incomplete_dr_config`); inspection profile `common_global_override_actions_config` and WebSocket controls; app connector group `version_profile_visibility_scope`; cloud connector group `signing_cert`; customer version profile all seven `number_of_*` counters; IDP `sp_entity_id` in user metadata; CBI banner `persist`; segment group `dynamic_discovery` (and `udp_port_ranges`); PRA portal `user_portal_name`; service edge group nested `publish_ipv6`, `runtime_os`, `microtenant_id`, `microtenant_name`; LSS policy rule `bypass_default_rule`, `default_rule`, `name`, `lss_default_rule`; `zpa_policy_type` rule `bypass_default_rule`, `isolation_default_rule`, `zpn_cbi_profile_id`.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_idp_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenUserMeta(",
+          "quotes": [
+            "result[0][\"sp_post_url\"] = metaData.SpPostURL"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_idp_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenAdminMeta(",
+          "quotes": [
+            "result[0][\"sp_entity_id\"] = metaData.SpEntityID"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_customer_version_profile.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func dataSourceCustomerVersionProfileRead(",
+          "quotes": [
+            "_ = d.Set(\"visibility_scope\", resp.VisibilityScope)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_browser_access.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenBaClientlessApps(",
+          "quotes": [
+            "\"ext_domain\":           clientlessApp.ExtDomain,"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_inspection_profile.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "// if err := d.Set(\"websocket_controls\", flattenIDList(websocketIDs)); err != nil {"
+          ]
+        }
+      ],
+      "conditions": "Absence claim, a search and not a parse. At v4.4.10 and HEAD, for each file named above, `git grep -n '<snake_case key>'` finds the key only in the schema block (or, for CBI banner `persist` and the PRA segment fields, nowhere in the data source file), and no `d.Set` or flatten map entry sets it; the SDK field exists at v3.8.42 (for example `Persist` in cbibannercontroller, `NumberOfAssistants` in customerversionprofile, `SigningCert` in cloud_connector_group, `CertificateName`/`Hidden`/`LocalDomain`/`Path` in applicationsegmentbrowseraccess, `UserPortalName` in praportal, `VersionProfileVisibilityScope` in appconnectorgroup). The SDK files for application segment, Browser Access, inspection segment, PRA segment and IDP changed between v3.8.42 and the pin, so SDK presence there is read at v3.8.42 only. Browser Access shares its flattener with the resource, so the same fields are missing from the resource read. Fields found only in the provider's documentation are not claimed. Not every file was read line by line for other dropped fields; the list is the audit's, each item re-checked by grep.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "lss-status-codes-auth-log-mapped-from-ast": {
+      "statement": "The LSS status-codes data source sets `zpn_auth_log` from `resp.ZPNAstAuthLog`, the same value it then sets `zpn_ast_auth_log` from. The SDK keeps a separate `ZPNAuthLog` field, so the ordinary auth-log mapping is never returned and the AST mapping is returned twice.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_lss_config_status_codes.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "_ = d.Set(\"zpn_auth_log\", toMapString(resp.ZPNAstAuthLog))",
+            "_ = d.Set(\"zpn_ast_auth_log\", toMapString(resp.ZPNAstAuthLog))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_status_codes.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type LSSStatusCodes struct {",
+          "quotes": [
+            "ZPNAuthLog    map[string]interface{}"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "microtenant-user-flattener-keys-mismatch-schema": {
+      "statement": "The microtenant data source's user flattener writes keys and types that do not match its own schema: one key is `\"operation_type\"` followed by a tab character, the modification user is written as `modified_by` where the nested schema declares `modifiedby`, and `phone_number` and `pin_session` (and `role_id`) are declared with types that differ from the SDK's string and bool fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_microtenant_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenMicroTenantUserResource(",
+          "quotes": [
+            "result[0][\"operation_type\t\"] = userResource.OperationType",
+            "result[0][\"modified_by\"] = userResource.ModifiedBy"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_microtenant_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"modifiedby\": {",
+            "\"phone_number\": {\n\t\t\t\t\t\t\tType:     schema.TypeBool,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/microtenants/microtenants.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type UserResource struct {",
+          "quotes": [
+            "PhoneNumber        string   `json:\"phoneNumber,omitempty\"`",
+            "PinSession         bool     `json:\"pinSession,omitempty\"`"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "microtenant-user-set-error-discarded": {
+      "statement": "The microtenant data source discards the result of setting the `user` block (`_ = d.Set(\"user\", ...)`), so the key and type mismatches in the user flattener cannot surface as an error. A rejected block would leave the read successful and `user` empty or partial.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_microtenant_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "_ = d.Set(\"user\", flattenMicroTenantUserResource(resp.UserResource))"
+          ]
+        }
+      ],
+      "derived_from": [
+        "microtenant-user-flattener-keys-mismatch-schema"
+      ],
+      "conditions": "The discard is in the quoted code. Whether the plugin SDK rejects the block, and so whether the user block ends up empty or partial, depends on its handling of unknown keys and type mismatches (gap plugin-sdk-set-unknown-key).",
+      "gaps": [
+        "plugin-sdk-set-unknown-key"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "set-errors-ignored-across-data-sources": {
+      "statement": "Almost every ZPA data source discards `d.Set` errors with `_ = d.Set(...)` for scalar and nested fields alike, so a field the schema cannot accept is lost without a diagnostic and the read still returns success with partial state. Unchecked calls exist in almost every data source; only two check every one.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_app_connector_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func dataSourceAppConnectorControllerRead(",
+          "quotes": [
+            "_ = d.Set(\"microtenant_name\", resp.MicroTenantName)",
+            "if err := d.Set(\"zpn_sub_module_upgrade_list\", flattenZPNSubModuleUpgrade(resp.ZPNSubModuleUpgrade)); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "_ = d.Set(\"config_space\", resp.ConfigSpace)"
+          ]
+        }
+      ],
+      "conditions": "Count, so Tier B. At v4.4.10 and HEAD (the data source files are identical at both), `git grep -lE '_ = d\\.Set\\(' <ref> -- 'zpa/data_source_zpa_*.go'`, excluding _test files, matches 68 of the 71 data source files; the three that do not are access_policy_client_types and access_policy_platform (which check every error) and user_portal_aup (which uses bare `d.Set(` and also discards errors), so 69 of 71 discard errors. Most of those 68 also check some `d.Set` results, so the claim is that unchecked calls exist, not that none are checked. Which of the unchecked calls can actually fail is not determined.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "service-edge-group-nested-sets-ignored": {
+      "statement": "The service edge group data source discards the errors of `d.Set` for `service_edges` and `trusted_networks`, the two nested lists built by flatteners. The `zpa_policy_type` and app connector controller data sources check the equivalent nested sets, so the handling differs between data sources of the same family.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_service_edge_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func dataSourceServiceEdgeGroupRead(",
+          "quotes": [
+            "_ = d.Set(\"trusted_networks\", flattenTrustedNetworks(resp))",
+            "_ = d.Set(\"service_edges\", flattenServiceEdges(resp))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_policy_type.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := d.Set(\"rules\", flattenPolicySetRules(resp)); err != nil {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "plugin-sdk-set-unknown-key": {
+      "kind": "semantic",
+      "title": "What Terraform plugin SDK v2 does when d.Set is given a nested map with keys the schema does not declare",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "saying whether `zpa_policy_type` and the microtenant user block fail, or return partial state, on ordinary data",
+      "detail": "The provider pins terraform-plugin-sdk/v2 v2.40.1 (go.mod at v4.4.10), which is not a registered source. Read its MapFieldWriter for a nested list-of-object write, or run a data source test that sets a rule map with an extra key and check the returned error and resulting state."
+    },
+    "api-omits-nested-objects": {
+      "kind": "semantic",
+      "title": "Whether the ZPA API ever omits a nested object, returns it as null, or returns an empty object",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "saying how often the LSS panics and the phantom blocks occur against a real tenant",
+      "detail": "The code paths are real, but they fire only for an LSS config with a missing `config`, a condition with missing `operands`, or an unconfigured CBI object that comes back as `{}`. Fetch such objects from a scratch tenant (an LSS config created without conditions, a CBI profile with defaults) and inspect the raw JSON."
+    }
+  }
+}

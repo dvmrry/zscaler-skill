@@ -1,0 +1,750 @@
+{
+  "schema_version": 1,
+  "id": "zpa.terraform.resource-fidelity",
+  "title": "ZPA Terraform resources: fields not sent, not read back, or written in several non-atomic steps",
+  "aliases": [
+    "terraform zpa state does not match api",
+    "service edge assistant schedule destroy does nothing",
+    "assistant schedule empty id",
+    "redirection rule policy_set_id empty",
+    "private cloud fire drill follow-up",
+    "user code verification failed after create",
+    "provisioning key import fails",
+    "privileged portal capabilities lost",
+    "pra console application stale",
+    "server group name blank on update",
+    "lss config policy_rule_resource missing",
+    "zia cloud config read error ignored"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.sdk-go.zero-value-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.policy-rule-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.delete-paths"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.app-segment-lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    }
+  ],
+  "claims": {
+    "schedule-create-discards-server-id": {
+      "statement": "Creating the Service Edge assistant schedule discards the object the SDK returns from the POST, then stores the ID of the request as the resource ID. The request ID was read from the resource's own computed `id`, which is empty on a first create, so the first-create path sets an empty ID. Only the already-exists branch sets the real ID, by reading the singleton. An empty ID after create probably makes Terraform report an inconsistent result rather than record the resource (Terraform core behavior, inferred, not shown here).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_assistant_schedule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "_, _, err = serviceedgeschedule.CreateSchedule(ctx, service, req)",
+            "d.SetId(req.ID)",
+            "ID:                d.Get(\"id\").(string),",
+            "d.SetId(resp.ID)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgeschedule/serviceedgeschedule.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "func CreateSchedule(ctx context.Context, service *zscaler.Service, assistantSchedule AssistantSchedule) (*AssistantSchedule, *http.Response, error) {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "schedule-read-never-sets-id": {
+      "statement": "The schedule resource accepts any ID on import (passthrough importer), and its Read fetches the singleton schedule but never writes the singleton's ID back. Update then builds the PUT path from `d.Id()`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_assistant_schedule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "StateContext: schema.ImportStatePassthroughContext,"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_assistant_schedule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, _, err := serviceedgeschedule.GetSchedule(ctx, service)"
+          ],
+          "after": "func resourceServiceEdgeAssistantScheduleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_assistant_schedule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "id := d.Id()",
+            "serviceedgeschedule.UpdateSchedule(ctx, service, id, &req)"
+          ],
+          "after": "func resourceServiceEdgeAssistantScheduleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgeschedule/serviceedgeschedule.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "relativeURL := fmt.Sprintf(\"%s/%s\", mgmtConfig+service.Client.GetCustomerID()+scheduleEndpoint, schedulerID)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "schedule-delete-is-noop": {
+      "statement": "Destroying the Service Edge assistant schedule resource makes no API call: the delete function returns nil. Terraform drops the resource from state while the remote schedule is untouched.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_assistant_schedule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "func resourceServiceEdgeAssistantScheduleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {\n\treturn nil\n}"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "redirection-create-skips-policy-set-lookup": {
+      "statement": "Creating a redirection rule never resolves `policy_set_id`. The schema makes it optional and computed, the create path expands it straight from the resource data, and the SDK builds the POST URL from it. The forwarding rule resource, by contrast, looks the policy set up by type when the argument is unset.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_redirection_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "req, err := expandCreatePolicyRedirectionRule(d)"
+          ],
+          "after": "func resourcePolicyRedictionRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_redirection_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "policySetID, ok := d.Get(\"policy_set_id\").(string)",
+            "PolicySetID:   policySetID,"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"policy_set_id\": {\n\t\t\tType:     schema.TypeString,\n\t\t\tOptional: true,\n\t\t\tComputed: true,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "path := fmt.Sprintf(mgmtConfig+service.Client.GetCustomerID()+\"/policySet/%s/rule\", rule.PolicySetID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_forwarding_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "policySetID, err = fetchPolicySetIDByType(ctx, zClient, \"CLIENT_FORWARDING_POLICY\", GetString(d.Get(\"microtenant_id\")))"
+          ],
+          "after": "func resourcePolicyForwardingRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "redirection-read-omits-microtenant": {
+      "statement": "The redirection rule Read writes name, description, action, operator, policy set, policy type, conditions and service edge groups to state, but not `microtenant_id`, although the resource reads `microtenant_id` to pick the microtenant for every call. A microtenant returned by the API is not persisted.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_redirection_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "_ = d.Set(\"policy_set_id\", resp.PolicySetID)",
+            "_ = d.Set(\"service_edge_groups\", flattenServiceEdgeGroupSimple(resp.ServiceEdgeGroups))",
+            "microTenantID := GetString(d.Get(\"microtenant_id\"))"
+          ],
+          "after": "func resourcePolicyRedictionRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "conditions": "Absence claim. Search: `git -C vendor/terraform-provider-zpa grep -n 'microtenant_id' v4.4.10 -- zpa/resource_zpa_policy_access_redirection_rule.go` returns only `d.Get(\"microtenant_id\")` reads (create, read, update, delete and the expander); no `d.Set(\"microtenant_id\"`. Same result at HEAD. The portal and capabilities rule Reads, by contrast, set it from the converted response.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "redirection-edge-group-expand-flatten-asymmetry": {
+      "statement": "The redirection rule's service edge group argument is an unbounded list of blocks, each holding a set of IDs. Expansion reads only the first block, and flattening emits one block per group with a single ID in it. A second configured block is never sent, and a first block with several IDs comes back from Read as several blocks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "block, ok := blocks[0].(map[string]interface{})",
+            "for _, id := range idSet.List() {"
+          ],
+          "after": "func expandCommonServiceEdgeGroups(d *schema.ResourceData) []serviceedgegroup.ServiceEdgeGroup {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "results = append(results, map[string]interface{}{"
+          ],
+          "after": "func flattenServiceEdgeGroupSimple(serviceEdgeGroups []serviceedgegroup.ServiceEdgeGroup) []interface{} {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_redirection_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"service_edge_groups\": {\n\t\t\t\t\tType:        schema.TypeList,\n\t\t\t\t\tOptional:    true,"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "private-cloud-no-exporter-group-field": {
+      "statement": "The SDK's private cloud model has a `PrivateExporterGroupIDs` field and the provider's documentation names Private Exporter among the groups the resource associates, but the resource defines no argument for it and its Read and expand never touch it. A Private Exporter association cannot be configured, is not read into state, and is not part of what Terraform sends.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/private_cloud/private_cloud.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "PrivateExporterGroupIDs []common.CommonSummary `json:\"privateExporterGroupIds,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_private_cloud.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"private_broker_group_ids\":  commonSummarySchema(",
+            "PrivateBrokerGroupIDs:  expandCommonSummaryIDs(d, \"private_broker_group_ids\"),",
+            "_ = d.Set(\"private_broker_group_ids\", flattenCommonSummaryIDs(resp.PrivateBrokerGroupIDs))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_private_cloud.md",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "Site Controller, SIEM, Private Exporter, and Private Broker groups"
+          ]
+        }
+      ],
+      "conditions": "Absence claim. Search: `git -C vendor/terraform-provider-zpa grep -n -i 'exporter' v4.4.10 -- zpa/resource_zpa_private_cloud.go` returns no match; the same search of docs/resources/zpa_private_cloud.md returns only the sentence quoted. Same at HEAD.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "private-cloud-create-then-fire-drill-put": {
+      "statement": "Creating a private cloud with fire drill enabled is two writes. The provider clears `FireDrillEnabled` and the fire drill site from the POST, then sends them in a separate PUT after storing the new ID. If that PUT fails, the provider returns an error that says the cloud was created and to run apply again; it does not delete the cloud. The provider's comments say the API rejects fire drill on create; that is the provider's statement, not shown here.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_private_cloud.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "req.FireDrillEnabled = false",
+            "req.ZPNFireDrillSite = nil",
+            "d.SetId(resp.ID)",
+            "if _, err := private_cloud.Update(ctx, service, resp.ID, &updateReq); err != nil {",
+            "private cloud created successfully (ID: %s), but enabling fire_drill_enabled failed"
+          ],
+          "after": "func resourcePrivateCloudCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "user-code-verification-after-write": {
+      "statement": "For private cloud groups and Service Edge groups, user code verification is a second request sent after create, and after update when `user_codes` changed. When it fails the resource returns an error: the group (and, on update, its new settings) is already written, and nothing is rolled back.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_private_cloud_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, _, err := private_cloud_group.Create(ctx, service, req)",
+            "if err := verifyPrivateCloudUserCodes(ctx, service, resp.ID, userCodes); err != nil {"
+          ],
+          "after": "func resourcePrivateCloudGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_private_cloud_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, err := private_cloud_group.Update(ctx, service, id, &req); err != nil {",
+            "if err := verifyPrivateCloudUserCodes(ctx, service, id, userCodes); err != nil {"
+          ],
+          "after": "func resourcePrivateCloudGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, _, err := serviceedgegroup.Create(ctx, service, req)",
+            "if err := verifyServiceEdgeUserCodes(ctx, service, resp.ID, userCodes); err != nil {"
+          ],
+          "after": "func resourceServiceEdgeGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, err := serviceedgegroup.Update(ctx, service, id, &req); err != nil {",
+            "if err := verifyServiceEdgeUserCodes(ctx, service, id, userCodes); err != nil {",
+            "resp, _, err := oauth2_user.VerifyUserCodes(ctx, service, \"SERVICE_EDGE_GRP\", request)"
+          ],
+          "after": "func resourceServiceEdgeGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "portal-capabilities-read-checks-wrong-field": {
+      "statement": "The privileged portal rule Read guards on the length of the generic `PrivilegedCapabilities.Capabilities` but flattens `PrivilegedPortalCapabilities`. These are separate fields of the SDK response. A response with only portal capabilities is not written to state, and one with only generic capabilities clears the portal capabilities attribute (the flattener returns nil).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_portal_access_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if len(resp.PrivilegedCapabilities.Capabilities) > 0 {",
+            "_ = d.Set(\"privileged_portal_capabilities\", flattenPrivilegedPortalCapabilities(resp.PrivilegedPortalCapabilities))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "PrivilegedCapabilities                  PrivilegedCapabilities                `json:\"privilegedCapabilities,omitempty\"`",
+            "PrivilegedPortalCapabilities            PrivilegedPortalCapabilities          `json:\"privilegedPortalCapabilities,omitempty\"`"
+          ],
+          "after": "type PolicyRuleResource struct {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "capabilities-read-never-clears": {
+      "statement": "The capabilities rule Read sets `privileged_capabilities` only when the response lists at least one capability, and has no other branch. When the response has none, the previous value stays in state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_capabilities_access_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if len(resp.PrivilegedCapabilities.Capabilities) > 0 {",
+            "_ = d.Set(\"privileged_capabilities\", flattenPrivilegedCapabilities(resp.PrivilegedCapabilities))"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "pra-console-read-never-clears-application": {
+      "statement": "The PRA console Read sets `pra_application` only when the flattener returns a value, and the flattener returns nil when the response application has no ID. A removed application association leaves the previous block in state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_pra_console_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if v := flattenPRAApplicationIDSimple(resp.PRAApplication); v != nil {",
+            "if praApplication.ID == \"\" {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "pra-approval-end-not-checked-against-start": {
+      "statement": "The PRA approval time validator, called from create and update, checks that the start is not more than an hour in the past and that the end is at most a year after the start. It does not compare the end with the start, so an end before or equal to the start passes it.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_pra_approval.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if startTimeEpoch < currentTimeEpoch-int64(3600) {",
+            "if endTimeEpoch > startTimeEpoch+oneYear {"
+          ],
+          "after": "func validateStartTime(startTimeStr interface{}, endTimeStr interface{}) error {"
+        }
+      ],
+      "conditions": "Absence claim. The function was read in full at v4.4.10 and has only the two comparisons quoted. Search: `git -C vendor/terraform-provider-zpa grep -n 'validateStartTime\\|endTimeEpoch' v4.4.10 -- zpa/resource_zpa_pra_approval.go` shows two callers (create and update) and no other comparison of the two times. Same at HEAD. Whether the API rejects such a window is server behavior and not claimed.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "server-group-update-name-only-on-change": {
+      "statement": "The server group expander sets `Name` only when `d.HasChange(\"name\")`, and the SDK tags `name` `omitempty`. An update that changes anything else sends the PUT without a name. The create path is unaffected, because every attribute of a new resource counts as changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if d.HasChange(\"name\") {",
+            "result.Name = d.Get(\"name\").(string)"
+          ],
+          "after": "func expandServerGroup(d *schema.ResourceData) servergroup.ServerGroup {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "Name               string                                  `json:\"name,omitempty\"`"
+          ],
+          "after": "type ServerGroup struct {"
+        }
+      ],
+      "gaps": [
+        "api-server-group-put-name"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "lss-read-drops-policy-rule-resource": {
+      "statement": "The LSS config Read writes `policy_rule_id`, `config` and `connector_groups`, but never `policy_rule_resource`, though the SDK response carries a `PolicyRuleResource`. The policy-rule block is therefore taken from configuration or prior state only, and an imported LSS config has none.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_lss_config_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "_ = d.Set(\"policy_rule_id\", resp.PolicyRule.ID)",
+            "_ = d.Set(\"config\", flattenLSSConfig(resp.LSSConfig))",
+            "_ = d.Set(\"connector_groups\", flattenConnectorGroupsSimple(resp.ConnectorGroups))"
+          ],
+          "after": "func resourceLSSConfigControllerRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "PolicyRuleResource *PolicyRuleResource `json:\"policyRuleResource,omitempty\"`"
+          ]
+        }
+      ],
+      "conditions": "Absence claim. Search: `git -C vendor/terraform-provider-zpa grep -n 'policy_rule_resource' v4.4.10 -- zpa/resource_zpa_lss_config_controller.go` returns the schema entry and the `d.GetOk(\"policy_rule_resource\")` in the expander only; no `d.Set` of it. Same at HEAD.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "lss-false-values-not-sent": {
+      "statement": "The LSS config expander passes `enabled` and `use_tls` from the resource data, and the SDK tags both fields `omitempty`, so a false value sends no key. This is the zero-value write mechanism of [[shared.sdk-go.zero-value-writes]] applied to the LSS config.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_lss_config_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "Enabled:       config[\"enabled\"].(bool),",
+            "UseTLS:        config[\"use_tls\"].(bool),"
+          ],
+          "after": "func expandLSSConfigController(d *schema.ResourceData) *lssconfigcontroller.LSSConfig {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "Enabled         bool     `json:\"enabled,omitempty\"`",
+            "UseTLS          bool     `json:\"useTls,omitempty\"`"
+          ],
+          "after": "type LSSConfig struct {"
+        }
+      ],
+      "derived_from": [
+        "shared.sdk-go.zero-value-writes:omitempty-drops-zero-values"
+      ],
+      "conditions": "Chain of evidence: the quoted tags plus the omission claim it derives from. Whether ZPA keeps or clears a stored true when the key is absent is server behavior (see the omission-semantics gap in shared.sdk-go.zero-value-writes).",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "cloud-config-read-error-is-success": {
+      "statement": "The ZIA cloud config Read returns success on any error from the SDK call, without setting a diagnostic or clearing the ID. Create and update both finish by calling this Read, so a failure to read back what was just written also looks like success.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_cloud_config.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, _, err := custom_config_controller.GetZIACloudConfig(ctx, service)\n\tif err != nil {\n\t\treturn nil\n\t}",
+            "return resourceZiaCloudConfigRead(ctx, d, meta)"
+          ],
+          "after": "func resourceZiaCloudConfigRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "cloud-config-destroy-is-noop": {
+      "statement": "The ZIA cloud config resource registers a delete function that does nothing, so destroy removes the resource from state without any API request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_cloud_config.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "DeleteContext: resourceFuncNoOp,"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "func resourceFuncNoOp(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "api-server-group-put-name": {
+      "kind": "semantic",
+      "title": "How ZPA treats a server group PUT that has no name",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether an ordinary server group update blanks, keeps or rejects the name",
+      "detail": "The client sends no name member when only other attributes changed. Whether ZPA keeps the stored name, clears it or returns an error is not shown by any captured source. Test in a scratch tenant: change only the description of a server group through Terraform and re-read the name."
+    }
+  }
+}

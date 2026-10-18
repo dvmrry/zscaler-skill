@@ -1,0 +1,794 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.sdk-go.service-defects",
+  "title": "Cloud Connector (ztw) Go SDK service functions with wrong assertions, nil payloads, or routing defects",
+  "aliases": [
+    "ztw sdk returns empty admin user",
+    "UpdateAdminUser zero value",
+    "UpdatePublicCloudChangeState nil payload",
+    "ztw legacy client routes to zia",
+    "errLegacyClientNotSet ztw",
+    "ztw update nil pointer dereference",
+    "ztw location vpcInfo empty object",
+    "location template editable false"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-go.legacy-routing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.write-encoding"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.request-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.rule-order"
+    }
+  ],
+  "claims": {
+    "update-admin-user-zero-result": {
+      "statement": "`UpdateAdminUser` in the ZTW package passes the admin user by value to the PUT helper, which builds its response object with `reflect.New` (a pointer), then asserts the response to the value type `AdminUsers`. The assertion fails, its failure is discarded, and the function returns a pointer to a zero-value `AdminUsers` with a nil error, whatever the server returned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/adminuserrolemgmt/adminusers/adminusers.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "res, _ := resp.(AdminUsers)",
+            "return &res, err"
+          ],
+          "after": "func UpdateAdminUser(ctx context.Context, service *zscaler.Service, adminUserID int, adminUser AdminUsers) (*AdminUsers, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztwrequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "return c.updateGeneric(ctx, endpoint, o, \"PUT\", contentTypeJSON)"
+          ],
+          "after": "func (c *Client) UpdateWithPutResource(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "responseObject := reflect.New(t).Interface()"
+          ],
+          "after": "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) {"
+        }
+      ],
+      "conditions": "This is the same defect as the ZIA admin-user update in [[zia.sdk-go.service-defects]]; the ZTW function reaches the same shared helper. The legacy ZTW client's updater also returns a pointer, so both clients behave the same. On the OneAPI client an empty reply returns nil, nil, the assertion fails the same way and the result is still a zero struct; the legacy client errors on an empty reply instead.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 20 (ZTW SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "admin-user-update-not-called-by-provider": {
+      "statement": "The ZTC provider at v0.2.0 does not call `UpdateAdminUser`, so the zero-value result does not reach Terraform state. The defect is observable only to other SDK callers.",
+      "tier": "B",
+      "derived_from": [
+        "update-admin-user-zero-result"
+      ],
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_activation_status.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := activation.UpdateActivationStatus(ctx, service, req)"
+          ]
+        }
+      ],
+      "conditions": "Absence claim from a search: `git -C vendor/terraform-provider-ztc grep -n 'UpdateAdminUser' <ref>` returns no match at v0.2.0 or HEAD (any file, tests included). The quoted line is only an example of a provider update call that does use a ZTW update function and checks its result."
+    },
+    "public-cloud-change-state-nil-payload": {
+      "statement": "`UpdatePublicCloudChangeState` sends its change-state PUT with a nil payload. The generic PUT helper (and the legacy ZTW client's) rejects a nil payload with an error before building any request, so the function returns an error on every call and can never change the state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/partner_integrations/public_cloud_info/public_cloud_info.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "_, err := service.Client.UpdateWithPutResource(ctx, endpoint, nil)"
+          ],
+          "after": "func UpdatePublicCloudChangeState(ctx context.Context, service *zscaler.Service, awsAccountID int, enable bool) error {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "return nil, errors.New(\"tried to update with a nil payload not a Struct\")"
+          ],
+          "after": "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/v2_client.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "return nil, errors.New(\"tried to update with a nil payload not a Struct\")"
+          ],
+          "after": "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) {"
+        }
+      ],
+      "conditions": "The enable flag travels in the query string, so the missing body is the only thing that blocks the call; whether the API would accept an empty-body PUT to that endpoint is not established here.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 20 (ZTW SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "change-state-not-called-by-provider": {
+      "statement": "The ZTC provider at v0.2.0 does not call `UpdatePublicCloudChangeState`, so an operator of the provider does not meet the nil-payload error. The public cloud info resource updates through `UpdatePublicCloudInfo`, which sends a body.",
+      "tier": "B",
+      "derived_from": [
+        "public-cloud-change-state-nil-payload"
+      ],
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_public_cloud_info.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, err := public_cloud_info.UpdatePublicCloudInfo(ctx, service, id, &req); err != nil {"
+          ]
+        }
+      ],
+      "conditions": "Absence claim from a search: `git -C vendor/terraform-provider-ztc grep -n 'UpdatePublicCloudChangeState' <ref>` returns no match at v0.2.0 or HEAD."
+    },
+    "ztw-services-use-generic-legacy-path": {
+      "statement": "Several ZTW services call the generic `Read`, `Create`, `UpdateWithPut`, and `Delete` on the client, which are the ZIA request methods. In legacy-client mode those hand the call to the ZIA legacy client (`LegacyClient.ZiaClient`), while the ZTW-specific `...Resource` methods hand it to the ZTW legacy client. The affected services are activation, the provisioning URL, workload groups, and the shared `ReadPage` helper that the ZPA-resource lookup uses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "return c.oauth2Credentials.LegacyClient.ZiaClient.Read(ctx, removeOneApiEndpointPrefix(endpoint), o)"
+          ],
+          "after": "func (c *Client) Read(ctx context.Context, endpoint string, o interface{}) error {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztwrequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "return c.oauth2Credentials.LegacyClient.ZtwClient.Read(ctx, removeOneApiEndpointPrefix(endpoint), o)"
+          ],
+          "after": "func (c *Client) ReadResource(ctx context.Context, endpoint string, o interface{}) error {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/activation/activation.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "err := service.Client.Read(ctx, ecAdminActivateStatusEndpoint, &ecAdminActivation)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/provisioning/provisioning_url/provisioning_url.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.Create(ctx, provisioningUrlEndpoint, *ProvURL)",
+            "err := service.Client.Delete(ctx, fmt.Sprintf(\"%s/%d\", provisioningUrlEndpoint, provisioningUrlID))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/workload_groups/workload_groups.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "err := service.Client.Read(ctx, fmt.Sprintf(\"%s/%d\", workloadGroupsEndpoint, workloadID), &workloadGroup)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/common/common.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "err = client.Read(ctx, u.String(), &pageItems)"
+          ],
+          "after": "func ReadPage[T any](ctx context.Context, client *zscaler.Client, endpoint string, page int, list *[]T) error {"
+        }
+      ],
+      "conditions": "This is the ZTW instance of the routing defect described for ZCC in [[zcc.sdk-go.legacy-routing]]. Search: `git -C vendor/zscaler-sdk-go grep -n -E 'Client\\.(Read|Create|UpdateWithPut|Update|Delete)\\(' v3.8.40 -- zscaler/ztw` lists these call sites; the `...Resource` methods used by the other ZTW services were not listed. The list is not claimed to be exhaustive for the generic slice-payload and raw-payload methods.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 20 (ZTW SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "legacy-ztw-only-client-fails-generic-calls": {
+      "statement": "The ZTC provider's legacy mode builds only a ZTW legacy client, so the generic ZIA-routed calls above find no ZIA legacy client and return the SDK's \"legacy client not set\" error. In that mode the activation status read (resource and data source) and the provisioning URL create, update, and delete fail while the other ZTC resources, which use the `...Resource` methods, work (except ZPA-resource lookups, which also go through the generic path).",
+      "tier": "B",
+      "derived_from": [
+        "ztw-services-use-generic-legacy-path",
+        "zcc.sdk-go.legacy-routing:generic-legacy-path-targets-zia"
+      ],
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/config.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "wrappedV2Client, err := zscaler.NewLegacyZtwClient(ztwCfg)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/service.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "WithZtwLegacyClient(ztwClient),"
+          ],
+          "after": "func NewLegacyZtwClient(config *ztw.Configuration) (*Service, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "return errLegacyClientNotSet"
+          ],
+          "after": "func (c *Client) Read(ctx context.Context, endpoint string, o interface{}) error {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_activation_status.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := activation.GetActivationStatus(ctx, service)"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_provisioning_url.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, _, err := provisioning_url.Create(ctx, service, &req)",
+            "if _, err := provisioning_url.Delete(ctx, service, id); err != nil {"
+          ]
+        }
+      ],
+      "conditions": "Chain of evidence, not run. It holds only when the provider is configured with `use_legacy_client` (or `ZSCALER_USE_LEGACY_CLIENT=true`); the default is OneAPI, where the generic methods run the shared OneAPI path and this does not occur. That the legacy helper leaves the ZIA client unset was read from `NewLegacyZtwClient` only; no other constructor was searched. Where both legacy clients exist the generic call would reach ZIA instead of ZTW; the provider never builds that case.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 20 (ZTW SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "ztw-update-deref-after-ignored-assertion": {
+      "statement": "`forwarding_rules.Update` ignores the result of its type assertion and then reads the rule's ID. The shared update helper returns a nil result with a nil error for an empty reply body, so if the API answers the PUT with an empty body (for example 204 No Content) the call panics with a nil pointer dereference instead of returning an error.",
+      "tier": "A",
+      "gaps": [
+        "ztw-update-empty-reply"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "updatedRules, _ := resp.(*ForwardingRules)",
+            "updatedRules.ID)"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, ruleID int, rules *ForwardingRules) (*ForwardingRules, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "return nil, nil // Return nil for responseObject and no error"
+          ],
+          "after": "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztwrequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "return c.updateGeneric(ctx, endpoint, o, \"PUT\", contentTypeJSON)"
+          ],
+          "after": "func (c *Client) UpdateWithPutResource(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {"
+        }
+      ],
+      "conditions": "Same shape as the ZIA rule update in [[zia.sdk-go.write-encoding]] (claim rule-update-panics-on-empty-body). The panic needs an empty reply body, which is server behavior (gap ztw-update-empty-reply). The legacy ZTW client has no empty-body branch and errors in `Unmarshal`, so the panic is specific to the OneAPI client.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 20 (ZTW SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "ztw-update-deref-same-pattern": {
+      "statement": "The same ignored-assertion-then-dereference update appears across the ZTW services: admin roles, DNS gateway, DNS forwarding gateway, ZIA forwarding gateway, location, location template, forwarding, DNS, and log rules, IP destination, IP, and IP source groups, network service groups and services, the provisioning URL, and workload groups. `UpdatePublicCloudInfo` and the activation functions check the assertion and return an error instead.",
+      "tier": "B",
+      "derived_from": [
+        "ztw-update-deref-after-ignored-assertion"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/locationmanagement/locationtemplate/locationtemplates.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "updatedLocations, _ := resp.(*LocationTemplate)"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, locTemplateID int, locations *LocationTemplate) (*LocationTemplate, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/provisioning/provisioning_url/provisioning_url.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "updatedProvisioningURL, _ := resp.(*ProvisioningURL)"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, provisioningUrlID int, provisioningUrl *ProvisioningURL) (*ProvisioningURL, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/traffic_dns_rules/traffic_dns_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "updatedRules, _ := resp.(*ECDNSRules)"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, ruleID int, rules *ECDNSRules) (*ECDNSRules, error) {"
+        }
+      ],
+      "conditions": "Search: `git -C vendor/zscaler-sdk-go grep -n -B1 -A3 ', _ := resp.(\\*' v3.8.40 -- zscaler/ztw`, keeping the matches whose next lines read a field of the asserted value; 16 files match at v3.8.40, and none of the ZTW service files under that path differ between v3.8.40 and HEAD. Service functions outside zscaler/ztw/services were not searched.",
+      "gaps": [
+        "ztw-update-empty-reply"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 20 (ZTW SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "provider-reaches-ztw-update-deref": {
+      "statement": "The ZTC provider at v0.2.0 calls these update functions from the update paths of its forwarding, DNS, and log rule resources, gateways, groups, services, location template, and provisioning URL resources, and discards the returned value, so it relies on the SDK call not panicking. The provider installs no `recover`, so a panic ends the provider process. The rule resources also call `forwarding_rules.Update` from the reorder helpers.",
+      "tier": "B",
+      "derived_from": [
+        "ztw-update-deref-same-pattern"
+      ],
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "_, err = forwarding_rules.Update(ctx, service, id, &req)"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_location_template.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, _, err := locationtemplate.Update(ctx, service, id, &req); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_provisioning_url.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, _, err := provisioning_url.Update(ctx, service, id, &req); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/utils.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "_, err = forwarding_rules.Update(ctx, service, rule.ID, &rule)"
+          ]
+        }
+      ],
+      "conditions": "Search: `git -C vendor/terraform-provider-ztc grep -n -E '\\.(Update|UpdateAccountGroups)\\(ctx' v0.2.0 -- ztc` lists the call sites; `git grep -n 'recover()' v0.2.0` finds none. Whether the panic happens depends on the API answering a PUT with an empty body (gap ztw-update-empty-reply). Effect on the reorder helpers (a goroutine ending before it signals completion) was not traced here; see [[cloud-connector.terraform.rule-order]].",
+      "gaps": [
+        "ztw-update-empty-reply"
+      ]
+    },
+    "pointer-mutators-deref-before-nil-check": {
+      "statement": "`forwarding_rules.Create` and `Update` take a pointer and dereference it (`*rules`) when building the call to the generic helper. A nil pointer panics at that dereference. The generic helpers' own nil-payload checks cannot catch it, because the value passed to them is already a struct copy that is never a nil interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.CreateResource(ctx, forwardingRulesEndpoint, *rules)"
+          ],
+          "after": "func Create(ctx context.Context, service *zscaler.Service, rules *ForwardingRules) (*ForwardingRules, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "UpdateWithPutResource(ctx, fmt.Sprintf(\"%s/%d\", forwardingRulesEndpoint, ruleID), *rules)"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, ruleID int, rules *ForwardingRules) (*ForwardingRules, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztwrequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "return nil, errors.New(\"tried to create with a nil payload not a Struct\")"
+          ],
+          "after": "func (c *Client) CreateResource(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {"
+        }
+      ],
+      "conditions": "Plain Go semantics (dereferencing a nil pointer panics), not run here.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 20 (ZTW SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "pointer-mutators-same-pattern": {
+      "statement": "The same dereference of a pointer parameter precedes the generic call in the create and update functions of the other ZTW services: admin roles, DNS gateway, DNS forwarding gateway, ZIA forwarding gateway, location, location template, account groups, public cloud info (including `GenerateExternalID`), discovery permissions, DNS and log rules, IP destination, IP, and IP source groups, network service groups and services, API keys, the provisioning URL, and workload groups.",
+      "tier": "B",
+      "derived_from": [
+        "pointer-mutators-deref-before-nil-check"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/partner_integrations/partner_integrations.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "_, err := service.Client.UpdateWithPutResource(ctx, endpoint, *permissions)"
+          ],
+          "after": "func UpdateDiscoveryPermissions(ctx context.Context, service *zscaler.Service, awsAccountID int, permissions *DiscoveryPermissions) error {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/workload_groups/workload_groups.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.Create(ctx, workloadGroupsEndpoint, *groups)"
+          ]
+        }
+      ],
+      "conditions": "Search: `git -C vendor/zscaler-sdk-go grep -n -E 'Client\\.[A-Za-z]+\\(ctx, .*, \\*[a-zA-Z]+\\)' v3.8.40 -- zscaler/ztw` lists the dereferencing call sites; files with a match are the ones named. Whether each enclosing function takes a pointer parameter was read from the matched lines' neighbors for the two quoted examples only.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 20 (ZTW SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "provider-passes-non-nil-pointers": {
+      "statement": "The ZTC provider's create and update paths pass the address of a locally built request (`&req`) or a rule taken from a list, so the provider does not hand these functions a nil pointer.",
+      "tier": "B",
+      "derived_from": [
+        "pointer-mutators-same-pattern"
+      ],
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "_, err = forwarding_rules.Update(ctx, service, id, &req)"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_provisioning_url.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, _, err := provisioning_url.Create(ctx, service, &req)"
+          ]
+        }
+      ],
+      "conditions": "Same search as for the update call sites (`git grep -n -E '\\.(Update|Create)[A-Za-z]*\\(ctx' v0.2.0 -- ztc`); every match reviewed passes `&req`, `&rule`, or a rule variable from the enclosing list loop. The loop variables were not traced to a possible nil, so this is a code-reading result, not a proof."
+    },
+    "location-vpc-info-value-structs": {
+      "statement": "The ZTW location request holds `VPCInfo` by value with `omitempty`, and `VPCInfo` holds `CloudMeta` by value with `omitempty`. Every member of both is itself `omitempty`, so a location whose VPC information is unset still has two struct-valued fields that Go's JSON encoder never omits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/locationmanagement/location/location.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "VPCInfo VPCInfo `json:\"vpcInfo,omitempty\"`",
+            "CloudMeta CloudMeta `json:\"cloudMeta,omitempty\"`",
+            "CloudProvider string `json:\"cloudProvider,omitempty\"`"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 20 (ZTW SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "location-write-emits-empty-vpc-object": {
+      "statement": "Creating or updating a location with the VPC information left unset therefore sends `\"vpcInfo\":{\"cloudMeta\":{}}` rather than omitting the member. The ZTC provider at v0.2.0 does not reach this: its location management resource is commented out and unregistered, and the location data source only reads.",
+      "tier": "B",
+      "derived_from": [
+        "location-vpc-info-value-structs",
+        "shared.sdk-go.zero-value-writes:value-struct-omitempty-emits-empty-object",
+        "shared.sdk-go.zero-value-writes:ztw-writes-marshal-caller-struct"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/locationmanagement/location/location.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.CreateResource(ctx, locationsEndpoint, *locations)"
+          ],
+          "after": "func Create(ctx context.Context, service *zscaler.Service, locations *Locations) (*Locations, error) {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/provider.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"ztc_location_management\":         dataSourceLocationManagement(),"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_location_management.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "package ztc\n\n/*"
+          ]
+        }
+      ],
+      "conditions": "Chain of evidence: the encoder behavior is the one reproduced for the shared claim, and no custom MarshalJSON was searched for in the ZTW location package. What the API does with the empty object is gap ztw-empty-vpc-object-semantics. Provider absence: the resource file begins with a block comment, and `git grep -n 'ztc_location_management' v0.2.0 -- ztc/provider.go` finds only the data source entry (the same at HEAD).",
+      "gaps": [
+        "ztw-empty-vpc-object-semantics"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 20 (ZTW SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "location-template-editable-always-false": {
+      "statement": "The location template request carries `Editable` as a plain bool with no `omitempty`, and the provider's request builder never sets it. Every create and update of a location template therefore sends `\"editable\":false` (top level and in the nested `template` object), including an update of a template the server reported as editable. Whether the server honors or ignores that field on a PUT is not established.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/locationmanagement/locationtemplate/locationtemplates.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "Editable bool `json:\"editable\"`"
+          ],
+          "after": "type LocationTemplate struct {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_location_template.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "Description: d.Get(\"desc\").(string),"
+          ],
+          "after": "func expandLocationTemplate(d *schema.ResourceData) locationtemplate.LocationTemplate {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_location_template.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, _, err := locationtemplate.Update(ctx, service, id, &req); err != nil {"
+          ]
+        }
+      ],
+      "conditions": "Absence claim from a search: `git -C vendor/terraform-provider-ztc grep -n -i 'editable' <ref> -- ztc/resource_ztc_location_template.go` finds nothing at v0.2.0 or HEAD, and the request builder is a struct literal that lists no `Editable` member. The update does not read the template first, so response-only fields the schema lacks are also absent from the body. Effect on the server is gap ztw-update-replaces-template.",
+      "gaps": [
+        "ztw-update-replaces-template"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 20 (ZTW SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ztw-update-empty-reply": {
+      "kind": "semantic",
+      "title": "Whether any ZTW update endpoint answers a PUT with an empty body",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether the ignored-assertion dereference in the ZTW update functions panics in practice",
+      "detail": "Against a scratch tenant, send a valid PUT through each ZTW update function the provider calls (forwarding, DNS, and log rules, gateways, groups, services, location template, provisioning URL) and record the status code and whether the body is empty. Any 204 or empty 200 is a panic path."
+    },
+    "ztw-empty-vpc-object-semantics": {
+      "kind": "semantic",
+      "title": "What the ZTW location API does with an empty vpcInfo object",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether the phantom VPC object is harmless, ignored, or clears existing VPC information",
+      "detail": "Update a location that has VPC information with a body that carries an empty `vpcInfo` object, then read it back; repeat with the member omitted. Compare."
+    },
+    "ztw-update-replaces-template": {
+      "kind": "semantic",
+      "title": "Whether a location template PUT replaces the whole object or merges",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether sending editable false and omitting server-managed fields changes the stored template",
+      "detail": "Read an editable template, send a PUT that changes only the name through the provider's request shape (editable false, no server-managed fields), and read it back. Record whether editable and other fields change."
+    }
+  }
+}

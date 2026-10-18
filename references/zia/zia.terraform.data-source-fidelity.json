@@ -1,0 +1,1426 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.data-source-fidelity",
+  "title": "What ZIA Terraform data sources return, drop, or get wrong",
+  "aliases": [
+    "zia data source returns nothing",
+    "zia data source fails to read",
+    "terraform data source panic zia",
+    "zia data source wrong object",
+    "data source missing attribute zia",
+    "data source returns first device",
+    "Invalid address to set zia",
+    "zia data source empty result no error",
+    "zia data source dropped field"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.error-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terraform.credential-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-selection"
+    }
+  ],
+  "claims": {
+    "sandbox-rss-signature-sources-scalar-in-set": {
+      "statement": "In the sandbox report data source, each risk/signature entry declares `signature_sources` as a `TypeSet`, but the SDK field it is filled from is a single `string`, and the flattener assigns that string directly into the map handed to `d.Set`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_sandbox_report.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func commonSandboxRSSSchema(fieldName string) *schema.Schema {",
+          "quotes": [
+            "\"signature_sources\": { Type: schema.TypeSet,"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_sandbox_report.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func flattenSandboxRSS(items []*common.SandboxRSS) []interface{} {",
+          "quotes": [
+            "m[\"signature_sources\"] = item.SignatureSources"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/common/common.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "SignatureSources string `json:\"SignatureSources,omitempty\"`"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "sandbox-rss-scalar-set-panics": {
+      "statement": "Writing a scalar string into a nested `TypeSet` through `d.Set` makes the Terraform plugin SDK panic on a failed type assertion instead of returning an error, so a sandbox report that has any spyware, networking, security-bypass, exploit, stealth or persistence entry can crash the provider process during the read. This applies only when `details = \"full\"`, the only branch that flattens the RSS.",
+      "tier": "B",
+      "derived_from": [
+        "sandbox-rss-signature-sources-scalar-in-set"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "go.mod",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "github.com/hashicorp/terraform-plugin-sdk/v2 v2.40.1"
+          ]
+        }
+      ],
+      "conditions": "Depends on terraform-plugin-sdk v2.40.1, which is not vendored in this repository. Read from the module source (helper/schema/field_writer_map.go, MapFieldWriter.setSet): a non-slice value skips the slice-to-Set conversion and reaches `value.(*Set)`, an unchecked assertion. Not executed. The panic also needs a report whose RSS lists are non-empty, which depends on what the sandbox returns.",
+      "gaps": [
+        "api-response-shape-for-flattener-failures"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "gre-vip-negative-required-count-slices": {
+      "statement": "`required_count` in the GRE VIP recommendation data source has a default of 5 and no validation. After the SDK call the code compares the list length with it and slices `[:requiredCount]`; a negative value always passes the comparison and makes the slice expression panic (Go rejects a negative slice bound at run time).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_traffic_forwarding_gre_vip_recommended_list.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"required_count\": { Type: schema.TypeInt, Optional: true, Default: 5, },"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_traffic_forwarding_gre_vip_recommended_list.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func dataSourceTrafficForwardingGreVipRecommendedListRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if len(*resp) > requiredCount { *resp = (*resp)[:requiredCount] }"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "dlp-web-excluded-lists-emit-undeclared-name": {
+      "statement": "In the DLP web rules data source, `excluded_groups`, `excluded_departments` and `excluded_users` declare only `id` and `extensions`. They are filled by the shared `flattenIDExtensions`, which always emits `id`, `name` and `extensions`, from SDK lists of `IDNameExtensions`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_dlp_web_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "Description: \"The name-ID pairs of the users that are excluded from the DLP policy rule.\", Elem: &schema.Resource{ Schema: map[string]*schema.Schema{ \"id\": { Type: schema.TypeInt, Computed: true, Description: \"Identifier that uniquely identifies an entity\", }, \"extensions\": {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_dlp_web_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := d.Set(\"excluded_users\", flattenIDExtensions(resp.ExcludedUsers)); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func flattenIDExtensions(list []common.IDNameExtensions) []interface{} {",
+          "quotes": [
+            "\"name\": val.Name, \"extensions\": val.Extensions,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "ExcludedUsers []common.IDNameExtensions `json:\"excludedUsers,omitempty\"`"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "forwarding-control-segment-key-misspelled-and-extensions": {
+      "statement": "The forwarding control rule data source declares the ECZPA application segment description under the key `ddescription` while its flattener emits `description`. Separately, `ec_groups`, `locations` and `location_groups` declare only `id` and `name` (`ec_groups` is quoted), but those blocks are filled by `flattenIDNameExtensions`, which adds an `extensions` key whenever the SDK object carries a non-nil extensions map.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_forwarding_control_rule.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"ddescription\": {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_forwarding_control_rule.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func flattenZPAApplicationSegments(list []forwarding_rules.ZPAApplicationSegments) []interface{} {",
+          "quotes": [
+            "\"description\": val.Description,"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_forwarding_control_rule.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "\"ec_groups\": {",
+          "quotes": [
+            "\"id\": { Type: schema.TypeInt, Computed: true, Description: \"Identifier that uniquely identifies an entity\", }, \"name\": { Type: schema.TypeString, Computed: true, Description: \"The configured name of the entity\", }, }, }, },"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_forwarding_control_rule.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := d.Set(\"ec_groups\", flattenIDNameExtensions(resp.ECGroups)); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func flattenIDNameExtensions(list []common.IDNameExtensions) []interface{} {",
+          "quotes": [
+            "if val.Extensions != nil { r[\"extensions\"] = val.Extensions }"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "static-ip-managed-by-emits-undeclared-extensions": {
+      "statement": "The static IP data source declares `managed_by` with only `id` and `name`, but `flattenStaticManagedBy` always adds an `extensions` key, and the result goes to a checked `d.Set`. The SDK `ManagedBy` struct does carry an `Extensions` map.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_traffic_forwarding_static_ips.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "\"managed_by\": {",
+          "quotes": [
+            "\"id\": { Type: schema.TypeInt, Computed: true, }, \"name\": { Type: schema.TypeString, Computed: true, }, }, }, }, \"last_modified_by\": {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_traffic_forwarding_static_ips.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func flattenStaticManagedBy(managedBy *staticips.ManagedBy) interface{} {",
+          "quotes": [
+            "\"extensions\": managedBy.Extensions,"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_traffic_forwarding_static_ips.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := d.Set(\"managed_by\", flattenStaticManagedBy(resp.ManagedBy)); err != nil {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/trafficforwarding/staticips/staticips.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "type ManagedBy struct {",
+          "quotes": [
+            "Extensions map[string]interface{} `json:\"extensions,omitempty\"`"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "flatten-schema-shape-mismatch-elsewhere": {
+      "statement": "Three more data sources hand a checked `d.Set` a shape its schema does not declare. The DLP dictionary data source declares `primary_field` (an int) under `exact_data_match_details` but its flattener emits `primary_fields` carrying the SDK's `[]int`. SSL inspection `proxy_gateways` declares `id` as an int but its flattener returns one object whose `id` is a slice of ints. Cloud App Control `cbi_profile` is a `TypeList` but its flattener returns a single map, with an extra `profile_seq` key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_dlp_dictionaries.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"primary_field\": { Type: schema.TypeInt,"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_dlp_dictionaries.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func flattenEDMDetails(edm *dlpdictionaries.DlpDictionary) []interface{} {",
+          "quotes": [
+            "\"primary_fields\": val.PrimaryFields,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlpdictionaries/dlpdictionaries.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "PrimaryFields []int `json:\"primaryFields,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_ssl_inspection_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "\"proxy_gateways\": {",
+          "quotes": [
+            "\"id\": { Type: schema.TypeInt, Computed: true, Description: \"A unique identifier assigned to the Application Segment\","
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func flattenIDExtensionsListIDs(list []common.IDNameExtensions) []interface{} {",
+          "quotes": [
+            "\"id\": ids,"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_cloud_app_control_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"cbi_profile\": { Type: schema.TypeList, Computed: true,"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_cloud_app_control_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "func flattenCloudAppControlCBIProfile(cbiProfile *cloudappcontrol.CBIProfile) map[string]interface{} {",
+            "\"profile_seq\": cbiProfile.ProfileSeq,"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "browser-control-data-source-sets-undeclared-keys": {
+      "statement": "The browser control data source declares `smart_isolation_profile_id` and `smart_isolation_profile` but no `smart_isolation_groups` or `smart_isolation_users`, and then calls `d.Set` on those two keys with checked errors. It never sets `smart_isolation_profile_id`, which the SDK model carries.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_browser_control_policy.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := d.Set(\"smart_isolation_groups\", flattenIDNameExtensions(resp.SmartIsolationGroups)); err != nil {",
+            "if err := d.Set(\"smart_isolation_users\", flattenIDNameExtensions(resp.SmartIsolationUsers)); err != nil {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/browser_control_settings/browser_control_settings.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "SmartIsolationProfileID int `json:\"smartIsolationProfileId,omitempty\"`"
+          ]
+        }
+      ],
+      "conditions": "Absence claim. Search: `git grep -n smart_isolation_groups v4.8.3 -- zia/data_source_zia_browser_control_policy.go` returns only the d.Set line, and the same for smart_isolation_users; `smart_isolation_profile_id` appears once, in the schema. Same result at the pin.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "undeclared-key-write-errors": {
+      "statement": "A checked `d.Set` that receives a key the schema does not declare returns an error, and these data sources return it as a diagnostic, so the whole read fails. Because the failing key is emitted per element, the data source fails only for responses that actually contain such an element (a populated excluded list, an ECZPA segment, a `managed_by` object, an EDM mapping, a CBI profile, a proxy gateway), and works on tenants whose objects are empty. The browser control data source is the exception to any data dependence: its two undeclared top-level keys fail whenever the API responds.",
+      "tier": "B",
+      "derived_from": [
+        "dlp-web-excluded-lists-emit-undeclared-name",
+        "forwarding-control-segment-key-misspelled-and-extensions",
+        "static-ip-managed-by-emits-undeclared-extensions",
+        "flatten-schema-shape-mismatch-elsewhere",
+        "browser-control-data-source-sets-undeclared-keys"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "go.mod",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "github.com/hashicorp/terraform-plugin-sdk/v2 v2.40.1"
+          ]
+        }
+      ],
+      "conditions": "Depends on terraform-plugin-sdk v2.40.1, which is not vendored. Read from the module source (helper/schema/field_writer_map.go): MapFieldWriter returns `Invalid address to set` when the schema lookup for a key is empty, and setObject propagates the error of each nested key. Not executed. Whether real responses contain the triggering objects is server data.",
+      "gaps": [
+        "api-response-shape-for-flattener-failures"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "endpoint-tag-multi-result-id-not-numeric": {
+      "statement": "The DLP endpoint resource group tag data source declares its `id` as an integer, but when the result is not exactly one tag (the normal unfiltered channel read) it sets the resource ID to the channel name, for example `PRINTING`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_dlp_endpoint_resource_group_tag.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"id\": { Type: schema.TypeInt, Optional: true, Description: \"The unique identifier of a specific tag to return."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_dlp_endpoint_resource_group_tag.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if matched == 1 { d.SetId(strconv.Itoa(lastID)) } else { d.SetId(string(channel)) }"
+          ]
+        }
+      ],
+      "gaps": [
+        "nonnumeric-or-empty-id-outcome"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "endpoint-tag-id-lookup-uses-association-endpoint": {
+      "statement": "When `id` is given, the same data source passes it to the SDK's `GetResourceGroupTag`, which the SDK documents as taking a DLP resource ID and which requests `/dlpEndpointResource/{id}/groups`. The data source describes the value as a tag ID; the tag catalog is read by a different function from a different endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_dlp_endpoint_resource_group_tag.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "tags, err := endpoint_resource_group.GetResourceGroupTag(ctx, service, filterID)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/endpoint_resource_group/endpoint_resource_group.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "specified DLP resource is associated.",
+            "endpoint := fmt.Sprintf(\"%s/%d/groups\", dlpEndpointResourceEndpoint, id)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "devices-unused-selectors-fall-back-to-first-device": {
+      "statement": "The devices data source declares `hostname` and `device_group_type` as optional selectors, but its lookup branches and its \"nothing was given\" fallback test only name, model, owner, OS type and OS version. A configuration that sets only `hostname` or only `device_group_type` therefore takes the fallback, lists every device and binds to the first one. If that list is empty the read returns without setting an ID and without an error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_devices.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"hostname\": { Type: schema.TypeString, Optional: true, Computed: true,",
+            "\"device_group_type\": { Type: schema.TypeString, Optional: true, Computed: true,"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_devices.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func dataSourceDevicesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if resp == nil && name == \"\" && model == \"\" && owner == \"\" && osType == \"\" && osVersion == \"\" {",
+            "resp = &allDevices[0]",
+            "// No devices found, do not set ID"
+          ]
+        }
+      ],
+      "gaps": [
+        "nonnumeric-or-empty-id-outcome"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "domain-profiles-id-selector-never-read": {
+      "statement": "The domain profiles data source declares the selector `profile_id`, but its read takes the integer from the key `id`, so `profile_id` is never consulted and an ID-only configuration reaches the not-found error. The selected profile's ID is never written back to `profile_id`.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_domain_profiles.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"profile_id\": { Type: schema.TypeInt, Computed: true, Optional: true,",
+            "id, idOk := getIntFromResourceData(d, \"id\")"
+          ]
+        }
+      ],
+      "conditions": "Absence claim. Search: `git grep -n profile_id v4.8.3 -- zia/data_source_zia_domain_profiles.go` finds the schema declaration only; there is no d.Get or d.Set of it. The schema has no `id` key. Same result at the pin.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "dc-exclusions-invalid-id-selects-everything": {
+      "statement": "The DC exclusions data source parses its string `id` with `strconv.Atoi` and treats a parse failure as if `id` had not been given. With no other selector the filter step is skipped and the full list is returned, so a mistyped ID widens the result to every exclusion.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_dc_exclusions.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func dataSourceDCExclusionsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if parsed, err := strconv.Atoi(idStr.(string)); err == nil {",
+            "filtered := all",
+            "if hasID || hasName {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "id-and-name-first-match-wins": {
+      "statement": "The CASB email label and quarantine tombstone template data sources scan the list and stop at the first entry that matches the ID or matches the name. Nothing requires the two selectors to agree, so with both set the result is whichever matching entry comes first in the response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_casb_email_label.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if idOk && label.ID == id {",
+            "if name != \"\" && label.Name == name {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_casb_tombstone_template.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if idOk && template.ID == id {",
+            "if name != \"\" && template.Name == name {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "predefined-rule-count-never-sent": {
+      "statement": "The firewall filtering rule data source accepts `predefined_rule_count` and copies it into the SDK filter options, but the only SDK function that turns that option into a query parameter is the rule-count function, which the data source does not call. The list call it does make ignores the option.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_firewall_filtering_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "boolv(\"predefined_rule_count\", &opts.PredefinedRuleCount)",
+            "allRules, err := filteringrules.GetAll(ctx, service, opts)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func GetFirewallFilteringRuleCount(",
+          "quotes": [
+            "query.Set(\"predefinedRuleCount\", strconv.FormatBool(opts.PredefinedRuleCount))"
+          ]
+        }
+      ],
+      "conditions": "Absence claim. Search: `git grep -n predefinedRuleCount v3.8.44 -- zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go` returns one line, inside GetFirewallFilteringRuleCount; the data source file contains no call to that function. The same SDK file is unchanged at the pin for this function.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "gre-vip-false-and-zero-filters-dropped": {
+      "statement": "The GRE VIP recommendation data source adds each boolean and coordinate filter only when `d.GetOk` reports it set, and `GetOk` is false for an explicit `false` or `0`. For `within_country_only = false` the option is never added, and the SDK then fills the missing parameter with `true`, so the opposite of the configured value is requested. Zero latitude or longitude is dropped the same way.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_traffic_forwarding_gre_vip_recommended_list.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if v, ok := d.GetOk(\"within_country_only\"); ok {",
+            "if v, ok := d.GetOk(\"latitude\"); ok {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/trafficforwarding/virtualipaddress/virtualipaddress.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "if queryParams.Get(\"withinCountryOnly\") == \"\" { queryParams.Set(\"withinCountryOnly\", \"true\") }"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "gre-vip-empty-id-without-source-ip": {
+      "statement": "`source_ip` is optional on the GRE VIP recommendation data source and the read ends with an unconditional `d.SetId(sourceIP)`, so a configuration without it finishes with an empty ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_traffic_forwarding_gre_vip_recommended_list.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"source_ip\": { Type: schema.TypeString, Optional: true, },",
+            "d.SetId(sourceIP)"
+          ]
+        }
+      ],
+      "gaps": [
+        "nonnumeric-or-empty-id-outcome"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "case-sensitive-name-lookups-diverge-from-sdk": {
+      "statement": "Six ZIA data sources look a name up with exact string equality over a fetched list, where the SDK's own by-name helper for the same object compares with `strings.EqualFold`: firewall time windows, rule labels, sub-clouds, UEBA alert definitions, departments and groups. A name that differs only in case is found by the SDK helper and not by the data source.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_fw_filtering_time_window.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if tw.Name == nameStr {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/timewindow/timewindow.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "if strings.EqualFold(timeWindow.Name, timeWindowName) {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_rule_labels.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if label.Name == nameStr {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/rule_labels/rule_labels.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "if strings.EqualFold(ruleLabel.Name, labelName) {"
+          ]
+        }
+      ],
+      "conditions": "Search: for each of the six data sources the name comparison was read at v4.8.3 and the matching SDK by-name function at v3.8.44 (sub_clouds.go, alert_definitions.go, departments.go, group.go also use EqualFold); only two pairs are quoted. Whether ZIA treats names that differ only in case as distinct objects is server behavior. The data sources never call the SDK helper.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "rule-type-optional-in-schema-required-at-read": {
+      "statement": "The CASB DLP, CASB malware and Cloud App Control rule data sources declare `type` as optional (and computed for the CASB rules), and their read returns `type must be specified` when it is empty. A configuration that passes validation with only an ID or name fails at read time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_casb_dlp_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"type\": { Type: schema.TypeString, Optional: true, Computed: true,",
+            "return diag.FromErr(fmt.Errorf(\"type must be specified\"))"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_cloud_app_control_rules.go",
+          "at": [
+            "v4.8.3"
+          ],
+          "quotes": [
+            "return diag.FromErr(fmt.Errorf(\"type must be specified\"))"
+          ]
+        }
+      ]
+    },
+    "cloud-applications-name-filter-empty-success": {
+      "statement": "The cloud applications data source treats an empty API response as an error, but applies its `app_name` filter after that check. A name that matches nothing leaves an empty `applications` list, an ID of the policy type, and no diagnostic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_cloud_applications.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func dataSourceCloudApplicationsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if resp, ok := rawResp.([]cloudapplications.CloudApplications); ok && len(resp) > 0 {",
+            "if hasAppName && app.AppName != appNameFilter.(string) {",
+            "if err := d.Set(\"applications\", applications); err != nil {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "datacenter-lookups-no-match-succeed": {
+      "statement": "The datacenters data source and the name filter of the DC exclusions data source filter a fetched list and, when nothing matches, set a synthetic ID built from the filter (`name-...`, `city-...`, `id-...`) and an empty list, with no not-found error. Only the ID filter of the DC exclusions data source errors on an empty result.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_datacenters.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "d.SetId(fmt.Sprintf(\"name-%s\", filterName.(string)))",
+            "filtered = result"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_dc_exclusions.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if hasID && len(filtered) == 0 {",
+            "d.SetId(fmt.Sprintf(\"name-%s\", filterName.(string)))"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "file-type-categories-swallow-enum-failure": {
+      "statement": "To look a category up by ID or name without an enum, the file type categories data source queries three enum scopes. A failure of any one scope is logged as a warning and skipped. If the category lives in the failed scope the result is a not-found error, and otherwise the data source succeeds on an incomplete set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_file_type_categories.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "allEnums := []string{\"ZSCALERDLP\", \"EXTERNALDLP\", \"FILETYPECATEGORYFORFILETYPECONTROL\"}",
+          "quotes": [
+            "log.Printf(\"[WARN] Failed to get file type categories for enum %s: %v\", enumVal, err) continue",
+            "if resp == nil { return diag.FromErr(fmt.Errorf(\"couldn't find any file type category with id '%d'\", id)) }"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "value-structs-flattened-into-present-blocks": {
+      "statement": "Several data sources pass a value-typed (non-pointer) SDK sub-object to a flattener that always returns one block. The sandbox report wraps `Summary`, `Classification` and `FileProperties` unconditionally. The SSL inspection rule flattens `Action` unconditionally. The browser control data source passes the address of the value field `SmartIsolationProfile`. A response that omits the object decodes to a zero value and is then shown as a present block of empty values; the read cannot tell the two apart.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_sandbox_report.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "d.Set(\"summary\", []interface{}{flattenSummaryDetail(resp.Details.Summary)})"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_report/sandbox_report.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "type FullDetails struct {",
+          "quotes": [
+            "Summary SummaryDetail `json:\"Summary,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_ssl_inspection_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := d.Set(\"action\", flattenSSLInspectionAction(resp.Action)); err != nil {",
+            "func flattenSSLInspectionAction(action sslinspection.Action) []interface{} {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "Action Action `json:\"action,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_browser_control_policy.go",
+          "at": [
+            "v4.8.3"
+          ],
+          "quotes": [
+            "d.Set(\"smart_isolation_profile\", flattenSmartIsolationProfile(&resp.SmartIsolationProfile))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/browser_control_settings/browser_control_settings.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "SmartIsolationProfile SmartIsolationProfile `json:\"smartIsolationProfile,omitempty\"`"
+          ]
+        }
+      ],
+      "gaps": [
+        "api-response-shape-for-flattener-failures"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "browser-control-pin-skips-empty-profile": {
+      "statement": "At the pinned provider commit the browser control flattener returns no block when the profile has no ID, name or URL, so the empty-block case above is fixed there for this data source.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_browser_control_policy.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "if cbiProfile.ID == \"\" && cbiProfile.Name == \"\" && cbiProfile.URL == \"\" { return nil }"
+          ]
+        }
+      ]
+    },
+    "url-filtering-criteria-dropped": {
+      "statement": "The SDK URL filtering rule model carries `sourceCountries`, `userRiskScoreLevels`, `httpHeaderProfiles` and `httpHeaderActionProfiles`. The URL filtering rules data source declares none of them and never sets them, although its documentation lists `source_countries` and `user_risk_score_levels`. A rule restricted by source country or user risk is returned without that restriction.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "at": [
+            "v3.8.44"
+          ],
+          "quotes": [
+            "UserRiskScoreLevels []string `json:\"userRiskScoreLevels,omitempty\"`",
+            "SourceCountries []string `json:\"sourceCountries,omitempty\"`",
+            "HTTPHeaderProfiles []common.IDNameExtensions `json:\"httpHeaderProfiles,omitempty\"`"
+          ]
+        }
+      ],
+      "conditions": "Absence claim. Search: `git grep -c -e source_countries -e user_risk_score_levels -e http_header v4.8.3 -- zia/data_source_zia_url_filtering_rules.go` finds no match. The documentation line is in docs/data-sources/zia_url_filtering_rules.md at v4.8.3. The SDK file changed between v3.8.44 and the pin, so the model is anchored at v3.8.44 only. The resource-side handling of these fields is a separate question.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "traffic-capture-ipv6-groups-dropped": {
+      "statement": "The SDK traffic capture rule model carries `srcIpv6Groups` and `destIpv6Groups`. The traffic capture rules data source declares and sets other criteria (it sets `source_countries`) but has no IPv6 group attributes, so a rule scoped by IPv6 address groups is returned without that scope.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/traffic_capture/traffic_capture.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "SrcIpv6Groups []common.IDNameExtensions `json:\"srcIpv6Groups,omitempty\"`",
+            "DestIpv6Groups []common.IDNameExtensions `json:\"destIpv6Groups,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_traffic_capture_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "_ = d.Set(\"source_countries\", resp.SourceCountries)"
+          ]
+        }
+      ],
+      "conditions": "Absence claim. Search: `git grep -n -i ipv6 v4.8.3 -- zia/data_source_zia_traffic_capture_rules.go` returns nothing. Same at the pin.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "location-association-arrays-dropped": {
+      "statement": "The SDK location model carries `dynamiclocationGroups`, `staticLocationGroups`, `virtualZenClusters` and `virtualZens`. The location management data source declares none of them and never sets them, although its documentation lists `virtual_zens` and `virtual_zen_clusters`. The links from a location to its location groups and Virtual Service Edges cannot be read through it.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/location/locationmanagement/locationmanagement.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "DynamiclocationGroups []common.IDNameExtensions `json:\"dynamiclocationGroups\"`",
+            "VirtualZens []common.IDNameExtensions `json:\"virtualZens\"`"
+          ]
+        }
+      ],
+      "conditions": "Absence claim. Search: `git grep -n -i -e dynamic -e virtual_zen -e static_location v4.8.3 -- zia/data_source_zia_location_management.go` returns nothing. The documentation lines are in docs/data-sources/zia_location_management.md at v4.8.3.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "ssl-inspection-fields-switched-off-in-source": {
+      "statement": "The SSL inspection rules data source has its `access_control` attribute and the matching `d.Set` commented out, although the SDK model carries `accessControl`. It declares `time_windows` but never sets it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_ssl_inspection_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "// \"access_control\": {",
+            "// _ = d.Set(\"access_control\", resp.AccessControl)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "AccessControl string `json:\"accessControl,omitempty\"`"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "workload-group-blocks-flattened-to-id-and-name": {
+      "statement": "The SSL inspection, traffic capture and URL filtering rule data sources declare `workload_groups` with description, expression, expression JSON and audit fields, and fill it with `flattenWorkloadGroups`, which emits only `id` and `name` from the SDK's `IDName` list. The extra attributes cannot be populated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func flattenWorkloadGroups(workloadGroups []common.IDName) []interface{} {",
+          "quotes": [
+            "wgMap[\"id\"] = wg.ID wgMap[\"name\"] = wg.Name"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_url_filtering_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := d.Set(\"workload_groups\", flattenWorkloadGroups(resp.WorkloadGroups)); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_traffic_capture_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := d.Set(\"workload_groups\", flattenWorkloadGroups(resp.WorkloadGroups)); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_ssl_inspection_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := d.Set(\"workload_groups\", flattenWorkloadGroups(resp.WorkloadGroups)); err != nil {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "WorkloadGroups []common.IDName `json:\"workloadGroups,omitempty\"`"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "external-id-attributes-cannot-be-populated": {
+      "statement": "The receiver tenant block in the DLP web rules and CASB DLP rules data sources, and the `zscaler_app_tenant_id` block in the cloud-to-cloud incident receiver data source, declare a nested `external_id`. All three are filled by `flattenIDExtensionsList`, which emits only `id`, `name` and `extensions`, from an SDK type that has no external ID field. Those `external_id` attributes are always empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_casb_dlp_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"external_id\": {",
+            "result[\"tenant\"] = flattenIDExtensionsList(receiver.Tenant)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func flattenReceiver(receiver *dlp_web_rules.Receiver) []map[string]interface{} {",
+          "quotes": [
+            "result[\"tenant\"] = flattenIDExtensionsList(receiver.Tenant)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_dlp_cloud_to_cloud_ir.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "result[\"zscaler_app_tenant_id\"] = flattenIDExtensionsList(entity.ZscalerAppTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func flattenIDExtensionsList(idNameExtension *common.IDNameExtensions) []interface{} {",
+          "quotes": [
+            "\"id\": idNameExtension.ID, \"name\": idNameExtension.Name, \"extensions\": idNameExtension.Extensions,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/common/common.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "type IDNameExtensions struct { ID int `json:\"id,omitempty\"` Name string `json:\"name,omitempty\"` Extensions map[string]interface{} `json:\"extensions,omitempty\"` }"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "declared-or-sdk-fields-never-populated": {
+      "statement": "Beyond the cases above, these data sources omit fields their SDK models carry, or declare attributes they never set: NAT control rules (`access_control`, `trusted_resolver_rule`); sandbox rules (`access_control`, `time_windows`, `device_groups`, `devices`, `default_rule`); firewall DNS rules (`access_control`, DNS gateway, ZPA IP group, EDNS ECS object, `is_eun_enabled`); firewall IPS rules (`access_control`); file type control rules (`password_protected`, browser EUN template ID); DLP EDM schema (`schema_status`); DLP web rules (`ocr_enabled`, `user_risk_score_levels`); Cloud App Control (`user_risk_score_levels`, and `device_trust_levels` declared but not set); CASB DLP rules (`redaction_profile` declared but not set); CASB email label (`label_desc`, `label_color`); devices (`hostname` never set); SSL inspection (`time_windows` declared but not set); browser control (`smart_isolation_profile_id` declared but not set); forwarding control rules (`devices`, `device_groups` declared but not set, `app_service_groups` omitted); GRE VIP list (`country_code`). (Forwarding control `devices` is declared but has no SDK field; the rest of the list is carried by the SDK models.)",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "DefaultRule bool `json:\"defaultRule\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/nat_control_policies/nat_control_policies.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "TrustedResolverRule bool `json:\"trustedResolverRule,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_exact_data_match/dlp_exact_data_match.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "SchemaStatus string `json:\"schemaStatus,omitempty\"`"
+          ]
+        }
+      ],
+      "conditions": "Absence claim, searched per data source at provider tag v4.8.3 (unchanged at the pin for these files except Cloud App Control, which gained an unrelated attribute): `git grep -n <quoted key> v4.8.3 -- zia/data_source_zia_<name>.go` for each snake_case key, where the key either has no match or appears once, in the schema, with no d.Set. The SDK model fields were each read at v3.8.44. Three representative model fields are quoted. Some of these are documented attributes, others are not.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "firewall-filtering-collection-mode-omits-fields": {
+      "statement": "The firewall filtering rule data source builds each element of its collection output with `flattenFirewallFilteringRuleToMap`, which omits `exclude_context_shield_end_point`, `is_eun_enabled`, `eun_template_id`, `end_point_applications` and `end_point_application_groups`, all of which its single-rule path sets. The same rule read by ID or name and read as part of the list therefore shows different content.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_firewall_filtering_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "_ = d.Set(\"eun_template_id\", resp.EUNTemplateID)",
+            "func flattenFirewallFilteringRuleToMap(r *filteringrules.FirewallFilteringRules) map[string]interface{} {"
+          ]
+        }
+      ],
+      "conditions": "Absence claim. Search: the five keys appear in the single-rule setter and in the element schema, and do not appear in the body of flattenFirewallFilteringRuleToMap, at v4.8.3. Same at the pin.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "nonnumeric-or-empty-id-outcome": {
+      "kind": "semantic",
+      "title": "What the plugin SDK and Terraform do with a data source that finishes with an empty ID, or a non-integer ID on an integer `id`",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether the devices empty-result path, the GRE VIP read without `source_ip`, and the multi-result endpoint tag read return an error, an empty state, or a state build failure",
+      "detail": "The code facts are certain: the devices data source returns without an ID when the device list is empty, the GRE VIP read sets an empty ID when source_ip is omitted, and the endpoint tag read sets a channel name as the ID of a schema whose `id` is an integer. What follows depends on terraform-plugin-sdk v2.40.1 (ResourceData.State returns nil for an empty ID; State reads every schema key through its type reader, and ResourceData.get panics on a reader error) and on Terraform core. Neither is vendored here and the behavior was read, not executed. Resolve with a provider test that runs each read against a fake SDK response and records the diagnostics and state."
+    },
+    "api-response-shape-for-flattener-failures": {
+      "kind": "semantic",
+      "title": "Whether real ZIA responses contain the objects that trigger the flattener failures and phantom blocks",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying how often the read failures, the sandbox panic and the empty blocks actually occur",
+      "detail": "Every claim about a failing or phantom flatten depends on a response containing a populated excluded list, an extensions map, an ECZPA segment, a managedBy object, an EDM mapping, a CBI profile, RSS entries, or on the API omitting a value-typed sub-object. The client code shows what happens if so; the server's responses are not shown by code. Resolve with scratch-tenant reads of each object type, or recorded API responses. Browser control needs no test: its undeclared top-level keys fail on every read."
+    }
+  }
+}

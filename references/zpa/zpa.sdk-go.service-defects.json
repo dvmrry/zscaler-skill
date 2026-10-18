@@ -1,0 +1,768 @@
+{
+  "schema_version": 1,
+  "id": "zpa.sdk-go.service-defects",
+  "title": "ZPA Go SDK service functions that return partial results, send wrong keys, or reject valid input",
+  "aliases": [
+    "provisioning key import not found",
+    "provisioning key GetAll partial",
+    "udpPortRangesg",
+    "cannot update a disabled schedule",
+    "assistant schedule enabled false",
+    "ApplicationValidation 400",
+    "UpdateWeightedLoadBalancerConfig nil",
+    "predefined control double encoded"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    }
+  ],
+  "claims": {
+    "provisioning-key-all-associations-fixed-list": {
+      "statement": "The provisioning-key lookups that do not take an association type (`GetByNameAllAssociations`, `GetByIDAllAssociations`) iterate a fixed SDK list of three association types: CONNECTOR_GRP, SERVICE_EDGE_GRP, NP_ASSISTANT_GRP. They also treat any error from one type's lookup (not only not-found) as a reason to try the next, and return the last attempt's error. A key stored under any other association type cannot be found through these helpers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"NP_ASSISTANT_GRP\","
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "for _, associationType := range ProvisioningKeyAssociationTypes {",
+            "if err == nil {"
+          ],
+          "after": "func GetByNameAllAssociations(ctx context.Context, service *zscaler.Service, name string) (p *ProvisioningKey, assoc_type string, resp *http.Response, err error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "for _, associationType := range ProvisioningKeyAssociationTypes {",
+            "p, resp, err = Get(ctx, service, associationType, id)"
+          ],
+          "after": "func GetByIDAllAssociations(ctx context.Context, service *zscaler.Service, id string) (p *ProvisioningKey, assoc_type string, resp *http.Response, err error) {"
+        }
+      ],
+      "conditions": "What the ZPA API stores or returns under SITE_CONTROLLER_GRP or EXPORTER_GRP is server behavior (gap provisioning-key-association-types). The code shows only that those types are never probed.",
+      "gaps": [
+        "provisioning-key-association-types"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "provider-provisioning-key-schema-and-importer": {
+      "statement": "The provider's `zpa_provisioning_key` schema accepts five `association_type` values, including SITE_CONTROLLER_GRP and EXPORTER_GRP, and its importer resolves the association type with the all-associations helpers whenever the import is by name or by numeric ID without `association_type` set. So the provider offers types the importer cannot find. Create, read, update and delete pass the configured association type directly and do not use the helpers.",
+      "tier": "A",
+      "derived_from": [
+        "provisioning-key-all-associations-fixed-list"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_provisioning_key.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"CONNECTOR_GRP\", \"SERVICE_EDGE_GRP\", \"SITE_CONTROLLER_GRP\", \"EXPORTER_GRP\", \"NP_ASSISTANT_GRP\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_provisioning_key.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "_, assoc_type, _, err := provisioningkey.GetByIDAllAssociations(ctx, service, id)",
+            "resp, assoc_type, _, err := provisioningkey.GetByNameAllAssociations(ctx, service, id)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_provisioning_key.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, _, err := provisioningkey.Get(ctx, service, associationType, d.Id())"
+          ]
+        }
+      ],
+      "conditions": "Reached at v4.4.10: yes, through import only. The statement that create/read/update/delete avoid the helpers rests on the grep `git -C vendor/terraform-provider-zpa grep -n 'AllAssociations' v4.4.10 -- zpa`, which matched only the two importer lines.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "provisioning-key-get-all-discards-errors": {
+      "statement": "`provisioningkey.GetAll` loops over the same fixed association list and assigns each type's result with the error discarded (`items, _ :=`). It always returns a nil error, so a failing association endpoint yields a shorter list reported as success.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "items, _ := GetAllByAssociationType(ctx, service, associationType)",
+            "return list, nil"
+          ],
+          "after": "func GetAll(ctx context.Context, service *zscaler.Service) (list []ProvisioningKey, err error) {"
+        }
+      ],
+      "conditions": "The provider at v4.4.10 calls `provisioningkey.GetAll` only from its sweeper test file (`zpa/provider_sweeper_test.go`); no non-test provider code was found calling it (git grep for `provisioningkey.GetAll(` in zpa/). It affects direct SDK callers and the sweeper, not apply.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "segment-group-udp-key-misspelled": {
+      "statement": "The segment group's nested `Application` struct tags its UDP port ranges `udpPortRangesg`. Responses carrying `udpPortRanges` do not fill the field, and a populated field is written under the misspelled key. The sibling TCP fields and the application segment SDK use `udpPortRanges`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "`json:\"udpPortRangesg,omitempty\"`",
+            "`json:\"tcpPortRanges,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "UDPPortRanges             []string"
+          ],
+          "after": "type ApplicationSegmentResource struct {"
+        }
+      ],
+      "conditions": "That the API's key is `udpPortRanges` is inferred from the application segment struct in the same SDK, not from an API capture. Whether the server ignores or rejects an unknown key on write is server behavior and not established here.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "provider-segment-group-data-source-omits-udp": {
+      "statement": "The provider's segment group data source declares a computed `udp_port_ranges` attribute for each application, but the function that flattens the applications into state lists `tcp_port_ranges`, `tcp_ports_in` and `tcp_ports_out` and does not set `udp_port_ranges`. The attribute is therefore never populated, independently of the SDK key. The resource manages application membership and does not expose the field for writing.",
+      "tier": "B",
+      "derived_from": [
+        "segment-group-udp-key-misspelled"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"udp_port_ranges\": {",
+            "\"tcp_ports_out\":          segmentGroupApplication.TCPPortsOut,"
+          ]
+        }
+      ],
+      "conditions": "Absence claim: `git -C vendor/terraform-provider-zpa grep -n -i 'udp' v4.4.10 -- zpa/data_source_zpa_segment_group.go` shows the schema entry and no flatten entry. Read at v4.4.10 and HEAD.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "assistant-schedule-update-rejects-disabled": {
+      "statement": "Both `appconnectorschedule.UpdateSchedule` and `serviceedgeschedule.UpdateSchedule` return an error before sending anything when `assistantSchedule.Enabled` is false (`cannot update a disabled schedule`). A false value cannot be written through either update.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "if !assistantSchedule.Enabled {",
+            "return nil, fmt.Errorf(\"cannot update a disabled schedule\")"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgeschedule/serviceedgeschedule.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "if !assistantSchedule.Enabled {",
+            "return nil, fmt.Errorf(\"cannot update a disabled schedule\")"
+          ]
+        }
+      ],
+      "conditions": "Whether the ZPA API accepts `enabled = false` on a schedule update is server behavior (gap schedule-disable-contract); the SDK comment calls the check a validation, but the code shows only that the client refuses.",
+      "gaps": [
+        "schedule-disable-contract"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "provider-schedule-resources-pass-enabled-through": {
+      "statement": "Both provider assistant-schedule resources declare `enabled` as Optional without a default, copy `d.Get(\"enabled\").(bool)` into the request, and call the SDK update. So `enabled = false`, and an omitted `enabled` (which reads as false), make every update of the resource fail in the SDK, before any request. An empty or invalid `frequency_interval` fails the same way, and a create that finds the schedule already exists falls into this update path; a first create with `enabled = false` can succeed, since create has no such check.",
+      "tier": "A",
+      "derived_from": [
+        "assistant-schedule-update-rejects-disabled"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_assistant_schedule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "Enabled:           d.Get(\"enabled\").(bool),",
+            "if _, err := appconnectorschedule.UpdateSchedule(ctx, service, id, &req); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_assistant_schedule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "Enabled:           d.Get(\"enabled\").(bool),",
+            "if _, err := serviceedgeschedule.UpdateSchedule(ctx, service, id, &req); err != nil {"
+          ]
+        }
+      ],
+      "conditions": "Optional-without-default is read from the `enabled` schema entry of the app connector resource at v4.4.10 (the service edge resource was not separately re-read for the schema entry). Create is a different SDK function and was not examined.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "application-type-lookup-duplicate-search": {
+      "statement": "`applicationsegmentbytype.GetByApplicationType` puts the raw name in the request URL as `search=<name>` and also passes the same name as `Filter.Search`. The shared pager rewrites that into `name+EQ+<name>` and appends it as a second `search` parameter, so one request carries two `search` values, one plain and one in filter syntax.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbytype/applicationsegmentbytype.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "query.Set(\"search\", appName)",
+            "filter.Search = appName"
+          ],
+          "after": "func GetByApplicationType(ctx context.Context, service *zscaler.Service, appName, applicationType string, expandAll bool) ([]AppSegmentBaseAppDto, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "pagination.Search2 = filters.Search"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "q, err := url.ParseQuery(query)"
+          ],
+          "after": "func (client *Client) NewRequestDo(ctx context.Context, method, endpoint string, options, body, v interface{}) (*http.Response, error) {"
+        }
+      ],
+      "conditions": "The two-values result follows from the endpoint already containing `?` (the pager's parameters are appended with `&`) and `url.ParseQuery` keeping repeated keys; it was not captured on the wire. Which value the server honors is server behavior.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "predefined-control-name-escaped-twice": {
+      "statement": "`inspection_predefined_controls.GetByName` applies `url.QueryEscape` to the name and then stores the result with `queryParams.Set`, whose `Encode` escapes it again. A `+` in the name becomes `%252B` on the wire. The request path re-parses and re-encodes the query but does not undo the first escape.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_predefined_controls/zpa_inspection_predefined_controls.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "search := fmt.Sprintf(\"name+EQ+%s\", url.QueryEscape(name))",
+            "queryParams.Encode())"
+          ],
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, name, version string) (*PredefinedControls, *http.Response, error) {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_inspection_predefined_controls.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "res, _, err := inspection_predefined_controls.GetByName(ctx, service, name, version)"
+          ]
+        }
+      ],
+      "conditions": "The double escape was reproduced with a Go snippet (`v.Set(\"search\", \"name+EQ+\"+url.QueryEscape(\"a+b\")); v.Encode()` gives `search=name%2BEQ%2Ba%252Bb`); the later re-encode in the OneAPI request path decodes once and encodes once, so it keeps the doubled escape. The legacy client path was not read. A name containing a space escapes to `+` first and then `%2B`.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "search-sanitizer-strips-name-characters": {
+      "statement": "For ZPA list endpoints (other than SCIM) the shared pager rewrites a plain search string into `name+EQ+<value>` after deleting every character outside letters, digits, whitespace, `_`, `/`, `-` and `.`. A name such as `a+b (prod)` is searched as `ab prod`. The lookups then compare the listed results to the original name case-insensitively.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "re := regexp.MustCompile(`[^a-zA-Z0-9\\s_/\\-\\.]`)",
+            "sanitizedValue = re.ReplaceAllString(sanitizedValue, \"\")",
+            "filterFormat := fmt.Sprintf(\"name+EQ+%s\", sanitizedValue)"
+          ],
+          "after": "func convertZPASearchToFilter(search string) string {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "common.Filter{Search: segmentName, MicroTenantID: service.MicroTenantID()})",
+            "if strings.EqualFold(app.Name, segmentName) {"
+          ],
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, segmentName string) (*SegmentGroup, *http.Response, error) {"
+        }
+      ],
+      "conditions": "Whether the server's EQ operator is an exact match, and therefore whether the stripped search misses the object, is server behavior (gap search-filter-semantics). A search string that already contains an operator such as `+EQ+` bypasses the sanitizer. `git -C vendor/zscaler-sdk-go grep -c 'Search: ' v3.8.42 -- zscaler/zpa/services` matched 38 files, so the helper is shared widely; each caller was not read.",
+      "gaps": [
+        "search-filter-semantics"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "provider-segment-group-lookups-use-sanitized-search": {
+      "statement": "The provider's segment group importer by name and its data source by name call `segmentgroup.GetByName`, so a segment group whose name contains characters the sanitizer removes goes through the altered search.",
+      "tier": "A",
+      "derived_from": [
+        "search-sanitizer-strips-name-characters"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, _, err := segmentgroup.GetByName(ctx, service, id)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "res, _, err := segmentgroup.GetByName(ctx, service, name)"
+          ]
+        }
+      ],
+      "conditions": "One example of many; the same helper style is used by the other ZPA name lookups (see search-sanitizer-strips-name-characters conditions). Not traced for each resource.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "query-encoder-emits-plus-for-space": {
+      "statement": "The ZPA request path re-encodes every query with `encodeQueryWithSpacesAsPercent20`, whose comment says spaces become `%20`, but it writes values with `url.QueryEscape`, which encodes a space as `+`. The function does not do what its name and comment say.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "// Use QueryEscape which encodes spaces as %20",
+            "buf.WriteString(url.QueryEscape(v))"
+          ],
+          "after": "func encodeQueryWithSpacesAsPercent20(v url.Values) string {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "// Spaces in the value will be encoded as + by url.Values.Encode(), which works for the API"
+          ]
+        }
+      ],
+      "conditions": "Go standard library behavior, reproduced: `url.QueryEscape(\"a b+c\")` returns `a+b%2Bc`. Whether the ZPA API treats `+` and `%20` the same in a query is server behavior (gap search-filter-semantics); a comment in common.go says `+` works, a comment in zparequests.go says `%20` is required, and neither is verified here.",
+      "gaps": [
+        "search-filter-semantics"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "policy-type-lookups-drop-context": {
+      "statement": "`GetByNameAndTypes` in both policy set controller packages receives a caller `ctx` and calls `GetByNameAndType` with `context.Background()` for each policy type it tries, so cancellation and deadlines do not reach those requests. The provider reaches them only through import by name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "p, resp, err = GetByNameAndType(context.Background(), service, policyType, ruleName)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "p, resp, err := GetByNameAndType(context.Background(), service, policyType, ruleName)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, _, err := policysetcontroller.GetByNameAndTypes(ctx, service, types, id)",
+            "resp, _, err := policysetcontrollerv2.GetByNameAndTypes(ctx, service, types, id)"
+          ]
+        }
+      ],
+      "conditions": "Reached at v4.4.10 by the policy rule importers by name. `BulkReorder` has the same defect and is covered in [[zpa.terraform.rule-order]]. The v2 line is at 320 in v3.8.42 and 316 at HEAD.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "zpa-context-background-sites": {
+      "statement": "Within the ZPA SDK, outside client construction (`config_scim.go`, `v2_config.go`), the only places that replace a caller's context with `context.Background()` are `GetByNameAndTypes` and `BulkReorder` in the two policy set controller packages (three sites each).",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "policySet, resp, err := GetByPolicyType(context.Background(), service, policySetType)"
+          ]
+        }
+      ],
+      "conditions": "Search: `git -C vendor/zscaler-sdk-go grep -n 'context.Background()' <ref> -- zscaler/zpa`, test files excluded, at v3.8.42 and HEAD: nine matches, three in each of the two policy packages, one in config_scim.go, two in v2_config.go. The client-construction sites were not analyzed. Other ways of dropping a context were not searched for.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "policy-update-rule-nil-deref": {
+      "statement": "Both `UpdateRule` functions guard only the empty-conditions branch with `policySetRule != nil`; any other path, including a nil pointer, falls to the `else` branch that ranges over `policySetRule.Conditions`, which panics for nil.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "if policySetRule != nil && len(policySetRule.Conditions) == 0 {",
+            "for i, condtion := range policySetRule.Conditions {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "if policySetRule != nil && len(policySetRule.Conditions) == 0 {",
+            "for i, condition := range policySetRule.Conditions {"
+          ]
+        }
+      ],
+      "conditions": "The provider's call sites pass an address of a local rule or the pointer returned by an expand function (for example `req` in zpa/resource_zpa_policy_access_rule.go, whose `req.Conditions` is read just before). No call site was found passing nil, but all were not individually traced, so the provider is not shown to reach this.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "other-mutators-dereference-unchecked-pointers": {
+      "statement": "Other ZPA mutators dereference a pointer argument with no nil check: the inspection profile `setVersion` (called first by `Update`, `PutAssociate`, `PutDeassociate` and `Patch`) reads `inspectionProfile.PredefinedControlsVersion`, and tag key `Update` copies `*tagKey`. A nil argument panics rather than returning an error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "if inspectionProfile.PredefinedControlsVersion == \"\" {"
+          ],
+          "after": "func setVersion(inspectionProfile *InspectionProfile) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/tag_controller/tag_key/tag_key.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "payload := *tagKey"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, namespaceID, tagKeyID string, tagKey *TagKey) (*http.Response, error) {"
+        }
+      ],
+      "conditions": "At v4.4.10 the provider calls inspection profile `Update` with `&req` and `PutAssociate` with a local pointer, and no provider call to tag key `Update` was found (git grep `tag_key.Update` in zpa/). It is not shown to pass nil.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "application-validation-cannot-return-typed-error": {
+      "statement": "`ApplicationValidation` decodes into an `ApplicationValidationError` and treats a nil error as the validation-error case, with the comment `For validation, we expect either success (200) or validation error (400)`. The OneAPI executor returns an error with a nil body for a 4xx that reaches the generic client-error branch (401, 429 and edit-lock 409/412 are handled earlier; the legacy client is not covered), so a 400 never reaches the decoder; only a 2xx response is decoded into the error type and returned as if it were a validation failure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "// For validation, we expect either success (200) or validation error (400)",
+            "// If we get here, there was a validation error"
+          ],
+          "after": "func ApplicationValidation(ctx context.Context, service *zscaler.Service, appSegment ApplicationSegmentResource) (*ApplicationValidationError, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "if resp.StatusCode >= 400 && resp.StatusCode < 500 {",
+            "return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"client error\"))"
+          ]
+        }
+      ],
+      "conditions": "Traced for the OneAPI client only; the legacy client was not read. The ZPA validation endpoint's actual success and error bodies are server behavior and were not observed. No provider call to `ApplicationValidation` was found at v4.4.10 (git grep in zpa/).",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "weighted-lb-update-returns-nil-object": {
+      "statement": "`UpdateWeightedLoadBalancerConfig` is declared to return the configuration but sends the PUT with a nil response target and returns `nil, resp, nil` on success, so a caller that uses the returned object gets nil.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()}, payload, nil)",
+            "return nil, resp, nil"
+          ],
+          "after": "func UpdateWeightedLoadBalancerConfig(ctx context.Context, service *zscaler.Service, applicationID string, payload WeightedLoadBalancerConfig) (*WeightedLoadBalancerConfig, *http.Response, error) {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_weightedlb_config.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, _, err := applicationsegment.UpdateWeightedLoadBalancerConfig(ctx, service, applicationID, payload); err != nil {"
+          ]
+        }
+      ],
+      "conditions": "The provider discards the returned object, so Terraform state is not affected. Whether the PUT returns a body at all is server behavior.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "provisioning-key-association-types": {
+      "kind": "semantic",
+      "title": "Whether provisioning keys are stored under SITE_CONTROLLER_GRP or EXPORTER_GRP and how the API lists them",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "telling whether the fixed association list loses real keys or only unused types",
+      "detail": "In a scratch tenant, create a provisioning key with each of the five association types the provider schema accepts, then call the per-type list endpoint for each and record which keys appear."
+    },
+    "schedule-disable-contract": {
+      "kind": "semantic",
+      "title": "Whether the ZPA API accepts enabled=false on an assistant schedule update",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "telling whether the SDK check mirrors the API or blocks a valid request",
+      "detail": "Send a PUT to the app connector and service edge schedule endpoints with a valid frequency interval and enabled=false in a scratch tenant. Record the status and the schedule's state afterwards."
+    },
+    "search-filter-semantics": {
+      "kind": "semantic",
+      "title": "How the ZPA list search treats `name+EQ+` values, `+` versus `%20`, and removed characters",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "telling whether the sanitizer and the plus-encoded spaces cause missed lookups",
+      "detail": "In a scratch tenant, create objects named with a space, `+`, and parentheses. Search each by exact name with `+` and with `%20` for spaces, with and without the characters the SDK strips, and record which requests return the object."
+    }
+  }
+}

@@ -1,0 +1,835 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.multi-step-writes",
+  "title": "ZIA Terraform operations that take several API writes with no rollback",
+  "aliases": [
+    "terraform partial apply zia",
+    "apply failed but change applied",
+    "ADD_TO_LIST REMOVE_FROM_LIST",
+    "vzen cluster delete",
+    "static ip geo_override",
+    "user enrollment auth_methods",
+    "url category update failed halfway",
+    "browser control smart isolation partial",
+    "no rollback"
+  ],
+  "binds": [
+    "zia/url-categories#urls"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.url-categories.membership"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.delete-detach"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.error-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.write-encoding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation"
+    }
+  ],
+  "claims": {
+    "delta-helpers-read-then-add-then-remove": {
+      "statement": "The SDK's malicious-URL and exempted-URL updaters do not send the desired list. Each reads the current list, computes additions and removals locally, then sends the additions as one write and the removals as a second write, in that order. An error from either write is returned immediately.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func UpdateMaliciousURLs(ctx context.Context, service *zscaler.Service, urls MaliciousURLs) (*MaliciousURLs, error) {",
+          "quotes": [
+            "currentUrls, err := GetMaliciousURLs(ctx, service)",
+            "newUrls := zscaler.Difference(urls.MaliciousUrls, currentUrls.MaliciousUrls)",
+            "fmt.Sprintf(\"%s?action=ADD_TO_LIST\", maliciousUrlsEndpoint), MaliciousURLs{newUrls})",
+            "fmt.Sprintf(\"%s?action=REMOVE_FROM_LIST\", maliciousUrlsEndpoint), MaliciousURLs{removedUrls})"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/user_authentication_settings/user_authentication_settings.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, urls ExemptedUrls) (*ExemptedUrls, error) {",
+          "quotes": [
+            "currentUrls, err := Get(ctx, service)",
+            "fmt.Sprintf(\"%s?action=ADD_TO_LIST\", exemptedUrlsEndpoint), ExemptedUrls{newUrls})",
+            "fmt.Sprintf(\"%s?action=REMOVE_FROM_LIST\", exemptedUrlsEndpoint), ExemptedUrls{removedUrls})"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "provider-calls-delta-helpers": {
+      "statement": "The ATP malicious URLs resource and the authentication settings URLs resource pass the whole desired list to these helpers on create and on update, so every apply starts with the read and sends an add and/or a remove when the delta is non-empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_atp_malicious_urls.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceATPMaliciousUrlsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "_, err := advancedthreatsettings.UpdateMaliciousURLs(ctx, service, maliciousUrls)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_auth_settings_urls.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceAuthSettingsUrlsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "_, err := user_authentication_settings.Update(ctx, service, urls)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "delta-partial-apply": {
+      "statement": "When the addition write succeeds and the removal write fails, Terraform reports an error but the list already holds the additions and still holds the entries meant to be removed. Nothing in the helper undoes the first write. For the authentication settings list this is an exempted-URL list.",
+      "tier": "B",
+      "derived_from": [
+        "delta-helpers-read-then-add-then-remove"
+      ],
+      "conditions": "The sequence is in the quoted code. That the first write stays committed depends on the API applying each ADD_TO_LIST or REMOVE_FROM_LIST call as it arrives and not holding it until activation; the absence of any compensating call is read from the two helper functions, not searched across the SDK.",
+      "gaps": [
+        "concurrent-edit-overwrite"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "delta-stale-snapshot": {
+      "statement": "The additions and removals are computed from a list read earlier in the same call, so a change another writer makes between the read and the writes is not seen by the delta.",
+      "tier": "C",
+      "derived_from": [
+        "delta-helpers-read-then-add-then-remove"
+      ],
+      "conditions": "Follows from the read preceding the writes. Whether another writer's entries are then lost depends on how the API applies ADD_TO_LIST and REMOVE_FROM_LIST (gap concurrent-edit-overwrite). A removal of an entry only the other writer added is the case the delta cannot see; an addition the other writer also made is likely harmless.",
+      "gaps": [
+        "concurrent-edit-overwrite"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "security-policy-urls-two-writes": {
+      "statement": "The SDK updates the security policy allowlist and denylist with two independent PUTs to different endpoints, allowlist first. An error from the allowlist PUT stops before the denylist is sent; an error from the denylist PUT is returned after the allowlist was already written. The provider's update calls this one function.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/security_policy_settings/security_policy_settings.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func UpdateListUrls(ctx context.Context, service *zscaler.Service, listUrls ListUrls) (*ListUrls, error) {",
+          "quotes": [
+            "whitelist, err := UpdateWhiteListUrls(ctx, service, ListUrls{White: listUrls.White})",
+            "blacklist, err := UpdateBlackListUrls(ctx, service, ListUrls{Black: listUrls.Black})"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/security_policy_settings/security_policy_settings.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "securityAdvancedEndpoint = \"/zia/api/v1/security/advanced\""
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_security_policy_settings.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceSecurityPolicySettingsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "_, err := security_policy_settings.UpdateListUrls(ctx, service, listUrls)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "browser-control-two-endpoint-write": {
+      "statement": "The browser control policy resource writes its settings with one PUT to the base browser control endpoint and then, only when Smart Isolation is configured or changed, a second PUT to the `/smartIsolation` endpoint. This is the same on create and on update, and an error from the second write is returned after the first was sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_browser_control_policy.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceBrowserControlPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if _, _, err := browser_control_settings.UpdateBrowserControlSettings(ctx, service, expandBrowserControlBaseSettings(d)); err != nil {",
+            "if _, _, err := secure_browsing.UpdateSmartIsolation(ctx, service, expandSmartIsolation(d)); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_browser_control_policy.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceBrowserControlPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "// The base endpoint above does not actually persist the Smart Isolation"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/browser_control_settings/browser_control_settings.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.UpdateWithPut(ctx, browserControlSettingsEndpoint, settings)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/secure_browsing/secure_browsing.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.UpdateWithPut(ctx, browserControlSettingsEndpoint+\"/smartIsolation\", settings)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "vzen-delete-is-detach-update-delete": {
+      "statement": "Deleting a Virtual Service Edge cluster through the SDK is three requests: a GET of the cluster, a PUT of a payload whose node list is the empty slice, and a DELETE. The provider's delete handler calls this function and then clears the ID and optionally activates. A failure of the PUT or the DELETE is returned with the earlier steps already sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_clusters/vzen_clusters.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func Delete(ctx context.Context, service *zscaler.Service, clusterID int) (*http.Response, error) {",
+          "quotes": [
+            "// Step 1: Fetch the current cluster",
+            "VirtualZenNodes: []common.IDNameExternalID{}, // Detach all service edges",
+            "_, _, err = Update(ctx, service, clusterID, updatePayload)",
+            "err = service.Client.Delete(ctx, fmt.Sprintf(\"%s/%d\", vzenClusterEndpoint, clusterID))"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_vzen_cluster.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceVZENClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if _, err := vzen_clusters.Delete(ctx, service, id); err != nil {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "vzen-detach-list-omitted-on-wire": {
+      "statement": "The node list in the cluster model is tagged `omitempty`, and Go's JSON encoder drops an empty slice with that tag. The detach PUT the delete path builds therefore does not carry `virtualZenNodes` at all, whatever the code comment says it does.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_clusters/vzen_clusters.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "VirtualZenNodes []common.IDNameExternalID `json:\"virtualZenNodes,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_clusters/vzen_clusters.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func Delete(ctx context.Context, service *zscaler.Service, clusterID int) (*http.Response, error) {",
+          "quotes": [
+            "VirtualZenNodes: []common.IDNameExternalID{}, // Detach all service edges"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "vzen-delete-effect": {
+      "statement": "So the PUT before the DELETE does not express the intended empty node list. If the API treats an omitted list as unchanged, the cluster is deleted (or the DELETE is refused) with nodes still attached; if the PUT succeeds and the DELETE then fails, the cluster remains and other fields were rewritten from the earlier GET.",
+      "tier": "C",
+      "derived_from": [
+        "vzen-delete-is-detach-update-delete",
+        "vzen-detach-list-omitted-on-wire"
+      ],
+      "conditions": "Depends on how the API treats an omitted `virtualZenNodes` in a PUT, and on whether it permits deleting a cluster that still has nodes (gap vzen-empty-nodes-semantics). The write encoding is in [[zia.sdk-go.write-encoding]] and [[shared.sdk-go.zero-value-writes]].",
+      "gaps": [
+        "vzen-empty-nodes-semantics"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "vzen-node-update-calls-cluster-read": {
+      "statement": "The VZEN node resource's update sends the node PUT and then returns the cluster resource's Read function. That Read looks up `cluster_id` and returns an error when it is not set, and the node resource's schema has no `cluster_id` attribute. After a successful node update the apply can therefore report an error and not refresh node state.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_vzen_nodes.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceVZENNodeUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "return resourceVZENClusterRead(ctx, d, meta)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_vzen_cluster.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceVZENClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "id, ok := getIntFromResourceData(d, \"cluster_id\")",
+            "return diag.FromErr(fmt.Errorf(\"no vzen clusters id is set\"))"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func getIntFromResourceData(d *schema.ResourceData, key string) (int, bool) {",
+          "quotes": [
+            "return val, isSet && isInt && val > 0"
+          ]
+        }
+      ],
+      "conditions": "The absence of `cluster_id` in the node resource comes from `git -C vendor/terraform-provider-zia grep -n cluster_id v4.8.3 -- zia/resource_zia_vzen_nodes.go`, which returns no match, and the same at HEAD. That `d.GetOk` returns not-set for a key the schema does not define is Terraform plugin SDK behavior, not shown in these sources.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "static-ip-any-lookup-error-is-not-found": {
+      "statement": "When coordinates must be discovered, the provider looks the address up with `GetByIPAddress` and takes any error as the address not existing. The SDK returns an API error and a no-match result as plain errors, so the provider cannot tell a transient or permission failure from absence and goes on to create a temporary static IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_traffic_forwarding_static_ips.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func autoPopulateCoordinates(ctx context.Context, d *schema.ResourceData, service *Client) error {",
+          "quotes": [
+            "existingIP, err := staticips.GetByIPAddress(ctx, svc, ipAddress)",
+            "// IP doesn't exist yet - create with geo_override=false first to get coordinates"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/trafficforwarding/staticips/staticips.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func GetByIPAddress(ctx context.Context, service *zscaler.Service, address string) (*StaticIP, error) {",
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, staticIPEndpoint, &staticIPs)",
+            "return nil, fmt.Errorf(\"no device group found with name: %s\", address)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "static-ip-temp-object-sequence": {
+      "statement": "Coordinate discovery creates the static IP, reads it back, and updates it, as three requests inside the create handler (apply). A failed read or update after the create returns an error before the resource ID is stored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_traffic_forwarding_static_ips.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func autoPopulateCoordinates(ctx context.Context, d *schema.ResourceData, service *Client) error {",
+          "quotes": [
+            "tempResp, _, err := staticips.Create(ctx, svc, &tempReq)",
+            "ipWithCoords, err := staticips.Get(ctx, svc, tempResp.ID)",
+            "_, _, err = staticips.Update(ctx, svc, tempResp.ID, &updateReq)",
+            "d.SetId(strconv.Itoa(tempResp.ID))"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "static-ip-orphan-on-failure": {
+      "statement": "So a failure of the read or the update after the temporary create leaves a static IP in ZIA that Terraform has no ID for, and no code deletes it. A retried apply may find it by address, but even then it reuses its coordinates and goes on to a normal create of the same address, so the orphan is not adopted and the retry can fail or duplicate it.",
+      "tier": "B",
+      "derived_from": [
+        "static-ip-temp-object-sequence"
+      ],
+      "conditions": "Search: `git -C vendor/terraform-provider-zia grep -n \"staticips\\.\\(Delete\\|Create\\)\" v4.8.3 -- zia/resource_zia_traffic_forwarding_static_ips.go` shows the only Delete call in the resource's own delete handler (not in `autoPopulateCoordinates`); same at HEAD. That the created object persists depends on the API committing the create.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "static-ip-transient-lookup-duplicates": {
+      "statement": "A transient lookup failure for an address that already exists leads to a second create of the same address, which the API may reject or may accept as a duplicate.",
+      "tier": "C",
+      "derived_from": [
+        "static-ip-any-lookup-error-is-not-found",
+        "static-ip-temp-object-sequence"
+      ],
+      "conditions": "Depends on how the API handles a create for an address it already holds (gap static-ip-duplicate-create).",
+      "gaps": [
+        "static-ip-duplicate-create"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "custom-category-remove-then-add": {
+      "statement": "When a custom URL category update both removes and adds entries, the provider sends a REMOVE_FROM_LIST write and then an ADD_TO_LIST write, each carrying the desired category with its URL list replaced by the delta. An error from the add is returned after the removals were sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_categories.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "} else if hasBoth {",
+          "quotes": [
+            "// First, remove URLs (send full desired category structure for other attribute updates)",
+            "removeCategory.Urls = urlsToRemove",
+            "addCategory.Urls = urlsToAdd",
+            "return diag.FromErr(fmt.Errorf(\"failed to add URLs: %w\", err))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlcategories/urlcategories.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func UpdateURLCategories(ctx context.Context, service *zscaler.Service, categoryID string, category *URLCategory, action string) (*URLCategory, *http.Response, error) {",
+          "quotes": [
+            "endpoint = fmt.Sprintf(\"%s?action=%s\", endpoint, url.QueryEscape(action))"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "custom-category-partial-state": {
+      "statement": "If the removal succeeds and the addition fails, the category has lost its old entries and does not hold the new ones, and the apply reports an error. Because a category's entries decide which category a URL falls into, the half-applied category changes rule matching for those URLs until a later apply repairs it.",
+      "tier": "B",
+      "derived_from": [
+        "custom-category-remove-then-add"
+      ],
+      "conditions": "Depends on the API applying REMOVE_FROM_LIST immediately and keeping it when a later request fails. How category membership then decides rule matching is in [[zia.url-categories.membership]].",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "predefined-category-three-mutations": {
+      "statement": "A predefined category update can send up to three separate writes in a fixed order: REMOVE_FROM_LIST for URL and IP entries, then ADD_TO_LIST for them, then a plain PUT that replaces the keyword lists. Each runs only if its part of the diff is non-empty, and an error at any step is returned with the earlier steps already sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_categories_predefined.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func applyPredefinedCategoryDiff(ctx context.Context, service *zscaler.Service, categoryID string, current *urlcategories.URLCategory, desired *urlcategories.URLCategory) diag.Diagnostics {",
+          "quotes": [
+            "if incrementalRemoves > 0 {",
+            "if incrementalAdds > 0 {",
+            "if keywordsChanged || kwRetChanged {",
+            "failed to remove items from predefined category: %w",
+            "failed to update keywords for predefined category: %w"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "user-auth-enrollment-error-logged": {
+      "statement": "User create and update send the user and then enroll its authentication methods as a separate call. If the enrollment call fails, the provider only logs it and goes on to refresh and report success.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_user_management_users.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceUserManagementCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "_, err = users.EnrollUser(ctx, service, resp.ID, users.EnrollUserRequest{",
+            "log.Printf(\"[ERROR] enrolling user failed: %v\\n\", err)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_user_management_users.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceUserManagementUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if (d.HasChange(\"password\") || d.HasChange(\"auth_methods\")) && len(authMethods) > 0 {",
+            "log.Printf(\"[ERROR] enrolling user failed: %v\\n\", err)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "user-auth-empty-set-sends-nothing": {
+      "statement": "Both create and update call enrollment only when the configured `auth_methods` set is non-empty, so removing every method from the configuration sends no enrollment change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_user_management_users.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceUserManagementCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if len(authMethods) > 0 {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_user_management_users.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceUserManagementUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "&& len(authMethods) > 0 {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "user-auth-validator-basic-only": {
+      "statement": "The resource's `auth_methods` validator accepts only `BASIC`, while the SDK's enrollment function accepts `BASIC` and `DIGEST`. A configuration that sets `DIGEST` is rejected at plan time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_user_management_users.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "\"auth_methods\": {",
+          "quotes": [
+            "\"BASIC\","
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/usermanagement/users/users.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func EnrollUser(ctx context.Context, service *zscaler.Service, userID int, request EnrollUserRequest) (*EnrollResult, error) {",
+          "quotes": [
+            "if method != \"BASIC\" && method != \"DIGEST\" {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "user-auth-methods-not-in-request-or-state": {
+      "statement": "The user request builder does not carry `auth_methods`, and the user Read never sets it, so the attribute exists only as input to the separate enrollment call. State cannot show what the tenant has enrolled, and a failed or skipped enrollment is not visible as drift.",
+      "tier": "B",
+      "derived_from": [
+        "user-auth-enrollment-error-logged"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_user_management_users.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func expandUsers(d *schema.ResourceData) users.Users {",
+          "quotes": [
+            "TempAuthEmail: d.Get(\"temp_auth_email\").(string),"
+          ]
+        }
+      ],
+      "conditions": "Search: `git -C vendor/terraform-provider-zia grep -n auth_methods v4.8.3 -- zia/resource_zia_user_management_users.go` returns the schema entry (line 80) and the two reads in create and update (lines 162, 307, 308) and no `d.Set` of it; same at HEAD. The quote shows the request builder's field list, not the absence.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "detach-writes-list-snapshot": {
+      "statement": "Deleting a custom URL category first detaches it from rules by listing the rules of each type and writing back every rule that references it, using the object from that list. The URL Filtering detacher does this per rule with no re-read before the write. All detachers run concurrently, and an error from one is reported only after all finish.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func detachCategoryFromURLFilteringRules(ctx context.Context, client *Client, categoryID string) (bool, error) {",
+          "quotes": [
+            "rules, err := urlfilteringpolicies.GetAll(ctx, service)",
+            "if _, err := urlfilteringpolicies.Update(ctx, service, rule.ID, rule); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func detachURLCategoryFromAllResources(ctx context.Context, client *Client, categoryID string) error {",
+          "quotes": [
+            "go func(f func(context.Context, *Client, string) (bool, error)) {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_categories.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceURLCategoriesDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := detachURLCategoryFromAllResources(ctx, zClient, d.Id()); err != nil {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "detach-stale-snapshot-overwrites": {
+      "statement": "A change another writer makes to a rule between the list and the write can be overwritten by the detacher's full-rule write.",
+      "tier": "C",
+      "derived_from": [
+        "detach-writes-list-snapshot"
+      ],
+      "conditions": "The read-then-write gap is in the code. Whether the API replaces the whole rule from the PUT body (so the other writer's change is lost) or merges it is not shown (gap concurrent-edit-overwrite). The generic detach helper for groups, which also writes a snapshot, is covered in [[zia.terraform.delete-detach]].",
+      "gaps": [
+        "concurrent-edit-overwrite"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "multi-write-places": {
+      "statement": "Beyond the quoted functions, the places in the ZIA provider and SDK that send ADD_TO_LIST or REMOVE_FROM_LIST are, in the searched code, the ATP malicious URL helper, the exempted URL helper, the security policy helper declares the names ADD_TO_LIST and REMOVE_FROM_LIST but does not send them, the custom URL category update and the predefined URL category update. The two-endpoint and multi-request sequences covered here are these plus browser control, VZEN cluster deletion, static IP coordinate discovery and user enrollment.",
+      "tier": "B",
+      "derived_from": [
+        "delta-helpers-read-then-add-then-remove",
+        "custom-category-remove-then-add",
+        "predefined-category-three-mutations",
+        "browser-control-two-endpoint-write",
+        "vzen-delete-is-detach-update-delete"
+      ],
+      "conditions": "Searches: `git -C vendor/zscaler-sdk-go grep -n ADD_TO_LIST v3.8.44 -- zscaler/zia` matches advancedthreatsettings.go, security_policy_settings.go and user_authentication_settings.go; `git -C vendor/terraform-provider-zia grep -n ADD_TO_LIST v4.8.3 -- zia` matches resource_zia_url_categories.go and resource_zia_url_categories_predefined.go (plus log text). The other sequences were found by reading the resources named in the audit, not by a general search for consecutive writes, so further sequences may exist.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "concurrent-edit-overwrite": {
+      "kind": "semantic",
+      "title": "Whether a write built from an earlier read overwrites another writer's change",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether the delta and detach helpers can lose a concurrent edit",
+      "detail": "With two API clients: read a list or rule, change it from the second client, then let the helper write. Check whether the second client's change survives for an ADD_TO_LIST or REMOVE_FROM_LIST call and for a full-rule PUT."
+    },
+    "vzen-empty-nodes-semantics": {
+      "kind": "semantic",
+      "title": "How ZIA treats a cluster PUT with no node list and a DELETE of a cluster that still has nodes",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether the delete path leaves nodes attached or fails",
+      "detail": "On a test cluster, PUT it without `virtualZenNodes` and read it back; then DELETE a cluster that still has nodes and note the response."
+    },
+    "static-ip-duplicate-create": {
+      "kind": "semantic",
+      "title": "What ZIA does with a create for a static IP address it already holds",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether a transient lookup failure produces a duplicate or an error",
+      "detail": "POST the same address twice and compare the second response and the resulting list."
+    }
+  }
+}
