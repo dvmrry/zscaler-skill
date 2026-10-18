@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "id": "zia.iot.policy-use",
+  "title": "How IoT traffic is targeted by policy",
+  "aliases": [
+    "iot device group",
+    "enforce iot policy control",
+    "iot policy status",
+    "iot traffic group",
+    "block iot devices",
+    "iot firewall rule",
+    "iot url filtering",
+    "iot_enforce_policy_set"
+  ],
+  "binds": [
+    "zia/locations#iotEnforcePolicySet",
+    "zia/url-filtering-rules#deviceGroups",
+    "zia/cloud-app-control#deviceGroups",
+    "zia/ssl-inspection-rules#deviceGroups",
+    "zia/forwarding-rules#deviceGroups"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.iot.discovery"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.locations.groups"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.rule-types"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.rules"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.uninspectable"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering.criteria"
+    }
+  ],
+  "claims": {
+    "iot-device-group": {
+      "statement": "The Device Groups criterion has an IoT choice that applies a rule to IoT traffic, alongside Cloud Browser Isolation and No Client Connector. It appears in URL Filtering, Cloud App Control, SSL/TLS Inspection and Forwarding Control rules.",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules#deviceGroups",
+        "zia/cloud-app-control#deviceGroups",
+        "zia/ssl-inspection-rules#deviceGroups",
+        "zia/forwarding-rules#deviceGroups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.md",
+          "quotes": [
+            "Select Cloud Browser Isolation, IoT, or No Client Connector to apply the rule to isolation traffic, IoT traffic, or traffic that is not tunneled through Zscaler Client Connector, respectively."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-ai-ml-applications-rule-cloud-app-control.md",
+          "quotes": [
+            "Select Cloud Browser Isolation, IoT, or No Client Connector to apply the rule to isolation traffic, IoT traffic, or to traffic that is not tunneled through Zscaler Client Connector, respectively."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.md",
+          "quotes": [
+            "Select Cloud Browser Isolation, IoT, or No Client Connector to apply the rule to isolation traffic, IoT traffic, or to traffic that is not tunneled through Zscaler Client Connector, respectively."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "after": "# Configuring Forwarding Rules",
+          "quotes": [
+            "Select Cloud Browser Isolation, IoT, or No Client Connector to apply the rule to isolation traffic, IoT traffic, or traffic that is not tunneled through Zscaler Client Connector, respectively."
+          ]
+        }
+      ]
+    },
+    "iot-group-availability": {
+      "statement": "The IoT device group is available only if IoT discovery is enabled for the organization.",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules#deviceGroups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.md",
+          "quotes": [
+            "The Cloud Browser Isolation and IoT groups are available only if Zero Trust Browser (formerly Isolation) and IoT discovery are enabled for your organization, respectively."
+          ]
+        }
+      ]
+    },
+    "enforce-iot-policy-control": {
+      "statement": "Enforce IoT Policy Control, shown when Enable IoT Discovery is on, enforces URL Filtering and Cloud App Control policy rules for unauthenticated traffic from IoT devices at that location.",
+      "tier": "A",
+      "binds": [
+        "zia/locations#iotEnforcePolicySet"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-sublocations.md",
+          "quotes": [
+            "Enforce IoT Policy Control: Enable to enforce URL Filtering and Cloud App Control policy rules for unauthenticated traffic from IoT devices at this location.",
+            "The Enforce IoT Policy Control option appears when the Enable IoT Discovery option is enabled."
+          ]
+        }
+      ]
+    },
+    "cac-iot-needs-enforce": {
+      "statement": "Cloud App Control rules apply to IoT devices from a location or sublocation that has Enforce IoT Policy Control enabled, to devices the AI/ML engine identified and classified (for example printers, sensors) under the IoT group in the Device Groups criterion.",
+      "tier": "A",
+      "binds": [
+        "zia/cloud-app-control#deviceGroups",
+        "zia/locations#iotEnforcePolicySet"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-rules-cloud-app-control-policy.md",
+          "quotes": [
+            "The Cloud App Control policy rules can also be applied to IoT devices from a location or a sublocation that has the Enforce IoT Policy Control option enabled.",
+            "under the IoT group in the Device Groups criterion"
+          ]
+        }
+      ]
+    },
+    "enforce-flag-is-console-option": {
+      "statement": "The `iotEnforcePolicySet` location field (Terraform `iot_enforce_policy_set`) is the API form of the Enforce IoT Policy Control option.",
+      "tier": "B",
+      "binds": [
+        "zia/locations#iotEnforcePolicySet"
+      ],
+      "conditions": "Matched by name only: the field is separate from iotDiscoveryEnabled, the console option is a dependent child of Enable IoT Discovery, and no source states the mapping; the Terraform and Go descriptions of the field are empty. Confirm by toggling the console option and reading the location back.",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "_ = d.Set(\"iot_enforce_policy_set\", resp.IOTEnforcePolicySet)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-sublocations.md",
+          "quotes": [
+            "Enforce IoT Policy Control: Enable to enforce URL Filtering and Cloud App Control policy rules"
+          ]
+        }
+      ]
+    },
+    "firewall-has-no-iot-group": {
+      "statement": "The Firewall Filtering Device Groups criterion lists only Cloud Browser Isolation and No Client Connector as special choices; no IoT choice is documented there.",
+      "tier": "B",
+      "binds": [],
+      "conditions": "Rests on the absence of an IoT choice in the captured Firewall Filtering help page; a newer console could add one.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firewall-filtering-policy.md",
+          "quotes": [
+            "Select Cloud Browser Isolation or No Client Connector to apply the rule to isolation traffic or to traffic that is not tunneled through Zscaler Client Connector, respectively."
+          ]
+        }
+      ]
+    },
+    "group-is-by-location": {
+      "statement": "Targeting IoT traffic through the IoT Traffic Group selects by the location's type, so it covers every device at that location, not only IoT-classified ones.",
+      "tier": "B",
+      "conditions": "Derived: the predefined group is filled in from the location type selection, and nothing ties its membership to device classification.",
+      "derived_from": [
+        "zia.locations.groups:predefined-groups"
+      ]
+    }
+  },
+  "gaps": {
+    "iot-device-group-granularity": {
+      "kind": "semantic",
+      "title": "Whether a rule can target a specific IoT classification, or only IoT traffic as a whole",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "any answer that a rule matches only cameras, printers or another single IoT class",
+      "detail": "The help pages offer one IoT choice in Device Groups. Unverified legacy statement: IoT classification UUIDs and auto-labels are not available as matching criteria in any ZIA policy rule; no source shows a per-classification criterion, and no source shows that the single IoT choice cannot be narrowed."
+    },
+    "policy-status-widget": {
+      "kind": "semantic",
+      "title": "What counts as an IoT policy applied in the Policy Status widget",
+      "status": "partial",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "reading the devices-with-no-policies count as a security finding",
+      "detail": "The report shows the IoT devices discovered, those with policies applied and those with none, without defining policy applied. Unverified legacy statement: the status reflects the location's iot_enforce_policy_set flag rather than only the predefined Cloud App Control IoT rules. Candidates are Enforce IoT Policy Control on the location, a rule using the IoT device group, or the predefined rules; the widget text defines none. Legacy advice stands as a caution: no policy in the widget does not mean no protection, since catch-all rules may still apply."
+    },
+    "other-rule-types-iot": {
+      "kind": "semantic",
+      "title": "IoT targeting in DNS Control, DLP and Bandwidth Control",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: that DNS Control, DLP and Bandwidth Control rules can be scoped to the IoT Traffic Group and cannot reference device classification. The captured DNS Control and Bandwidth Control help pages mention no IoT choice; DLP was not checked. Resolve by reading each rule type's criteria in the console or API."
+    }
+  }
+}

@@ -207,5 +207,5 @@ ZCC on iOS and Android must exclude APNs and FCM endpoints from Z-Tunnel 2.0 tun
 - GRE tunnels and Z-Tunnel 2.0 coexistence — [`./gre-tunnels.md`](./gre-tunnels.md)
 - ZCC forwarding profile configuration and SDK fields — [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md)
 - Forwarding profile structure (where tunnel version selection lives) — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
-- Traffic forwarding method decision tree — [`../zia/traffic-forwarding-methods.md`](../zia/traffic-forwarding-methods.md)
+- Traffic forwarding method decision tree — [`zia.traffic-forwarding`](kb:zia.traffic-forwarding)
 - Trusted networks (triggers On-Trusted vs Off-Trusted action branches) — [`../zcc/trusted-networks.md`](../zcc/trusted-networks.md)

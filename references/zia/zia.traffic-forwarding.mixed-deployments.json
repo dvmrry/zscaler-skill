@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.mixed-deployments",
+  "title": "Mixed forwarding deployments and where they break",
+  "aliases": [
+    "mixed forwarding",
+    "gre and zcc",
+    "ztunnel fallback gre",
+    "pac on tunnel site",
+    "other sublocation pac"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.traffic-forwarding.zcc"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.traffic-forwarding.gre"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.traffic-forwarding.pac"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.locations.sublocations"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.criteria"
+    }
+  ],
+  "claims": {
+    "gre-ztunnel2-egress": {
+      "statement": "A site whose egress uses several GRE tunnels with different public source IPs, or ECMP, can present one device's Z-Tunnel 2.0 control and data connections from different IPs; per the vendor that splits them across Service Edges and Z-Tunnel 2.0 falls back to 1.0.",
+      "tier": "B",
+      "derived_from": [
+        "zia.traffic-forwarding.zcc:z-tunnel-2-single-ip-nat",
+        "zia.traffic-forwarding.gre:scale-out"
+      ],
+      "conditions": "The single-IP requirement and the fallback are stated by the vendor; that a multi-tunnel or ECMP GRE egress produces more than one source IP for one device's connections is the inference, and no source observes it."
+    },
+    "pac-users-fall-to-other": {
+      "statement": "When a location has sublocations, PAC-forwarded traffic from users on that site is not matched to a sublocation unless XFF supplies the inner address, so it can land in the `other` sublocation and take whatever policy reaches it.",
+      "tier": "B",
+      "derived_from": [
+        "zia.traffic-forwarding.pac:limitations",
+        "zia.locations.sublocations:other-auto-created"
+      ],
+      "conditions": "Both parts are stated separately (PAC loses internal IP visibility and sublocation policy; unmatched addresses go to `other`); that PAC traffic is placed in `other` is the combination and is not observed."
+    }
+  },
+  "gaps": {
+    "location-group-mixing": {
+      "kind": "semantic",
+      "title": "Dynamic Location Groups catching the wrong methods in mixed deployments",
+      "status": "open",
+      "detail": "Unverified legacy statement: A dynamic Location Group requiring SSL Inspection on may match both GRE locations and ZCC-equivalent implicit locations, so the group's attribute conditions must be specific. No captured source states it; a lab test would settle it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "location-per-method-mixed": {
+      "kind": "semantic",
+      "title": "Each method creating its own Location in a mixed tenant",
+      "status": "open",
+      "detail": "Unverified legacy statement: Each method creates a separate Location, or shares one through Surrogate IP for PAC users. No captured source states it; Zscaler Support or a vendor article would settle it.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    }
+  }
+}

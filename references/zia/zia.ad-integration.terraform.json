@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "zia.ad-integration.terraform",
+  "title": "What Terraform manages for ZIA users and authentication settings",
+  "aliases": [
+    "terraform auth settings",
+    "zia_user_management",
+    "zia_auth_settings_urls",
+    "manage users as code",
+    "terraform authSettings"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.ad-integration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.exemptions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.multi-step-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.settings"
+    }
+  ],
+  "claims": {
+    "provider-surface": {
+      "statement": "The ZIA Terraform provider registers a zia_user_management resource and data source and a zia_auth_settings_urls resource and data source. It registers no resource for the organization-wide authSettings object, so the tenant authentication mode (orgAuthType, samlEnabled and the rest) is not managed as code by the provider.",
+      "tier": "B",
+      "conditions": "Search run: the provider.go resource map and the file list under zia/ were read at the pin (v4.8.8); no resource or data source for authSettings, SCIM or identity providers was found. Absence in that pin only.",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/provider.go",
+          "quotes": [
+            "\"zia_user_management\": resourceUserManagement(),",
+            "\"zia_auth_settings_urls\": resourceAuthSettingsUrls(),"
+          ]
+        }
+      ]
+    }
+  }
+}

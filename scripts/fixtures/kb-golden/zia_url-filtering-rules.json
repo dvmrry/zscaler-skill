@@ -347,6 +347,33 @@
   },
   "subjects": [
     {
+      "id": "zia.iot.policy-use",
+      "title": "How IoT traffic is targeted by policy",
+      "claims": [
+        {
+          "id": "zia.iot.policy-use:iot-device-group",
+          "statement": "The Device Groups criterion has an IoT choice that applies a rule to IoT traffic, alongside Cloud Browser Isolation and No Client Connector. It appears in URL Filtering, Cloud App Control, SSL/TLS Inspection and Forwarding Control rules.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#deviceGroups",
+            "zia/cloud-app-control#deviceGroups",
+            "zia/ssl-inspection-rules#deviceGroups",
+            "zia/forwarding-rules#deviceGroups"
+          ]
+        },
+        {
+          "id": "zia.iot.policy-use:iot-group-availability",
+          "statement": "The IoT device group is available only if IoT discovery is enabled for the organization.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#deviceGroups"
+          ]
+        }
+      ]
+    },
+    {
       "id": "zia.locations.rule-scoping",
       "title": "Which policies scope by location and location group",
       "claims": [
@@ -361,6 +388,22 @@
             "zia/firewall-filtering-rules",
             "zia/dlp-web-rules",
             "zia/bandwidth-control-rules"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zia.rule-labels.rule-types",
+      "title": "Which ZIA rule types accept rule labels",
+      "claims": [
+        {
+          "id": "zia.rule-labels.rule-types:terraform-rule-types-with-labels",
+          "statement": "The ZIA Terraform provider documents a `labels` attribute on fifteen rule resources: firewall filtering, firewall DNS, firewall IPS, NAT control, traffic capture, URL filtering, SSL inspection, DLP web, file type control, Cloud App Control, forwarding control, sandbox, bandwidth control, and SaaS Security (CASB) DLP and malware.",
+          "tier": "B",
+          "confidence": "medium",
+          "binds": [
+            "zia/url-filtering-rules#labels",
+            "zia/firewall-filtering-rules#labels"
           ]
         }
       ]
@@ -701,6 +744,82 @@
           "confidence": "high",
           "binds": [
             "zia/url-filtering-rules#order"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zia.workload-groups.rule-scoping",
+      "title": "Which ZIA rules accept workload groups, and how many",
+      "claims": [
+        {
+          "id": "zia.workload-groups.rule-scoping:contract-carriers",
+          "statement": "The ZIA API contract carries `workloadGroups` on the create and update bodies of four rule types: Firewall Filtering, SSL Inspection, URL Filtering and Web DLP.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules",
+            "zia/firewall-filtering-rules",
+            "zia/ssl-inspection-rules",
+            "zia/dlp-web-rules"
+          ]
+        },
+        {
+          "id": "zia.workload-groups.rule-scoping:empty-ignores-criterion",
+          "statement": "Selecting no workload group ignores the criterion in policy evaluation (documented for URL Filtering and SSL/TLS Inspection rules).",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules#workloadGroups",
+            "zia/ssl-inspection-rules#workloadGroups"
+          ]
+        },
+        {
+          "id": "zia.workload-groups.rule-scoping:help-8-per-rule",
+          "statement": "The help documents up to 8 workload groups per rule (URL Filtering and SSL/TLS Inspection criteria text, and the ZIA ranges and limitations table).",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules",
+            "zia/firewall-filtering-rules",
+            "zia/ssl-inspection-rules",
+            "zia/dlp-web-rules"
+          ]
+        },
+        {
+          "id": "zia.workload-groups.rule-scoping:help-four-policies",
+          "statement": "The help names SSL/TLS Inspection, Firewall Filtering, URL Filtering and DLP as the Internet & SaaS policies that can use a workload group as a criterion.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules",
+            "zia/firewall-filtering-rules",
+            "zia/ssl-inspection-rules",
+            "zia/dlp-web-rules"
+          ]
+        },
+        {
+          "id": "zia.workload-groups.rule-scoping:terraform-five-carriers",
+          "statement": "The Terraform provider declares `workload_groups` on five rule resources: URL Filtering, Firewall Filtering, SSL Inspection, Web DLP and Traffic Capture, each with the same ID-and-name set schema.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules",
+            "zia/firewall-filtering-rules",
+            "zia/ssl-inspection-rules",
+            "zia/dlp-web-rules"
+          ]
+        },
+        {
+          "id": "zia.workload-groups.rule-scoping:tf-maxitems-255",
+          "statement": "The Terraform provider's `workload_groups` schema on rules allows up to 255 items (`MaxItems`).",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/url-filtering-rules",
+            "zia/firewall-filtering-rules",
+            "zia/ssl-inspection-rules",
+            "zia/dlp-web-rules"
           ]
         }
       ]

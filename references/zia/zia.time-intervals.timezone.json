@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "id": "zia.time-intervals.timezone",
+  "title": "Which time zone a time interval is evaluated in",
+  "aliases": [
+    "time interval time zone",
+    "rule fires at the wrong hour",
+    "remote user time based policy",
+    "client connector time zone policy",
+    "time rule london paris",
+    "time interval dst"
+  ],
+  "binds": ["zia/time-intervals", "zia/locations#tz"],
+  "related": [
+    { "rel": "depends-on", "to": "zia.locations.model" },
+    { "rel": "see-also", "to": "zia.locations.country-timezone" },
+    { "rel": "see-also", "to": "zia.time-intervals.evaluation" }
+  ],
+  "claims": {
+    "known-location": {
+      "statement": "If the user's traffic comes from a known location, a time-bound policy is applied on the time zone configured for that location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-time-intervals.md",
+          "quotes": [
+            "If the user is coming from a known location, the policy is applied based on the time zone configured for their location."
+          ]
+        }
+      ]
+    },
+    "remote-user": {
+      "statement": "A remote user, including a Zscaler Client Connector user with no matching location, is evaluated on the time at the Public Service Edge they are connected to, not on the user's own clock.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-time-intervals.md",
+          "quotes": [
+            "If the user is a remote user (including users using Zscaler Client Connector), the policy is applied according to the time at the Public Service Edge for Internet & SaaS (ZIA) they are connected to."
+          ]
+        }
+      ]
+    },
+    "worked-example": {
+      "statement": "Help's example: a Social Networking block on Monday to Friday, 9:00 AM to 5:00 PM, through a Paris Public Service Edge, at 5:30 PM London time on a Tuesday. A user from a known location with the Europe/London time zone is blocked; a London user with no configured location is allowed, because the Paris edge's clock reads 6:30 PM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-time-intervals.md",
+          "quotes": [
+            "This user is blocked from going to the site even though the time in Paris at that point in time is 6:30 PM.",
+            "This remote user is allowed to access Facebook.",
+            "Because the Public Service Edge used is in Paris and the time in Paris is 6:30 PM, the policy is not triggered."
+          ]
+        }
+      ]
+    },
+    "rule-locations-wording": {
+      "statement": "The Define Time Intervals page words the rule differently: time intervals use the time zone of the locations selected for the policy rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "defining-time-intervals.md",
+          "quotes": [
+            "Time intervals use the time zone of the locations that you select for the policy rule."
+          ]
+        }
+      ],
+      "gaps": ["rule-locations-versus-user-location"]
+    },
+    "window-follows-location-not-user": {
+      "statement": "So the window follows the location's configured time zone, not the user's geography: a user whose location is configured in another zone sees the rule start and stop at that zone's hours, and remote users in one city who connect through different edges can see different windows.",
+      "tier": "B",
+      "derived_from": ["known-location", "remote-user"],
+      "conditions": "Consequence of the two rules; Help gives the London and Paris case but does not state the same-city, different-edge case."
+    },
+    "no-override-documented": {
+      "statement": "No per-rule or tenant-wide time zone setting for time intervals is documented: the Add Time Interval drawer asks only for a name, days, and a time period, and the API object carries only `startTime`, `endTime` and `daysOfWeek`.",
+      "tier": "B",
+      "conditions": "Absence in the captured Help page and the OpenAPI document, not a statement by either.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "defining-time-intervals.md",
+          "quotes": [
+            "Every Day: To choose all days of the week, enable this option.",
+            "All Day: To choose all day as the time period, enable this option."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "dst-handling": {
+      "kind": "semantic",
+      "title": "Whether time-interval start and end follow daylight saving time",
+      "status": "open",
+      "former_ids": ["zia-21"],
+      "detail": "Whether `startTime` and `endTime` minute values are evaluated against the location's time zone with daylight saving applied (a 9:00 AM rule staying at 9:00 AM local all year) or against a fixed offset is not stated by any source read. Resolve with a rule at a DST boundary, observing before and after the change, or a support answer.",
+      "resolves_with": ["lab-test", "support-ticket"],
+      "about": ["zia.time-intervals.timezone:known-location"],
+      "blocks": "saying whether a time-bound rule shifts by an hour twice a year"
+    },
+    "rule-locations-versus-user-location": {
+      "kind": "semantic",
+      "title": "Whose location sets the time zone when the rule selects different locations",
+      "status": "open",
+      "detail": "About Time Intervals keys the time zone to the user's known location; Define Time Intervals says the time zone of the locations selected for the policy rule. If a rule selects location A and traffic arrives from known location B, which zone applies is not stated.",
+      "resolves_with": ["lab-test"],
+      "about": ["zia.time-intervals.timezone:rule-locations-wording"]
+    }
+  }
+}

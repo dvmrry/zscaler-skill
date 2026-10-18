@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "id": "zia.time-intervals.evaluation",
+  "title": "What a rule does outside its time interval",
+  "aliases": [
+    "rule skipped outside hours",
+    "after hours allow rule",
+    "time based rule falls through",
+    "holiday exception rule",
+    "overnight time interval",
+    "midnight spanning interval"
+  ],
+  "binds": ["zia/time-intervals"],
+  "related": [
+    { "rel": "depends-on", "to": "zia.time-intervals.timezone" },
+    { "rel": "depends-on", "to": "zia.url-filtering.rule-order" },
+    { "rel": "see-also", "to": "zia.time-intervals.schema" },
+    { "rel": "see-also", "to": "zia.time-intervals.rule-usage" }
+  ],
+  "claims": {
+    "outside-window-not-triggered": {
+      "statement": "A rule with a time interval does not trigger when the resolved time falls outside the interval.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-time-intervals.md",
+          "quotes": [
+            "Because the Public Service Edge used is in Paris and the time in Paris is 6:30 PM, the policy is not triggered."
+          ]
+        }
+      ]
+    },
+    "falls-through": {
+      "statement": "An out-of-window rule yields no verdict of its own: evaluation continues down the ordered list, so an allow rule limited to business hours stops allowing after hours and the outcome depends on the rules below it, ending at the default rule.",
+      "tier": "B",
+      "derived_from": ["outside-window-not-triggered", "zia.url-filtering.rule-order:first-match"],
+      "conditions": "Follows from first-match evaluation as documented for URL Filtering; the same behavior for other rule types was not read."
+    },
+    "no-holiday-exclusions": {
+      "statement": "A time interval cannot exclude dates such as public holidays; the schema has no date or calendar field. Staying outside a window on a given date means disabling or reordering the rule yourself.",
+      "tier": "B",
+      "derived_from": ["zia.time-intervals.schema:weekly-recurrence-only"],
+      "conditions": "Absence of a date field in the schema and drawer; the remedy follows from rules being skipped when disabled (zia.url-filtering.rule-order:disabled-holds-slot)."
+    }
+  },
+  "gaps": {
+    "midnight-spanning": {
+      "kind": "semantic",
+      "title": "Whether an interval can cross midnight (end earlier than start)",
+      "status": "open",
+      "former_ids": ["zia-24"],
+      "detail": "Unverified legacy statement: \"`endTime` ... must be > `startTime` within the same calendar day.\" No source states the constraint, and none says whether 22:00 to 02:00 is accepted with `endTime` less than `startTime` or needs two intervals. Resolve by creating such an interval on a scratch tenant and testing a rule at 23:00 and 01:00.",
+      "resolves_with": ["lab-test"],
+      "about": ["zia.time-intervals.schema:fields"],
+      "blocks": "advising how to schedule overnight windows"
+    }
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.proxy-chaining",
+  "title": "Proxy chaining to ZIA: setup, XFF handling and limits",
+  "aliases": [
+    "proxy chaining",
+    "upstream proxy",
+    "squid zscaler",
+    "xff",
+    "x-forwarded-for",
+    "internal ip logging",
+    "secondary.gateway"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.traffic-forwarding.methods"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.locations.ip-scoping"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.authentication.surrogate-ip"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.proxy-mode.forwarding-map"
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Proxy chaining forwards traffic from an existing on-premises proxy to the service with no other network change. Zscaler supports it but does not recommend it as a long-term production solution, because multiple proxies add latency and proxies that support failover support only manual failover.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-proxy-chaining.md",
+          "quotes": [
+            "Proxy chaining involves forwarding traffic from one proxy server to another.",
+            "Though Zscaler supports proxy chaining, it is not recommended as a long-term solution in production environments. Multiple proxies add latency and proxy servers that support failover support only manual failover."
+          ]
+        }
+      ]
+    },
+    "registration": {
+      "statement": "The organization's public egress IP addresses must be registered with Zscaler Support (or the Zscaler representative during an evaluation); registration enforces IP uniqueness across organizations, and the gateway location is then defined in the Admin Console with those addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-proxy-chaining.md",
+          "quotes": [
+            "This “registration” process enforces the uniqueness of IP addresses, so that an organization does not inadvertently use another organization’s IP addresses.",
+            "Ensure that your organization has been provisioned and send the IP address of your endpoint to Zscaler Support"
+          ]
+        }
+      ]
+    },
+    "primary-secondary": {
+      "statement": "The proxy must name both gateway.<cloud_name>.net and secondary.gateway.<cloud_name>.net as primary and secondary upstream servers; Zscaler does not support configurations with a single proxy server. The service then picks the nearest Public Service Edge by geolocation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-proxy-chaining.md",
+          "quotes": [
+            "You must specify gateway.<cloud_name>.net and secondary.gateway.<cloud_name>.net as the primary and secondary proxy servers, respectively, to ensure fault tolerance. Zscaler does not support configurations with just one proxy server.",
+            "so the Zscaler service uses its Geolocation technology to forward the traffic to the nearest Public Service Edge"
+          ]
+        }
+      ]
+    },
+    "xff-handling": {
+      "statement": "When the service forwards a chained request onward it replaces the original X-Forwarded-For header with one holding the organization's public gateway IP, so internal addresses are not exposed; logs record the public IP of the sending firewall or router unless Internal IP Logging is enabled in Advanced Settings, which logs the XFF address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-proxy-chaining.md",
+          "quotes": [
+            "it removes this original XFF header and replaces it with an XFF header that contains the IP address of the client gateway",
+            "you can go to the Advanced Settings page of the Zscaler Admin Console and enable Internal IP Logging."
+          ]
+        }
+      ]
+    },
+    "limitations": {
+      "statement": "Chaining's stated limits: corporate-network users still need another method such as PAC files to reach the proxy, the proxy's latency adds to forwarding latency, and a caching proxy can cause downstream authentication problems and affect policy enforcement and reporting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-traffic-forwarding-methods.md",
+          "quotes": [
+            "Users of the corporate network must use another method, such as PAC files, to forward traffic to the service.",
+            "The latency of the proxy server affects the traffic forwarding latency.",
+            "If the proxy server also performs caching, downstream authentication could be an issue.",
+            "If the local proxy has a cache, it could affect policy enforcement and reporting."
+          ]
+        }
+      ]
+    },
+    "government-clouds": {
+      "statement": "Government clouds support proxy chaining only when the traffic from the on-premises proxy goes through a GRE or IPSec tunnel; chaining directly over the internet is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-traffic-forwarding-methods.md",
+          "quotes": [
+            "Zscaler Government Clouds support proxy chaining only when the proxy traffic forwarded from the on-premises proxy is sent through a GRE or IPSec tunnel."
+          ]
+        }
+      ]
+    }
+  }
+}

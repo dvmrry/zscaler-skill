@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "id": "zia.audit-logs.config-audit",
+  "title": "The ZIA configuration audit (System Audit Report) endpoint",
+  "aliases": [
+    "configAudit",
+    "system audit report",
+    "zia config grade",
+    "ConfigAudit python",
+    "RBA_LIMITED"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs.report-api"
+    }
+  ],
+  "claims": {
+    "not-a-trail": {
+      "statement": "The configAudit endpoint returns the System Audit Report, a graded assessment of the current configuration, not a log of who changed what.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get",
+          "expect": {
+            "description": "<p>Retrieves the System Audit Report. To learn more, see <a href=\"https://help.zscaler.com/zia/about-system-audit-report\" target=\"_blank\">About the System Audit Report</a>.</p><p><b>Note</b>: This endpoint is accessible via <a href=\"https://automate.zscaler.com/docs/api-reference-and-guides/guides/UnderstandingOneAPI\" target=\"_blank\">Zscaler OneAPI</a> only.</p>"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-system-audit-report.md",
+          "quotes": [
+            "The System Audit Report highlights the status of GRE tunnels, PAC files, authentication frequency, PAC file sizes, Microsoft 365 One Click, and IP visibility."
+          ]
+        }
+      ]
+    },
+    "oneapi-only": {
+      "statement": "The configAudit, configAudit/ipVisibility and configAudit/pacFile endpoints are accessible via Zscaler OneAPI only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get",
+          "expect": {
+            "description": "<p>Retrieves the System Audit Report. To learn more, see <a href=\"https://help.zscaler.com/zia/about-system-audit-report\" target=\"_blank\">About the System Audit Report</a>.</p><p><b>Note</b>: This endpoint is accessible via <a href=\"https://automate.zscaler.com/docs/api-reference-and-guides/guides/UnderstandingOneAPI\" target=\"_blank\">Zscaler OneAPI</a> only.</p>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit~1ipVisibility/get",
+          "expect": {
+            "description": "<p>Retrieves the IP visibility audit report.</p><p><b>Note</b>: This endpoint is accessible via <a href=\"https://automate.zscaler.com/docs/api-reference-and-guides/guides/UnderstandingOneAPI\" target=\"_blank\">Zscaler OneAPI</a> only.</p>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit~1pacFile/get",
+          "expect": {
+            "description": "<p>Retrieves the PAC file audit report.</p><p><b>Note</b>: This endpoint is accessible via <a href=\"https://automate.zscaler.com/docs/api-reference-and-guides/guides/UnderstandingOneAPI\" target=\"_blank\">Zscaler OneAPI</a> only.</p>"
+          }
+        }
+      ]
+    },
+    "monthly": {
+      "statement": "The report runs on the first of every month and presents the analysis as of that date; if the previous month's report is unavailable the console shows the month before it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-system-audit-report.md",
+          "quotes": [
+            "The report runs on the first of every month, and the analysis is presented on everything as of that date.",
+            "you'll be shown the month prior to the previous month's report"
+          ]
+        }
+      ]
+    },
+    "grades": {
+      "statement": "The response carries an overallGrade plus highAvailabilityGrade, userPerformanceGrade, otherGrade, greTunnelGrade, pacFileGrade, authFrequencyGrade, pacfileSizeGrade, office365Grade and ipVisibilityGrade, each A, B, C or NONE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/overallGrade",
+          "expect": {
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "NONE"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/greTunnelGrade",
+          "expect": {
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "NONE"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/pacfileSizeGrade",
+          "expect": {
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "NONE"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/ipVisibilityGrade",
+          "expect": {
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "NONE"
+            ]
+          }
+        }
+      ]
+    },
+    "recommendations": {
+      "statement": "Each area also has a free-text recommended-configuration field (greTunnelRecommendedConfiguration, pacFileRecommendedConfiguration, authFrequencyRecommendedConfiguration, pacFileSizeRecommendedConfiguration, office365RecommendedConfiguration, ipVisibilityRecommendedConfiguration); the response also has office365Flag, dataPresent, reportTimestamp and an authFrequency object with authFrequency and authCustomFrequency.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/greTunnelRecommendedConfiguration",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/dataPresent",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/reportTimestamp",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/authFrequency/properties/authFrequency",
+          "expect": {
+            "enum": [
+              "DAILY_COOKIE",
+              "PERMANENT_COOKIE",
+              "SESSION_COOKIE",
+              "CUSTOM_COOKIE"
+            ]
+          }
+        }
+      ]
+    },
+    "grade-rubric": {
+      "statement": "GRE tunnel and PAC file grades are A when issues affect under 10% of the items, B between 10% and 90%, and C above 90%; with none present the grade is No Grade.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-system-audit-report.md",
+          "quotes": [
+            "| Issues with less than 10% of all GRE tunnels | A |",
+            "| Issues with more than 90% of all GRE tunnels | C |"
+          ]
+        }
+      ]
+    },
+    "rba-limited": {
+      "statement": "The Python SDK comment states that the config audit returns the code RBA_LIMITED with the message \"Functional scope restriction requires Reports\" when the Reports functional scope is missing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/system_audit.py",
+          "quotes": [
+            "Returning {\"code\":\"RBA_LIMITED\",\"message\":\"Functional scope restriction requires Reports\"}"
+          ]
+        }
+      ]
+    },
+    "python-models": {
+      "statement": "The Python SDK exposes the report as SystemAuditReportAPI.get_config_audit (client.zia.system_audit) and models the nested objects AuthFrequency, IPVisibility (totalGreLocations, recommendation, details, locationsWithNat) and PacFile (totalPacFiles, pacWithStaticIPs).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/system_audit.py",
+          "quotes": [
+            "self.total_pac_files = config[\"totalPacFiles\"]",
+            "self.pac_with_static_ips = ZscalerCollection.form_list(",
+            "class IPVisibility(ZscalerObject):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/system_audit.py",
+          "quotes": [
+            "def get_config_audit(self, query_params: Optional[dict] = None)"
+          ]
+        }
+      ]
+    }
+  }
+}

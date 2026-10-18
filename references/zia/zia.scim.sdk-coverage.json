@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "id": "zia.scim.sdk-coverage",
+  "title": "What the Go and Python SDKs do for ZIA SCIM",
+  "aliases": [
+    "go sdk scim zia",
+    "scim_api",
+    "NewZIAScimService",
+    "ZIA_SCIM_API_TOKEN",
+    "GetAllUsers scim",
+    "python sdk scim zia",
+    "sdk scim patch bulk"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.scim"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.service-defects"
+    }
+  ],
+  "claims": {
+    "go-surface": {
+      "statement": "The Go SDK has a ZIA SCIM client with get, get by name, create (POST), update (PUT), delete and list-all functions for users, and the matching functions for groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/scim_api/scim_user_api.go",
+          "quotes": [
+            "func GetAllUsers(ctx context.Context, service *zscaler.ScimZIAService)",
+            "resp, err := service.Client.DoRequest(ctx, http.MethodPut, relativeURL, scimUser, nil)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/scim_api/scim_group_api.go",
+          "quotes": [
+            "func GetAllGroups(ctx context.Context, service *zscaler.ScimZIAService)"
+          ]
+        }
+      ]
+    },
+    "go-no-patch-bulk": {
+      "statement": "The Go SCIM client has no PATCH or Bulk call, so partial updates and bulk modification against ZIA need direct HTTP.",
+      "tier": "B",
+      "conditions": "Search run: `git -C vendor/zscaler-sdk-go grep -n -i \"patch\\|bulk\" HEAD -- zscaler/zia/services/scim_api` returned nothing.",
+      "derived_from": [
+        "go-surface"
+      ]
+    },
+    "python-none": {
+      "statement": "The Python SDK has no ZIA SCIM client; the only SCIM mention under its ZIA package is the directory_sync_migrate_to_scim_enabled authentication-settings field.",
+      "tier": "B",
+      "conditions": "Search run: `grep -rli scim vendor/zscaler-sdk-python/zscaler/zia` returned only authentication_settings.py and models/authentication_settings.py (v1.10.0 pin).",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/authentication_settings.py",
+          "quotes": [
+            "Enables migration to SCIM by disabling legacy sync."
+          ]
+        }
+      ]
+    },
+    "user-struct": {
+      "statement": "The Go SCIMUser struct carries schemas, id, userName, displayName, the enterprise extension (department) and meta. It has no groups, active, externalId, emails or name fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/scim_api/scim_user_api.go",
+          "quotes": [
+            "UserName string `json:\"userName,omitempty\"`",
+            "DisplayName string `json:\"displayName,omitempty\"`",
+            "Meta *Meta `json:\"meta,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "cannot-send-active": {
+      "statement": "Because SCIMUser has no active, groups or externalId field, a create or update through the Go SDK cannot disable a user or set group membership from the user side or an external ID; membership can be set only through the group's members list.",
+      "tier": "B",
+      "conditions": "Client-side only: derived from the struct and the omitempty request body; a caller could still reach the endpoint with their own HTTP.",
+      "derived_from": [
+        "user-struct",
+        "go-surface"
+      ]
+    },
+    "getall-users-type": {
+      "statement": "GetAllUsers returns []SCIMGroup, not users, so a user list read through it is decoded into the group struct and loses userName and the department extension.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/scim_api/scim_user_api.go",
+          "quotes": [
+            "func GetAllUsers(ctx context.Context, service *zscaler.ScimZIAService) ([]SCIMGroup, *http.Response, error) {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled"
+        }
+      ]
+    },
+    "byname-display": {
+      "statement": "GetUserByName and GetGroupByName take a displayName and match it case-insensitively against the display name through a search, returning the first match; GetUserByName does not match userName.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/scim_api/scim_user_api.go",
+          "quotes": [
+            "func GetUserByName(ctx context.Context, service *zscaler.ScimZIAService, displayName string)",
+            "return strings.EqualFold(g.DisplayName, displayName)"
+          ]
+        }
+      ]
+    },
+    "go-paging": {
+      "statement": "List-all and by-name calls use POST /Users/.search or /Groups/.search with a page size capped at 100, advance startIndex by the requested page size rather than the number returned, and stop when startIndex plus the page size exceeds totalResults or a page is empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/common/common.go",
+          "quotes": [
+            "if itemsPerPage <= 0 || itemsPerPage > 100 {",
+            "if startIndex+itemsPerPage > result.TotalResults || len(result.Resources) == 0 {",
+            "startIndex += itemsPerPage"
+          ],
+          "after": "func GetAllPagesScimPostWithSearch[T any]("
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/scim_api/scim_group_api.go",
+          "quotes": [
+            "100, // max per Zscaler SCIM API"
+          ]
+        }
+      ]
+    },
+    "go-paging-estimate": {
+      "statement": "Because the server's totalResults is only an estimate above 10K until the last page, the SDK's stop condition can end a large list early or run past the end, and the 100-per-page search path differs from the 1,000-per-page REST GET.",
+      "tier": "B",
+      "conditions": "Derived from the helper's stop rule and the documented estimate; the direction and size of the estimate error are not documented, and the ZPA helper has the same shape (see the shared list-pagination subject).",
+      "derived_from": [
+        "go-paging",
+        "zia.scim.operations:paging",
+        "zia.scim.operations:user-operations"
+      ]
+    },
+    "go-client-config": {
+      "statement": "The ZIA SCIM client is separate from the OneAPI client: it takes ZIA_SCIM_API_TOKEN and ZIA_SCIM_TENANT_ID (plus a cloud), builds https://scim.<cloud>.net/<tenant ID>/scim, and sends the token as a Bearer header with content type application/scim+json.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v1_client_scim.go",
+          "quotes": [
+            "ZIA_SCIM_API_TOKEN = \"ZIA_SCIM_API_TOKEN\"",
+            "rawURL := fmt.Sprintf(\"https://scim.%s.net/%s/scim\", cloud, globalScimConfig.ZIAScim.Client.ZIAScimTenantID)",
+            "req.Header.Add(\"Content-Type\", \"application/scim+json\")"
+          ]
+        }
+      ]
+    },
+    "no-limiter": {
+      "statement": "NewZIAScimService leaves the client's RateLimiter nil, and the SCIM client throttles only if one is set, so SDK loops are not paced to the server's 5 requests per second.",
+      "tier": "B",
+      "conditions": "Client-side: the construction leaves the limiter nil and DoRequest waits only when it is non-nil; the server limit comes from the help article.",
+      "derived_from": [
+        "zia.scim.operations:rate-limit"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/service.go",
+          "quotes": [
+            "RateLimiter: nil,"
+          ],
+          "after": "func NewZIAScimService(cfg *zia.ScimConfiguration) *ScimZIAService {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v1_client_scim.go",
+          "quotes": [
+            "if c.ScimConfig.RateLimiter != nil {"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "scim-base-url": {
+      "summary": "The SDK builds a SCIM base URL without the IdP ID that the help's base URL carries.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-scim.md",
+            "quotes": [
+              "https://scim.<Zscaler Cloud>/<Organization ID>/<IdP ID>/scim"
+            ]
+          },
+          "says": "The base URL is scim.<cloud>/<Organization ID>/<IdP ID>/scim."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/v1_client_scim.go",
+            "quotes": [
+              "rawURL := fmt.Sprintf(\"https://scim.%s.net/%s/scim\", cloud, globalScimConfig.ZIAScim.Client.ZIAScimTenantID)"
+            ]
+          },
+          "says": "The SDK uses scim.<cloud>.net/<tenant ID>/scim, with no IdP ID."
+        }
+      ],
+      "impact": "Whether the SDK URL reaches the same server as an IdP-specific URL, and whether the tenant ID equals the Organization ID, is not shown by either source; test against the tenant before relying on the SDK's URL."
+    }
+  }
+}

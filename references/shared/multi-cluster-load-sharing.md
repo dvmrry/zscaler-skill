@@ -14,7 +14,7 @@ sources:
   - "vendor/zscaler-help/understanding-source-ip-anchoring.md"
   - "references/shared/cloud-architecture.md"
   - "references/shared/subclouds.md"
-  - "references/zia/private-service-edge.md"
+  - "kb:zia.private-service-edge"
 author-status: draft
 ---
 
@@ -22,7 +22,7 @@ author-status: draft
 
 Multi-cluster load sharing (MCLS) is the mechanism by which a single Virtual IP (VIP) at a Zscaler data center is served by **multiple Public Service Edge clusters from different network address blocks**. Traffic arriving at the VIP can enter and be processed by any participating cluster. The feature is infrastructural — it is not an opt-in per organization and does not require tenant configuration. (Tier A — vendor/zscaler-help/understanding-multi-cluster-load-sharing.md)
 
-This document covers the mechanics, policy implications, failure behavior, and operational gotchas of MCLS for ZIA tenants. For the broader cloud component model (Central Authority, Nanolog, Business Continuity Cloud), see [`./cloud-architecture.md`](./cloud-architecture.md). For the subcloud mechanism that can restrict which clusters serve a tenant, see [`./subclouds.md`](./subclouds.md). For Private Service Edge clusters — which operate outside the MCLS pool — see [`../zia/private-service-edge.md`](../zia/private-service-edge.md).
+This document covers the mechanics, policy implications, failure behavior, and operational gotchas of MCLS for ZIA tenants. For the broader cloud component model (Central Authority, Nanolog, Business Continuity Cloud), see [`./cloud-architecture.md`](./cloud-architecture.md). For the subcloud mechanism that can restrict which clusters serve a tenant, see [`./subclouds.md`](./subclouds.md). For Private Service Edge clusters — which operate outside the MCLS pool — see [`zia.private-service-edge`](kb:zia.private-service-edge).
 
 Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`; `vendor/zscaler-help/understanding-zscaler-cloud-architecture.md`; `vendor/zscaler-help/about-public-service-edges-internet-saas.md`.
 
@@ -185,11 +185,11 @@ Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`; `vend
 
 ## 10. PSE deployments and MCLS
 
-Private Service Edge (PSE) clusters are **not participants in the MCLS Public Service Edge pool**. A PSE cluster is a dedicated cluster for a single organization, operated on-premises, serving traffic from the locations explicitly assigned to it in the Admin Console. (Tier A — references/zia/private-service-edge.md)
+Private Service Edge (PSE) clusters are **not participants in the MCLS Public Service Edge pool**. A PSE cluster is a dedicated cluster for a single organization, operated on-premises, serving traffic from the locations explicitly assigned to it in the Admin Console. (Tier A — `kb:zia.private-service-edge`)
 
 The MCLS pool consists exclusively of Public Service Edges operated by Zscaler. Traffic routed to a PSE cluster goes to that specific cluster's VIP — there is no cross-cluster LB pool at the PSE level that spans multiple PSE clusters or mixes PSE with Public SE nodes.
 
-Within a PSE cluster, the analogous construct is: an active-passive LB pair sharing a cluster VIP, distributing traffic to active-active service nodes. This is single-cluster redundancy, not multi-cluster load sharing. The LB uses CARP for VIP failover, and responses use Direct Server Return (DSR) — return traffic does not pass through the LB. (Tier A — references/zia/private-service-edge.md)
+Within a PSE cluster, the analogous construct is: an active-passive LB pair sharing a cluster VIP, distributing traffic to active-active service nodes. This is single-cluster redundancy, not multi-cluster load sharing. The LB uses CARP for VIP failover, and responses use Direct Server Return (DSR) — return traffic does not pass through the LB. (Tier A — `kb:zia.private-service-edge.cluster-architecture`)
 
 **Traffic path under a subcloud that includes Private SEs.** A subcloud can mix Private Service Edges and Public Service Edges as preferred vs overflow. In that configuration, traffic first targets the Private SE cluster(s); if unavailable, it overflows to the Public SE members of the subcloud. The Public SE members are subject to MCLS within their respective data centers. (Tier A — references/shared/subclouds.md)
 
@@ -236,6 +236,6 @@ Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`; `vend
 
 - Cloud architecture (Central Authority, Service Edges, Nanolog, BC Cloud, activation) — [`./cloud-architecture.md`](./cloud-architecture.md)
 - Subclouds (DC restriction for GDPR, private-DC enforcement, PAC variable forms) — [`./subclouds.md`](./subclouds.md)
-- Private Service Edge (PSE cluster design, DSR, tiers, open-proxy risk) — [`../zia/private-service-edge.md`](../zia/private-service-edge.md)
+- Private Service Edge (PSE cluster design, DSR, tiers, open-proxy risk) — [`zia.private-service-edge`](kb:zia.private-service-edge)
 - Forwarding Control + SIPA (forward methods, egress IP anchoring) — [`zia.forwarding-control`](kb:zia.forwarding-control)
 - ZCC fail-open and Forwarding Profile (client behavior when cloud is unreachable) — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)

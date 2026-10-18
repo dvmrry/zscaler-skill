@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "id": "zia.time-intervals.limits",
+  "title": "Time interval limits: object cap, per-rule cap and name characters",
+  "aliases": [
+    "how many time intervals",
+    "time interval limit",
+    "64 intervals",
+    "times per rule",
+    "time interval name rules",
+    "time interval name digits"
+  ],
+  "binds": ["zia/time-intervals#name"],
+  "related": [
+    { "rel": "see-also", "to": "zia.firewall.limits" },
+    { "rel": "see-also", "to": "zia.time-intervals.rule-usage" },
+    { "rel": "see-also", "to": "zia.time-intervals.schema" }
+  ],
+  "claims": {
+    "object-cap": {
+      "statement": "The limits table allows 64 time intervals per organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": ["| Time Intervals | 64 intervals |"]
+        }
+      ]
+    },
+    "times-per-rule-table": {
+      "statement": "The same table lists \"Times per Rule\" as 8 times on any policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": ["| Times per Rule | 8 times |"]
+        }
+      ]
+    },
+    "string-inputs": {
+      "statement": "For all features, string inputs accept letters, digits, underscores, hyphens, periods and spaces, must begin with a letter, digit, underscore, hyphen or period, and reject characters such as #, @ and $.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": ["Accepted characters: Letters (both uppercase A–Z and lowercase a–z), numbers (0–9), underscores (_), hyphens(-), periods(.), and spaces."]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "per-rule-cap": {
+      "summary": "How many time intervals one rule may carry: the limits table says 8, the URL Filtering and Firewall Filtering Help pages say up to two, and the Terraform firewall schema caps the list at 2.",
+      "positions": [
+        {
+          "evidence": { "source": "zscaler-help", "path": "ranges-limitations-zia.md", "quotes": ["| Times per Rule | 8 times |"] },
+          "says": "Eight times per rule, on any policy."
+        },
+        {
+          "evidence": { "source": "zscaler-help", "path": "configuring-url-filtering-policy.md", "quotes": ["Time: Select Always to apply this rule to all time intervals, or select up to two time intervals."] },
+          "says": "URL Filtering takes up to two intervals."
+        },
+        {
+          "evidence": { "source": "tf-zia", "path": "zia/resource_zia_firewall_filtering_rules.go", "quotes": ["\"time_windows\": setIDsSchemaTypeCustom(intPtr(2),"] },
+          "says": "The Terraform firewall filtering schema allows two."
+        }
+      ],
+      "impact": "Planning more than two schedule windows on one rule may be refused by the console or by Terraform even though the table allows eight; the per-rule cap may differ by rule type."
+    },
+    "name-characters": {
+      "summary": "Which characters a time interval name may contain: the MCP server describes ASCII letters and spaces only, the limits table allows digits, underscores, hyphens and periods, and the Python SDK's own example name contains digits and an underscore.",
+      "positions": [
+        {
+          "evidence": { "source": "mcp-server", "path": "src/zscaler_mcp/tools/zia/time_intervals.py", "quotes": ["Interval name (ASCII letters/spaces only)."] },
+          "says": "Names are ASCII letters and spaces only (a field description; the create function forwards the name unvalidated)."
+        },
+        {
+          "evidence": { "source": "mcp-server", "path": "skills/zia/manage-time-interval/SKILL.md", "quotes": ["ZIA rejects Time Interval names that contain **digits or special characters**."] },
+          "says": "ZIA rejects digits and special characters, and the tool validates client-side and raises ValueError before the API call."
+        },
+        {
+          "evidence": { "source": "zscaler-help", "path": "ranges-limitations-zia.md", "quotes": ["Accepted characters: Letters (both uppercase A–Z and lowercase a–z), numbers (0–9), underscores (_), hyphens(-), periods(.), and spaces."] },
+          "says": "String inputs for all features accept digits, underscores, hyphens, periods and spaces."
+        },
+        {
+          "evidence": { "source": "sdk-python", "path": "zscaler/zia/time_intervals.py", "quotes": ["name=f\"NewTimeInterval01_{random.randint(1000, 10000)}\",", "name=f\"UpdateTimeInterval01_{random.randint(1000, 10000)}\","] },
+          "says": "The SDK examples create and update intervals with names containing digits and an underscore."
+        }
+      ],
+      "impact": "A name such as `Q1 Maintenance` may be accepted or rejected; the safe choice is letters and spaces only until observed. The skill's claim of client-side validation does not match the tool code, which sends the name as given."
+    }
+  },
+  "gaps": {
+    "name-server-rule": {
+      "kind": "semantic",
+      "title": "The server-side rule for time interval names",
+      "status": "open",
+      "detail": "Whether digits are rejected, which punctuation is allowed, the maximum length, leading and trailing space handling, and uniqueness are not observed for time intervals. Unverified legacy statement: the literal error `Name is not valid`. Resolve by creating intervals with each variant on a scratch tenant.",
+      "resolves_with": ["lab-test", "support-ticket"],
+      "about": ["zia.time-intervals.limits:name-characters"]
+    }
+  }
+}

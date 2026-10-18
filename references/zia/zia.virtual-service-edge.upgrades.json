@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "id": "zia.virtual-service-edge.upgrades",
+  "title": "How Virtual Service Edges and their clusters upgrade",
+  "aliases": [
+    "vse upgrade",
+    "vse maintenance window",
+    "vse delay-upgrade",
+    "vse rolling upgrade",
+    "vse trial production upgrade order",
+    "vse cluster upgrade downtime"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.clusters"
+    }
+  ],
+  "claims": {
+    "automatic-in-windows": {
+      "statement": "The Zscaler service automatically upgrades Virtual Service Edges during scheduled maintenance windows. The dates are published in the Zscaler Trust Portal, and no admin or Zscaler Cloud Operations intervention is required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "The Zscaler service automatically upgrades Virtual Service Edges during scheduled maintenance windows.",
+            "The dates of these maintenance windows are published in the Zscaler Trust Portal."
+          ]
+        }
+      ]
+    },
+    "cluster-consecutive": {
+      "statement": "By design, Virtual Service Edges in a cluster are updated consecutively, so there is no down time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "By design, Virtual Service Edges in a cluster are updated consecutively, so there is no down time."
+          ]
+        }
+      ]
+    },
+    "delay-upgrade-command": {
+      "statement": "Updates can be scheduled to begin no later than 24 hours after the maintenance window for the cloud the Virtual Service Edge is part of, by running `sudo vzen delay-upgrade HH:MM` (UTC, 24-hour) on each node.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "You can schedule the updates to begin at a time no later than 24 hours of the maintenance window for the cloud that the Virtual Service Edge is a part of.",
+            "sudo vzen delay-upgrade HH:MM",
+            "HH:MM is in the UTC 24-hour format."
+          ]
+        }
+      ]
+    },
+    "stagger-one-hour": {
+      "statement": "In a cluster, the delay-upgrade times configured on the nodes should differ by at least one hour to minimize downtime; for standalone nodes behind an external load balancer, split them into two logical groups at least an hour apart.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "In a Virtual Service Edge cluster, it is recommended that there is a minimum difference of one hour between the delay-upgrade time configured in the nodes of the cluster.",
+            "you can minimize downtime by splitting your Virtual Service Edges into two logic groups."
+          ]
+        }
+      ]
+    },
+    "trial-before-production": {
+      "statement": "Trial Virtual Service Edge instances are upgraded first during a maintenance window, followed by production instances. The Deployment Status setting does not affect behavior, functionality or performance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-virtual-service-edge-instances-internet-saas.md",
+          "quotes": [
+            "The trial Virtual Service Edge instances are upgraded first during a maintenance window, followed by production Virtual Service Edge instances.",
+            "This setting does not affect the behavior, functionality, or performance of the Virtual Service Edge instance"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "cluster-update-sequencing": {
+      "kind": "semantic",
+      "title": "Whether cluster upgrades are rolling or simultaneous",
+      "status": "resolved",
+      "former_ids": [
+        "zia-33"
+      ],
+      "detail": "Unverified legacy statement (corrected here): 'the vendor cluster document does not describe whether upgrades within a cluster are sequenced (rolling) or simultaneous ... operators ... should assume that all VMs in a cluster may upgrade during the same maintenance window.' The cluster configuration article states that nodes are updated consecutively by design.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "Consecutive by design (claim cluster-consecutive); stagger the delay-upgrade times by at least an hour (claim stagger-one-hour)."
+    }
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "id": "zia.scim.groups-and-departments",
+  "title": "How SCIM groups and departments land in ZIA",
+  "aliases": [
+    "scim group",
+    "scim department name match",
+    "scim_group operand zia",
+    "group not in policy dropdown",
+    "scim group members",
+    "department auto-create"
+  ],
+  "binds": [
+    "zia/groups",
+    "zia/departments"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.scim.attribute-mapping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.identity-objects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.licensing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.rules"
+    }
+  ],
+  "claims": {
+    "group-object": {
+      "statement": "A SCIM group becomes a Zscaler group: its displayName is the group Name, its externalId is kept as scim_externalid, and Zscaler generates its ID. Members are added by user ID in the members list.",
+      "tier": "A",
+      "binds": [
+        "zia/groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-scim-zia.md",
+          "quotes": [
+            "| displayName | Name | Display name of the Group |"
+          ],
+          "after": "## Group Information"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "scim-api-examples.md",
+          "quotes": [
+            "\"members\": [ { \"value\":\"{UserID}\" } ]"
+          ],
+          "after": "# Creating a Group with Members"
+        }
+      ]
+    },
+    "policy-uses-groups": {
+      "statement": "Groups are used in policies, and a SCIM-sourced group is the same kind of object, so a rule reaches it through the ordinary Groups criterion. No captured ZIA article describes a separate SCIM-group operand like the one ZPA uses.",
+      "tier": "B",
+      "conditions": "Absence in the captured ZIA SCIM and group articles; not checked against every rule type's criteria list.",
+      "derived_from": [
+        "group-object"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-groups.md",
+          "quotes": [
+            "Groups are used in policies."
+          ]
+        }
+      ]
+    },
+    "zpa-contrast": {
+      "statement": "ZPA enforces policy on SCIM attributes and SCIM groups, a different model from ZIA's use of ordinary groups and departments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-scim-zpa.md",
+          "quotes": [
+            "enforce policies based on SCIM attributes and SCIM groups."
+          ]
+        }
+      ]
+    },
+    "unpushed-group": {
+      "statement": "A group the IdP connector does not push is not created by SCIM, and groups can also be created in the console, by CSV import or in a policy, so a group missing from ZIA is a question of connector scope or of where the group was meant to come from.",
+      "tier": "B",
+      "conditions": "Derived from SCIM creating groups only from pushes and from groups having other creation paths; how a rule referencing a never-created group behaves is not captured.",
+      "derived_from": [
+        "group-object",
+        "zia.ad-integration.identity-objects:added-in-policy"
+      ]
+    }
+  },
+  "gaps": {
+    "department-no-match": {
+      "kind": "semantic",
+      "title": "What happens to a department string with no matching ZIA department",
+      "status": "open",
+      "detail": "The department string from the enterprise extension is assumed to be matched by name against an existing ZIA department (Unverified legacy statement: if the string differs from every existing department name the association fails silently and the user has no department; whether ZIA instead creates the department or returns an error is unconfirmed). The SCIM examples create a user with a new department name, 'scim dept 001', without saying a department had to exist. A lab push with an unknown department, then a department list read, would settle it.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "advice on pre-creating departments before enabling SCIM",
+      "former_ids": [
+        "zia-39"
+      ]
+    },
+    "missing-group-in-rules": {
+      "kind": "semantic",
+      "title": "How a rule scoped to a group that was never created behaves",
+      "status": "open",
+      "detail": "Unverified legacy statement: Groups out of the connector's scope are never created in ZIA, so rules referencing them silently never match anyone, and the group is absent from the policy dropdown. No captured source describes the dropdown or the rule's behavior. A tenant check of a rule referencing a deleted group would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "diagnosing a rule that matches nobody after a connector scope change"
+    }
+  }
+}

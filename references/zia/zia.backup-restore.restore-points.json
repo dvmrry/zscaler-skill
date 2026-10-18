@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "id": "zia.backup-restore.restore-points",
+  "title": "ZIA restore point limits, golden point and scheduled eviction",
+  "aliases": [
+    "12 restore points",
+    "golden restore point",
+    "restore point limit",
+    "scheduled backup deletes oldest",
+    "restore point name length"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.backup-restore.restore-semantics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs.what-is-recorded"
+    }
+  ],
+  "claims": {
+    "manual-or-scheduled": {
+      "statement": "Backups are created manually on demand or automatically on a schedule in the Admin Console; each restore point records the date and time its backup was created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.md",
+          "quotes": [
+            "A restore point represents the date and time when a backup was created",
+            "Backups can be automated using schedules or created manually on demand in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "limit-12": {
+      "statement": "An organization can have up to 12 restore points, counting manual and scheduled backups together.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.md",
+          "quotes": [
+            "An organization can have up to 12 restore points, including manual and scheduled backups."
+          ]
+        }
+      ]
+    },
+    "golden": {
+      "statement": "One restore point can be designated the Golden Restore Point; it exists indefinitely and cannot be deleted, and only one can exist at a time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.md",
+          "quotes": [
+            "The Golden Restore Point cannot be deleted.",
+            "There can be only one golden restore point at any given point in time."
+          ]
+        }
+      ]
+    },
+    "manual-blocked-at-limit": {
+      "statement": "At 12 restore points a new restore point cannot be added manually until an existing one is deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.md",
+          "quotes": [
+            "you cannot add a new restore point manually without deleting an existing one"
+          ]
+        }
+      ]
+    },
+    "scheduled-evicts": {
+      "statement": "When a scheduled backup would exceed the limit, the oldest restore point is removed to make room; if the oldest is the golden one, the next oldest is removed instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.md",
+          "quotes": [
+            "during scheduled automatic backup, the oldest restore point is removed to create the new one when the limit is exceeded.",
+            "If the oldest restore point is a golden restore point, then the next oldest restore point is removed."
+          ]
+        }
+      ]
+    },
+    "page-columns": {
+      "statement": "The Backup & Restore page lists each restore point with Restore Point Name, Description, Created By and Created On, and marks the golden one with a flag icon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.md",
+          "quotes": [
+            "Restore Point Name: The name of the restore point.",
+            "Created By: The admin that created the restore point.",
+            "A restore point with the Flag icon alongside it represents a Golden Restore Point"
+          ]
+        }
+      ]
+    },
+    "field-limits": {
+      "statement": "A restore point name is limited to 128 characters and its description to 10,240 bytes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Restore Point Name | 128 characters |",
+            "| Restore Point Description | 10,240 bytes |"
+          ]
+        }
+      ]
+    }
+  }
+}

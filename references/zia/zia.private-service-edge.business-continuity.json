@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "id": "zia.private-service-edge.business-continuity",
+  "title": "Private Service Edges in the Business Continuity Cloud",
+  "aliases": [
+    "business continuity cloud",
+    "bc cloud",
+    "private policy cache",
+    "private pac server",
+    "business continuity mode",
+    "pse outage",
+    "z-tunnel 2.0 business continuity"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.cluster-architecture"
+    }
+  ],
+  "claims": {
+    "limited-availability": {
+      "statement": "The Zscaler-managed Business Continuity Cloud is a limited-availability feature that tenants subscribe to through their Zscaler account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-managed-business-continuity-cloud.md",
+          "quotes": [
+            "This feature is in limited availability.",
+            "To subscribe to the Business Continuity Cloud service, contact your Zscaler Sales Representative."
+          ]
+        }
+      ]
+    },
+    "uses-pse-data-plane": {
+      "statement": "The Business Continuity Cloud has a private data plane that leverages Private Service Edges for Internet and SaaS (and for Private Access) and a private control plane that includes the Private Policy Cache and Private PAC Server. The Private Policy Cache is integrated into the Private Service Edge infrastructure and applies the last known good policy to traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-managed-business-continuity-cloud.md",
+          "quotes": [
+            "The private data plane leverages the functionalities of Private Service Edges for Internet & SaaS and Private Service Edges for Private Access.",
+            "The private control plane leverages the Zero Trust Exchange (ZTE) components, such as Private Policy Cache and Private PAC Server"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-business-continuity-cloud-components.md",
+          "quotes": [
+            "This component is integrated into the Private Service Edge infrastructure and acts as a local repository for policy configurations"
+          ]
+        }
+      ]
+    },
+    "trigger-is-critical-failure": {
+      "statement": "The service mainly helps organizations stay connected and protected during critical failure scenarios in which the public clouds are unreachable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-managed-business-continuity-cloud.md",
+          "quotes": [
+            "The Business Continuity Cloud service mainly helps organizations stay connected and protected during critical failure scenarios, where public clouds are unreachable."
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "Prerequisites for Internet and SaaS business continuity include Zscaler Client Connector 4.6 or later for Windows, Zscaler disaster recovery enabled in Client Connector, all security policies configured before entering business continuity, and GRE tunnel locations configured with authentication disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-managed-business-continuity-cloud.md",
+          "quotes": [
+            "The end users' machines are running Zscaler Client Connector versions 4.6 and later for Windows.",
+            "Zscaler disaster recovery is enabled in Zscaler Client Connector for end users.",
+            "All security policies are configured before entering business continuity.",
+            "The GRE tunnel locations are configured with authentication disabled to support business continuity."
+          ]
+        }
+      ]
+    },
+    "z-tunnel-2-unsupported": {
+      "statement": "Zscaler Tunnel 2.0 is not supported in business continuity mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-managed-business-continuity-cloud.md",
+          "quotes": [
+            "Zscaler Tunnel (Z-Tunnel) 2.0 is not supported in business continuity mode."
+          ]
+        }
+      ]
+    },
+    "last-known-good-policy": {
+      "statement": "Only the last known good policy configuration applies to outgoing traffic in business continuity mode: recent policy updates might not take effect immediately, and new user authentication or enrollment is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-managed-business-continuity-cloud.md",
+          "quotes": [
+            "Only the last known good policy configurations apply",
+            "Any recent organizational policy updates might not take immediate effect.",
+            "New user authentication or new user enrollment is not supported in business continuity mode."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "bc-trigger-pse-outage": {
+      "kind": "semantic",
+      "title": "Whether a PSE or ZIA service outage triggers business continuity mode",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'When the Business Continuity Cloud activates (during a PSE or ZIA service outage) ... PSE outages are one of the triggers.' The captured pages describe critical failure in which the public clouds are unreachable as the main case, and list blackouts, brownouts and critical failure as failure scenarios, but do not say that a customer's own Private Service Edge outage activates business continuity mode, or what activates it.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  },
+  "divergences": {
+    "supported-connectivity-methods": {
+      "summary": "Whether IPSec tunnels are supported in business continuity mode.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-zscaler-managed-business-continuity-cloud.md",
+            "quotes": [
+              "The Internet & SaaS Business Continuity Cloud supports Zscaler Client Connector Z-Tunnel 1.0, PAC files, IPSec tunnel, and GRE tunnel connectivity."
+            ]
+          },
+          "says": "Z-Tunnel 1.0, PAC files, IPSec tunnel and GRE tunnel connectivity are supported."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-business-continuity-cloud-components.md",
+            "quotes": [
+              "The Internet & SaaS Business Continuity Cloud only supports Z-Tunnel 1.0, PAC files, and GRE tunnel connectivity."
+            ]
+          },
+          "says": "Only Z-Tunnel 1.0, PAC files and GRE tunnels are supported; IPSec is not listed."
+        }
+      ],
+      "impact": "A tenant that forwards to the Business Continuity Cloud over IPSec cannot rely on either page alone. Both pages agree that Z-Tunnel 2.0 is not supported and that GRE, PAC and Z-Tunnel 1.0 are."
+    }
+  }
+}

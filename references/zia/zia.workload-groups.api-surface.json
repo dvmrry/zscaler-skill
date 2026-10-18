@@ -1,0 +1,354 @@
+{
+  "schema_version": 1,
+  "id": "zia.workload-groups.api-surface",
+  "title": "Reading and writing workload groups: API, SDKs, Terraform, MCP",
+  "aliases": [
+    "/workloadGroups",
+    "zia_workload_groups",
+    "GetByName workload group",
+    "list workload groups",
+    "workload group name lookup",
+    "zia_list_workload_groups",
+    "workload group pagination",
+    "import workload group"
+  ],
+  "binds": [
+    "zia/workload-groups"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.workload-groups.expressions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.workload-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    }
+  ],
+  "claims": {
+    "crud-endpoints": {
+      "statement": "The ZIA API exposes list and create on `/workloadGroups`, and get, update (PUT) and delete on `/workloadGroups/{workloadGroupId}`; the Go SDK uses the endpoint `/zia/api/v1/workloadGroups`.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1workloadGroups/get",
+          "expect": {
+            "operationId": "Workload Group Resource Get Workload Groups"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1workloadGroups/post",
+          "expect": {
+            "operationId": "Workload Group Resource Add Workload Group"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1workloadGroups~1{workloadGroupId}/get",
+          "expect": {
+            "operationId": "Workload Group Resource Get Workload Group By ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1workloadGroups~1{workloadGroupId}/put",
+          "expect": {
+            "operationId": "Workload Group Resource Update Workload Group"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1workloadGroups~1{workloadGroupId}/delete",
+          "expect": {
+            "operationId": "Workload Group Resource Delete Workload Group"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/workloadgroups/workloadgroups.go",
+          "quotes": [
+            "workloadGroupsEndpoint = \"/zia/api/v1/workloadGroups\""
+          ]
+        }
+      ]
+    },
+    "postman-get-all-only": {
+      "statement": "The OneAPI Postman collection holds only a \"Workload Groups - Get all\" request, a GET on `{{ZIABaseUrl}}/workloadGroups`; it is not a source for the write schema.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"name\": \"Workload Groups - Get all\",",
+            "\"raw\": \"{{ZIABaseUrl}}/workloadGroups\","
+          ]
+        }
+      ]
+    },
+    "list-paging": {
+      "statement": "Listing takes `page` and `pageSize`; the contract states a default page size of 250 and a maximum of 1,000, and the Python SDK documents the same.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1workloadGroups/get/parameters/[name=pageSize]",
+          "expect": {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Specifies the page size. The default size is 250 and the maximum size is 1,000."
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/workload_groups.py",
+          "quotes": [
+            "The default size is 250, but the maximum size is 1000."
+          ]
+        }
+      ]
+    },
+    "no-name-filter": {
+      "statement": "The list endpoint has no server-side name filter: the contract defines only `page` and `pageSize`, and the MCP workflow says to filter by name client-side.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1workloadGroups/get/parameters/[name=page]",
+          "expect": {
+            "name": "page",
+            "in": "query"
+          }
+        },
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/look-up-rule-targets/SKILL.md",
+          "quotes": [
+            "The ZIA list endpoint does **not** support a server-side `name` filter"
+          ]
+        }
+      ]
+    },
+    "go-getbyname-client-side": {
+      "statement": "The Go SDK's `GetByName` reads every page and compares names with `strings.EqualFold`, so a lookup by name is client-side and case-insensitive.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/workloadgroups/workloadgroups.go",
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, workloadGroupsEndpoint, &workloadGroups)",
+            "if strings.EqualFold(workloadGroup.Name, workloadName) {"
+          ],
+          "after": "func GetByName("
+        }
+      ]
+    },
+    "mcp-jmespath-query": {
+      "statement": "The MCP list tool takes only `page` and `page_size`; the bridge adds an optional JMESPath `query` applied to the results after the API call.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/workload_groups.py",
+          "quotes": [
+            "page: Annotated[Optional[int], Field(default=None, description=\"Page number (1-based).\")] = None",
+            "page_size: Annotated[Optional[int], Field(default=None, description=\"Items per page.\")] = None"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/registry/fastmcp_bridge.py",
+          "quotes": [
+            "\"Optional JMESPath expression applied to the results after the API \""
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/look-up-rule-targets/SKILL.md",
+          "quotes": [
+            "`zia_list_workload_groups(query=\"[?name=='<exact>']\")`"
+          ]
+        }
+      ]
+    },
+    "mcp-query-one-page": {
+      "statement": "A name lookup through the MCP `query` therefore filters only the page the API call returned, not the whole tenant, unless the caller pages through the results.",
+      "tier": "B",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "conditions": "Derived from the tool passing only page and page_size to the API and the bridge applying query after the call; no source tests a name lookup across pages.",
+      "derived_from": [
+        "zia.workload-groups.api-surface:mcp-jmespath-query",
+        "zia.workload-groups.api-surface:no-name-filter"
+      ]
+    },
+    "mcp-read-only": {
+      "statement": "The MCP server exposes workload groups read-only; authoring them is left to the ZIA console.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/look-up-rule-targets/SKILL.md",
+          "quotes": [
+            "Read-only via this server.",
+            "Workload group authoring (with its expression DSL) is intentionally left to the ZIA UI."
+          ]
+        }
+      ]
+    },
+    "tf-import": {
+      "statement": "The Terraform `zia_workload_groups` resource imports by numeric ID or, if the argument is not numeric, by name through `GetByName`; it exposes `group_id` as a computed alias for the ID.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_workload_groups.go",
+          "quotes": [
+            "idInt, parseIDErr := strconv.ParseInt(id, 10, 64)",
+            "resp, err := workloadgroups.GetByName(ctx, service, id)",
+            "Type:        schema.TypeInt,\n\t\t\t\tComputed:    true,"
+          ]
+        }
+      ]
+    },
+    "tf-activation-guard": {
+      "statement": "Create, update and delete of the Terraform resource trigger activation only when `ZIA_ACTIVATION` is set to a truthy value.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_workload_groups.go",
+          "quotes": [
+            "// Check if ZIA_ACTIVATION is set to a truthy value before triggering activation",
+            "if shouldActivate() {"
+          ],
+          "after": "func resourceWorkloadGroupsCreate("
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_workload_groups.go",
+          "quotes": [
+            "if shouldActivate() {"
+          ],
+          "after": "func resourceWorkloadGroupsUpdate("
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_workload_groups.go",
+          "quotes": [
+            "if shouldActivate() {"
+          ],
+          "after": "func resourceWorkloadGroupsDelete("
+        }
+      ]
+    },
+    "field-types": {
+      "statement": "In the API contract, `lastModifiedBy` is a reference object with `id`, `name` (read-only) and optional `extensions`, and `lastModifiedTime` is an integer timestamp.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1workloadGroups/post/responses/200/content/application~1json/schema/properties/lastModifiedBy/properties/name",
+          "expect": {
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1workloadGroups/post/responses/200/content/application~1json/schema/properties/lastModifiedTime",
+          "expect": {
+            "description": "Timestamp when the workload group was last modified",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/workloadgroups/workloadgroups.go",
+          "quotes": [
+            "LastModifiedBy *common.IDNameExtensions `json:\"lastModifiedBy,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "console-activation": {
+      "statement": "In the console, a saved workload group change must be activated.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-workload-groups.md",
+          "quotes": [
+            "Click Save and activate the change."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "name-required-and-epoch": {
+      "kind": "semantic",
+      "title": "Whether name is required on create and the unit of lastModifiedTime",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating validation behavior and converting the timestamp",
+      "detail": "Unverified legacy statement: \"`name` ... Required on create (SDK enforces via `add_group`)\" and \"`last_modified_time` int (epoch)\". The contract does not mark name required and the Python add_group docs only describe it as the name; the timestamp unit is not stated."
+    }
+  }
+}

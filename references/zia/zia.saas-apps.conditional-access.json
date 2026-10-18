@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "id": "zia.saas-apps.conditional-access",
+  "title": "Conditional Access blocks users behind ZIA: Source IP Anchoring",
+  "aliases": [
+    "entra conditional access named location",
+    "microsoft 365 blocked from zscaler ip",
+    "trusted location corporate ip",
+    "sipa conditional access",
+    "ip based location trust saas",
+    "pse ip trusted list entra"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.forwarding-control.sipa"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.sipa-direct"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.saas-apps.tenant-restriction-order"
+    }
+  ],
+  "claims": {
+    "ca-use-case": {
+      "statement": "Source IP Anchoring addresses Microsoft 365 Conditional Access that lets users in only from a trusted location such as a corporate network (with multifactor authentication) and blocks other locations; anchoring associates the traffic with the trusted location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "sipa-microsoft-365-conditional-access-config.md",
+          "quotes": [
+            "An admin can configure users to access Microsoft 365 applications only if their traffic originates from a trusted location, such as a corporate network.",
+            "You can use Source IP Anchoring to associate traffic from a trusted location."
+          ]
+        }
+      ]
+    },
+    "anchor-login-only": {
+      "statement": "Anchoring only the initial login traffic to the Microsoft Azure AD domain is sufficient; after sign-in the application traffic uses an authenticated token and does not need to be redirected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "sipa-microsoft-365-conditional-access-config.md",
+          "quotes": [
+            "it is sufficient to configure Source IP Anchoring only for the initial user login application traffic",
+            "does not require being redirected through Source IP Anchoring."
+          ]
+        }
+      ]
+    },
+    "login-hosts": {
+      "statement": "The Office 365 application segment for anchoring names login.microsoftonline.com (login.windows.net or login.microsoft.com are alternatives), on TCP 80 and 443.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "sipa-microsoft-365-conditional-access-config.md",
+          "quotes": [
+            "Under the Applications section, enter login.microsoftonline.com. Alternatively, you can use login.windows.net or login.microsoft.com.",
+            "In the TCP Port Ranges field, add 80 and 443 to allow the ports."
+          ]
+        }
+      ]
+    },
+    "dns-resolver-rules": {
+      "statement": "Anchoring for Microsoft 365 also needs the preconfigured DNS Control rules enabled and ranked first: ZPA Resolver for Locations for location users and ZPA Resolver for Road Warrior for remote users. If the Road Warrior rule is disabled, remote traffic falls under the Locations rule rather than being blocked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "sipa-microsoft-365-conditional-access-config.md",
+          "quotes": [
+            "For location users, enable the ZPA Resolver for Locations rule.",
+            "For remote users, enable the ZPA Resolver for Road Warrior rule.",
+            "Ensure that these DNS rules are the top rules (i.e., Rule 1 and Rule 2) to configure Source IP Anchoring.",
+            "the remote user traffic automatically falls under the ZPA Resolver for Locations rule instead of blocking the traffic."
+          ]
+        }
+      ]
+    },
+    "shared-edge-ips-fail-named-location": {
+      "statement": "Sign-ins routed through ZIA's shared Public Service Edge addresses fail an IP-based named-location check, because the destination sees a Zscaler address rather than a corporate one; anchoring makes it see the App Connector's address.",
+      "tier": "B",
+      "derived_from": [
+        "ca-use-case",
+        "zia.forwarding-control.sipa:purpose"
+      ],
+      "conditions": "Inference: Help presents anchoring as the way to associate traffic with a trusted location and says the destination sees the App Connector address; it does not state that shared edge addresses fail the check."
+    }
+  },
+  "gaps": {
+    "trusted-list-alternative": {
+      "kind": "semantic",
+      "title": "Adding Zscaler edge IPs to the Entra trusted list instead of anchoring",
+      "status": "open",
+      "detail": "Unverified legacy statement: a simpler path is to add the Zscaler Public Service Edge IPs to the Entra named-location trusted list, at the cost of trusting every tenant that shares those edges. The legacy cited a help page, source-ip-anchoring-configuration-guide-microsoft-365-conditional-access, that is not the captured article and does not state this trade-off in the capture.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "about": [
+        "zia.saas-apps.conditional-access:ca-use-case"
+      ]
+    },
+    "other-saas-ip-trust": {
+      "kind": "semantic",
+      "title": "Whether the anchoring pattern applies to other SaaS with IP-based location trust",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The same pattern applies to any SaaS that does IP-based location trust, not just Microsoft.\" The captured Help covers Microsoft 365 only.",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ]
+    },
+    "ca-saml-post-inspection": {
+      "kind": "semantic",
+      "title": "Conditional Access SAML POST failures and where they arise in the stack",
+      "status": "open",
+      "detail": "Unverified legacy statement (listed as not covered): the symptoms of Entra Conditional Access SAML POST inspection are well known, but whether the failure is at the TLS layer or the application layer is not sourced.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

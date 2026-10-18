@@ -359,7 +359,7 @@ The authentication settings endpoint is commonly read during audit and integrati
 | `lastSyncEndTime` | integer | Epoch seconds — end of last LDAP sync. Not in Lite API. |
 | `mobileAdminSamlIdpEnabled` | boolean | Use Mobile Admin as IdP |
 | `autoProvision` | boolean | Enable SAML Auto-Provisioning |
-| `directorySyncMigrateToScimEnabled` | boolean | Disables directory sync to allow SCIM or SAML auto-provisioning. One-way flag — see `references/zia/ad-integration.md`. |
+| `directorySyncMigrateToScimEnabled` | boolean | Disables directory sync to allow SCIM or SAML auto-provisioning. One-way flag — see `kb:zia.authentication.settings`. |
 
 **`GET /authSettings/lite`** — same model but `authFrequency`, `authCustomFrequency`, `lastSyncStartTime`, `lastSyncEndTime` are not returned.
 
@@ -417,4 +417,4 @@ every government tenant.
 - ZIA API reference (SDK surface, asymmetries) — [`../zia/api.md`](../zia/api.md)
 - ZPA API reference — [`../zpa/api.md`](../zpa/api.md)
 - ZCC API reference — [`../zcc/api.md`](../zcc/api.md)
-- ZIA AD integration (`directorySyncMigrateToScimEnabled` flag context) — [`../zia/ad-integration.md`](../zia/ad-integration.md)
+- ZIA AD integration (`directorySyncMigrateToScimEnabled` flag context) — [`zia.ad-integration`](kb:zia.ad-integration)

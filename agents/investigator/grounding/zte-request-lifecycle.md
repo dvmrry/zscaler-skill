@@ -9,7 +9,7 @@ source-tier: practice
 sources:
   - "references/shared/cloud-architecture.md"
   - "references/zcc/index.md"
-  - "references/zia/traffic-forwarding-methods.md"
+  - "kb:zia.traffic-forwarding"
   - "references/zpa/app-segments.md"
   - "kb:zia.url-filtering"
   - "kb:zia.ssl-inspection"
@@ -55,9 +55,9 @@ Fast triage:
 | Stage | Failure cues | First docs | Related grounding |
 |---|---|---|---|
 | Origin | DNS points somewhere unexpected; host override; suffix issue | `references/shared/terminology.md` | none |
-| Forwarding | Z-Tunnel down; PAC/DIRECT surprise; GRE/IPsec/Cloud Connector path issue | `references/zcc/index.md`, `references/zia/traffic-forwarding-methods.md`, `references/cloud-connector/index.md` | none |
+| Forwarding | Z-Tunnel down; PAC/DIRECT surprise; GRE/IPsec/Cloud Connector path issue | `references/zcc/index.md`, `kb:zia.traffic-forwarding`, `references/cloud-connector/index.md` | none |
 | Identity | user/group/attribute mismatch; SCIM/SAML drift; step-up auth ambiguity | `references/zidentity/index.md`, `references/shared/scim-provisioning.md` | none |
-| Service Edge | wrong PoP; PSE/PSEN issue; subcloud/routing concern | `references/shared/cloud-architecture.md`, `references/zia/private-service-edge.md` | none |
+| Service Edge | wrong PoP; PSE/PSEN issue; subcloud/routing concern | `references/shared/cloud-architecture.md`, `kb:zia.private-service-edge` | none |
 | Routing | internet vs private-app path is wrong; app segment catches/misses traffic | `references/zpa/app-segments.md`, `references/shared/source-ip-anchoring.md` | `grounding/zpa-segment-matching.md` |
 | ZIA policy | URL/category/rule/CAC/SSL/DLP/Sandbox outcome looks wrong | `kb:zia.url-filtering`, `kb:zia.ssl-inspection` | `grounding/zia-url-filtering-precedence.md`, `grounding/zia-ssl-inspection-bypass.md` |
 | ZPA connector | segment allowed but app not reached; empty `Connector`; no connector eligible | `references/zpa/app-connector.md`, `references/zpa/segment-server-groups.md` | `grounding/zpa-connector-assignment.md` |

@@ -1,0 +1,82 @@
+# Understanding Advanced DLP Private Service Edge for Internet & SaaS
+
+**Source:** https://help.zscaler.com/zia/understanding-advanced-dlp-private-service-edge-internet-saas
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1529876, revision 3239407
+
+---
+
+Zscaler can extend its patented Advanced Data Loss Prevention (DLP) architecture to an organization's premises by providing Advanced DLP Private Service Edge for Internet & SaaS (ZIA) devices. While using the same hardware as a normal Public Service Edge for Internet & SaaS, the Advanced DLP Private Service Edge is a complementary, dedicated hardware role within the Zscaler cloud that can be deployed to provide on-premises support for Private Service Edge customers who also require Advanced DLP product features, such as Exact Data Match (EDM) and Indexed Data Match (IDM). It communicates with other nodes in the Zscaler cloud, such as the Zscaler Central Authority (CA) and DLP Configuration nodes for EDM and IDM policy updates, and can generate and transmit ICAP traffic, as well. To learn more about Private Service Edges without Advanced DLP, see Understanding Private Service Edge for Internet & SaaS.
+Advanced DLP Private Service Edges are installed in an organization’s data center in tandem with standard Private Service Edges and are dedicated to the organization’s EDM and IDM workload traffic. All devices are still managed and maintained by Zscaler Cloud Operations, and Zscaler monitors and maintains the Advanced DLP Private Service Edges with a near-zero touch from your organization. To learn more, see Hardware Usage Terms.
+An Advanced DLP Private Service Edge cluster must be deployed alongside a standard Private Service Edge cluster. When policies for EDM or IDM have been configured in the Zscaler Admin Console, the Advanced DLP Private Service Edge receives the traffic via local communication, evaluates the traffic against the configured Advanced DLP dictionaries and templates, and returns the relevant response. If ICAP is also being used, the Advanced DLP Private Service Edge forwards the transaction details to your Incident Receiver configured in the Zscaler Admin Console. All local cluster communication is conducted automatically between the Private Service Edge and Advanced DLP clusters as shown in the previous diagram, and customer traffic does not need to be explicitly forwarded to the Advanced DLP cluster.
+The following table shows the details and throughput capabilities of the Advanced DLP Private Service Edge hardware platform:
+| Model | Description | Sized for ISP Link Speeds of Download |
+|---|---|---|
+| Advanced DLP Private Service Edge 3 | An annual subscription to Advanced DLP Private Service Edge with 3 Advanced DLP Service Edge instances, an integrated load balancer, and a 1 GE network interface. | 1 Gbps |
+| Advanced DLP Private Service Edge 5 | An annual subscription to Advanced DLP Private Service Edge with 5 Advanced DLP Service Edge instances, an integrated load balancer, and a 10 GE network interface. | 2 Gbps |
+The preceding sizing suggestion is based on the assumption that the upload throughput is around 30% of the download throughput. The maximum upload throughput per cluster is limited to 800 Mbps on Private Service Edge 3 and 2.5 Gbps on Private Service Edge 5.
+# Advanced DLP Private Service Edge Architecture
+All Advanced DLP Private Service Edge clusters are built with high availability, resiliency, and scalability in mind. To ensure redundancy, they are deployed with a minimum of N+1 hardware. The load balancer (LB) instances are configured for active-passive fault tolerance and share a virtual IP (VIP) address using Common Address Redundancy Protocol (CARP). All Advanced DLP Service Edge instances are active-active behind the cluster VIP address and are automatically removed from the load balancing pool via active health monitoring if an instance or node were to fail.
+All proxy traffic forwarded by the customer is still directed toward the standard Private Service Edge cluster VIP addresses. If required, the Private Service Edge cluster then forwards the traffic to the Advanced DLP Private Service Edge cluster for additional processing, evaluation, and trigger response.
+The Zscaler service uses the Direct Server Return (DSR) method of load balancing, so the response doesn't traverse through the LB on the return path.
+The following are examples of Advanced DLP Private Service Edge cluster designs alongside a Private Service Edge cluster and their respective packet flow:
+- Advanced DLP Private Service Edge 3 & Private Service Edge 3 (Integrated LB)
+- The following diagram illustrates the packet flow through a cluster of two Advanced DLP Private Service Edge 3 servers alongside a cluster of two Private Service Edge 3 servers. Each cluster contains two Zscaler integrated LB instances and 6 Service Edge instances that are all connected to the same L2 switching fabric. All client traffic is sent to the PSE cluster VIP address. For example, a user sends a request out to a web server on the internet. The VIP address sends the request to the active LB instance (LB (A) on the Private Service Edge cluster), which then forwards the request to one of the Service Edge instances (Service Edge 1 on Private Service Edge 3 (B)). The Service Edge instance reaches out to the DLP cluster VIP address, which forwards the request to the active LB instance (LB (A) on the Advanced DLP Private Service Edge cluster), which then forwards the request to one of Advanced DLP Service Edge instances (Advanced DLP Service Edge 1 on Advanced DLP Private Service Edge 3 (A)).
+- The Advanced DLP Service Edge instance evaluates the request against the tenant’s EDM and IDM policies and returns the response to the Service Edge instance that initially processed the client request. If the DLP evaluation returns a "block" trigger, the packet flow stops here and the outbound traffic is blocked. Conversely, if the DLP evaluation is allowed, the packet is allowed outbound to the web server, which then responds to the Service Edge instance that made the request. The Zscaler service uses the DSR method of load balancing, so the Service Edge response doesn't traverse back through the LB and instead returns directly back to the user. If a DLP Incident Receiver is configured within the Zscaler Admin Console, the Advanced DLP Service Edge instance that evaluated the request also generates ICAP traffic and sends it to the Incident Receiver.
+- Advanced DLP Private Service Edge 5 (Integrated LB) & Private Service Edge 5 (Integrated LB)
+- The following diagram illustrates the packet flow through a cluster of two Advanced DLP Private Service Edge 5 servers alongside a cluster of two Private Service Edge 5 servers. Each cluster contains two Zscaler integrated LB instances and 10 Service Edge instances that are all connected to the same L2 switching fabric. All client traffic is sent to the PSE cluster VIP address. For example, a user sends a request out to a web server on the internet. The VIP sends the request to the active LB instance (LB (A) on the Private Service Edge cluster), which then forwards the request to one of the Service Edge instances (Service Edge 1 on Private Service Edge 5 (B)). The Service Edge instance reaches out to the DLP cluster VIP address, which forwards the request to the active LB instance (LB (A) on the Advanced DLP Private Service Edge cluster), which then forwards the request to one of Advanced DLP Service Edge instances (Advanced DLP Service Edge 1 on Advanced DLP Private Service Edge 5 (A)).
+- The Advanced DLP Service Edge instance evaluates the request against the tenant’s EDM and IDM policies and returns the response to the Service Edge instance that initially processed the client request. If the DLP evaluation returns a "block" trigger, the packet flow stops here and the outbound traffic is blocked. Conversely, if the DLP evaluation is allowed, the packet is allowed outbound to the web server, which then responds to the Service Edge instance that made the request. The Zscaler service uses the DSR method of load balancing, so the Service Edge response doesn't traverse back through the LB and instead returns directly back to the user. If a DLP Incident Receiver is configured within the Zscaler Admin Console, the Advanced DLP Service Edge instance that evaluated the request also generates ICAP traffic and sends it to the Incident Receiver.
+- Advanced DLP Private Service Edge 5 (Dedicated LB) & Private Service Edge 5 (Dedicated LB)
+- The following diagram illustrates the packet flow through a cluster of two Advanced DLP Private Service Edge 5 servers alongside a cluster of 4 Private Service Edge 5 and two Dedicated Load Balancer servers. The Advanced DLP cluster contains two dedicated LB instances and 10 Service Edge instances, and the Private Service Edge cluster contains 4 dedicated LB instances and 24 Service Edge instances that are all connected to the same L2 switching fabric. All client traffic is sent to the PSE cluster VIP addresses. For example, a user sends a request out to a web server on the internet to PSE VIP 1. The VIP address sends the request to its active LB instance (LB 1), in one of the Dedicated LBs (Dedicated LB (Y)), which then forwards the request to one of the Service Edge instances (Service Edge 1) on one of the Private Service Edge 5 servers (Private Service Edge 5 (D)). The Service Edge instance reaches out to the DLP cluster VIP address, which forwards the request to the active LB instance (LB (1) on the Advanced DLP Dedicated LBs (Dedicated LB (Y)), which then forwards the request to one of Advanced DLP Service Edge instances (Advanced DLP Service Edge 1 on Advanced DLP Private Service Edge 5 (A)).
+- The Advanced DLP Service Edge instance evaluates the request against the tenant’s EDM and / or IDM policies, and returns the response to the Service Edge instance that initially processed the client request. If the DLP evaluation returns a ‘block’ trigger, the packet flow stops here and the outbound traffic is blocked. Conversely, if the DLP evaluation is allowed, the packet is allowed outbound to the web server, which then responds to the Service Edge instance that made the request. The Zscaler service uses the DSR method of load balancing, so the Service Edge response doesn't traverse back through the LB and instead returns directly back to the user. If a DLP Incident Receiver is configured within the Zscaler Admin Console, the Advanced DLP Service Edge instance which evaluated the request will also generate ICAP traffic and send it to the Incident Receiver.
+Zscaler does not support standalone Private Service Edge deployments of any kind. All Advanced DLP Private Service Edge clusters must have a minimum of two servers to ensure redundancy.
+# Network and IP Address Requirements
+Advanced DLP Private Service Edges are part of the Zscaler cloud and require a cluster of Private Service Edges to function. The Private Service Edges also communicate with other nodes in the cloud, such as the CA for policy updates, as well as DLP Cloud Detection Service (CDS). Zscaler Cloud Operations also need remote access to the Advanced DLP Private Service Edge clusters for monitoring and maintenance, as well as updates as the cloud expands.
+An organization can deploy an Advanced DLP Private Service Edge cluster wherever their normal Private Service Edge cluster resides, including:
+- Inside the DMZ (The recommended deployment method)
+- Outside the corporate firewall
+- Behind the network firewall (This deployment method requires approval from Zscaler)
+To learn more, see Deploying Private Service Edge for Internet & SaaS.
+If you place Advanced DLP Private Service Edges behind a firewall or ACL device, you must implement rules found on config.Zscaler.com/<Zscaler Cloud Name>/zia-private-dlp.
+The following table shows the Advanced DLP Private Service Edge IP address and switch port requirements (IPv4 only):
+|  | Advanced DLP Private Service Edge 3 with Integrated LB | Advanced DLP Private Service Edge 5 with Integrated LB |
+|---|---|---|
+| Service IP Addresses | 3 IPv4 addresses per Private Service Edge node | 5 IPv4 addresses per Private Service Edge node |
+| Management IP Addresses | 1 | 1 |
+| IPMI IP Address | 1 | 1 |
+| Load Balancer IP Address | 1 | 1 |
+| Virtual IP Address per Cluster | 1 | 1 |
+| Switch Ports | 6 x 1 GE | 2 x 10 GE, 2 x 1 GE |
+The following table shows the IP addresses and switch port requirements for Advanced DLP Private Service Edge 5 with Dedicated LB:
+|  | Advanced DLP Private Service Edge 5 with Dedicated LB |
+|---|---|
+| Service IP Addresses | 6 IPv4 addresses per Private Service Edge node |
+| LB IP Address | Up to 4 |
+| MTS IP Address | 1 |
+| Management IP Address | 1 |
+| Virtual IP Address per Cluster | Up to 4 |
+| Switch Ports | 3 x 1 GE, up to 8 x 10GE |
+All the IP addresses needed must be public IPv4 addresses only. If the deployment requires RFC 1918 IP addresses and NAT, the IP addresses for the Advanced DLP Private Service Edges must be with 1:1 static NAT to a public IPv4 address.
+Additionally, you must provide the following network information to Zscaler:
+- The gateway address
+- The IP addresses of your organization's NTP servers. Otherwise, Zscaler uses public NTP servers.
+- The IP addresses of your organization's DNS servers. Otherwise, Zscaler uses public DNS servers.
+- The installation location address and contact details
+Small form-factor pluggables (SFPs) are not shipped with the server. To learn more about the SFP requirements, refer to the Intel product support documentation.
+# Sizing Guidelines
+The Advanced DLP Private Service Edge cluster is typically a 1:1 match with the Private Service Edge cluster footprint. The following table shows the specifications and sizing for the available Private Service Edge hardware platforms:
+|  | Advanced DLP Private Service Edge 3 with Integrated LB | Advanced DLP Private Service Edge 5 with Integrated LB | Advanced DLP Private Service Edge 5 with Dedicated LB |
+|---|---|---|---|
+| Number of Advanced DLP Service Edge Instances | 3 | 5 | 6 |
+| Number of Load Balancers | 1 | 1 | Up to 4 |
+| Minimum Advanced DLP Private Service Edge per Cluster | 2 | 2 | 2 |
+| Network Interface | 1 GE | 10 GE | 10 GE |
+The following table is a quick reference guide:
+|  | Private Service Edge 3 with Integrated LB | Private Service Edge 5 with Integrated LB | Private Service Edge 5 with Dedicated LB |
+|---|---|---|---|
+| Maximum Private Service Edge per Cluster | 2–3 | 2–3 | 2–10 |
+| Dedicated LB per Cluster | N/A | N/A | 2 |
+| Network Interface | 1 GE | 10 GE | 10 GE |
+| Advanced DLP Private Service Edge SKU Required | Advanced DLP Private Service Edge 3 | Advanced DLP Private Service Edge 5 | Advanced DLP Private Service Edge 5 |
+| Advanced DLP Private Service Edge per Cluster | 2 | 2 | 2–4 |
+Contact your Zscaler Sales representative for further details on appropriate sizing.

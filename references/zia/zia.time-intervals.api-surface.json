@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "id": "zia.time-intervals.api-surface",
+  "title": "Time interval API operations, updates and activation",
+  "aliases": [
+    "timeIntervals endpoint",
+    "time interval put replace",
+    "update time interval drops fields",
+    "get time interval by name",
+    "time interval activation",
+    "list time intervals paging"
+  ],
+  "binds": [
+    "zia/time-intervals"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.schema"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.time-windows"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.write-encoding"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    }
+  ],
+  "claims": {
+    "operations": {
+      "statement": "Time intervals have list, add, get, update and delete operations: GET and POST `/timeIntervals`, and GET, PUT and DELETE `/timeIntervals/{Id}`. The specification lists no `/timeIntervals/lite` path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/get",
+          "expect": {
+            "operationId": "Time Interval Resource Get Time Interval"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/post",
+          "expect": {
+            "operationId": "Time Interval Resource Add Time Interval"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals~1{Id}/get",
+          "expect": {
+            "operationId": "Time Interval Resource Get Time Interval By ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals~1{Id}/put",
+          "expect": {
+            "operationId": "Time Interval Resource Update Time Interval"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals~1{Id}/delete",
+          "expect": {
+            "operationId": "Time Interval Resource Delete Time Interval"
+          }
+        }
+      ]
+    },
+    "list-params": {
+      "statement": "The list takes `search`, `page` and `pageSize` (default 100).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/get/parameters/[name=search]",
+          "expect": {
+            "in": "query",
+            "name": "search"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/get/parameters/[name=page]/schema",
+          "expect": {
+            "default": 1,
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/get/parameters/[name=pageSize]/schema",
+          "expect": {
+            "default": 100,
+            "type": "integer"
+          }
+        }
+      ]
+    },
+    "update-is-put": {
+      "statement": "Update is a PUT to `/timeIntervals/{Id}`, and the MCP update tool describes it as a PUT-replace that backfills omitted fields from the existing record before sending, so a caller using the SDK directly should send the whole object.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/time_intervals.py",
+          "quotes": [
+            "Update a ZIA time interval (PUT-replace; backfills omitted fields). Activate after."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/time_intervals/time_intervals.go",
+          "quotes": [
+            "service.Client.UpdateWithPut(ctx, fmt.Sprintf(\"%s/%d\", timeIntervalEndpoint, intervalID), *interval)"
+          ]
+        }
+      ],
+      "gaps": [
+        "omitted-field-on-put"
+      ]
+    },
+    "go-name-lookup": {
+      "statement": "The Go SDK looks up an interval by name by listing every interval and matching case-insensitively.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/time_intervals/time_intervals.go",
+          "quotes": [
+            "if strings.EqualFold(timeInterval.Name, timeIntervalName) {"
+          ]
+        }
+      ]
+    },
+    "session-end-activates": {
+      "statement": "ZIA activates pending changes automatically when an API session ends (session timeout of 5 to 20 minutes, default 5) or an admin logs out, so a time interval write staged by the API can go live before it is explicitly activated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/zia-activator-overview.md",
+          "quotes": [
+            "Pending changes are activated automatically when a session ends",
+            "It accepts **5 to 20 minutes and defaults to 5**."
+          ]
+        }
+      ]
+    },
+    "activation-needed": {
+      "statement": "The MCP create and update tools label time interval writes \"Activate after\", so treat interval changes as staged until activation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/time_intervals.py",
+          "quotes": [
+            "\"\"\"Create a ZIA time interval (write). Activate after.\"\"\""
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "omitted-field-on-put": {
+      "kind": "semantic",
+      "title": "Whether a PUT that omits a field clears it on a time interval",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"any field not sent is dropped rather than left untouched.\" The MCP tool backfills omitted fields, which suggests the concern, but no source shows the API response to a partial PUT. The general question for ZIA rule updates is open in zia.sdk-go.write-encoding.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "about": [
+        "zia.sdk-go.write-encoding:rule-omission-semantics"
+      ]
+    }
+  }
+}

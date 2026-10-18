@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "id": "zia.private-service-edge.what-it-is",
+  "title": "What a ZIA Private Service Edge is, who runs it, and what it is not",
+  "aliases": [
+    "what is a private service edge",
+    "pse vs public service edge",
+    "pse vs zpa pse",
+    "pse group zia",
+    "pse provisioning key",
+    "pse health dashboard",
+    "pse zdx"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.platforms"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.location-binding"
+    }
+  ],
+  "claims": {
+    "same-service-as-public": {
+      "statement": "A Private Service Edge is part of the Zscaler cloud and performs the same service as the Public Service Edge, including Firewall, Sandbox and DLP. It talks to the Central Authority for user authentication and policy updates, and to the cloud routers and Nanolog clusters for logging and reporting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Private Service Edge is part of the Zscaler cloud and performs the same service as the Public Service Edge for Internet & SaaS.",
+            "It communicates with other nodes in the cloud, such as the Zscaler Central Authority (CA) for user authentication and policy updates, and the cloud routers and Nanolog clusters for logging and reporting."
+          ]
+        }
+      ]
+    },
+    "dedicated-managed-by-zscaler": {
+      "statement": "Private Service Edges are installed in an organization's data center and dedicated to its traffic, but they are managed and maintained by Zscaler Cloud Operations, which monitors and maintains them with near-zero touch from the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Private Service Edges are installed in an organization",
+            "but they are managed and maintained by Zscaler Cloud Operations.",
+            "Zscaler monitors and maintains the Private Service Edges with a near-zero touch from your organization."
+          ]
+        }
+      ]
+    },
+    "zscaler-may-change-it": {
+      "statement": "Zscaler treats a Private Service Edge as an extension of the Internet and SaaS service: even when installed and maintained in the customer's data center, it is subject to maintenance, alterations, updates, enhancements, additions or improvements at any time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Private Service Edge is subject to maintenance or alterations, updates, enhancements, additions, or improvements at any time."
+          ]
+        }
+      ]
+    },
+    "hardware-and-virtual": {
+      "statement": "The Private Service Edge is available in hardware and virtual form. The virtual form can be deployed on VMware ESX/ESXi, Microsoft Azure, AWS EC2, Microsoft Hyper-V and Google Cloud Platform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "The Private Service Edge is available in both hardware and virtual form.",
+            "Virtual Service Edge can be deployed on VMware ESX/ESXi, Microsoft Azure, Amazon Web Services (AWS) EC2, Microsoft Hyper-V, and Google Cloud Platform (GCP)."
+          ]
+        }
+      ]
+    },
+    "health-dashboard-needs-zdx": {
+      "statement": "The ZIA PSE Health Dashboard is available only to tenants with a Digital Experience (ZDX) subscription.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "You can monitor the health of your Private Service Edges on the ZIA PSE Health Dashboard page if you have a Digital Experience (ZDX) subscription."
+          ]
+        }
+      ]
+    },
+    "binds-through-location-not-group": {
+      "statement": "A ZIA Private Service Edge cluster is brought under policy by adding a Location to it. The ZIA pages describe no Private Service Edge group object and no provisioning key; groups and provisioning keys are a ZPA construct.",
+      "tier": "B",
+      "conditions": "Rests on absence: the captured ZIA Private Service Edge pages describe the Location binding and mention neither a group object nor a provisioning key, while the group page is in the ZPA help area. A ZIA-side group object that no captured page mentions cannot be ruled out.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Adding a location to a Private Service Edge cluster allows you to:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edge-groups.md",
+          "quotes": [
+            "You can create new Private Service Edge groups whenever you add a new Private Service Edge using a new provisioning key."
+          ]
+        }
+      ]
+    },
+    "zpa-pse-is-different": {
+      "statement": "The ZPA Private Service Edge is a different product: a single-tenant broker that provides the functionality of a Public Service Edge for Private Access, managing the connections between Zscaler Client Connector and App Connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.md",
+          "quotes": [
+            "Private Service Edges for Private Access (ZPA) are single-tenant instance brokers",
+            "a Private Service Edge manages the connections between Zscaler Client Connector and App Connectors."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "no-zdx-monitoring": {
+      "kind": "semantic",
+      "title": "What PSE health visibility a tenant without ZDX gets",
+      "status": "open",
+      "detail": "Unverified legacy statement: none made. The legacy doc removed an earlier claim that monitoring 'falls back to Zscaler Cloud Ops telemetry and the standard Admin Console (no dedicated PSE health view)' because no captured page backs it. The source only says the dashboard needs ZDX and that Zscaler Cloud Operations monitors the PSEs. Whether the Admin Console shows any PSE health to a ZIA-only tenant is unstated.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "hardware-pse-api": {
+      "kind": "semantic",
+      "title": "Whether any API provisions hardware PSE 3 / PSE 5",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'there is no virtualZen*-equivalent service for PSE 3 / PSE 5 appliance provisioning ... there is no self-serve API for that step.' The ZIA SDK services found ([[zia.virtual-service-edge.api-surface]]) cover the Virtual Service Edge only; an absence in one SDK release is not a vendor statement that no API exists. Re-check against a newer SDK release or the API reference before treating 'no API' as permanent.",
+      "resolves_with": [
+        "code-read",
+        "support-ticket"
+      ]
+    },
+    "unverified-comparison-rows": {
+      "kind": "data",
+      "title": "Public Service Edge throughput and routing characterization",
+      "status": "open",
+      "detail": "Unverified legacy statement: the legacy comparison table gave the Public Service Edge a '~1 Gbps download (shared)' throughput ceiling, 'Geolocation-based' traffic routing, and 'On-premises direct' routing for the PSE. No captured page states a Public Service Edge throughput ceiling or those routing labels. The PSE thresholds that are sourced are in [[zia.private-service-edge.when-to-deploy]] and [[zia.private-service-edge.sizing]].",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "none"
+      ]
+    }
+  }
+}

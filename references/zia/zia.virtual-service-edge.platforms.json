@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "id": "zia.virtual-service-edge.platforms",
+  "title": "Where a Virtual Service Edge runs and which platforms can cluster",
+  "aliases": [
+    "vse platforms",
+    "vse hyper-v cluster",
+    "vse azure aws gcp",
+    "vse nutanix",
+    "vse esxi version",
+    "vse zscaler os 24",
+    "vse vmotion",
+    "vse vm image",
+    "vse cluster mode platform"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.clusters"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.sizing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.when-to-deploy"
+    }
+  ],
+  "claims": {
+    "full-featured-dedicated": {
+      "statement": "A Virtual Service Edge uses a VM to function as a full-featured Public Service Edge dedicated to the organization's traffic, performing the same service as the Public Service Edges in the Zscaler cloud, including Firewall, Sandbox and DLP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "Virtual Service Edges use a VM to function as a full-featured Public Service Edge dedicated to your organization",
+            "Virtual Service Edges perform the same service as the Public Service Edges in the Zscaler cloud, including support for features, such as Firewall, Sandbox, and Data Loss Prevention (DLP)."
+          ]
+        }
+      ]
+    },
+    "approval-and-licence": {
+      "statement": "Zscaler typically recommends forwarding traffic to the Public Service Edges. An organization with different traffic-flow needs can extend the Zscaler architecture to its premises by licensing and deploying Virtual Service Edges, with Zscaler's approval.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "Zscaler typically recommends that organizations forward traffic to the Public Service Edges for Internet & SaaS in the Zscaler cloud.",
+            "by licensing and deploying Virtual Service Edges."
+          ]
+        }
+      ]
+    },
+    "reasons-to-deploy": {
+      "statement": "The documented reasons are locations with geopolitical requirements and regulations, high latency to a Public Service Edge, applications that require the organization's IP address as the source IP address, and users who need localized content.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "Locations with certain geopolitical requirements and regulations.",
+            "Locations that experience high latency when connecting to a Public Service Edge.",
+            "Users who need to see localized content."
+          ]
+        }
+      ]
+    },
+    "supported-platforms": {
+      "statement": "Virtual Service Edges are supported on VMware ESX/ESXi, Microsoft Azure, AWS EC2, Microsoft Hyper-V and Google Cloud Platform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "Virtual Service Edges are supported on VMware ESX/ESXi, Microsoft Azure, Amazon Web Services (AWS) EC2, Microsoft Hyper-V, and Google Cloud Platform (GCP)."
+          ]
+        }
+      ]
+    },
+    "image-downloads": {
+      "statement": "The Virtual Service Edges page offers downloads of the Virtual Service Edge VM, the SNMP MIB files, the Hyper-V VM and the Nutanix VM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "Download a Virtual Service Edge VM.",
+            "Download the Hyper-V VM.",
+            "Download the Nutanix VM."
+          ]
+        }
+      ]
+    },
+    "os-24-or-later": {
+      "statement": "A new or clean Virtual Service Edge deployment requires a VM image running Zscaler OS version 24 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "New or clean deployment of Virtual Service Edge requires a virtual machine (VM) image running on Zscaler OS version 24 or later."
+          ]
+        }
+      ]
+    },
+    "vmotion-esxi-7": {
+      "statement": "vMotion is supported only on VMware ESXi 7.0 and above.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "| vMotion Support | VMware ESXi 7.0 and above | - | - | - | - |"
+          ]
+        }
+      ]
+    },
+    "cluster-mode-selectable-on-esxi": {
+      "statement": "When adding a Virtual Service Edge the Deployment Mode can be Cluster or Standalone only on VMware ESXi; on other platforms only Standalone is selectable. The SDK's field documentation says the same.",
+      "tier": "A",
+      "binds": [
+        "zia/vzen-nodes#deploymentMode"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-virtual-service-edge-instances-internet-saas.md",
+          "quotes": [
+            "Deployment Mode: Select either Cluster or Standalone if you have the VMware ESXi platform. Otherwise, select only Standalone."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_nodes/vzen_nodes.go",
+          "quotes": [
+            "Select either STANDALONE or CLUSTER if you have the VMware ESXi platform. Otherwise, select only STANDALONE."
+          ]
+        }
+      ]
+    },
+    "public-cloud-no-native-cluster": {
+      "statement": "In public cloud environments the native cluster mode of deployment is not supported, and public cloud load balancers provide redundancy between Virtual Service Edges. The page lists Microsoft Azure, AWS EC2, Microsoft Hyper-V and GCP in that sentence.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "the native cluster mode of deployment is not supported, and you can use public cloud load balancers to ensure redundancy between the Virtual Service Edges."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "hyper-v-cluster-mode": {
+      "summary": "Whether Microsoft Hyper-V supports the native Virtual Service Edge cluster mode.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-virtual-service-edges-internet-saas.md",
+            "quotes": [
+              "| Maximum VMs per Cluster | 16 | - | - | 16 | - |",
+              "In the VMware ESXi and Microsoft Hyper-V environments, Zscaler recommends utilizing the in-built load balancer for Virtual Service Edges deployed in cluster mode."
+            ]
+          },
+          "says": "Hyper-V has a maximum of 16 VMs per cluster and uses the in-built load balancer in cluster mode."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-virtual-service-edges-internet-saas.md",
+            "quotes": [
+              "In public cloud environments such as Microsoft Azure, AWS EC2, Microsoft Hyper-V, and GCP, the native cluster mode of deployment is not supported"
+            ]
+          },
+          "says": "Hyper-V is listed with Azure, AWS and GCP as an environment where native cluster mode is not supported."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "adding-virtual-service-edge-instances-internet-saas.md",
+            "quotes": [
+              "Deployment Mode: Select either Cluster or Standalone if you have the VMware ESXi platform. Otherwise, select only Standalone."
+            ]
+          },
+          "says": "Only VMware ESXi can select the Cluster deployment mode; every other platform, Hyper-V included, selects Standalone."
+        }
+      ],
+      "impact": "A Hyper-V cluster design cannot be assumed to work from the documentation. Two statements and the SDK's field documentation point to ESXi as the only clustering platform; the sizing table and one recommendation say Hyper-V clusters. Confirm with Zscaler before planning one."
+    },
+    "esxi-minimum-version": {
+      "summary": "The minimum VMware ESXi version.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-virtual-service-edges-internet-saas.md",
+            "quotes": [
+              "| Hypervisor Support | VMware ESXi 6.0 and later | Microsoft Azure | AWS EC2 | Microsoft Hyper-V | GCP |"
+            ]
+          },
+          "says": "VMware ESXi 6.0 and later."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+            "quotes": [
+              "Hypervisor: VMware ESX/ESXi v5.0 and later."
+            ]
+          },
+          "says": "VMware ESX/ESXi v5.0 and later for a Virtual Service Edge cluster."
+        }
+      ],
+      "impact": "Low for new builds, which will be on a current ESXi release, but a legacy host on ESXi 5.x is documented as supported in one place and not the other."
+    }
+  },
+  "gaps": {
+    "nutanix-support-scope": {
+      "kind": "semantic",
+      "title": "What Nutanix support establishes",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'The July 13 release additionally establishes VSE configuration and a downloadable VSE image for Nutanix ... That release does not establish Nutanix cluster topology, sizing, or parity with the existing platform table.' The captured release summary is a stub and does not mention Nutanix. The only captured evidence is that the Virtual Service Edges page offers a Nutanix VM download. Whether Nutanix supports native clustering, the bundled load balancer, a cluster size, or the public-cloud load-balancer model is not stated.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

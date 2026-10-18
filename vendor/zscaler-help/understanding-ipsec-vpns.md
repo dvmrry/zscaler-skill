@@ -1,0 +1,177 @@
+# Understanding IPSec VPNs
+
+**Source:** https://help.zscaler.com/zia/understanding-ipsec-vpns
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1399021, revision 3219908
+
+---
+
+Internet Protocol Security (IPSec) is a suite of protocols that provides network-layer security to a Virtual Private Network (VPN). A VPN is a virtual network connection that provides a secure communication path between two peers on a public network. The peers can be two hosts, a remote host and a network gateway, or the gateways of two networks, such as the gateway of your corporate network and a Public Service Edge for Internet & SaaS (ZIA).
+IPSec provides the following types of protection:
+- Confidentiality: Ensures that data cannot be read by unauthorized parties.
+- Integrity: Verifies that data was not modified during transit.
+- Authentication: Verifies the identity of the peers.
+IPSec provides several options for applying each type of protection. The peers in the IPSec VPN use a negotiation process called Internet Key Exchange (IKE) to define the security mechanisms they use to protect their communications. There are two versions of IKE: Internet Key Exchange Version 1 (IKEv1) and Internet Key Exchange Version 2 (IKEv2).
+Zscaler recommends using IKEv2 because it is a newer standard and is widely deployed. It is faster than IKEv1 and provides better security and supports newer encryption algorithms.
+# Supported IPSec VPN Parameters
+The following IPSec VPN parameters for IKEv2 and IKEv1 are supported:
+- IKEv2 Supported Parameters
+- Zscaler supports NAT-Traversal if the device initiating the IPSec VPN is behind another firewall or router performing NAT. Zscaler recommends disabling Perfect Forward Secrecy (PFS) for Phase 2. This option enables each Child or IPSec SA to generate a new shared secret in a Diffie-Hellman exchange. For better security, Zscaler recommends AES-GCM, which requires you to purchase a separate subscription. Zscaler also recommends using AES-GCM ciphers.
+  - For Phase 1, if you use SHA-384 or SHA-512 data integrity, you must use Diffie-Hellman group 14. If you use 3DES encryption, you must use Diffie-Hellman group 2 and SHA-1 or SHA-256 for data integrity.
+  - For Phase 2, Zscaler recommends using AES-GCM-based ciphers if you have purchased a separate subscription. If you do not have a separate subscription, Zscaler recommends using NULL encryption.
+- The following table shows the supported IPSec VPN parameters for IKEv2. Zscaler recommends using the bolded parameters in blue.
+| IKEv2 Supported Parameters |  |  |
+|---|---|---|
+| Components | Phase 1 | Phase 2 |
+| Confidentiality | AES-256 AES-192 AES-128 3DES | AES-256-GCM AES-192-GCM AES-128-GCM NULL AES-256 AES-192 AES-128 |
+| Integrity | SHA-512 SHA-384 SHA-256 SHA-1 | MD5 SHA-512 SHA-384 SHA-256 SHA-1 |
+| Authentication | Pre-Shared Key (PSK) | N/A |
+| Protocol | N/A | AH ESP |
+| Encapsulation Mode | N/A | Tunnel Mode |
+| Key Exchange Method | Diffie-Hellman | Diffie-Hellman |
+| Diffie-Hellman Group | 2 5 14 19 (ECP256) 20 (ECP384) 21 (ECP521) | 2 5 14 19 (ECP256) 20 (ECP384) 21 (ECP521) |
+| Total Child SAs Supported | N/A | 8 |
+| SA Lifetime | 24 Hours | 8 Hours |
+| SA Lifebytes | Unlimited | Unlimited |
+| NAT-Traversal | Enabled Disabled | N/A |
+| NAT Keepalive Interval | 20 Seconds | N/A |
+| Dead Peer Detection (DPD) | Enabled Disabled | N/A |
+| DPD Timeout Interval | 20 Seconds | N/A |
+| DPD Maximum Retries | 5 | N/A |
+| Perfect Forward Secrecy (PFS) | N/A | Enabled Disabled |
+| Maximum Transmission Unit (MTU) | N/A | Your Optimal MTU 1400 Bytes |
+| Maximum Segment Size (MSS) | N/A | 1360 Bytes |
+| VPN Type | N/A | Route-Based VPN Policy-Based VPN |
+- IKEv1 Supported Parameters
+- New tenants cannot establish IKEv1 IPSec VPN tunnels from a vendor product to forward traffic to Internet & SaaS. To enable IKEv1 support for new tenants, contact Zscaler Support.
+- If you use a pre-shared key (PSK) for authentication and an FQDN for the peer, you must use Aggressive mode. If you use a PSK for authentication and a static IP address for the peer, you must use the Main mode. For better security, Zscaler recommends AES-GCM, which requires you to purchase a separate subscription. Zscaler also recommends using AES-GCM ciphers.
+- The following table shows the supported IPSec VPN parameters for IKEv1. Zscaler recommends using the bolded parameters in blue.
+| IKEv1 Supported Parameters |  |  |
+|---|---|---|
+| Components | Phase 1 | Phase 2 |
+| IKE Mode | Main Aggressive | Quick |
+| Confidentiality | AES-256 AES-192 AES-128 3DES | AES-256-GCM AES-192-GCM AES-128-GCM NULL AES-256 AES-192 AES-128 |
+| Integrity | SHA-1 | MD5 SHA-1 |
+| Authentication | Pre-Shared Key (PSK) RSA Digital Signature External Authentication with PSK External Authentication with RSA | N/A |
+| Protocol | N/A | AH ESP |
+| Encapsulation Mode | N/A | Tunnel Mode |
+| Key Exchange Method | Diffie-Hellman | Diffie-Hellman |
+| Diffie-Hellman Group | 2 | 14 |
+| Total IPSec SAs Supported | N/A | 8 |
+| SA Lifetime | 24 Hours | 8 Hours |
+| SA Lifebytes | Unlimited | Unlimited |
+| NAT-Traversal | Enabled Disabled | N/A |
+| NAT Keepalive Interval | 20 Seconds | N/A |
+| Dead Peer Detection (DPD) | Enabled Disabled | N/A |
+| DPD Timeout Interval | 20 Seconds | N/A |
+| DPD Maximum Retries | 5 | N/A |
+| Perfect Forward Secrecy (PFS) | N/A | Enabled Disabled |
+| Maximum Transmission Unit (MTU) | N/A | Your Optimal MTU 1400 Bytes |
+| Maximum Segment Size (MSS) | N/A | 1360 Bytes |
+| VPN Type | N/A | Route-Based VPN Policy-Based VPN |
+# Zscaler Interoperability List
+Zscaler has verified the following vendors' products for establishing VPN tunnels using IKEv2:
+| Vendor | Series/OS |
+|---|---|
+| Cisco | ASA |
+| Cisco | ISR |
+| Juniper | SRX |
+| Juniper | SSG |
+| FortiGate | FortiOS |
+| Palo Alto Networks | PAN-OS |
+| SonicWall | TZ |
+# About the IPSec Security Components
+The following are the types of protection that IPSec provides and their corresponding algorithms:
+- Ensures Confidentiality
+- IPSec uses algorithms such as the Advanced Encryption Standard (AES) to encrypt IP packets. These algorithms use symmetric key cryptography to provide encryption.
+- In this type of cryptography, the peers use the same key to encrypt and decrypt packets. When peer A sends a packet to peer B, it first encrypts the data by dividing it into blocks and then uses the key and data blocks to perform multiple rounds of cryptographic operations. When peer B receives the packet, it uses the same key and performs the same operations in reverse order to decrypt the data.
+- AES has a large block size and key length and uses a 128-bit block size and keys of 128, 192, and 256 bits.
+- Verifies Packet Integrity
+- IPSec provides authentication and integrity protection through a hash message authentication code (HMAC) algorithm, such as Message Digest Algorithm-5 (MD5) or Secure Hash Algorithm (SHA). This type of algorithm generates a hash, or message digest, from the message and a key known to both peers. When peer A sends a message to peer B, it generates the hash and adds it to the packet it sends to peer B. When peer B receives the packet, it uses the shared key to generate the hash and verifies the authenticity and integrity of the packet when the two hashes match.
+- SHA-1 and SHA-2 are generally considered more secure than MD5 because they generate a larger hash. MD5 generates a 128-bit hash, SHA-1 generates a 160-bit hash, and SHA-2 is a set of four algorithms whose names refer to the size of the hashes they produce, i.e., SHA-224, SHA-256, SHA-384, and SHA-512.
+- Authenticates Peers
+- IPSec peers can use the Pre-Shared Keys (PSK) method to authenticate each other. The Pre-Shared Key authentication uses a key that the peers agree on beforehand. The key, also known as a secret, is a text string similar to a password. Peer A uses the pre-shared key and additional data to generate a hash value. Peer B uses the same key and additional data to generate a hash value. Peer B authenticates peer A when the two hash values match. Zscaler supports PSKs for IKEv1 and IKEv2.
+# About IPSec Components
+The following is general information about the different IPSec components:
+- IPSec Protocols
+- Zscaler does not support Extended Sequence Number (ESN) based proposals during IPSec tunnel negotiations.
+- IPSec has two main protocols: Authentication Header (AH) and Encapsulating Security Payload (ESP). The IPSec peers determine which protocol they use to encode the data packets in Phase 2 of the IKE negotiations. The selected protocol then uses the algorithms and authentication method defined in the IPSec SA to encode the data packets.
+- AH provides authentication and integrity protection through a keyed hash algorithm as described in Verifies Packet Integrity. ESP encrypts IP packets as described in Ensures Confidentiality. The earlier version of ESP did not provide authentication and integrity protection, so most IPSec implementations used AH and ESP. But since the current version of ESP can also use a keyed hash algorithm to verify the authenticity and integrity of packets, most IPSec implementations use ESP, but not necessarily AH.
+- ESP can operate in either of two modes: transport mode or tunnel mode.
+- As shown in the diagram, ESP adds a header, a trailer, and if authentication is used, an authentication section at the end. The ESP header contains a Security Parameter Index (SPI) value, which is a unique identifier, and a sequence number. The ESP trailer contains fields such as additional bytes for padding and the padding length.
+- In transport mode, ESP encrypts the data payload and ESP trailer. It uses the original IP header with the original source and destination IP addresses. In implementations that involve communications from or to a gateway, the source and/or destination IP addresses need to be changed to the gateway IP addresses. Since the transport mode does not alter the IP header, this mode is used specifically for host-to-host communications.
+- In tunnel mode, ESP encapsulates the entire packet, including the original IP header. It adds a new IP header that lists the IPSec peers as the source and destination of the packet. ESP tunnel mode is used in VPNs that include at least one gateway because the gateway address can be specified as the source and/or destination in the new IP header.
+- IKE
+- IKE is an IPSec protocol that establishes and maintains Security Associations (SAs) to protect peer communication and performs mutual authentication. There are two versions of IKE:
+  - IKEv2
+  - IKEv2 is a fast, less complicated control protocol for negotiating IPSec VPN tunnels. IKEv2 improves on IKEv1 and simplifies the SA negotiation process. IKEv2 has two initial exchanges and two later exchanges.
+### The Initial Exchanges
+  - The two initial IKEv2 exchanges are IKE_SA_INIT and IKE_AUTH. The initial exchanges are equivalent to the IKEv1 Phase 1 exchange.
+    - IKE_SA_INIT
+    - In the IKE_SA_INIT exchange, the peers negotiate cryptographic algorithms for the IKE SA, exchange nonces, and exchange Diffie-Hellman keys. They negotiate the following IKE SA parameters:
+      - encryption algorithm
+      - hash function
+      - authentication method
+      - Diffie-Hellman group
+      - pseudo-random function
+    - The initiator sends a list of supported IKE SA proposals, its Diffie-Hellman value, and its nonce. The responder then chooses an IKE SA proposal, sends a Diffie-Hellman value to complete the Diffie-Hellman exchange, and sends its nonce. If the IKE_SA_INIT exchange is successful, the peers can independently generate the IKE SA key information. This key information is used in later exchanges to authenticate the peers, authenticate or encrypt IKE SA messages, and establish the first Child SA.
+    - Unlike IKEv1, the peers can choose their authentication method; IKE SA lifetime and IKE SA lifesize.
+    - This exchange has one request-response pair and isn't encrypted. After the peers establish a secure connection, all other exchanges are encrypted.
+    - IKE_AUTH
+    - In the IKE_AUTH exchange, the peers authenticate the messages in the IKE_SA_INIT exchange, exchange their identities and certificates, and create the first Child SA.
+    - To activate the IKE SA, the initiator sends an IKE_AUTH request with its identity and the authentication information defined in the IKE_SA_INIT exchange. It also includes the SA proposals and traffic selectors for the first Child SA. The initiator doesn't send the Diffie-Hellman key information or nonce in the request. The peers use the key information and nonce defined in the IKE_SA_INIT exchange for the first Child SA. If a signature-based authentication method is used, they can exchange certificates. The responder then sends its identity information, authenticates the initiator, and activates the first Child SA. This exchange has one encrypted request-response pair.
+### The Later Exchanges
+  - The two later IKEv2 exchanges are CREATE_CHILD_SA and INFORMATIONAL.
+    - CREATE_CHILD_SA
+    - The CREATE_CHILD_SA exchange is used to create new Child SAs or rekey IKE SAs and Child SAs. The peers negotiate the following SA parameters:
+      - encryption algorithm
+      - hash function
+      - encapsulation mode
+      - protocol
+      - Diffie-Hellman group
+    - The initiator sends the SA proposals, traffic selectors, and nonce in the request. When creating new Child SAs, the initiator optionally can include a Diffie-Hellman value. The responder then activates the Child SA and completes the Diffie-Hellman exchange. Using the Diffie-Hellman exchange provides perfect forward secrecy (PFS) for the Child SA and ensures the Child SA and IKE SA are derived independently. The CREATE_CHILD_SA exchange has one encrypted request-response pair and is equivalent to the IKEv1 Phase 2 exchange (Quick mode). It repeats for every rekey or new SA.
+    - INFORMATIONAL
+    - In the INFORMATIONAL exchange, peers can share control messages regarding errors or notifications of specific events during the operation of an IKE SA. The messages in an INFORMATIONAL can include any of the following payloads:
+      - Notification Payload: Carries error or status information regarding the SAs.
+      - Delete Payload: Informs the peer that the initiator deleted one or more of its SAs. The responder must delete the SAs and send a response message with the deleted payloads.
+      - Configuration Payload: Negotiates configuration data between peers.
+    - The INFORMATIONAL exchange message can include any combination of the preceding payloads. The responder must reply with a response, or the initiator assumes that the message was lost and retransmits it. The response can also be an empty message with no payload. This is a common method for a peer to check the other peer's liveliness. This exchange has one encrypted request-response pair.
+  - To learn more about IKEv2, refer to RFC 7296 Internet Key Exchange Protocol Version 2 (IKEv2).
+  - IKEv1
+  - IKEv1 has two phases: Phase 1 and Phase 2. In Phase 1, the peers negotiate the security parameters used to communicate for Phase 2. This first set of parameters is referred to as the ISAKMP SA. The ISAKMP SA is bidirectional, so only one SA is established for both directions of traffic. In Phase 2, the peers negotiate the parameters used to protect the actual exchange of IP packets. The second set of parameters is referred to as the IPSec SA. The IPSec SA is uni-directional, so one SA is established for each connection. To learn more, see the following:
+    - IKEv1 Phase 1
+    - IKEv1 Phase 1 can operate in either the main mode or the aggressive mode. In the main mode, there are three pairs of message exchanges (i.e., six messages total), and in the aggressive mode, there are three message exchanges.
+      - Main Mode
+        - In the first pair of messages, the peers negotiate the following:
+          - encryption algorithm
+          - hash algorithm
+          - authentication method
+          - The Diffie-Hellman group that the peers use to generate a shared key.
+          - The SA lifetime, that is the time period that an SA is valid. Peers must establish a new SA when it expires.
+        - In the second pair of messages, the peers exchange the Diffie-Hellman keys.
+        - In the third pair of messages, the two peers authenticate each other.
+      - Because the Main mode uses the IP address as part of the exchange for identification, it cannot be used in a configuration where the IP address of the peer may change.
+      - Aggressive Mode
+        - In the first message, peer A sends the security parameters, its Diffie-Hellman key, a pseudo-random number, and its IKE identity to peer B.
+        - In the second message, peer B confirms the security parameters, and sends its Diffie-Hellman key, a pseudo-random number, its IKE identity, and authentication parameters.
+        - In the third message, peer A sends its authentication parameters.
+      - Aggressive Mode is useful when the IP address of the remote device is not known beforehand.
+      - For Phase 1, Zscaler supports AES-128 for the encryption algorithm and SHA-1 or MD5 for the authentication algorithm. Zscaler recommends using AES-128 with SHA-1.
+    - IKEv1 Phase 2
+    - IKEv1 Phase 2 establishes an SA for each direction of traffic. It operates only in Quick mode, which uses three messages. The negotiations in Phase 2 are protected by IKE SA.
+    - The Phase 2 negotiations are similar to those in Phase 1, wherein the peers negotiate security parameters that include the encryption and keyed hashed algorithms, and authentication method. Additionally, in this phase, the peers negotiate the IPSec protocol to be applied to the IP packets. They determine whether to use AH, ESP and AH, or ESP. As stated earlier, most VPNs today use ESP.
+    - After IPSec SA is established, the peers then exchange the IP packets using the security parameters defined in IPSec SA.
+    - For Phase 2, Zscaler supports NULL or AES for the encryption algorithm and SHA-1 or MD5 for the authentication algorithm. Zscaler recommends using AES-GCM-based ciphers if you have purchased a separate subscription.
+- During the IKE negotiations, the peers agree on the Diffie-Hellman group number that they use to generate the shared key. Diffie-Hellman is a method for peers to generate a shared key securely without having to exchange shared secrets in the first place. Diffie-Hellman specifies group numbers that correspond to a key length and an encryption generator type. To learn more, refer to RFC 2631 Diffie-Hellman Key Agreement Method.
+- Zscaler recommends using IKEv2 because it's faster and simpler than IKEv1 and fixes IKEv1 vulnerabilities.
+- NAT-Traversal
+- Network Address Translation Traversal (NAT-Traversal) provides a method for passing IPSec traffic between two peers when one peer is behind a NAT device. When NAT-Traversal is enabled, the peers detect if there is a NAT device between them and verify that they both support NAT-Traversal during the IKE Phase 1 negotiations.
+- After both peers determine that they support NAT-Traversal, and it is required, they encapsulate the IPSec packets. The new IP header retains the data from the original IPSec packet, except that the protocol changes to User Datagram Protocol (UDP). In the UDP header, the source port is set to 4500 and the destination port is that of the IPSec peer. Therefore, the NAT device processes the encapsulated packet as a UDP packet. The IPSec peer then removes the UDP header and processes the packets as an IPSec packet.
+- NAT-T is integrated into IKEv2 but is an optional extension to IKEv1. To learn more about NAT-T, refer to RFC 3947 Negotiation of NAT-Traversal in the IKE.
+- Dead Peer Detection
+- Dead Peer Detection (DPD) is a more scalable method used to detect if an IKE peer is online. In this method, Zscaler expects the peers to do explicit periodic liveliness checks to confirm that the DPD flow is continuous, if it is supported on the devices. If the periodic liveliness check is not supported (i.e., only on-demand check is supported), you must ensure to allowlist the Zscaler IP address so that DPD initiated by Zscaler is not blocked, and a response is received. If there is no response, Zscaler cleans up the connection. DPD decreases the number of messages needed to determine whether a peer is alive. Each peer defines its own DPD interval, which is implementation-specific. Zscaler recommends a minimum of 10-second to a maximum of 20-second DPD intervals with at least 3 retries. To learn more, refer to RFC 3706 A Traffic-Based Method of Detecting Dead Internet Key Exchange (IKE) Peers.
+- Zscaler does not consider the ongoing flow of traffic between two peers as proof of the liveliness of a peer.
+- The DPD behavior is the same for the IKEv1 and the IKEv2 protocols. DPD is integrated into IKEv2 but is an optional extension to IKEv1.
+# Configuring an IPSec VPN Tunnel
+When configuring an IPSec VPN tunnel, the local ID of the peer device on the client side can be a private IP address if the VPN credential configured in the Zscaler Admin Console is a fully qualified domain name (FQDN). Otherwise, the local ID should be a public IP address. The public IP address is provisioned as a static IP address, which is then used to add a VPN credential to the Zscaler Admin Console. If the local ID is a private IP address and a public IP address is configured in the Zscaler Admin Console, then the negotiation fails.
+To learn more about configuring an IPSec VPN tunnel with the Zscaler service and to see a list of configuration guides, see Configuring an IPSec VPN Tunnel.

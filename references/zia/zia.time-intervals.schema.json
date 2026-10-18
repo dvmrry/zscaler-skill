@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "id": "zia.time-intervals.schema",
+  "title": "Time interval fields: days, minutes and the single window",
+  "aliases": [
+    "time interval fields",
+    "startTime endTime minutes",
+    "daysOfWeek values",
+    "EVERYDAY ANY NONE",
+    "minutes from midnight",
+    "split shift time interval",
+    "two windows in one day"
+  ],
+  "binds": [
+    "zia/time-intervals#id",
+    "zia/time-intervals#name",
+    "zia/time-intervals#startTime",
+    "zia/time-intervals#endTime",
+    "zia/time-intervals#daysOfWeek"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.evaluation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.time-windows"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.write-encoding"
+    }
+  ],
+  "claims": {
+    "fields": {
+      "statement": "A time interval has five fields: a system-generated integer `id`, a `name`, integer `startTime` and `endTime`, and a `daysOfWeek` list.",
+      "tier": "A",
+      "binds": [
+        "zia/time-intervals#id",
+        "zia/time-intervals#name",
+        "zia/time-intervals#startTime",
+        "zia/time-intervals#endTime",
+        "zia/time-intervals#daysOfWeek"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/post/requestBody/content/application~1json/schema/properties/id",
+          "expect": {
+            "description": "System-generated identifier for the time interval",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/post/requestBody/content/application~1json/schema/properties/name",
+          "expect": {
+            "description": "Name to identify the time interval",
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/post/requestBody/content/application~1json/schema/properties/startTime",
+          "expect": {
+            "description": "The time interval start time",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/post/requestBody/content/application~1json/schema/properties/endTime",
+          "expect": {
+            "description": "The time interval end time",
+            "type": "integer"
+          }
+        }
+      ]
+    },
+    "minutes-from-midnight": {
+      "statement": "`startTime` and `endTime` are minutes from midnight, 0 to 1439 (480 is 08:00, 1020 is 17:00), not clock strings. The OpenAPI document says only \"start time\" and \"end time\"; the unit comes from the MCP server's tool description and the SDK example.",
+      "tier": "A",
+      "binds": [
+        "zia/time-intervals#startTime",
+        "zia/time-intervals#endTime"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/time_intervals.py",
+          "quotes": [
+            "Minutes from midnight (0-1439). E.g. 480 = 08:00, 1020 = 17:00."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/time_intervals.py",
+          "quotes": [
+            "end_time='1439',"
+          ],
+          "after": "def add_time_intervals(self, **kwargs)"
+        }
+      ]
+    },
+    "days-values": {
+      "statement": "`daysOfWeek` takes ANY, NONE, EVERYDAY, SUN, MON, TUE, WED, THU, FRI and SAT; EVERYDAY selects all seven days. The Python docstring and the MCP tool description list EVERYDAY and the seven day names without ANY or NONE; the Terraform time window data source's `day_of_week` lists ANY and NONE as well.",
+      "tier": "A",
+      "binds": [
+        "zia/time-intervals#daysOfWeek"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/post/requestBody/content/application~1json/schema/properties/daysOfWeek",
+          "expect": {
+            "description": "Specifies which days of the week apply to the time interval. If set to EVERYDAY, all the days of the week are chosen.",
+            "items": {
+              "enum": [
+                "ANY",
+                "NONE",
+                "EVERYDAY",
+                "SUN",
+                "MON",
+                "TUE",
+                "WED",
+                "THU",
+                "FRI",
+                "SAT"
+              ],
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/time_intervals.py",
+          "quotes": [
+            "Days: EVERYDAY, SUN, MON, TUE, WED, THU, FRI, SAT. List or JSON string."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/time_intervals.py",
+          "quotes": [
+            "Values supported: `EVERYDAY`, `SUN`, `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_firewall_filtering_time_window.md",
+          "quotes": [
+            "* `ANY` - (String)",
+            "* `NONE` - (String)"
+          ]
+        }
+      ]
+    },
+    "one-period": {
+      "statement": "An interval holds one time period applied to its chosen days; the console allows only one period at a time. A split shift (08:00 to 12:00 and 14:00 to 18:00) therefore needs two intervals.",
+      "tier": "B",
+      "derived_from": [
+        "fields"
+      ],
+      "conditions": "The one-period limit is stated by the Help page; the two-interval remedy is inference from the schema and the rule field being a list (zia.time-intervals.rule-usage).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "defining-time-intervals.md",
+          "quotes": [
+            "Only one time period can be set at a time."
+          ]
+        }
+      ]
+    },
+    "weekly-recurrence-only": {
+      "statement": "The only recurrence is the weekly one given by `daysOfWeek`; the object has no date, exclusion or calendar field.",
+      "tier": "B",
+      "derived_from": [
+        "fields"
+      ],
+      "conditions": "Absence from the five-field schema and the console drawer."
+    },
+    "go-starttime-always-sent": {
+      "statement": "In the Go SDK `startTime` has no `omitempty` while `endTime`, `id`, `name` and `daysOfWeek` do, so a zero start (midnight) is always sent and a zero end is dropped from the body. The Python model sends all five unconditionally.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/time_intervals/time_intervals.go",
+          "quotes": [
+            "StartTime int `json:\"startTime\"`",
+            "EndTime int `json:\"endTime,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/time_intervals.py",
+          "quotes": [
+            "\"startTime\": self.start_time,",
+            "\"endTime\": self.end_time,"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "string-times": {
+      "kind": "semantic",
+      "title": "What the API does with HH:MM strings for startTime and endTime",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Code that passes string values (e.g. \\\"08:00\\\") will fail or produce unexpected results.\" The API schema types both fields as integers, but no source shows the response to a string. The Python SDK docstring itself passes quoted minute strings ('0', '1439'). Resolve by posting a string time to a scratch tenant.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "about": [
+        "zia.time-intervals.schema:minutes-from-midnight"
+      ]
+    }
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "id": "zia.saas-apps.tenant-restriction-order",
+  "title": "Tenant restriction does nothing: bypass rule ahead of the login inspection rule",
+  "aliases": [
+    "personal microsoft account still works",
+    "tenant restriction not working",
+    "tenant profile configured but personal account signs in",
+    "office 365 one click tenant restriction",
+    "click-to-run bypass tenant restriction",
+    "Restrict-Access-To-Tenants not injected",
+    "ssl rule order microsoft login services"
+  ],
+  "binds": [
+    "zia/tenancy-restriction-profiles",
+    "zia/ssl-inspection-rules#order"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.tenant-profiles.ssl-prerequisite"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.tenant-profiles.wire-mechanic"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.rules"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.exemptions"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.ssl-visibility"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.microsoft"
+    }
+  ],
+  "claims": {
+    "one-click-rule-exempts-web-policies": {
+      "statement": "With the Microsoft-Recommended One Click configuration on, its predefined SSL/TLS Inspection rule exempts any Microsoft 365 traffic from SSL/TLS Inspection and, as Help words it, from other web policies such as URL Filtering and Cloud App Control; Evaluate Other Policies can be chosen instead, in which case those policies can match on the undecrypted traffic, limited to the domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microsoft-one-click-options.md",
+          "quotes": [
+            "If this rule is enabled, any Microsoft 365 traffic is exempted from SSL/TLS Inspection and other web policies, such as URL Filtering and Cloud App Control.",
+            "If Evaluate Other Policies is selected and a block (or similar) rule exists in the URL Filtering policy, Cloud App Control policy, or other policies, then the system allows these rules to match on SSL/TLS bypassed traffic."
+          ]
+        }
+      ]
+    },
+    "one-click-rule-order-editable": {
+      "statement": "That predefined rule cannot be deleted, but its rule order, admin rank, status, label and description can be changed, as can the choice between Evaluate Other Policies and Bypass Other Policies under Do Not Inspect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microsoft-one-click-options.md",
+          "quotes": [
+            "You can modify the Rule Order, Admin Rank, Rule Status, Rule Label, and Description, and choose Evaluate Other Policies"
+          ]
+        }
+      ]
+    },
+    "bypass-first-disables-restriction": {
+      "statement": "If a Do Not Inspect rule for Microsoft 365 traffic (the O365 One Click rule, or the Click-to-Run exemption) sits earlier in the SSL Inspection order than the Microsoft Login Services inspection rule and matches the login request, the login is not decrypted, so Microsoft's tenant-restriction headers cannot be inserted and the tenant profile has no effect.",
+      "tier": "B",
+      "derived_from": [
+        "zia.tenant-profiles.ssl-prerequisite:office365-rule",
+        "zia.tenant-profiles.wire-mechanic:needs-decrypted-traffic",
+        "zia.ssl-inspection.rules:ascending-order",
+        "one-click-rule-exempts-web-policies"
+      ],
+      "conditions": "Inference from four documented facts: the first match decides; the inspection rule must outrank One Click; header insertion needs decryption; the One Click rule does not decrypt. No source runs the failing case end to end."
+    },
+    "bypass-other-policies-skips-profile": {
+      "statement": "If the matching exemption is the Bypass Other Policies variant (the Click-to-Run rule in the Leading Practices table), Cloud App Control is skipped as well, and the Cloud App Control rule that carries the tenant profile never evaluates.",
+      "tier": "B",
+      "derived_from": [
+        "zia.ssl-inspection.exemptions:predefined-exemptions-differ",
+        "zia.ssl-inspection.pipeline:bypass-other-policies",
+        "zia.tenant-profiles.ssl-prerequisite:ssl-rule-required"
+      ],
+      "conditions": "Follows from Bypass Other Policies skipping Cloud App Control and the profile being attached to a Cloud App Control rule; not shown for tenant profiles specifically."
+    },
+    "order-fix": {
+      "statement": "The fix is to place the SSL Inspection rule that selects Microsoft Login Services as the cloud application above the One Click rule (and, by inference, the Click-to-Run exemption), rather than changing the tenant profile.",
+      "tier": "B",
+      "derived_from": [
+        "zia.tenant-profiles.ssl-prerequisite:office365-rule",
+        "zia.ssl-inspection.rules:inspect-before-exempt",
+        "one-click-rule-order-editable"
+      ],
+      "conditions": "Remedy derived from the documented ordering requirement and the generic inspect-before-exempt rule."
+    }
+  },
+  "gaps": {
+    "silent-failure": {
+      "kind": "semantic",
+      "title": "Whether a bypassed Microsoft login fails silently",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Tenant restriction is silently disabled. Personal accounts work fine. Detection requires looking at log evidence, not console state\", with \"no error, no log\" in the expected answer of eval 18. The Help article requires the inspection rule but does not say what a bypassed login does (the same open question as zia.tenant-profiles.wire-mechanic:bypassed-traffic-behavior). Resolve in a scratch tenant by putting a One Click rule above the login rule and signing in with a personal account, then reading the web log for that transaction.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "about": [
+        "zia.tenant-profiles.wire-mechanic:bypassed-traffic-behavior",
+        "zia.saas-apps.tenant-restriction-order:bypass-first-disables-restriction"
+      ],
+      "blocks": "telling an operator that the failure produces no error or log entry"
+    },
+    "same-shape-google-webex": {
+      "kind": "semantic",
+      "title": "Whether the bypass-ahead-of-inspection failure applies to Google and Webex",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The same shape applies to Google Workspace and Webex Login Services tenant restriction.\" Help requires the inspection rule for Google and Webex (zia.tenant-profiles.ssl-prerequisite:google-rule and :webex-rule) but states an ordering requirement only against the Office 365 One Click rule. Whether a competing exemption breaks them the same way is inferred, not shown.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "about": [
+        "zia.tenant-profiles.ssl-prerequisite"
+      ]
+    },
+    "click-to-run-versus-one-click": {
+      "kind": "data",
+      "title": "Whether the Click-to-Run exemption and the O365 One Click rule are the same rule",
+      "status": "open",
+      "detail": "The Leading Practices guide shows a predefined \"Zscaler Microsoft 365 Click-to-Run\" exemption set to Bypass Other Policies; the SSL policy page lists an \"O365 One Click rule\" controlled by the One Click setting. The captured sources do not say whether these are one rule under two names or two rules, and the legacy answer treats them as alternatives.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zia ssl-inspection-rules list",
+      "about": [
+        "zia.ssl-inspection.exemptions:predefined-exemptions-differ"
+      ]
+    }
+  }
+}

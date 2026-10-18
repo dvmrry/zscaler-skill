@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "id": "zia.virtual-service-edge.load-balancing",
+  "title": "How a Virtual Service Edge cluster spreads and returns traffic",
+  "aliases": [
+    "vse load balancer",
+    "vse carp",
+    "vse dsr",
+    "vse external load balancer",
+    "vse promiscuous mode",
+    "vse forged transmits",
+    "vse cloud load balancer",
+    "vse multi-cluster load sharing",
+    "vse firewall bypass rule"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.virtual-service-edge.clusters"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.cluster-architecture"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.firewall"
+    }
+  ],
+  "claims": {
+    "bundled-lb": {
+      "statement": "Each Virtual Service Edge has a load balancer bundled in, designed to distribute user traffic evenly across the Virtual Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "As shown in the diagram below, each Virtual Service Edge has a load balancer (LB) bundled in. The load balancer is specifically designed to distribute user traffic evenly across the Virtual Service Edges."
+          ]
+        }
+      ]
+    },
+    "carp-active-passive": {
+      "statement": "The load balancers use CARP for active-passive fault tolerance: all Virtual Service Edge instances in the cluster are active, one load balancer instance is active at a time, it receives ingress traffic through the cluster IP address and directs it to the appropriate Virtual Service Edge, and if it fails the passive load balancer takes over automatically with no service disruption.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "To ensure high availability, the Zscaler load balancers use the Common Address Redundancy Protocol (CARP) for active-passive fault tolerance.",
+            "The active load balancer receives ingress traffic through the cluster IP address and directs the traffic to the appropriate Virtual Service Edge.",
+            "If the active load balancer fails, then the passive load balancer automatically takes over, ensuring no disruption in service."
+          ]
+        }
+      ]
+    },
+    "dsr": {
+      "statement": "Virtual Service Edges run in Direct Server Return mode: requests go through the load balancer to the Virtual Service Edge, but the response flows from the Virtual Service Edge to the user, skipping the load balancer on the return.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "DSR allows the requests to go through the load balancer to the Virtual Service Edge, but the response flows from the Virtual Service Edge to the user, skipping the load balancer on the return."
+          ]
+        }
+      ]
+    },
+    "external-lb-discouraged": {
+      "statement": "Zscaler does not recommend external load balancers; an organization that must use one is pointed to a separate article, Using an External Load Balancer with Virtual Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "Zscaler does not recommend using external load balancers. However, if your organization must use an external load balancer, see Using an External Load Balancer with Virtual Service Edges."
+          ]
+        }
+      ]
+    },
+    "standalone-needs-external-lb-for-ha": {
+      "statement": "If clustering fault tolerance is required, a Standalone deployment needs an external load balancer; the specifications article notes that Virtual Service Edges with an External Load Balancer are deployed in certain situations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-virtual-service-edge-instances-internet-saas.md",
+          "quotes": [
+            "If clustering fault tolerance is required, ensure to have an external load balancer for Standalone deployment."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "In certain situations, the Virtual Service Edges with an External Load Balancer are deployed."
+          ]
+        }
+      ]
+    },
+    "inbuilt-lb-recommended-on-esxi": {
+      "statement": "In the VMware ESXi and Microsoft Hyper-V environments, Zscaler recommends the in-built load balancer for Virtual Service Edges deployed in cluster mode; in public cloud environments, public cloud load balancers provide the redundancy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "Zscaler recommends utilizing the in-built load balancer for Virtual Service Edges deployed in cluster mode."
+          ]
+        }
+      ]
+    },
+    "health-probe-firewall-rule": {
+      "statement": "For the load balancer's health probes to work, a Firewall Filtering rule must allow all Virtual Service Edge proxy, load balancer and cluster IP addresses as sources, with the Allow action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "For health probes to work, you must create a Firewall Filtering rule to allow all Virtual Service Edge proxy, LB, and cluster IP addresses.",
+            "Under Network Traffic, select Allow."
+          ]
+        }
+      ]
+    },
+    "esxi-vswitch-settings": {
+      "statement": "On ESXi, Promiscuous Mode (Accept), MAC Address Changes and Forged Transmits must be enabled on the vSwitch or port group, because the Zscaler load balancers and Service Edges use CARP. Zscaler recommends a dedicated port group, because vSwitch-level promiscuous mode can let other VMs on the vSwitch sniff Virtual Service Edge traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "The Promiscuous Mode option must be enabled (i.e., set to Accept) on the vSphere switch (vSwitch) or at the port group level.",
+            "The MAC Address Changes option must be enabled on the vSwitch or port group.",
+            "The Forged Transmits option must be enabled on the vSwitch or port group.",
+            "Zscaler recommends you create and use a port group for your Virtual Service Edge interfaces."
+          ]
+        }
+      ]
+    },
+    "esxi-reverse-path-check": {
+      "statement": "If a vSwitch has multiple physical ports, the ESXi host advanced option Net.ReversePathFwdCheckPromisc must be enabled (set to 1); otherwise multicast traffic loops back to the host, CARP does not function properly, and 'link states coalesced' messages are sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "If multiple physical ports exist on the same vSwitch, then the Net.ReversePathFwdCheckPromisc advanced option must be enabled (i.e., set to 1) on the ESXi host.",
+            "If it is not, then multicast traffic loops back to the host, causing CARP not to function properly"
+          ]
+        }
+      ]
+    },
+    "mcls-is-public-se-only": {
+      "statement": "Multi-Cluster Load Sharing is described for Public Service Edge clusters in Zscaler data centers: several clusters in different network address blocks serve the same VIP, so Zscaler can add capacity without customers moving their GRE tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-multi-cluster-load-sharing.md",
+          "quotes": [
+            "The Multi-Cluster Load Sharing feature allows multiple Public Service Edge for Internet & SaaS (ZIA) clusters in different network address blocks to participate in a Virtual IP (VIP) address",
+            "So, you no longer need to move your GRE tunnels to a new VIP address when a new cluster is added to a DC."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "external-lb-article": {
+      "kind": "semantic",
+      "title": "Using an external load balancer with Virtual Service Edges",
+      "status": "open",
+      "detail": "The cluster article refers to a separate article, Using an External Load Balancer with Virtual Service Edges, for the external-load-balancer case. It is not captured, and attempts to capture likely slugs found no article. Until it is read, external load balancer behavior (health checks, return path, source address handling) is unknown.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "id": "zia.scim.operations",
+  "title": "ZIA SCIM server operations, paging and rate limit",
+  "aliases": [
+    "scim endpoints",
+    "scim filter",
+    "scim pagination",
+    "scim startIndex",
+    "scim rate limit",
+    "scim bulk",
+    "scim patch",
+    "scim delta sync",
+    "meta.lastModified",
+    "scim totalResults"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.scim"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.sdk-coverage"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.propagation"
+    }
+  ],
+  "claims": {
+    "user-operations": {
+      "statement": "The SCIM server supports, for users: POST /Users to create; GET /Users for up to 1,000 entries and GET /Users?startIndex=<value> for the next 1,000; GET /Users/{UserID}; PUT or PATCH /Users/{UserID} to update; and DELETE /Users/{UserID}.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-scim-zia.md",
+          "quotes": [
+            "| Create User | POST /Users |",
+            "| Retrieve All Users (up to 1,000 entries) | GET /Users |",
+            "| Retrieve All Users (1,000 users from specified index value) | GET /Users?startIndex=<value> |",
+            "| Update User | PUT /Users/{UserID} or PATCH /Users/{UserID} |",
+            "| Delete User | DELETE /Users/{UserID} |"
+          ]
+        }
+      ]
+    },
+    "group-operations": {
+      "statement": "For groups it supports POST /Groups, GET /Groups (up to 1,000) with startIndex paging, GET /Groups/{GroupID}, PUT or PATCH /Groups/{GroupID} and DELETE /Groups/{GroupID}.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-scim-zia.md",
+          "quotes": [
+            "| Create Group | POST /Groups |",
+            "| Retrieve All Groups (up to 1,000 entries) | GET /Groups |",
+            "| Update Group | PUT /Groups/{GroupID} or PATCH /Groups/{GroupID} |",
+            "| Delete Group | DELETE /Groups/{GroupID} |"
+          ]
+        }
+      ]
+    },
+    "bulk-and-discovery": {
+      "statement": "Beyond users and groups the server exposes POST /Bulk to modify resources, GET /Schemas and /Schemas/{SchemaID}, GET /ServiceProviderConfig, GET /ResourceTypes and /ResourceTypes/{ResourceTypeID}, and POST [prefix]/.search.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-scim-zia.md",
+          "quotes": [
+            "| Bulk Modify Resources | POST |",
+            "| Retrieve All Resource Schemas | GET /Schemas |",
+            "| Retrieve the Service Provider's Configuration | GET |",
+            "| Retrieve All Resource Types | GET /ResourceTypes |",
+            "| Search for Resource Types | POST |"
+          ]
+        }
+      ]
+    },
+    "filters": {
+      "statement": "Users can be filtered by userName, externalID or id with eq, and by meta.lastModified with gt; groups by displayName together with members.value. The help row for the meta.lastModified filter is labelled 'Filter Users by Date Created After' although the filter is on lastModified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-scim-zia.md",
+          "quotes": [
+            "| Filter Users by Username | GET /Users?filter=userName eq <value> |",
+            "| Filter Users by External ID | GET /Users?filter=externalID eq <value> |",
+            "| Filter Users by ID | GET /Users?filter=id eq <value> |",
+            "| Filter Users by Date Created After | GET /Users?filter=meta.lastModified gt <value> |",
+            "GET /Groups?filter=displayName eq <value> and members.value eq <value>"
+          ]
+        }
+      ]
+    },
+    "delta-sync": {
+      "statement": "A client that needs incremental reconciliation can use the meta.lastModified gt filter to read only users changed since its last run, and the userName, externalID and id equality filters for targeted lookups.",
+      "tier": "B",
+      "conditions": "Derived from the filter list; the articles do not describe delta sync, and the help row's 'Date Created After' label leaves it open whether the comparison is on creation or modification time.",
+      "derived_from": [
+        "filters"
+      ]
+    },
+    "paging": {
+      "statement": "totalResults is exact when under 10K; above 10K the service returns a rough estimate to keep responses fast, and the field reflects the precise count only after the client fetches the last page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "scim-api-examples.md",
+          "quotes": [
+            "The Zscaler service generates an accurate number for the totalResults field if the value is under 10K.",
+            "If the value is over 10K, the Zscaler service provides a rough estimate of the total record count to optimize response times.",
+            "After the client fetches the last page of results, the totalResults field reflects the precise, final count."
+          ]
+        }
+      ]
+    },
+    "rate-limit": {
+      "statement": "Zscaler SCIM servers have a rate limit of 5 requests per second, and applications should be configured to comply to avoid retries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "scim-api-examples.md",
+          "quotes": [
+            "Zscaler SCIM servers have a rate limit of 5 requests per second."
+          ]
+        }
+      ]
+    },
+    "patch-example": {
+      "statement": "In Zscaler's group PATCH example the body uses the PatchOp message schema with an add operation of a members value and is sent as application/json-patch+json; the server answers 204 No Content, as it does for a user delete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "scim-api-examples.md",
+          "quotes": [
+            "-H \"Content-Type: application/json-patch+json\"",
+            "\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"",
+            "The server responds with 204 - No Content upon successful operation."
+          ],
+          "after": "# Updating a Group With a New Member"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "bulk-limits": {
+      "kind": "data",
+      "title": "Bulk operation limits and request shape",
+      "status": "open",
+      "detail": "The captured articles list POST /Bulk but give no size limit, request example or error behavior, and the SCIM examples article does not cover it. The legacy advice to use Bulk for large first syncs is not backed by a source. The /ServiceProviderConfig response of a tenant, which advertises bulk limits in SCIM, would settle the limits.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ],
+      "blocks": "advice on batching large initial provisioning",
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

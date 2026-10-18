@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "id": "zia.proxy-mode.explicit",
+  "title": "Explicit proxy mode: CONNECT and the PAC file",
+  "aliases": [
+    "explicit proxy",
+    "connect request",
+    "connect host header",
+    "pac explicit mode",
+    "explicit mode"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.proxy-mode"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.traffic-forwarding.pac"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.criteria"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.authentication.methods"
+    }
+  ],
+  "claims": {
+    "how-it-works": {
+      "statement": "In explicit mode the browser is configured, manually or by a PAC file, to send its traffic directly to a Public Service Edge. For HTTPS it puts the Service Edge's IP address as the destination in the IP header and sends an HTTP CONNECT request to the Service Edge before the SSL handshake; the CONNECT names the requested domain, so the service identifies the destination host immediately.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-proxy-mode.md",
+          "quotes": [
+            "In Explicit mode, a browser is configured to send its traffic directly to a Public Service Edge for Internet & SaaS (ZIA).",
+            "it inserts the Service Edge IP address as the destination IP address in the IP header and sends the HTTP CONNECT method request directly to the Service Edge, before it initiates the SSL handshake.",
+            "allowing the Zscaler service to immediately identify the destination host.",
+            "HTTP 270 CONNECT mail.google.com:443 HTTP/1.1"
+          ]
+        }
+      ]
+    },
+    "pac-function": {
+      "statement": "A PAC file must start with the FindProxyForURL(url, host) function, which decides which URLs, hostnames or IP addresses are redirected to a proxy; a file can return DIRECT for destinations that should bypass the service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.md",
+          "quotes": [
+            "A PAC file must start with the opening function FindProxyForURL(url, host) on the first line. This function identifies which URLs, hostnames, or IP addresses are redirected to a proxy."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "connect-response": {
+      "kind": "semantic",
+      "title": "Service Edge replies to a CONNECT request",
+      "status": "open",
+      "detail": "Unverified legacy statement: The Service Edge answers a permitted CONNECT with 200 Connection established and a blocked one with 403 Forbidden or a Zscaler block page. (The 403 for a block on the CONNECT host header is stated: zia.ssl-inspection.pipeline.) No captured source states it; a lab test would settle it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "explicit-auth-detail": {
+      "kind": "semantic",
+      "title": "Proxy authentication methods and caching in explicit mode",
+      "status": "open",
+      "detail": "Unverified legacy statement: Browsers can be prompted with 407 for Kerberos, NTLM or Basic (Base64, not recommended), or with cookie-based authentication through Surrogate IP, and the browser caches the proxy credential for the session. No captured source states it; a lab test would settle it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

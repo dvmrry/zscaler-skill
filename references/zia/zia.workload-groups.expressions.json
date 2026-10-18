@@ -1,0 +1,386 @@
+{
+  "schema_version": 1,
+  "id": "zia.workload-groups.expressions",
+  "title": "What a workload group expression can contain",
+  "aliases": [
+    "expressionJson",
+    "expression_json",
+    "expressionContainers",
+    "tagContainer",
+    "tagType",
+    "workload group operators",
+    "OPEN_PARENTHESES",
+    "CLOSE_PARENTHESES",
+    "workload tag types",
+    "8 tags per workload group",
+    "Vpc-id attribute",
+    "tag scope",
+    "workload group expression string"
+  ],
+  "binds": [
+    "zia/workload-groups",
+    "zia/workload-groups#expression"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.workload-groups.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.workload-groups"
+    }
+  ],
+  "claims": {
+    "json-nesting": {
+      "statement": "The structured form (`expressionJson`) is a list of `expressionContainers`; each container has a `tagType`, an `operator`, and a `tagContainer`, and the tag container holds a list of `tags` (each a `key` and `value`) plus its own `operator`.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/workloadgroups/workloadgroups.go",
+          "quotes": [
+            "// The workload group expression containing tag types, tags, and their relationships represented in a JSON format.",
+            "ExpressionContainers []ExpressionContainer `json:\"expressionContainers\"`",
+            "TagType string `json:\"tagType,omitempty\"`",
+            "TagContainer TagContainer `json:\"tagContainer\"`",
+            "Tags []Tags `json:\"tags\"`",
+            "Key string `json:\"key,omitempty\"`",
+            "Value string `json:\"value,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "operator-roles": {
+      "statement": "The container-level operator creates the logical relationship among tag types; the tag-container operator combines the tags within one tag type.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/workloadgroups/workloadgroups.go",
+          "quotes": [
+            "// The operator (either AND or OR) used to create logical relationships among tag types",
+            "// The logical operator (either AND or OR) used to combine the tags within a tag type"
+          ]
+        }
+      ]
+    },
+    "console-and-or": {
+      "statement": "In the console, tags of one tag scope and type are joined by an inner AND or OR, and different scopes and types by an outer AND or OR; Show Expression displays the result as a two-dimensional table with a single operator in each row and column.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-workload-groups.md",
+          "quotes": [
+            "Click the Add+ icon within the inner tag expression to configure multiple key-value pairs for the same tag scope and tag type. These values are connected through AND or OR operations.",
+            "Click the Add+ icon in the outer tag expression to configure tags with different tag scopes and tag types that are connected through AND or OR operations.",
+            "This field displays a two-dimensional expression table with a single operator in each row and column."
+          ]
+        }
+      ]
+    },
+    "operator-enum-includes-parentheses": {
+      "statement": "The API contract allows four operator values at both levels: AND, OR, OPEN_PARENTHESES and CLOSE_PARENTHESES, even though the field description says only \"either AND or OR\". The parentheses values are therefore part of the API contract, not a Terraform-only addition.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1workloadGroups/post/responses/200/content/application~1json/schema/properties/expressionJson/properties/expressionContainers/items/properties/operator",
+          "expect": {
+            "description": "The operator (either AND or OR) used to create logical relationships among tag types",
+            "enum": [
+              "AND",
+              "OR",
+              "OPEN_PARENTHESES",
+              "CLOSE_PARENTHESES"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1workloadGroups/post/responses/200/content/application~1json/schema/properties/expressionJson/properties/expressionContainers/items/properties/tagContainer/properties/operator",
+          "expect": {
+            "description": "The logical operator (either AND or OR) used to combine the tags within a tag type",
+            "enum": [
+              "AND",
+              "OR",
+              "OPEN_PARENTHESES",
+              "CLOSE_PARENTHESES"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_workload_groups.go",
+          "quotes": [
+            "\"OPEN_PARENTHESES\",",
+            "\"CLOSE_PARENTHESES\","
+          ],
+          "after": "\"tag_type\": {"
+        }
+      ]
+    },
+    "tag-type-enum": {
+      "statement": "The API contract's `tagType` values are ANY, VPC, SUBNET, VM, ENI and ATTR.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1workloadGroups/post/responses/200/content/application~1json/schema/properties/expressionJson/properties/expressionContainers/items/properties/tagType",
+          "expect": {
+            "description": "The tag type selected from a predefined list",
+            "enum": [
+              "ANY",
+              "VPC",
+              "SUBNET",
+              "VM",
+              "ENI",
+              "ATTR"
+            ],
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "console-tag-types": {
+      "statement": "The console names four resource tag types (Network Interface, Subnet, VM, VPC) plus Attribute as a fifth tag type, and a Tag Scope of Cloud-Defined, User-Defined or Any. Cloud-Defined scope selects Attribute automatically; User-Defined offers the four resource types.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workload-groups.md",
+          "quotes": [
+            "Zscaler supports the following tag types or resources:",
+            "- Network Interface\n- Subnet\n- VM\n- VPC",
+            "Zscaler also provides an Attribute as a tag type."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-workload-groups.md",
+          "quotes": [
+            "- Cloud-Defined: This scope is an attribute defined by the cloud service provider (CSP). For example, Vpc-id is defined by the CSP.",
+            "- User-Defined: This scope is a resource tagged with a key-value pair by the user configuration of the resource.",
+            "- Any: This scope is a resource that can be either cloud-defined or user-defined.",
+            "For cloud-defined tag scope, the default Attribute tag type is automatically selected."
+          ]
+        }
+      ]
+    },
+    "enum-name-mapping": {
+      "statement": "The API values VPC, SUBNET, VM, ENI and ATTR correspond to the console's VPC, Subnet, VM, Network Interface and Attribute tag types.",
+      "tier": "B",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "conditions": "Derived from name correspondence between the contract enum and the console tag types; no source states the mapping, and how ANY relates to the console's Any scope is not stated.",
+      "gaps": [
+        "any-tag-type-meaning"
+      ],
+      "derived_from": [
+        "zia.workload-groups.expressions:tag-type-enum",
+        "zia.workload-groups.expressions:console-tag-types"
+      ]
+    },
+    "attribute-list": {
+      "statement": "The attributes a cloud provider defines, selectable under the Attribute tag type, are GroupId, GroupName, ImageId, PlatformDetails, Vpc-id and IamInstanceProfile-Arn.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workload-groups.md",
+          "quotes": [
+            "- GroupId: The ID of the security group assigned to the attached Elastic Network Interface (ENI).",
+            "- GroupName: The name of the security group assigned to the attached ENI.",
+            "- ImageId: The ID of the image used to launch the instance.",
+            "- PlatformDetails: The platform.",
+            "- Vpc-id: The ID of the virtual private cloud (VPC) that ENI runs in.",
+            "- IamInstanceProfile-Arn: The Amazon Resource Name (ARN) of the IAM instance profile."
+          ]
+        }
+      ]
+    },
+    "vpc-id-two-meanings": {
+      "statement": "Vpc-id as an Attribute needs the VPC ID given by AWS as the value, but Vpc-id as a key under the VPC resource tag type accepts any user-defined value.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workload-groups.md",
+          "quotes": [
+            "then you must add the VPC ID given by AWS as the tag value. However, if you select the VPC resource tag type instead of Attribute, and then select Vpc-id as the tag key, you can add any user-defined tag value for the Vpc-id key."
+          ]
+        }
+      ]
+    },
+    "hierarchical-inheritance": {
+      "statement": "A workload inherits the tags of its VPC, subnet, VM and network interface. When the same key appears at more than one level (for example APP on both VPC and VM), choosing the VM tag type selects the VM's value.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workload-groups.md",
+          "quotes": [
+            "Workload groups are created using hierarchical scopes, meaning each workload inherits the tags (key-value pair) from the VPC, subnet, VM, and Network Interface resources.",
+            "Then, specify the VM as the tag type for the workload. The tag APP=Bastion is only considered based on the hierarchical scopes."
+          ]
+        }
+      ]
+    },
+    "max-8-tags": {
+      "statement": "A workload group can hold at most 8 key-value pairs in total, regardless of how many tag types are used; this is a limit on tags per group, separate from the number of groups per rule.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/workloadgroups/workloadgroups.go",
+          "quotes": [
+            "// Note: A maximum of 8 tags can be added to a workload group, irrespective of the number of tag types present."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workload-groups.md",
+          "quotes": [
+            "You can use a maximum of 8 key-value pairs to build the expression for a workload group."
+          ]
+        }
+      ]
+    },
+    "example": {
+      "statement": "A documented expression is VM[(Environment = Prod) OR (SecurityGroup = Load Balancer)] AND VPC[(Region = Europe)]; the first line of each workload group expression is always defined by a tag type followed by suitable key-value pairs.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workload-groups.md",
+          "quotes": [
+            "VM[(Environment = Prod) OR (SecurityGroup = Load Balancer)] AND VPC[(Region = Europe)]",
+            "The first line of each workload group expression is always defined by a tag type followed by suitable key-value pairs."
+          ]
+        }
+      ]
+    },
+    "string-and-json-fields": {
+      "statement": "The API carries the expression twice: `expression` as a string and `expressionJson` as the structured form. Terraform's resource exposes `expression_json` for writing, while its data source additionally surfaces `expression`.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups",
+        "zia/workload-groups#expression"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1workloadGroups/post/responses/200/content/application~1json/schema/properties/expression",
+          "expect": {
+            "description": "The workload group expression containing tag types, tags, and their relationships.",
+            "type": "string"
+          }
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_workload_groups.go",
+          "quotes": [
+            "\"expression\": {"
+          ],
+          "after": "\"description\": {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_workload_groups.go",
+          "quotes": [
+            "\"expression_json\": {"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "runtime-evaluation": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-69"
+      ],
+      "title": "How ZIA evaluates an expression against live workload traffic",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "answering whether a given workload matches a group when an expression mixes AND and OR across tag types",
+      "detail": "The help describes the expression as a two-dimensional table with one operator per row and column, and gives one example, but no source states evaluation order, precedence between inner and outer operators, or how traffic from an untagged workload is treated."
+    },
+    "parentheses-semantics": {
+      "kind": "semantic",
+      "title": "What OPEN_PARENTHESES and CLOSE_PARENTHESES do",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "writing expressions with explicit grouping through the API",
+      "detail": "The contract and Terraform both accept the parentheses operators, but the field descriptions name only AND and OR and the console help describes only AND and OR. No source says how parentheses are used or whether the console produces them."
+    },
+    "expression-string-sync": {
+      "kind": "semantic",
+      "title": "Whether the expression string follows expressionJson on write",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "relying on `expression` after writing only `expressionJson`, or the reverse",
+      "detail": "Terraform writes only the structured form, but no source states whether ZIA regenerates the string, rejects a mismatch, or treats the string as canonical."
+    },
+    "any-tag-type-meaning": {
+      "kind": "semantic",
+      "title": "What the ANY tag type matches and how it relates to the console's Any scope",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "stating the meaning of `tagType: ANY` rather than only listing it",
+      "detail": "Unverified legacy statement: \"ANY | Matches any tag type\". The console describes an Any tag scope as cloud-defined or user-defined, and says that with tag type Any tags can be added from any resource, but no source ties that to the API value."
+    }
+  }
+}

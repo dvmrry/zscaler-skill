@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "id": "zia.rule-labels.constraints",
+  "title": "ZIA rule label limits and constraints",
+  "aliases": [
+    "rule label name length",
+    "rule label description length",
+    "rule label limit",
+    "max rule labels",
+    "duplicate label names",
+    "rule label name unique",
+    "1024 labels"
+  ],
+  "binds": [
+    "zia/rule-labels#name",
+    "zia/rule-labels#description"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.rule-labels"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.rule-labels.rule-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.rule-labels.api-surface"
+    }
+  ],
+  "claims": {
+    "tenant-limit-listed": {
+      "statement": "The Ranges & Limitations page lists \"Rule Labels\" at 1,024 labels, in the group of limits headed \"All Policy Rule Types\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Rule Labels | 1,024 labels |  |"
+          ]
+        }
+      ]
+    },
+    "terraform-length-validation": {
+      "statement": "The Terraform provider rejects a label `name` longer than 255 characters and a `description` longer than 10240 characters before calling the API.",
+      "tier": "A",
+      "binds": [
+        "zia/rule-labels#name",
+        "zia/rule-labels#description"
+      ],
+      "conditions": "Client-side validation only; the server's own limits are not shown.",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_rule_labels.go",
+          "quotes": [
+            "ValidateFunc: validation.StringLenBetween(0, 255),",
+            "ValidateFunc:     validation.StringLenBetween(0, 10240),"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "name-required": {
+      "summary": "The provider documentation calls `name` required while the provider schema marks it optional.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_rule_labels.md",
+            "quotes": [
+              "* `name` - (Required) The name of the devices to be created."
+            ]
+          },
+          "says": "name is required."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/resource_zia_rule_labels.go",
+            "after": "\"name\": {",
+            "quotes": [
+              "Optional: true, ValidateFunc: validation.StringLenBetween(0, 255),"
+            ]
+          },
+          "says": "The schema entry for name sets Optional with a length check, not Required."
+        }
+      ],
+      "impact": "A configuration without `name` may pass Terraform validation and fail at the API, or create an unnamed label; the contract's own requirement is not stated in the pinned OpenAPI (the create operation has no request body schema)."
+    }
+  },
+  "gaps": {
+    "name-charset": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-27"
+      ],
+      "title": "Allowed characters in a rule label name",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "generating label names from ticket IDs or free text without rejections",
+      "detail": "No registered source restricts the character set. The only length limit seen is the provider's 255 (claim terraform-length-validation); the server's own limit is unverified."
+    },
+    "name-uniqueness": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-28"
+      ],
+      "title": "Whether label names must be unique in a tenant",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "relying on name lookups, imports by name and Terraform data sources returning one label",
+      "detail": "No source says the API rejects a duplicate name. The Go lookup by name returns the first case-insensitive match (see [[zia.rule-labels.api-surface:go-name-lookup]]), so duplicates would not be reported by that client. Create two labels with the same name in a scratch tenant."
+    },
+    "description-max-length": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-29"
+      ],
+      "title": "Server-side maximum length of a label description",
+      "status": "partial",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating the true limit rather than the provider's",
+      "detail": "The provider validates up to 10240 characters (claim terraform-length-validation); the Ranges & Limitations capture states no description length. Whether the server enforces the same figure is untested."
+    },
+    "tenant-cap": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-32"
+      ],
+      "title": "Whether the 1,024 Rule Labels figure is a tenant-wide cap",
+      "status": "partial",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "capacity planning for labels used as ticket or wave tags",
+      "detail": "The limits page lists 1,024 labels (claim tenant-limit-listed) but its row is not worded per rule or per tenant, and sits among per-rule limits. Whether it caps labels per tenant, labels per rule, or both is not stated."
+    },
+    "per-rule-label-cap": {
+      "kind": "semantic",
+      "title": "Maximum labels on one rule, and rules per label",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "stacking several labels on a rule",
+      "detail": "Unverified legacy statement: \"No documented cap on the number of labels that can be assigned to a single rule, or the number of rules a single label can reference, was found.\" The only documented limit found is traffic capture's ([[zia.rule-labels.rule-types:traffic-capture-one-label]]); the 1,024 figure above may be the per-rule number (gap tenant-cap)."
+    }
+  }
+}

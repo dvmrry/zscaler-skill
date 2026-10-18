@@ -1,0 +1,281 @@
+{
+  "schema_version": 1,
+  "id": "zia.virtual-service-edge.clusters",
+  "title": "The Virtual Service Edge cluster: limits, object, build order and Location binding",
+  "aliases": [
+    "vse cluster",
+    "virtual service edge cluster",
+    "vse cluster ip",
+    "vse standalone",
+    "vse cluster size",
+    "vse cluster subscription",
+    "vse ipsec local termination",
+    "vse remove node",
+    "disable vse cluster"
+  ],
+  "binds": [
+    "zia/vzen-clusters",
+    "zia/vzen-nodes"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.virtual-service-edge.platforms"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.load-balancing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.network-requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.upgrades"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.locations.model"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.multi-step-writes"
+    }
+  ],
+  "claims": {
+    "production-needs-cluster": {
+      "statement": "For production, a Virtual Service Edge is deployed in a cluster. A cluster requires at least two Virtual Service Edges for active-active redundancy and load balancing, which provides N+1 redundancy for production.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "For production environments, Virtual Service Edge is deployed in a cluster. A cluster requires at least two Virtual Service Edges for active-active redundancy and load balancing."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "A Virtual Service Edge cluster must contain at least two Virtual Service Edge instances to provide n+1 redundancy for production."
+          ]
+        }
+      ]
+    },
+    "max-16-instances": {
+      "statement": "A Virtual Service Edge cluster can contain a maximum of 16 Virtual Service Edge instances.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "Each Virtual Service Edge cluster can contain a maximum of 16 Virtual Service Edge instances."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "| Maximum VMs per Cluster | 16 | - | - | 16 | - |"
+          ]
+        }
+      ]
+    },
+    "subscription-per-instance": {
+      "statement": "Each Virtual Service Edge in a cluster requires a separate Virtual Service Edge subscription, and all Virtual Service Edges in a cluster must have the Large subscription type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "Each Virtual Service Edge in a cluster requires a separate Virtual Service Edge subscription."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "Additionally, ensure that all Virtual Service Edges in a cluster have the Large subscription type."
+          ]
+        }
+      ]
+    },
+    "standalone-for-evaluation-only": {
+      "statement": "A Virtual Service Edge in standalone mode, which does not support failover, is for evaluation with test traffic. Zscaler does not support standalone Virtual Service Edges for production environments with live user traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "For evaluation purposes with test traffic, you can configure a Virtual Service Edge in standalone mode, which does not support failover.",
+            "Zscaler does not support standalone Virtual Service Edges for production environments with live user traffic."
+          ]
+        }
+      ]
+    },
+    "cluster-fields": {
+      "statement": "A cluster is defined by a name, an enabled or disabled status (enabled by default), the Virtual Service Edge instances it includes, IPSec Local Termination, a cluster IP address, a subnet mask and a default gateway.",
+      "tier": "A",
+      "binds": [
+        "zia/vzen-clusters#status",
+        "zia/vzen-clusters#ipAddress",
+        "zia/vzen-clusters#virtualZenNodes"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "Status: Choose to enable or disable the Virtual Service Edge cluster. The default status is Enabled.",
+            "Virtual Service Edges: Select the Virtual Service Edge instances you want to include in the cluster.",
+            "Subnet Mask: Enter the corresponding subnet mask.",
+            "Default Gateway: Enter the IP address of the default gateway to the internet."
+          ]
+        }
+      ]
+    },
+    "cluster-ip-same-vlan": {
+      "statement": "The cluster IP address provides fault tolerance and listens for user traffic; it does not explicitly get an interface address and must be in the same VLAN as the proxy and load balancer IP addresses. The cluster, proxy, load balancer and gateway addresses must be in the same subnet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "The cluster IP address must be in the same VLAN as the proxy and load balancer IP addresses.",
+            "Ensure that the Virtual Service Edge cluster, proxy, load balancer, and gateway IP addresses are in the same subnet."
+          ]
+        }
+      ]
+    },
+    "ipsec-local-termination": {
+      "statement": "IPSec Local Termination, off by default, terminates client IPSec traffic at the selected Virtual Service Edge instances of the cluster. For an instance in Cluster deployment mode the instance-level option is read-only and shows the actual status; it is changed on the Virtual Service Edge Clusters page.",
+      "tier": "A",
+      "binds": [
+        "zia/vzen-clusters#ipSecEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "Enable this option to terminate IPSec traffic from the client at selected Virtual Service Edge instances for the Virtual Service Edge cluster. By default, this option is disabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-virtual-service-edge-instances-internet-saas.md",
+          "quotes": [
+            "If you select the deployment mode as Cluster, this option becomes read-only and displays the actual status of IPSec Local Termination of the Virtual Service Edge in the cluster."
+          ]
+        }
+      ]
+    },
+    "build-order": {
+      "statement": "A cluster is built by creating at least two Virtual Service Edge instances and downloading each one's SSL certificate (each VM needs its own unique certificate), downloading the VMs, adding the cluster, binding it to a Location, adding a Firewall Filtering rule that allows the Virtual Service Edge addresses, and then configuring each VM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "If you are configuring a Virtual Service Edge cluster, you must create at least two Virtual Service Edge instances and download their respective SSL certificates.",
+            "Each Virtual Service Edge VM requires a unique SSL certificate which can be downloaded from the Zscaler Admin Console.",
+            "- 5. Bind the Virtual Service Edge Cluster to a Location",
+            "- 6. Create a Firewall Filtering Rule to Bypass Virtual Service Edge IP Addresses"
+          ]
+        }
+      ]
+    },
+    "bind-to-location": {
+      "statement": "A Virtual Service Edge cluster, or a standalone Virtual Service Edge, is bound to a Location so the organization can enable authentication, firewall, SSL/TLS inspection and location-level policies; the service associates the traffic the Virtual Service Edge receives with that Location and applies its policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "Add a location and bind the Virtual Service Edge cluster (or standalone Virtual Service Edge) to it, so your organization can enable features such as authentication, firewall, SSL/TLS inspection, and location-level policies.",
+            "The service associates the traffic that it receives on the Virtual Service Edge with its location and applies the features and policies configured for the location."
+          ]
+        }
+      ]
+    },
+    "health-probes-icmp-http": {
+      "statement": "The load balancer monitors each Virtual Service Edge with ICMP and HTTP probes to monitor its health and ensure traffic is distributed appropriately.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "Zscaler performs ICMP and HTTP monitoring from the LB to the Virtual Service Edge to monitor the health of the Virtual Service Edge and ensure that traffic is distributed appropriately."
+          ]
+        }
+      ]
+    },
+    "unhealthy-member-removed": {
+      "statement": "A Virtual Service Edge that fails the load balancer's health probes stops receiving traffic and the remaining members absorb the load.",
+      "tier": "B",
+      "conditions": "The Virtual Service Edge pages say the probes exist to distribute traffic appropriately but do not state that a failing member is removed from the pool. Removal is documented for the hardware Private Service Edge cluster, which shares the load-balancer design; the inference is by analogy.",
+      "derived_from": [
+        "health-probes-icmp-http",
+        "zia.private-service-edge.cluster-architecture:service-edges-active-active"
+      ]
+    }
+  },
+  "gaps": {
+    "cluster-vs-vm-settings": {
+      "kind": "semantic",
+      "title": "Which settings are cluster-scoped and which are per VM",
+      "status": "open",
+      "former_ids": [
+        "zia-36"
+      ],
+      "detail": "Unverified legacy statement: 'Settings that are cluster-scoped ... include auth policy, forwarding policy, and log forwarding. The VSE VM itself has VM-scoped items such as NTP server configuration ... DNS server configuration ... and network interface assignments.' The legacy doc sourced this to the hardware PSE page by analogy. The sources show per-VM network configuration done on the VM (DNS, management IP, gateway, hostname) and policy bound through the Location, but no page enumerates the cluster-scoped and VM-scoped boundary.",
+      "resolves_with": [
+        "operator-experience",
+        "source-read"
+      ]
+    },
+    "removal-and-disable-behavior": {
+      "kind": "semantic",
+      "title": "What removing a VM from, or disabling, a cluster does to live traffic",
+      "status": "open",
+      "former_ids": [
+        "zia-34"
+      ],
+      "detail": "Unverified legacy statements: 'removing a VM from the cluster object redirects traffic away from that VM' and 'the status field can be set to disabled, which stops the cluster from accepting traffic, without deleting it. This is the safe path for a planned maintenance window on the entire cluster.' No captured page describes what happens to in-flight connections on removal or on disabling, whether sessions drain, or that disabling is a safe maintenance path. The SDK delete path first detaches all nodes, see [[zia.terraform.multi-step-writes]].",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    },
+    "public-cloud-cluster-object": {
+      "kind": "semantic",
+      "title": "Whether the cluster object means anything on Azure, AWS and GCP",
+      "status": "open",
+      "former_ids": [
+        "zia-38"
+      ],
+      "detail": "On the public cloud platforms the Deployment Mode cannot be Cluster and native clustering is unsupported ([[zia.virtual-service-edge.platforms]]), yet the Virtual Service Edge Clusters page and API exist for every tenant. Whether the cluster object there is only a grouping, or carries behavior beyond the cloud load balancer, is not stated.",
+      "resolves_with": [
+        "operator-experience",
+        "source-read"
+      ]
+    }
+  }
+}

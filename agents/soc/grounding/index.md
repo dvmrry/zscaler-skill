@@ -94,7 +94,7 @@ When instructions are ambiguous, bias toward:
 ### `coverage` or `activity`
 
 - [`references/shared/siem-log-mapping.md`](../../../references/shared/siem-log-mapping.md)
-- [`references/zia/audit-logs.md`](../../../references/zia/audit-logs.md)
+- [`zia.audit-logs`](kb:zia.audit-logs)
 - [`references/zpa/audit-logs.md`](../../../references/zpa/audit-logs.md)
 - [`references/zwa/audit-logs.md`](../../../references/zwa/audit-logs.md)
 

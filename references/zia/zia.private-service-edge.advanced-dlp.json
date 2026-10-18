@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "id": "zia.private-service-edge.advanced-dlp",
+  "title": "Advanced DLP Private Service Edge for EDM and IDM",
+  "aliases": [
+    "advanced dlp private service edge",
+    "advanced dlp pse",
+    "edm pse",
+    "idm pse",
+    "exact data match on prem",
+    "indexed data match on prem"
+  ],
+  "binds": [],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.engines"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.private-service-edge.cluster-architecture"
+    }
+  ],
+  "claims": {
+    "complementary-role": {
+      "statement": "The Advanced DLP Private Service Edge is a complementary, dedicated hardware role within the Zscaler cloud that provides on-premises support for Private Service Edge customers who also need Advanced DLP features such as Exact Data Match (EDM) and Indexed Data Match (IDM).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-advanced-dlp-private-service-edge-internet-saas.md",
+          "quotes": [
+            "is a complementary, dedicated hardware role within the Zscaler cloud that can be deployed to provide on-premises support for Private Service Edge customers who also require Advanced DLP product features, such as Exact Data Match (EDM) and Indexed Data Match (IDM)."
+          ]
+        }
+      ]
+    },
+    "alongside-standard-cluster": {
+      "statement": "An Advanced DLP Private Service Edge cluster must be deployed alongside a standard Private Service Edge cluster; it is installed in tandem with standard Private Service Edges and dedicated to the organization's EDM and IDM workload traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-advanced-dlp-private-service-edge-internet-saas.md",
+          "quotes": [
+            "An Advanced DLP Private Service Edge cluster must be deployed alongside a standard Private Service Edge cluster.",
+            "are dedicated to the organization"
+          ]
+        }
+      ]
+    },
+    "traffic-path": {
+      "statement": "Customer proxy traffic is still directed to the standard Private Service Edge cluster VIP addresses; if required, that cluster forwards the traffic to the Advanced DLP Private Service Edge cluster for additional processing, evaluation and trigger response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-advanced-dlp-private-service-edge-internet-saas.md",
+          "quotes": [
+            "All proxy traffic forwarded by the customer is still directed toward the standard Private Service Edge cluster VIP addresses.",
+            "If required, the Private Service Edge cluster then forwards the traffic to the Advanced DLP Private Service Edge cluster for additional processing, evaluation, and trigger response."
+          ]
+        }
+      ]
+    },
+    "block-trigger": {
+      "statement": "If the Advanced DLP evaluation returns a block trigger, the packet flow stops at that point and the outbound traffic is blocked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-advanced-dlp-private-service-edge-internet-saas.md",
+          "quotes": [
+            "If the DLP evaluation returns a ‘block’ trigger, the packet flow stops here and the outbound traffic is blocked."
+          ],
+          "after": "Advanced DLP Private Service Edge 5 (Dedicated LB) & Private Service Edge 5 (Dedicated LB)"
+        }
+      ]
+    },
+    "models-and-footprint": {
+      "statement": "The description table lists two models: Advanced DLP Private Service Edge 3 (3 instances, integrated LB, 1GE, sized for 1 Gbps download) and Advanced DLP Private Service Edge 5 (5 instances, integrated LB, 10GE, sized for 2 Gbps download); the sizing tables also include a Private Service Edge 5 with Dedicated LB (6 instances, up to 4 LBs, 2 to 4 Advanced DLP Private Service Edges per cluster). The cluster is typically a 1:1 match with the standard Private Service Edge cluster footprint, with a minimum of two servers and no standalone deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-advanced-dlp-private-service-edge-internet-saas.md",
+          "quotes": [
+            "| Advanced DLP Private Service Edge 3 | An annual subscription to Advanced DLP Private Service Edge with 3 Advanced DLP Service Edge instances, an integrated load balancer, and a 1 GE network interface. | 1 Gbps |",
+            "| Advanced DLP Private Service Edge 5 | An annual subscription to Advanced DLP Private Service Edge with 5 Advanced DLP Service Edge instances, an integrated load balancer, and a 10 GE network interface. | 2 Gbps |",
+            "| Number of Advanced DLP Service Edge Instances | 3 | 5 | 6 |",
+            "| Number of Load Balancers | 1 | 1 | Up to 4 |",
+            "| Advanced DLP Private Service Edge per Cluster | 2 | 2 | 2–4 |",
+            "The Advanced DLP Private Service Edge cluster is typically a 1:1 match with the Private Service Edge cluster footprint.",
+            "Zscaler does not support standalone Private Service Edge deployments of any kind."
+          ]
+        }
+      ]
+    },
+    "ipv4-only": {
+      "statement": "Advanced DLP Private Service Edge addresses are public IPv4 only; with RFC 1918 addressing and NAT they must have 1:1 static NAT to a public IPv4 address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-advanced-dlp-private-service-edge-internet-saas.md",
+          "quotes": [
+            "All the IP addresses needed must be public IPv4 addresses only."
+          ]
+        }
+      ]
+    },
+    "placement": {
+      "statement": "An Advanced DLP Private Service Edge cluster can be deployed wherever the standard cluster resides: inside the DMZ (recommended), outside the corporate firewall, or behind the network firewall (which requires Zscaler approval). Behind a firewall or ACL device, the rules published at config.Zscaler.com/<Zscaler Cloud Name>/zia-private-dlp apply.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-advanced-dlp-private-service-edge-internet-saas.md",
+          "quotes": [
+            "- Behind the network firewall (This deployment method requires approval from Zscaler)",
+            "you must implement rules found on config.Zscaler.com/<Zscaler Cloud Name>/zia-private-dlp."
+          ]
+        }
+      ]
+    }
+  }
+}

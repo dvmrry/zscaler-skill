@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.pac",
+  "title": "PAC file forwarding: limits, versions and what it cannot cover",
+  "aliases": [
+    "pac file",
+    "hosted pac",
+    "pac limits",
+    "pac versions",
+    "last known good",
+    "pac vs zcc",
+    "explicit proxy pac",
+    "kerberos pac"
+  ],
+  "binds": [
+    "zia/pac-files"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.traffic-forwarding.methods"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.proxy-mode.explicit"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.authentication.location-enforcement"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.forwarding-control.proxy-ports"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.model"
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "A PAC file is a text file that directs the browser to forward traffic to a Public Service Edge; it can exclude destinations (for example intranet sites) so they go direct, and it can be installed per user to cover them outside the corporate network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-traffic-forwarding-methods.md",
+          "quotes": [
+            "A PAC file is a text file that directs the browser to forward traffic to a Public Service Edge.",
+            "Using PAC files allows you to set exceptions for forwarding your traffic, such as excluding intranet corporate sites from the Zscaler service.",
+            "You can install a PAC file for each of your users to ensure coverage outside the corporate network."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/pac-files"
+      ]
+    },
+    "default-files": {
+      "statement": "Zscaler hosts four default PAC files (recommended.pac, proxy.pac, mobile_proxy.pac, kerberos.pac) that forward all browser traffic to the nearest Public Service Edge. They cannot be edited but can be copied into custom files, and the Kerberos file is recommended when Kerberos authentication is deployed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-hosted-pac-files.md",
+          "quotes": [
+            "The Zscaler service hosts 4 default PAC files: recommended.pac, proxy.pac, mobile_proxy.pac, and kerberos.pac.",
+            "The default PAC files are non-editable, but you can copy them to create and build your custom PAC files.",
+            "Zscaler recommends using the Kerberos PAC file if you are deploying Kerberos authentication."
+          ]
+        }
+      ]
+    },
+    "limits": {
+      "statement": "By default an organization can have 256 PAC files (Support can raise this to 1,024), each up to 256 KB (Support can raise it to 2 MB), with up to 10 versions per file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-custom-pac-file-forward-traffic-zia.md",
+          "quotes": [
+            "The number of PAC files allowed per organization is 256. Contact Zscaler Support to increase the limit of allowed PAC files to 1,024.",
+            "The size limit of each PAC file that you can upload is 256 KB. Contact Zscaler Support to increase the PAC file size limit to a maximum of 2 MB.",
+            "Zscaler allows you to host up to 10 versions of your custom PAC files at a time in the Zscaler Admin Console."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/pac-files"
+      ]
+    },
+    "version-states": {
+      "statement": "A PAC version can be deployed, staged or marked last known good; only one version can be staged at a time and it is served from a different hosted URL than the deployed one, and deployed, staged or last-known-good versions cannot be deleted. The API actions are DEPLOY, STAGE, LKG, UNSTAGE and REMOVE_LKG.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-custom-pac-file-forward-traffic-zia.md",
+          "quotes": [
+            "You can stage only one PAC file version for deployment at a time, and the hosted URL for that PAC file is different from the deployed version.",
+            "The versions that are tagged as Deployed, Staged for Deployment, or Last Known Good cannot be deleted."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1pacFiles~1{pacId}~1version~1{pacVersion}~1action~1{pacVersionAction}/put/parameters/[name=pacVersionAction]",
+          "expect": {
+            "description": "Specifies the action that must be performed on the PAC file version"
+          }
+        }
+      ]
+    },
+    "validation": {
+      "statement": "The console checks PAC syntax with Verify PAC File but still lets a file with errors be saved; the Python SDK validates content before it adds a file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-custom-pac-file-forward-traffic-zia.md",
+          "quotes": [
+            "You can correct the PAC file and click Verify PAC File again to ensure that there are no errors, or you can save the PAC file with errors."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/pac_files.py",
+          "quotes": [
+            "# Validate the PAC file content before proceeding"
+          ]
+        }
+      ]
+    },
+    "changes-immediate": {
+      "statement": "PAC file changes immediately affect the organization's traffic, so they should be verified and applied in a maintenance window, with a copy of the current file saved first. Staging gives a test version on its own URL; it is not a gradual rollout to users on the deployed URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-custom-pac-file-forward-traffic-zia.md",
+          "quotes": [
+            "PAC file changes immediately impact your organization's traffic.",
+            "Zscaler highly recommends that you save a copy of your current PAC file before applying any changes.",
+            "Click Save & Deploy to deploy the PAC file with immediate effect."
+          ]
+        }
+      ],
+      "conditions": "The first sentence is stated; that staging is not a canary follows from the staged version being served from a different hosted URL (claim version-states)."
+    },
+    "over-tunnel": {
+      "statement": "PAC-forwarded traffic that goes through a GRE or IPSec tunnel is subject to the tunnel's throughput limit. Government clouds support PAC files only when the proxy traffic is sent through a GRE or IPSec tunnel, not directly over the internet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-traffic-forwarding-methods.md",
+          "quotes": [
+            "When PAC file-based traffic is forwarded through a GRE or IPSec tunnel, the throughput restriction of the tunnel applies.",
+            "Zscaler Government Clouds support PAC files only when the proxy traffic is sent through GRE or IPSec tunnels."
+          ]
+        }
+      ]
+    },
+    "benefits": {
+      "statement": "PAC files are supported by all major browsers, protect users on and off the corporate network, can be enforced through Active Directory Group Policy for Internet Explorer settings, make exclusions easy, and allow a location when traffic comes from a static public IP; Surrogate IP works if the router inserts XFF headers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-traffic-forwarding-methods.md",
+          "quotes": [
+            "All major browsers support PAC files.",
+            "Users on and off the corporate network are protected by the service.",
+            "Microsoft Internet Explorer PAC settings can be enforced organization-wide using Microsoft Active Directory Group Policies (GPO).",
+            "You can create locations if traffic is coming from a static public IP address.",
+            "If your router can use XFF headers, and it is enabled at your location, you can leverage the Surrogate IP feature."
+          ]
+        }
+      ]
+    },
+    "limitations": {
+      "statement": "PAC forwarding cannot use features that need a tunnel (Bandwidth Control and Firewall), covers only applications that support PAC files, can be bypassed by end users disabling the file, loses internal IP visibility and sublocation policy unless XFF headers are inserted (group and user policy still apply), and can affect SLAs and performance without GRE or IPSec.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-traffic-forwarding-methods.md",
+          "quotes": [
+            "You are not able to leverage some of the features of the Zscaler platform, such as Bandwidth Control and Firewall, because you need tunneling to use them.",
+            "End users can bypass the Zscaler service by disabling PAC files.",
+            "Unless XFF headers are inserted, Zscaler loses internal IP address visibility, and customers are not able to leverage the sublocation feature.",
+            "The service can apply group and user policies, but not sublocation policies.",
+            "SLAs and performance can be impacted if you don't implement GRE or IPSec tunnels."
+          ]
+        }
+      ]
+    },
+    "unknown-location-limits": {
+      "statement": "When PAC-forwarded traffic arrives from an unknown location, features such as the firewall, sublocations and Surrogate IP are unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-traffic-forwarding.md",
+          "quotes": [
+            "When user traffic is forwarded from unknown locations with a PAC file, some features of the Zscaler platform are unavailable, such as Firewall, sublocations, and Surrogate IP."
+          ],
+          "after": "Using Tunneling, PAC Files, and Surrogate IP"
+        }
+      ]
+    },
+    "dedicated-port-variables": {
+      "statement": "When PAC files send traffic to a dedicated proxy port, the file must use the ${GATEWAY_FX} and ${SECONDARY_GATEWAY_FX} variables and not name specific Public Service Edges by host name or IP, so that failover and nearest-edge selection keep working.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-traffic-forwarding.md",
+          "quotes": [
+            "do not specify specific Public Service Edges for Internet & SaaS (ZIA) by host names or IP addresses in the PAC file to prevent failover.",
+            "you must use the variables ${GATEWAY_FX} and ${SECONDARY_GATEWAY_FX} to send web traffic to Public Service Edges closest to the user."
+          ]
+        }
+      ]
+    },
+    "terraform-resource": {
+      "statement": "The Terraform provider has a zia_pac_files resource and data source.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/provider.go",
+          "quotes": [
+            "\"zia_pac_files\": resourcePacFiles(),",
+            "\"zia_pac_files\": dataSourcePacFiles(),"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "default-pac-url": {
+      "kind": "semantic",
+      "title": "URL of the default hosted PAC file",
+      "status": "open",
+      "detail": "Unverified legacy statement: ZIA provides a hosted PAC file service at gateway.<cloud>.net/proxy.pac (the default PAC). No captured source states it; Zscaler Support or a vendor article would settle it.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "client-cache": {
+      "kind": "semantic",
+      "title": "When clients pick up a changed PAC file",
+      "status": "open",
+      "detail": "Unverified legacy statement: PAC file changes take effect on the client's next PAC fetch cycle; browsers cache PAC files and the cache TTL varies by OS and browser. No captured source states it; a lab test would settle it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "non-web-traffic": {
+      "kind": "semantic",
+      "title": "What PAC forwarding carries beyond HTTP and HTTPS",
+      "status": "open",
+      "detail": "Unverified legacy statement: Explicit proxying is TCP-only, with no UDP (RTP, QUIC, DNS-over-UDP) and no FTP, SSH or SMTP redirection. No captured source states it; a lab test would settle it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "auth-challenge-behavior": {
+      "kind": "semantic",
+      "title": "Client behavior when a PAC-forwarded location enforces authentication",
+      "status": "open",
+      "detail": "Unverified legacy statement: With Enforce Authentication on, browsers get a 407; Kerberos and NTLM work transparently in IE and Edge on domain-joined Windows, Chrome and Firefox on non-domain-joined machines prompt interactively, and non-browser applications fail silently or loop on 407; deploying Client Connector removes the problem. No captured source states it; operator experience or a tenant observation would settle it.",
+      "resolves_with": [
+        "operator-experience"
+      ]
+    },
+    "delivery-methods": {
+      "kind": "semantic",
+      "title": "PAC delivery by WPAD, MDM and manual settings",
+      "status": "open",
+      "detail": "Unverified legacy statement: The PAC file can be delivered by WPAD (a DNS record), by MDM profile or by manual proxy settings, and Chrome honors Internet Explorer settings on Windows. No captured source states it; operator experience or a tenant observation would settle it.",
+      "resolves_with": [
+        "operator-experience"
+      ]
+    },
+    "location-not-required": {
+      "kind": "semantic",
+      "title": "PAC traffic reaching ZIA with no configured Location",
+      "status": "open",
+      "detail": "Unverified legacy statement: PAC-forwarded traffic can reach ZIA without a pre-configured Location if it comes from a known-authenticated user, with reduced reporting granularity. No captured source states it; Zscaler Support or a vendor article would settle it.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    }
+  }
+}

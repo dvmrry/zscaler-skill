@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "id": "zia.ad-integration.identity-objects",
+  "title": "ZIA users, groups and departments: shape and limits",
+  "aliases": [
+    "128 groups per user",
+    "group limit",
+    "user can belong to one department",
+    "department limit",
+    "user id format",
+    "140K groups",
+    "1400K users",
+    "name length limits"
+  ],
+  "binds": [
+    "zia/users",
+    "zia/groups",
+    "zia/departments"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.ad-integration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.attribute-mapping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.groups-and-departments"
+    }
+  ],
+  "claims": {
+    "user-id-form": {
+      "statement": "A user ID must be in the form of an email address. It need not be a valid address, but it must be unique and its domain must belong to the organization.",
+      "tier": "A",
+      "binds": [
+        "zia/users"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-provisioning-and-authenticating-users.md",
+          "quotes": [
+            "The user ID must be in the form of an email address. It does not have to be a valid email address, but it must be unique, and its domain must belong to the organization."
+          ]
+        }
+      ]
+    },
+    "groups-per-user": {
+      "statement": "The help articles state that a user can belong to up to 128 groups and that directory synchronization handles up to 128 groups per user (the limits table says 127 by default, see divergence).",
+      "tier": "A",
+      "binds": [
+        "zia/users#groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-groups.md",
+          "quotes": [
+            "A user can belong to up to 128 groups."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-ldap-user-synchronization.md",
+          "quotes": [
+            "It can synchronize up to 128 groups per user."
+          ]
+        }
+      ],
+      "gaps": [
+        "over-cap-behavior"
+      ]
+    },
+    "one-department": {
+      "statement": "Unlike groups, a user can belong to only one department. Usage is tracked per user, so a user in several departments would be reported several times, and administrators scoped by department would conflict.",
+      "tier": "A",
+      "binds": [
+        "zia/users#department"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-provisioning-and-authenticating-users.md",
+          "quotes": [
+            "Unlike groups, a user can belong to only one department.",
+            "If a user belonged to multiple departments, then they would be reported upon multiple times."
+          ]
+        }
+      ]
+    },
+    "added-in-policy": {
+      "statement": "Groups and departments can also be added when configuring policies, and from the Groups and Departments pages by CSV import, not only by provisioning.",
+      "tier": "A",
+      "binds": [
+        "zia/groups",
+        "zia/departments"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-groups.md",
+          "quotes": [
+            "You can also add groups when you configure policies.",
+            "Import new groups or modify existing groups, using a CSV file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-departments.md",
+          "quotes": [
+            "You can also add departments when you configure policies."
+          ]
+        }
+      ]
+    },
+    "org-limits": {
+      "statement": "Per organization the limits table lists 1,400K users, 140K groups and 140K departments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Users per Organization | 1,400K users |",
+            "| User Groups per Organization | 140K groups |",
+            "| Departments per Organization | 140K departments |"
+          ]
+        }
+      ]
+    },
+    "name-lengths": {
+      "statement": "The limits table gives a user name of at most 128 characters, a department name of at most 128 characters and a group name of 128 characters or 127 bytes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| User Name | 128 characters |",
+            "| Department Name | 128 characters |",
+            "| Group Name | 128 characters or 127 bytes |"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "groups-per-user-cap": {
+      "summary": "Two captured articles give 128 and the limits table gives 127 for groups per user.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-groups.md",
+            "quotes": [
+              "A user can belong to up to 128 groups."
+            ]
+          },
+          "says": "A user can belong to up to 128 groups."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.md",
+            "quotes": [
+              "| Groups per User | 127 groups by default |"
+            ]
+          },
+          "says": "Groups per User is 127 groups by default, which also reads as a default that can be changed."
+        }
+      ],
+      "impact": "A user with exactly 128 groups is inside one limit and outside the other, and 'by default' leaves open whether Support can raise it. Do not state either number as certain for an edge case."
+    }
+  },
+  "gaps": {
+    "over-cap-behavior": {
+      "kind": "semantic",
+      "title": "What happens when a push or sync exceeds the group cap",
+      "status": "open",
+      "detail": "Unverified legacy statement: SCIM provisioning fails for users exceeding 128 groups, and the limit is hard and not configurable. The SCIM article states only that the total number of groups for a single user cannot exceed 128; the limits table's 'by default' wording suggests it may be raised. A lab push of a 129-group user and a Support answer would settle both the failure mode and whether it is raisable.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "advice on large-enterprise group sprawl"
+    }
+  }
+}

@@ -1,0 +1,479 @@
+{
+  "schema_version": 1,
+  "id": "zia.iot.api-surface",
+  "title": "IoT Report through the API: REST, Z-Insights GraphQL, SDKs, MCP",
+  "aliases": [
+    "iotDiscovery",
+    "iot deviceList",
+    "iot deviceTypes",
+    "iot_report sdk",
+    "zins iot device_stats",
+    "zins_get_iot_device_stats",
+    "iot terraform",
+    "iot api permission"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.iot.classification"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.iot.discovery"
+    }
+  ],
+  "claims": {
+    "rest-endpoints": {
+      "statement": "Four read-only GET endpoints under the ZIA API back the report: /iotDiscovery/deviceTypes, /iotDiscovery/categories, /iotDiscovery/classifications and /iotDiscovery/deviceList.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceTypes/get",
+          "expect": {
+            "operationId": "Iot Discovery Resource Get Device Types"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1categories/get",
+          "expect": {
+            "operationId": "Iot Discovery Resource Get Categories"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1classifications/get",
+          "expect": {
+            "operationId": "Iot Discovery Resource Get Classifications"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceList/get",
+          "expect": {
+            "operationId": "Iot Discovery Resource Get Device List"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/iotreport/iotreport.go",
+          "quotes": [
+            "deviceTypesEndpoint     = \"/zia/api/v1/iotDiscovery/deviceTypes\"",
+            "categoriesEndpoint      = \"/zia/api/v1/iotDiscovery/categories\"",
+            "classificationsEndpoint = \"/zia/api/v1/iotDiscovery/classifications\"",
+            "deviceListEndpoint      = \"/zia/api/v1/iotDiscovery/deviceList\""
+          ]
+        }
+      ]
+    },
+    "no-write-operations": {
+      "statement": "The IoT Report has no create, update or delete operation: the OpenAPI spec lists only GET for these paths and the Go SDK exposes only four read functions.",
+      "tier": "B",
+      "conditions": "Rests on a search: the spec paths carry only a get member, and iotreport.go defines only the four Get functions.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/iotreport/iotreport.go",
+          "quotes": [
+            "func GetIOTDeviceList(ctx context.Context, service *zscaler.Service) (*IOTDeviceList, error) {",
+            "func GetIOTCategories(ctx context.Context, service *zscaler.Service) (*CommonIOTReport, error) {",
+            "func GetIOTClassifications(ctx context.Context, service *zscaler.Service) (*CommonIOTReport, error) {"
+          ]
+        }
+      ]
+    },
+    "taxonomy-response-shape": {
+      "statement": "The three taxonomy endpoints each return an array of objects with `uuid`, `name` and `parent_uuid`; `parent_uuid` does not apply to device types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceTypes/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1categories/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1classifications/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceTypes/get/responses/200/content/application~1json/schema/items/properties/uuid",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceTypes/get/responses/200/content/application~1json/schema/items/properties/name",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceTypes/get/responses/200/content/application~1json/schema/items/properties/parent_uuid",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1categories/get/responses/200/content/application~1json/schema/items/properties/uuid",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1categories/get/responses/200/content/application~1json/schema/items/properties/name",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1categories/get/responses/200/content/application~1json/schema/items/properties/parent_uuid",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1classifications/get/responses/200/content/application~1json/schema/items/properties/uuid",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1classifications/get/responses/200/content/application~1json/schema/items/properties/name",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1classifications/get/responses/200/content/application~1json/schema/items/properties/parent_uuid",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceTypes/get/responses/200/content/application~1json/schema/items/properties/parent_uuid",
+          "expect": {
+            "description": "<p>The parent UUID of the item.</p><p><b>Note</b>: This field is not applicable for the device types endpoint.</p>"
+          }
+        }
+      ]
+    },
+    "device-list-shape": {
+      "statement": "deviceList returns an object with `cloudName`, `customerId` and a `devices` array; each device has `locationId`, `deviceUuid`, `ipAddress`, `deviceTypeUuid`, `autoLabel`, `classificationUuid`, `categoryUuid`, and `flowStartTime` and `flowEndTime` as epoch-second integers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceList/get/responses/200/content/application~1json/schema/properties/cloudName",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceList/get/responses/200/content/application~1json/schema/properties/customerId",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceList/get/responses/200/content/application~1json/schema/properties/devices",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceList/get/responses/200/content/application~1json/schema/properties/devices/items/properties/locationId",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceList/get/responses/200/content/application~1json/schema/properties/devices/items/properties/deviceUuid",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceList/get/responses/200/content/application~1json/schema/properties/devices/items/properties/ipAddress",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceList/get/responses/200/content/application~1json/schema/properties/devices/items/properties/deviceTypeUuid",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceList/get/responses/200/content/application~1json/schema/properties/devices/items/properties/autoLabel",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceList/get/responses/200/content/application~1json/schema/properties/devices/items/properties/classificationUuid",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceList/get/responses/200/content/application~1json/schema/properties/devices/items/properties/categoryUuid",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceList/get/responses/200/content/application~1json/schema/properties/devices/items/properties/flowStartTime",
+          "expect": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceList/get/responses/200/content/application~1json/schema/properties/devices/items/properties/flowEndTime",
+          "expect": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/iotreport/iotreport.go",
+          "quotes": [
+            "The start timestamp at which Zscaler AI/ML engine starts evaluating the device's weblog records. It's noted in epoch seconds.",
+            "The end timestamp at which Zscaler AI/ML engine stops evaluating the device's weblog records. It's noted in epoch seconds."
+          ]
+        }
+      ]
+    },
+    "go-taxonomy-decodes-into-struct": {
+      "statement": "The Go SDK's GetDeviceTypes, GetIOTCategories and GetIOTClassifications decode the response into a single `CommonIOTReport` struct, but the endpoints return arrays, so the decode would be expected to fail rather than return the taxonomy. Use the REST call for the taxonomy.",
+      "tier": "B",
+      "conditions": "Derived from reading: the OpenAPI response is an array and the Go client unmarshals the body straight into the struct. Not run against a tenant; encoding/json rejects an array into a struct.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/iotreport/iotreport.go",
+          "quotes": [
+            "func GetDeviceTypes(ctx context.Context, service *zscaler.Service) (*CommonIOTReport, error) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "after": "func (c *Client) Read(ctx context.Context, endpoint string, o interface{}) error {",
+          "quotes": [
+            "err = json.Unmarshal(resp, o)"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceTypes/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled"
+        }
+      ]
+    },
+    "no-terraform": {
+      "statement": "The ZIA Terraform provider has no resource or data source for the IoT Report. Its only IoT surface is the IoT flags on the location management resource (`iot_discovery_enabled` and `iot_enforce_policy_set`) and, on the location data source, `iot_discovery_enabled` alone, which is read back (`d.Set`); the data source does not expose `iot_enforce_policy_set`.",
+      "tier": "B",
+      "conditions": "Rests on a search of the pinned provider for IoT-named resources and data sources, and on the location data source containing no iot_enforce_policy_set.",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_location_management.go",
+          "quotes": [
+            "\"iot_discovery_enabled\": {",
+            "_ = d.Set(\"iot_discovery_enabled\", resp.IOTDiscoveryEnabled)"
+          ]
+        }
+      ]
+    },
+    "graphql-device-stats": {
+      "statement": "The Z-Insights GraphQL API has an IOT domain whose `device_stats` query returns `devices_count`, `iot_devices_count`, `user_devices_count`, `server_devices_count`, `un_classified_devices_count` and `entries` (each with `classifications`, `classification_uuid`, `category` and `total`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/analytics-graphql-api.md",
+          "quotes": [
+            "| IOT | IoT device visibility and classification data | 1 |"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zins/iot.py",
+          "quotes": [
+            "- devices_count: Total device count",
+            "- user_devices_count: Unmanaged user devices count",
+            "- iot_devices_count: IoT devices count",
+            "- server_devices_count: Server devices count",
+            "- un_classified_devices_count: Unclassified devices count",
+            "- entries: List of device classifications with totals"
+          ]
+        }
+      ]
+    },
+    "graphql-aggregates-only": {
+      "statement": "device_stats returns aggregate counts and per-classification totals, not per-device records.",
+      "tier": "B",
+      "conditions": "Derived from the query: its selection set holds only counts and entries, with no IP address or device fields; per-device data is REST deviceList.",
+      "derived_from": [
+        "zia.iot.api-surface:graphql-device-stats"
+      ]
+    },
+    "graphql-filter-order": {
+      "statement": "`filter_by` accepts `classifications`, `classification_uuid` and `category`, each a StringFilter (`eq`, `ne`, `in_list`, `nin` in the Python SDK); `order_by` accepts `classifications`, `classification_uuid`, `category` and `total`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zins/models/inputs.py",
+          "quotes": [
+            "classifications: Filter by device classification using StringFilter.",
+            "classification_uuid: Filter by classification UUID using StringFilter.",
+            "category: Filter by device category using StringFilter.",
+            "eq: Equals - exact string match.",
+            "ne: Not equals - exclude exact string match.",
+            "in_list: In - match any string in the list.",
+            "nin: Not in - exclude any string in the list.",
+            "total: Sort order for the total field."
+          ]
+        }
+      ]
+    },
+    "graphql-no-time-window": {
+      "statement": "The IOT device_stats query takes no start or end time: it reflects the present network state, not a time-windowed log slice.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zins/iot.py",
+          "quotes": [
+            "No time window — this reflects the present network state."
+          ]
+        }
+      ]
+    },
+    "graphql-role": {
+      "statement": "A Z-Insights GraphQL API client is registered in ZIdentity with a role; the default role is Zscaler Insights Reader.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/guides-analytics-api.md",
+          "quotes": [
+            "Default role available: **Zscaler Insights Reader**"
+          ]
+        }
+      ]
+    },
+    "mcp-tool": {
+      "statement": "The MCP tool `zins_get_iot_device_stats` is read-only, takes only `limit` (1 to 1000, default 50) and returns the single stats object with the per-classification `entries`. An empty or zeroed result means no IoT devices were detected or IoT Device Visibility is not enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zins/iot.py",
+          "quotes": [
+            "Get IoT device statistics and classifications. Read-only analytics.",
+            "default=50, ge=1, le=1000,",
+            "An empty/zeroed result means no IoT devices were detected or IoT Device Visibility is not enabled."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "rest-permissions": {
+      "kind": "semantic",
+      "title": "What role or entitlement the /iotDiscovery REST endpoints need",
+      "status": "open",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ],
+      "blocks": "diagnosing a permission error from the IoT REST endpoints",
+      "detail": "The Python SDK integration test for all four calls is commented as one that may fail due to permission restrictions and is written to tolerate an error, which suggests a gate beyond a baseline credential. Unverified legacy statement: that the endpoints are gated behind an entitlement or role not present in a baseline ZIA credential, and that the Zscaler Insights Reader role applies only to the GraphQL path. No source names the role or entitlement for the REST path.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zia/test_iot_report.py",
+          "quotes": [
+            "# Test get_device_types - may fail due to permission restrictions"
+          ]
+        }
+      ]
+    }
+  }
+}

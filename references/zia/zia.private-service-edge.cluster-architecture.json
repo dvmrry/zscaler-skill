@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "id": "zia.private-service-edge.cluster-architecture",
+  "title": "How a Private Service Edge cluster is built and fails over",
+  "aliases": [
+    "pse cluster design",
+    "pse carp",
+    "pse direct server return",
+    "pse dsr",
+    "pse vip",
+    "pse load balancer",
+    "standalone pse",
+    "pse n+1",
+    "pse asymmetric return"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.sizing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.load-balancing"
+    }
+  ],
+  "claims": {
+    "two-components": {
+      "statement": "A Private Service Edge comprises two Zscaler components: Service Edge instances and Zscaler load balancers (LBs).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Private Service Edge comprises two Zscaler components, Service Edge instances and Zscaler load balancers (LBs)."
+          ]
+        }
+      ]
+    },
+    "upload-download-roles": {
+      "statement": "The Service Edge instance processes upload (the request: user traffic from the LB instance to the destination) and download (the response: traffic from the destination to the user). The LB instance distributes the users' upload transactions evenly across the Service Edge instances.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Upload (Request): Transmission of user traffic from the LB instance to the destination.",
+            "Download (Response): Transmission of traffic from the destination to the user.",
+            "The LB instance processes the upload transactions from the users evenly across the Service Edge instances."
+          ]
+        }
+      ]
+    },
+    "integrated-vs-dedicated-lb": {
+      "statement": "Standard deployments of all the models use integrated LB instances that process upload and download transactions in the same hardware. Larger deployments with significant upload and download throughput require the Private Service Edge 5 with the Dedicated LB cluster design.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Standard deployments of all the Private Service Edge models consist of integrated LB instances and process upload and download transactions within the same hardware.",
+            "which requires the Private Service Edge 5 with the Dedicated LB cluster design"
+          ]
+        }
+      ]
+    },
+    "n-plus-one": {
+      "statement": "All Private Service Edge cluster designs are deployed with a minimum of N+1 hardware.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "they are deployed with a minimum of N+1 hardware."
+          ]
+        }
+      ]
+    },
+    "carp-lb-pair": {
+      "statement": "The LB instances run active-passive and share a virtual IP (VIP) address using Common Address Redundancy Protocol (CARP).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "The LB instances are configured for active-passive fault tolerance and share a virtual IP (VIP) address using Common Address Redundancy Protocol (CARP)."
+          ]
+        }
+      ]
+    },
+    "service-edges-active-active": {
+      "statement": "All Service Edge instances are active-active behind the cluster VIP and are removed from the load-balancing pool automatically, through active health monitoring, if an instance or node fails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "All Service Edge instances are active-active behind the cluster VIP address and are automatically removed from the load balancing pool via active health monitoring if an instance or node were to fail."
+          ]
+        }
+      ]
+    },
+    "traffic-to-vip": {
+      "statement": "All traffic destined for the cluster must be sent to the cluster VIP addresses; the active LB instance listening for the VIP forwards each packet to one Service Edge instance in the pool.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "All traffic destined for the Private Service Edge cluster must be sent to the cluster VIP addresses.",
+            "The active LB instance listening on behalf of the VIP address then forwards the packet to one of the Service Edge instances in the cluster pool for processing."
+          ]
+        }
+      ]
+    },
+    "dsr": {
+      "statement": "The service uses the Direct Server Return (DSR) method of load balancing: the Service Edge instance that handled the request returns the response directly to the user, and the response does not traverse the LB on the return path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "The Zscaler service uses the Direct Server Return (DSR) method of load balancing, so the response doesn't traverse through the LB on the return path.",
+            "The Service Edge instance requests the web server, which then responds to the Service Edge instance that processed the original request, which forwards the response directly to the user."
+          ]
+        }
+      ]
+    },
+    "asymmetric-return": {
+      "statement": "Because of DSR, request and response take different paths: return traffic bypasses the LB; which source address the response carries is not documented.",
+      "tier": "B",
+      "conditions": "Inference from the documented packet flow. The page does not say which source address the response carries or give firewall guidance; confirm in a lab what a stateful device sees.",
+      "derived_from": [
+        "dsr",
+        "traffic-to-vip"
+      ]
+    },
+    "same-l2-fabric": {
+      "statement": "In every documented cluster design, the LB and Service Edge instances are all connected to the same L2 switching fabric.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "The following diagram illustrates a cluster of two Private Service Edge 3 servers with a total of two Zscaler LB instances and 6 Service Edge instances that are all connected to the same L2 switching fabric.",
+            "The following diagram illustrates a cluster of two Private Service Edge 5 servers with a total of two Zscaler LB instances and 10 Service Edge instances that are all connected to the same L2 switching fabric.",
+            "The following diagram illustrates a cluster of 4 Private Service Edge 5 servers and two Zscaler Dedicated LBs with a total of 4 LB instances and 24 Service Edge instances that are all connected to the same L2 switching fabric."
+          ]
+        }
+      ]
+    },
+    "no-standalone": {
+      "statement": "Zscaler does not support standalone Private Service Edge deployments. Each cluster must have a minimum of two Private Service Edges, and if dedicated LBs are included they must also be deployed as a minimum of two.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Zscaler does not support standalone Private Service Edge deployments. Each Private Service Edge cluster must have a minimum of two Private Service Edges to ensure redundancy.",
+            "If dedicated LBs are included in the design, they also must be deployed in a minimum of two."
+          ]
+        }
+      ]
+    }
+  }
+}

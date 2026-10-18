@@ -368,18 +368,14 @@
     {
       "id": 18,
       "prompt": "We enabled Tenant Profiles to block personal Microsoft 365 accounts. We tested with a personal email and it still works fine \u2014 the user can sign in to consumer Microsoft 365 from a corporate device. Tenant Profile is configured correctly per the help docs. What's wrong?",
-      "expected_output": "Most likely: the SSL Inspection rule that's supposed to inspect login.microsoftonline.com traffic for tenant restriction is firing AFTER (lower priority than) the M365 One-Click bypass rule, OR the predefined Microsoft 365 Click-to-Run rule (which uses 'Do Not Inspect + Bypass Other Policies'). Tenant restriction works by injecting the Restrict-Access-To-Tenants HTTP header into the login flow \u2014 that requires SSL inspection to actually decrypt the traffic. If a bypass rule fires first for that domain, ZIA never gets to inspect the login flow, the header never gets injected, and tenant restriction silently does nothing \u2014 no error, no log, just personal accounts working as if unrestricted. Diagnostic: check SSL Inspection rule order. The Microsoft Login Services rule must beat any M365 One-Click bypass / Click-to-Run bypass in evaluation order. Also verify ms_login_services_tr_v2 protocol flag is correct for your tenant's Entra version.",
+      "expected_output": "Most likely: the SSL Inspection rule that's supposed to inspect login.microsoftonline.com traffic for tenant restriction is firing AFTER (lower priority than) the M365 One-Click bypass rule, OR the predefined Microsoft 365 Click-to-Run rule (which uses 'Do Not Inspect + Bypass Other Policies'). Tenant restriction works by injecting the Restrict-Access-To-Tenants HTTP header into the login flow \u2014 that requires SSL inspection to actually decrypt the traffic. If a bypass rule fires first for that domain, ZIA never gets to inspect the login flow, the header never gets injected, and the tenant profile has no effect and personal accounts work as if unrestricted (whether any error or log entry appears is an open gap). Diagnostic: check SSL Inspection rule order. The Microsoft Login Services rule must beat any M365 One-Click bypass / Click-to-Run bypass in evaluation order. Also verify ms_login_services_tr_v2 protocol flag is correct for your tenant's Entra version.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
         "rule order",
         "SSL inspection",
         "header injection",
-        "silently",
         "bypass"
-      ],
-      "must_cite_files": [
-        "references/zia/saas-app-quirks.md"
       ],
       "must_not_say": [
         "Tenant Profiles don't work for M365",
@@ -387,6 +383,7 @@
         "Reconfigure the Tenant Profile object"
       ],
       "must_cite": [
+        "zia.saas-apps.tenant-restriction-order",
         "zia.tenant-profiles.ssl-prerequisite",
         "zia.tenant-profiles.wire-mechanic"
       ]

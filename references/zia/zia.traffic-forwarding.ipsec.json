@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.ipsec",
+  "title": "IPSec tunnels to ZIA: limits, IKE and device settings",
+  "aliases": [
+    "ipsec tunnel",
+    "ipsec vpn zia",
+    "ike",
+    "ikev2",
+    "ikev1",
+    "nat-t",
+    "dpd",
+    "ipsec mtu",
+    "ipsec bandwidth"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.traffic-forwarding.methods"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.traffic-forwarding.vpn-credentials"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.gre"
+    }
+  ],
+  "claims": {
+    "when-ipsec": {
+      "statement": "IPSec is the tunnel to use when the router does not support GRE or the site has dynamic IP addresses. Compared with GRE it adds processing overhead on the customer's equipment, and the vendor must provide a VPN failover mechanism.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-traffic-forwarding-methods.md",
+          "quotes": [
+            "If your router does not support GRE or if you use dynamic IP addresses, you can configure IPSec VPN tunnels.",
+            "Compared to GRE tunnels, IPSec tunnels have additional processing overhead on your equipment.",
+            "Ensure that your vendor provides a VPN fail over mechanism to provide resilience."
+          ]
+        }
+      ]
+    },
+    "two-tunnels": {
+      "statement": "Zscaler recommends two IPSec tunnels to two different Public Service Edges, a primary and a backup; if the primary or an intermediate connection fails, traffic is rerouted through the backup tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ipsec-vpn-tunnel.md",
+          "quotes": [
+            "Zscaler recommends configuring two separate VPNs to two different Public Service Edges for high availability.",
+            "all traffic is then rerouted through the backup IPSec VPN tunnel to the backup Public Service Edge"
+          ]
+        }
+      ]
+    },
+    "bandwidth-limit": {
+      "statement": "IPSec tunnels support 400 Mbps per public source IP address. Above that, use multiple tunnels with different public source IPs, or multiple tunnels from the same public source IP with NAT-T and source port randomization using IKEv2; 800 Mbps is two primary and two backup tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ipsec-vpn-tunnel.md",
+          "quotes": [
+            "Zscaler IPSec tunnels support a limit of 400 Mbps for each public source IP address.",
+            "Configure multiple IPSec VPN tunnels with the same public source IP address using NAT-T and source port randomization with IKEv2 for all the configured tunnels.",
+            "if your organization forwards 800 Mbps of traffic, you can configure two primary VPN tunnels and two backup VPN tunnels"
+          ]
+        }
+      ]
+    },
+    "ike-versions": {
+      "statement": "Zscaler recommends IKEv2. New tenants cannot establish IKEv1 IPSec tunnels from a vendor product to forward traffic to Internet & SaaS unless Zscaler Support enables IKEv1 for them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-ipsec-vpns.md",
+          "quotes": [
+            "Zscaler recommends using IKEv2 because it is a newer standard and is widely deployed.",
+            "New tenants cannot establish IKEv1 IPSec VPN tunnels from a vendor product to forward traffic to Internet & SaaS. To enable IKEv1 support for new tenants, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "ikev1-modes": {
+      "statement": "With IKEv1 and a pre-shared key, a peer identified by FQDN must use Aggressive mode and a peer identified by a static IP must use Main mode; Main mode cannot be used where the peer's IP may change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-ipsec-vpns.md",
+          "quotes": [
+            "If you use a pre-shared key (PSK) for authentication and an FQDN for the peer, you must use Aggressive mode. If you use a PSK for authentication and a static IP address for the peer, you must use the Main mode.",
+            "Because the Main mode uses the IP address as part of the exchange for identification, it cannot be used in a configuration where the IP address of the peer may change."
+          ]
+        }
+      ]
+    },
+    "ikev2-parameters": {
+      "statement": "For IKEv2 the supported Phase 1 values are AES-256/192/128 or 3DES, SHA-512/384/256/1, Diffie-Hellman groups 2, 5, 14, 19, 20 and 21, with a pre-shared key and 24-hour SA lifetime; Phase 2 supports ESP or AH in tunnel mode with AES-GCM, NULL or AES, 8 child SAs and an 8-hour lifetime. The table lists NAT-T and DPD as options (DPD timeout 20 seconds, 5 retries).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-ipsec-vpns.md",
+          "quotes": [
+            "| Confidentiality | AES-256 AES-192 AES-128 3DES | AES-256-GCM AES-192-GCM AES-128-GCM NULL AES-256 AES-192 AES-128 |",
+            "| Integrity | SHA-512 SHA-384 SHA-256 SHA-1 | MD5 SHA-512 SHA-384 SHA-256 SHA-1 |",
+            "| Protocol | N/A | AH ESP |",
+            "| NAT-Traversal | Enabled Disabled | N/A |",
+            "| Dead Peer Detection (DPD) | Enabled Disabled | N/A |",
+            "| DPD Maximum Retries | 5 | N/A |",
+            "| Authentication | Pre-Shared Key (PSK) | N/A |",
+            "| Diffie-Hellman Group | 2 5 14 19 (ECP256) 20 (ECP384) 21 (ECP521) | 2 5 14 19 (ECP256) 20 (ECP384) 21 (ECP521) |",
+            "| Total Child SAs Supported | N/A | 8 |",
+            "| SA Lifetime | 24 Hours | 8 Hours |",
+            "| DPD Timeout Interval | 20 Seconds | N/A |"
+          ],
+          "after": "| IKEv2 Supported Parameters | | |"
+        }
+      ],
+      "conditions": "The table lists values Zscaler supports; which of them a tenant's device negotiates is not visible from these sources."
+    },
+    "mtu-mss": {
+      "statement": "The vendor's IPSec table gives an optimal MTU of 1400 bytes and an MSS of 1360 bytes for Phase 2, for both IKEv2 and IKEv1.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-ipsec-vpns.md",
+          "quotes": [
+            "| Maximum Transmission Unit (MTU) | N/A | Your Optimal MTU 1400 Bytes |",
+            "| Maximum Segment Size (MSS) | N/A | 1360 Bytes |"
+          ],
+          "after": "| IKEv2 Supported Parameters | | |"
+        }
+      ]
+    },
+    "nat-traversal": {
+      "statement": "Zscaler supports NAT-Traversal when the initiating device is behind a NAT device; the packets are then encapsulated in UDP with source port 4500. NAT-T is built into IKEv2 and an optional extension to IKEv1.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-ipsec-vpns.md",
+          "quotes": [
+            "Zscaler supports NAT-Traversal if the device initiating the IPSec VPN is behind another firewall or router performing NAT.",
+            "In the UDP header, the source port is set to 4500 and the destination port is that of the IPSec peer.",
+            "NAT-T is integrated into IKEv2 but is an optional extension to IKEv1."
+          ]
+        }
+      ]
+    },
+    "dpd": {
+      "statement": "Zscaler expects peers to run explicit periodic liveness checks (DPD) and recommends 10 to 20 second intervals with at least 3 retries; if only on-demand checks are supported the Zscaler IP must be allowlisted so Zscaler's DPD gets a response, and with no response Zscaler cleans up the connection. Ongoing traffic is not treated as proof the peer is alive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-ipsec-vpns.md",
+          "quotes": [
+            "Zscaler recommends a minimum of 10-second to a maximum of 20-second DPD intervals with at least 3 retries.",
+            "you must ensure to allowlist the Zscaler IP address so that DPD initiated by Zscaler is not blocked, and a response is received. If there is no response, Zscaler cleans up the connection.",
+            "Zscaler does not consider the ongoing flow of traffic between two peers as proof of the liveliness of a peer."
+          ]
+        }
+      ]
+    },
+    "local-id": {
+      "statement": "The device's local ID can be a private IP address only when the VPN credential in the Admin Console is an FQDN; otherwise it must be the public IP provisioned as a static IP. A private local ID with a public IP credential makes the negotiation fail.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-ipsec-vpns.md",
+          "quotes": [
+            "the local ID of the peer device on the client side can be a private IP address if the VPN credential configured in the Zscaler Admin Console is a fully qualified domain name (FQDN).",
+            "If the local ID is a private IP address and a public IP address is configured in the Zscaler Admin Console, then the negotiation fails."
+          ]
+        }
+      ]
+    },
+    "ipv6-selectors": {
+      "statement": "To forward IPv6 over IPSec the device needs IPv6 traffic selectors for both IKEv1 and IKEv2, and IPv6 support must be enabled for the organization and its locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ipsec-vpn-tunnel.md",
+          "quotes": [
+            "If you want to forward IPv6 traffic to Internet & SaaS (ZIA), you must configure IPv6 traffic selectors for both IKEv1 and IKEv2 on your device.",
+            "You must also ensure that IPv6 support is enabled for your organization and locations in the Zscaler Admin Console to forward IPv6 traffic."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "esp-overhead-range": {
+      "kind": "semantic",
+      "title": "ESP overhead and effective MTU range",
+      "status": "open",
+      "detail": "Unverified legacy statement: IPSec ESP adds about 50 to 80 bytes of overhead, giving an effective payload MTU of about 1380 to 1420 bytes depending on cipher and NAT-T. No captured source states it; Zscaler Support or a vendor article would settle it.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "failing-mss-symptom": {
+      "kind": "semantic",
+      "title": "Large-transfer failures without MSS clamping on IPSec",
+      "status": "open",
+      "detail": "Unverified legacy statement: Failing to set MSS under IPSec more commonly causes large-transfer failures than under GRE because the overhead is higher. No captured source states it; operator experience or a tenant observation would settle it.",
+      "resolves_with": [
+        "operator-experience"
+      ]
+    }
+  }
+}

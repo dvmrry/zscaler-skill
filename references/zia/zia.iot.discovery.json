@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "id": "zia.iot.discovery",
+  "title": "What the IoT Report discovers, and what it takes to get data",
+  "aliases": [
+    "iot report",
+    "iot discovery",
+    "iot device discovery",
+    "iot report empty",
+    "location not in iot report",
+    "enable iot discovery",
+    "shadow iot",
+    "discovered devices"
+  ],
+  "binds": [
+    "zia/locations#iotDiscoveryEnabled",
+    "zia/locations#iotEnforcePolicySet"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.iot.classification"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.iot.policy-use"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.groups"
+    }
+  ],
+  "claims": {
+    "report-scope": {
+      "statement": "The IoT Report shows the device inventory discovered from unauthenticated web traffic; Zscaler's AI/ML engine classifies all unauthenticated devices automatically to produce it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-iot-report.md",
+          "quotes": [
+            "The Internet of Things (IoT) Report shows the device inventory and its insights discovered from unauthenticated web traffic.",
+            "classifies all unauthenticated devices automatically to help generate the report"
+          ]
+        }
+      ]
+    },
+    "refresh-window": {
+      "statement": "The report is updated every 6 hours and covers the active devices discovered in the last 24 hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-iot-report.md",
+          "quotes": [
+            "The report is updated every 6 hours for the active devices discovered in the last 24 hours."
+          ]
+        }
+      ]
+    },
+    "device-types": {
+      "statement": "The Device Type Distribution chart has four device types: User Devices (unmanaged user devices whose traffic does not flow via Zscaler Client Connector), IoT Devices, Servers, and Unknown (devices not classified for lack of information for the AI/ML engine).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-iot-report.md",
+          "quotes": [
+            "User Devices (Unmanaged user devices whose traffic does not flow via Zscaler Client Connector)",
+            "Unknown (Devices not classified due to limited information for the AI/ML engine)"
+          ]
+        }
+      ]
+    },
+    "per-location-enable": {
+      "statement": "The report is filtered to locations that have IoT discovery enabled, and a location must have IoT enabled on the Location Management page for a report to be generated for it.",
+      "tier": "A",
+      "binds": [
+        "zia/locations#iotDiscoveryEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-iot-report.md",
+          "quotes": [
+            "Filter the IoT report for locations that have IoT discovery enabled in your organization.",
+            "To generate the report, ensure IoT is enabled for that location on the Location Management page."
+          ]
+        }
+      ]
+    },
+    "location-lag": {
+      "statement": "Adding or removing a location can take up to 24 hours to reflect in the location filter, and the first report for a new location takes 24 hours to generate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-iot-report.md",
+          "quotes": [
+            "Addition or removal of locations can take up to 24 hours to reflect in the location filter.",
+            "The first report for any new location takes 24 hours to generate."
+          ]
+        }
+      ]
+    },
+    "discovery-scope": {
+      "statement": "Enable IoT Discovery on a location or sublocation discovers IoT/OT devices, servers, and unmanaged devices (for example personal user devices) at that location.",
+      "tier": "A",
+      "binds": [
+        "zia/locations#iotDiscoveryEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-sublocations.md",
+          "quotes": [
+            "Enable to discover IoT/OT devices, servers, and unmanaged devices (e.g., personal user devices) at this location."
+          ]
+        }
+      ]
+    },
+    "org-entitlement": {
+      "statement": "The Enable IoT Discovery and Enforce IoT Policy Control options exist only where IoT discovery and IoT policy control, respectively, are enabled for the organization.",
+      "tier": "A",
+      "binds": [
+        "zia/locations#iotDiscoveryEnabled",
+        "zia/locations#iotEnforcePolicySet"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-sublocations.md",
+          "quotes": [
+            "The Enable IoT Discovery and Enforce IoT Policy Control options are available only if IoT discovery and IoT policy control, respectively, are enabled for your organization."
+          ]
+        }
+      ]
+    },
+    "two-location-flags": {
+      "statement": "The location object carries two independent IoT booleans, `iotDiscoveryEnabled` (Terraform `iot_discovery_enabled`, described as enabling IoT discovery at the location) and `iotEnforcePolicySet` (Terraform `iot_enforce_policy_set`, whose description is empty). The provider reads and writes them separately.",
+      "tier": "A",
+      "binds": [
+        "zia/locations#iotDiscoveryEnabled",
+        "zia/locations#iotEnforcePolicySet"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "quotes": [
+            "Description: \"Enable IOT Discovery at the location\",",
+            "_ = d.Set(\"iot_discovery_enabled\", resp.IOTDiscoveryEnabled)",
+            "_ = d.Set(\"iot_enforce_policy_set\", resp.IOTEnforcePolicySet)",
+            "IOTDiscoveryEnabled:                 d.Get(\"iot_discovery_enabled\").(bool),",
+            "IOTEnforcePolicySet:                 d.Get(\"iot_enforce_policy_set\").(bool),"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/location/locationmanagement/locationmanagement.go",
+          "quotes": [
+            "// Enable IOT Discovery at the location",
+            "IOTEnforcePolicySet bool `json:\"iotEnforcePolicySet\"`"
+          ]
+        }
+      ]
+    },
+    "report-sections": {
+      "statement": "The report page shows IoT Device Classification (top classifications, with a carousel past 12), IoT Device Distribution by Policy Status, Device Type Distribution, Top User Device Classification, and a Devices Location map by city; classifications and device types drill into the Discovered Devices page, and the report downloads as PDF.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-iot-report.md",
+          "quotes": [
+            "If you have more than 12 classifications, you see carousel buttons",
+            "Download the IoT report to a PDF file.",
+            "Devices Location: This section shows the total number of devices connected from different cities.",
+            "IoT Device Distribution by Policy Status: This section displays the IoT device distribution based on the status of the IoT policy.",
+            "Top User Device Classification: This graph shows the top user device types",
+            "Click on an IoT classification to view details of all the devices for that classification; you are redirected to the Discovered Devices page."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "input-signals": {
+      "kind": "semantic",
+      "title": "Which signals the AI/ML engine uses to discover and classify devices",
+      "status": "open",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "predicting which devices will classify, and whether proxy-mode (PAC) deployments classify as well as tunnelled ones",
+      "detail": "Unverified legacy statement: that the report needs no agents or DHCP integration, and that the engine likely uses HTTP User-Agent, DHCP options 55 and 60, DNS-query signatures, TLS/JA3 fingerprints and traffic behavior; and that a PAC-file proxy deployment may carry less signal than GRE/IPSec forwarding. The help page names no input signal. Resolve with a vendor statement or a lab comparison of the same device behind proxy and tunnel forwarding."
+    },
+    "history-retention": {
+      "kind": "data",
+      "title": "Whether device-to-classification history is kept beyond the 24-hour window",
+      "status": "open",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ],
+      "detail": "Unverified legacy statement: that the device list is a snapshot of devices active in the last 24 hours and it is unclear whether Zscaler retains history, or whether NSS log export is the only way to build a longer inventory. The help page states only the 24-hour active-device window.",
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "nss-iot-fields": {
+      "kind": "data",
+      "title": "Whether NSS web or firewall logs carry IoT classification fields",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ],
+      "detail": "Unverified legacy statement: that it is not confirmed whether NSS web or firewall logs carry per-transaction IoT classification fields (autoLabel, deviceTypeUuid), and that the NSS DNS log schema in the vendor docs has none. Resolve against the NSS feed output format documentation or a real feed.",
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "mobile-misclassification": {
+      "kind": "semantic",
+      "title": "Accuracy limits of classification",
+      "status": "open",
+      "resolves_with": [
+        "operator-experience",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: that phones with non-standard User-Agents may be misclassified as IoT, that low-traffic devices may stay Unknown or get low-confidence labels, and that unmanaged laptops can make the User Device and Unknown counts large relative to real IoT counts. The help page documents only that Unknown means limited information for the engine and that unmanaged user devices are counted."
+    }
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "id": "zia.proxy-mode.transparent",
+  "title": "Transparent proxy mode: how the host is found from SNI or certificate",
+  "aliases": [
+    "transparent proxy",
+    "sni",
+    "server name indication",
+    "client hello",
+    "transparent mode",
+    "server certificate fallback"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.proxy-mode"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.criteria"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.authentication.surrogate-ip"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.traffic-forwarding.gre"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.traffic-forwarding.ipsec"
+    }
+  ],
+  "claims": {
+    "how-it-works": {
+      "statement": "In transparent mode the browser has no proxy configured; traffic is directed to a Service Edge by other means, such as a GRE or IPSec tunnel at the organization's egress router, so the destination IP in the IP header is the origin server's address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-proxy-mode.md",
+          "quotes": [
+            "In Transparent mode, the browser is not configured to send traffic to a Service Edge.",
+            "such as a GRE or IPSec tunnel configured at your organization’s egress router",
+            "the destination IP address in the IP header of the request contains the IP address of the destination server."
+          ]
+        }
+      ]
+    },
+    "host-identification": {
+      "statement": "The Service Edge identifies the destination host from the Server Name Indication extension in the TLS Client Hello when present, and otherwise from the server certificate sent during the SSL handshake.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-proxy-mode.md",
+          "quotes": [
+            "Using the Server Name Indication (SNI) extension if the initial HTTPS request (client hello) includes SNI, which is an extension to the TLS protocol.",
+            "Using the server certificate sent by the destination server during the SSL handshake, if the HTTPS request does not include the SNI extension."
+          ]
+        }
+      ]
+    },
+    "sni-example": {
+      "statement": "Most browsers send SNI when a server uses one certificate for several sites; for example, with a common *.google.com certificate the service can block drive.google.com while allowing mail.google.com and google.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-proxy-mode.md",
+          "quotes": [
+            "Most browsers use SNI when a server uses a common certificate for multiple sites.",
+            "a Service Edge might use SNI to apply a policy to block traffic to drive.google.com, but allow traffic to mail.google.com and google.com."
+          ]
+        }
+      ]
+    },
+    "certificate-comes-later": {
+      "statement": "The certificate fallback can only happen after the server has answered during the handshake, which is later than a CONNECT host or a Client Hello SNI.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-proxy-mode.md",
+          "quotes": [
+            "Using the server certificate sent by the destination server during the SSL handshake, if the HTTPS request does not include the SNI extension."
+          ]
+        }
+      ],
+      "conditions": "The ordering follows from where the certificate is sent; any latency or trust consequence is not stated."
+    }
+  },
+  "gaps": {
+    "sni-spoofing": {
+      "kind": "semantic",
+      "title": "SNI spoofing and the trust placed in the certificate",
+      "status": "open",
+      "detail": "Unverified legacy statement: A client could declare a different SNI than the site it connects to and bypass policy, SSL inspection mitigates this, and server-certificate identification trusts the server's self-reported identity. No captured source states it; a lab test would settle it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "first-decision-latency": {
+      "kind": "semantic",
+      "title": "Added delay when a transparent connection has no SNI",
+      "status": "open",
+      "detail": "Unverified legacy statement: The certificate fallback adds one round trip before the first policy decision. No captured source states it; a lab test would settle it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

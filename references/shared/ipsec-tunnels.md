@@ -15,7 +15,7 @@ author-status: draft
 
 IPSec is a forwarding method for sending site traffic to ZIA Public Service Edges (or Private Service Edges) inside an encrypted tunnel. This reference covers cipher-suite selection, NAT-Traversal mechanics, PFS and DPD recommendations, the per-tunnel bandwidth ceiling, the Virtual Service Edge constraint, and the redundancy requirement Zscaler enforces for production tunnels.
 
-For the forwarding-method decision tree (GRE vs IPSec vs PAC vs ZCC), see [`../zia/traffic-forwarding-methods.md`](../zia/traffic-forwarding-methods.md). For GRE specifics, see [`./gre-tunnels.md`](./gre-tunnels.md).
+For the forwarding-method decision tree (GRE vs IPSec vs PAC vs ZCC), see [`zia.traffic-forwarding`](kb:zia.traffic-forwarding). For GRE specifics, see [`./gre-tunnels.md`](./gre-tunnels.md).
 
 ## Cipher suites — IKEv1 vs IKEv2
 
@@ -102,6 +102,6 @@ IPSec is appropriate when (`Traffic_Forwarding_in_ZIA_Reference_Architecture.txt
 ## Cross-links
 
 - GRE tunnels — the unencrypted alternative for fixed sites with static IPs: [`./gre-tunnels.md`](./gre-tunnels.md)
-- Forwarding method decision tree: [`../zia/traffic-forwarding-methods.md`](../zia/traffic-forwarding-methods.md)
+- Forwarding method decision tree: [`zia.traffic-forwarding`](kb:zia.traffic-forwarding)
 - Source IP Anchoring (separate from Surrogate IP) and Surrogate IP for fixed-site auth-mapping: [`./source-ip-anchoring.md`](./source-ip-anchoring.md)
 - VSE form factor and Service Edge architecture: [`./cloud-architecture.md`](./cloud-architecture.md)

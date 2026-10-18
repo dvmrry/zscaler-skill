@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "id": "zia.audit-logs.streaming",
+  "title": "Streaming the ZIA admin audit log to a SIEM (Cloud NSS ADMIN_AUDIT)",
+  "aliases": [
+    "admin audit nss",
+    "ADMIN_AUDIT feed",
+    "audit log siem",
+    "cloud nss audit",
+    "nss_log_type ADMIN_AUDIT",
+    "audit_log_type"
+  ],
+  "binds": [
+    "zia/nss-feeds"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs.report-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs.what-is-recorded"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.field-fidelity"
+    }
+  ],
+  "claims": {
+    "vm-nss-subscriptions": {
+      "statement": "VM-based NSS is offered as NSS for Web (web and mobile traffic logs) and NSS for Firewall (Zscaler Firewall logs).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.md",
+          "quotes": [
+            "NSS for Web: Streams web and mobile traffic logs.",
+            "NSS for Firewall: Streams logs from the Zscaler Firewall."
+          ]
+        }
+      ]
+    },
+    "vm-nss-no-admin-audit": {
+      "statement": "Admin audit logs are not listed among the VM-based NSS subscriptions (Web, Firewall).",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.md",
+          "quotes": [
+            "NSS for Web: Streams web and mobile traffic logs.",
+            "NSS for Firewall: Streams logs from the Zscaler Firewall."
+          ]
+        }
+      ],
+      "derived_from": [
+        "vm-nss-subscriptions"
+      ],
+      "conditions": "Rests on absence: the page lists only the Web and Firewall subscriptions; no admin audit stream is named. Not observed on a tenant."
+    },
+    "cloud-nss-admin-audit": {
+      "statement": "A Cloud NSS feed can stream admin audit logs: ADMIN_AUDIT is an accepted nss_log_type in the Terraform provider and in the Go SDK's supported feed types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_nss_server.go",
+          "quotes": [
+            "\"ADMIN_AUDIT\","
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudnss/cloudnss/cloudnss.go",
+          "quotes": [
+            "\"ADMIN_AUDIT\": true, \"WEBLOG\": true"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/nss-feeds#nssLogType"
+      ]
+    },
+    "audit-log-type-filter": {
+      "statement": "A Cloud NSS feed has an audit_log_type (API field auditLogType) set-of-strings filter described only as \"Audit log type filter\"; the accepted values are not enumerated in the provider schema.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_nss_server.go",
+          "quotes": [
+            "Description: \"Audit log type filter\","
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudnss/cloudnss/cloudnss.go",
+          "quotes": [
+            "AuditLogType                []string                  `json:\"auditLogType,omitempty\"`"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/nss-feeds#auditLogType"
+      ],
+      "gaps": [
+        "audit-log-type-values"
+      ]
+    },
+    "multifeed-admin-audit": {
+      "statement": "The Go SDK also accepts NSS_ADMIN_AUDIT as a multi-feed type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudnss/cloudnss/cloudnss.go",
+          "quotes": [
+            "\"USER_APP_STATE\": true, \"NSS_ADMIN_AUDIT\": true"
+          ]
+        }
+      ]
+    },
+    "no-terraform-for-report": {
+      "statement": "The audit report API has no Terraform resource in the ZIA provider; only the Cloud NSS feed resource can carry admin audit data.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_nss_server.go",
+          "quotes": [
+            "\"ADMIN_AUDIT\","
+          ]
+        }
+      ],
+      "conditions": "Rests on a search: `grep -rli 'auditlogEntryReport\\|eventlogEntryReport' vendor/terraform-provider-zia/` returns nothing at the pinned commit."
+    }
+  },
+  "gaps": {
+    "audit-log-type-values": {
+      "kind": "data",
+      "title": "Values accepted by audit_log_type",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"the Cloud NSS feed model carries a dedicated audit_log_type filter field for narrowing which audit log categories are streamed\". The value set is not shown by the provider, SDK or the captured Cloud NSS pages.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data",
+        "source-read"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zia nss-feeds list"
+    },
+    "feed-contents": {
+      "kind": "data",
+      "title": "Format and fields of an ADMIN_AUDIT feed",
+      "status": "open",
+      "detail": "No source captured here shows the admin audit feed's fields or sample output, so mapping them to the console columns is unverified.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zia nss-feeds list"
+    }
+  }
+}

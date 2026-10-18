@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "id": "zia.scim.setup",
+  "title": "Enabling ZIA SCIM: prerequisites, base URL and token",
+  "aliases": [
+    "enable scim",
+    "scim base url",
+    "scim bearer token",
+    "generate token",
+    "scim domain registration",
+    "scim prerequisites",
+    "scim saml required",
+    "scim idp guides",
+    "migrate directory sync to scim"
+  ],
+  "binds": [
+    "zia/auth-settings"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.scim"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.saml-auto-provisioning"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.directory-sync"
+    }
+  ],
+  "claims": {
+    "scim2-and-saml": {
+      "statement": "Zscaler supports only SCIM version 2.0, and SAML must be the authentication method to use SCIM for provisioning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-scim-zia.md",
+          "quotes": [
+            "Zscaler supports only SCIM version 2.0 and SAML must be used as your authentication method to use SCIM for provisioning."
+          ]
+        }
+      ]
+    },
+    "enable-per-idp": {
+      "statement": "SCIM is enabled per identity provider: an IdP must first be added in the Admin Console, which creates the identifier used in the SCIM base URL, then Enable SCIM Provisioning is turned on in the Edit IdP window, after which the base URL and bearer token appear.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-scim.md",
+          "quotes": [
+            "ensure you have added an IdP in the Zscaler Admin Console to establish a unique identifier. The identifier is included in the SCIM base URL.",
+            "Enable SCIM Provisioning: Enable to activate SCIM-based provisioning for users on the Zscaler service.",
+            "After enabling SCIM provisioning, the following fields appear:"
+          ]
+        }
+      ]
+    },
+    "not-with-directory": {
+      "statement": "SCIM provisioning is not supported with Active Directory or OpenLDAP user repositories. To migrate from directory synchronization, enable Disable Directory Sync and Enable SCIM Provisioning on the Authentication Default Settings page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-scim.md",
+          "quotes": [
+            "SCIM provisioning isn't supported with Active Directory or OpenLDAP user repositories.",
+            "enable Disable Directory Sync & Enable SCIM Provisioning on the Authentication Default Settings page."
+          ]
+        }
+      ]
+    },
+    "base-url": {
+      "statement": "The SCIM base URL has the form https://scim.<Zscaler Cloud>/<Organization ID>/<IdP ID>/scim; the old base URL marked Deprecated will be removed. Okta needs only the /<Organization ID>/<IdP ID>/ parts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-scim.md",
+          "quotes": [
+            "https://scim.<Zscaler Cloud>/<Organization ID>/<IdP ID>/scim",
+            "The old SCIM Base URL marked as (Deprecated) will be removed in the future.",
+            "Okta only requires the /<Organization ID>/<IdP ID>/ parts of the base URL"
+          ]
+        }
+      ]
+    },
+    "bearer-token": {
+      "statement": "SCIM clients authenticate with a unique alphanumeric bearer token copied from the IdP's SCIM settings. Generate Token issues a new one, and the IdP must then be updated with it. The informational calls /Schemas, /ServiceProviderConfig and /ResourceTypes need no authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-scim.md",
+          "quotes": [
+            "Bearer Token: Copy the bearer token. It's a unique alphanumeric string",
+            "If you're generating a new bearer token for an existing SCIM configuration, ensure you update the token for your IdP."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "scim-api-examples.md",
+          "quotes": [
+            "there are several API calls (/Schemas, /ServiceProviderConfig, /ResourceTypes) that do not require authentication"
+          ]
+        }
+      ]
+    },
+    "domain-preregistered": {
+      "statement": "When creating users, the domain in the username must be preregistered with Zscaler; for test@safemarch.com, safemarch.com must be registered to the tenant, and Zscaler Support can assist.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-scim-zia.md",
+          "quotes": [
+            "the domain included in the username must be preregistered with Zscaler.",
+            "Zscaler Support can assist you with the process."
+          ]
+        }
+      ],
+      "gaps": [
+        "unregistered-domain-error"
+      ]
+    },
+    "idp-guides": {
+      "statement": "Zscaler publishes SAML and SCIM configuration guides for Microsoft Entra ID, Okta and PingFederate; custom SCIM clients can call the REST API directly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-scim-zia.md",
+          "quotes": [
+            "SAML & SCIM Configuration Guide for Microsoft Entra ID (formerly Azure Active Directory)",
+            "SAML & SCIM Configuration Guide for Okta",
+            "SAML & SCIM Configuration Guide for PingFederate"
+          ]
+        }
+      ]
+    },
+    "other-idps": {
+      "statement": "An IdP outside the three guides is not ruled out: the provisioning overview says to check that a cloud IdP supports SCIM 2.0 and to obtain and implement a SCIM client.",
+      "tier": "B",
+      "conditions": "Inferred from the overview's wording; the ZIA articles do not state that any SCIM 2.0 IdP works. The ZPA article does say so for ZPA.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-provisioning-and-authentication-methods.md",
+          "quotes": [
+            "If you want to use a cloud-based identity provider, check if the IdP supports SCIM 2.0.",
+            "Need to obtain a SCIM client and implement it."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "legacy-idp-list": {
+      "kind": "semantic",
+      "title": "Whether SCIM guides exist for PingOne, Google Workspace, AD FS, OneLogin and CA SSO",
+      "status": "open",
+      "detail": "Unverified legacy statement: Zscaler publishes SCIM guides for Entra ID, Okta, PingFederate, PingOne and Google Workspace, while AD FS, OneLogin and CA Single Sign-On are SAML only. The captured SCIM article lists guides for Entra ID, Okta and PingFederate only. The SCIM and SAML configuration guide index would settle it.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "blocks": "telling an operator which IdPs have vendor SCIM guides"
+    },
+    "unregistered-domain-error": {
+      "kind": "semantic",
+      "title": "What a push for an unregistered domain returns",
+      "status": "open",
+      "detail": "Unverified legacy statement: Attempting to POST a user whose userName domain is unregistered returns an error, and registration through Support can block tenants with several email domains. The SCIM article states the registration requirement but no response or error. A lab push or Support answer would settle the failure mode.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "diagnosing a user that never appears after the IdP reports a push"
+    }
+  }
+}

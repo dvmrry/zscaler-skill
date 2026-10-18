@@ -1,0 +1,284 @@
+{
+  "schema_version": 1,
+  "id": "zia.time-intervals.rule-usage",
+  "title": "Which ZIA rules take a time interval, and how many",
+  "aliases": [
+    "time windows on rules",
+    "which rules support time",
+    "schedule a rule",
+    "timeWindows field",
+    "ssl inspection time of day",
+    "rule schedule support",
+    "Always time criterion"
+  ],
+  "binds": [
+    "zia/time-intervals",
+    "zia/time-windows",
+    "zia/ssl-inspection-rules#timeWindows"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.time-intervals.schema"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.time-windows"
+    }
+  ],
+  "claims": {
+    "rule-types": {
+      "statement": "These rule types carry a `timeWindows` list in the API request body: Bandwidth Control, NAT Control (`/dnatRules`), File Type Control, Firewall DNS Control, Firewall Filtering, Firewall IPS Control, Forwarding Control, Sandbox, URL Filtering, Cloud App Control (`/webApplicationRules/{rule_type}`) and Web DLP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules/post/requestBody/content/application~1json/schema/properties/timeWindows",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dnatRules/post/requestBody/content/application~1json/schema/properties/timeWindows",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/timeWindows",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallDnsRules/post/requestBody/content/application~1json/schema/properties/timeWindows",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallFilteringRules/post/requestBody/content/application~1json/schema/properties/timeWindows",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallIpsRules/post/requestBody/content/application~1json/schema/properties/timeWindows",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1forwardingRules/post/requestBody/content/application~1json/schema/properties/timeWindows",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sandboxRules/post/requestBody/content/application~1json/schema/properties/timeWindows",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1urlFilteringRules/post/requestBody/content/application~1json/schema/properties/timeWindows",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webApplicationRules~1{rule_type}/post/requestBody/content/application~1json/schema/properties/timeWindows",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/timeWindows",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ]
+    },
+    "traffic-capture-rules": {
+      "statement": "Traffic Capture rules (`/trafficCaptureRules`) also carry a `timeWindows` list in the Go SDK struct; the captured OpenAPI document has no Traffic Capture path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/traffic_capture/traffic_capture.go",
+          "quotes": [
+            "TimeWindows []common.IDNameExtensions `json:\"timeWindows,omitempty\"`",
+            "trafficCaptureRulesEndpoint = \"/zia/api/v1/trafficCaptureRules\""
+          ]
+        }
+      ]
+    },
+    "default-always": {
+      "statement": "A rule with no time interval applies at all times: Firewall Filtering Help says Always is the default, and URL Filtering Help offers Always or up to two time intervals.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.md",
+          "quotes": [
+            "Time: Select Always to apply this rule to all time intervals, or select up to two time intervals."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firewall-filtering-policy.md",
+          "quotes": [
+            "Time: Select up to two time intervals during which the rule applies. By default, the field is set to Always."
+          ]
+        }
+      ]
+    },
+    "rule-field-is-list": {
+      "statement": "The rule field is a list, so a rule can reference more than one interval; the sources do not say how several intervals combine (any one matching versus all).",
+      "tier": "B",
+      "derived_from": [
+        "rule-types",
+        "default-always"
+      ],
+      "conditions": "Inference from the field being an array and Help saying \"up to two time intervals\". No source states the combination rule."
+    },
+    "time-in-rule-criteria": {
+      "statement": "Time is one criterion among a rule's others: the rule is eligible only while the clock is inside the interval, and its other criteria still have to match.",
+      "tier": "B",
+      "derived_from": [
+        "rule-types",
+        "zia.time-intervals.evaluation:outside-window-not-triggered"
+      ],
+      "conditions": "Inference from Time being listed with the other rule criteria in the configuration pages; no source spells out the conjunction."
+    }
+  },
+  "divergences": {
+    "ssl-inspection-time-windows": {
+      "summary": "SSL Inspection rules carry `timeWindows` in the OpenAPI document, the Go and Python SDKs and the Terraform schema (which caps it at 2), while the MCP server's workflow skill says the API has no time attribute for them.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1sslInspectionRules/post/requestBody/content/application~1json/schema/properties/timeWindows",
+            "expect": {
+              "type": "array",
+              "description": "The time intervals during which the rule applies"
+            }
+          },
+          "says": "The SSL Inspection rule request body has a `timeWindows` list of time-interval references."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+            "quotes": [
+              "TimeWindows []common.IDNameExtensions `json:\"timeWindows,omitempty\"`"
+            ]
+          },
+          "says": "The Go SDK SSL Inspection rule struct has the same field."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/models/ssl_inspection_rules.py",
+            "quotes": [
+              "config[\"timeWindows\"] if \"timeWindows\" in config else [], time_windows.TimeWindows"
+            ]
+          },
+          "says": "The Python SSL Inspection rule model reads and writes `timeWindows`."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/resource_zia_ssl_inspection_rules.go",
+            "quotes": [
+              "\"time_windows\": setIDsSchemaTypeCustom(intPtr(2),"
+            ]
+          },
+          "says": "The Terraform SSL Inspection rule schema has `time_windows`, capped at 2 entries."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "skills/zia/create-ssl-inspection-rule/SKILL.md",
+            "quotes": [
+              "SSL Inspection rules have no `time_windows` attribute on the API."
+            ]
+          },
+          "says": "The MCP workflow skill states SSL Inspection has no time-of-day attribute and sends admins to Firewall Filtering or URL Filtering for a schedule."
+        }
+      ],
+      "impact": "An agent told to schedule decryption by time of day may refuse on the strength of the skill, or set the field through Terraform and assume it is honored. Whether the service enforces the field on SSL rules is unobserved."
+    }
+  },
+  "gaps": {
+    "ssl-time-enforced": {
+      "kind": "semantic",
+      "title": "Whether ZIA enforces a time interval set on an SSL Inspection rule",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"SSL Inspection is a genuine SDK-model-vs-API divergence, not a usable scheduling target ... the ZIA MCP workflow skills say the API does not support time-of-day scheduling for SSL Inspection rules.\" The API specification, both SDKs and the Terraform provider all carry the field; only a workflow skill denies it. Resolve by attaching an interval to a scratch SSL rule and observing whether it is stored and whether it gates the rule.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "about": [
+        "zia.time-intervals.rule-usage:ssl-inspection-time-windows"
+      ]
+    },
+    "rule-types-without-time": {
+      "kind": "data",
+      "title": "Rule types without a time criterion",
+      "status": "open",
+      "detail": "Unverified legacy statement: CASB DLP rules, CASB Malware rules and FTP Control have no `time_windows` field. The captured OpenAPI request bodies for the CASB rule paths carry no `timeWindows` member, but no source states the absence, and FTP Control is a settings object rather than a rule list.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "none"
+      ]
+    },
+    "zpa-no-schedule": {
+      "kind": "semantic",
+      "title": "Whether ZPA has any schedule or time-of-day policy criterion",
+      "status": "open",
+      "detail": "Unverified legacy statement: ZPA has no time interval object and no time-of-day or day-of-week match in access policy; its only time constructs are re-authentication timeouts. No registered ZPA source was read for this during conversion.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

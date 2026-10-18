@@ -35,7 +35,7 @@ This document provides a cross-product view of the "who changed what config when
 
 ## Per-product reference documents
 
-- ZIA admin audit logs: [`../zia/audit-logs.md`](../zia/audit-logs.md)
+- ZIA admin audit logs: [`zia.audit-logs`](kb:zia.audit-logs)
 - ZPA admin audit logs: [`../zpa/audit-logs.md`](../zpa/audit-logs.md)
 - ZWA customer audit logs: [`../zwa/audit-logs.md`](../zwa/audit-logs.md)
 
@@ -74,7 +74,7 @@ Source: `vendor/zscaler-help/admin-rbac-captures.md`.
 
 The audit log API requires the **Reports** functional scope on the admin account. The Cloud Service API must be enabled by Zscaler Support for the tenant.
 
-Full detail: [`../zia/audit-logs.md`](../zia/audit-logs.md)
+Full detail: [`zia.audit-logs`](kb:zia.audit-logs)
 
 ---
 
@@ -256,7 +256,7 @@ Source: `vendor/zscaler-help/about-log-streaming-service.md`.
 
 ## Cross-links
 
-- ZIA admin audit logs (per-product detail) — [`../zia/audit-logs.md`](../zia/audit-logs.md)
+- ZIA admin audit logs (per-product detail) — [`zia.audit-logs`](kb:zia.audit-logs)
 - ZPA admin audit logs (per-product detail) — [`../zpa/audit-logs.md`](../zpa/audit-logs.md)
 - ZWA customer audit logs (per-product detail) — [`../zwa/audit-logs.md`](../zwa/audit-logs.md)
 - Admin RBAC (cross-product role model that audit logs record actions against) — [`./admin-rbac.md`](./admin-rbac.md)

@@ -160,7 +160,7 @@ A `kb:<id>` entry is a knowledge-graph subject: load it with `node scripts/kb.mj
 | SSL inspection, TLS inspection, inspection bypass | `kb:zia.ssl-inspection` and `kb:zia.ssl-inspection.pipeline` |
 | ZCC, Zscaler Client Connector, Z-Tunnel, forwarding profile | start at `references/zcc/index.md` |
 | Service Edge, ZEN, broker, Public Service Edge | `references/shared/cloud-architecture.md` and `references/shared/terminology.md` |
-| Private Service Edge, PSE, PSEN | `references/zia/private-service-edge.md` |
+| Private Service Edge, PSE, PSEN | `kb:zia.private-service-edge` (Virtual Service Edge: `kb:zia.virtual-service-edge`) |
 | Cloud Connector, Branch Connector | `references/cloud-connector/index.md` |
 | ZDX probe, deeptrace, Cloud Path | start at `references/zdx/index.md` |
 | ZIdentity, OneAPI, Authentication Level, step-up auth | start at `references/zidentity/index.md` |

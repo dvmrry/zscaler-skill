@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "id": "zia.proxy-mode.forwarding-map",
+  "title": "Which forwarding methods produce explicit or transparent mode",
+  "aliases": [
+    "proxy mode per forwarding method",
+    "pac over tunnel",
+    "gre explicit",
+    "z-tunnel proxy mode",
+    "is this explicit or transparent"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.proxy-mode"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.proxy-mode.explicit"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.proxy-mode.transparent"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.traffic-forwarding.gre"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.traffic-forwarding.zcc"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.traffic-forwarding.proxy-chaining"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.criteria"
+    }
+  ],
+  "claims": {
+    "pac-explicit": {
+      "statement": "A browser sent to the Service Edge by manual proxy settings or a PAC file is in explicit mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-proxy-mode.md",
+          "quotes": [
+            "The user either manually configures the browser’s settings or configures the browser to use a PAC file to send traffic to a Service Edge."
+          ]
+        }
+      ]
+    },
+    "tunnel-transparent": {
+      "statement": "Traffic directed to a Service Edge by a GRE or IPSec tunnel at the egress router, with no browser configuration, is in transparent mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-proxy-mode.md",
+          "quotes": [
+            "Instead, the traffic is directed to a Service Edge through some other means, such as a GRE or IPSec tunnel configured at your organization’s egress router."
+          ]
+        }
+      ]
+    },
+    "explicit-over-tunnel": {
+      "statement": "A tunnel can also carry explicit-mode traffic: GRE can be used in explicit proxy mode, and the SSL Inspection CONNECT User-Agent criterion applies to explicit mode forwarded by PAC or PAC over a tunnel. A tunnel therefore does not by itself make traffic transparent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "gre-deployment-scenarios.md",
+          "quotes": [
+            "To configure GRE tunnels with the explicit proxy mode in no default route environment, use the following set of global Public Service Edge IP addresses:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.md",
+          "quotes": [
+            "This criterion applies only to SSL/TLS traffic forwarded in explicit proxy mode (PAC or PAC over tunnel)"
+          ]
+        }
+      ]
+    },
+    "z-tunnel-1-connect": {
+      "statement": "Z-Tunnel 1.0 forwards by CONNECT requests like a traditional proxy, but the SSL Inspection CONNECT User-Agent criterion does not apply to it, for lack of user agent context. No source labels it explicit or transparent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-z-tunnel-1.0-z-tunnel-2.0.md",
+          "quotes": [
+            "Z-Tunnel 1.0 forwards traffic to the Zscaler cloud via CONNECT requests, much like a traditional proxy."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.md",
+          "quotes": [
+            "and not to traffic forwarded via a transparent proxy (tunnel) or Z-Tunnel 1.0 due to lack of user agent context."
+          ]
+        }
+      ],
+      "gaps": [
+        "z-tunnel-2-mode"
+      ]
+    },
+    "not-a-setting": {
+      "statement": "Proxy mode is not a setting an admin turns on: it follows from how the traffic arrives (a configured browser versus a redirected flow), and one forwarding method can carry either mode.",
+      "tier": "B",
+      "derived_from": [
+        "pac-explicit",
+        "tunnel-transparent",
+        "explicit-over-tunnel"
+      ],
+      "conditions": "No source says there is no proxy-mode setting; it is concluded from the vendor describing each mode by how traffic is delivered."
+    }
+  },
+  "gaps": {
+    "chained-proxy-mode": {
+      "kind": "semantic",
+      "title": "Proxy mode of chained proxy traffic",
+      "status": "open",
+      "detail": "Unverified legacy statement: Proxy chaining is explicit mode: the upstream proxy sends CONNECT onward to the Service Edge. No captured source states it; a lab test would settle it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "z-tunnel-2-mode": {
+      "kind": "semantic",
+      "title": "Proxy mode of Z-Tunnel 2.0 traffic",
+      "status": "open",
+      "detail": "Unverified legacy statement: Z-Tunnel 2.0 is transparent: it tunnels all traffic over DTLS or TLS with no CONNECT and identifies hosts by SNI, and it carries device and user identity metadata in the tunnel header for per-user policy. No captured source states it; a lab test would settle it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

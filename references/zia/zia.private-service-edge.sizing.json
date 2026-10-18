@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "id": "zia.private-service-edge.sizing",
+  "title": "Choosing a Private Service Edge design and node count",
+  "aliases": [
+    "pse sizing",
+    "pse 3 vs pse 5",
+    "dedicated lb sizing",
+    "pse throughput",
+    "pse max nodes per cluster",
+    "pse upload throughput cap",
+    "pse n+1 sizing",
+    "pse over 5 gbps"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.private-service-edge.cluster-architecture"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.when-to-deploy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.ip-requirements"
+    }
+  ],
+  "claims": {
+    "design-pse3": {
+      "statement": "Private Service Edge 3 with Integrated LB: 3 Service Edge instances, an integrated LB and a 1GE network interface, sized for ISP link speeds of 1 Gbps download.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "| Private Service Edge 3 with Integrated LB | An annual subscription to Private Service Edge with 3 Service Edge instances, an integrated LB, and a 1GE network interface. | 1 Gbps |"
+          ]
+        }
+      ]
+    },
+    "design-pse5": {
+      "statement": "Private Service Edge 5 with Integrated LB: 5 Service Edge instances, an integrated LB and a 10GE network interface, sized for ISP link speeds of 2 Gbps download.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "| Private Service Edge 5 with Integrated LB | An annual subscription to Private Service Edge with 5 Service Edge instances, an integrated LB, and a 10GE network interface. | 2 Gbps |"
+          ]
+        }
+      ]
+    },
+    "design-pse5-dedicated": {
+      "statement": "Private Service Edge 5 with Dedicated LB: 6 Service Edge instances, a dedicated LB with up to 4 LB instances and a 10GE network interface, sized for ISP link speeds greater than 5 Gbps download.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "| Private Service Edge 5 with Dedicated LB | An annual subscription to Private Service Edge with 6 Service Edge instances, a dedicated LB with up to 4 LB instances, and a 10GE network interface. | Greater than 5 Gbps |"
+          ]
+        }
+      ]
+    },
+    "upload-assumption": {
+      "statement": "The sizing figures assume upload throughput is around 30% of download. When upload is unknown, 30% of the expected download is used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "The preceding sizing suggestion is based on the assumption that the upload throughput is around 30% of the download throughput.",
+            "If the upload throughput is unknown, 30% of the expected download throughput is considered as upload throughput based on the industry average."
+          ]
+        }
+      ]
+    },
+    "size-both-directions": {
+      "statement": "Private Service Edge sizing is based on throughput, and both upload and download throughput must be considered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "You must consider both upload and download throughput when sizing a Private Service Edge deployment."
+          ]
+        }
+      ]
+    },
+    "upload-caps": {
+      "statement": "Maximum upload throughput per cluster is limited to 800 Mbps on Private Service Edge 3, 2.5 Gbps on Private Service Edge 5, and 6 Gbps per LB instance on Private Service Edge 5 with Dedicated LB (up to 24 Gbps).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "The maximum upload throughput per cluster is limited to 800 Mbps on Private Service Edge 3, 2.5 Gbps on Private Service Edge 5, and 6 Gbps per LB instance on Private Service Edge 5 with Dedicated LB.",
+            "| Maximum Upload Throughput per Cluster | 800 Mbps | 2.5 Gbps | Up to 24 Gbps |"
+          ]
+        }
+      ]
+    },
+    "cluster-totals": {
+      "statement": "A Private Service Edge 3 cluster handles up to 1.2 Gbps of download and 2 Gbps of total throughput; a Private Service Edge 5 cluster handles up to 3.9 Gbps of download and 5 Gbps of total throughput.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Private Service Edge 3 cluster handles up to 1.2 Gbps of download throughput and 2 Gbps of total throughput.",
+            "Private Service Edge 5 cluster services up to a maximum of 3.9 Gbps of download throughput and 5 Gbps of total throughput."
+          ]
+        }
+      ]
+    },
+    "node-counts": {
+      "statement": "Maximum Private Service Edges per cluster is 3 for Private Service Edge 3 and 5 with Integrated LB and 10 for Private Service Edge 5 with Dedicated LB; the minimum is 2 for all three. The Dedicated LB design has 2 dedicated LBs per cluster.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "| Maximum Private Service Edge per Cluster | 3 | 3 | 10 |",
+            "| Minimum Private Service Edge per Cluster | 2 | 2 | 2 |",
+            "| Dedicated LB per Cluster | N/A | N/A | 2 |"
+          ]
+        }
+      ]
+    },
+    "always-quoted-n-plus-one": {
+      "statement": "Private Service Edge 3 and Private Service Edge 5 are always quoted with N+1 redundancy to meet the Zscaler SLA requirements; the second node also covers traffic bursts and hardware failure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Private Service Edge 3 is always quoted with N+1 redundancy to meet the Zscaler SLA requirements and ensure service continuity.",
+            "Private Service Edge 5 is always quoted with N+1 redundancy to meet the Zscaler SLA requirements and ensure service continuity."
+          ]
+        }
+      ]
+    },
+    "over-5gbps-needs-dedicated-and-review": {
+      "statement": "Any deployment requiring more than 5 Gbps of total throughput must include the Dedicated LB hardware and must be reviewed by Zscaler Cloud Operations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Any deployment requiring more than 5 Gbps of total throughput must include the Dedicated LB hardware.",
+            "Any deployment requiring more than 5 Gbps of total throughput must be reviewed by Zscaler Cloud Operations."
+          ]
+        }
+      ]
+    },
+    "pse5-above-1gbps": {
+      "statement": "For more than 1 Gbps of download throughput, the sizing section recommends deploying Private Service Edge 5.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "For more than 1 Gbps of download throughput, Zscaler recommends deploying Private Service Edge 5."
+          ]
+        }
+      ]
+    },
+    "worked-examples": {
+      "statement": "Worked examples on the page: 800 Mbps download plus 240 Mbps upload is 1.04 Gbps total on a 1GE port, served by two Private Service Edge 3 nodes; 1.8 Gbps download plus 540 Mbps upload is 2.34 Gbps total on a 10GE port, served by two Private Service Edge 5 nodes; 1.75 Gbps download needs 2 x Private Service Edge 5, and 2.45 Gbps and 3.5 Gbps download each need 3 x Private Service Edge 5.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "The total throughput that the Private Service Edge cluster must support is 1.04 Gbps (800 Mbps + 240 Mbps = 1.04 Gbps).",
+            "The total throughput that the Private Service Edge cluster must support is 2.34 Gbps (1.8 Gbps + 540 Mbps = 2.34 Gbps).",
+            "| 1.75 Gbps | 525 Mbps | 2.27 Gbps | 2 x Private Service Edge 5 |",
+            "| 3.5 Gbps | 1.05 Gbps | 4.55 Gbps | 3 x Private Service Edge 5 |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "pse3-above-1gbps-tension": {
+      "kind": "semantic",
+      "title": "PSE 3 versus PSE 5 above 1 Gbps of download",
+      "status": "open",
+      "detail": "The page says a Private Service Edge 3 cluster handles up to 1.2 Gbps of download, yet recommends Private Service Edge 5 for more than 1 Gbps of download, and the design table sizes Private Service Edge 3 for 1 Gbps. The page does not say whether 1.0 to 1.2 Gbps is a supported PSE 3 range or headroom. Unverified legacy statement (corrected here): the legacy table labelled '~24 Gbps' as 'Max total' for the Dedicated LB design; the source labels it maximum upload throughput per cluster.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    }
+  }
+}

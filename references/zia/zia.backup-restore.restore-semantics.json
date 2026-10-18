@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "id": "zia.backup-restore.restore-semantics",
+  "title": "What restoring a ZIA restore point does and does not revert",
+  "aliases": [
+    "restore point overwrite",
+    "zia restore removes",
+    "backup restore dlp edm idm",
+    "what does zia restore cover",
+    "golden restore point restore"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.backup-restore.restore-points"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering"
+    }
+  ],
+  "claims": {
+    "overwrites-all": {
+      "statement": "Restoring a restore point overwrites all current policies and configuration settings, including all rules and their components such as URL categories and time intervals; it is a replacement, not a merge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.md",
+          "quotes": [
+            "When you restore policies and configuration settings from a restore point, it overwrites all your current policies and configuration settings, including all the rules and their components (e.g., URL categories and time intervals)."
+          ]
+        }
+      ]
+    },
+    "absent-removed": {
+      "statement": "A component present in the current configuration but absent from the selected restore point is removed by the restore, so anything created after the point is lost for the covered policy areas.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.md",
+          "quotes": [
+            "If your current configuration has a component that is not present in the restore point, that component is removed when the restore point is restored."
+          ]
+        }
+      ]
+    },
+    "dlp-edm-idm": {
+      "statement": "For organizations with Exact Data Match (EDM) or Indexed Document Match (IDM) enabled, Backup and Restore does not restore Data Loss Prevention policies, so a successful restore is not evidence that DLP policy state was restored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.md",
+          "quotes": [
+            "For organizations with Exact Data Match (EDM) or Indexed Document Match (IDM) enabled, the Backup and Restore feature doesn’t restore the Data Loss Prevention (DLP) policies."
+          ]
+        }
+      ]
+    },
+    "included-policies": {
+      "statement": "The backup covers these policy families: Advanced Threat Protection, Bandwidth Control, Browser Control, Cloud App Control, Data Loss Prevention, DNS Control, File Type Control, Firewall Control, Forwarding Control, FTP Control, IPS Control, Malware Protection, Mobile App Store Control, Mobile Malware Protection, SaaS Security API DLP, SaaS Security API Malware Detection, Sandbox, SSL Inspection and URL Filtering.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-backup-and-restore.md",
+          "quotes": [
+            "The policies that are included in the backup are listed as follows:",
+            "Advanced Threat Protection policies",
+            "Forwarding Control policies",
+            "SaaS Security API Malware Detection policies",
+            "URL Filtering policies"
+          ]
+        }
+      ],
+      "gaps": [
+        "configuration-settings"
+      ]
+    }
+  },
+  "gaps": {
+    "configuration-settings": {
+      "kind": "semantic",
+      "title": "Which non-policy configuration settings a restore point holds",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"An unlisted family must not be inferred to be either included in or excluded from a restore point.\" The help page says backups hold \"policies and configuration settings\" but lists only policy families, so settings such as locations, admin accounts or PAC files are not shown to be in or out.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "telling an admin what a restore will revert outside the listed policies"
+    },
+    "api-surface": {
+      "kind": "semantic",
+      "title": "Whether backup and restore is available through the API, SDKs, Terraform or MCP",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"does not generalize those semantics to an API, SDK, Terraform provider, or MCP surface\". A search of the ZIA OpenAPI paths, the ZIA Terraform provider and the Go SDK found nothing named backup or restore, so the feature is documented only as a console function.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

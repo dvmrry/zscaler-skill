@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.methods",
+  "title": "Forwarding methods Zscaler supports and how to choose",
+  "aliases": [
+    "traffic forwarding methods",
+    "gre vs ipsec",
+    "which forwarding method",
+    "how does traffic reach zia",
+    "pac vs zcc",
+    "forwarding best practice"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.gre"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.ipsec"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.pac"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.zcc"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.proxy-chaining"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.locations.model"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.authentication.surrogate-ip"
+    }
+  ],
+  "claims": {
+    "supported-set": {
+      "statement": "Zscaler supports Client Connector, GRE tunnels, IPSec tunnels, PAC files, proxy chaining, Cloud Connector and Branch Connector as traffic forwarding mechanisms; a tenant can use one or a combination.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-traffic-forwarding-methods.md",
+          "quotes": [
+            "Zscaler supports the following traffic forwarding mechanisms.",
+            "you can choose one or a combination of the following traffic forwarding methods",
+            "Zscaler Cloud Connector works similarly to Zscaler Client Connector",
+            "Zscaler Branch Connector is a virtual machine (VM) that simplifies traffic forwarding to Zscaler services."
+          ]
+        }
+      ]
+    },
+    "recommended-combination": {
+      "statement": "Zscaler recommends forwarding all internet traffic (all protocols, all ports) to the service, using a combination of tunneling, PAC files, Surrogate IP and Client Connector. The stated benefits are that all platform features (Bandwidth Control, Firewall, group and department policy) are available and that sublocations can apply different policy by IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-traffic-forwarding.md",
+          "quotes": [
+            "Zscaler recommends that organizations forward all internet traffic (traffic for all protocols and destined for all ports) to the Zscaler service",
+            "Zscaler recommends using a combination of tunneling, PAC files, Surrogate IP, and Zscaler Client Connector on your users",
+            "You can leverage all the features of the Zscaler platform, which includes Bandwidth Control, Firewall, and creating group and department policies.",
+            "You can create sublocations to implement different policies based on IP addresses."
+          ]
+        }
+      ]
+    },
+    "alternative-combinations": {
+      "statement": "Where the full combination cannot be deployed at every location, Zscaler lists three alternatives for some locations: tunneling with PAC files and Surrogate IP, tunneling with PAC files, and tunneling with Surrogate IP; PAC files sent to a dedicated proxy port are a fourth pattern.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-traffic-forwarding.md",
+          "quotes": [
+            "If you cannot deploy this combination at all locations, you can choose any of the alternative combinations of traffic forwarding methods for some locations",
+            "Using Tunneling, PAC Files, and Surrogate IP",
+            "Using Tunneling and PAC Files",
+            "Using Tunneling and Surrogate IP",
+            "Using PAC Files to Forward Traffic to a Dedicated Proxy Port"
+          ]
+        }
+      ]
+    },
+    "tunnels-do-not-follow-users": {
+      "statement": "A tunnel only carries traffic from the site it is built at: without PAC files or Client Connector there is no protection for remote users outside the office, and excluding applications from the service is harder without PAC files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-traffic-forwarding.md",
+          "quotes": [
+            "There is no protection for remote users outside the office, because that traffic cannot be forwarded to the Zscaler service.",
+            "Managing applications that need to be excluded from the Zscaler service becomes difficult without PAC files."
+          ]
+        }
+      ]
+    },
+    "tunnel-choice": {
+      "statement": "A GRE tunnel needs a router or switch that supports GRE and whose egress port has a static address; IPSec is the option when the router does not support GRE or the site uses dynamic IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-traffic-forwarding-methods.md",
+          "quotes": [
+            "If your organization has an internal router or switch that supports GRE and its egress port has a static address, you can configure a GRE tunnel.",
+            "If your router does not support GRE or if you use dynamic IP addresses, you can configure IPSec VPN tunnels."
+          ]
+        }
+      ]
+    },
+    "tunnel-benefits": {
+      "statement": "GRE and IPSec tunnels both forward all ports and protocols, fail over when the primary Public Service Edge is unavailable, need no configuration on computers, and cannot be bypassed by users on a known corporate network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-traffic-forwarding-methods.md",
+          "quotes": [
+            "Supports all ports and protocols for traffic forwarding.Supports fail over in case the primary Public Service Edge becomes unavailable.Minimal overhead.No configuration on computers or laptops.Users on your corporate network (known location) cannot bypass the service.",
+            "Supports all ports and protocols for traffic forwarding.Supports fail over if primary Public Service Edge becomes unavailable.No configuration on computers or laptops.Users on your corporate network (known location) cannot bypass the service."
+          ]
+        }
+      ]
+    },
+    "connector-products": {
+      "statement": "Cloud Connector forwards server-to-server and public-cloud workload traffic and is supported on AWS and Azure; Branch Connector is a virtual machine that forwards branch traffic directly to the Zero Trust Exchange. Both are separate products from the four mechanisms covered in this area.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-traffic-forwarding-methods.md",
+          "quotes": [
+            "Cloud Connector is currently supported for AWS and Azure platforms.",
+            "Branch Connector streamlines traffic forwarding by establishing direct branch-to-internet and branch-to-private app connections using a full proxy architecture."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "throughput-threshold": {
+      "kind": "semantic",
+      "title": "Throughput at which GRE is preferred over IPSec",
+      "status": "open",
+      "detail": "Unverified legacy statement: GRE is the best fit for branches needing 500 Mbps or more, and IPSec for smaller branches. No captured source states it; Zscaler Support or a vendor article would settle it.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "combined-patterns": {
+      "kind": "semantic",
+      "title": "Recommended method pairings by site type",
+      "status": "open",
+      "detail": "Unverified legacy statement: A small or remote office with a dynamic IP uses IPSec with a UFQDN credential plus Client Connector as fallback; a SaaS-only tenant with no infrastructure uses PAC plus Client Connector with no tunnel provisioning. No captured source states it; operator experience or a tenant observation would settle it.",
+      "resolves_with": [
+        "operator-experience"
+      ]
+    },
+    "location-per-method": {
+      "kind": "semantic",
+      "title": "Whether every forwarding method surfaces as a Location",
+      "status": "open",
+      "detail": "Unverified legacy statement: Every method ultimately surfaces inside ZIA as a Location (or is associated with one). No captured source states it; Zscaler Support or a vendor article would settle it.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    }
+  }
+}

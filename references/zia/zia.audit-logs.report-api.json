@@ -1,0 +1,594 @@
+{
+  "schema_version": 1,
+  "id": "zia.audit-logs.report-api",
+  "title": "Exporting the ZIA admin audit log through the report API",
+  "aliases": [
+    "auditlogEntryReport",
+    "audit log api",
+    "export audit log csv",
+    "audit report statusId",
+    "AuditLogEntryRequest",
+    "adminauditlogs sdk"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.audit-logs.what-is-recorded"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs.event-log-report"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs.streaming"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.service-defects"
+    }
+  ],
+  "claims": {
+    "lifecycle": {
+      "statement": "An admin audit report is generated asynchronously: POST /auditlogEntryReport starts it, GET /auditlogEntryReport reports status until it is COMPLETE, then GET /auditlogEntryReport/download returns the CSV; DELETE /auditlogEntryReport cancels the request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/get",
+          "expect": {
+            "description": "<p>Gets the status of a request for an audit log report. After sending a POST request to <code>/auditlogEntryReport</code> to generate a report, you can continue to call GET <code>/auditlogEntryReport</code> to check whether the report has finished generating. Once the status is <code>COMPLETE</code>, you can send another GET request to <code>/auditlogEntryReport/download</code> to download the report as a CSV file.</p>\n"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/get/responses/200/content/application~1json/schema/properties/status",
+          "expect": {
+            "enum": [
+              "INIT",
+              "EXECUTING",
+              "COMPLETE",
+              "CANCELLED",
+              "ERRORED",
+              "VALIDATING",
+              "STOP"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport~1download/get",
+          "expect": {
+            "description": "<p>Downloads the most recently created audit log report. After a call to GET <code>/auditlogEntryReport</code> indicates that the report (CSV file) was generated, you can send a GET request to <code>/auditlogEntryReport/download</code> to download the file.</p>\n"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/delete",
+          "expect": {
+            "description": "<p>Cancels the request to create an audit log report.</p>\n"
+          }
+        }
+      ]
+    },
+    "single-report-overwritten": {
+      "statement": "The most recent report replaces the previous one: creating a new audit log report overwrites the previously generated report, and the download returns the most recently created one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post",
+          "expect": {
+            "description": "<p>Creates an audit log report for the specified time period and saves it as a CSV file. The report includes audit information for every call made to the cloud service API during the specified time period. Creating a new audit log report overwrites a previously-generated report.</p>\n"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport~1download/get",
+          "expect": {
+            "description": "<p>Downloads the most recently created audit log report. After a call to GET <code>/auditlogEntryReport</code> indicates that the report (CSV file) was generated, you can send a GET request to <code>/auditlogEntryReport/download</code> to download the file.</p>\n"
+          }
+        }
+      ],
+      "conditions": "The one-report-at-a-time reading follows the description text; it is not shown whether the overwrite is per admin or per organization (see gap `report-scope`)."
+    },
+    "status-id": {
+      "statement": "The spec identifies a report by a `statusId` query parameter returned from the POST; it is required on DELETE (cancel) and optional on the status and download GETs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/delete/parameters/[name=statusId]",
+          "expect": {
+            "required": true,
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/get/parameters/[name=statusId]",
+          "expect": {
+            "required": false,
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport~1download/get/parameters/[name=statusId]",
+          "expect": {
+            "required": false,
+            "in": "query"
+          }
+        }
+      ]
+    },
+    "post-204": {
+      "statement": "The POST returns 204 with no body, so the report identifier is not in the create response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post/responses/204",
+          "expect": {
+            "description": "Successful Operation"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/adminauditlogs/adminauditlogs.go",
+          "quotes": [
+            "expected 204 No Content"
+          ]
+        }
+      ],
+      "conditions": "The spec lists a statusId as returned by the POST while its only response is 204; how a client obtains it is not documented (see gap `status-id-source`)."
+    },
+    "request-filters": {
+      "statement": "The create request filters by startTime, endTime, adminName, objectName, actionInterface, category, subcategories, actionResult, actionTypes, clientIP, traceId, targetOrgId, page and pageSize; actionTypes values are SIGN_IN, SIGN_OUT, CREATE, UPDATE, DELETE, PATCH, AUDIT_OPERATION, ACTIVATE, FORCED_ACTIVATE, IMPORT, REPORT and DOWNLOAD. actionResult is Failure or Success, and actionInterface is Admin UI or API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/actionTypes",
+          "expect": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "SIGN_IN",
+                "SIGN_OUT",
+                "CREATE",
+                "UPDATE",
+                "DELETE",
+                "PATCH",
+                "AUDIT_OPERATION",
+                "ACTIVATE",
+                "FORCED_ACTIVATE",
+                "IMPORT",
+                "REPORT",
+                "DOWNLOAD"
+              ],
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/adminName",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/objectName",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/actionInterface",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/actionResult",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post/requestBody",
+          "expect": {
+            "description": "<p>Audit log entry request, which includes the following values:</p><ul><li>startTime: The timestamp, in epoch, of the admin's last login.</li><li>endTime: The timestamp, in epoch, of the admin's last logout.</li><li>actionTypes: The action performed by the admin in the Zscaler Admin Portal (i.e., Admin UI) or API. . </li><li>category: The location in the Zscaler Admin Portal (i.e., Admin UI) where the actionType was performed. .</li><li>subcategories: The area within a category where the actionType was performed. .</li><li>actionResult: The outcome (i.e., Failure or Success) of an actionType.</li><li>actionInterface: The interface (i.e., Admin UI or API) where the actionType was performed.</li><li>clientIP: The source IP address for the admin.</li><li>adminName: The admin's login ID.</li></ul>\n"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/adminauditlogs/adminauditlogs.go",
+          "quotes": [
+            "Filters the list based on the outcome (i.e., Failure or Success) of the events recorded"
+          ]
+        }
+      ]
+    },
+    "spec-field-types": {
+      "statement": "In the API spec clientIP and traceId are strings, pageSize is a 32-bit integer, and startTime and endTime are 64-bit integers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/clientIP",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/traceId",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/pageSize",
+          "expect": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/startTime",
+          "expect": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/endTime",
+          "expect": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      ]
+    },
+    "go-request-struct": {
+      "statement": "The Go SDK request struct types ClientIP and TraceId as int, PageSize as string, and StartTime and EndTime as int.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/adminauditlogs/adminauditlogs.go",
+          "quotes": [
+            "TargetOrgId int `json:\"targetOrgId,omitempty\"`",
+            "TraceId int `json:\"traceId,omitempty\"`",
+            "PageSize string `json:\"pageSize,omitempty\"`",
+            "ClientIP int `json:\"clientIP,omitempty\"`",
+            "StartTime int `json:\"startTime,omitempty\"`",
+            "EndTime int `json:\"endTime,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "python-create": {
+      "statement": "The Python SDK create() sends only startTime and endTime, and sleeps 2 seconds after the POST before returning the status code; filters need a direct REST call.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "quotes": [
+            "def create(self, start_time: str, end_time: str)",
+            "\"startTime\": start_time,",
+            "time.sleep(2)"
+          ]
+        }
+      ]
+    },
+    "sdk-omit-status-id": {
+      "statement": "Neither SDK passes a statusId on cancel: the Go Delete and the Python cancel() call the bare endpoint.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/adminauditlogs/adminauditlogs.go",
+          "quotes": [
+            "err := service.Client.Delete(ctx, auditLogEntryReportEndpoint)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "quotes": [
+            "request, error = self._request_executor.create_request(http_method, api_url, {}, {}, {})"
+          ],
+          "after": "def cancel(self)"
+        }
+      ],
+      "conditions": "Read from the Go Delete function and the Python cancel() body, which builds the request with empty parameters; whether the service accepts a cancel without statusId was not observed."
+    },
+    "download-csv": {
+      "statement": "The download is a CSV file; the Go SDK returns it as bytes and the Python SDK as a string.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport~1download/get",
+          "expect": {
+            "description": "<p>Downloads the most recently created audit log report. After a call to GET <code>/auditlogEntryReport</code> indicates that the report (CSV file) was generated, you can send a GET request to <code>/auditlogEntryReport/download</code> to download the file.</p>\n"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/adminauditlogs/adminauditlogs.go",
+          "quotes": [
+            "func GetAdminAuditLogsDownload(ctx context.Context, service *zscaler.Service) ([]byte, error)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "quotes": [
+            ":obj:`str`: String representation of CSV file."
+          ]
+        }
+      ]
+    },
+    "status-shape": {
+      "statement": "The status response carries status (INIT, EXECUTING, COMPLETE, CANCELLED, ERRORED, VALIDATING or STOP), progressItemsComplete, progressEndTime, errorMessage and errorCode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/get/responses/200/content/application~1json/schema/properties/status",
+          "expect": {
+            "enum": [
+              "INIT",
+              "EXECUTING",
+              "COMPLETE",
+              "CANCELLED",
+              "ERRORED",
+              "VALIDATING",
+              "STOP"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/get/responses/200/content/application~1json/schema/properties/progressItemsComplete",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/get/responses/200/content/application~1json/schema/properties/errorMessage",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "api-availability": {
+      "statement": "The cloud service API is availability-limited: enabling it for an organization requires contacting Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-understanding-zia-api.md",
+          "quotes": [
+            "Availability of the cloud service API is limited. To enable this API for your organization, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "ranges-1000": {
+      "statement": "The ZIA ranges table lists \"Admin Audit Log\" with a limit of 1,000 entries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Admin Audit Log | 1,000 entries |"
+          ]
+        }
+      ],
+      "gaps": [
+        "ranges-1000-meaning"
+      ]
+    }
+  },
+  "divergences": {
+    "request-field-types": {
+      "summary": "The Go SDK and the API spec disagree on the types of the audit request fields clientIP, traceId and pageSize.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/clientIP",
+            "expect": {
+              "type": "string"
+            }
+          },
+          "says": "clientIP and traceId are strings; pageSize is a 32-bit integer."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/adminauditlogs/adminauditlogs.go",
+            "quotes": [
+              "ClientIP int `json:\"clientIP,omitempty\"`"
+            ]
+          },
+          "says": "ClientIP and TraceId are int and PageSize is string."
+        }
+      ],
+      "impact": "A dotted IP address cannot be sent as ClientIP through the Go struct, and a numeric trace ID loses any non-numeric form. Filter by client IP or trace ID with a direct REST call, or filter the downloaded CSV."
+    }
+  },
+  "gaps": {
+    "pagination": {
+      "kind": "semantic",
+      "title": "Whether page and pageSize apply to the report or its CSV",
+      "status": "open",
+      "detail": "The create request carries page and pageSize, but the flow is POST then poll then download rather than a paged list. Whether the downloaded CSV is paged or complete is not stated by any source. The same question applies to the 1,000-entry limit in the ranges table.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "former_ids": [
+        "zia-55"
+      ],
+      "blocks": "knowing whether one report covers the whole time window"
+    },
+    "target-org-id": {
+      "kind": "semantic",
+      "title": "What targetOrgId does on the audit report",
+      "status": "open",
+      "detail": "The request accepts targetOrgId (the spec gives only its type), which suggests partner/MSP access to a managed organization's audit trail. No source states the semantics.",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    },
+    "start-time-units": {
+      "kind": "semantic",
+      "title": "Unit of startTime and endTime",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"startTime | int (epoch ms)\". The spec says only \"The timestamp, in epoch\"; the Python SDK example passes 13-digit values.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "quotes": [
+            "zia.audit_logs.create(start_time='1627221600000', end_time='1627271676622')"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/startTime",
+          "expect": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      ]
+    },
+    "status-id-source": {
+      "kind": "semantic",
+      "title": "How a client obtains statusId",
+      "status": "open",
+      "detail": "The spec says statusId is returned in the POST response, but the POST returns 204 with no body. Whether the status GET lists it, or whether it can be omitted, is not documented.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "report-scope": {
+      "kind": "semantic",
+      "title": "Whether the single stored report is per admin or per organization",
+      "status": "open",
+      "detail": "The spec says a new report overwrites the previous one without saying whose. If it is organization-wide, two admins exporting at once can overwrite each other's report.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "reports-scope": {
+      "kind": "semantic",
+      "title": "Functional scope needed for the audit report endpoints",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The admin account used must have the `Reports` functional scope to access audit log endpoints\". The only source is a Python SDK comment about the config audit endpoint (see [[zia.audit-logs.config-audit]]); nothing states the scope for /auditlogEntryReport.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "diagnosing a 403 or RBA_LIMITED on an audit export"
+    },
+    "activation-not-required": {
+      "kind": "semantic",
+      "title": "Whether report calls interact with activation",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Audit-log queries are read-only and do not require activation. Canceling a report (DELETE) likewise does not require activation.\" No source states it. Activation semantics are in references/shared/activation.md.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "api-report-scope": {
+      "kind": "semantic",
+      "title": "Whether the API report includes console (Admin UI) actions",
+      "status": "open",
+      "detail": "The create description says the report \"includes audit information for every call made to the cloud service API during the specified time period\". The console trail records both console and API actions; no source says the API report covers the console ones.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post",
+          "expect": {
+            "description": "<p>Creates an audit log report for the specified time period and saves it as a CSV file. The report includes audit information for every call made to the cloud service API during the specified time period. Creating a new audit log report overwrites a previously-generated report.</p>\n"
+          }
+        }
+      ]
+    },
+    "csv-header": {
+      "kind": "data",
+      "title": "Exact header row of the API-generated CSV",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The exact set of CSV columns in the report download is inferred from the help portal capture; the CSV header row is not confirmed.\" The help page documents the console columns and its own CSV download, not the API report's header.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "ranges-1000-meaning": {
+      "kind": "semantic",
+      "title": "What the 1,000-entry audit log limit bounds",
+      "status": "open",
+      "detail": "The ranges table lists \"Admin Audit Log | 1,000 entries\" with no description of whether it bounds a report, a page, or a console view.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

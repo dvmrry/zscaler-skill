@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "zia.saas-apps.shared-cdn-bypass",
+  "title": "Bypassing a SaaS that lives on a shared cloud storage or CDN domain",
+  "aliases": [
+    "bypass s3 bucket",
+    "wildcard cloudfront bypass",
+    "blob.core.windows.net bypass",
+    "googleusercontent bypass",
+    "cdn wildcard anti-pattern",
+    "exact bucket hostname exemption"
+  ],
+  "related": [
+    { "rel": "depends-on", "to": "zia.ssl-inspection.exemptions" }
+  ],
+  "claims": {
+    "exact-subdomain-only": {
+      "statement": "When one S3 bucket, Blob container or CloudFront distribution must be exempted, exempt its exact hostname (for example `mybucket.s3.amazonaws.com`) and never the shared parent domain.",
+      "tier": "B",
+      "derived_from": [
+        "zia.ssl-inspection.exemptions:shared-storage-domains",
+        "zia.ssl-inspection.exemptions:specific-not-wildcard"
+      ],
+      "conditions": "Combination of the guide's warning about shared storage parents and its advice to prefer the most specific domains; the guide does not give a bucket example."
+    },
+    "parent-exemption-is-exfil-path": {
+      "statement": "A parent-domain exemption on shared storage becomes an uninspected path for any subscriber's storage account, including one an attacker controls, so it is a data-exfiltration channel as well as a malware one.",
+      "tier": "B",
+      "derived_from": [
+        "zia.ssl-inspection.exemptions:shared-storage-domains",
+        "zia.ssl-inspection.bypass-impact:uninspected-blind"
+      ],
+      "conditions": "The guide says no inspection occurs for any account; naming the effect as exfiltration is the conclusion drawn here."
+    }
+  },
+  "gaps": {
+    "googleusercontent-wildcard": {
+      "kind": "semantic",
+      "title": "Whether a wildcard on googleusercontent.com carries the same risk",
+      "status": "open",
+      "detail": "Unverified legacy statement: `*.googleusercontent.com` is named with `*.s3.amazonaws.com`, `*.blob.core.windows.net` and `*.cloudfront.net` as a wildcard bypass to avoid. The guide names only the AWS, Azure and CloudFront domains; the Google case is tracked as zia.ssl-inspection.exemptions:googleusercontent-exemption.",
+      "resolves_with": ["source-read"],
+      "about": ["zia.ssl-inspection.exemptions:googleusercontent-exemption"]
+    }
+  }
+}

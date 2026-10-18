@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "id": "zia.virtual-service-edge.api-surface",
+  "title": "The vZEN API: Virtual Service Edge clusters and nodes",
+  "aliases": [
+    "virtualZenClusters",
+    "virtualZenNodes",
+    "vzen api",
+    "vzen_clusters",
+    "vzen_nodes",
+    "vse api",
+    "zia_vzen_cluster terraform",
+    "vse deploymentMode"
+  ],
+  "binds": [
+    "zia/vzen-clusters",
+    "zia/vzen-nodes"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.clusters"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.multi-step-writes"
+    }
+  ],
+  "claims": {
+    "endpoints": {
+      "statement": "The Go SDK manages Virtual Service Edge clusters at /zia/api/v1/virtualZenClusters and Virtual Service Edge nodes at /zia/api/v1/virtualZenNodes.",
+      "tier": "A",
+      "binds": [
+        "zia/vzen-clusters",
+        "zia/vzen-nodes"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_clusters/vzen_clusters.go",
+          "quotes": [
+            "vzenClusterEndpoint = \"/zia/api/v1/virtualZenClusters\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_nodes/vzen_nodes.go",
+          "quotes": [
+            "vzenNodeEndpoint = \"/zia/api/v1/virtualZenNodes\""
+          ]
+        }
+      ]
+    },
+    "vzen-is-vse": {
+      "statement": "The SDK's vZEN types are the Virtual Service Edge: the cluster type documents itself as the Virtual Service Edge cluster, and the node type as the Virtual Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_clusters/vzen_clusters.go",
+          "quotes": [
+            "// Name of the Virtual Service Edge cluster"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_nodes/vzen_nodes.go",
+          "quotes": [
+            "// The Virtual Service Edge name"
+          ]
+        }
+      ]
+    },
+    "cluster-model": {
+      "statement": "The cluster model carries a status (ENABLED, DISABLED, DISABLED_BY_SERVICE_PROVIDER or NOT_PROVISIONED_IN_SERVICE_PROVIDER), the cluster IP, subnet mask and default gateway, an ipSecEnabled flag, and a virtualZenNodes member list that the SDK documents as needing at least two instances.",
+      "tier": "A",
+      "binds": [
+        "zia/vzen-clusters#status",
+        "zia/vzen-clusters#ipSecEnabled",
+        "zia/vzen-clusters#virtualZenNodes"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_clusters/vzen_clusters.go",
+          "quotes": [
+            "// Supported Values: ENABLED, DISABLED, DISABLED_BY_SERVICE_PROVIDER, NOT_PROVISIONED_IN_SERVICE_PROVIDER",
+            "// A Virtual Service Edge cluster must contain at least two Virtual Service Edge instances.",
+            "// A Boolean value that specifies whether to terminate IPSec traffic from the client at selected Virtual Service Edge instances for the Virtual Service Edge cluster"
+          ]
+        }
+      ]
+    },
+    "node-model": {
+      "statement": "The node model carries a deploymentMode of STANDALONE or CLUSTER (CLUSTER only on VMware ESXi), a loadBalancerIpAddress that applies only when the deployment mode is CLUSTER, an inProduction flag, a status that can also be IN_TRIAL, and a vzenSkuType of SMALL, MEDIUM or LARGE.",
+      "tier": "A",
+      "binds": [
+        "zia/vzen-nodes#deploymentMode",
+        "zia/vzen-nodes#loadBalancerIpAddress",
+        "zia/vzen-nodes#inProduction",
+        "zia/vzen-nodes#status",
+        "zia/vzen-nodes#vzenSkuType"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_nodes/vzen_nodes.go",
+          "quotes": [
+            "// Specifies the deployment mode. Select either STANDALONE or CLUSTER if you have the VMware ESXi platform. Otherwise, select only STANDALONE.",
+            "// The IP address of the load balancer. This field is applicable only when the 'deploymentMode' field is set to CLUSTER.",
+            "// Represents the Virtual Service Edge instances deployed for production purposes",
+            "NOT_PROVISIONED_IN_SERVICE_PROVIDER, IN_TRIAL",
+            "// Supported Values: SMALL, MEDIUM, LARGE"
+          ]
+        }
+      ]
+    }
+  }
+}

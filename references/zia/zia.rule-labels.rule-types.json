@@ -1,0 +1,281 @@
+{
+  "schema_version": 1,
+  "id": "zia.rule-labels.rule-types",
+  "title": "Which ZIA rule types accept rule labels",
+  "aliases": [
+    "rule types with labels",
+    "labels attribute",
+    "which policies support rule labels",
+    "rule_label filter",
+    "ruleLabel parameter",
+    "label by id"
+  ],
+  "binds": [
+    "zia/rule-labels",
+    "zia/firewall-filtering-rules#labels",
+    "zia/url-filtering-rules#labels"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.rule-labels"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.rule-labels.constraints"
+    }
+  ],
+  "claims": {
+    "terraform-rule-types-with-labels": {
+      "statement": "The ZIA Terraform provider documents a `labels` attribute on fifteen rule resources: firewall filtering, firewall DNS, firewall IPS, NAT control, traffic capture, URL filtering, SSL inspection, DLP web, file type control, Cloud App Control, forwarding control, sandbox, bandwidth control, and SaaS Security (CASB) DLP and malware.",
+      "tier": "B",
+      "binds": [
+        "zia/url-filtering-rules#labels",
+        "zia/firewall-filtering-rules#labels"
+      ],
+      "conditions": "Provider documentation of the client schema, not a vendor list of policy types; the help text does not enumerate types, so a rule type absent from the provider docs is unknown rather than unsupported.",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_filtering_rule.md",
+          "quotes": [
+            "`labels` (list) - Labels that are applicable to the rule."
+          ],
+          "after": "### Optional"
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_dns_rule.md",
+          "quotes": [
+            "`labels` (List of Objects) Labels that are applicable to the rule."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_ips_rule.md",
+          "quotes": [
+            "`labels` (List of Objects) Labels that are applicable to the rule."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_nat_control_rules.md",
+          "quotes": [
+            "`labels` (Block List, Max: 1) Labels that are applicable to the rule."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_traffic_capture_rules.md",
+          "quotes": [
+            "You can manually select up to `1` label."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_url_filtering_rules.md",
+          "quotes": [
+            "The rule labels to which the URL Filtering policy rule applies"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_ssl_inspection_rules.md",
+          "quotes": [
+            "`labels` (Block List) - ID pairs of labels associated with the rule."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_dlp_web_rules.md",
+          "quotes": [
+            "The Name-ID pairs of rule labels associated to the DLP policy rule."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_file_type_control_rules.md",
+          "quotes": [
+            "`labels` Labels that are applicable to the rule."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_cloud_app_control_rule.md",
+          "quotes": [
+            "The Name-ID pairs of rule labels associated to the Cloud App Control rule."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_forwarding_control_rule.md",
+          "quotes": [
+            "`labels` (list) Labels that are applicable to the rule."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_sandbox_rules.md",
+          "quotes": [
+            "`labels` (List of Objects) Labels that are applicable to the rule."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_bandwidth_control_rule.md",
+          "quotes": [
+            "`labels` - Labels associated with the rule"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_casb_dlp_rules.md",
+          "quotes": [
+            "`labels` - (Block List) Name-ID pairs of rule labels associated with the rule."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_casb_malware_rules.md",
+          "quotes": [
+            "`labels` - (Block List) Name-ID pairs of rule labels associated with the rule."
+          ]
+        }
+      ]
+    },
+    "reference-by-id": {
+      "statement": "A rule references a label by numeric `id` (the Terraform examples pass `data.zia_rule_labels.this.id`), so one label can be attached to rules of different types and renaming it leaves the references intact.",
+      "tier": "B",
+      "binds": [
+        "zia/rule-labels#id"
+      ],
+      "conditions": "The by-ID reference is shown by the provider example; that a rename leaves rule references untouched is inferred from it plus the label update call changing only the label object, not observed.",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_casb_malware_rules.md",
+          "quotes": [
+            "id = [data.zia_rule_labels.this.id]"
+          ]
+        }
+      ]
+    },
+    "terraform-import": {
+      "statement": "The `zia_rule_labels` resource can be imported by label ID or by label name.",
+      "tier": "A",
+      "binds": [
+        "zia/rule-labels"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_rule_labels.md",
+          "quotes": [
+            "**zia_rule_labels** can be imported by using `<LABEL_ID>` or `<LABEL_NAME>` as the import ID."
+          ]
+        }
+      ]
+    },
+    "terraform-data-source-by-name": {
+      "statement": "The `zia_rule_labels` data source looks a label up by `name`, and rule resources take its `id`.",
+      "tier": "A",
+      "binds": [
+        "zia/rule-labels#name"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_rule_labels.md",
+          "quotes": [
+            "* `name` - (Required) The name of the rule label to be exported."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_casb_malware_rules.md",
+          "quotes": [
+            "id = [data.zia_rule_labels.this.id]"
+          ]
+        }
+      ]
+    },
+    "traffic-capture-one-label": {
+      "statement": "The Terraform provider documents that a traffic capture rule takes at most one label.",
+      "tier": "B",
+      "conditions": "Provider documentation; whether the API enforces the same limit is not shown.",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_traffic_capture_rules.md",
+          "quotes": [
+            "You can manually select up to `1` label."
+          ]
+        }
+      ]
+    },
+    "openapi-label-filter": {
+      "statement": "In the OpenAPI contract only the Cloud Firewall filtering rule list (and its count) accepts a `ruleLabel` filter, described as filtering rules by rule labels using the specified keywords.",
+      "tier": "B",
+      "binds": [
+        "zia/firewall-filtering-rules"
+      ],
+      "conditions": "Absence claim: every query parameter of every path in zia.openapi.json was scanned for a name containing `label`; only these two paths matched (beyond the ruleLabels paths themselves).",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallFilteringRules/get/parameters/[name=ruleLabel]",
+          "expect": {
+            "name": "ruleLabel",
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallFilteringRules~1count/get/parameters/[name=ruleLabel]",
+          "expect": {
+            "name": "ruleLabel",
+            "in": "query"
+          }
+        }
+      ]
+    },
+    "python-sdk-label-filter": {
+      "statement": "The Python SDK documents a `rule_label` list filter on firewall rules and on traffic capture rules, and on no other rule list.",
+      "tier": "B",
+      "conditions": "Absence claim: grep of zscaler/zia/*.py for `rule_label` finds the two docstrings below and nothing on other rule lists.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall_rules.py",
+          "quotes": [
+            "Filters rules based on rule labels using the specified keywords"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/traffic_capture.py",
+          "quotes": [
+            "{str}: Filters rules based on rule labels using the specified keywords"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "label-filter-server-support": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-31"
+      ],
+      "title": "Whether label filtering works on rule lists beyond the documented ones",
+      "status": "partial",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "relying on a label query parameter to select URL filtering, DLP or other rules",
+      "detail": "The contract and the SDKs document the filter on firewall filtering rules (and traffic capture in the Python SDK) only; the code read shows nothing for the other lists. Whether the server silently accepts or ignores a label parameter elsewhere is untested. List rules without the filter and select on the `labels` member instead."
+    }
+  }
+}

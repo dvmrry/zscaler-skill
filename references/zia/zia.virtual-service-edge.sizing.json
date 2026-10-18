@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "id": "zia.virtual-service-edge.sizing",
+  "title": "How much a Virtual Service Edge VM can do",
+  "aliases": [
+    "vse sizing",
+    "vse throughput",
+    "vse 600 mbps",
+    "vse memory",
+    "vse ssl card",
+    "vse nitrox",
+    "vse ssl cps",
+    "vse 48 gb",
+    "vse 64 gb ram",
+    "vse vcpu"
+  ],
+  "binds": [
+    "zia/vzen-nodes#vzenSkuType"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.virtual-service-edge.platforms"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.clusters"
+    }
+  ],
+  "claims": {
+    "single-vm-size": {
+      "statement": "Virtual Service Edges are available in a single-sized VM that supports up to 600 Mbps of total throughput.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "Virtual Service Edges are available in a single-sized VM that supports up to 600 Mbps of total throughput."
+          ]
+        }
+      ]
+    },
+    "throughput-listed-for-esxi-only": {
+      "statement": "In the specifications table the 600 Mbps total throughput, the SSL acceleration card and the 3500 SSL CPS figure are listed under VMware ESXi only; the other platform columns show no value for them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "| Total Throughput | 600 Mbps | - | - | - | - |",
+            "| SSL CPS with Acceleration Card | 3500 CPS | - | - | - | - |"
+          ]
+        }
+      ]
+    },
+    "ssl-cps-without-card": {
+      "statement": "Without the acceleration card the SSL connection rate is 400 CPS on every platform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "| SSL CPS without Acceleration Card | 400 CPS | 400 CPS | 400 CPS | 400 CPS | 400 CPS |"
+          ]
+        }
+      ]
+    },
+    "ssl-card-recommendation": {
+      "statement": "An SSL acceleration card, sold separately, is recommended for deployments that need 100 Mbps or more of throughput in order to perform SSL inspection on Virtual Service Edges; the alternative is to scale horizontally by deploying more Virtual Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "An SSL acceleration card (sold separately) is recommended for deployments requiring a throughput of 100 Mbps or more in order to perform SSL inspection on Virtual Service Edges.",
+            "Alternately, you can horizontally scale (deploy more) Virtual Service Edges for processing throughput in excess of 100 Mbps."
+          ]
+        }
+      ]
+    },
+    "nitrox-card-esxi": {
+      "statement": "The documented card is a Marvell NITROX (the cluster article calls it Cavium NITROX), listed for VMware ESXi only. One card is needed for each Virtual Service Edge in a cluster, because a single card cannot be shared across multiple Virtual Service Edges on one VMware host.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "| SSL Acceleration Card per VM | 1 x Marvell NITROX CNN3510-500-C5-NHB-2.0-G | - | - | - | - |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "A single card cannot be shared across multiple Virtual Service Edges in a single VMware host"
+          ]
+        }
+      ]
+    },
+    "vm-resources": {
+      "statement": "Each VM has 4 vCPUs, 500 GB of disk and 3 virtual interfaces, on every platform, and runs one Public Service Edge instance. The cluster article recommends SSD storage.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "| Number of V-CPUs | 4 | 4 | 4 | 4 | 4 |",
+            "| Disk Space | 500 GB | 500 GB | 500 GB | 500 GB | 500 GB |",
+            "| Virtual Interfaces | 3 | 3 | 3 | 3 | 3 |",
+            "| Number of Public Service Edge Instances per VM | 1 | 1 | 1 | 1 | 1 |"
+          ]
+        }
+      ]
+    },
+    "memory-48gb-standalone-and-cluster": {
+      "statement": "The minimum memory is 48 GB for a standalone Virtual Service Edge and 48 GB for a cluster node, plus 8 GB of extra free host memory when an SSL card is installed.",
+      "tier": "A",
+      "conditions": "Corrected (2026-10-18): legacy said 32 GB standalone (and 48 GB only for cluster members).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "| Minimum Required Memory Allocation for Standalone Deployments | 48 GB | 48 GB | 48 GB | 48 GB | 48 GB |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "Minimum Required RAM: 48 GB for standalone and nodes of a cluster, and 8 GB of extra free memory from the VM host whenever the SSL card is to be installed."
+          ]
+        }
+      ]
+    },
+    "memory-64gb-large-files": {
+      "statement": "Scanning large files without hurting performance needs more memory; Zscaler suggests 64 GB RAM in standalone or cluster mode, and expanding to 64 GB makes the system enable a third antivirus process on each instance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "you can deploy them with 64 GB RAM (in standalone or cluster mode).",
+            "the system automatically inserts a section into the configuration files to enable a third antivirus (AV) process."
+          ]
+        }
+      ]
+    },
+    "cluster-aggregate-derived": {
+      "statement": "Scaling horizontally multiplies the per-VM figure: sixteen VMs, the cluster maximum, would be 9,600 Mbps if throughput scaled linearly. No source publishes a cluster aggregate.",
+      "tier": "B",
+      "conditions": "Arithmetic only (16 x 600 Mbps). It assumes linear scaling and an even load-balancer spread; the vendor states neither a cluster aggregate nor linearity.",
+      "derived_from": [
+        "single-vm-size",
+        "zia.virtual-service-edge.clusters:max-16-instances"
+      ]
+    }
+  },
+  "gaps": {
+    "sku-type-vs-single-size": {
+      "kind": "semantic",
+      "title": "Virtual Service Edge SKU types versus a single-sized VM",
+      "status": "open",
+      "detail": "The specifications table describes a single-sized VM, the cluster article requires all cluster members to have the Large subscription type, and the API documents the SKU as SMALL, MEDIUM or LARGE. The sources do not say how the SKU types map to resources or throughput.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

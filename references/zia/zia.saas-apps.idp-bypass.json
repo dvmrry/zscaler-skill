@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "id": "zia.saas-apps.idp-bypass",
+  "title": "Login and MFA endpoints: inspect, bypass or exempt from authentication",
+  "aliases": [
+    "duo through zscaler",
+    "mfa endpoint ssl bypass",
+    "idp ssl bypass",
+    "duosecurity.com bypass",
+    "entra external mfa duo",
+    "auth exemption versus ssl bypass",
+    "login.windows.net exempt"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.uninspectable"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.saas-apps.tenant-restriction-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.exemptions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.wire-mechanic"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.exemptions"
+    }
+  ],
+  "claims": {
+    "one-click-auth-exemption": {
+      "statement": "Enabling the Microsoft-Recommended One Click configuration also makes the Zscaler service configure an authentication exemption for Microsoft domains automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microsoft-one-click-options.md",
+          "quotes": [
+            "The Zscaler service automatically configures authentication exemption for Microsoft domains."
+          ]
+        }
+      ]
+    },
+    "auth-exemption-not-ssl-bypass": {
+      "statement": "The authentication exemption list and an SSL Inspection bypass are separate configuration objects with separate effects: an exemption skips the authentication challenge for a destination, while a Do Not Inspect rule skips decryption; exempting a host from one does not exempt it from the other.",
+      "tier": "B",
+      "derived_from": [
+        "zia.authentication.exemptions:exempt-list-endpoint",
+        "zia.ssl-inspection.exemptions:bypass-purposes"
+      ],
+      "conditions": "Inferred from the two being different objects (the auth exemption list and SSL rules). No source compares them."
+    }
+  },
+  "gaps": {
+    "duo-endpoints": {
+      "kind": "data",
+      "title": "Duo endpoints that need an SSL bypass",
+      "status": "open",
+      "detail": "Unverified legacy statement: bypass `*.duosecurity.com` and `*.duo.com`, plus `*.azureauth.duosecurity.com` for the Entra External MFA flow, because CA-bundle pinning means inspection breaks the TLS channel before any authentication happens. The legacy cited Duo's own documentation (duo.com/docs/duo-desktop, Duo KB 9585), which is not a registered source; the Zscaler guides do not mention Duo. See also zia.ssl-inspection.uninspectable:ca-bundle-pinned-vendor-apps for the pinning claim.",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ],
+      "resolvable_by": [
+        "none"
+      ],
+      "about": [
+        "zia.ssl-inspection.uninspectable:ca-bundle-pinned-vendor-apps"
+      ],
+      "blocks": "listing the hostnames to exempt for Duo"
+    },
+    "only-bypass-other-policies-rule": {
+      "kind": "data",
+      "title": "Whether Click-to-Run is the only predefined rule that uses Bypass Other Policies",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Microsoft 365 Click-to-Run - Zscaler's own predefined SSL rule uses Do Not Inspect + Bypass Other Policies. The only predefined rule using that more-dangerous variant.\" The guide's example table shows Click-to-Run as Bypass Other Policies and the Zscaler Recommended Exemptions rule as Evaluate Other Policies (zia.ssl-inspection.exemptions:predefined-exemptions-differ). The UCaaS One Click and IoT predefined rules are not shown with their setting there, so \"only\" is not supported.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zia ssl-inspection-rules list",
+      "about": [
+        "zia.ssl-inspection.rules:predefined-rules"
+      ]
+    },
+    "auth-exempt-login-hosts": {
+      "kind": "semantic",
+      "title": "Common authentication-exemption entries",
+      "status": "open",
+      "detail": "Unverified legacy statement: common Authentication Exemptions entries are `login.windows.net`, `login.microsoftonline.com`, OS update endpoints and captive-portal probes. The One Click option adds Microsoft domain exemptions on its own, but no source lists these entries as typical. The wider question is zia.authentication.exemptions:typical-entries.",
+      "resolves_with": [
+        "support-ticket",
+        "operator-experience"
+      ],
+      "about": [
+        "zia.authentication.exemptions:typical-entries"
+      ]
+    }
+  }
+}

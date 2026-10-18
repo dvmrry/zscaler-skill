@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "id": "zia.audit-logs.event-log-report",
+  "title": "The ZIA event log report and how it differs from the admin audit report",
+  "aliases": [
+    "eventlogEntryReport",
+    "event log report",
+    "zia event log csv",
+    "EventLogEntryReport sdk"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.audit-logs.report-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs.what-is-recorded"
+    }
+  ],
+  "claims": {
+    "separate-endpoint": {
+      "statement": "The event log report is a separate API (tag Event Logs) at /eventlogEntryReport with the same request/poll/download/cancel shape as the audit report; its create description covers event log information for every call made to the ZIA API in the period, and a new report overwrites the previous one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1eventlogEntryReport/post",
+          "expect": {
+            "description": "<p>Creates an event log report for the specified time period and saves it as a CSV file. The report includes event log information for every call made to the ZIA API during the specified time period. Creating a new event log report overwrites the previously-generated report.</p>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1eventlogEntryReport/get",
+          "expect": {
+            "description": "<p>Gets the status of the request to generate an event log report. Following a request to generate a report via the POST <code>/eventlogEntryReport</code> endpoint, you can call GET <code>/eventlogEntryReport</code> to check the current status of report generation. If the status is <code>COMPLETE</code>, you can send a GET request to <code>/eventlogEntryReport/download</code> to download the report as a CSV file.</p> "
+          }
+        }
+      ]
+    },
+    "download-exists": {
+      "statement": "The event log report has a download endpoint, GET /eventlogEntryReport/download, which returns the file only when the generation status is COMPLETE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1eventlogEntryReport~1download/get",
+          "expect": {
+            "description": "<p>Downloads the most recently generated event log report. Calling this endpoint downloads the file only if the report generation status is <code>COMPLETE</code>. Use the GET <code>/eventlogEntryReport</code> endpoint to verify the status before calling this endpoint for downloading the file.</p>"
+          }
+        }
+      ]
+    },
+    "request-fields": {
+      "statement": "The event log request filters by startTime, endTime, category, subcategories and actionResult, and adds text-search fields message, errorCode and statusCode; it has no adminName, clientIP, objectName or traceId filter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1eventlogEntryReport/post/requestBody/content/application~1json/schema/properties/message",
+          "expect": {
+            "description": "The search string used to match against the event log message"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1eventlogEntryReport/post/requestBody/content/application~1json/schema/properties/errorCode",
+          "expect": {
+            "description": "The search string used to match against the error code in event log entries"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1eventlogEntryReport/post/requestBody/content/application~1json/schema/properties/statusCode",
+          "expect": {
+            "description": "The search string used to match against the status code in event log entries"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1eventlogEntryReport/post/requestBody/content/application~1json/schema/properties/actionResult",
+          "expect": {
+            "description": "Filters the list based on the outcome of the events recorded"
+          }
+        }
+      ],
+      "conditions": "The absence of admin-oriented filters rests on reading the property list of the request schema; the four searched names do not appear in it."
+    },
+    "go-sdk-surface": {
+      "statement": "The Go SDK exposes only GetAll, Create and Delete for event log reports (no download function), and GetAll decodes the status into a slice.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/eventlogentryreport/eventlogentryreport.go",
+          "quotes": [
+            "func GetAll(ctx context.Context, service *zscaler.Service) ([]EventLogEntryReportTaskInfo, error) {",
+            "func Delete(ctx context.Context, service *zscaler.Service) (*http.Response, error) {"
+          ]
+        }
+      ]
+    },
+    "spec-status-object": {
+      "statement": "The spec describes the event log status response as a single object, like the audit report's.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1eventlogEntryReport/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "type": "object"
+          }
+        }
+      ]
+    },
+    "system-events": {
+      "statement": "The event log report appears, from its filter fields, to target service-side events (message, error code, status code) rather than admin changes; the source does not say.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1eventlogEntryReport/post/requestBody/content/application~1json/schema/properties/message",
+          "expect": {
+            "description": "The search string used to match against the event log message"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1eventlogEntryReport/post/requestBody/content/application~1json/schema/properties/errorCode",
+          "expect": {
+            "description": "The search string used to match against the error code in event log entries"
+          }
+        }
+      ],
+      "conditions": "Inferred from the filter fields: no source states what events the report contains beyond \"event log information for every call made to the ZIA API\".",
+      "gaps": [
+        "event-contents"
+      ]
+    }
+  },
+  "divergences": {
+    "event-status-shape": {
+      "summary": "The Go SDK reads the event log status as an array while the spec shows a single object.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/eventlogentryreport/eventlogentryreport.go",
+            "quotes": [
+              "func GetAll(ctx context.Context, service *zscaler.Service) ([]EventLogEntryReportTaskInfo, error) {"
+            ]
+          },
+          "says": "GetAll returns a slice of status records."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1eventlogEntryReport/get/responses/200/content/application~1json/schema",
+            "expect": {
+              "type": "object"
+            }
+          },
+          "says": "The 200 response schema is an object."
+        }
+      ],
+      "impact": "Decoding a status object into a slice can fail or yield nothing; check which shape the tenant actually returns before depending on the SDK's GetAll."
+    }
+  },
+  "gaps": {
+    "event-contents": {
+      "kind": "semantic",
+      "title": "What the event log report contains",
+      "status": "open",
+      "detail": "The create description says \"event log information for every call made to the ZIA API\" and the filters are message, errorCode and statusCode. No source lists the event categories or shows a sample row.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "event-pagination": {
+      "kind": "semantic",
+      "title": "Paging of the event log report",
+      "status": "open",
+      "detail": "Page and pageSize exist on the request and their effect on the file is not documented. See zia.audit-logs.report-api:pagination.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

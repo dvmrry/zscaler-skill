@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "id": "zia.virtual-service-edge.operations",
+  "title": "Who runs a Virtual Service Edge: access, logging, hardening and monitoring",
+  "aliases": [
+    "vse zscaler access",
+    "vse support tunnel",
+    "vse auth.log",
+    "vse hardening",
+    "vse snmp",
+    "vse logs",
+    "vse default password",
+    "vse jailed environment",
+    "vse monitoring"
+  ],
+  "binds": [
+    "zia/vzen-nodes#establishSupportTunnelEnabled",
+    "zia/vzen-nodes#onDemandSupportTunnelEnabled"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.upgrades"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.what-it-is"
+    }
+  ],
+  "claims": {
+    "customer-access-zscaler-not-required": {
+      "statement": "The organization has full access to its Virtual Service Edges for monitoring and configuration, Zscaler does not require access, and the Virtual Service Edges are not monitored or managed by the Zscaler Cloud Operations team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "Your organization has full access to the Virtual Service Edges for monitoring and configuration. Zscaler does not require access to the Virtual Service Edges.",
+            "In addition, the Virtual Service Edges aren't monitored or managed by the Zscaler Cloud Operations team."
+          ]
+        }
+      ]
+    },
+    "support-tunnel-options": {
+      "statement": "Two support-tunnel options exist per instance, both disabled by default: Zscaler Initiated On-Demand Support Tunnel lets Zscaler establish a support tunnel whenever required (and greys out the Admin Console's Establish Support Tunnel), and Establish Support Tunnel lets the service establish a tunnel for Zscaler Support to access the instance.",
+      "tier": "A",
+      "binds": [
+        "zia/vzen-nodes#establishSupportTunnelEnabled",
+        "zia/vzen-nodes#onDemandSupportTunnelEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-virtual-service-edge-instances-internet-saas.md",
+          "quotes": [
+            "Zscaler Initiated On-Demand Support Tunnel: Enable this option to allow Zscaler to establish a support tunnel whenever required. This option is disabled by default.",
+            "Establish Support Tunnel: Enable this option to allow the service to establish a support tunnel for Zscaler Support to access the Virtual Service Edge. This option is disabled by default."
+          ]
+        }
+      ]
+    },
+    "policy-and-logs-in-cloud": {
+      "statement": "Policies are defined once in the Admin Console and apply whether a user connects to an on-premises Virtual Service Edge or to a Public Service Edge anywhere in the world. Logs are transmitted to and stored on the Zscaler cloud as the central repository for analytics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "Admins define policies only once through the Zscaler Admin Console.",
+            "Logs are transmitted to and stored on the Zscaler cloud as a central repository for integrated analytics"
+          ]
+        }
+      ]
+    },
+    "hardened-appliance": {
+      "statement": "The appliance is locked down to a limited set of commands (a jailed environment) on a hardened operating system; CVEs are patched immediately if they can cause harm, and updates and patches are downloaded and applied automatically. Access is limited to the hypervisor console and the management interface for SSH.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "This setup is commonly referred to as a \"jailed environment.\"",
+            "CVEs are patched immediately if they can potentially cause harm to the system.",
+            "Access to the Virtual Service Edge virtual appliance is limited to the VMware console and Microsoft Azure web console view, and Hyper-V Manager console, as well as the management interface for SSH access."
+          ]
+        }
+      ]
+    },
+    "auth-log": {
+      "statement": "Authentication attempts, and an audit log of the commands run on the appliance, are stored in /var/log/auth.log and can be monitored remotely or checked periodically to detect unauthorized commands or authentication attempts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "Authentication attempts as well as an audit log of the commands run on the appliance, are accessible and stored in /var/log/auth.log."
+          ]
+        }
+      ]
+    },
+    "first-login": {
+      "statement": "A new VM boots with default console credentials (zsroot) and prompts for a password change at first login; direct root login is not permitted and administrators use sudo. Running `vzen enforce-password-complexity` optionally enforces password complexity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "Username: zsroot"
+          ],
+          "after": "On the Console tab, log in to the FreeBSD command prompt with the following credentials:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "After you log in with the default credentials, you are prompted to change the default password.",
+            "Direct root login is not permitted. Administrators must use the sudo utility to run a command with higher privileges.",
+            "vzen enforce-password-complexity"
+          ]
+        }
+      ]
+    },
+    "snmpv3-only": {
+      "statement": "Virtual Service Edges support SNMPv3 only; the SNMP user accepted is the one configured with `sudo vzen snmp-admin-configure`, with MD5 or SHA1 authentication and DES or AES encryption, and traps are configured with `sudo vzen snmp-trap-configure`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "Virtual Service Edges support SNMPv3 only.",
+            "sudo vzen snmp-admin-configure",
+            "sudo vzen snmp-trap-configure"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "log-identifier": {
+      "kind": "data",
+      "title": "Whether log entries carry a VM-level or cluster-level identifier",
+      "status": "open",
+      "former_ids": [
+        "zia-35"
+      ],
+      "detail": "Unverified legacy statements: 'Each VSE VM transmits its own logs to the cloud; the cluster does not aggregate logs internally before transmission' and 'logs ... can be filtered by the location bound to the cluster.' The sources say logs are transmitted to and stored in the Zscaler cloud and that a Location is bound to the cluster, but not whether each VM sends separately, nor whether entries identify the VM, the cluster, or both. Inspect NSS or Admin Console log entries for traffic through a cluster.",
+      "resolves_with": [
+        "tenant-data",
+        "operator-experience"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "auth-log-transmission": {
+      "kind": "semantic",
+      "title": "Whether /var/log/auth.log is sent to the Zscaler cloud",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'This is VM-local and is not transmitted to the Zscaler cloud.' The source says the log is stored on the appliance and can be monitored remotely or checked periodically; it does not say whether any copy is transmitted.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "vse-health-visibility": {
+      "kind": "semantic",
+      "title": "Health visibility for a Virtual Service Edge",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'the PSE Health Dashboard available via ZDX is specific to hardware PSE clusters and is not documented as applicable to VSE clusters. VSE health visibility relies on the Admin Console and on customer-side VM monitoring.' The dashboard article is described for Private Service Edges; no captured page says what the Admin Console shows for Virtual Service Edge health beyond the cluster and instance list columns, which show status, deployment status and mode.",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ]
+    }
+  }
+}

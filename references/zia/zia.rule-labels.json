@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "id": "zia.rule-labels",
+  "title": "ZIA Rule Labels",
+  "aliases": [
+    "rule labels",
+    "rule label",
+    "policy label",
+    "label a rule",
+    "untagged label",
+    "ruleLabels",
+    "zia_rule_labels",
+    "tag policy rules"
+  ],
+  "binds": [
+    "zia/rule-labels"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.rule-labels.rule-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.rule-labels.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.rule-labels.delete"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.rule-labels.constraints"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-rule-attribution"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation"
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "A rule label is an organizational group for policy rules: the feature has two parts, creating labels and associating them with policy rules.",
+      "tier": "A",
+      "binds": [
+        "zia/rule-labels"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-rule-labels.md",
+          "quotes": [
+            "Zscaler's rule label feature allows you to logically group all your organization's policies.",
+            "The feature consists of two parts: creating rule labels and associating the labels with all the policy rules."
+          ]
+        }
+      ]
+    },
+    "grouped-on-policy-page": {
+      "statement": "On the policy page, rules associated with a label are grouped under it and the group can be collapsed or hidden; rules with no label are grouped under the Untagged label.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-rule-labels.md",
+          "quotes": [
+            "All the policy rules associated with a rule label are grouped under the respective labels on the policy page.",
+            "You can collapse a rule label or hide the policy rules under the label to better manage the policy rules.",
+            "Policy rules that are not associated with a rule label are grouped under the Untagged label."
+          ]
+        }
+      ]
+    },
+    "console-page": {
+      "statement": "The Rule Labels page (Internet Access > Resources > Rule Labels) lists each label with Name, Number of Policies and Rules Tagged, Last Modified By, Last Modified On and Description, sortable, and offers search, table modification, add, edit and delete.",
+      "tier": "A",
+      "binds": [
+        "zia/rule-labels#name",
+        "zia/rule-labels#description",
+        "zia/rule-labels#referencedRuleCount",
+        "zia/rule-labels#lastModifiedBy",
+        "zia/rule-labels#lastModifiedTime"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-rule-labels.md",
+          "quotes": [
+            "(Internet Access > Resources > Rule Labels)",
+            "Name: The name of the rule label that is displayed when configuring a policy rule.",
+            "Last Modified By: The name of the user who last modified the rule label.",
+            "Description: The description of the rule label if available.",
+            "Delete a rule label.",
+            "you can see and sort the following",
+            "Number of Policies and Rules Tagged: The number of policies and rules with which the rule label is associated.",
+            "Last Modified On: The date and time on which the rule label was last modified.",
+            "Search for a configured rule label.",
+            "Edit a rule label.",
+            "Add a rule label."
+          ]
+        }
+      ]
+    },
+    "label-model-is-metadata-only": {
+      "statement": "The label object holds an id, name, description and audit fields plus a count of referencing rules; it has no member for match criteria, action or order, so tagging a rule adds grouping metadata and does not by itself change how the rule matches.",
+      "tier": "B",
+      "binds": [
+        "zia/rule-labels"
+      ],
+      "conditions": "Absence claim: the Go SDK struct is the whole model (id, name, description, lastModifiedTime, lastModifiedBy, createdBy, referencedRuleCount) and the OpenAPI response schema has the same members; the effect on enforcement is inferred from that, not stated by a source.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/rule_labels/rule_labels.go",
+          "quotes": [
+            "ID int `json:\"id\"`",
+            "Name string `json:\"name,omitempty\"`",
+            "Description string `json:\"description,omitempty\"`",
+            "LastModifiedBy *common.IDNameExtensions `json:\"lastModifiedBy,omitempty\"`",
+            "CreatedBy *common.IDNameExtensions `json:\"createdBy,omitempty\"`",
+            "ReferencedRuleCount int `json:\"referencedRuleCount,omitempty\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ruleLabels/get/responses/200/content/application~1json/schema/items",
+          "expect": {
+            "description": "Rule label information.",
+            "type": "object"
+          }
+        }
+      ]
+    },
+    "web-log-rulelabel-fields-are-rule-names": {
+      "statement": "The `*rulelabel` fields of the NSS web log carry the name of the rule that applied, not a Rule Label object; the field list shows no field for rule labels.",
+      "tier": "B",
+      "binds": [
+        "zia/web-log#rulelabel",
+        "zia/web-log#urlfilterrulelabel",
+        "zia/web-log#apprulelabel"
+      ],
+      "conditions": "Absence claim over the captured NSS web-log field table: no field description mentions a Rule Label object.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "The name of the rule that was applied to the URL filter",
+            "The name of the rule that was applied to the application"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "duplicate-action": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-30"
+      ],
+      "title": "Whether the console can duplicate a label and what it would copy",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether a duplicated label carries over rule associations",
+      "detail": "Unverified legacy statement: \"From this page labels can be added, searched, edited, duplicated, or deleted\" and that the page offers Edit/Duplicate/Delete row actions. The captured help page lists search, modify table, edit, delete, view and add, and no duplicate action, so the action itself is unconfirmed. If it exists, duplicate a label with known rule associations in a scratch tenant and inspect both labels and the rules."
+    },
+    "zpa-no-analogue": {
+      "kind": "semantic",
+      "title": "Whether ZPA has a rule-label feature",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "saying ZPA policy cannot be grouped by label",
+      "detail": "Unverified legacy statement: ZPA has no analogous rule-label feature; its policy rules are organized by policy type with no shared tagging construct. A search of the ZPA Python SDK and the ZPA Terraform provider found no rule-label endpoint or resource (the only text hits are copied docstrings in ZPA models and a ZIA row in the importer guide), but no ZPA help page was read."
+    },
+    "audit-log-label-names": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-26"
+      ],
+      "title": "Whether label names appear in admin audit log entries for rule changes",
+      "status": "open",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "blocks": "using the audit log to trace which label a rule change added",
+      "detail": "No reviewed source shows the audit log schema for a rule create or update that adds a label. Inspect audit entries for a rule update that adds a label."
+    }
+  }
+}

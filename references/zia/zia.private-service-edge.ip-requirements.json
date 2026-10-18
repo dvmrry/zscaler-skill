@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "id": "zia.private-service-edge.ip-requirements",
+  "title": "Addresses, NAT, IPv6 and ports a Private Service Edge needs",
+  "aliases": [
+    "pse ip addresses",
+    "pse public ip",
+    "pse nat",
+    "pse 1:1 nat",
+    "pse ipv6",
+    "pse switch ports",
+    "pse sfp",
+    "pse ntp dns",
+    "pse ipmi",
+    "pse mts ip",
+    "rfc 1918 pse"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.sizing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.deployment"
+    }
+  ],
+  "claims": {
+    "addresses-must-be-public": {
+      "statement": "The Private Service Edge IP addresses must be public.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "These IP addresses must be public."
+          ]
+        }
+      ]
+    },
+    "integrated-lb-budget": {
+      "statement": "Private Service Edge 3 with Integrated LB, per node: 3 IPv4 and 3 IPv6 service addresses, 1 management address, 1 IPMI address, an integrated LB address (1 IPv4 and 1 IPv6), a cluster virtual IP (1 IPv4 and 1 IPv6), and 6 x 1GE switch ports. Private Service Edge 5, per node: 5 IPv4 and 5 IPv6 service addresses, the same management, IPMI, LB and virtual IP counts, and 2 x 10GE plus 3 x 1GE switch ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "| 3 IPv4 and 3 IPv6 addresses per Private Service Edge node | 5 IPv4 and 5 IPv6 addresses per Private Service Edge node |",
+            "| Integrated LB IP Address | 1 IPv4 and 1 IPv6 address per Private Service Edge node | 1 IPv4 and 1 IPv6 address per Private Service Edge node |",
+            "| Virtual IP Address per Cluster | 1 IPv4 and 1 IPv6 address per Private Service Edge node | 1 IPv4 and 1 IPv6 address per Private Service Edge node |",
+            "| Switch Ports | 6 x 1GE | 2 x 10GE, 3 x 1GE |"
+          ]
+        }
+      ]
+    },
+    "dedicated-lb-budget": {
+      "statement": "Private Service Edge 5 with Dedicated LB, per node: 6 IPv4 and 6 IPv6 service addresses, an LB address and a cluster virtual IP each mapped 1:1 between IPv4 and IPv6 up to 4 in total, 1 MTS address, 1 management address, 1 IPMI address, and 3 x 1GE plus up to 8 x 10GE switch ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "| 6 IPv4 and 6 IPv6 addresses per Private Service Edge node |",
+            "| LB IP Address | 1:1 mapping of IPv4 and IPv6 addresses, up to 4 IP addresses in total |",
+            "| MTS IP Address | 1 |",
+            "| Switch Ports | 3 x 1GE, up to 8 x 10GE |"
+          ]
+        }
+      ]
+    },
+    "ipv6-optional": {
+      "statement": "IPv6 service addresses are required only if the organization needs IPv6 traffic to egress its Private Service Edges, and the Dedicated LB does not need any IPv6 address. For dual-stack IPv6 support the organization must provide IPv6 addresses and ensure the upstream network path supports IPv6.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Dedicated LB doesn't require any IPv6 address.",
+            "If your organization needs dual-stack IPv6 traffic support, you must provide IPv6 addresses."
+          ]
+        }
+      ]
+    },
+    "ipv6-tunnel-extra-address": {
+      "statement": "Forwarding IPv6 traffic through the IPv4-based IPSec tunnel requires an additional IPv4 or IPv6 address for each Private Service Edge node; IPv6 native traffic can also be forwarded to the cluster VIP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Forwarding IPv6 traffic via the IPv4-based IPSec tunnel requires an additional IPv4 or IPv6 address for each Private Service Edge node.",
+            "You can also forward IPv6 native traffic to the cluster VIP addresses."
+          ]
+        }
+      ]
+    },
+    "nat-one-to-one-no-ipv6": {
+      "statement": "If the deployment requires RFC 1918 addresses and NAT, the Private Service Edge addresses must have 1:1 static NAT to a public IP address, and IPv6 is not supported in this type of deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "the IP addresses for the Private Service Edges must be with 1:1 static NAT to a public IP address. IPv6 is not supported in this type of deployment."
+          ]
+        }
+      ]
+    },
+    "customer-supplied-network-info": {
+      "statement": "The organization must give Zscaler the gateway address, its NTP server addresses (otherwise Zscaler uses public NTP servers), its DNS server addresses (otherwise Zscaler uses public DNS servers), and the installation location address and contact details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Otherwise, Zscaler uses public NTP servers.",
+            "Otherwise, Zscaler uses public DNS servers.",
+            "The installation location address and contact details"
+          ]
+        }
+      ]
+    },
+    "sfps-not-shipped": {
+      "statement": "Small form-factor pluggables (SFPs) are not shipped with the server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "SFPs are not shipped with the server."
+          ]
+        }
+      ]
+    },
+    "cloud-ops-remote-access": {
+      "statement": "Zscaler Cloud Operations needs remote access to the Private Service Edge for monitoring, maintenance and updates as the cloud expands, so Zscaler recommends deploying inside the DMZ and restricting access to the Zscaler IP addresses listed at config.zscaler.com/<Zscaler Cloud Name>/zia-sedge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Zscaler Cloud Operations also needs remote access to the Private Service Edge for monitoring and maintenance, as well as updates as the cloud expands.",
+            "Therefore, Zscaler recommends that an organization deploy the Private Service Edge inside their DMZ and restrict access to Zscaler IP addresses listed in config.zscaler.com/<Zscaler Cloud Name>/zia-sedge."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "shared-nat-behavior": {
+      "kind": "semantic",
+      "title": "Whether shared or overloaded (PAT) NAT breaks a PSE or only forfeits IPv6",
+      "status": "open",
+      "former_ids": [
+        "zia-62"
+      ],
+      "detail": "Unverified legacy statement: the legacy doc removed the claim that shared/overloaded NAT is 'not supported' because the source only says the addresses must have 1:1 static NAT to a public IP, with IPv6 unsupported in that mode. The source does not say a shared or overloaded mapping is rejected.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "vip-count-wording": {
+      "kind": "data",
+      "title": "Whether the cluster virtual IP is counted per node or per cluster",
+      "status": "open",
+      "detail": "The tables label the row 'Virtual IP Address per Cluster' but give the count as 'per Private Service Edge node'. The legacy doc listed it per node. A VIP is a cluster-level address, so the intended count is not clear from the page.",
+      "resolves_with": [
+        "support-ticket"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

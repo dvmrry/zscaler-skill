@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "id": "zia.ad-integration.directory-sync",
+  "title": "Directory (LDAP/AD) synchronization behavior",
+  "aliases": [
+    "ldap sync",
+    "active directory sync",
+    "directory synchronization",
+    "sync frequency",
+    "nested groups",
+    "sync now",
+    "lastSyncStartTime",
+    "users deleted from directory"
+  ],
+  "binds": [
+    "zia/auth-settings"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.ad-integration.provisioning-methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.setup"
+    }
+  ],
+  "claims": {
+    "sync-actions": {
+      "statement": "Directory synchronization runs an LDAP search with the configured directory parameters and imports users that have a user or email attribute and are in the account's configured domain. It adds users, groups and departments present in the directory but not in the service, deletes those in the service but not in the directory, and modifies service data to match the directory.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ldap-user-synchronization.md",
+          "quotes": [
+            "imports users who have a user or email attribute and who are part of the domain that is configured for the account.",
+            "It adds users, groups and departments that are in the directory server, but not in the service.",
+            "It deletes users, groups and departments that are in the service, but not in the directory server.",
+            "It modifies its data to match what's in the directory"
+          ]
+        }
+      ]
+    },
+    "deactivate-not-delete": {
+      "statement": "Users removed from the directory are deactivated, not deleted: the service invalidates their authentication cookies so they can no longer authenticate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ldap-user-synchronization.md",
+          "quotes": [
+            "Zscaler does not delete but deactivates users. It invalidates the authentication cookies of the users that were deleted and they are no longer allowed to authenticate."
+          ]
+        }
+      ],
+      "gaps": [
+        "delete-vs-deactivate-wording"
+      ]
+    },
+    "periodic-or-on-demand": {
+      "statement": "User data can be synchronized periodically or on demand. The ZAB can be set to synchronize on demand, daily, weekly or monthly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-provisioning-and-authentication-methods.md",
+          "quotes": [
+            "Use existing infrastructure.Secure communications.User data can be synchronized periodically or on demand."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-authentication-bridge.md",
+          "quotes": [
+            "synchronize users on demand, daily, weekly, or monthly"
+          ]
+        }
+      ]
+    },
+    "change-lag": {
+      "statement": "A change in the directory (a user added to a group, a department change) is visible to policy only after the next synchronization completes.",
+      "tier": "B",
+      "conditions": "Derived from synchronization being periodic or on demand: no source states a propagation time, and the sync schedule itself is not captured.",
+      "derived_from": [
+        "periodic-or-on-demand"
+      ]
+    },
+    "ldap-bind-auth": {
+      "statement": "By default synchronized users authenticate by an LDAP Bind to the directory server with their Distinguished Name and password, so passwords stay on the directory server and are never synchronized.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ldap-user-synchronization.md",
+          "quotes": [
+            "It performs an LDAP Bind to the directory server to validate a user’s password and authenticate a user.",
+            "the CA retrieves the Distinguished Name and tries to perform an LDAP Bind to the directory server using the Distinguished Name and password of the user.",
+            "passwords are always stored and maintained on your directory server. They are never synchronized."
+          ]
+        }
+      ]
+    },
+    "scope-fields": {
+      "statement": "Synchronization uses configured directory parameters: the limits table lists a Base DN, a User Search Filter and a Group Search Filter among the AD and OpenLDAP fields.",
+      "tier": "B",
+      "conditions": "The limits table names the fields; no captured article describes narrowing the scope by OU or group.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Base DN | 1,023 characters |",
+            "| User Search Filter | 1,023 bytes |",
+            "| Group Search Filter | 1,023 bytes |"
+          ]
+        }
+      ]
+    },
+    "last-sync-fields": {
+      "statement": "lastSyncStartTime and lastSyncEndTime are epoch-second timestamps of the last LDAP sync, applicable only to directory-based authentication. lastSyncStartTime is reset when the authentication type is changed to a different directory authentication type.",
+      "tier": "A",
+      "binds": [
+        "zia/auth-settings"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.md",
+          "quotes": [
+            "This is reset when the organization's authentication type is changed to a different directory authentication type.",
+            "Timestamp (epoch time in seconds) corresponding to the end of the last LDAP sync. Applicable only for directory-based authentication."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "delete-vs-deactivate-wording": {
+      "kind": "semantic",
+      "title": "Deleted or deactivated: two captured articles word it differently",
+      "status": "open",
+      "detail": "The directory-sync article says users deleted from the directory are deactivated; the ZAB article says the service deletes them and invalidates their cookies. Whether the record persists in the user database after a directory removal is not settled by either.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "whether a user removed from the directory can be seen or reactivated in ZIA"
+    },
+    "nested-groups": {
+      "kind": "semantic",
+      "title": "Whether nested directory groups are expanded during sync",
+      "status": "open",
+      "detail": "Unverified legacy statement: Nested AD group membership (user in group A, A a member of group B) under LDAP sync is not confirmed, and the AD memberOf attribute in many LDAP configurations lists only the direct parent group; tenants relying on nesting should test it and may need to flatten membership in AD. No captured article states how nesting is handled. A lab sync of a nested group, or a vendor statement, would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "answering whether members of a child group match a rule scoped to its parent group"
+    },
+    "sync-now-api": {
+      "kind": "semantic",
+      "title": "Whether any API triggers a synchronization",
+      "status": "open",
+      "detail": "Unverified legacy statement: There is no manual sync-now API endpoint confirmed in available captures; syncs are scheduled by Zscaler's backend. The captured articles say synchronization can run on demand, so the Admin Console has a trigger; whether the API exposes one is not stated. An API-spec search or a vendor answer would settle it.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "advice on forcing a sync from automation"
+    }
+  }
+}

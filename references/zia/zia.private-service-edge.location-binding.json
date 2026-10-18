@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "id": "zia.private-service-edge.location-binding",
+  "title": "Binding a Private Service Edge cluster to a Location, and the open-proxy hazard",
+  "aliases": [
+    "pse open proxy",
+    "pse location",
+    "pse static ip location",
+    "pse support ticket location",
+    "pse location mapping",
+    "location pse cluster",
+    "pse forced to authenticate"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.locations.model"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.what-it-is"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.deployment"
+    }
+  ],
+  "claims": {
+    "location-benefits": {
+      "statement": "Adding a location to a Private Service Edge cluster allows transaction logs to be viewed, categorized and reported per cluster, lets the organization manage authentication settings, IP Surrogacy settings, XFF consumption and Location group settings for SSL inspection and web filtering policies, and maps traffic and enforcement in a NAT environment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "View, categorize, and generate reports of transaction logs for their clusters.",
+            "Manage various settings (Authentication settings, IP Surrogacy settings, XFF consumption, and Location group settings for SSL inspection & web filtering policies).",
+            "Map traffic and enforcement in a NAT environment."
+          ]
+        }
+      ]
+    },
+    "open-proxy-risk": {
+      "statement": "Creating a new location for the Private Service Edges can make the cluster an open proxy, because the Central Authority has no automatic link between newly created Private Service Edge locations and the organization's actual Private Service Edge clusters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "However, creating a new location for the Private Service Edges can make the cluster an open proxy, as the CA doesn't have an automatic link between the newly created Private Service Edge locations"
+          ]
+        }
+      ]
+    },
+    "static-ip-per-cluster": {
+      "statement": "The location should use a Static IP address that the organization provisioned in the Admin Console, one per cluster. That public IP must be owned by the organization and must not be in use or assigned in any way to the Private Service Edge cluster.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Use the Static IP addresses provisioned by you in the Zscaler Admin Console for the locations. One Static IP address per cluster.",
+            "The public IP must be owned by your organization and must not be in use or assigned in any way to the Private Service Edge cluster."
+          ]
+        }
+      ]
+    },
+    "support-completes-mapping": {
+      "statement": "The organization shares its known traffic forwarding ranges for the allowlist and contacts Zscaler Support to map the location to the Private Service Edges. Zscaler adds the location IP address and the known traffic forwarding ranges to all the Private Service Edge instances of that cluster.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Share your organization's known traffic forwarding ranges for the allowlist with Zscaler.",
+            "Contact Zscaler Support to ensure the locations are mapped to the Private Service Edges.",
+            "Zscaler adds the location IP address and known traffic forwarding ranges to all the Private Service Edge instances for the respective cluster."
+          ]
+        }
+      ]
+    },
+    "off-allowlist-is-remote-user": {
+      "statement": "With the mapping in place, only the organization's traffic is mapped to the Private Service Edge location's policies; any traffic not coming from the organization's allowlist is treated as a remote user and forced to authenticate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Any traffic not coming from your organization",
+            "treated as a remote user and forced to authenticate"
+          ]
+        }
+      ]
+    },
+    "mapping-disruption": {
+      "statement": "There can be a disruption in service while Zscaler maps the location to the Private Service Edges, so standard Network Operations Center change protocols apply if the cluster is already in production.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "There can be disruption in service while Zscaler maps the location to their Private Service Edges"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ticket-for-every-change": {
+      "kind": "semantic",
+      "title": "Whether every Location add or change needs a Support ticket",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'every PSE location add or change requires a Zscaler Support ticket. There is no Admin Console self-service path for the CA-to-cluster mapping.' The source states the step for a newly created location and advises contacting Support; it says nothing about later edits to an already mapped location, and does not state that no self-service path exists.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.gre-failover",
+  "title": "GRE tunnel health checks and failover",
+  "aliases": [
+    "gre failover",
+    "gre keepalive",
+    "ip sla zscaler",
+    "vpntest",
+    "tunnel health check",
+    "gre ha"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.traffic-forwarding.gre"
+    }
+  ],
+  "claims": {
+    "monitoring-required": {
+      "statement": "Zscaler requires monitoring of GRE tunnels, with monitoring tied to failover: when service monitoring is down the primary tunnel fails over to the backup, and it switches back when monitoring recovers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-gre-tunnels.md",
+          "quotes": [
+            "Zscaler requires you to monitor your GRE tunnels so that failover between the primary and the backup tunnels is triggered if a tunnel goes down.",
+            "Zscaler requires you to connect tunnel monitoring to tunnel failover."
+          ]
+        }
+      ]
+    },
+    "keepalive-limit": {
+      "statement": "GRE interfaces have no built-in way to detect a tunnel failure, so GRE keepalives are configured on the physical or logical interface; they monitor the interface, not the service beyond it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-gre-tunnels.md",
+          "quotes": [
+            "GRE tunneling interfaces do not have a built-in mechanism for detecting when a tunnel fails.",
+            "However, the GRE keepalives monitor the interface, not the service beyond the interface."
+          ]
+        }
+      ]
+    },
+    "health-checks": {
+      "statement": "Service monitoring uses Layer 7 health checks where the vendor supports them (Cisco IP SLA, some Juniper devices through RPM), otherwise Layer 4 checks such as ICMP and PAC-based failover. The check is an HTTP raw request to http://gateway.<Zscaler cloud>.net/vpntest.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-gre-tunnels.md",
+          "quotes": [
+            "deploy Layer 7 health checks if your vendor supports it. If your vendor does not support Layer 7 health checks, deploy Layer 4 health checks, such as ICMP and PAC-based failover.",
+            "The majority of Cisco devices support Layer 7 health checks using IPSLA and some Juniper devices support health checks using RPM",
+            "send an HTTP raw request to the following URL: http://gateway.<Zscaler cloud>.net/vpntest."
+          ]
+        }
+      ]
+    },
+    "no-popular-site-checks": {
+      "statement": "Do not run Layer 7 health checks against commonly visited sites such as www.google.com: Google may denylist the service's IP addresses and enforce CAPTCHA on every user behind them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-gre-tunnels.md",
+          "quotes": [
+            "Do not perform Layer 7 health checks on commonly visited websites like www.google.com. This may cause Google to place Zscaler's IP addresses on their denylist and enforce the Google CAPTCHA on all users coming from those IP addresses."
+          ]
+        }
+      ]
+    },
+    "failover-profiles": {
+      "statement": "Zscaler publishes two failover profiles. Fast: keepalive 10 3 (30 seconds), ICMP echo every 10 seconds, track delay down 30 and up 45 seconds, best case 30-32 seconds and worst case 40-42 seconds, higher false-positive risk and CPU use, Layer 3 only. Conservative: keepalive 30 4 (120 seconds), HTTP raw every 60 seconds, delay down 120 and up 180 seconds, best case 120-125 and worst case 180-185 seconds, lower false-positive risk, tests the HTTP service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-gre-tunnels.md",
+          "quotes": [
+            "| GRE Keepalive | Keepalive 10 3 (30 seconds failure) | Keepalive 30 4 (120 seconds failure) |",
+            "| Best-Case Failover | 30–32 seconds | 120–125 seconds |",
+            "| Worst-Case Failover | 40–42 seconds | 180–185 seconds |",
+            "| False Positive Risk | Higher | Lower |",
+            "| Application Layer Test | No (Layer 3 only) | Yes (HTTP service) |"
+          ]
+        }
+      ]
+    },
+    "delay-down-up": {
+      "statement": "In the conservative example the router probes once every 60 seconds, marks the test down after 120 seconds (two consecutive failures) and up after 180 seconds (three consecutive successes), so short flaps do not trigger failover.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-gre-tunnels.md",
+          "quotes": [
+            "This means that the router waits for two consecutive failures before marking the connection as down, and it waits for three consecutive successes before marking the connection as up."
+          ]
+        }
+      ]
+    }
+  }
+}

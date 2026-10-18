@@ -21,7 +21,7 @@ author-status: draft
 
 GRE is a statically configured forwarding method for sending internet-bound traffic from a corporate site to ZIA Public Service Edges. It requires no per-user software and no ZCC deployment. This document covers what GRE is in the Zscaler context, when to use it over other forwarding methods, deployment scenarios, key technical constraints, and operational best practices.
 
-For the forwarding method decision tree (GRE vs IPsec vs PAC vs ZCC), see [`../zia/traffic-forwarding-methods.md`](../zia/traffic-forwarding-methods.md). For how Z-Tunnel 2.0 interacts with GRE, see [`./z-tunnel.md`](./z-tunnel.md).
+For the forwarding method decision tree (GRE vs IPsec vs PAC vs ZCC), see [`zia.traffic-forwarding`](kb:zia.traffic-forwarding). For how Z-Tunnel 2.0 interacts with GRE, see [`./z-tunnel.md`](./z-tunnel.md).
 
 ## What GRE is in the Zscaler context
 
@@ -47,7 +47,7 @@ Key properties that make GRE appropriate for ZIA:
 | ZIA identity enforcement | Source IP + Surrogate IP | Source IP + Surrogate IP | Per-user (ZCC handles auth) |
 | GRE coexistence | Native | Separate tunnels | Avoid routing ZT2 through GRE |
 
-Choose GRE when: the site has a router that supports GRE, the public egress IP is static, throughput needs are ≥500 Mbps, and in-flight encryption is not a compliance requirement. Choose IPsec when the path traverses untrusted networks or the site has a dynamic IP. Use ZCC for users who leave the corporate network (Tier A — vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md; references/zia/traffic-forwarding-methods.md).
+Choose GRE when: the site has a router that supports GRE, the public egress IP is static, throughput needs are ≥500 Mbps, and in-flight encryption is not a compliance requirement. Choose IPsec when the path traverses untrusted networks or the site has a dynamic IP. Use ZCC for users who leave the corporate network (Tier A — vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md; `kb:zia.traffic-forwarding.gre`).
 
 ## Deployment scenarios
 
@@ -128,7 +128,7 @@ http://gateway.<Zscaler-cloud-name>.net/vpntest
 
 ### Data center selection constraints
 
-Zscaler's provisioning UI excludes **premium and surcharge data centers** from the VIP picker. Tunnels to these DCs require a Zscaler Support ticket. The SDK's `get_closest_diverse_vip_ids` call auto-selects the geographically closest diverse VIPs from the standard pool (references/zia/traffic-forwarding-methods.md).
+Zscaler's provisioning UI excludes **premium and surcharge data centers** from the VIP picker. Tunnels to these DCs require a Zscaler Support ticket. The SDK's `get_closest_diverse_vip_ids` call auto-selects the geographically closest diverse VIPs from the standard pool (`kb:zia.traffic-forwarding.gre`).
 
 ### Z-Tunnel 2.0 incompatibility
 
@@ -203,7 +203,7 @@ Key tunnel object fields: `source_ip` (the registered static IP), `primary_dest_
 
 ## Cross-links
 
-- Forwarding method comparison (GRE vs IPsec vs PAC vs ZCC) — [`../zia/traffic-forwarding-methods.md`](../zia/traffic-forwarding-methods.md)
+- Forwarding method comparison (GRE vs IPsec vs PAC vs ZCC) — [`zia.traffic-forwarding`](kb:zia.traffic-forwarding)
 - Z-Tunnel 1.0 vs 2.0 and GRE coexistence — [`./z-tunnel.md`](./z-tunnel.md)
 - SSL inspection behavior under transparent (GRE) vs explicit forwarding — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - Location and Sublocation model (how GRE source IPs map to policy scope) — [`zia.locations`](kb:zia.locations)

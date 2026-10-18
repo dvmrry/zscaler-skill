@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "id": "zia.rule-labels.api-surface",
+  "title": "ZIA rule label API surface",
+  "aliases": [
+    "ruleLabels endpoint",
+    "rule label fields",
+    "get_rule_type_label",
+    "ruleType endpoint",
+    "list_labels",
+    "referencedRuleCount",
+    "GetRuleLabelByName"
+  ],
+  "binds": [
+    "zia/rule-labels",
+    "zia/rule-labels#referencedRuleCount",
+    "zia/rule-labels#name",
+    "zia/rule-labels#description"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.rule-labels"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.rule-labels.constraints"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    }
+  ],
+  "claims": {
+    "crud-endpoints": {
+      "statement": "The OpenAPI contract defines list and create on `/ruleLabels` and get, update and delete on `/ruleLabels/{ruleLabelId}`.",
+      "tier": "A",
+      "binds": [
+        "zia/rule-labels"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ruleLabels/get",
+          "expect": {
+            "operationId": "Rule Label Resource Get Rule Labels"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ruleLabels/post",
+          "expect": {
+            "operationId": "Rule Label Resource Add Rule Label"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ruleLabels~1{ruleLabelId}/get",
+          "expect": {
+            "operationId": "Rule Label Resource Get Rule Label By ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ruleLabels~1{ruleLabelId}/put",
+          "expect": {
+            "operationId": "Rule Label Resource Update Rule Label"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ruleLabels~1{ruleLabelId}/delete",
+          "expect": {
+            "operationId": "Rule Label Resource Delete Rule Label"
+          }
+        }
+      ]
+    },
+    "read-only-fields": {
+      "statement": "`lastModifiedTime`, `lastModifiedBy` and `createdBy` are documented read-only (ignored by PUT) in the Go SDK; `lastModifiedTime` is also documented as ignored by DELETE. `referencedRuleCount` is documented only as the number of rules that reference the label.",
+      "tier": "A",
+      "binds": [
+        "zia/rule-labels#lastModifiedTime",
+        "zia/rule-labels#lastModifiedBy",
+        "zia/rule-labels#createdBy",
+        "zia/rule-labels#referencedRuleCount"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/rule_labels/rule_labels.go",
+          "quotes": [
+            "Timestamp when the rule lable was last modified. This is a read-only field. Ignored by PUT and DELETE requests.",
+            "The admin that modified the rule label last. This is a read-only field. Ignored by PUT requests.",
+            "The admin that created the rule label. This is a read-only field. Ignored by PUT requests.",
+            "The number of rules that reference the label."
+          ]
+        }
+      ]
+    },
+    "list-params": {
+      "statement": "The OpenAPI contract gives the label list two query parameters, `page` and `pageSize`; its text says the default page size is 100 and the maximum 1000 while the schema default is 250.",
+      "tier": "A",
+      "binds": [
+        "zia/rule-labels"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ruleLabels/get/parameters/[name=pageSize]",
+          "expect": {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Specifies the page size. The default size is 100, but the maximum size is 1000.",
+            "schema": {
+              "default": 250,
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ruleLabels/get/parameters/[name=page]",
+          "expect": {
+            "name": "page",
+            "in": "query"
+          }
+        }
+      ]
+    },
+    "go-getall-paginates": {
+      "statement": "The Go SDK `GetAll` reads every page of `/zia/api/v1/ruleLabels` through the shared page reader.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/rule_labels/rule_labels.go",
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, ruleLabelsEndpoint, &ruleLabels)"
+          ]
+        }
+      ]
+    },
+    "go-name-lookup": {
+      "statement": "The Go SDK finds a label by name client-side: it lists every label and returns the first whose name equals the argument ignoring case, so a name lookup is case-insensitive and returns one label even if several match.",
+      "tier": "A",
+      "binds": [
+        "zia/rule-labels#name"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/rule_labels/rule_labels.go",
+          "quotes": [
+            "// Search for exact match (case-insensitive)",
+            "if strings.EqualFold(ruleLabel.Name, labelName) {"
+          ]
+        }
+      ]
+    },
+    "python-ruletype-endpoint": {
+      "statement": "The Python SDK has a method that calls `GET /zia/api/v1/ruleLabels/ruleType/{rule_type}`; the OpenAPI contract defines no such path and the Go SDK label package has no corresponding function.",
+      "tier": "B",
+      "conditions": "Absence claim: the path keys of zia.openapi.json contain `/ruleLabels` and `/ruleLabels/{ruleLabelId}` only, and the Go file defines Get, GetRuleLabelByName, Create, Update, Delete and GetAll.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/rule_labels.py",
+          "quotes": [
+            "def get_rule_type_label(self, rule_type: str, query_params: Optional[dict] = None)",
+            "/ruleLabels/ruleType/{rule_type}"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "list-search-param": {
+      "summary": "The Python SDK documents a `search` parameter on the label list that the OpenAPI contract does not define.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/rule_labels.py",
+            "quotes": [
+              "``[query_params.search]`` {str}: Search string for filtering results."
+            ],
+            "after": "def list_labels("
+          },
+          "says": "list_labels accepts a `search` query parameter for filtering results."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1ruleLabels/get/parameters/[name=page]",
+            "expect": {
+              "name": "page",
+              "in": "query"
+            }
+          },
+          "says": "The list takes `page` and `pageSize` only."
+        }
+      ],
+      "impact": "Do not assume a server-side name search. Whether `search` filters by name, and whether the server honours it, is not shown; the Go SDK's own name lookup filters client-side."
+    }
+  },
+  "gaps": {
+    "rule-type-endpoint-backing": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-50"
+      ],
+      "title": "Whether the ruleType label endpoint is a stable REST surface",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "building automation on get_rule_type_label",
+      "detail": "The call exists only in the Python SDK; the contract and the Go SDK have nothing for it. Unverified legacy statement: \"It accepts as filter values URL_FILTERING, FIREWALL, CASB_DLP, CLOUD_APP_CONTROL, DATA_PROTECTION, GENAI, INDUSTRY_PEER, NEWS_FEED, RISK_SCORE, SANDBOX\" (attributed to the Python docstring). The pinned docstring says only \"The type of rule to retrieve labels for.\" and the example passes 'URL_FILTERING'; the rest of the enum is in no registered source. Call the endpoint against a scratch tenant to settle it."
+    }
+  }
+}

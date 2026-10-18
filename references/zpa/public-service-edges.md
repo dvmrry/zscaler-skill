@@ -25,7 +25,7 @@ author-status: draft
 
 > **Scope.** This document covers the ZPA **Public** Service Edge — the Zscaler-operated, multi-tenant session-broker tier — plus the Service Edge Group API surface that distinguishes a public (Zscaler-managed) group from a private (operator-deployed) one. Customer-deployed brokering is the ZPA **Private** Service Edge, covered in full at [`./private-service-edges.md`](./private-service-edges.md); this doc cross-links rather than re-derives that detail.
 >
-> **No "Virtual Service Edge" in ZPA.** "Virtual Service Edge (VSE)" is a **ZIA-only** product term (a customer-run VM that does inline internet/SaaS inspection). It has no ZPA equivalent — the string appears nowhere in the ZPA Python SDK, Go SDK, or Terraform provider. ZPA's customer-deployed edge is the **Private Service Edge**. Earlier revisions of this doc described ZIA VSE sizing/clustering (VMware/Hyper-V tables, CARP, DSR, Marvell SSL cards) as if it were ZPA; that content was ZIA and has been removed. See [`../zia/private-service-edge.md`](../zia/private-service-edge.md) for the ZIA edge products.
+> **No "Virtual Service Edge" in ZPA.** "Virtual Service Edge (VSE)" is a **ZIA-only** product term (a customer-run VM that does inline internet/SaaS inspection). It has no ZPA equivalent — the string appears nowhere in the ZPA Python SDK, Go SDK, or Terraform provider. ZPA's customer-deployed edge is the **Private Service Edge**. Earlier revisions of this doc described ZIA VSE sizing/clustering (VMware/Hyper-V tables, CARP, DSR, Marvell SSL cards) as if it were ZPA; that content was ZIA and has been removed. See [`zia.private-service-edge`](kb:zia.private-service-edge) for the ZIA edge products.
 
 ---
 
@@ -191,6 +191,6 @@ The TF provider exposes a **data source** for individual Service Edge instances 
 - App Connector (the other endpoint of the M-Tunnel) — [`./app-connector.md`](./app-connector.md)
 - Policy precedence and session gating — [`./policy-precedence.md`](./policy-precedence.md)
 - LSS access log schema (where Service Edge identity appears) — [`./logs/access-log-schema.md`](./logs/access-log-schema.md)
-- ZIA edge products (Public Service Edge, Virtual Service Edge — different product) — [`../zia/private-service-edge.md`](../zia/private-service-edge.md)
+- ZIA edge products (Public Service Edge, Virtual Service Edge — different product) — [`zia.private-service-edge`](kb:zia.private-service-edge)
 - Trusted Networks — group ↔ Trusted Network binding — [`./trusted-networks.md`](./trusted-networks.md)
 - SDK ServiceEdgeGroupAPI — [`./sdk.md`](./sdk.md)

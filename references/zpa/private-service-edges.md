@@ -62,7 +62,7 @@ author-status: draft
 
 # ZPA Private Service Edges — on-prem brokering for private app access
 
-> **Name collision warning.** "Private Service Edge" exists in both ZPA and ZIA but refers to completely different products. This document covers the ZPA variant only — an on-prem broker for private application access. The ZIA Private Service Edge is an inline traffic inspection cluster for internet-bound traffic and is documented separately at [`../zia/private-service-edge.md`](../zia/private-service-edge.md). Do not conflate these: different product, different architecture, different use case, different Terraform resources.
+> **Name collision warning.** "Private Service Edge" exists in both ZPA and ZIA but refers to completely different products. This document covers the ZPA variant only — an on-prem broker for private application access. The ZIA Private Service Edge is an inline traffic inspection cluster for internet-bound traffic and is documented separately at [`zia.private-service-edge`](kb:zia.private-service-edge). Do not conflate these: different product, different architecture, different use case, different Terraform resources.
 
 ## Overview
 
@@ -629,7 +629,7 @@ The `ReadOnly` and `ZscalerManaged` fields on the `ServiceEdgeGroup` struct (Go 
 ## Cross-links
 
 - ZPA Public Service Edges (Zscaler-managed, default path; read-only to operators) — [`./public-service-edges.md`](./public-service-edges.md)
-- ZIA Private Service Edge (completely separate product — inline ZIA traffic inspection cluster, not related to ZPA) — [`../zia/private-service-edge.md`](../zia/private-service-edge.md)
+- ZIA Private Service Edge (completely separate product — inline ZIA traffic inspection cluster, not related to ZPA) — [`zia.private-service-edge`](kb:zia.private-service-edge)
 - App Connector (the downstream hop from the PSE to the private application) — [`./app-connector.md`](./app-connector.md)
 - Trusted Networks (binding of LAN subnets to PSE Groups for routing preference) — [`./trusted-networks.md`](./trusted-networks.md)
 - ZPA access policy and country-based policy evaluation (how the PSE Group location affects policy) — [`./policy-precedence.md`](./policy-precedence.md)

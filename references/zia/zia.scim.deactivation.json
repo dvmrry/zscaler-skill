@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "id": "zia.scim.deactivation",
+  "title": "What SCIM does when a user is disabled or deleted",
+  "aliases": [
+    "active=false",
+    "scim deprovisioning",
+    "disable user scim",
+    "scim delete user",
+    "terminated employee access",
+    "scim session kill",
+    "revoke token after scim"
+  ],
+  "binds": [
+    "zia/users"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.scim"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.directory-sync"
+    }
+  ],
+  "claims": {
+    "active-flag": {
+      "statement": "When active=false is sent for a user, Zscaler disables the user; when active=true, Zscaler enables the user.",
+      "tier": "A",
+      "binds": [
+        "zia/users"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-scim-zia.md",
+          "quotes": [
+            "When \"active=false,\" Zscaler disables this userWhen \"active=true,\" Zscaler enables this user"
+          ]
+        }
+      ]
+    },
+    "delete-removes": {
+      "statement": "Deleting a user in the directory is carried to Zscaler as a SCIM delete (DELETE /Users/{UserID}), which deprovisions the user from the Zscaler database; this is a documented use of SCIM and a separate path from active=false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-scim-zia.md",
+          "quotes": [
+            "Deprovisioning users from the Zscaler database when users are deleted from your user directory.",
+            "| Delete User | DELETE /Users/{UserID} |"
+          ]
+        }
+      ]
+    },
+    "zpa-deletes": {
+      "statement": "In ZPA, active=false deletes the user, so the same IdP action is reversible in ZIA and destructive in ZPA.",
+      "tier": "A",
+      "conditions": "The ZPA half is quoted; the ZIA half is the active-flag claim.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-scim-zpa.md",
+          "quotes": [
+            "When \"active=false\", Zscaler deletes this user."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "session-kill": {
+      "kind": "semantic",
+      "title": "Whether active=false ends a live ZIA session",
+      "status": "open",
+      "detail": "Unverified legacy statement: Whether disabling a user via active=false terminates their active ZIA inspection session, or only blocks future authentication, is not documented; the user cannot authenticate via SAML and policy treats them as inactive, but the current session may persist until it expires. For immediate access revocation do not rely on active=false alone. No captured article states it. A lab test of an active session before and after active=false would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "advice on revoking access for terminated users",
+      "former_ids": [
+        "zia-40"
+      ]
+    },
+    "token-revocation": {
+      "kind": "semantic",
+      "title": "Whether SCIM disable or delete revokes tokens the user already holds",
+      "status": "open",
+      "detail": "Unverified legacy statement: Disabling or deleting a ZIA user via SCIM removes access going forward but does not invalidate OAuth tokens or SAML sessions already held; hard revocation requires a ZIdentity token revocation call (the ZIdentity API client reference, a later conversion wave). No captured ZIA article states either half. A lab check and the ZIdentity revocation article would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "advice on hard revocation after offboarding"
+    }
+  }
+}

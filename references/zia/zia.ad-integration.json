@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "zia.ad-integration",
+  "title": "How users, groups and departments get into ZIA",
+  "aliases": [
+    "active directory integration",
+    "AD integration",
+    "user provisioning",
+    "ldap sync",
+    "user not found in policy",
+    "group not available in rule",
+    "provisioning vs authentication",
+    "ZIA user database"
+  ],
+  "binds": [
+    "zia/users",
+    "zia/groups",
+    "zia/departments"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.provisioning-methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.directory-sync"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.saml-auto-provisioning"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.identity-objects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.terraform"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.authentication.unauthenticated-traffic"
+    }
+  ],
+  "claims": {
+    "identity-needed": {
+      "statement": "Enforcing policy by department, group and user, and reporting by user, requires users, groups and departments to be provisioned into the Zscaler database first and authentication to be enabled. With authentication disabled at a known location the service does not know who the users are and applies the location's policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-provisioning-and-authenticating-users.md",
+          "quotes": [
+            "provisioning and authenticating users are required. Provisioning must be done first",
+            "the service does not know who the users are and to which domain they belong to because authentication is disabled"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "web-insights-attribution": {
+      "kind": "semantic",
+      "title": "What reporting and cross-product policy show for users that were never provisioned",
+      "status": "open",
+      "detail": "Unverified legacy statement: Without AD data, per-user reporting in ZIA Web Insights shows `anonymous` or the source IP rather than the login name, and ZPA policy rules that cross-reference ZIA user identity have no data to match on. The provisioning article says only that user and department reporting needs provisioning and authentication. A lab tenant with an unprovisioned user, or a vendor statement, would settle what each report shows.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "advice on what to expect in reports and ZPA policy for unprovisioned users"
+    }
+  }
+}

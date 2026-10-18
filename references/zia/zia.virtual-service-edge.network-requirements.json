@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "id": "zia.virtual-service-edge.network-requirements",
+  "title": "Addresses, interfaces, outbound connectivity and ports for a Virtual Service Edge",
+  "aliases": [
+    "vse ip addresses",
+    "vse proxy ip",
+    "vse management ip",
+    "vse lb ip",
+    "vse outbound firewall",
+    "vse port 443",
+    "vse enable-stdport",
+    "vse ipv6",
+    "vse nat",
+    "vse hub ips"
+  ],
+  "binds": [
+    "zia/vzen-nodes#ipAddress",
+    "zia/vzen-nodes#loadBalancerIpAddress"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.clusters"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.ip-requirements"
+    }
+  ],
+  "claims": {
+    "three-interfaces": {
+      "statement": "Each VM has 3 network interfaces (management, the Virtual Service Edge, and the load balancer). They should be on the same VLAN, which should be accessible by user traffic and have outbound internet access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "Network Interfaces: 3 interfaces (one for Management, one for the Virtual Service Edge, and one for the LB). These interfaces should be on the same VLAN."
+          ]
+        }
+      ]
+    },
+    "four-address-roles": {
+      "statement": "The management IP address is used for SSH to the VM and to download Virtual Service Edge builds; the proxy IP address carries proxied traffic and the outbound control connection, is used for the load balancer's health monitoring, and listens for user traffic in a standalone; the load balancer IP address makes an outbound control connection and receives initial user requests; the cluster IP address provides fault tolerance and listens for user traffic. The proxy, load balancer and cluster addresses must be in the same subnet or VLAN. The load balancer and cluster addresses are not required for a standalone.",
+      "tier": "A",
+      "binds": [
+        "zia/vzen-nodes#ipAddress",
+        "zia/vzen-nodes#loadBalancerIpAddress"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "This is used to make an SSH connection to the Virtual Service Edge VM for management.",
+            "Health monitoring by the LB",
+            "This is used to make an outbound control connection to the Zscaler cloud, as well as to receive initial requests from users.",
+            "It must be in the same subnet as the proxy and cluster IP addresses.",
+            "It must be in the same VLAN as the proxy and LB IP addresses."
+          ]
+        }
+      ]
+    },
+    "outbound-only": {
+      "statement": "Virtual Service Edges require only outbound connections to the Zscaler cloud. The firewall must allow the outbound connections on the Virtual Service Edge config page (config.zscaler.com/<Zscaler Cloud Name>/zia-v-sedge) and access to and from the IP addresses on the Zscaler Hub IP Addresses page (config.zscaler.com/<Zscaler Cloud Name>/hubs).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "Virtual Service Edges require only outbound connections to the Zscaler cloud."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.md",
+          "quotes": [
+            "Ensure that your firewall allows the outbound connections listed on the Virtual Service Edge config page (i.e., config.zscaler.com/<Zscaler Cloud Name>/zia-v-sedge) and access to and from the IP addresses on the Zscaler Hub IP Addresses page (i.e., config.zscaler.com/<Zscaler Cloud Name>/hubs)."
+          ]
+        }
+      ]
+    },
+    "default-ports-and-443": {
+      "statement": "By default the Virtual Service Edge communicates with the Zscaler cloud on ports 9422, 9431 and 9442. `sudo vzen enable-stdport` with the subcommand ca, cds, smsm or all moves authentication and policy retrieval, network-configuration download, log transmission to Nanolog, or all three to port 443; the Virtual Service Edge must then be restarted and the firewall changed to allow outbound only on port 443.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "If you want to establish Virtual Service Edge communication with Zscaler cloud on port 443 instead of ports 9422, 9431, and 9442",
+            "sudo vzen enable-stdport",
+            "smsm: Enables Virtual Service Edge to transmit logs to Zscaler nanolog for analytics on port 443.",
+            "Your firewall configuration must be updated to allow outbound connections from the Virtual Service Edge only on port 443 (replacing 9422, 9431 and 9442)."
+          ]
+        }
+      ]
+    },
+    "ipv6-tunnel-only": {
+      "statement": "Virtual Service Edges support IPv6 traffic only if it is forwarded through IPSec or GRE tunnels, and IPv6 is enabled and configured for the organization through Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-virtual-service-edge-clusters-internet-saas.md",
+          "quotes": [
+            "Virtual Service Edges support IPv6 traffic if it's only forwarded via IPSec or GRE tunnels. Contact Zscaler Support to enable and configure IPv6 for your organization."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "vse-nat-topology": {
+      "kind": "semantic",
+      "title": "Whether a Virtual Service Edge can sit behind 1:1 static NAT",
+      "status": "open",
+      "former_ids": [
+        "zia-37"
+      ],
+      "detail": "Unverified legacy statement: 'vendor docs for VSE do not document 1:1 static NAT support the same way the PSE docs do ... Whether VSE supports similar NAT topologies is not confirmed.' The hardware Private Service Edge requires 1:1 static NAT in RFC 1918 deployments and loses IPv6 ([[zia.private-service-edge.ip-requirements]]); none of the captured Virtual Service Edge pages address inbound NAT, or whether the IPv6 restriction applies.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

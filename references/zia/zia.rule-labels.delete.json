@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "zia.rule-labels.delete",
+  "title": "Deleting a ZIA rule label",
+  "aliases": [
+    "cannot delete rule label",
+    "rule label in use",
+    "delete rule label",
+    "terraform destroy rule label",
+    "label still associated with a policy rule"
+  ],
+  "binds": [
+    "zia/rule-labels",
+    "zia/rule-labels#referencedRuleCount"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.rule-labels"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.terraform.delete-detach"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation"
+    }
+  ],
+  "claims": {
+    "help-delete-constraint": {
+      "statement": "The help text states that a rule label can be deleted only if it is not associated with any policy rule.",
+      "tier": "A",
+      "binds": [
+        "zia/rule-labels"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-rule-labels.md",
+          "quotes": [
+            "You can delete a rule label only if it's not associated with any policy rule."
+          ]
+        }
+      ]
+    },
+    "terraform-delete-detaches-firewall-rules-only": {
+      "statement": "Destroying `zia_rule_labels` first strips the label from Cloud Firewall filtering rules only, then deletes the label; rules of other types that still hold it are not touched by the provider.",
+      "tier": "A",
+      "derived_from": [
+        "zia.terraform.delete-detach:helper-sweeps-firewall-filtering-rules-only"
+      ],
+      "binds": [
+        "zia/rule-labels"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_rule_labels.go",
+          "after": "func resourceRuleLabelsDelete(",
+          "quotes": [
+            "func(r *filteringrules.FirewallFilteringRules) []common.IDNameExtensions {",
+            "if _, err := rule_labels.Delete(ctx, service, id); err != nil {"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "referenced-label-delete-api": {
+      "kind": "semantic",
+      "title": "What the API does when a label that rules still reference is deleted",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether a Terraform destroy fails or leaves a dangling reference when a non-firewall rule still holds the label",
+      "detail": "Unverified legacy statement: \"Attempting to delete a label that is still referenced returns an error from the API... it will surface as a Terraform apply-time error if a zia_rule_labels resource is destroyed while any rule resource still holds a reference to it.\" The help text states the constraint for the console only; no registered source shows the API error. The related open question for groups is [[zia.terraform.delete-detach:in-use-enforcement]]. In a scratch tenant, attach a label to a URL filtering rule, delete the label by API, then re-read the rule."
+    }
+  }
+}

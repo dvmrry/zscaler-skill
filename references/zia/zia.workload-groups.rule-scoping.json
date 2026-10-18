@@ -1,0 +1,452 @@
+{
+  "schema_version": 1,
+  "id": "zia.workload-groups.rule-scoping",
+  "title": "Which ZIA rules accept workload groups, and how many",
+  "aliases": [
+    "workload_groups field",
+    "workloadGroups on rules",
+    "srcWorkloadGroups",
+    "destWorkloadGroups",
+    "255 workload groups per rule",
+    "8 workload groups per rule",
+    "workload groups traffic capture rule",
+    "workload groups forwarding control",
+    "1,024 workload groups",
+    "workload group limits"
+  ],
+  "binds": [
+    "zia/workload-groups",
+    "zia/url-filtering-rules#workloadGroups",
+    "zia/firewall-filtering-rules#workloadGroups",
+    "zia/ssl-inspection-rules#workloadGroups",
+    "zia/dlp-web-rules#workloadGroups"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.workload-groups.expressions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.workload-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation"
+    }
+  ],
+  "claims": {
+    "contract-carriers": {
+      "statement": "The ZIA API contract carries `workloadGroups` on the create and update bodies of four rule types: Firewall Filtering, SSL Inspection, URL Filtering and Web DLP.",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules",
+        "zia/firewall-filtering-rules",
+        "zia/ssl-inspection-rules",
+        "zia/dlp-web-rules"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1urlFilteringRules/post/requestBody/content/application~1json/schema/properties/workloadGroups",
+          "expect": {
+            "description": "The list of preconfigured workload groups to which the policy must be applied.  and .",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallFilteringRules/post/requestBody/content/application~1json/schema/properties/workloadGroups",
+          "expect": {
+            "description": "The list of preconfigured workload groups to which the policy must be applied.  and .",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/post/requestBody/content/application~1json/schema/properties/workloadGroups",
+          "expect": {
+            "description": "List of workload groups for which this rule is applicable",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/workloadGroups",
+          "expect": {
+            "description": "The list of preconfigured workload groups to which the policy must be applied.  and .",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1urlFilteringRules~1{ruleId}/put/requestBody/content/application~1json/schema/properties/workloadGroups",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallFilteringRules~1{ruleId}/put/requestBody/content/application~1json/schema/properties/workloadGroups",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules~1{ruleId}/put/requestBody/content/application~1json/schema/properties/workloadGroups",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules~1{ruleId}/put/requestBody/content/application~1json/schema/properties/workloadGroups",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ]
+    },
+    "no-other-rule-types": {
+      "statement": "No other ZIA rule type was found carrying `workloadGroups` in the API contract request bodies; Bandwidth Control and Cloud App Control rules, for example, do not appear.",
+      "tier": "B",
+      "binds": [],
+      "conditions": "Absence claim: a walk of every request body under the paths in zia.openapi.json for workloadGroups, srcWorkloadGroups and destWorkloadGroups found only the Firewall Filtering, SSL Inspection, URL Filtering and Web DLP rules (and Web DLP sub-rules). Terraform also carries the field on Traffic Capture; the Forwarding Control and other rules were not found with it.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1urlFilteringRules/post/requestBody/content/application~1json/schema/properties/workloadGroups",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ]
+    },
+    "help-four-policies": {
+      "statement": "The help names SSL/TLS Inspection, Firewall Filtering, URL Filtering and DLP as the Internet & SaaS policies that can use a workload group as a criterion.",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules",
+        "zia/firewall-filtering-rules",
+        "zia/ssl-inspection-rules",
+        "zia/dlp-web-rules"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-workload-groups.md",
+          "quotes": [
+            "You can use the workload group as a criterion in Internet & SaaS (ZIA) policies such as SSL/TLS Inspection, Firewall Filtering, URL Filtering, and DLP to apply security policies to the workload traffic."
+          ]
+        }
+      ]
+    },
+    "terraform-five-carriers": {
+      "statement": "The Terraform provider declares `workload_groups` on five rule resources: URL Filtering, Firewall Filtering, SSL Inspection, Web DLP and Traffic Capture, each with the same ID-and-name set schema.",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules",
+        "zia/firewall-filtering-rules",
+        "zia/ssl-inspection-rules",
+        "zia/dlp-web-rules"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "quotes": [
+            "setIdNameSchemaCustom(255, \"The list of preconfigured workload groups to which the policy must be applied\")"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "setIdNameSchemaCustom(255, \"The list of preconfigured workload groups to which the policy must be applied\")"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_ssl_inspection_rules.go",
+          "quotes": [
+            "setIdNameSchemaCustom(255, \"The list of preconfigured workload groups to which the policy must be applied\")"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_dlp_web_rules.go",
+          "quotes": [
+            "setIdNameSchemaCustom(255, \"The list of preconfigured workload groups to which the policy must be applied\")"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_traffic_capture_rules.go",
+          "quotes": [
+            "setIdNameSchemaCustom(255, \"The list of preconfigured workload groups to which the policy must be applied\")"
+          ]
+        }
+      ]
+    },
+    "traffic-capture-not-in-contract": {
+      "statement": "Traffic Capture rules carry `workload_groups` in the Terraform provider and Go SDK, but the ZIA API contract has no traffic-capture rules path, so the contract does not confirm the field there.",
+      "tier": "B",
+      "binds": [],
+      "conditions": "Absence claim: a search of the paths in zia.openapi.json for traffic-capture or capture rules found none; the Go SDK service and Terraform resource do carry the field.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/traffic_capture/traffic_capture.go",
+          "quotes": [
+            "WorkloadGroups"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_traffic_capture_rules.go",
+          "quotes": [
+            "setIdNameSchemaCustom(255, \"The list of preconfigured workload groups to which the policy must be applied\")"
+          ]
+        }
+      ]
+    },
+    "mcp-names-four": {
+      "statement": "The MCP rule-target workflow lists four carrier rule types (Cloud Firewall, URL Filtering, SSL Inspection, Web DLP) and omits Traffic Capture.",
+      "tier": "A",
+      "binds": [],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/look-up-rule-targets/SKILL.md",
+          "quotes": [
+            "**only Cloud Firewall, URL Filtering, SSL Inspection, Web DLP**"
+          ]
+        }
+      ]
+    },
+    "forwarding-control-not-in-sources": {
+      "statement": "The Terraform Forwarding Control rule resource and the API contract's forwarding rules body do not carry a workload-groups field, although the Forwarding Control policy help lists workload groups among the resources the policy references.",
+      "tier": "B",
+      "binds": [],
+      "conditions": "Absence claim: searches of resource_zia_forwarding_control_rule.go and the /forwardingRules request body in zia.openapi.json for workload found nothing. Absence in these sources does not rule out the criterion in the product.",
+      "gaps": [
+        "forwarding-control-criterion"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.md",
+          "quotes": [
+            "- Workload groups"
+          ]
+        }
+      ]
+    },
+    "cloud-connector-source-dest": {
+      "statement": "Cloud Connector traffic forwarding rules have separate Source Workload Groups and Destination Workload Groups criteria, both available only when the workload discovery service is enabled; destination workload groups apply only to Cloud Connector forwarding policies and only to the Local forwarding method.",
+      "tier": "A",
+      "binds": [],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.md",
+          "quotes": [
+            "Destination Workload Groups: Select any number of destination workload groups, which create tags to define the criteria for a VPC and traffic within your AWS network.",
+            "Destination workload groups are only available if you have the workload discovery service enabled.",
+            "Destination workload groups can only be applied to Cloud Connector traffic forwarding policies and are only applicable to the Local traffic forwarding method.",
+            "Source workload groups are only available if you have the workload discovery service enabled."
+          ],
+          "after": "- Configuring Forwarding Rules Using Local"
+        }
+      ]
+    },
+    "empty-ignores-criterion": {
+      "statement": "Selecting no workload group ignores the criterion in policy evaluation (documented for URL Filtering and SSL/TLS Inspection rules).",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules#workloadGroups",
+        "zia/ssl-inspection-rules#workloadGroups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": [
+            "Selecting no value ignores the criterion in the policy"
+          ],
+          "after": "Workload Groups: Select up to 8 workload groups"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.md",
+          "quotes": [
+            "Workload Groups: Select up to 8 workload groups for which you want to apply the rule. Selecting no value ignores the criterion in the policy evaluation."
+          ]
+        }
+      ]
+    },
+    "help-8-per-rule": {
+      "statement": "The help documents up to 8 workload groups per rule (URL Filtering and SSL/TLS Inspection criteria text, and the ZIA ranges and limitations table).",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules",
+        "zia/firewall-filtering-rules",
+        "zia/ssl-inspection-rules",
+        "zia/dlp-web-rules"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": [
+            "Workload Groups: Select up to 8 workload groups for which you want to apply the rule."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.md",
+          "quotes": [
+            "Workload Groups: Select up to 8 workload groups for which you want to apply the rule."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Workload Groups per Rule | 8 workload groups |  |"
+          ]
+        }
+      ]
+    },
+    "tf-maxitems-255": {
+      "statement": "The Terraform provider's `workload_groups` schema on rules allows up to 255 items (`MaxItems`).",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules",
+        "zia/firewall-filtering-rules",
+        "zia/ssl-inspection-rules",
+        "zia/dlp-web-rules"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "func setIdNameSchemaCustom(maxItems int, description string) *schema.Schema {",
+            "MaxItems:    maxItems,"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "quotes": [
+            "setIdNameSchemaCustom(255, \"The list of preconfigured workload groups to which the policy must be applied\")"
+          ]
+        }
+      ]
+    },
+    "org-limit-1024": {
+      "statement": "The ZIA ranges and limitations table lists 1,024 workload group entries (the row carries no per-organization qualifier).",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "gaps": [
+        "org-limit-64"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Workload Groups | 1,024 entries |"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "per-rule-limit": {
+      "summary": "The help documents 8 workload groups per rule; the Terraform provider schema allows 255.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.md",
+            "quotes": [
+              "| Workload Groups per Rule | 8 workload groups |  |"
+            ]
+          },
+          "says": "A rule takes at most 8 workload groups."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/common.go",
+            "quotes": [
+              "MaxItems:    maxItems,"
+            ]
+          },
+          "says": "The provider validates up to 255 workload groups on a rule (the shared ID-and-name set helper is called with 255)."
+        }
+      ],
+      "impact": "Plan for 8 per rule. A Terraform plan with more than 8 passes provider validation; no source shows whether the API accepts it.",
+      "resolution": {
+        "by": "zia.workload-groups.rule-scoping:help-8-per-rule",
+        "rule": "source-rank",
+        "note": "Vendor documentation states the product limit; the provider value is a schema bound. Server-side enforcement is unobserved."
+      }
+    }
+  },
+  "gaps": {
+    "forwarding-control-criterion": {
+      "kind": "semantic",
+      "title": "Whether Forwarding Control rules can use a workload group",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "stating that Forwarding Control cannot be scoped by workload group",
+      "detail": "The policy help lists workload groups among the referenced resources, while the provider and API contract bodies searched do not carry the field. No source says which is right."
+    },
+    "org-limit-64": {
+      "kind": "semantic",
+      "title": "What the 64 workload groups limit listed under Cloud Connector Management means",
+      "status": "open",
+      "resolves_with": [
+        "support-ticket"
+      ],
+      "blocks": "stating a single per-organization cap",
+      "detail": "The unified ranges and limitations page lists 1,024 workload group entries in the ZIA \"Other\" table and 64 workload groups under Cloud Connector Management in the Private Access section. No source says whether these are the same objects with different caps or distinct counts, or what scope either figure has."
+    },
+    "server-enforced-rule-limit": {
+      "kind": "semantic",
+      "title": "Whether ZIA rejects more than 8 workload groups on a rule",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying a write with 9 to 255 groups fails",
+      "detail": "Unverified legacy statement: \"Whether 255 is a hard ZIA API limit or a TF-provider convention remains unconfirmed (TF `MaxItems` only).\" The 8-per-rule figure is documented for the console and limits table; no source shows API behavior above it."
+    }
+  }
+}

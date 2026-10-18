@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "zia.private-service-edge.when-to-deploy",
+  "title": "When a Private Service Edge is warranted",
+  "aliases": [
+    "do we need a private service edge",
+    "pse triggers",
+    "pse vs public service edge decision",
+    "data residency service edge",
+    "source ip service edge",
+    "pse throughput threshold"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.private-service-edge.sizing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.platforms"
+    }
+  ],
+  "claims": {
+    "benefits-geo-and-source-ip": {
+      "statement": "Private Service Edges typically benefit organizations that have geopolitical requirements or that use applications requiring the organization's IP address as the source IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Private Service Edges typically benefit organizations that have certain geopolitical requirements"
+          ]
+        }
+      ]
+    },
+    "deployable-criteria": {
+      "statement": "Zscaler deploys Private Service Edges in locations with geopolitical requirements and regulations, locations with high latency to Public Service Edges, applications that require the organization's IP address as the source IP, users who need localized content, or where overall upload throughput is beyond 1 Gbps or download throughput is beyond 2 Gbps. Lower bandwidths can be considered as exceptions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "Locations with certain geopolitical requirements and regulations.",
+            "Locations that experience high latency when connecting to Public Service Edges.",
+            "Users who need to see localized content.",
+            "Organizations and locations where the overall upload throughput traffic is beyond 1 Gbps or download throughput traffic is beyond 2 Gbps.",
+            "Lower bandwidths can be considered as exceptions."
+          ]
+        }
+      ]
+    },
+    "recommend-above-1gbps-download": {
+      "statement": "For more than 1 Gbps of download throughput, Zscaler recommends deploying Private Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-service-edge-internet-saas.md",
+          "quotes": [
+            "For more than 1 Gbps of download throughput, Zscaler recommends deploying Private Service Edges."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "threshold-wording": {
+      "kind": "semantic",
+      "title": "Which throughput threshold qualifies a location for a PSE",
+      "status": "open",
+      "detail": "The page gives two thresholds that do not line up: a recommendation to deploy above 1 Gbps of download, and a deployable-locations criterion of upload beyond 1 Gbps or download beyond 2 Gbps. With the page's own 30% upload assumption, 1 Gbps of upload would correspond to about 3.3 Gbps of download, so the criterion reads as if upload and download were swapped. Unverified legacy statement (corrected here): the legacy doc wrote the threshold as 'download over about 1 Gbps / total over about 2 Gbps' and called it the Public Service Edge threshold. Zscaler Sales or Support would settle which wording is intended.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    }
+  }
+}

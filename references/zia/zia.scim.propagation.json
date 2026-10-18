@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "id": "zia.scim.propagation",
+  "title": "How fast SCIM changes reach ZIA",
+  "aliases": [
+    "scim sync delay",
+    "scim push model",
+    "force scim sync",
+    "group change not reflected",
+    "scim sync logs",
+    "scim first sync",
+    "idp provisioning cadence"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.scim"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.directory-sync"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.operations"
+    }
+  ],
+  "claims": {
+    "push-near-real-time": {
+      "statement": "With SCIM, users and groups are provisioned through APIs. There is no wait for synchronization intervals or for the user to log in, a group or department change updates the Zscaler user database in near real time, and no inbound connection from Zscaler to the customer's directory or network is required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "choosing-provisioning-and-authentication-methods.md",
+          "quotes": [
+            "Users and groups are provisioned via APIs.",
+            "No need to wait for synchronization intervals or for the user to log in to the Zscaler service.",
+            "the Zscaler user database is automatically updated in near real time.",
+            "No inbound connections are required from Zscaler to the customer's user directory or any other component in the customer's network."
+          ]
+        }
+      ]
+    },
+    "no-zia-side-pull": {
+      "statement": "ZIA does not poll the IdP: every change is made by a client calling Zscaler's SCIM server, so a delay or a missing change is on the IdP connector's schedule or scope, and the captured articles describe no ZIA-side way to force a resync.",
+      "tier": "B",
+      "conditions": "Derived from the SCIM articles describing only client calls to the Zscaler server and no Zscaler-initiated sync; no source describes a force-resync control.",
+      "derived_from": [
+        "push-near-real-time"
+      ]
+    }
+  },
+  "gaps": {
+    "per-idp-cadence": {
+      "kind": "data",
+      "title": "How often each IdP pushes group and membership changes",
+      "status": "open",
+      "detail": "Unverified legacy statement: Event-triggered pushes from Okta or Entra ID arrive in minutes to tens of minutes, scheduled batch syncs may be longer, and operators needing faster propagation should trigger a resync from the IdP admin console. No captured source gives per-IdP timing. The per-IdP guides or operator measurements would settle it.",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ],
+      "blocks": "quoting an expected delay for a given IdP",
+      "resolvable_by": [
+        "operator"
+      ],
+      "former_ids": [
+        "zia-45"
+      ]
+    },
+    "sync-log-visibility": {
+      "kind": "semantic",
+      "title": "Whether the ZIA console shows SCIM sync errors",
+      "status": "open",
+      "detail": "Unverified legacy statement: Operators should monitor the IdP's provisioning logs for error counts on a large first sync; whether the ZIA Admin Console has a SCIM sync log page, analogous to the ZPA SCIM sync logs, is not stated in the ZIA articles. A console check or the ZPA sync-log article's ZIA counterpart would settle it.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ],
+      "blocks": "knowing where to see rejected pushes",
+      "former_ids": [
+        "zia-44"
+      ]
+    }
+  }
+}

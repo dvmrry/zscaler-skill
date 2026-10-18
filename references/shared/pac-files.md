@@ -337,7 +337,7 @@ When ZIA is reached through an existing on-prem proxy server (legacy proxy → Z
 
 | Flavor | Path | PAC role |
 |---|---|---|
-| **Customer's legacy proxy → ZIA** | Browser → on-prem proxy → ZIA Service Edge → destination | Browser PAC returns `PROXY <on-prem-proxy>:<port>`. The on-prem proxy is independently configured to forward upstream to ZIA. ZIA receives explicit-mode traffic via CONNECT from the on-prem proxy. (Tier B — `references/zia/proxy-mode.md` confirms ZIA receives proxy-chained traffic in explicit mode.) |
+| **Customer's legacy proxy → ZIA** | Browser → on-prem proxy → ZIA Service Edge → destination | Browser PAC returns `PROXY <on-prem-proxy>:<port>`. The on-prem proxy is independently configured to forward upstream to ZIA. ZIA receives explicit-mode traffic via CONNECT from the on-prem proxy. (Tier B — `kb:zia.proxy-mode.forwarding-map:chained-proxy-mode` confirms ZIA receives proxy-chained traffic in explicit mode.) |
 | **ZIA → customer's downstream proxy** (`PROXYCHAIN` forwarding-control action) | Browser/ZCC → ZIA Service Edge → ZIA's `PROXYCHAIN` rule sends to a configured `proxy_gateway` → destination | Browser PAC routes traffic to ZIA normally; ZIA's forwarding-control rule does the downstream chaining. PAC has no direct role in this flavor. (Tier A — `kb:zia.forwarding-control.methods` documents `PROXYCHAIN` action.) |
 
 **Vendor recommendation.** Zscaler explicitly recommends proxy chaining only as a **short-term transitional solution** ("until a more robust forwarding solution can be implemented") because typical on-prem proxies only support manual failover. (Tier A — `vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt:p.39`.) Prefer GRE / IPsec / ZCC tunnel for steady-state. See `https://help.zscaler.com/zia/configuring-proxy-chaining` for ISA / Squid configuration specifics (article not vendored).
@@ -379,7 +379,7 @@ The ZIA Admin Portal has a **Verify PAC File** option that runs syntax validatio
 - **Realm traffic must bypass Zscaler.** Don't forward traffic to AD or intranet hostnames to the PSE.
 - **Size limit is bytes, not chars.** The 256 KB limit is encoded bytes; multi-byte characters (uncommon in a PAC, but possible in comments) consume more than one byte per glyph.
 - **The 12% non-ASCII cap.** Standard ASCII-only PAC files don't hit it; PAC files mirroring documentation in non-Latin scripts can silently fail save validation.
-- **PAC isn't consulted for QUIC traffic.** Browsers bypass proxy decisions for UDP destinations, so QUIC / HTTP/3 destinations skip the PAC entirely — same effective bypass behavior as `Z-Tunnel 1.0 + QUIC`. Block QUIC at the firewall to force browsers back to TCP/TLS where PAC + SSL inspection actually fire. See [`../zia/saas-app-quirks.md § 6`](../zia/saas-app-quirks.md) for the canonical QUIC handling.
+- **PAC isn't consulted for QUIC traffic.** Browsers bypass proxy decisions for UDP destinations, so QUIC / HTTP/3 destinations skip the PAC entirely — same effective bypass behavior as `Z-Tunnel 1.0 + QUIC`. Block QUIC at the firewall to force browsers back to TCP/TLS where PAC + SSL inspection actually fire. See [`zia.saas-apps`](kb:zia.saas-apps) for the canonical QUIC handling.
 
 ## Cross-links
 
