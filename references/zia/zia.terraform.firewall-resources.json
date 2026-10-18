@@ -1,0 +1,252 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.firewall-resources",
+  "title": "Terraform firewall, DNS and IPS resources: EUN fields, DNS categories, custom signatures",
+  "aliases": [
+    "eun_template_id terraform",
+    "terraform-provider-zia issue 605",
+    "zia_ips_signature_rules",
+    "zia_ips_categories data source",
+    "firewall dns rule res_categories",
+    "predefined network service terraform import"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-resources"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.ips"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a rule's EUN template was set in the console before blaming the provider for a plan difference.",
+      "uses": [
+        "eun-fields-optional-not-computed",
+        "issue-605-plan-diff"
+      ]
+    },
+    {
+      "do": "Whether custom IPS signature text starts at `alert` with literal networks and a `sid` of at least 1000000.",
+      "uses": [
+        "ips-signature-syntax-limits",
+        "ips-signature-whitespace-normalized"
+      ]
+    },
+    {
+      "do": "Whether a PREDEFINED network service was imported before it was referenced.",
+      "uses": [
+        "predefined-service-import-first"
+      ]
+    }
+  ],
+  "claims": {
+    "eun-fields-optional-not-computed": {
+      "statement": "In v4.8.8 the firewall filtering rule schema declares `eun_template_id` as Optional, with no Computed flag.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "Description: \"The EUN template ID associated with the rule\","
+          ],
+          "after": "\"eun_template_id\": {"
+        }
+      ]
+    },
+    "eun-docs-asymmetry": {
+      "statement": "The data-source page lists both EUN attributes while the resource page's argument reference does not mention them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_firewall_filtering_rule.md",
+          "quotes": [
+            "* `eun_template_id` - (Integer) The ID of the Enhanced User Notification (EUN) template associated with the rule."
+          ]
+        }
+      ]
+    },
+    "eun-read-and-expand": {
+      "statement": "Read copies the API's `eunTemplateId` into state, and the SDK model tags that field `omitempty`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "_ = d.Set(\"eun_template_id\", resp.EUNTemplateID)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go",
+          "quotes": [
+            "EUNTemplateID int `json:\"eunTemplateId,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "dns-category-match-check-removed": {
+      "statement": "Provider v4.8.2 removed the local validation on `zia_firewall_dns_rule` that forced `dest_ip_categories` and `res_categories` to match because of an old API requirement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Removed local validation on resource `zia_firewall_dns_rule` that forced both attribute values `dest_ip_categories` and `res_categories` to match due to old API requirement."
+          ]
+        }
+      ]
+    },
+    "dns-category-historical-comment": {
+      "statement": "The DNS rule source still carries commented-out text saying the API returns `INVALID_INPUT_ARGUMENT` with \"Requested IP-Categories and Resolved Domain Categories aren't matching\" when the two sets differ.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_dns_rules.go",
+          "quotes": [
+            "// it returns INVALID_INPUT_ARGUMENT: \"Requested IP-Categories and Resolved Domain Categories aren't matching\"."
+          ]
+        }
+      ]
+    },
+    "ips-signature-validated-first": {
+      "statement": "`zia_ips_signature_rules` validates `rule_text` against the Zscaler validation endpoint on every create and update; a rejected rule aborts before any state is written and the API diagnostic is surfaced.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_ips_signature_rules.md",
+          "quotes": [
+            "If the rule text is rejected, the create/update aborts before any state is written"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
+          "quotes": [
+            "ipsSignaturesValidateEndpoint = \"/zia/api/v1/ipsSignatureRules/validateRuleText\""
+          ]
+        }
+      ]
+    },
+    "ips-signature-syntax-limits": {
+      "statement": "The validation endpoint requires literal `any` or a CIDR rather than Suricata variables like `$HOME_NET`, a `sid` of at least 1000000, both `msg` and `sid`, the `->` direction only, and no leading whitespace before `alert`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_ips_signature_rules.md",
+          "quotes": [
+            "Suricata variables such as `$EXTERNAL_NET` and `$HOME_NET` are not defined",
+            "The custom-signature `sid` range starts at `1000000`.",
+            "`msg:\"...\"` and `sid:N` are required inside the parentheses.",
+            "The bidirectional `<>` operator is not supported.",
+            "No leading whitespace before `alert`."
+          ]
+        }
+      ]
+    },
+    "ips-signature-whitespace-normalized": {
+      "statement": "The provider normalizes leading and trailing whitespace and trailing newlines in `rule_text` on both sides of the diff, but an indent-stripping heredoc whose rule line is indented more than the closing marker leaves spaces that the endpoint rejects with `Unexpected character(s) at rule header`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_ips_signature_rules.md",
+          "quotes": [
+            "`rule_text` is whitespace-insensitive across plans.",
+            "the leftover spaces become part of the string and Zscaler's validation endpoint rejects the rule"
+          ]
+        }
+      ]
+    },
+    "destination-group-custom-categories-only": {
+      "statement": "The `ip_categories` attribute of `zia_firewall_filtering_destination_groups` accepts only custom URL categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_filtering_destination_groups.md",
+          "quotes": [
+            "The `ip_categories` attribute only accepts custom URL categories."
+          ]
+        }
+      ]
+    },
+    "predefined-service-import-first": {
+      "statement": "A `PREDEFINED` network service is built into ZIA and must be imported before Terraform runs; trying to update it directly returns `DUPLICATE_ITEM`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_filtering_network_service.md",
+          "quotes": [
+            "are built-in resources within the ZIA cloud and must be imported before the Terraform execution.",
+            "Attempting to update the resource directly will return `DUPLICATE_ITEM` error message."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "eun-contract-vs-go-and-terraform": {
+      "summary": "Whether the firewall filtering rule contract carries the EUN fields.",
+      "positions": [
+        {
+          "says": "The Automate contract lists `eunTemplateId` and `isEunEnabled` as absent from the rule family's contract fields.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/zia-divergences.md",
+            "quotes": [
+              "**Go SDK fields absent from the contract:** `accessControl`, `enableFullLogging`, `endPointApplicationGroups`, `endPointApplications`, `eunTemplateId`"
+            ]
+          }
+        },
+        {
+          "says": "The Go SDK model carries `isEunEnabled`.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go",
+            "quotes": [
+              "IsEUNEnabled bool `json:\"isEunEnabled,omitempty\"`"
+            ]
+          }
+        }
+      ],
+      "impact": "Do not use the published contract to say whether a firewall rule accepts an EUN template; the SDK and provider send it."
+    }
+  },
+  "gaps": {
+    "issue-605-plan-diff": {
+      "kind": "semantic",
+      "title": "Whether a rule whose HCL omits `eun_template_id` plans a change to null while the apply leaves the tenant value unchanged",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying that an omitted EUN template produces a permanent plan difference on a firewall rule",
+      "detail": "Unverified legacy statement: upstream issue 605 reports a plan showing `eun_template_id = <id> -> null` on a rule whose HCL omits it, with apply leaving the value unchanged; this is operator-reported and not reproduced. Apply a rule with a template set in the console, omit it in HCL and plan."
+    },
+    "dns-categories-backend-acceptance": {
+      "kind": "semantic",
+      "title": "Whether the backend accepts different `dest_ip_categories` and `res_categories` sets on a DNS rule",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying that DNS rule category sets no longer have to match",
+      "detail": "Unverified legacy statement: the provider no longer checks locally, but the source still carries text saying a mismatch returns INVALID_INPUT_ARGUMENT; universal backend acceptance is not established. Create a DNS rule with different sets in a scratch tenant."
+    }
+  }
+}

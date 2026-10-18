@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.early-access",
+  "title": "Early Access Terraform resources: extranet, data center exclusions, subclouds",
+  "aliases": [
+    "zia_extranet",
+    "zia_dc_exclusions",
+    "zia_sub_cloud",
+    "zia_url_categories_predefined",
+    "early access terraform zia",
+    "datacenter_id vs cloud_id",
+    "dc exclusion time window"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.data-source-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.md5-blocklist"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the resource is one of the Early Access ones before blaming a failure on provider behavior; eligibility is not documented.",
+      "uses": [
+        "early-access-resources",
+        "early-access-eligibility"
+      ]
+    },
+    {
+      "do": "Whether `datacenter_id` and `cloud_id` came from the right data source, since they identify different entities.",
+      "uses": [
+        "dc-id-from-datacenters",
+        "sub-cloud-id-from-own-data-source"
+      ]
+    },
+    {
+      "do": "Whether an exclusion window was set through the UTC string, which overrides the Unix timestamp.",
+      "uses": [
+        "utc-overrides-unix"
+      ]
+    }
+  ],
+  "claims": {
+    "early-access-resources": {
+      "statement": "The provider documentation marks `zia_url_categories_predefined`, `zia_sandbox_behavioral_analysis_v2`, `zia_extranet`, `zia_dc_exclusions` and `zia_sub_cloud` as Early Access features.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_url_categories_predefined.md",
+          "quotes": [
+            "~> NOTE: This an Early Access feature."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_sandbox_behavioral_analysis_v2.md",
+          "quotes": [
+            "~> NOTE: This an Early Access feature."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_extranet.md",
+          "quotes": [
+            "~> NOTE: This an Early Access feature."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_dc_exclusions.md",
+          "quotes": [
+            "~> NOTE: This an Early Access feature."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_sub_cloud.md",
+          "quotes": [
+            "~> NOTE: This an Early Access feature."
+          ]
+        }
+      ]
+    },
+    "dc-id-from-datacenters": {
+      "statement": "`zia_dc_exclusions` takes `datacenter_id` from the `zia_datacenters` data source (the documentation prefers `data.zia_datacenters.this.datacenter_id` when filtering by name returns one result); the argument is required on create, can be omitted when importing by numeric ID, and forces a new resource if changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_dc_exclusions.md",
+          "quotes": [
+            "Prefer `data.zia_datacenters.this.datacenter_id` when filtering by name with a single result. Force new if changed.",
+            "Required when creating; can be omitted when importing by numeric ID."
+          ]
+        }
+      ]
+    },
+    "sub-cloud-id-from-own-data-source": {
+      "statement": "`zia_sub_cloud` takes `cloud_id` from the `zia_sub_cloud` data source read by name (the example passes `data.zia_sub_cloud.lookup.id`), while the excluded data center is `exclusions.datacenter.id`, a data center ID chosen with the `zia_datacenters` data source, not the subcloud `cloud_id`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_sub_cloud.md",
+          "quotes": [
+            "cloud_id = data.zia_sub_cloud.lookup.id",
+            "data.zia_datacenters.this.datacenters[0].id"
+          ]
+        }
+      ]
+    },
+    "sub-cloud-name-read-only": {
+      "statement": "The subcloud `name` is read-only: if it is provided the provider ignores it and uses the name from the API response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_sub_cloud.md",
+          "quotes": [
+            "If provided, it will be ignored and the name from the API response will be used instead."
+          ]
+        }
+      ]
+    },
+    "utc-overrides-unix": {
+      "statement": "For `zia_dc_exclusions`, `start_time_utc` and `end_time_utc` (format `MM/DD/YYYY HH:MM am/pm`) override the Unix-timestamp `start_time` and `end_time` when set, and one form of each of start and end must be given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_dc_exclusions.md",
+          "quotes": [
+            "Exclusion window start (UTC). Format: `MM/DD/YYYY HH:MM am/pm`. If set, overrides `start_time`.",
+            "Either `start_time` or `start_time_utc` must be set.",
+            "Either `end_time` or `end_time_utc` must be set."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "early-access-eligibility": {
+      "kind": "semantic",
+      "title": "Which tenants can use the Early Access Terraform resources",
+      "status": "open",
+      "detail": "Unverified legacy statement: Early Access status and tenant eligibility criteria for `zia_url_categories_predefined` are not documented in the provider source, and availability may vary by ZIA edition and cloud environment. The provider documentation marks the resource Early Access but does not say how a tenant becomes eligible, and the same applies to the other Early Access resources.",
+      "blocks": "saying whether an Early Access resource will work on a given tenant or cloud",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ],
+      "former_ids": [
+        "zia-68"
+      ]
+    }
+  }
+}

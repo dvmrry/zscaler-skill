@@ -2,7 +2,7 @@
 
 **Cluster.** {{cluster-model}} The product behavior behind these fields is in [[zia.virtual-service-edge.clusters]].
 
-**Node.** {{node-model}} Platform rules behind the deployment mode are in [[zia.virtual-service-edge.platforms]]; the SKU wording is not reconciled with the single-size VM description ([[zia.virtual-service-edge.sizing:sku-type-vs-single-size]]).
+**Node.** {{node-model}} The Terraform documentation both limits the load balancer IP to cluster mode and shows it on a standalone node {{divergence:tf-lb-ip-doc-example-standalone}}. Platform rules behind the deployment mode are in [[zia.virtual-service-edge.platforms]]; the SKU wording is not reconciled with the single-size VM description ([[zia.virtual-service-edge.sizing:sku-type-vs-single-size]]).
 
 **Deleting a cluster** is not a single request: the SDK first detaches all nodes with an update, and the detach may not reach the wire, as [[zia.terraform.multi-step-writes]] documents.
 

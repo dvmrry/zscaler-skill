@@ -331,6 +331,37 @@
           }
         }
       ]
+    },
+    "python-phrase-pattern-tuples": {
+      "statement": "The Python dictionary create and update helpers take `phrases` and `patterns` as lists of `(action, text)` tuples and rewrite them to `{\"action\": ..., \"phrase\": ...}` and `{\"action\": ..., \"pattern\": ...}` objects before sending.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/dlp_dictionary.py",
+          "after": "def add_dict(",
+          "quotes": [
+            "payload[\"phrases\"] = [{\"action\": action, \"phrase\": phrase} for action, phrase in payload[\"phrases\"]]",
+            "payload[\"patterns\"] = [{\"action\": action, \"pattern\": pattern} for action, pattern in payload[\"patterns\"]]"
+          ]
+        }
+      ]
+    },
+    "python-predefined-lookup-by-name": {
+      "statement": "`list_dict_predefined_identifiers` takes a dictionary name, not an ID: it calls `list_dicts()` with no arguments, picks the first dictionary whose name equals the argument, and returns a ValueError in the error slot if none matches. The docstring lists ASPP_LEAKAGE, CRED_LEAKAGE, EUIBAN_LEAKAGE, PPEU_LEAKAGE and USDL_LEAKAGE as the supported names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/dlp_dictionary.py",
+          "after": "def list_dict_predefined_identifiers(",
+          "quotes": [
+            "dictionaries, response, error = self.list_dicts()",
+            "dictionary = next((d for d in dictionaries if d.name == dict_name), None)",
+            "`ASPP_LEAKAGE`, `CRED_LEAKAGE`, `EUIBAN_LEAKAGE`, `PPEU_LEAKAGE`, `USDL_LEAKAGE`"
+          ]
+        }
+      ]
     }
   },
   "gaps": {

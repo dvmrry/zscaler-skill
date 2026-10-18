@@ -259,6 +259,26 @@
       "binds": [
         "zia/firewall-dns-rules#isWebEUNEnabled"
       ]
+    },
+    "provider-web-eun-corrected-field": {
+      "statement": "Terraform provider v4.8.2 upgraded to Go SDK v3.8.44 to pick up the corrected `isWebEUNEnabled` key, and its `is_web_eun_enabled` attribute is expanded into the Go model field `IsWebEUNEnabled`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "to fix mispelled attribute `isWebEunEnabled` to the expected API value `isWebEUNEnabled` in firewall dns control policies struct"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_dns_rules.go",
+          "quotes": [
+            "IsWebEUNEnabled:              d.Get(\"is_web_eun_enabled\").(bool),"
+          ]
+        }
+      ]
     }
   },
   "divergences": {
@@ -287,6 +307,42 @@
         }
       ],
       "impact": "Python and Ansible callers may send a key the API does not recognise, so Web EUN writes may be rejected or ignored (the Go changelog says the misspelling caused payload errors on POST/PUT); compare by reading the rule back."
+    },
+    "category-sets-must-match": {
+      "summary": "Whether destIpCategories and resCategories must match on a DNS rule",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/resource_zia_firewall_dns_rules.go",
+            "quotes": [
+              "category IDs. The ZIA API requires Request (destIpCategories) and Response (resCategories) to match; otherwise"
+            ]
+          },
+          "says": "Retired provider code (now commented out) says the API requires the two sets to match, or it returns INVALID_INPUT_ARGUMENT."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "CHANGELOG.md",
+            "quotes": [
+              "that forced both attribute values `dest_ip_categories` and `res_categories` to match due to old API requirement."
+            ]
+          },
+          "says": "Provider v4.8.2 removed the local check as an \"old API requirement\"."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/resource_zia_firewall_dns_rules.go",
+            "quotes": [
+              "Destination IP categories to which the rule applies (admin UI: Request categories). If either this or res_categories is set, both must list the same category IDs as sets."
+            ]
+          },
+          "says": "The current schema description still tells the operator that both lists must be the same sets."
+        }
+      ],
+      "impact": "The provider no longer rejects unequal sets, but the descriptions disagree on whether the API does; an unequal pair may still fail at the API."
     }
   },
   "gaps": {
@@ -306,6 +362,28 @@
       ],
       "blocks": "knowing whether Go can clear Web EUN and whether Python/Ansible spelling takes effect",
       "detail": "Go omits false, Python emits a differently cased key. Whether omission preserves an existing true or clears it is not shown; see also the general rule-update gap in zia.sdk-go.write-encoding. Needs a live update test; do not infer equivalence between the clients."
+    },
+    "category-mismatch-acceptance": {
+      "kind": "semantic",
+      "title": "Whether the API accepts different destIpCategories and resCategories",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "sending unequal request and response category sets on a DNS rule",
+      "detail": "Unverified legacy statement: removal of the provider check proves only that the provider stopped rejecting unequal values. It does not establish backend or tenant acceptance.",
+      "about": [
+        "zia.dns-control.api-rules"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "that forced both attribute values `dest_ip_categories` and `res_categories` to match due to old API requirement."
+          ]
+        }
+      ]
     }
   }
 }

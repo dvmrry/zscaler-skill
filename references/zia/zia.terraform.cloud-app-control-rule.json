@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.cloud-app-control-rule",
+  "title": "The Cloud App Control rule resource: prompt capture, isolation, import and delete",
+  "aliases": [
+    "zia_cloud_app_control_rule",
+    "prompt_capture_enabled",
+    "cloud app control rule type import",
+    "terraform-provider-zia issue 585",
+    "tenancy_profile_ids MaxItems",
+    "cloud app control rule type change recreate",
+    "zia_cloud_app_control_rule type",
+    "cloud app control import type id"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order.registry"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-resources"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.ai-ml-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles.api-surface"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a rule that should stop capturing prompts was set to false, which the SDK omits from the request.",
+      "uses": [
+        "prompt-capture-false-omitted",
+        "prompt-capture-disable-path"
+      ]
+    },
+    {
+      "do": "Whether the import ID carries the rule type as `rule_type:rule_id`.",
+      "uses": [
+        "import-compound-key"
+      ]
+    },
+    {
+      "do": "Whether the rule type of an existing rule is expected to change, and how the provider treats a changed type.",
+      "uses": [
+        "tf-rule-type-optional",
+        "rule-type-recreate"
+      ]
+    }
+  ],
+  "claims": {
+    "prompt-capture-schema-wording": {
+      "statement": "The provider describes `prompt_capture_enabled` as applicable only when the Gen AI Applications Access field is set to Allow; this is schema wording, not a statement about backend or entitlement behavior.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "quotes": [
+            "Note: This field is applicable only when the Gen AI Applications Access field is set to Allow when configuring the rule."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`prompt_capture_enabled` - Indicates whether the capture of end user prompts for generative AI (Gen AI) applications is allowed or blocked."
+          ]
+        }
+      ]
+    },
+    "prompt-capture-assigned-by-provider": {
+      "statement": "The provider assigns `PromptCaptureEnabled` from the configuration on create and update, and the SDK tags the field `promptCaptureEnabled,omitempty`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "quotes": [
+            "PromptCaptureEnabled: d.Get(\"prompt_capture_enabled\").(bool),"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "PromptCaptureEnabled bool `json:\"promptCaptureEnabled,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "prompt-capture-false-omitted": {
+      "statement": "So a configured `false` is omitted from the serialized request.",
+      "tier": "B",
+      "derived_from": [
+        "prompt-capture-assigned-by-provider"
+      ],
+      "conditions": "Go's JSON encoder drops a false bool tagged omitempty."
+    },
+    "isolate-alone": {
+      "statement": "Cloud App Control `ISOLATE` actions require a Cloud Browser Isolation subscription and must be used alone, not mixed with other actions in the rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_cloud_app_control_rule.md",
+          "quotes": [
+            "ISOLATE actions require Cloud Browser Isolation subscription and must be used alone (cannot mix with other actions):"
+          ]
+        }
+      ]
+    },
+    "max-items-removed": {
+      "statement": "Provider v4.7.23 removed `MaxItems` from `tenancy_profile_ids` and `cloud_app_instances` so that the API owns the limit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Removed `MaxItems` from attribute `tenancy_profile_ids` and `cloud_app_instances`",
+            "to allow API own limit delegation."
+          ]
+        }
+      ]
+    },
+    "import-compound-key": {
+      "statement": "The importer accepts a compound `rule_type:rule_id` or `rule_type:rule_name` ID, splitting it on the first colon and looking the rule up under that type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "quotes": [
+            "if strings.Contains(id, \":\") {",
+            "parts := strings.SplitN(id, \":\", 2)",
+            "invalid import format: expected 'rule_type:rule_id' or 'rule_type:rule_name'",
+            "cloudappcontrol.GetByRuleID(ctx, service, ruleType, idInt)"
+          ]
+        }
+      ]
+    },
+    "delete-is-type-scoped-call": {
+      "statement": "Delete reads the rule's `type` and calls the type-scoped delete endpoint directly (`cloudappcontrol.Delete(ctx, service, ruleType, id)`), without the reorder helper.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "quotes": [
+            "if _, err := cloudappcontrol.Delete(ctx, service, ruleType, id); err != nil {"
+          ]
+        }
+      ]
+    },
+    "v4-8-4-per-type-ordering": {
+      "statement": "Provider v4.8.4 changed ordering so that Cloud App Control rules of different `type` values applied in one configuration are each reordered independently; before that, only one type was guaranteed to converge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Cloud App Control rules are ordered independently per rule type;"
+          ]
+        }
+      ]
+    },
+    "tf-rule-type-optional": {
+      "statement": "In the provider schema the type argument is an optional string built by getAppControlType, described as the supported App Control types, and the resource's type entry carries no ForceNew flag.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "Description: \"Supported App Control Types\","
+          ],
+          "after": "func getAppControlType() *schema.Schema {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "quotes": [
+            "\"type\":                   getAppControlType(),"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "prompt-capture-disable-path": {
+      "kind": "semantic",
+      "title": "Whether a prompt-capture setting enabled in ZIA can be turned off through the provider",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying that setting `prompt_capture_enabled = false` disables prompt capture",
+      "detail": "Unverified legacy statement: no request-marshal or live-tenant test establishes a disable path for `prompt_capture_enabled`, because the SDK omits a false value. Enable prompt capture in the console, set false in HCL, apply and re-read."
+    },
+    "issue-585-multi-delete": {
+      "kind": "semantic",
+      "title": "Whether the multi-delete sequence reported in upstream issue 585 is resolved",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying that deleting several Cloud App Control rules in one apply is safe",
+      "detail": "Unverified legacy statement: issue 585 is closed upstream, but the reported multi-delete sequence remains behaviorally unresolved by the available evidence; the delete path still calls the type-scoped delete directly. Delete several rules of one type in one apply in a scratch tenant and check the remaining order."
+    },
+    "rule-type-recreate": {
+      "kind": "semantic",
+      "title": "Whether changing a Cloud App Control rule's type forces a new rule",
+      "status": "open",
+      "detail": "Unverified legacy statement: The earlier reference said the rule type is part of the resource identity, so it cannot be changed without recreating the rule; the provider schema shows type as optional without ForceNew, and the import and lookup paths are keyed by rule type, but no vendored source states what an update to type does.",
+      "blocks": "Whether editing the type in HCL replaces the rule or errors or silently diverges.",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ]
+    }
+  }
+}

@@ -267,6 +267,15 @@ test("bundles match the golden files and the bundle contract", () => {
   }
 });
 
+test("the surface layer links a Terraform resource through its SDK package to API operations", async () => {
+  const { lookupSurface } = await import("./kb-surface.mjs");
+  const [hit] = lookupSurface(ROOT, "resource:zia_firewall_filtering_rule");
+  assert.deepEqual(hit.sdk_go, ["firewallpolicies/filteringrules"]);
+  assert.ok(hit.api.includes("/firewallFilteringRules/{ruleId}"));
+  const [byPath] = lookupSurface(ROOT, "/zia/api/v1/firewallFilteringRules");
+  assert.ok(byPath.reached_by.terraform.includes("resource:zia_firewall_filtering_rule"));
+});
+
 test("Terraform field paths convert to API field paths", () => {
   assert.equal(snakeToCamel("url_categories2"), "urlCategories2");
   assert.equal(snakeToCamel("departments.name"), "departments.name");

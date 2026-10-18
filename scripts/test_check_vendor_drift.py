@@ -71,12 +71,13 @@ def test_empty_relative_source_matches_whole_submodule_root():
 
 
 def test_zia_cac_release_gate_records_source_fix_without_race_claim():
-    reference = (REPO_ROOT / "references/zia/api-divergences.md").read_text()
+    # The release gate now lives in the knowledge graph (converted from references/zia/api-divergences.md).
+    registry = json.loads((REPO_ROOT / "references/zia/zia.terraform.rule-order.registry.json").read_text())
+    claim = registry["claims"]["done-channel-capture-fixed-in-v4-8-7"]
     maintenance = (REPO_ROOT / "scripts/README.md").read_text()
 
-    assert "copies `doneCh` while `rules.Lock()` is held" in reference
-    assert "ordinary unit coverage is not race-detector proof" in reference
-    assert "refresh makes no race-test claim" in reference
+    assert "copies `doneCh` while `rules.Lock()` is held" in claim["conditions"]
+    assert "not race-detector proof" in claim["conditions"]
     assert "copying `doneCh` while `rules.Lock()` is held" in maintenance
     assert "No repeated race-detector run is recorded" in maintenance
     assert "`zia-72`" in maintenance

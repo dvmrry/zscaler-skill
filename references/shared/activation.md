@@ -211,7 +211,7 @@ If a user reports "rule didn't take effect," **branch the activation check by pr
 
 ## Cross-links
 
-- ZIA API reference (activation endpoints in endpoint catalog) — [`../zia/api.md#activation-lifecycle`](../zia/api.md)
+- ZIA API reference (activation endpoints in endpoint catalog) — [`zia.api`](kb:zia.api)
 - CBC activation deep-dive — [`../cloud-connector/api.md § Activation`](../cloud-connector/api.md)
 - OneAPI cross-product activation summary — [`./oneapi.md § Activation gate`](./oneapi.md)
 - Cross-product troubleshooting workflow model — [`./policy-evaluation.md`](./policy-evaluation.md)

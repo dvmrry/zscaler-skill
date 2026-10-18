@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "id": "zia.api.advanced-settings-wire",
+  "title": "Advanced settings: SNI handling lists and a misdocumented global SSL bypass setting",
+  "aliases": [
+    "prefer_sni_over_conn_host_apps",
+    "block_domain_fronting_apps",
+    "enable_evaluate_policy_on_global_ssl_bypass description wrong",
+    "terraform doc dns optimization ipv6"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.advanced-settings"
+    }
+  ],
+  "checks": [
+    {
+      "do": "What an SNI override list means before editing it: prefer_sni_over_conn_host_apps lists applications exempted from the setting, not applications it is applied to.",
+      "uses": [
+        "sni-apps-exempted",
+        "domain-fronting-apps"
+      ]
+    },
+    {
+      "do": "Which description of enable_evaluate_policy_on_global_ssl_bypass to trust.",
+      "uses": [
+        "global-ssl-bypass-description"
+      ]
+    }
+  ],
+  "claims": {
+    "sni-apps-exempted": {
+      "statement": "prefer_sni_over_conn_host_apps lists applications exempted from the preferSniOverConnHost setting, which otherwise uses the TLS client-hello SNI for DNS resolution instead of the CONNECT host for forward proxy connections.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_advanced_settings.md",
+          "quotes": [
+            "Applications that are exempted from the preferSniOverConnHost setting"
+          ]
+        }
+      ]
+    },
+    "domain-fronting-apps": {
+      "statement": "block_domain_fronting_apps lists applications subjected to domain fronting handling, alongside the tenant-wide block_domain_fronting_on_host_header setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_advanced_settings.md",
+          "quotes": [
+            "`block_domain_fronting_apps` - (Set of String) Applications which are subjected to Domain Fronting.",
+            "`block_domain_fronting_on_host_header` - (Boolean)"
+          ]
+        }
+      ]
+    },
+    "go-global-ssl-bypass-description": {
+      "statement": "The Go SDK describes enableEvaluatePolicyOnGlobalSSLBypass as whether policy evaluation for global SSL bypass traffic is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/advanced_settings/advanced_settings.go",
+          "quotes": [
+            "// A Boolean value indicating whether policy evaluation for global SSL bypass traffic is enabled or not"
+          ]
+        }
+      ]
+    },
+    "tf-global-ssl-bypass-description": {
+      "statement": "The Terraform documentation describes enable_evaluate_policy_on_global_ssl_bypass as enabling or disabling DNS optimization for all IPv6 transparent proxy traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_advanced_settings.md",
+          "quotes": [
+            "`enable_evaluate_policy_on_global_ssl_bypass` - (Boolean) Enable/Disable DNS optimization for all IPv6 transparent proxy traffic."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "global-ssl-bypass-description": {
+      "summary": "The Terraform documentation and the Go SDK describe enableEvaluatePolicyOnGlobalSSLBypass as two different settings.",
+      "positions": [
+        {
+          "says": "It enables or disables DNS optimization for all IPv6 transparent proxy traffic.",
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_advanced_settings.md",
+            "quotes": [
+              "`enable_evaluate_policy_on_global_ssl_bypass` - (Boolean) Enable/Disable DNS optimization for all IPv6 transparent proxy traffic."
+            ]
+          }
+        },
+        {
+          "says": "It says whether policy evaluation for global SSL bypass traffic is enabled.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/advanced_settings/advanced_settings.go",
+            "quotes": [
+              "// A Boolean value indicating whether policy evaluation for global SSL bypass traffic is enabled or not"
+            ]
+          }
+        }
+      ],
+      "impact": "An operator reading only the provider documentation would not learn that this switch decides whether URL policy is evaluated on globally SSL-bypassed traffic; see the URL filtering advanced-settings subject for the effect."
+    }
+  }
+}

@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "id": "zia.casb.rule-types",
+  "title": "CASB rule types: the eight categories and their separate rule lists",
+  "aliases": [
+    "OFLCASB_DLP_ITSM",
+    "OFLCASB_AVP_REPO",
+    "casb rule type",
+    "ruleType",
+    "casb rule category",
+    "data at rest rule order",
+    "dlp vs malware rule namespace"
+  ],
+  "binds": [
+    "zia/casb-dlp-rules#type",
+    "zia/casb-malware-rules#type"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.casb.dlp-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.malware-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order.registry"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which category token the rule uses, and that its order is compared only with rules of the same kind (DLP or malware).",
+      "uses": [
+        "dlp-type-tokens",
+        "malware-type-tokens",
+        "order-separate-lists"
+      ]
+    },
+    {
+      "do": "Whether the rule names tenants of one provider only.",
+      "uses": [
+        "one-provider-per-rule"
+      ]
+    },
+    {
+      "do": "Whether the application belongs to the category in question, which no source lists in full.",
+      "uses": [
+        "app-to-category-map"
+      ]
+    }
+  ],
+  "claims": {
+    "dlp-type-tokens": {
+      "statement": "A Data at Rest Scanning DLP rule has a `type` that selects one of eight categories, OFLCASB_DLP_ followed by FILE, EMAIL, CRM, ITSM, COLLAB, REPO, STORAGE or GENAI; the API also accepts ANY and NONE.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#type"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/type",
+          "expect": {
+            "description": "The type of SaaS Security Data at Rest Scanning DLP rule",
+            "enum": [
+              "ANY",
+              "NONE",
+              "OFLCASB_DLP_FILE",
+              "OFLCASB_DLP_EMAIL",
+              "OFLCASB_DLP_CRM",
+              "OFLCASB_DLP_ITSM",
+              "OFLCASB_DLP_COLLAB",
+              "OFLCASB_DLP_REPO",
+              "OFLCASB_DLP_STORAGE",
+              "OFLCASB_DLP_GENAI"
+            ]
+          }
+        }
+      ]
+    },
+    "malware-type-tokens": {
+      "statement": "A Data at Rest Scanning Malware Detection rule has a `type` in the same eight categories with the prefix OFLCASB_AVP_, plus ANY and NONE.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-malware-rules#type"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbMalwareRules/post/requestBody/content/application~1json/schema/properties/type",
+          "expect": {
+            "description": "The type of SaaS Security Data at Rest Scanning Malware rule",
+            "enum": [
+              "ANY",
+              "NONE",
+              "OFLCASB_AVP_FILE",
+              "OFLCASB_AVP_EMAIL",
+              "OFLCASB_AVP_CRM",
+              "OFLCASB_AVP_ITSM",
+              "OFLCASB_AVP_COLLAB",
+              "OFLCASB_AVP_REPO",
+              "OFLCASB_AVP_STORAGE",
+              "OFLCASB_AVP_GENAI"
+            ]
+          }
+        }
+      ]
+    },
+    "terraform-omits-any-none": {
+      "statement": "The Terraform provider and the Ansible module list only the eight category tokens for `type`, not ANY or NONE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/zia-divergences.md",
+          "quotes": [
+            "vs TF ['OFLCASB_DLP_FILE', 'OFLCASB_DLP_EMAIL', 'OFLCASB_DLP_CRM', 'OFLCASB_DLP_ITSM', 'OFLCASB_DLP_COLLAB', 'OFLCASB_DLP_REPO', 'OFLCASB_DLP_STORAGE', 'OFLCASB_DLP_GENAI']"
+          ]
+        }
+      ]
+    },
+    "tenant-app-type-values": {
+      "statement": "The tenant list call filters by `appType`, whose values are ANY, FILE, EMAIL, CRM, ITSM, COLLAB, REPO, STORAGE, TP_APP, MISC and GENAI.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-tenants"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1lite/get/parameters/[name=appType]",
+          "expect": {
+            "description": "Specifies the SaaS application type",
+            "schema": {
+              "enum": [
+                "ANY",
+                "FILE",
+                "EMAIL",
+                "CRM",
+                "ITSM",
+                "COLLAB",
+                "REPO",
+                "STORAGE",
+                "TP_APP",
+                "MISC",
+                "GENAI"
+              ],
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "category-tokens-match-app-type": {
+      "statement": "The category suffix of a rule type (FILE, EMAIL, CRM, ITSM, COLLAB, REPO, STORAGE, GENAI) matches the tenant `appType` values of the same names, so a rule category corresponds to the type of application whose tenants it covers.",
+      "tier": "B",
+      "conditions": "Matched by name only; no source states the mapping.",
+      "derived_from": [
+        "dlp-type-tokens",
+        "tenant-app-type-values"
+      ]
+    },
+    "app-examples-by-category": {
+      "statement": "The Insights logs name Slack among collaboration applications, Salesforce among CRM, Exchange among email, and ChatGPT among Gen AI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.md",
+          "quotes": [
+            "Application: The type of sanctioned SaaS application (e.g., Slack).",
+            "Application: The type of sanctioned SaaS application (e.g., Salesforce).",
+            "Application: The type of sanctioned SaaS application (e.g., Exchange).",
+            "Application: The type of sanctioned SaaS application (e.g., ChatGPT).",
+            "Collaboration Columns",
+            "CRM Columns",
+            "Email Columns",
+            "Gen AI Columns"
+          ]
+        }
+      ]
+    },
+    "order-separate-lists": {
+      "statement": "DLP rule order is defined relative to other Data at Rest Scanning DLP rules and malware rule order relative to other Data at Rest Scanning Malware rules, so the two kinds are separate ordered lists, and both are separate from the inline Web DLP rule list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/order",
+          "expect": {
+            "description": "Order of rule execution with respect to other SaaS Security Data at Rest Scanning DLP rules"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbMalwareRules/post/requestBody/content/application~1json/schema/properties/order",
+          "expect": {
+            "description": "Order of rule execution with respect to other SaaS Security Data at Rest Scanning Malware rules"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/order",
+          "expect": {
+            "description": "The rule order of execution for the DLP policy rule with respect to other rules."
+          }
+        }
+      ]
+    },
+    "one-provider-per-rule": {
+      "statement": "A DLP rule can name tenants from only one SaaS application provider: with a Gmail tenant and an Exchange tenant, one rule cannot cover both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "For each DLP rule you create, you can only add tenants from the same SaaS application provider.",
+            "You cannot create one rule for both the Gmail tenant and Exchange tenant."
+          ],
+          "after": "To add a DLP rule for email applications:"
+        }
+      ]
+    },
+    "ruletype-scoped-calls": {
+      "statement": "The rule endpoints take `ruleType` as an optional query parameter on list, get and delete, and the SDKs and the Terraform provider always scope their calls to one rule type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/get/parameters/[name=ruleType]",
+          "expect": {
+            "required": false,
+            "description": "Specifies the DLP rule type"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules~1{ruleId}/delete/parameters/[name=ruleType]",
+          "expect": {
+            "required": false,
+            "description": "Rule type"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/saas_security_api/casb_dlp_rules/casb_dlp_rules.go",
+          "quotes": [
+            "endpoint := fmt.Sprintf(\"%s?ruleType=%s\", casbDlpRulesEndpoint, url.QueryEscape(ruleType))"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "app-to-category-map": {
+      "kind": "data",
+      "title": "Which SaaS applications belong to each rule category",
+      "status": "partial",
+      "detail": "The ZIA OpenAPI document lists every `saasApplication` value (for example SLACK, JIRA, GITHUB, AWSS3, CHATGPT) and the `appType` values, but no source groups the applications under the rule categories; the help articles name only examples.",
+      "resolvable_by": [
+        "operator"
+      ],
+      "former_ids": [
+        "api-casb-05"
+      ],
+      "about": [
+        "zia/casb-tenants"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1lite/get/parameters/[name=app]",
+          "expect": {
+            "description": "Specifies the sanctioned SaaS application"
+          }
+        }
+      ]
+    }
+  }
+}

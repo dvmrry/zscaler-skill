@@ -512,4 +512,4 @@ Endpoint paths and verbs are extracted from the Go SDK service layer under `vend
 
 - Auth flow and session management: [`../shared/legacy-api.md`](../shared/legacy-api.md)
 - ZPA OneAPI surface: [`./api.md`](./api.md)
-- ZIA legacy endpoints: [`../zia/legacy-endpoints.md`](../zia/legacy-endpoints.md)
+- ZIA legacy endpoints: [`zia.api`](kb:zia.api)

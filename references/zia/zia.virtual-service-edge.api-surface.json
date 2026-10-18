@@ -119,5 +119,33 @@
         }
       ]
     }
+  },
+  "divergences": {
+    "tf-lb-ip-doc-example-standalone": {
+      "summary": "Whether `load_balancer_ip_address` is meaningful on a STANDALONE Virtual Service Edge node in Terraform.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_virtual_service_edge_node.md",
+            "quotes": [
+              "This field is applicable only when the 'deploymentMode' field is set to `CLUSTER`."
+            ]
+          },
+          "says": "The argument documentation says the load balancer IP applies only when the deployment mode is CLUSTER."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_virtual_service_edge_node.md",
+            "quotes": [
+              "deployment_mode                   = \"STANDALONE\""
+            ]
+          },
+          "says": "The first example sets load_balancer_ip_address together with deployment_mode STANDALONE."
+        }
+      ],
+      "impact": "The provider schema marks the attribute optional and the example sets it for a standalone node, so the provider does not reject the combination. Do not read a set load balancer IP on a standalone node as proof the platform uses it."
+    }
   }
 }

@@ -220,4 +220,4 @@ The server-side tier table (limits keyed to license count, different from ZIA's 
 - Architecture overview — [`./overview.md`](./overview.md)
 - Probes (data source for most SDK methods) — [`./probes.md`](./probes.md)
 - Diagnostics Sessions and Alerts — [`./diagnostics-and-alerts.md`](./diagnostics-and-alerts.md)
-- Shared auth pattern — [`../zia/api.md § Authentication`](../zia/api.md)
+- Shared auth pattern — [`zia.api`](kb:zia.api)

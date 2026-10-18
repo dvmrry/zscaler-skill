@@ -179,6 +179,76 @@
           ]
         }
       ]
+    },
+    "tf-both-resources-registered": {
+      "statement": "The provider registers both `zia_sandbox_behavioral_analysis` and `zia_sandbox_behavioral_analysis_v2` as resources and data sources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/provider.go",
+          "quotes": [
+            "\"zia_sandbox_behavioral_analysis\":                   resourceSandboxSettings(),",
+            "\"zia_sandbox_behavioral_analysis_v2\":                resourceSandboxSettingsV2(),",
+            "\"zia_sandbox_behavioral_analysis\":                   dataSourceSandboxSettings(),",
+            "\"zia_sandbox_behavioral_analysis_v2\":                dataSourceSandboxSettingsV2(),"
+          ]
+        }
+      ]
+    },
+    "tf-v1-v2-same-endpoint": {
+      "statement": "The Terraform resources `zia_sandbox_behavioral_analysis` (flat) and `zia_sandbox_behavioral_analysis_v2` (rich) both read and write the same object: the SDK's `Get` and `Getv2` read, and `Update` and `Updatev2` PUT, the single behavioralAnalysisAdvancedSettings endpoint, differing only in payload shape.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "advancedSettingsEndpoint = \"/zia/api/v1/behavioralAnalysisAdvancedSettings\"",
+            "err := service.Client.Read(ctx, advancedSettingsEndpoint, &hashes)",
+            "err := service.Client.Read(ctx, advancedSettingsEndpoint, &payload)",
+            "_, err := service.Client.UpdateWithPut(ctx, advancedSettingsEndpoint, payload)",
+            "_, err := service.Client.UpdateWithPut(ctx, advancedSettingsEndpoint, hashes)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_behavioral_analysis_advanced_settings.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "_, err = sandbox_settings.Update(ctx, service, fileHashes)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_behavioral_analysis_advanced_settings_v2.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "_, err := sandbox_settings.Updatev2(ctx, service, payload)"
+          ]
+        }
+      ]
+    },
+    "tf-v2-encouraged": {
+      "statement": "The v2 resource documentation says the original `zia_sandbox_behavioral_analysis` resource is still available, but the provider encourages users to move to the new format, and that the original will eventually be deprecated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_sandbox_behavioral_analysis_v2.md",
+          "quotes": [
+            "is still available in the provider; however, we encourage users to move to this new format",
+            "will be eventually deprecated"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -207,6 +277,27 @@
       "detail": "No help capture for this surface is vendored. Whether CUSTOM_FILEHASH_DENY and CUSTOM_FILEHASH_ALLOW are the complete documented values, or only what the Python SDK happens to use, is unknown.",
       "resolves_with": [
         "source-read"
+      ]
+    },
+    "tf-v2-supersedes-v1": {
+      "kind": "semantic",
+      "title": "Whether `zia_sandbox_behavioral_analysis_v2` is already required for new configurations",
+      "status": "open",
+      "resolves_with": [
+        "source-read"
+      ],
+      "blocks": "saying that new configurations must use the v2 resource rather than only should",
+      "detail": "Unverified legacy statement: the legacy catalog said v2 supersedes the original resource. The provider docs only encourage the move and say the original will eventually be deprecated; both resources are registered and neither carries a deprecation notice in the provider registration. Whether v2 is already required for new configurations is not stated."
+    },
+    "tf-v1-v2-coexistence": {
+      "kind": "semantic",
+      "title": "Whether declaring both Terraform sandbox resources in one configuration conflicts",
+      "status": "open",
+      "detail": "Unverified legacy statement: whether the v1 and v2 resources are separate backend objects is not confirmed in the provider docs, and because both use one endpoint and one fixed resource ID, declaring both in the same configuration may cause state conflicts. The sources show the shared endpoint and ID but not how two declarations of the same list would interact at apply or on refresh.",
+      "blocks": "saying whether the flat and rich Terraform resources can be declared together",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
       ]
     }
   }

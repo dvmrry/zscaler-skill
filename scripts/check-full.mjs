@@ -77,6 +77,7 @@ const FULL_CHECKS = [
       ...PYTEST_FILES,
     ],
   },
+  { name: "generated surface layer is current", command: "node", args: ["scripts/gen-surfaces.mjs", "zia", "--check"] },
   { name: "documentation links", command: "./scripts/check-doc-links.py", args: [] },
   {
     name: "citation-density regression tests",

@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "id": "zia.sdk-python.security-policy-url-lists",
+  "title": "How the Python SDK edits the security allowlist and denylist",
+  "aliases": [
+    "add_urls_to_whitelist",
+    "add_urls_to_blacklist",
+    "erase_blacklist",
+    "allowlist overwritten",
+    "denylist urls python sdk",
+    "security whitelist replace"
+  ],
+  "checks": [
+    {
+      "do": "Which helper changed the list, since allowlist helpers rewrite the whole list and denylist helpers send one action.",
+      "uses": [
+        "allowlist-add-delete-replace-whole-list",
+        "denylist-add-delete-action-endpoint",
+        "denylist-replace-and-erase"
+      ]
+    },
+    {
+      "do": "Whether another admin or script changed the allowlist around the same time as a helper call.",
+      "uses": [
+        "allowlist-write-not-atomic"
+      ]
+    }
+  ],
+  "claims": {
+    "allowlist-add-delete-replace-whole-list": {
+      "statement": "`add_urls_to_whitelist` and `delete_urls_from_whitelist` read the current allowlist, change it in the client, and write the whole list back through `replace_whitelist`, which sends a PUT to `/security` with `whitelistUrls`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/security_policy_settings.py",
+          "quotes": [
+            "whitelist.whitelist_urls.extend(url for url in url_list if url not in whitelist.whitelist_urls)",
+            "whitelist.whitelist_urls = [url for url in whitelist.whitelist_urls if url not in url_list]"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/security_policy_settings.py",
+          "quotes": [
+            "payload = {\"whitelistUrls\": url_list}"
+          ],
+          "after": "def replace_whitelist(self, url_list: list)"
+        }
+      ]
+    },
+    "allowlist-write-not-atomic": {
+      "statement": "Two allowlist changes made between one helper's read and its write can overwrite each other, since the write replaces the whole list.",
+      "tier": "B",
+      "derived_from": [
+        "allowlist-add-delete-replace-whole-list"
+      ],
+      "conditions": "Holds when another change to the allowlist lands between the helper's read and its PUT; the helper code takes no lock and sends no version or precondition."
+    },
+    "denylist-add-delete-action-endpoint": {
+      "statement": "`add_urls_to_blacklist` and `delete_urls_from_blacklist` send a POST to `/security/advanced/blacklistUrls` with query parameter `action` set to ADD_TO_LIST or REMOVE_FROM_LIST and body `blacklistUrls`; they do not read and rewrite the list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/security_policy_settings.py",
+          "quotes": [
+            "params = {\"action\": \"ADD_TO_LIST\"}",
+            "params = {\"action\": \"REMOVE_FROM_LIST\"}"
+          ]
+        }
+      ]
+    },
+    "denylist-replace-and-erase": {
+      "statement": "`replace_blacklist` sends a PUT to `/security/advanced` with `blacklistUrls`, and `erase_blacklist` and `erase_whitelist` are the replace calls with an empty list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/security_policy_settings.py",
+          "quotes": [
+            "return self.replace_blacklist([])",
+            "return self.replace_whitelist([])"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/security_policy_settings.py",
+          "quotes": [
+            "api_url = format_url(f\"{self._zia_base_endpoint}/security/advanced\")"
+          ],
+          "after": "def replace_blacklist(self, url_list: list)"
+        }
+      ]
+    }
+  }
+}

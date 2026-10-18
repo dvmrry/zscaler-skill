@@ -161,6 +161,35 @@
           ]
         }
       ]
+    },
+    "mcp-guide-semantics-claim": {
+      "statement": "The MCP supported-tools guide says the `contains_url` matching understands ZIA's domain semantics and that `.app.box.com` covers `app.box.com`. That is a documentation claim about the client matcher, separate from what the helper code does.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "docs/guides/supported-tools.md",
+          "quotes": [
+            "the server's matching understands ZIA's domain semantics (`.app.box.com` covers `app.box.com`)"
+          ]
+        }
+      ]
+    },
+    "mcp-contains-url-matcher": {
+      "statement": "The MCP `contains_url` filter runs in the MCP process after the full category listing, not as a ZIA API filter. It reduces the query and every configured entry to a bare lower-case host by stripping scheme, path, query, port and leading or trailing periods, then matches an entry that equals the host or that the host extends at a dot-label boundary. It searches the `urls`, `db_categorized_urls` and `dbCategorizedUrls` fields and returns each matching row with an additive `_url_match`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/url_categories.py",
+          "quotes": [
+            "host = host.split(\"/\", 1)[0].split(\"?\", 1)[0].split(\":\", 1)[0]",
+            "return host == entry_host or host.endswith(\".\" + entry_host)",
+            "for field in (\"urls\", \"db_categorized_urls\", \"dbCategorizedUrls\"):",
+            "matched_rows.append({**row, \"_url_match\": {\"url\": url, \"matched\": matches}})"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -310,6 +339,113 @@
       "expect": {
         "matches": true
       }
+    }
+  },
+  "divergences": {
+    "mcp-matcher-leading-dot": {
+      "summary": "Leading period versus bare domain",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "url-format-guidelines.md",
+            "quotes": [
+              "To exactly match only with the stated domain or subdomain entry, avoid the leading period."
+            ]
+          },
+          "says": "Help: `.safemarch.com` covers the domain and its subdomains; the bare `safemarch.com` matches only that domain (and what is to its right)."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zia/url_categories.py",
+            "quotes": [
+              "return host == entry_host or host.endswith(\".\" + entry_host)",
+              "return host.strip(\".\")"
+            ]
+          },
+          "says": "MCP v0.15.4: the leading period is stripped, so `.box.com` and `box.com` get the same exact-or-any-depth-suffix rule; a bare `safemarch.com` entry matches `atlanta.safemarch.com`."
+        }
+      ],
+      "impact": "A bare-domain entry that the product would match only exactly is reported by contains_url as covering subdomains; the helper output does not show what the live backend does."
+    },
+    "mcp-matcher-path": {
+      "summary": "Path and trailing slash",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "url-format-guidelines.md",
+            "quotes": [
+              "safemarch.com/resources/ (with trailing forward slash) matches any file or directory underneath it."
+            ]
+          },
+          "says": "Help: `safemarch.com/resources` matches the exact string and `safemarch.com/resources/` matches everything beneath it."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zia/url_categories.py",
+            "quotes": [
+              "host = host.split(\"/\", 1)[0].split(\"?\", 1)[0].split(\":\", 1)[0]"
+            ]
+          },
+          "says": "MCP v0.15.4: the path is stripped from entries and query before matching, so a path-scoped entry collapses to host scope."
+        }
+      ],
+      "impact": "A category holding only `safemarch.com/resources` is reported as matching the whole host."
+    },
+    "mcp-matcher-depth-and-asterisk": {
+      "summary": "Wildcard depth and asterisk",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "url-format-guidelines.md",
+            "quotes": [
+              "A leading period (\".\") functions as a wildcard to the left of the named URL up to 5 subdomain levels deep"
+            ]
+          },
+          "says": "Help: the leading-period wildcard reaches up to 5 subdomain levels; a leading asterisk is not a wildcard."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zia/url_categories.py",
+            "quotes": [
+              "return host == entry_host or host.endswith(\".\" + entry_host)"
+            ]
+          },
+          "says": "MCP v0.15.4: the suffix check has no depth limit and no asterisk handling, so `a.b.c.d.e.f.safemarch.com` matches a `safemarch.com` entry."
+        }
+      ],
+      "impact": "contains_url can report a match deeper than five levels that the product would not wildcard-match."
+    },
+    "mcp-matcher-priority": {
+      "summary": "Exact-match priority",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "url-format-guidelines.md",
+            "quotes": [
+              "The exact match takes priority over the wildcard matches."
+            ]
+          },
+          "says": "Help: an exact category entry takes priority over a wildcard entry for the same request."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zia/url_categories.py",
+            "quotes": [
+              "matched_rows.append({**row, \"_url_match\": {\"url\": url, \"matched\": matches}})"
+            ]
+          },
+          "says": "MCP v0.15.4: every matching row is appended in input order; there is no priority or conflict resolution."
+        }
+      ],
+      "impact": "contains_url lists all matching categories; it does not say which one ZIA would apply."
     }
   }
 }

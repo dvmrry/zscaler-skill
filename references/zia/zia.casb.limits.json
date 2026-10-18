@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "id": "zia.casb.limits",
+  "title": "CASB limits: scan capacity, log field length and rule text",
+  "aliases": [
+    "casb limits",
+    "saas security api scans limit",
+    "1000 buckets",
+    "bitbucket 32 repositories",
+    "sub-url 2041 characters",
+    "ranges and limitations saas security"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.casb.tenants"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.insights-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.dlp-rules"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the bucket, container or repository count of the tenant is within the scan cap before assuming a scan missed objects.",
+      "uses": [
+        "s3-1000-buckets",
+        "gcp-azure-1000",
+        "bitbucket-32"
+      ]
+    },
+    {
+      "do": "Whether the Sub-URL limit is being applied to a SaaS Security log.",
+      "uses": [
+        "sub-url-2041",
+        "sub-url-in-saas-logs"
+      ]
+    }
+  ],
+  "claims": {
+    "s3-1000-buckets": {
+      "statement": "SaaS Security API scans cover up to 1,000 Amazon S3 buckets, and enabling that, or Amazon S3 at all, goes through the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "To enable scanning of up to 1,000 Amazon S3 buckets, contact your Zscaler Account team."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-saas-application-tenants.md",
+          "quotes": [
+            "To enable Amazon S3 for your organization, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "gcp-azure-1000": {
+      "statement": "SaaS Security API scans cover up to 1,000 Google Cloud Platform buckets and 1,000 Azure blob containers, each raised through the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "To enable scanning of up to 1,000 Google Cloud Platform buckets, contact your Zscaler Account team.",
+            "To enable scanning of up to 1,000 Azure blob containers, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "bitbucket-32": {
+      "statement": "SaaS Security API scans cover up to 32 Bitbucket repositories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "Bitbucket | 32 repositories"
+          ]
+        }
+      ]
+    },
+    "sub-url-2041": {
+      "statement": "Sub-URLs in the Insight Logs display and CSV file are truncated beyond 2,041 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "Sub-URL Length in Insight Logs display and CSV file | 2,041 characters"
+          ]
+        }
+      ]
+    },
+    "description-10240": {
+      "statement": "A DLP rule description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#description"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "The description cannot exceed 10,240 characters."
+          ],
+          "after": "To add a DLP rule for collaboration applications:"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "sub-url-in-saas-logs": {
+      "kind": "semantic",
+      "title": "Whether the Sub-URL limit applies to SaaS Security logs",
+      "status": "open",
+      "detail": "The ranges article states the 2,041-character limit for \"Insight Logs display and CSV file\" among the Insights features; the SaaS Security Insights column lists have no Sub-URL column, so no source ties the limit to SaaS Security logs.",
+      "resolves_with": [
+        "operator-experience",
+        "source-read"
+      ]
+    }
+  }
+}

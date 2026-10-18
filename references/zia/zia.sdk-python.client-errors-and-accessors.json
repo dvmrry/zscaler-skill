@@ -1,0 +1,329 @@
+{
+  "schema_version": 1,
+  "id": "zia.sdk-python.client-errors-and-accessors",
+  "title": "Python SDK errors, accessors and misspelled names on the ZIA client",
+  "aliases": [
+    "zscaler python sdk raiseException",
+    "ZscalerAPIError",
+    "dns_gatways",
+    "BrowserControlSettingsPI",
+    "get_custom_file_tytpe",
+    "dns_gateways attribute error",
+    "isNameL10nTag none",
+    "python sdk no exception classes",
+    "client.zia.url_filtering",
+    "client.zia.activate",
+    "url_filtering_rules accessor wrong",
+    "python sdk zia call names"
+  ],
+  "binds": [],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.sdk-python.response-shape"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.request-conventions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.activation-and-session"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a failing call returns an error object or raises, since that is a client setting and not a property of the call.",
+      "uses": [
+        "api-error-object",
+        "raise-exception-flag"
+      ]
+    },
+    {
+      "do": "Which spelling an attribute or method takes before writing it, because several are misspelled in the SDK and an expected name raises AttributeError.",
+      "uses": [
+        "dns-gateway-accessor-misspelled",
+        "browser-control-class-misspelled",
+        "custom-file-type-getter-misspelled"
+      ]
+    },
+    {
+      "do": "Which SDK release a tenant script runs when a lite network-service field reads None.",
+      "uses": [
+        "l10n-key-corruption-fixed"
+      ]
+    },
+    {
+      "do": "That the accessor and method names in a script exist on the pinned SDK, rather than copying them from older notes.",
+      "uses": [
+        "url-filtering-accessor",
+        "activation-accessor"
+      ]
+    }
+  ],
+  "claims": {
+    "accessor-new-instance": {
+      "statement": "The OneAPI client builds one `ZIAService` and keeps it, but each service property on that object (for example `user_management`) constructs a new API client object on every access; nothing is cached below the service object.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "if self._zia is None:",
+            "self._zia = ZIAService(self._request_executor)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/zia_service.py",
+          "quotes": [
+            "return UserManagementAPI(self._request_executor)"
+          ]
+        }
+      ]
+    },
+    "api-error-object": {
+      "statement": "A non-2xx REST response is turned into a `ZscalerAPIError` built from the URL, the response and the parsed body, and the request executor hands it back in the error slot. A response that is not JSON is returned as an `HTTPError` carrying the status code and body text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/errors/response_checker.py",
+          "quotes": [
+            "error = ZscalerAPIError(url, response_details, formatted_response)",
+            "return None, HTTPError(url, response_details, body_text)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "response_data, error = check_response_for_error(request[\"url\"], response, response_body)"
+          ]
+        }
+      ]
+    },
+    "raise-exception-flag": {
+      "statement": "The client setting `raiseException` defaults to False. When it is true the same API errors are raised as `ZscalerAPIException` (or `HTTPException`) instead of being returned in the error slot.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "exceptions.raise_exception = self._config[\"client\"].get(\"raiseException\", False)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/errors/response_checker.py",
+          "after": "# Standard REST API response handling",
+          "quotes": [
+            "raise ZscalerAPIException(error)"
+          ]
+        }
+      ]
+    },
+    "exception-classes-exist": {
+      "statement": "The Python SDK defines its own exception classes: `HTTPError` and `ZscalerAPIError` in `zscaler/errors`, `ZscalerAPIException` and `HTTPException` in `zscaler/exceptions`, and `RateLimitExceededError` in `zscaler/utils.py`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/errors/http_error.py",
+          "quotes": [
+            "class HTTPError(Exception):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/errors/zscaler_api_error.py",
+          "quotes": [
+            "class ZscalerAPIError(Exception):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/exceptions/exceptions.py",
+          "quotes": [
+            "class HTTPException(ZscalerBaseException):",
+            "class ZscalerAPIException(ZscalerBaseException):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "class RateLimitExceededError(Exception):"
+          ]
+        }
+      ]
+    },
+    "dns-gateway-accessor-misspelled": {
+      "statement": "The unified ZIA service and the legacy ZIA client expose the DNS gateway client as the property `dns_gatways` (misspelled), imported from the module `zscaler/zia/dns_gatways.py`; no `dns_gateways` property exists on either.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/zia_service.py",
+          "quotes": [
+            "def dns_gatways(self) -> DNSGatewayAPI:",
+            "from zscaler.zia.dns_gatways import DNSGatewayAPI"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/legacy.py",
+          "quotes": [
+            "def dns_gatways(self) -> \"DNSGatewayAPI\":"
+          ]
+        }
+      ]
+    },
+    "browser-control-class-misspelled": {
+      "statement": "The browser control settings client class is spelled `BrowserControlSettingsPI` (no `A`), and the unified service and the legacy client both import and return it under that name; the property is spelled correctly as `browser_control_settings`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/browser_control_settings.py",
+          "quotes": [
+            "class BrowserControlSettingsPI(APIClient):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/zia_service.py",
+          "quotes": [
+            "def browser_control_settings(self) -> BrowserControlSettingsPI:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/legacy.py",
+          "quotes": [
+            "return BrowserControlSettingsPI(self.request_executor)"
+          ]
+        }
+      ]
+    },
+    "custom-file-type-getter-misspelled": {
+      "statement": "The custom file types client names its single-item getter `get_custom_file_tytpe` (misspelled); it has no `get_custom_file_type`, which is the name a reader would expect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/custom_file_types.py",
+          "quotes": [
+            "def get_custom_file_tytpe("
+          ]
+        }
+      ]
+    },
+    "l10n-key-corruption-fixed": {
+      "statement": "Before Python SDK 1.9.22, response keys with a digit-letter boundary such as `isNameL10nTag` or `ipV6Enabled` were re-cased by a generic camel-case helper (`L10n` became `L10N`), so the model field came back as `None`. The release replaced the normalizer with the SDK's own `to_lower_camel_case`, and the current response formatter uses it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "camelCase response keys with digit/letter boundaries (e.g. `isNameL10nTag`, `ipV6Enabled`) were silently corrupted by `APIClient.form_response_body()`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/api_client.py",
+          "quotes": [
+            "result[_to_camel(key)] = APIClient.form_response_body(val)"
+          ]
+        }
+      ]
+    },
+    "network-services-lite-model": {
+      "statement": "Release 1.9.22 gave `list_network_services_lite()` a dedicated `NetworkServicesLite` model with a nested `NetworkServiceExtensions` block that exposes the `extensions.tag` payload.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added a dedicated `NetworkServicesLite` model (with a nested `NetworkServiceExtensions` block) for the ZIA `/networkServices/lite` endpoint"
+          ]
+        }
+      ]
+    },
+    "url-filtering-accessor": {
+      "statement": "The URL Filtering rules client is the `url_filtering` property of the ZIA service (not `url_filtering_rules`), and its rule methods are list_rules, get_rule, add_rule, update_rule and delete_rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/zia_service.py",
+          "quotes": [
+            "def url_filtering(self) -> URLFilteringAPI:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_filtering.py",
+          "quotes": [
+            "def list_rules(",
+            "def get_rule(",
+            "def add_rule(self, **kwargs)",
+            "def update_rule(self, rule_id: str, **kwargs)",
+            "def delete_rule(self, rule_id: str)"
+          ]
+        }
+      ]
+    },
+    "categories-accessor": {
+      "statement": "The URL categories client is the `url_categories` property, with list_categories, get_category and delete_category among its methods.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/zia_service.py",
+          "quotes": [
+            "def url_categories(self) -> URLCategoriesAPI:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_categories.py",
+          "quotes": [
+            "def list_categories(",
+            "def get_category(self, category_id: str)",
+            "def delete_category(self, category_id: str)"
+          ]
+        }
+      ]
+    },
+    "activation-accessor": {
+      "statement": "Activation is `client.zia.activate` with `status` and `activate` methods, not `client.zia.activation` with `get_status`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/zia_service.py",
+          "quotes": [
+            "def activate(self) -> ActivationAPI:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/activate.py",
+          "quotes": [
+            "def status(self) -> APIResult[Activation]:",
+            "def activate(self) -> APIResult[Activation]:"
+          ]
+        }
+      ]
+    }
+  }
+}

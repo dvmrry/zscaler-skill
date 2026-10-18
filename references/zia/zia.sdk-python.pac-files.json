@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "id": "zia.sdk-python.pac-files",
+  "title": "How the SDKs call the PAC file endpoints: clone, validate and version actions",
+  "aliases": [
+    "pac clone 400 resource not found",
+    "pac file version action",
+    "pac commit message corrupted",
+    "clone_pac_file",
+    "update_pac_file commit message",
+    "validate pac file raw body"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.pac"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which SDK performed a PAC version action, and whether the commit message read back after it matches what was sent.",
+      "uses": [
+        "action-body-contract",
+        "python-action-body-is-object",
+        "go-action-body-is-raw-commit-message"
+      ]
+    },
+    {
+      "do": "Whether a clone that returned 400 RESOURCE_NOT_FOUND followed an activation of the parent, and whether parent fields were in the body.",
+      "uses": [
+        "clone-needs-committed-parent",
+        "clone-strict-signature"
+      ]
+    },
+    {
+      "do": "How many versions the PAC file already holds before a clone.",
+      "uses": [
+        "clone-evicts-oldest-at-cap"
+      ]
+    },
+    {
+      "do": "Whether a failed create was an exception from content validation rather than an API error.",
+      "uses": [
+        "add-validates-and-raises"
+      ]
+    }
+  ],
+  "claims": {
+    "add-validates-and-raises": {
+      "statement": "`add_pac_file` requires `pac_content`, runs `validate_pac_file` on it before the POST, and raises an exception instead of returning an error value when the content is missing or fails validation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/pac_files.py",
+          "quotes": [
+            "raise ValueError(\"Missing required parameter: pac_content\")",
+            "raise Exception(f\"PAC content validation failed: {validation_result}\")"
+          ],
+          "after": "def add_pac_file(self, **kwargs)"
+        }
+      ]
+    },
+    "get-returns-all-versions": {
+      "statement": "`get_pac_file` reads `/pacFiles/{id}/version`, and its docstring says it retrieves all versions of a PAC file for the ID; `get_pac_file_version` reads one version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/pac_files.py",
+          "quotes": [
+            "Retrieves all versions of a PAC file based on the specified ID"
+          ]
+        }
+      ]
+    },
+    "clone-strict-signature": {
+      "statement": "`clone_pac_file` has fixed arguments rather than `**kwargs`. The SDK's docstring says the clone endpoint takes only version-level fields, and that sending parent fields such as name or domain, or `pacVersion`, in the body makes the API answer 400 RESOURCE_NOT_FOUND instead of an input error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/pac_files.py",
+          "quotes": [
+            "Sending parent-level fields (name/description/domain/...) or the path parameter ``pacVersion`` in the body causes the API to reject the request with a misleading 400 RESOURCE_NOT_FOUND",
+            "Only version-level fields go in the body"
+          ]
+        }
+      ]
+    },
+    "clone-needs-committed-parent": {
+      "statement": "The SDK's docstring says the clone request must be made against committed state: a parent created in the same session must be activated first, or the clone fails with the same 400 RESOURCE_NOT_FOUND.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/pac_files.py",
+          "quotes": [
+            "The clone POST must be made against COMMITTED state.",
+            "otherwise the parent will not yet be visible to the clone endpoint"
+          ]
+        }
+      ]
+    },
+    "clone-evicts-oldest-at-cap": {
+      "statement": "At 10 existing versions `clone_pac_file` adds `deleteVersion` to the URL, using the caller's `delete_version` or else the lowest existing version number.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/pac_files.py",
+          "quotes": [
+            "ZIA caps each PAC file at 10",
+            "evict = delete_version if delete_version is not None else min(pac_versions)"
+          ]
+        }
+      ]
+    },
+    "validate-raw-body": {
+      "statement": "`validate_pac_file` sends the PAC source as the raw request body, dedented and stripped of leading line breaks, and the request executor special-cases `/pacFiles/validate` so the body goes out as data without JSON conversion.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/pac_files.py",
+          "quotes": [
+            "# Send the PAC content as raw data",
+            "pac = textwrap.dedent(pac_file_content).lstrip(\"\\r\\n\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "# For PAC file validation, send as raw data without any modification"
+          ]
+        }
+      ]
+    },
+    "python-action-body-is-object": {
+      "statement": "Python's `update_pac_file` puts the action in the path and sends the remaining keyword arguments, including `pac_commit_message`, as a dictionary body that the executor sends as JSON.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/pac_files.py",
+          "quotes": [
+            "# Construct the body from kwargs",
+            "pac_commit_message (str): Commit message for the PAC file."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "json_payload = self._prepare_body(endpoint, body)",
+            "request[\"json\"] = json_payload"
+          ]
+        }
+      ]
+    },
+    "go-action-body-is-raw-commit-message": {
+      "statement": "Go's `UpdatePacFile` takes a commit message string and sends it as the raw request body, because its comment says the endpoint expects the message that way and that a serialized object corrupts the stored commit message.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/pacfiles/pacfiles.go",
+          "quotes": [
+            "commit message as the raw request body (not a JSON object); sending a",
+            "serialized object corrupts the version's stored commit message.",
+            "body = strings.NewReader(commitMessage)"
+          ]
+        }
+      ]
+    },
+    "automate-action-operation": {
+      "statement": "The Automate OpenAPI capture lists the PAC version action as the operation 'Pac Resource Update Pac Version Flag' with path parameters and an optional newLKGVer query parameter, and the operation carries no requestBody member.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1pacFiles~1{pacId}~1version~1{pacVersion}~1action~1{pacVersionAction}/put",
+          "expect": {
+            "operationId": "Pac Resource Update Pac Version Flag"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "action-body-contract": {
+      "kind": "semantic",
+      "title": "What the PAC version-action endpoint accepts as a request body",
+      "status": "open",
+      "blocks": "saying whether the Python object body or the Go raw commit message is the correct write, and what commit message ends up stored",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "about": [
+        "zia.sdk-python.pac-files:python-action-body-is-object",
+        "zia.sdk-python.pac-files:go-action-body-is-raw-commit-message"
+      ],
+      "detail": "Unverified legacy statement: do not infer that the Python call fails without a live request trace. Run the version action from each SDK against a scratch PAC file and read the stored commit message back."
+    }
+  }
+}

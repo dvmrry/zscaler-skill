@@ -1,0 +1,282 @@
+{
+  "schema_version": 1,
+  "id": "zia.sdk-python.service-behaviors",
+  "title": "Python SDK service-specific behavior for ZIA: admin, AppTotal, browser control and smart isolation",
+  "aliases": [
+    "smart_isolation_users_ids ignored",
+    "update_smart_isolation",
+    "convert_to_user",
+    "browser control endpoint python",
+    "dedicated ip gateways python",
+    "apptotal get_app",
+    "feature_permissions",
+    "admin user role_id python sdk"
+  ],
+  "binds": [],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.request-conventions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.client-errors-and-accessors"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.activation-and-session"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether smart isolation user and group scoping was sent, by reading the PUT body back, because the keyword names the docstring gives are not the keys the ID remapper handles.",
+      "uses": [
+        "smart-isolation-id-keys",
+        "smart-isolation-doc-keys"
+      ]
+    },
+    {
+      "do": "Which Python client a browser control call goes through, since two accessors reach the same endpoint.",
+      "uses": [
+        "browser-control-shared-endpoint"
+      ]
+    }
+  ],
+  "claims": {
+    "admin-role-permissions-key": {
+      "statement": "In the admin role create and update helpers a `feature_permissions` dict is renamed to the wire key `featurePermissions` before the request is built; the rename happens only when the value is a dict.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/admin_roles.py",
+          "after": "def add_role(",
+          "quotes": [
+            "if \"feature_permissions\" in body and isinstance(body[\"feature_permissions\"], dict):",
+            "body[\"featurePermissions\"] = body.pop(\"feature_permissions\")"
+          ]
+        }
+      ]
+    },
+    "admin-user-role-id": {
+      "statement": "The admin user create and update helpers turn a `role_id` keyword into `{\"role\": {\"id\": ...}}`. The docstring says `scope_entity_ids` need not be given when the admin scope is ORGANIZATION.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/admin_users.py",
+          "after": "def add_admin_user(",
+          "quotes": [
+            "body[\"role\"] = {\"id\": body.pop(\"role_id\")}"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/admin_users.py",
+          "after": "def add_admin_user(",
+          "quotes": [
+            "be provided if the admin user's scope is set to ``ORGANIZATION``."
+          ]
+        }
+      ]
+    },
+    "convert-to-user-spec": {
+      "statement": "The API specification describes `POST /adminUsers/{userId}/convertToUser` as removing a user's admin privileges while keeping them as a regular user, as an alternative to DELETE, which removes the admin and also removes them as a user. It says the admin user's details are first obtained with `GET /users` and then sent in the convert request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1adminUsers~1{userId}~1convertToUser/post",
+          "expect": {
+            "description": "<p>Removes admin privileges for a user while retaining them as a regular user of your organization in the ZIA Admin Portal. This can be used as an alternative to the <code>DELETE /adminUsers/{userId}</code> request, which deletes an admin and removes them as a user from the ZIA Admin Portal. To learn more, see <a href=\"https://help.zscaler.com/zia/deleting-zia-admins\" target=\"_blank\">Deleting ZIA Admins</a>.</p><p>Before you can delete the admin privileges for a user, you need to obtain the admin user's ID and other information by using the <code>GET /users</code> request and then send the admin user details in the <code>POST /adminUsers/{userId}/convertToUser</code> request.</p>"
+          }
+        }
+      ]
+    },
+    "update-injects-id": {
+      "statement": "The alert subscription and bandwidth control rule update helpers write the path ID into the request body (`body[\"id\"]`) before sending the PUT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/alert_subscriptions.py",
+          "quotes": [
+            "body[\"id\"] = subscription_id"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/bandwidth_control_rules.py",
+          "quotes": [
+            "body[\"id\"] = rule_id"
+          ]
+        }
+      ]
+    },
+    "apptotal-submit-on-miss": {
+      "statement": "`get_app` on the AppTotal client searches the catalog by app ID; if the app is absent the call submits it for analysis, and a later call is needed to read the result.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/apptotal.py",
+          "quotes": [
+            "returned. If not, the app is submitted for analysis. After analysis is complete, a subsequent GET request is"
+          ]
+        }
+      ]
+    },
+    "apptotal-result-cap": {
+      "statement": "The `search_app` and `app_views` docstrings state that at most 200 results are returned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/apptotal.py",
+          "after": "def search_app(",
+          "quotes": [
+            "Note: The maximum number of results that are returned is 200."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/apptotal.py",
+          "after": "def app_views(",
+          "quotes": [
+            "Note: The maximum number of results that are returned is 200."
+          ]
+        }
+      ]
+    },
+    "browser-control-shared-endpoint": {
+      "statement": "The older `browser_control_settings` client and the newer `secure_browsing` client both read and write the same path `/browserControlSettings`; the Go `browser_control_settings` and `secure_browsing` packages use that path too. The older Python client does not use a `/browserControl` path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/browser_control_settings.py",
+          "after": "def get_browser_control_settings(",
+          "quotes": [
+            "/browserControlSettings"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/secure_browsing.py",
+          "after": "def get_browser_control_settings(",
+          "quotes": [
+            "/browserControlSettings"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/browser_control_settings/browser_control_settings.go",
+          "quotes": [
+            "browserControlSettingsEndpoint = \"/zia/api/v1/browserControlSettings\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/secure_browsing/secure_browsing.go",
+          "quotes": [
+            "const browserControlSettingsEndpoint = \"/zia/api/v1/browserControlSettings\""
+          ]
+        }
+      ]
+    },
+    "smart-isolation-id-keys": {
+      "statement": "`update_smart_isolation` remaps ID lists with `transform_common_id_fields(reformat_params, ...)`, and `reformat_params` lists the keys `smart_isolation_user_ids` and `smart_isolation_group_ids` for that.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/secure_browsing.py",
+          "after": "/browserControlSettings/smartIsolation",
+          "quotes": [
+            "transform_common_id_fields(reformat_params, body, body)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "(\"smart_isolation_user_ids\", \"smartIsolationUsers\"),",
+            "(\"smart_isolation_group_ids\", \"smartIsolationGroups\"),"
+          ]
+        }
+      ]
+    },
+    "smart-isolation-doc-keys": {
+      "statement": "The `update_smart_isolation` docstring and its example name the keyword arguments `smart_isolation_users_ids` and `smart_isolation_groups_ids`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/secure_browsing.py",
+          "quotes": [
+            "smart_isolation_users_ids (list[str]): IDs of users for which the rule is applied.",
+            "smart_isolation_groups_ids (list[str]): IDs of groups for which the rule is applied."
+          ]
+        }
+      ]
+    },
+    "dlp-web-rule-excludes-saas": {
+      "statement": "The web DLP rule client's docstrings say its get and list-lite calls exclude SaaS Security API DLP policy rules, and that its update is not applicable to them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/dlp_web_rules.py",
+          "quotes": [
+            "Returns a DLP policy rule, excluding SaaS Security API DLP policy rules.",
+            "Updates an existing DLP policy rule. Not applicable to SaaS Security API DLP policy rules."
+          ]
+        }
+      ]
+    },
+    "dedicated-ip-lite-only": {
+      "statement": "The Python dedicated IP gateway client has one method, `list_dedicated_ip_gw_lite`, which reads `/dedicatedIPGateways/lite`; it has no get, add, update or delete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/dedicated_ip_gateways.py",
+          "quotes": [
+            "def list_dedicated_ip_gw_lite(",
+            "/dedicatedIPGateways/lite"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "smart-isolation-kwarg-names": {
+      "summary": "Keyword names for Smart Browser Isolation user and group scoping in the Python SDK",
+      "positions": [
+        {
+          "says": "The docstring and example for update_smart_isolation name the keywords smart_isolation_users_ids and smart_isolation_groups_ids.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/secure_browsing.py",
+            "quotes": [
+              "smart_isolation_users_ids (list[str]): IDs of users for which the rule is applied."
+            ]
+          }
+        },
+        {
+          "says": "The shared ID-remapping list names smart_isolation_user_ids and smart_isolation_group_ids, so the documented spellings are not in it.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/utils.py",
+            "quotes": [
+              "(\"smart_isolation_user_ids\", \"smartIsolationUsers\"),"
+            ]
+          }
+        }
+      ],
+      "impact": "A caller who follows the docstring may leave the user and group ID lists unwrapped, not in the {id: ...} shape the API takes; what the API does with the unwrapped keys is not shown. Read the rule back after the call instead of trusting the call result."
+    }
+  },
+  "gaps": {}
+}

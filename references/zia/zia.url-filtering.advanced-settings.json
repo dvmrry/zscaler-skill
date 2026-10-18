@@ -248,6 +248,68 @@
         "iac",
         "operator"
       ]
+    },
+    "creative-commons-backend-effect": {
+      "kind": "semantic",
+      "title": "What a serialized enableCreativeCommonsSearchResults:false does to an enabled setting",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "applying the URL and cloud-app settings resource to a tenant that has Creative Commons search results enabled",
+      "detail": "Unverified legacy statement: no tenant test establishes whether a previously enabled Creative Commons setting is disabled, ignored or rejected when the provider PUT carries false. The provider version bump does not resolve it. Tracked in the legacy ledger as zia-72.",
+      "about": [
+        "zia.url-filtering.advanced-settings"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "quotes": [
+            "EnableCreativeCommonsSearchResults bool `json:\"enableCreativeCommonsSearchResults\"`"
+          ]
+        }
+      ],
+      "former_ids": [
+        "zia-72"
+      ]
+    }
+  },
+  "divergences": {
+    "prompt-flags-python-model": {
+      "summary": "How many Gen AI prompt flags each SDK models",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/models/url_filter_cloud_app_settings.py",
+            "quotes": [
+              "self.enable_quillbot_ai_prompt = config[\"enableQuillbotAIPrompt\"] if \"enableQuillbotAIPrompt\" in config else False",
+              "\"enableChatGptPrompt\": self.enable_chat_gpt_prompt,",
+              "\"enableMicrosoftCoPilotPrompt\": self.enable_microsoft_copilot_prompt,",
+              "\"enableGeminiPrompt\": self.enable_gemini_prompt,",
+              "\"enablePOEPrompt\": self.enable_poe_prompt,",
+              "\"enableMetaPrompt\": self.enable_meta_prompt,",
+              "\"enablePerPlexityPrompt\": self.enable_perplexity_prompt,",
+              "\"enableGoogleAIPrompt\": self.enable_google_ai_prompt,",
+              "\"enableQuillbotAIPrompt\": self.enable_quillbot_ai_prompt,"
+            ]
+          },
+          "says": "The Python response model reads and emits eight prompt flags: ChatGPT, Microsoft Copilot, Gemini, Poe, Meta, Perplexity, Google AI and QuillBot."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+            "quotes": [
+              "EnableDeepSeekPrompt bool `json:\"enableDeepSeekPrompt\"`",
+              "EnableGrammarlyPrompt bool `json:\"enableGrammarlyPrompt\"`"
+            ]
+          },
+          "says": "The Go model also carries DeepSeek, Writer, Grok, Mistral, Claude and Grammarly, for 14 in all, matching the Help list."
+        }
+      ],
+      "impact": "A typed Python read silently lacks six prompt flags; do not inventory Gen AI prompt capture posture from the Python model alone."
     }
   }
 }

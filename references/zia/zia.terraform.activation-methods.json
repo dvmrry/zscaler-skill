@@ -1,0 +1,299 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.activation-methods",
+  "title": "Activating ZIA changes from Terraform: methods, session end and concurrent applies",
+  "aliases": [
+    "ziaActivator",
+    "zia_activation_status depends_on",
+    "api_session_timeout terraform",
+    "terraform apply activated mid-run",
+    "several terraform configurations one tenant",
+    "activation queue terraform"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.terraform.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.provider-modes"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the run outlived the API session timeout when changes went live before the apply finished.",
+      "uses": [
+        "session-end-autoactivation",
+        "mid-run-activation",
+        "session-timeout-range"
+      ]
+    },
+    {
+      "do": "Whether `zia_activation_status` lists every resource or module it must follow in `depends_on`.",
+      "uses": [
+        "status-resource-needs-depends-on"
+      ]
+    },
+    {
+      "do": "Whether more than one apply targets the tenant at once, before blaming rate limits for slow writes.",
+      "uses": [
+        "one-apply-per-tenant",
+        "lock-errors-retried"
+      ]
+    }
+  ],
+  "claims": {
+    "tenant-wide-call": {
+      "statement": "The provider documentation says a single ZIA activation call publishes every pending change in the tenant, regardless of how many resources Terraform created, updated or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "Activation is a tenant-wide operation, not a per-resource one.",
+            "regardless of how many resources Terraform created, updated, or deleted"
+          ]
+        }
+      ]
+    },
+    "three-methods": {
+      "statement": "The provider documents three activation methods in order of preference: the out-of-band `ziaActivator` CLI, the `zia_activation_status` resource, and the `ZIA_ACTIVATION` environment variable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "The provider supports three activation methods, described below in order of preference.",
+            "### Method 1 — Out-of-band activation with the `ziaActivator` CLI (recommended)",
+            "### Method 3 — The `ZIA_ACTIVATION` environment variable (discouraged)"
+          ]
+        }
+      ]
+    },
+    "activator-one-call": {
+      "statement": "The `ziaActivator` CLI is recommended for CI/CD and large configurations: it issues exactly one activation call for the whole run, run after Terraform finishes, and adds no activation traffic to the apply.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "This is the recommended method for CI/CD pipelines and for large configurations.",
+            "It issues exactly one activation call for the entire run"
+          ]
+        }
+      ]
+    },
+    "status-resource-needs-depends-on": {
+      "statement": "`zia_activation_status` cannot infer its dependencies: every resource whose changes must be activated has to be listed in `depends_on`, and a resource left out may be applied after activation and stay pending.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "`depends_on` cannot be inferred",
+            "every resource whose changes must be activated has to be listed explicitly",
+            "therefore left pending"
+          ]
+        }
+      ]
+    },
+    "env-method-discouraged": {
+      "statement": "`ZIA_ACTIVATION=true` is discouraged and may be removed in a future major release: it triggers an activation call for every resource created, updated or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "This method is discouraged and may be removed in a future major release.",
+            "It triggers an activation call for **every** resource created, updated, or deleted"
+          ]
+        }
+      ]
+    },
+    "activation-endpoint-budget": {
+      "statement": "The provider documentation gives the activation endpoint a budget of 10 POST requests per minute and 40 per hour, which a configuration of any meaningful size exhausts when every resource activates in flight.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "at **10 POST requests per minute and 40 per hour**"
+          ]
+        }
+      ]
+    },
+    "session-end-autoactivation": {
+      "statement": "The ZIA platform activates pending changes on its own when a session ends, either because an API session reached the `api_session_timeout` or because an admin logged out; this applies to all API changes, including Terraform's.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/zia-activator-overview.md",
+          "quotes": [
+            "The ZIA platform has its own auto-activation behavior, independent of the Terraform provider.",
+            "or because an admin logged out"
+          ]
+        }
+      ]
+    },
+    "session-timeout-range": {
+      "statement": "The API session timeout accepts 5 to 20 minutes and defaults to 5.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/zia-activator-overview.md",
+          "quotes": [
+            "It accepts **5 to 20 minutes and defaults to 5**."
+          ]
+        }
+      ]
+    },
+    "mid-run-activation": {
+      "statement": "A Terraform run longer than the API session timeout crosses a session boundary and has its pending changes activated part-way through, before the apply has written the rest; the provider then opens a new session and continues without failing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/zia-activator-overview.md",
+          "quotes": [
+            "will cross that boundary and have its pending changes activated part-way through",
+            "The provider then establishes a new session and continues, so the run does not fail"
+          ]
+        }
+      ]
+    },
+    "autoactivation-cannot-be-disabled": {
+      "statement": "Activation on session end is native to the platform and cannot be disabled or overridden by the provider; a higher timeout only reduces how often a long run crosses a boundary.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/zia-activator-overview.md",
+          "quotes": [
+            "activation on session end is native to the platform and cannot be disabled or overridden by the provider"
+          ]
+        }
+      ]
+    },
+    "raise-timeout-to-20": {
+      "statement": "The guidance for large configurations is to raise the API session timeout to its 20 minute maximum, in the admin portal or with `api_session_timeout` on `zia_advanced_settings`, and to split very large work across smaller states.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/zia-activator-overview.md",
+          "quotes": [
+            "Raise the timeout to its maximum of 20 minutes before running large configurations.",
+            "Set the `api_session_timeout` attribute on the `zia_advanced_settings` resource",
+            "split the work across smaller states"
+          ]
+        }
+      ]
+    },
+    "activator-does-not-suppress": {
+      "statement": "Running `ziaActivator` once at the end of a pipeline therefore does not suppress session-end autoactivation during the apply.",
+      "tier": "B",
+      "derived_from": [
+        "autoactivation-cannot-be-disabled",
+        "activator-one-call"
+      ],
+      "conditions": "Inferred from the activator being a separate call after the apply and the platform behavior being outside the provider's control."
+    },
+    "one-apply-per-tenant": {
+      "statement": "A tenant has a single configuration-change lock and a single activation queue, so plans can run in parallel (reads do not take the lock) but only one write-bearing apply should run against a tenant at a time, with CI concurrency keyed on the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "quotes": [
+            "**Apply one configuration at a time** against a given tenant."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/zia-activator-overview.md",
+          "quotes": [
+            "Read operations do not take the write lock, so planning several configurations concurrently is safe.",
+            "using a CI concurrency control keyed on the **tenant**"
+          ]
+        }
+      ]
+    },
+    "lock-errors-retried": {
+      "statement": "Requests that cannot take the write lock are rejected with `EDIT_LOCK_NOT_AVAILABLE`, `Resource Access Blocked` or `Failed during enter Org barrier`; the provider retries them automatically, so contention usually appears as a slower run rather than an error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/zia-activator-overview.md",
+          "quotes": [
+            "`EDIT_LOCK_NOT_AVAILABLE`, `Resource Access Blocked`, or `Failed during enter Org barrier`",
+            "contention typically appears as a progressively slower run rather than an immediate failure"
+          ]
+        }
+      ]
+    },
+    "do-not-lower-parallelism": {
+      "statement": "Lowering Terraform's `-parallelism` does not reduce the number of competing runs, and the longer run increases the chance of crossing an API session boundary.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/zia-activator-overview.md",
+          "quotes": [
+            "Do not lower Terraform's `-parallelism` in response to lock contention."
+          ]
+        }
+      ]
+    },
+    "activation-queues": {
+      "statement": "A queued activation waits until every editing administrator or API session has activated and cannot be cancelled, so activating at the end of each configuration does not publish that configuration independently.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/zia-activator-overview.md",
+          "quotes": [
+            "a queued activation cannot be cancelled",
+            "publication timing is set by whichever run finishes last"
+          ]
+        }
+      ]
+    },
+    "queue-publishes-partial-runs": {
+      "statement": "When the queue clears, all pending tenant changes are published, including those from a run still in progress or one that failed part-way, so a partially created rule set can take effect with incomplete ordering.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/zia-activator-overview.md",
+          "quotes": [
+            "a partially created rule set can take effect with incomplete ordering"
+          ]
+        }
+      ]
+    },
+    "separate-tenant-boundary": {
+      "statement": "A separate tenant is the only boundary that gives truly concurrent execution, since each tenant has its own write lock and activation queue.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/zia-activator-overview.md",
+          "quotes": [
+            "a separate tenant is the only boundary that provides it"
+          ]
+        }
+      ]
+    }
+  }
+}

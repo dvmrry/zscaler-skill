@@ -156,7 +156,7 @@ The canonical demonstration of this protocol, preserved with its full evolution 
 
 ### Stage 1 — Initial mistake (caught in review)
 
-The assistant threaded the claim into the ZIA locations reference (now `kb:zia.locations`) and `references/zia/api.md` with the language **"Verified against live tenant 2026-04-25."** This was wrong:
+The assistant threaded the claim into the ZIA locations reference (now `kb:zia.locations`) and the ZIA API reference (now `kb:zia.api`) with the language **"Verified against live tenant 2026-04-25."** This was wrong:
 
 - The operator reported it; the assistant did no verification.
 - "Verified" is tier-A-or-B language, not tier-C.
@@ -211,7 +211,7 @@ Combining the tier-A sources with the operator workflow — **all within the ZIA
 
 ### Stage 5 — First final encoding
 
-The threaded text in the locations reference and the `references/zia/api.md` aggregator at this stage reflected:
+The threaded text in the locations reference and the ZIA API reference at this stage reflected:
 
 - Write-side enum (ZIA): tier A (direct citation)
 - Read-side stripping (ZIA API): tier B (chain-of-evidence verification, listed link by link)

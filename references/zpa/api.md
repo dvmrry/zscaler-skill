@@ -57,7 +57,7 @@ API reference for the slice of ZPA this skill covers — application segments, s
 
 Source: `vendor/zscaler-sdk-python/README.md`.
 
-Same two-framework model as ZIA — see [`../zia/api.md`](../zia/api.md#authentication-two-frameworks) for the full description. Summary:
+Same two-framework model as ZIA — see [`zia.api`](kb:zia.api) for the full description. Summary:
 
 - **OneAPI** (current, OAuth 2.0 via ZIdentity): unified `ZscalerClient` exposes `.zpa` as the ZPA resource root.
 - **Legacy** (older, ZPA-specific credentials): `from zscaler.oneapi_client import LegacyZPAClient`. Use for pre-ZIdentity tenants, older SDKs, and provider paths that still document ZPA `GOV` / `GOVUS` as legacy-only. Current Python SDK releases also model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus` (`vendor/zscaler-sdk-python/CHANGELOG.md:353-361`; `vendor/zscaler-sdk-python/zscaler/constants.py:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:26`), so check the selected client surface before assuming gov means legacy.
@@ -507,4 +507,4 @@ Several ZPA resources accept a microtenant scope. Per `vendor/zscaler-sdk-python
 - Application segment matching — [`./app-segments.md`](./app-segments.md)
 - Access policy precedence — [`./policy-precedence.md`](./policy-precedence.md)
 - LSS access log schema — [`./logs/access-log-schema.md`](./logs/access-log-schema.md)
-- ZIA API counterpart (auth framework is identical) — [`../zia/api.md`](../zia/api.md)
+- ZIA API counterpart (auth framework is identical) — [`zia.api`](kb:zia.api)

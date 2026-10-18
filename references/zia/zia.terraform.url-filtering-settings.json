@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.url-filtering-settings",
+  "title": "The URL Filtering and Cloud App advanced settings resource: import, field names and what an update sends",
+  "aliases": [
+    "zia_url_filtering_and_cloud_app_settings",
+    "enable_per_plexity_prompt",
+    "app_setting import",
+    "creative commons search results terraform",
+    "url filtering advanced settings terraform"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.write-encoding"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an HCL attribute uses the provider's own spelling, `enable_per_plexity_prompt`, before reporting the field missing.",
+      "uses": [
+        "perplexity-field-misspelled"
+      ]
+    },
+    {
+      "do": "Whether Creative Commons search results changed after an apply that never mentioned them.",
+      "uses": [
+        "creative-commons-false-serialized"
+      ]
+    }
+  ],
+  "claims": {
+    "import-id-app-setting": {
+      "statement": "`zia_url_filtering_and_cloud_app_settings` is imported with the literal ID `app_setting`, and the importer sets the resource ID to that string.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_url_filtering_and_cloud_app_settings.md",
+          "quotes": [
+            "can be imported by using `app_setting` as the import ID."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_and_cloud_app_settings.go",
+          "quotes": [
+            "d.SetId(\"app_setting\")"
+          ],
+          "after": "failed to read url filtering and cloud app settings import"
+        }
+      ]
+    },
+    "perplexity-field-misspelled": {
+      "statement": "The Perplexity prompt-logging attribute is spelled `enable_per_plexity_prompt` in the executable schema, and the resource reads and writes it under that name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_and_cloud_app_settings.go",
+          "quotes": [
+            "\"enable_per_plexity_prompt\": {",
+            "EnablePerPlexityPrompt:            d.Get(\"enable_per_plexity_prompt\").(bool),"
+          ]
+        }
+      ]
+    },
+    "update-is-full-typed-put": {
+      "statement": "Create and update build a typed `URLAdvancedPolicySettings` value from the schema and pass it to `UpdateUrlAndAppSettings`, which sends all the settings rather than a patch of changed ones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_and_cloud_app_settings.go",
+          "quotes": [
+            "_, _, err := urlfilteringpolicies.UpdateUrlAndAppSettings(ctx, service, req)"
+          ],
+          "after": "func resourceURLFilteringCloludAppSettingsCreate"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "quotes": [
+            "// URLAdvancedPolicySettings is the full set of advanced URL filtering and cloud",
+            "The booleans deliberately omit omitempty: a caller disabling a setting sends"
+          ]
+        }
+      ]
+    },
+    "v4-8-5-fixed-turn-off": {
+      "statement": "Provider v4.8.5 fixed this resource rejecting updates with `Request body is invalid.` and being unable to turn a setting back off; updates now carry every supported setting, and `safe_search_apps` is sent only when applications are specified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "rejected updates with `Request body is invalid.` and could not turn a setting back off.",
+            "`safe_search_apps` is sent only when applications are specified."
+          ]
+        }
+      ]
+    },
+    "creative-commons-field-has-no-omitempty": {
+      "statement": "The SDK field `EnableCreativeCommonsSearchResults` is tagged `json:\"enableCreativeCommonsSearchResults\"` with no `omitempty`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "quotes": [
+            "EnableCreativeCommonsSearchResults bool `json:\"enableCreativeCommonsSearchResults\"`"
+          ]
+        }
+      ]
+    },
+    "creative-commons-only-in-data-source": {
+      "statement": "The provider data source declares `enable_creative_commons_search_results` as a computed attribute and sets it from the API response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_url_filtering_and_cloud_app_settings.go",
+          "quotes": [
+            "\"enable_creative_commons_search_results\": {",
+            "_ = d.Set(\"enable_creative_commons_search_results\", resp.EnableCreativeCommonsSearchResults)"
+          ]
+        }
+      ]
+    },
+    "creative-commons-false-serialized": {
+      "statement": "So an update through the resource sends `enableCreativeCommonsSearchResults=false` even though the resource schema never sets it.",
+      "tier": "B",
+      "derived_from": [
+        "creative-commons-field-has-no-omitempty",
+        "update-is-full-typed-put"
+      ],
+      "conditions": "Go serializes a non-omitempty bool as false when the builder leaves it unassigned; the resource file contains no reference to the field (searched).",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_and_cloud_app_settings.go",
+          "quotes": [
+            "EnableGoogleAIPrompt:              d.Get(\"enable_google_ai_prompt\").(bool),"
+          ]
+        }
+      ]
+    },
+    "resource-has-google-quillbot": {
+      "statement": "The resource defines and reads back the Google AI prompt-logging attribute, while the data source defines neither the Google AI nor the QuillBot attributes.",
+      "tier": "B",
+      "conditions": "The absence in the data source file was established by searching it for google_ai and quillbot (no matches at the pin).",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_and_cloud_app_settings.go",
+          "quotes": [
+            "_ = d.Set(\"enable_google_ai_prompt\", resp.EnableGoogleAIPrompt)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_url_filtering_and_cloud_app_settings.go",
+          "quotes": [
+            "\"enable_creative_commons_search_results\": {"
+          ]
+        }
+      ]
+    }
+  }
+}

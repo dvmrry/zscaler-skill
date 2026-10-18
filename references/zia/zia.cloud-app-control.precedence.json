@@ -192,6 +192,41 @@
         "zia.cloud-app-control.rule-criteria:criteria-expression"
       ],
       "conditions": "Assumes no other Cloud App Control rule matches the users outside the department; a rule that does match them decides first."
+    },
+    "mcp-order-surface": {
+      "statement": "The MCP rule helpers define `order` as a positive 1-based integer where lower values are evaluated first, default it to 1 on create when omitted, and send it on update only when the caller provides it. The cloud app control create input describes it as \"Evaluation order (lower=first).\"",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/common/zia_helpers.py",
+          "quotes": [
+            "lower = evaluated first. Required by the ZIA API on create — defaults to",
+            "DEFAULT_RULE_ORDER: int = 1"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/cloud_app_control.py",
+          "quotes": [
+            "Field(default=None, description=\"Evaluation order (lower=first).\""
+          ]
+        }
+      ]
+    },
+    "mcp-skill-first-match-shadowing": {
+      "statement": "The MCP create workflow skill states that Cloud App Control rules sit in one top-to-bottom table per rule type where the first match wins, and that a more general rule above a more specific one shadows it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/create-cloud-app-control-rule/SKILL.md",
+          "quotes": [
+            "**first match wins**",
+            "A more general rule placed above a more specific rule will **shadow** the specific one."
+          ]
+        }
+      ]
     }
   },
   "gaps": {

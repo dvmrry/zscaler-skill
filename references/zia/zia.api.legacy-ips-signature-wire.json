@@ -1,0 +1,261 @@
+{
+  "schema_version": 1,
+  "id": "zia.api.legacy-ips-signature-wire",
+  "title": "Custom IPS signature rules: export, validate and import wire behavior in the legacy API",
+  "aliases": [
+    "ipsSignatureRules export",
+    "ipsSignatureRules import",
+    "validateRuleText",
+    "custom ips signature csv",
+    "ips signature import 415",
+    "ips signature multipart"
+  ],
+  "binds": [
+    "zia/ips-signature-rules"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.firewall.ips"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an export call sends no CSV content type on the request, since the gateway answers 415 to it.",
+      "uses": [
+        "export-request-no-csv-type",
+        "export-response-raw-csv"
+      ]
+    },
+    {
+      "do": "Whether validation posts an object with a ruleText key, and whether a failure is read from the HTTP status and error envelope rather than a result body.",
+      "uses": [
+        "validate-body-wrapped",
+        "validate-http-signaling"
+      ]
+    },
+    {
+      "do": "Whether anything depends on the CSV import path, which the Go SDK ships disabled and whose wire behavior is unconfirmed.",
+      "uses": [
+        "import-disabled",
+        "import-wire-unconfirmed",
+        "export-broken-note-vs-live-function"
+      ]
+    },
+    {
+      "do": "Whether a category list read is complete, by checking which SDK read it.",
+      "uses": [
+        "categories-go-all-pages-python-one-page"
+      ]
+    },
+    {
+      "do": "Whether a Python create was stopped by the pre-flight validation, which returns an error value without calling create, and that an update is not validated first.",
+      "uses": [
+        "python-create-preflight",
+        "python-update-no-preflight"
+      ]
+    }
+  ],
+  "claims": {
+    "export-request-no-csv-type": {
+      "statement": "The Go export function documents that the request must not advertise Content-Type text/csv: the OneAPI gateway rejects that with HTTP 415 on this body-less GET, and only application/json, the SDK default for GET, is accepted on the request side.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
+          "quotes": [
+            "Important: the request itself MUST NOT advertise Content-Type: text/csv.",
+            "The OneAPI gateway rejects that with HTTP 415 Unsupported Media Type for",
+            "accepted on the request side."
+          ]
+        }
+      ]
+    },
+    "export-response-raw-csv": {
+      "statement": "The export response is streamed as application/octet-stream with an attachment disposition, and the Go function returns the raw CSV bytes undecoded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
+          "quotes": [
+            "Content-Type: application/octet-stream and Content-Disposition: attachment;",
+            "// The response body is still raw CSV; ReadRaw does not decode it."
+          ]
+        }
+      ]
+    },
+    "validate-body-wrapped": {
+      "statement": "The validate endpoint takes a JSON object with a ruleText key; the Go SDK states the API rejects a raw string payload.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
+          "quotes": [
+            "string payloads; the rule text must be wrapped in this object.",
+            "JSON object ({\"ruleText\": \"...\"}) as required by the API and the response"
+          ]
+        }
+      ]
+    },
+    "validate-http-signaling": {
+      "statement": "Validation is signalled at the HTTP level: per the Go SDK comment a well-formed rule returns HTTP 200 with status 0 and empty error fields, and an invalid rule returns HTTP 400 with a standard error envelope (INVALID_INPUT_ARGUMENT and the diagnostic in message), which the SDK surfaces as an error rather than a populated struct.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
+          "quotes": [
+            "rule returns HTTP 200 with status=0 and empty error fields. An invalid rule",
+            "returns HTTP 400 with a standard error envelope (INVALID_INPUT_ARGUMENT and",
+            "populated struct."
+          ]
+        }
+      ]
+    },
+    "import-disabled": {
+      "statement": "The Go SDK ships the CSV import and import-status functions commented out, with a note that the export and import endpoints are currently broken upstream, kept as reference for when the backend is fixed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
+          "quotes": [
+            "// NOTE: The /ipsSignatureRules/{export,import} endpoints are currently broken",
+            "// reference for when the backend is fixed, but are commented out so callers"
+          ]
+        }
+      ]
+    },
+    "import-csv-format": {
+      "statement": "The disabled import code documents the CSV as plus rows with five columns (rule name, rule text, category name, description and enable flag) and minus rows that carry only a rule name, which delete it; it says inner double quotes in the rule text must be doubled per RFC 4180 because the portal's parser rejects backslash-escaped quotes with 'Double quotes not terminated'.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
+          "quotes": [
+            "Inner double quotes inside the rule text column must be escaped using the",
+            "portal's parser rejects \\\" with \"Double quotes not terminated\".",
+            "+, \"rule-name\", \"valid suricata rule text\", \"ips-category-name\", \"description\", \"Enable\"",
+            "-, \"rule-name-to-delete\""
+          ]
+        }
+      ]
+    },
+    "import-multipart-guess": {
+      "statement": "The disabled import code sends the CSV as a multipart/form-data file part named file because raw text/csv and raw application/json bodies both produce HTTP 415; the comment lists csvFile, import and uploadFile as alternates to try if the API rejects file, and says to capture the portal's request to confirm the field name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
+          "quotes": [
+            "produce HTTP 415, so the request is sent as multipart/form-data with the",
+            "CSV as a file part named \"file\" (Content-Type: text/csv on the part",
+            "\"csvFile\", \"import\", or \"uploadFile\". Capture the portal's request via"
+          ]
+        }
+      ]
+    },
+    "categories-go-all-pages-python-one-page": {
+      "statement": "The Go IPS categories read pages through ReadAllPages, whereas the Python list_categories sends one request carrying the caller's page and page_size parameters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, ipsCategoriesEndpoint, &ipsCategories)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/ips_categories.py",
+          "quotes": [
+            "``[query_params.page]`` {int}: Specifies the page offset.",
+            "request, error = self._request_executor.create_request(http_method, api_url, body, headers, params=query_params)"
+          ]
+        }
+      ]
+    },
+    "python-create-preflight": {
+      "statement": "The Python `add_ips_signature_rule` validates the supplied `rule_text` through the validate endpoint before it sends the create, and on a failure returns `(None, None, ValueError(...))` without making the create call.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/ips_signature_rules.py",
+          "after": "def add_ips_signature_rule(",
+          "quotes": [
+            "returns ``(None, None, ValueError(...))`` and no create call is made.",
+            "validation_error = self._preflight_validate_rule_text(kwargs)"
+          ]
+        }
+      ]
+    },
+    "python-update-no-preflight": {
+      "statement": "The Python `update_ips_signature_rule` does not validate `rule_text` first. Its docstring says the validate endpoint flags any signature whose `sid` already exists on the tenant as a duplicate, which on an update is the rule being changed, so a pre-flight check would reject every legitimate update.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/ips_signature_rules.py",
+          "after": "def update_ips_signature_rule(",
+          "quotes": [
+            "Unlike :meth:`add_ips_signature_rule`, this method does **not** call",
+            "itself, so a pre-flight check would reject every legitimate update."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "export-broken-note-vs-live-function": {
+      "summary": "One Go source file says the export and import endpoints are broken upstream, yet ships the export function live with detailed working-response handling.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
+            "quotes": [
+              "// NOTE: The /ipsSignatureRules/{export,import} endpoints are currently broken"
+            ]
+          },
+          "says": "Both export and import endpoints are broken upstream."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
+            "quotes": [
+              "// Content-Type: application/octet-stream and Content-Disposition: attachment;"
+            ]
+          },
+          "says": "The export function is live and describes the CSV it streams and the request header it must avoid."
+        }
+      ],
+      "impact": "An agent cannot tell from the SDK whether export works on a current tenant; only the import path is tracked as open."
+    }
+  },
+  "gaps": {
+    "import-wire-unconfirmed": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-52"
+      ],
+      "title": "Whether CSV import works on current tenants and which multipart field name it expects",
+      "status": "open",
+      "about": [
+        "zia/ips-signature-rules"
+      ],
+      "detail": "Unverified legacy statement: the import and import-status functions are disabled in the Go SDK as broken upstream, and the multipart field name file is a guess with untested alternates; no source confirms current server behavior.",
+      "blocks": "Whether bulk import of custom IPS signatures can be offered or scripted.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

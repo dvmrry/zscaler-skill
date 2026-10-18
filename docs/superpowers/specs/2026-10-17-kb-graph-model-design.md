@@ -737,7 +737,20 @@ The provider-defect slice (2026-10-18) converted the four providers' audit into 
 - **Log schema docs** become authored log types, following `zia/types/web-log.json`.
 - **Generated catalogs** (`api-schemas`, `api-postman-schemas`, `sdk`, `terraform`,
   `legacy-endpoints`, `api`) are replaced by generated type records and a generated SDK and API
-  surface layer, not converted by hand.
+  surface layer, not converted by hand. Their behavior statements (defaults, defects, version
+  changes, gotchas) are extracted into claims first; the listings themselves are not.
+- **Surface layer (2026-10-18).** `scripts/gen-surfaces.mjs <product>` writes
+  `references/_meta/surfaces/<product>.json` from the pinned provider and SDKs and the captured
+  OpenAPI spec: every OpenAPI operation; each Go SDK package's endpoint constants, exported
+  functions and the spec paths they reach; each Python SDK module's class, methods and paths; and
+  each Terraform resource and data source with the Go packages it imports and the spec paths those
+  reach. `kb.mjs surface <query>` looks up a Terraform name, API path, Go package or Python
+  module, class or method and joins what reaches the same paths. The full gate fails when the
+  file is stale. SDK paths that reach no spec path are the contract's own gaps, not generator
+  misses.
+- **Parallel extraction into existing subjects** goes through proposals: workers create new
+  subjects freely but write additions to existing subjects as proposal records, which the
+  maintainer merges serially and validates.
 - **`snapshot-schema` docs** are deleted with the snapshot tier itself (saved dumps are dropped; the
   answer tiers are knowledge, IaC, then live `zscalerctl`). The agent playbooks, data contract,
   setup skill and docs that still read `_data/snapshot` move to those tiers in the same change.

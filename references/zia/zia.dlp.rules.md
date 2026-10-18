@@ -1,6 +1,6 @@
 A DLP rule answers "who, where, and what happens when an engine triggers". The detection itself lives in the engines the rule references ([[zia.dlp.engines]]). The order below holds in the default mode; Evaluate All Rules mode changes it ([[zia.dlp.evaluation]]).
 
-**Order and rank.** {{ascending-order}} {{admin-rank}} Disabled rules still hold their slot, the same convention as [[zia.url-filtering.rule-order]]. {{rule-cap}} {{rule-label}} Terraform's ordering of DLP rules has its own behavior, covered in [[zia.terraform.rule-order]].
+**Order and rank.** {{ascending-order}} {{admin-rank}} Disabled rules still hold their slot, the same convention as [[zia.url-filtering.rule-order]]. {{rule-cap}} The provider docs state an API cap of 127 web DLP rules {{tf-docs-web-rule-cap-127}}, which does not match the generic 1,024-rule limit {{divergence:web-rule-cap-127-vs-1024}}. {{rule-label}} Terraform's ordering of DLP rules has its own behavior, covered in [[zia.terraform.rule-order]].
 
 **Choosing engines.** {{engine-selection}} {{no-engines-filter-mode}} {{match-only}} Some SDK docstrings describe `matchOnly` differently: [[zia.dlp.rule-wire-shape:match-only-docstring]].
 

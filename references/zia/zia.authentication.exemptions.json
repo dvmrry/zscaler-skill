@@ -181,6 +181,32 @@
         "shared-url-pool"
       ],
       "conditions": "Assumes the Auth Exemption URLs in Advanced settings and this list draw on the same pool; the pool can also be extended by subscription."
+    },
+    "python-exempt-list-refetch": {
+      "statement": "The Python SDK adds or removes exempt URLs with a POST to `/authSettings/exemptedUrls?action=ADD_TO_LIST` or `REMOVE_FROM_LIST` carrying `{\"urls\": [...]}`, then sleeps 2 seconds and returns a fresh `get_exempted_urls()` read, not the POST response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/authentication_settings.py",
+          "after": "def add_urls_to_exempt_list(",
+          "quotes": [
+            "/authSettings/exemptedUrls?action=ADD_TO_LIST",
+            "time.sleep(2)",
+            "return self.get_exempted_urls()"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/authentication_settings.py",
+          "after": "def delete_urls_from_exempt_list(",
+          "quotes": [
+            "/authSettings/exemptedUrls?action=REMOVE_FROM_LIST",
+            "time.sleep(2)",
+            "return self.get_exempted_urls()"
+          ]
+        }
+      ]
     }
   },
   "divergences": {

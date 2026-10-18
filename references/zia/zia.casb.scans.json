@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "id": "zia.casb.scans",
+  "title": "CASB scan schedules: states, historical data, stop and restart",
+  "aliases": [
+    "saas security scan configuration",
+    "scan schedule",
+    "scan initialized",
+    "scan stopped",
+    "historical scan",
+    "duplicate results after restart",
+    "data at rest scan"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.casb.tenants"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.insights-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.quarantine"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a schedule exists and shows Running for the tenant, since a configured policy inspects nothing without one.",
+      "uses": [
+        "schedule-needs-policy",
+        "scan-states"
+      ]
+    },
+    {
+      "do": "Whether a rule was added or edited while the scan ran, which moves the date after which content is active and leaves earlier content to the historical setting.",
+      "uses": [
+        "rule-edits-reset-date"
+      ]
+    },
+    {
+      "do": "Whether a restart over all data explains duplicate results, and use the Insights logs to restart from the stop date instead.",
+      "uses": [
+        "restart-options"
+      ]
+    },
+    {
+      "do": "Whether the question needs finding latency or the `scanAction` values, which no source states.",
+      "uses": [
+        "scan-latency",
+        "scan-action-encoding"
+      ]
+    }
+  ],
+  "claims": {
+    "schedule-needs-policy": {
+      "statement": "The Data at Rest Scanning DLP and Malware Detection policies inspect content only through a SaaS Security scan schedule; the policy rules are configured first, and the schedule then selects the Data at Rest Scanning policy for a tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-scan-configuration.md",
+          "quotes": [
+            "you must create SaaS Security scan schedules.",
+            "Before scheduling a scan, you must configure the DLP and Malware Detection policy",
+            "When configuring a scan schedule for a tenant, you must select the Data at Rest Scanning policy."
+          ]
+        }
+      ]
+    },
+    "schedule-columns": {
+      "statement": "A scan schedule is listed with its SaaS application tenant, a schedule criteria of policy and data to scan (the amount of historical data inspected), an optional description, a status, and start, stop, edit and delete actions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-scan-configuration.md",
+          "quotes": [
+            "Data to Scan: The amount of historical data inspected by the scan.",
+            "Actions: The buttons to start, stop, edit, or delete a scan."
+          ]
+        }
+      ]
+    },
+    "scan-states": {
+      "statement": "A scan shows one of three states: Scan Initialized (prerequisites verified), Running (initialization completed successfully, with the start time shown) and Scan Stopped (with the stop time and the reason shown).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-scan-configuration.md",
+          "quotes": [
+            "Scan Initialized: When a scan is initialized, the necessary prerequisites for the scan are verified and evaluated to ensure readiness.",
+            "Running: A scan starts running when the initialization is completed successfully.",
+            "Scan Stopped: When a scan stops, the date and time the scan stopped, and the reason are also displayed."
+          ]
+        }
+      ]
+    },
+    "initialized-is-not-started": {
+      "statement": "Scan Initialized does not indicate that scanning has started.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-scan-configuration.md",
+          "quotes": [
+            "Scan Initialized does not indicate the actual start of the scanning process."
+          ]
+        }
+      ]
+    },
+    "stop-flushes-queue": {
+      "statement": "Stopping a scan flushes its processing queue.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-scan-configuration.md",
+          "quotes": [
+            "Stopping a scan flushes the processing queue."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-saas-security-scan-schedules.md",
+          "quotes": [
+            "Stopping a scan causes it to flush its processing queue."
+          ]
+        }
+      ]
+    },
+    "restart-options": {
+      "statement": "After a stop, the scan can be restarted either over all historical data, which processes everything from the beginning and might duplicate results for data already inspected, or from the date at which the Insights logs show it stopped processing historical data, which skips data already processed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-scan-configuration.md",
+          "quotes": [
+            "This might result in duplicate results for data that the scan has already inspected.",
+            "First, analyze your SaaS Security Insights logs to find when the scan stopped processing your historical data.",
+            "configure the scan to inspect data starting from that date, so it ignores already processed data."
+          ]
+        }
+      ]
+    },
+    "active-vs-historical": {
+      "statement": "When a scan is started, its start date separates active content (created, modified, sent or received after that date) from historical content (before it); a historical file modified after the date counts as active, and starting later than a rule was created still uses the start date.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-saas-security-scan-schedules.md",
+          "quotes": [
+            "When you start a scan, the scan uses its start date to determine how much data is considered active or historic.",
+            "If a historic data file is modified after this date, it’s considered active.",
+            "If you start a scan on a date later than a policy rule’s creation date, the scan still uses its start date."
+          ]
+        }
+      ]
+    },
+    "rule-edits-reset-date": {
+      "statement": "Adding or editing a policy rule while a scan runs moves the active/historical date to the time of the change, and content the scan already processed becomes historical and is not covered by the new or edited rule; deleting a rule leaves the date unchanged.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-saas-security-scan-schedules.md",
+          "quotes": [
+            "If you add a new policy rule or edit an existing policy rule while the scan is on, the scan uses this new date to determine how much data is considered active or historic.",
+            "Deleting a policy rule does not change the date the scan uses for active and historical data.",
+            "The new or edited rule does not apply to the content that the scan already processed, and therefore this content is considered historical data."
+          ]
+        }
+      ]
+    },
+    "historical-options": {
+      "statement": "A started scan always inspects active content continuously; historical content is inspected only if configured, with All Data, Data Created or Modified After a chosen date, or New Data Only, and no more than 6 years back.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-saas-security-scan-schedules.md",
+          "quotes": [
+            "When you start a configured scan, it automatically inspects active content continuously.",
+            "You can inspect historical data from up to 6 years ago.",
+            "To ignore all historical content, select the New Data Only option when configuring a scan."
+          ]
+        }
+      ]
+    },
+    "actions-vary-by-app": {
+      "statement": "Every SaaS application tenant supports historical scanning and both DLP and Malware scanning, but only the Report action is the same across tenants; remove, quarantine, remove collaborators and similar actions depend on the application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-saas-security-scan-schedules.md",
+          "quotes": [
+            "All the SaaS application tenants support inspecting the historical data and support both DLP and Malware scanning.",
+            "Report action for DLP and malware remain same across all tenants, but other actions such as remove, quarantine, remove collaborators, etc. change based on the selected tenant for each application."
+          ],
+          "after": "To inspect all historical content, select the All Data option when configuring a scan."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "scan-action-encoding": {
+      "kind": "data",
+      "title": "What the integer `scanAction` on scan information means",
+      "status": "open",
+      "detail": "The scan information call returns `scanAction` as a 32-bit integer; neither the OpenAPI document (which declares no enum and no members for `scanInfo`) nor the Go SDK defines its values.",
+      "resolvable_by": [
+        "operator"
+      ],
+      "former_ids": [
+        "api-casb-03"
+      ],
+      "about": [
+        "zia/casb-tenants"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1scanInfo/get/responses/200/content/application~1json/schema/items/properties/scanAction",
+          "expect": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      ]
+    },
+    "scan-latency": {
+      "kind": "semantic",
+      "title": "How far behind an upload a finding can be, and whether webhooks shorten it",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"A file uploaded to a SaaS application does not trigger a finding until the next scan run reaches that file. ... findings can be hours to days behind the actual upload event. Webhooks reduce this gap for applications that support them (`tenantWebhookEnabled = true`), but webhook coverage is application-dependent.\" The scan and tenant articles state no latency and do not mention webhooks; only the `tenantWebhookEnabled` field exists.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "telling an operator how current a finding is"
+    }
+  }
+}

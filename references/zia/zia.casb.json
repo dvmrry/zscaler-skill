@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "id": "zia.casb",
+  "title": "ZIA CASB (SaaS Security API): scanning data at rest in sanctioned SaaS applications",
+  "aliases": [
+    "casb",
+    "api casb",
+    "saas security api",
+    "out-of-band casb",
+    "data at rest scanning",
+    "saas security",
+    "is this saas file scanned",
+    "casb quarantine"
+  ],
+  "binds": [
+    "zia/casb-dlp-rules",
+    "zia/casb-malware-rules",
+    "zia/casb-tenants"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.casb.scans"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.tenants"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.rule-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.dlp-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.malware-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.quarantine"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.insights-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.limits"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a scan schedule exists and runs for the tenant; without one no rule inspects anything.",
+      "uses": [
+        "no-scan-no-inspection",
+        "zia.casb.scans:schedule-needs-policy"
+      ]
+    },
+    {
+      "do": "Whether the tenant is Active and the rule category and tenant scope match the application.",
+      "uses": [
+        "zia.casb.tenants:tenant-states",
+        "zia.casb.rule-types:dlp-type-tokens"
+      ]
+    },
+    {
+      "do": "Whether the question assumes CASB is independent of inline inspection, which no source states.",
+      "uses": [
+        "traffic-path-and-ssl"
+      ]
+    }
+  ],
+  "claims": {
+    "scans-saas-data-at-rest": {
+      "statement": "The Data at Rest Scanning DLP policy discovers and protects sensitive data at rest in sanctioned SaaS applications, and the Malware Detection policy discovers threats to data at rest in them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "The SaaS Security Data at Rest Scanning Data Loss Prevention (DLP) policy allows you to create rules to discover and protect sensitive data at rest in sanctioned SaaS applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-malware-detection-policy.md",
+          "quotes": [
+            "The SaaS Security Data at Rest Scanning Malware Detection policy allows you to create rules to discover threats to data at rest in sanctioned SaaS applications."
+          ]
+        }
+      ]
+    },
+    "no-scan-no-inspection": {
+      "statement": "A configured rule inspects nothing until it is added to a scan schedule: the Zscaler service does not inspect content until a scan is configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "To inspect content based on a configured policy rule's specifications, you must add it to a scan schedule. The Zscaler service does not inspect content until you configure a scan."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-malware-detection-policy.md",
+          "quotes": [
+            "The Zscaler service does not inspect content until you configure a scan."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "traffic-path-and-ssl": {
+      "kind": "semantic",
+      "title": "Whether CASB scanning sees user traffic or depends on SSL Inspection",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The scan is out-of-band: no user traffic passes through the ZIA proxy path\", and \"API CASB does not require SSL Inspection ... works for SaaS applications that are SSL-pinned or whose traffic is excluded from ZIA inspection.\" None of the captured tenant, scan, DLP policy, malware policy or onboarding articles mention SSL, decryption, inline traffic or a proxy path.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "stating that CASB scanning is independent of inline inspection"
+    }
+  }
+}

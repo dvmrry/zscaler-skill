@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "id": "zia.sdk-go.legacy-retry-classification",
+  "title": "How the Go legacy ZIA client decides which 5xx to retry and what it returns",
+  "aliases": [
+    "go sdk retry 500 unexpected error",
+    "retry budget 100 to 10",
+    "IsRetryableServerError",
+    "giving up after attempts",
+    "go sdk 5xx retried"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.retries"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which SDK version the provider build carries, since the 5xx classification and the retry budget changed in the v3.8.4x releases.",
+      "uses": [
+        "legacy-retry-budget-ten",
+        "five-xx-classification"
+      ]
+    },
+    {
+      "do": "That a permanent 500 was not simply retried to exhaustion before its API message was shown.",
+      "uses": [
+        "five-xx-unparsed-bodies-retried",
+        "legacy-exhaustion-returns-response"
+      ]
+    },
+    {
+      "do": "That code reading a failed call's response body expects it to be consumed.",
+      "uses": [
+        "error-response-consumes-body"
+      ]
+    }
+  ],
+  "claims": {
+    "legacy-retry-budget-ten": {
+      "statement": "The Go legacy ZIA client's default retry budget is 10, lowered from 100; it can be overridden by the client configuration, a rate-limit option, or the `ZIA_CLIENT_RATE_LIMIT_MAX_RETRIES` environment variable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v2_config.go",
+          "quotes": [
+            "MaxNumOfRetries caps the retryablehttp inner retry loop. Lowered from 100",
+            "MaxNumOfRetries = 10",
+            "envconfig:\"ZIA_CLIENT_RATE_LIMIT_MAX_RETRIES\""
+          ]
+        }
+      ]
+    },
+    "five-xx-classification": {
+      "statement": "The legacy client's retry check hands every 5xx response to `IsRetryableServerError`. It never retries a status below 500 or 501, always retries 502, 503 and 504, retries any other 5xx whose body contains a transient marker (EDIT_LOCK_NOT_AVAILABLE, Resource Access Blocked, an org-barrier failure or a failed-precondition message), and otherwise refuses the retry only when the body is a JSON object with a nonempty string `code`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v2_client.go",
+          "quotes": [
+            "return errorx.IsRetryableServerError(resp), nil"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/errorx/errors.go",
+          "quotes": [
+            "if res.StatusCode < 500 || res.StatusCode == http.StatusNotImplemented {",
+            "502 / 503 / 504 are infrastructure signals, never API verdicts: retry them",
+            "for _, msg := range transientServerErrorMessages {",
+            "if code, ok := parsed.Code.(string); ok && code != \"\" {"
+          ]
+        }
+      ]
+    },
+    "five-xx-unparsed-bodies-retried": {
+      "statement": "A 500 with an empty, malformed, HTML, code-less, numeric-code, empty-code, nested-code or array body is still retried by the legacy client's check, so it spends the whole retry budget.",
+      "tier": "B",
+      "derived_from": [
+        "five-xx-classification"
+      ],
+      "conditions": "Holds because only a JSON object whose top-level `code` is a nonempty string is refused; the check is a client heuristic and not a ZIA error classification."
+    },
+    "legacy-exhaustion-returns-response": {
+      "statement": "When the legacy client's retries run out without a transport error, its error handler returns the last response rather than a bare giving-up error, and logs the status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v2_client.go",
+          "quotes": [
+            "if err == nil && resp != nil {",
+            "giving up after %d attempt(s); surfacing API response status %d"
+          ]
+        }
+      ]
+    },
+    "error-response-consumes-body": {
+      "statement": "On a non-success status the legacy request path builds an `ErrorResponse` with `CheckErrorInResponse`, which reads the whole response body and closes it, keeping the HTTP status and any parsed code and message but not a readable body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/errorx/errors.go",
+          "quotes": [
+            "bodyBytes, _ := io.ReadAll(res.Body)",
+            "defer res.Body.Close()"
+          ],
+          "after": "func CheckErrorInResponse(res *http.Response, respErr error) error {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v2_client.go",
+          "quotes": [
+            "errResp := errorx.CheckErrorInResponse(resp, fmt.Errorf(\"api responded with code: %d\", resp.StatusCode))"
+          ],
+          "after": "// Retry logic for the request"
+        }
+      ]
+    }
+  }
+}

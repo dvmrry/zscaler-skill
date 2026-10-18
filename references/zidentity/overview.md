@@ -222,7 +222,7 @@ configuration for every government tenant.
 - **Sync lag:** users added via SCIM or ZIdentity API do not immediately propagate to ZIA/ZPA policy. Expect minutes-to-hours propagation delay.
 - **SCIM deprovisioning propagation cadence:** whether SCIM deprovisioning propagates immediately to ZIA/ZPA or waits for the next sync is not documented. Treat as sync-cadence-bounded, not instant.
 - **MFA "required by default" can be disabled:** tenants with MFA disabled should be flagged as a posture regression in security audits.
-- **Legacy auth coexistence during migration:** tenants not yet migrated to ZIdentity still use product-specific auth paths. See [`../zia/api.md`](../zia/api.md) for the legacy ZIA path.
+- **Legacy auth coexistence during migration:** tenants not yet migrated to ZIdentity still use product-specific auth paths. See [`zia.api`](kb:zia.api) for the legacy ZIA path.
 
 ---
 

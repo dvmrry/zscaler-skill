@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "id": "zia.api.url-categories-wire",
+  "title": "URL category API behavior beyond the field list: delete, lookup and the keyword quota figure",
+  "aliases": [
+    "url category delete fails",
+    "urlLookup 100 urls",
+    "SecurityAlert urlLookup",
+    "stale keyword quota 30 per category",
+    "custom category val editable"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-categories.entry-format"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.rule-criteria"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a delete failed because the category is still referenced by a URL policy or NSS feed.",
+      "uses": [
+        "delete-blocked-when-referenced"
+      ]
+    },
+    {
+      "do": "Which keyword quota figure applies: the Ranges and Limitations table, not the older 30 and 1,000 in the API guide.",
+      "uses": [
+        "keyword-quota-figures"
+      ]
+    },
+    {
+      "do": "Whether a lookup batch stays within 100 URLs of at most 1,024 characters, and that custom classifications never appear in the answer.",
+      "uses": [
+        "urllookup-limits"
+      ]
+    }
+  ],
+  "claims": {
+    "delete-blocked-when-referenced": {
+      "statement": "Predefined URL categories cannot be deleted, and deleting a custom category that a URL policy or NSS feed uses fails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_URL_Categories_Using_API.txt",
+          "quotes": [
+            "You can delete custom URL and TLD categories, but predefined URL categories cannot be deleted.",
+            "the custom category you are trying to delete is being used by a URL policy or NSS feed, the request fails."
+          ]
+        }
+      ]
+    },
+    "urllookup-limits": {
+      "statement": "POST /urlLookup takes up to 100 URLs per request and each URL may be at most 1,024 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_URL_Categories_Using_API.txt",
+          "quotes": [
+            "You can look up to 100 URLs maximum per request, and a URL cannot exceed 1024 characters."
+          ]
+        }
+      ]
+    },
+    "urllookup-security-alert": {
+      "statement": "The /urlLookup response carries a SecurityAlert field whose values include, but are not limited to, a published list such as PHISHING, BOTNET, MALWARE_SITE and PAGE_RISK_INDEX.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_URL_Categories_Using_API.txt",
+          "quotes": [
+            "The /urlLookup endpoint returns a field called SecurityAlert whose possible values include, but",
+            "are not limited to, the following:"
+          ]
+        }
+      ]
+    },
+    "urllookup-custom-omitted": {
+      "statement": "Custom URL classification is not returned by a lookup, and URLs not in a predefined category come back as MISCELLANEOUS_OR_UNKNOWN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_URL_Categories_Using_API.txt",
+          "quotes": [
+            "Custom URL classification is not returned by this request.",
+            "returns a value of MISCELLANEOUS_OR_UNKNOWN."
+          ]
+        }
+      ]
+    },
+    "keyword-quota-ranges": {
+      "statement": "The Ranges and Limitations article allows 256 custom keywords per category, with a maximum of 2,048 across all categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Custom Keywords per Category | 256 keywords | There can be a maximum of 2,048 custom keywords across all categories. |"
+          ]
+        }
+      ]
+    },
+    "keyword-quota-pdf": {
+      "statement": "The URL Categories API guide says up to 30 keywords per category and up to 1,000 across all categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_URL_Categories_Using_API.txt",
+          "quotes": [
+            "can add up to 30 keywords per category, and up to 1,000 across all categories."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "server-fields-on-write": {
+      "kind": "semantic",
+      "title": "What the API does with server-assigned category fields sent on update",
+      "status": "open",
+      "detail": "Unverified legacy statement: The category model carries val, editable, customCategory and urlKeywordCounts, and the earlier reference said the SDK echoes them on PUT while the API ignores them on write; no vendored source states how the API treats them when sent.",
+      "blocks": "Whether a read-modify-write of a category can send these fields back safely.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  },
+  "divergences": {
+    "keyword-quota-figures": {
+      "summary": "The URL Categories API guide and the Ranges and Limitations article give different keyword quotas.",
+      "positions": [
+        {
+          "says": "Up to 30 keywords per category and up to 1,000 across all categories.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "Configuring_URL_Categories_Using_API.txt",
+            "quotes": [
+              "can add up to 30 keywords per category, and up to 1,000 across all categories."
+            ]
+          }
+        },
+        {
+          "says": "256 keywords per category and a maximum of 2,048 across all categories.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.md",
+            "quotes": [
+              "| Custom Keywords per Category | 256 keywords | There can be a maximum of 2,048 custom keywords across all categories. |"
+            ]
+          }
+        }
+      ],
+      "impact": "Planning keyword-heavy categories on the PDF figure under-counts the capacity the limits article gives; the limits article is the maintained table."
+    }
+  }
+}

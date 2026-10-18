@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.dlp-resources",
+  "title": "Terraform DLP web rule and email profile resources",
+  "aliases": [
+    "zia_dlp_web_rules sub_rules",
+    "dlp web rule url category val",
+    "zia_email_profile early access",
+    "destroy parent dlp rule"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.url-categories"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-resources"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.rules"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a DLP rule's URL category is referenced by `val`, not by name.",
+      "uses": [
+        "category-by-val"
+      ]
+    },
+    {
+      "do": "Whether a destroy plan removes a parent DLP rule, which takes its sub-rules with it.",
+      "uses": [
+        "parent-destroy-removes-subrules"
+      ]
+    }
+  ],
+  "claims": {
+    "category-by-val": {
+      "statement": "The DLP web rule documentation examples reference URL categories through the category's numeric `val` attribute.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_dlp_web_rules.md",
+          "quotes": [
+            "id = [ data.zia_url_categories.existing_category.val ]",
+            "id = [ zia_url_categories.new_category.val ]"
+          ]
+        }
+      ]
+    },
+    "parent-destroy-removes-subrules": {
+      "statement": "Destroying a parent DLP web rule also destroys all its sub-rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_dlp_web_rules.md",
+          "quotes": [
+            "Destroying a parent rule will also destroy all sub-rules."
+          ]
+        }
+      ]
+    },
+    "subrules-separate-resources": {
+      "statement": "Exception (sub-) rules are separate `zia_dlp_web_rules` resources that set `parent_rule` to the parent's numeric rule ID; the parent's `sub_rules` attribute is computed after apply.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_dlp_web_rules.md",
+          "quotes": [
+            "Exception (sub-) rules are **separate** `zia_dlp_web_rules` resources.",
+            "The parent’s `sub_rules` attribute is **computed** after apply"
+          ]
+        }
+      ]
+    },
+    "email-profile-early-access": {
+      "statement": "`zia_email_profile` is documented as an Early Access feature.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_email_profile.md",
+          "quotes": [
+            "This an Early Access feature."
+          ]
+        }
+      ]
+    }
+  }
+}

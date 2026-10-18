@@ -155,7 +155,8 @@
             "close(doneCh)"
           ]
         }
-      ]
+      ],
+      "conditions": "Established by reading the provider source at v4.8.7, which copies `doneCh` while `rules.Lock()` is held. Ordinary unit coverage is not race-detector proof, and no race-detector run is recorded here."
     },
     "join-after-final-snapshot": {
       "statement": "A registration decides whether to join a cycle with a non-blocking receive on the done channel under the registry lock. The channel is closed by the goroutine only after `reorderAll` has returned, and the worker's clean exit returns straight after a pass, without re-reading the registry under the lock. So a rule registered after the final pass took its registry snapshot, and before the channel closes, finds an open channel, starts no new worker, and is waited on by a cycle that never evaluated it.",
@@ -916,6 +917,20 @@
         {
           "status": "unfiled",
           "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "oscillation-breaker-six-passes": {
+      "statement": "The reorder helper stops after six consecutive clean passes (`maxNonImprovingPutTicks = 6`), meaning passes that issue PUTs without improving the best at-target count and have no skipped rules and no PUT errors; a changed registration set, a skip or a PUT error resets the count, logs the contested rules and returns so the apply can complete; the provider comment says that without the breaker the cycle livelocks until Terraform's own context deadline.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "const maxNonImprovingPutTicks = 6",
+            "// the cycle livelocks until terraform's own context deadline kills it"
+          ]
         }
       ]
     }

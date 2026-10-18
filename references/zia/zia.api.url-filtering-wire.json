@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "id": "zia.api.url-filtering-wire",
+  "title": "URL Filtering rule fields where the Python SDK, Terraform provider and help disagree",
+  "aliases": [
+    "size_quota KB or MB",
+    "url filtering isolate validation",
+    "cbi_profile required isolate",
+    "description diff suppress",
+    "ciparule vs enable_cipa_compliance",
+    "ISOLATE missing from python action",
+    "url filtering get cbiProfile missing"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.service-defects"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which unit a size quota is in before trusting a migrated value: help says MB, the Terraform schema text and the Python docstring say KB.",
+      "uses": [
+        "size-quota-unit"
+      ]
+    },
+    {
+      "do": "Whether an ISOLATE rule meets the provider's checks, which are listed in the Terraform subject.",
+      "uses": [
+        "zia.terraform.url-filtering-rules:isolate-validation"
+      ]
+    },
+    {
+      "do": "Whether a plan-time description diff is whitespace only, since the provider suppresses equal-after-normalizing text.",
+      "uses": [
+        "tf-description-diff-suppression",
+        "description-server-normalized"
+      ]
+    }
+  ],
+  "claims": {
+    "per-rule-cipa-flag": {
+      "statement": "A URL Filtering rule has its own ciparule boolean, and the advanced URL filter and cloud app settings carry a separate enable_cipa_compliance setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_filtering.py",
+          "quotes": [
+            "ciparule (bool): The CIPA compliance rule is enabled if this is set to `True`. Defaults to `False`."
+          ],
+          "after": "def add_rule(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_filtering.py",
+          "quotes": [
+            "if kwargs.get(\"enable_cipa_compliance\") is True:"
+          ]
+        }
+      ]
+    },
+    "tf-action-values": {
+      "statement": "The Terraform provider accepts BLOCK, CAUTION, ALLOW and ISOLATE as a URL Filtering rule action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "quotes": [
+            "\"BLOCK\",",
+            "\"CAUTION\",",
+            "\"ALLOW\",",
+            "\"ISOLATE\","
+          ],
+          "after": "Description: \"Action taken when traffic matches rule criteria\","
+        }
+      ]
+    },
+    "python-action-values": {
+      "statement": "The Python SDK documents the rule action as ANY, NONE, BLOCK, CAUTION, ALLOW or ICAP_RESPONSE, without ISOLATE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_filtering.py",
+          "quotes": [
+            "`ANY`, `NONE`, `BLOCK`, `CAUTION`, `ALLOW` and `ICAP_RESPONSE`"
+          ],
+          "after": "def add_rule(self, **kwargs)"
+        }
+      ]
+    },
+    "tf-isolate-get-workaround": {
+      "statement": "The provider works around an API bug in which a GET of an ISOLATE rule returns cbiProfileId but not the cbiProfile object, by keeping the profile from state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "quotes": [
+            "Workaround for API bug: GET does not return the cbiProfile object for ISOLATE rules,",
+            "Preserve the cbi_profile from state when the API doesn't return it."
+          ]
+        }
+      ]
+    },
+    "size-quota-help-mb": {
+      "statement": "The console help gives the URL Filtering size quota minimum as 10 MB and maximum as 100,000 MB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": [
+            "The minimum value you can enter is 10 MB and the maximum value is 100,000 MB."
+          ],
+          "after": "Isolate: Select to isolate all the traffic that matches the URL filtering rule through a remote"
+        }
+      ]
+    },
+    "size-quota-code-kb": {
+      "statement": "The Terraform schema description says KB, but the provider validates 10-100000 as MB (as its docs say) and converts to KB (x1024) before sending; the API wire unit is KB, per the Python docstring.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "quotes": [
+            "func convertAndValidateSizeQuota(sizeQuotaMB int) (int, error) {",
+            "// Convert MB to KB",
+            "sizeQuotaKB := sizeQuotaMB * 1024"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_url_filtering_rules.md",
+          "quotes": [
+            "Size quota in MB beyond which the URL Filtering rule is applied."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "quotes": [
+            "Size quota in KB beyond which the URL Filtering rule is applied."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_filtering.py",
+          "quotes": [
+            "size_quota (str): Size quota in KB for applying the URL Filtering rule."
+          ],
+          "after": "def add_rule(self, **kwargs)"
+        }
+      ]
+    },
+    "tf-description-diff-suppression": {
+      "statement": "The provider suppresses a diff on a URL Filtering rule's description when the old and new text are equal after trimming each line and normalizing the trailing newline.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "quotes": [
+            "DiffSuppressFunc: noChangeInMultiLineText,"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/validator.go",
+          "quotes": [
+            "// Ensure uniform indentation by trimming each line",
+            "return oldTextNormalized == newTextNormalized"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "description-server-normalized": {
+      "kind": "semantic",
+      "title": "Whether the ZIA API rewrites a rule description's whitespace and line endings",
+      "status": "open",
+      "detail": "Unverified legacy statement: The earlier reference said what is PUT as a URL Filter rule description is not what GET returns because the server normalizes whitespace and line endings; the provider's diff suppression is consistent with that but no vendored source shows the server doing it.",
+      "blocks": "Whether a description round trip shows false drift from the server, or only from the provider.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  },
+  "divergences": {
+    "size-quota-unit": {
+      "summary": "The Terraform schema description labels size_quota as KB, but the provider validates and accepts it as MB, as its documentation and the console help say, and converts to KB for the wire.",
+      "positions": [
+        {
+          "says": "size_quota is in KB, validated between 10 and 100,000 (schema description).",
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/resource_zia_url_filtering_rules.go",
+            "quotes": [
+              "Size quota in KB beyond which the URL Filtering rule is applied."
+            ]
+          }
+        },
+        {
+          "says": "The provider validates the value as MB (10 to 100,000) and multiplies by 1024 to send KB.",
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/utils.go",
+            "quotes": [
+              "size_quota must be between %d MB and %d MB",
+              "sizeQuotaKB := sizeQuotaMB * 1024"
+            ]
+          }
+        },
+        {
+          "says": "The provider documentation says the size quota is in MB.",
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_url_filtering_rules.md",
+            "quotes": [
+              "Size quota in MB beyond which the URL Filtering rule is applied."
+            ]
+          }
+        }
+      ],
+      "impact": "HCL values are megabytes; the schema label is stale. Reading the label as KB, or treating the Python SDK's KB value as an HCL value, is off by a factor of 1024."
+    },
+    "action-values-differ": {
+      "summary": "The Python SDK's documented action values omit ISOLATE, which the Terraform provider accepts, while the SDK adds ANY, NONE and ICAP_RESPONSE.",
+      "positions": [
+        {
+          "says": "Actions are ANY, NONE, BLOCK, CAUTION, ALLOW and ICAP_RESPONSE.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/url_filtering.py",
+            "quotes": [
+              "`ANY`, `NONE`, `BLOCK`, `CAUTION`, `ALLOW` and `ICAP_RESPONSE`"
+            ],
+            "after": "def add_rule(self, **kwargs)"
+          }
+        },
+        {
+          "says": "Actions are BLOCK, CAUTION, ALLOW and ISOLATE.",
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/resource_zia_url_filtering_rules.go",
+            "quotes": [
+              "\"ISOLATE\","
+            ],
+            "after": "Description: \"Action taken when traffic matches rule criteria\","
+          }
+        }
+      ],
+      "impact": "A tool that validates actions against the Python docstring would reject an ISOLATE rule that exists in the tenant, and one that validates against the provider would reject ICAP_RESPONSE."
+    }
+  }
+}

@@ -8,4 +8,4 @@
 
 {{engine-limits}}
 
-Terraform's handling of engines and rules has its own defects; see [[zia.terraform.field-fidelity]].
+Terraform's handling of engines and rules has its own defects; see [[zia.terraform.field-fidelity]]. Managing custom engines through Terraform needs the write methods enabled by Support {{tf-custom-engine-writes-need-support}}.

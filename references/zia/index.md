@@ -39,7 +39,7 @@ Entry point for Zscaler Internet Access (ZIA) questions. Pick the topic that mat
 | **Proxy modes — Explicit vs Transparent destination resolution** — how the Service Edge identifies the destination host once traffic arrives; CONNECT hostname (explicit) vs SNI / cert fallback (transparent); forwarding-method-to-proxy-mode mapping table; IP-category evaluation difference and its SSL bypass implications | [`zia.proxy-mode`](kb:zia.proxy-mode) | draft |
 | **Forwarding Control, Dedicated IP/BYOIP + Source IP Anchoring (SIPA)** — egress routing after inspection (ZPA / DIRECT / DROP / PROXYCHAIN), Support-assisted customer-owned Dedicated IP prefixes, SIPA mechanics (connector-as-egress for IP allowlisting), ZPA Gateway config, SIPA Direct DR mode, Z-Tunnel-1.0 gating, ZPA-side prerequisites | [`zia.forwarding-control`](kb:zia.forwarding-control) | draft |
 | **Private Service Edge (PSE)** — on-prem cluster architecture (N+1, LB active-passive/CARP, DSR), three cluster tiers (PSE 3 / PSE 5 Integrated LB / PSE 5 Dedicated LB with throughput ceilings), IP/NAT requirements (public IPs required, 1:1 NAT disables IPv6), open-proxy risk when adding locations, ZDX dependency for Health Dashboard | [`zia.private-service-edge`](kb:zia.private-service-edge) | draft |
-| ZIA API — endpoints, authentication, response shapes relevant to this skill | [`./api.md`](./api.md) | draft |
+| ZIA API — endpoints, authentication, response shapes relevant to this skill | [`zia.api`](kb:zia.api) | draft |
 | **SaaS app + browser quirks** — root-cause catalog (cert pinning / CA-bundle pinning / auth-bypass / source-IP+CA / CDN bypass anti-pattern / QUIC / tenant-restriction silent break). Operator-facing; cross-links to ssl-inspection, tenant-profiles, source-ip-anchoring | [`zia.saas-apps`](kb:zia.saas-apps) | draft |
 | **DNS Control** — separate policy module inside Firewall; three predefined rules (UCaaS One Click + ZPA Resolver for Locations + ZPA Resolver for Road Warrior with rule-order requirement); DoH handling; DNS tunnel detection; NROD 2–36 hour categorization latency | [`zia.dns-control`](kb:zia.dns-control) | draft |
 | **Workload Groups** — policy-scoping primitive used by URL Filtering / Firewall / SSL Inspection / DLP / Traffic Capture rules; tag-based expression model (`tagType` + `operator` + tag key/value); SDK + TF-derived (help portal page non-functional) | [`zia.workload-groups`](kb:zia.workload-groups) | draft |
@@ -49,11 +49,11 @@ Entry point for Zscaler Internet Access (ZIA) questions. Pick the topic that mat
 | **VSE clusters** — Virtual Service Edge HA grouping; cluster membership; traffic distribution across VSE VMs; failover behavior | [`zia.virtual-service-edge.clusters`](kb:zia.virtual-service-edge.clusters) | draft |
 | **Backup and Restore** — replacement semantics, 12-point retention, golden restore point behavior, and the EDM/IDM DLP exclusion | [`zia.backup-restore`](kb:zia.backup-restore) | draft |
 | **IoT Report** — device-type classification and traffic visibility; IoT policy scoping; predefined IoT location groups | [`zia.iot`](kb:zia.iot) | draft |
-| **API CASB** — out-of-band SaaS app scanning via OAuth/API (not inline); Insights logs; SaaS Security Posture; distinct from inline SSL-inspection CASB path | [`./api-casb.md`](./api-casb.md) | draft |
+| **API CASB** — out-of-band SaaS app scanning via OAuth/API (not inline); Insights logs; SaaS Security Posture; distinct from inline SSL-inspection CASB path | [`zia.casb`](kb:zia.casb) | draft |
 | **SCIM provisioning** — ZIA-specific SCIM behavior; group-to-department mapping; attribute constraints; SCIM endpoint differences from ZPA | [`zia.scim`](kb:zia.scim) | draft |
 | **Admin audit logs** — ZIA admin change events; 6-month retention; available fields; query approach | [`zia.audit-logs`](kb:zia.audit-logs) | draft |
-| **ZIA SDK** — service and method catalog (`client.zia.*`); Python and Go coverage; pagination helpers; activation wrappers | [`./sdk.md`](./sdk.md) | draft |
-| **ZIA Terraform** — `zia_*` resource catalog; provider configuration; activation hook; known resource gaps | [`./terraform.md`](./terraform.md) | draft |
+| **ZIA SDK** — service and method catalog (`client.zia.*`); Python and Go coverage; pagination helpers; activation wrappers | [`zia.sdk-python`](kb:zia.sdk-python) | draft |
+| **ZIA Terraform** — `zia_*` resource catalog; provider configuration; activation hook; known resource gaps | [`zia.terraform`](kb:zia.terraform) | draft |
 
 ## Log schemas
 
@@ -93,9 +93,9 @@ Field-and-endpoint-level catalogs derived from Zscaler SDKs and Postman collecti
 
 | Schema | File | Status |
 |---|---|---|
-| API endpoint inventory — full ZIA REST endpoint catalog with request/response shapes | [`./api-schemas.md`](./api-schemas.md) | draft |
-| Postman-collection-derived schemas — extracted struct shapes and parameter types from the OneAPI Postman collection | [`./api-postman-schemas.md`](./api-postman-schemas.md) | draft |
-| API source divergences — where the Go SDK, Python SDK, and MCP tooling disagree (e.g. Cloud App Control per-(rule, app, action) atomic validation) | [`./api-divergences.md`](./api-divergences.md) | draft |
+| API endpoint inventory — full ZIA REST endpoint catalog with request/response shapes | [`zia.api`](kb:zia.api) | draft |
+| Postman-collection-derived schemas — extracted struct shapes and parameter types from the OneAPI Postman collection | [`zia.api`](kb:zia.api) | draft |
+| API source divergences — where the Go SDK, Python SDK, and MCP tooling disagree (e.g. Cloud App Control per-(rule, app, action) atomic validation) | [`zia.api`](kb:zia.api) | draft |
 
 ## When the question spans multiple topics
 

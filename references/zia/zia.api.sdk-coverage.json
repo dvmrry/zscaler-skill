@@ -1,0 +1,638 @@
+{
+  "schema_version": 1,
+  "id": "zia.api.sdk-coverage",
+  "title": "Which ZIA services the Go and Python SDKs cover, and where",
+  "aliases": [
+    "go sdk only zia",
+    "python sdk missing zia",
+    "scim_api go",
+    "device groups write python",
+    "email_profiles",
+    "advancedthreatsettings vs atp_policy",
+    "cross sdk parity",
+    "go sdk parity",
+    "python only service",
+    "go sdk missing zia service",
+    "sdk changelog incomplete",
+    "does go sdk support risk profiles",
+    "go sdk sandbox rules",
+    "go sdk casb dlp rules",
+    "go sdk dns gateways",
+    "go sdk custom file types",
+    "go sdk dedicated ip gateways",
+    "go sdk gov cloud",
+    "zscaler-sdk-go zidentitygov",
+    "legacy client missing accessor",
+    "ZIAService vs legacy client",
+    "attribute error client.zia endpoint_dlp_rules",
+    "outbound email dlp python list",
+    "http header profile ids url rule",
+    "python unified ziaservice",
+    "legacy client accessor",
+    "web_dlp_global_options",
+    "shadow it exportCsv entity",
+    "legacy endpoints notes",
+    "list_vips where",
+    "idmprofile path",
+    "list_vips_by_datacenter",
+    "where are the VIP calls",
+    "list_dlp_idm_profiles"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs.event-log-report"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.request-conventions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.client-errors-and-accessors"
+    }
+  ],
+  "claims": {
+    "go-scim-service": {
+      "statement": "The Go SDK's ZIA SCIM calls take a distinct ScimZIAService client rather than the generic service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/scim_api/scim_user_api.go",
+          "quotes": [
+            "func GetUser(ctx context.Context, service *zscaler.ScimZIAService, userID string) (*SCIMUser, *http.Response, error) {"
+          ]
+        }
+      ]
+    },
+    "go-devicegroups-read-only": {
+      "statement": "Every function in the Go devicegroups package is a read: lookups of device groups and devices by name, model, owner, OS type or version, and list-all calls; the package defines no create, update or delete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/devicegroups/devicegroups.go",
+          "quotes": [
+            "func GetDeviceGroupByName(ctx context.Context, service *zscaler.Service, deviceGroupName string) (*DeviceGroups, error) {",
+            "func GetAllDevicesGroups(ctx context.Context, service *zscaler.Service) ([]DeviceGroups, error) {",
+            "func GetAllDevices(ctx context.Context, service *zscaler.Service) ([]Devices, error) {"
+          ]
+        }
+      ]
+    },
+    "python-devicegroups-read-only": {
+      "statement": "The Python SDK reads device groups through list_device_groups on device_management and on a separate device_groups client, plus device listings, and likewise has no group create, update or delete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/device_management.py",
+          "quotes": [
+            "Returns the list of ZIA Device Groups."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/device_groups.py",
+          "quotes": [
+            "def list_device_groups(self, query_params=None)",
+            "def list_device_groups_devices(self, query_params=None)",
+            "def list_device_groups_devices_lite(self, query_params=None)"
+          ]
+        }
+      ]
+    },
+    "email-profiles-both": {
+      "statement": "Email profiles are covered by both SDKs: Python has an EmailProfilesAPI client with list_email_profiles, and Go has an email_profiles package.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/email_profiles.py",
+          "quotes": [
+            "class EmailProfilesAPI(APIClient):",
+            "def list_email_profiles(self, query_params: Optional[dict] = None) -> APIResult[List[EmailProfiles]]:"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/email_profiles/email_profiles.go",
+          "quotes": [
+            "func GetEmailProfileByName(ctx context.Context, service *zscaler.Service, profileName string) (*EmailProfiles, error) {"
+          ]
+        }
+      ]
+    },
+    "atp-naming": {
+      "statement": "Advanced threat protection is the Go package advancedthreatsettings, with GetAdvancedThreatSettings, GetMaliciousURLs and GetSecurityExceptions, and the Python module atp_policy with ATPPolicyAPI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go",
+          "quotes": [
+            "func GetAdvancedThreatSettings(ctx context.Context, service *zscaler.Service) (*AdvancedThreatSettings, error) {",
+            "func GetMaliciousURLs(ctx context.Context, service *zscaler.Service) (*MaliciousURLs, error) {",
+            "func GetSecurityExceptions(ctx context.Context, service *zscaler.Service) (*SecurityExceptions, error) {"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/atp_policy.py",
+          "quotes": [
+            "class ATPPolicyAPI(APIClient):"
+          ]
+        }
+      ]
+    },
+    "go-has-python-catalog-services": {
+      "statement": "The Go SDK has packages for ZIA services the legacy catalog marked Python-only: risk profiles, sandbox rules, sub-clouds, extranet, ZPA gateways, proxies and dedicated IP gateways, proxy gateways, IPv6 configuration and NSS servers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudapplications/risk_profiles/risk_profiles.go",
+          "quotes": [
+            "riskProfilesEndpoint = \"/zia/api/v1/riskProfiles\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go",
+          "quotes": [
+            "sandboxEndpoint = \"/zia/api/v1/sandboxRules\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/trafficforwarding/sub_clouds/sub_clouds.go",
+          "quotes": [
+            "subCloudsEndpoint = \"/zia/api/v1/subclouds\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/trafficforwarding/extranet/extranet.go",
+          "quotes": [
+            "extranetEndpoint = \"/zia/api/v1/extranet\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/forwarding_control_policy/zpa_gateways/zpa_gateways.go",
+          "quotes": [
+            "zpaGatewaysEndpoint = \"/zia/api/v1/zpaGateways\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/forwarding_control_policy/proxies/proxies.go",
+          "quotes": [
+            "proxiesEndpoint = \"/zia/api/v1/proxies\"",
+            "ipGatewayEndpoint = \"/zia/api/v1/dedicatedIPGateways/lite\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/forwarding_control_policy/proxy_gateways/proxy_gateways.go",
+          "quotes": [
+            "proxyGatewaysEndpoint = \"/zia/api/v1/proxyGateways\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/trafficforwarding/ipv6_config/ipv6_config.go",
+          "quotes": [
+            "ipv6configEndpoint = \"/zia/api/v1/ipv6config\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudnss/nss_servers/nss_servers.go",
+          "quotes": [
+            "nssServersEndpoint = \"/zia/api/v1/nssServers\""
+          ]
+        }
+      ]
+    },
+    "python-config-audit-no-go-counterpart": {
+      "statement": "The Python SDK reads the System Audit Report at `/configAudit`, and a search of the Go ZIA tree at the pin finds no service for `configAudit` or the system audit report.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/system_audit.py",
+          "quotes": [
+            "/configAudit"
+          ]
+        }
+      ]
+    },
+    "go-changelog-lists-only-actions": {
+      "statement": "The Go v3.8.41 release notes list only `GET /emailDlpRules/actions` for Outbound Email DLP, while the Go package also implements get, lite, create, update, delete and list for `/emailDlpRules`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added the following new ZIA Outbound Email DLP endpoint",
+            "`GET /emailDlpRules/actions` Retrieves the supported Outbound Email DLP rule actions"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go",
+          "quotes": [
+            "func GetLite(ctx context.Context, service *zscaler.Service) ([]OutboundEmailDlp, error) {",
+            "func Create(ctx context.Context, service *zscaler.Service, dlpRule *OutboundEmailDlp)",
+            "func Delete(ctx context.Context, service *zscaler.Service, profileID int)"
+          ]
+        }
+      ]
+    },
+    "python-changelog-lists-only-actions": {
+      "statement": "The Python v1.9.39 release notes likewise list only the Outbound Email DLP actions download, while the module implements `/emailDlpRules` and its lite and per-rule paths.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added the following new ZIA Outbound Email DLP endpoint",
+            "`GET /emailDlpRules/actions` Retrieves the supported Outbound Email DLP rule actions"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/outbound_email_dlp_rules.py",
+          "quotes": [
+            "/emailDlpRules/lite"
+          ]
+        }
+      ]
+    },
+    "ips-categories-in-code": {
+      "statement": "Both SDKs implement a read of `/ipsCategories`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
+          "quotes": [
+            "ipsCategoriesEndpoint = \"/zia/api/v1/ipsCategories\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/ips_categories.py",
+          "quotes": [
+            "/ipsCategories"
+          ]
+        }
+      ]
+    },
+    "go-casb-and-custom-file-type-packages": {
+      "statement": "The Go SDK has packages for the SaaS Security CASB DLP rules (`/casbDlpRules`), CASB malware rules (`/casbMalwareRules`), custom file types (`/customFileTypes`) and DNS gateways (`/dnsGateways`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/saas_security_api/casb_dlp_rules/casb_dlp_rules.go",
+          "quotes": [
+            "casbDlpRulesEndpoint = \"/zia/api/v1/casbDlpRules\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/saas_security_api/casb_malware_rules/casb_malware_rules.go",
+          "quotes": [
+            "casbMalwareRulesEndpoint = \"/zia/api/v1/casbMalwareRules\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/filetypecontrol/custom_file_types/custom_file_types.go",
+          "quotes": [
+            "customFileTypeCountEndpoint = \"/zia/api/v1/customFileTypes/count\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/dns_gateways/dns_gateways.go",
+          "quotes": [
+            "dnsGatewaysEndpoint = \"/zia/api/v1/dnsGateways\""
+          ]
+        }
+      ]
+    },
+    "go-dlp-resource-packages": {
+      "statement": "The Go DLP services include separate packages for ICAP servers (`/icapServers`), Incident Receiver servers (`/incidentReceiverServers`) and IDM profiles (`/idmprofile`, plus a `/lite` variant).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_icap_servers/dlp_icap_server.go",
+          "quotes": [
+            "dlpIcapServersEndpoint = \"/zia/api/v1/icapServers\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_incident_receiver_servers/dlp_incident_receiver_servers.go",
+          "quotes": [
+            "dlpIncidentReceiverEndpoint = \"/zia/api/v1/incidentReceiverServers\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_idm_profiles/dlp_idm_profiles.go",
+          "quotes": [
+            "dlpIDMProfileEndpoint = \"/zia/api/v1/idmprofile\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_idm_profile_lite/dlp_idm_profile_lite.go",
+          "quotes": [
+            "dlpIDMProfileLiteEndpoint = \"/zia/api/v1/idmprofile/lite\""
+          ]
+        }
+      ]
+    },
+    "go-dedicated-ip-lite-only": {
+      "statement": "Go reads dedicated IP gateways only through `GetDedicatedIPGWLite` in the forwarding-control `proxies` package, at `/dedicatedIPGateways/lite`; there is no standalone Go package for them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/forwarding_control_policy/proxies/proxies.go",
+          "quotes": [
+            "ipGatewayEndpoint = \"/zia/api/v1/dedicatedIPGateways/lite\"",
+            "func GetDedicatedIPGWLite(ctx context.Context, service *zscaler.Service) ([]DedicatedIPGateways, error) {"
+          ]
+        }
+      ]
+    },
+    "go-gov-cloud-routing": {
+      "statement": "With cloud set to `gov` or `govus` (case-insensitive) the Go OneAPI client sends OAuth to the `zidentitygov.net` or `zidentitygov.us` domain under the vanity domain, and API calls to `https://api.zscalergov.net` or `https://api.zscalergov.us`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "\"gov\":   \"zidentitygov.net\",",
+            "\"govus\": \"zidentitygov.us\",",
+            "\"gov\":   \"https://api.zscalergov.net\",",
+            "\"govus\": \"https://api.zscalergov.us\","
+          ]
+        }
+      ]
+    },
+    "july-services-unified-only": {
+      "statement": "The unified `ZIAService` registers the July 2026 additions, such as DNS application groups, endpoint applications, Endpoint DLP rules, Outbound Email DLP rules, IPS categories and NSS collectors. The legacy ZIA client registers `web_dlp_global_options` from that batch, and a search of `legacy.py` at the pin finds no accessor for the other twelve.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/zia_service.py",
+          "quotes": [
+            "def dns_application_groups(self) -> DNSApplicationGroupsAPI:",
+            "def endpoint_applications(self) -> EndpointApplicationsAPI:",
+            "def endpoint_dlp_rules(self) -> EndpointDLPRulesAPI:",
+            "def outbound_email_dlp_rules(self) -> OutboundEmailDLPRulesAPI:",
+            "def ips_categories(self) -> IpsCategoriesAPI:",
+            "def nss_collectors(self) -> NssCollectorsAPI:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/legacy.py",
+          "quotes": [
+            "def web_dlp_global_options(self) -> WebDlpGlobalOptionsAPI:"
+          ]
+        }
+      ]
+    },
+    "july-lists-single-page": {
+      "statement": "The DNS application group, endpoint application and Outbound Email DLP rule list methods each send one request and build their results from `get_results()`, without a loop over further pages.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/dns_application_groups.py",
+          "quotes": [
+            "for item in response.get_results():"
+          ],
+          "after": "def list_groups("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/endpoint_applications.py",
+          "quotes": [
+            "for item in response.get_results():"
+          ],
+          "after": "def list_applications("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/outbound_email_dlp_rules.py",
+          "quotes": [
+            "for item in response.get_results():"
+          ],
+          "after": "def list_rules("
+        }
+      ]
+    },
+    "url-rule-header-profile-ids": {
+      "statement": "The Python URL filtering rule create and update calls document `http_header_action_profile_ids` and `http_header_profile_ids` as the HTTP header action profiles and header profiles a rule applies to.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_filtering.py",
+          "quotes": [
+            "http_header_action_profile_ids (list): The HTTP header action profiles that this rule applies to.",
+            "http_header_profile_ids (list): The HTTP header profiles that this rule applies to."
+          ],
+          "after": "def add_rule(self, **kwargs)"
+        }
+      ]
+    },
+    "shadow-it-entity-literal": {
+      "statement": "The Go Shadow IT CSV export by entity accepts only the literal USER or LOCATION as the entity path segment and rejects any other value before sending.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/shadowitreport/shadowit_report.go",
+          "quotes": [
+            "if entity != \"USER\" && entity != \"LOCATION\" {",
+            "invalid entity value; must be 'USER' or 'LOCATION'"
+          ]
+        }
+      ]
+    },
+    "vip-calls-on-gre-api": {
+      "statement": "The VIP listing calls `list_vips`, `list_vip_group_by_dc` and `list_vips_recommended` are on `TrafficForwardingGRETunnelAPI`; `TrafficDatacentersAPI` has `list_datacenters`, which reads `/datacenters`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/gre_tunnel.py",
+          "quotes": [
+            "def list_vips(self, query_params: Optional[dict] = None) -> APIResult[List[TrafficVips]]:",
+            "def list_vip_group_by_dc(self, query_params: Optional[dict] = None) -> APIResult[List[GroupByDatacenter]]:",
+            "def list_vips_recommended(self, query_params: Optional[dict] = None) -> APIResult[List[TrafficGRERecommendedVIP]]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/traffic_datacenters.py",
+          "quotes": [
+            "def list_datacenters(self, query_params: Optional[dict] = None) -> APIResult[List[TrafficDatacenters]]:"
+          ]
+        }
+      ]
+    },
+    "idm-profile-path": {
+      "statement": "The IDM profile calls use the `/idmprofile` path: Python `list_dlp_idm_profiles` and `get_dlp_idm_profiles`, the Go DLP IDM profile package, and the Automate capture all agree.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/dlp_resources.py",
+          "quotes": [
+            "/idmprofile"
+          ],
+          "after": "def list_dlp_idm_profiles("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/dlp_resources.py",
+          "quotes": [
+            "/idmprofile/{profile_id}"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_idm_profiles/dlp_idm_profiles.go",
+          "quotes": [
+            "dlpIDMProfileEndpoint = \"/zia/api/v1/idmprofile\""
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1idmprofile/get",
+          "expect": {
+            "operationId": "Idm Profile Resource Get Profiles"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "parity-drift": {
+      "kind": "semantic",
+      "title": "Which ZIA modules exist in one SDK and not the other today",
+      "status": "open",
+      "detail": "Unverified legacy statement: The 2026-06-15 re-sweep named scim_api, eventlogentryreport, devicegroups-write and email_profiles as Go-only and said email_profiles had since reached Python; parity drifts release to release in both directions, whether any surface beyond the named ones changed was only spot-checked, and the module diff of the Go services tree against the Python zia tree has not been run exhaustively. Clarification zia-51.",
+      "blocks": "Choosing between the Go and Python SDKs for a ZIA surface.",
+      "resolves_with": [
+        "code-read"
+      ],
+      "former_ids": [
+        "zia-51"
+      ]
+    },
+    "device-groups-write": {
+      "kind": "semantic",
+      "title": "Whether the ZIA device-groups API accepts group-level writes",
+      "status": "open",
+      "detail": "Unverified legacy statement: Python's device-groups clients only read, and the legacy note treated group writes as a Go-only capability; the Go package at the pin is read-only too, so no SDK wraps a group write, and whether the underlying API supports one is not source-verifiable from the SDK layer. Clarification zia-51.",
+      "blocks": "Whether a device group can be created or changed through the API at all.",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ]
+    }
+  },
+  "checks": [
+    {
+      "do": "Which SDK carries the surface before choosing a client, by listing the module trees at the pinned versions rather than trusting an old list.",
+      "uses": [
+        "parity-drift",
+        "go-scim-service"
+      ]
+    },
+    {
+      "do": "Whether a device-group write is needed; neither SDK wraps one, so it would be a direct API call.",
+      "uses": [
+        "go-devicegroups-read-only",
+        "python-devicegroups-read-only",
+        "device-groups-write"
+      ]
+    },
+    {
+      "do": "Whether the Go SDK has a package for a service before concluding it is Python-only, because several services once listed as Python-only exist in Go.",
+      "uses": [
+        "go-has-python-catalog-services",
+        "python-config-audit-no-go-counterpart",
+        "go-casb-and-custom-file-type-packages",
+        "go-dlp-resource-packages",
+        "go-dedicated-ip-lite-only"
+      ]
+    },
+    {
+      "do": "That a coverage claim rests on the SDK code and not on a release note, since both changelogs omit endpoints the code implements.",
+      "uses": [
+        "go-changelog-lists-only-actions",
+        "python-changelog-lists-only-actions",
+        "ips-categories-in-code"
+      ]
+    },
+    {
+      "do": "Which client class the script built before expecting a July 2026 accessor to exist on it.",
+      "uses": [
+        "july-services-unified-only"
+      ]
+    },
+    {
+      "do": "Whether a list result from one of the newer services could be a partial page.",
+      "uses": [
+        "july-lists-single-page"
+      ]
+    },
+    {
+      "do": "Whether a Shadow IT export by entity passes the literal USER or LOCATION.",
+      "uses": [
+        "shadow-it-entity-literal"
+      ]
+    },
+    {
+      "do": "That VIP lookups go through the GRE tunnel accessor and datacenter lookups through the datacenters accessor.",
+      "uses": [
+        "vip-calls-on-gre-api"
+      ]
+    }
+  ]
+}

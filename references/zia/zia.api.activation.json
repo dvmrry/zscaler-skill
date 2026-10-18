@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "id": "zia.api.activation",
+  "title": "How ZIA API changes become live: saving versus activating",
+  "aliases": [
+    "zia activation api",
+    "saved but not live",
+    "POST status activate",
+    "client.zia.activate",
+    "pending configuration api",
+    "ACTIVE PENDING INPROGRESS"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the activation status reads PENDING or INPROGRESS after a write, before looking for a platform fault.",
+      "uses": [
+        "saved-not-live",
+        "status-values"
+      ]
+    },
+    {
+      "do": "Which activate path the client calls: the SDK and the OneAPI sample use POST /status/activate; the legacy PDF names POST /status.",
+      "uses": [
+        "activate-path-differs",
+        "sdk-activation-endpoints"
+      ]
+    }
+  ],
+  "claims": {
+    "saved-not-live": {
+      "statement": "The vendor's URL Categories API guide says to activate configuration changes after making them, by sending a POST request, so changes made through the API are saved but not live until then.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_URL_Categories_Using_API.txt",
+          "quotes": [
+            "After making any configuration changes, ensure that you activate them by sending a POST request to /status."
+          ]
+        }
+      ]
+    },
+    "sdk-activation-endpoints": {
+      "statement": "The Python SDK's activation client reads the activation status with a GET to /status and activates pending changes with a POST to /status/activate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/activate.py",
+          "quotes": [
+            "Returns the activation status for a configuration change.",
+            "Activates configuration changes."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/activate.py",
+          "quotes": [
+            "http_method = \"post\".upper()",
+            "/status/activate"
+          ],
+          "after": "def activate(self) -> APIResult[Activation]:"
+        }
+      ]
+    },
+    "oneapi-sample-activate": {
+      "statement": "The OneAPI sample endpoints document POST /zia/api/v1/status/activate as the call that activates saved changes, required after any ZIA configuration change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/api-reference-zia-sample-endpoints.md",
+          "quotes": [
+            "Activates the saved configuration changes. Required after any ZIA configuration change."
+          ]
+        }
+      ]
+    },
+    "status-values": {
+      "statement": "The activation call returns a status of ACTIVE, PENDING or INPROGRESS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/api-reference-zia-sample-endpoints.md",
+          "quotes": [
+            "// Possible: ACTIVE, PENDING, INPROGRESS"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "activate-path-differs": {
+      "summary": "The legacy URL Categories guide says to activate by POSTing to /status, while the SDK and the OneAPI sample use POST /status/activate.",
+      "positions": [
+        {
+          "says": "Activation is a POST request to /status.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "Configuring_URL_Categories_Using_API.txt",
+            "quotes": [
+              "by sending a POST request to /status."
+            ]
+          }
+        },
+        {
+          "says": "Activation is a POST to /status/activate; GET /status only reads the status.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/activate.py",
+            "quotes": [
+              "http_method = \"post\".upper()",
+              "/status/activate"
+            ],
+            "after": "def activate(self) -> APIResult[Activation]:"
+          }
+        },
+        {
+          "says": "The OneAPI sample activates with POST /zia/api/v1/status/activate.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "automate-zscaler/api-reference-zia-sample-endpoints.md",
+            "quotes": [
+              "**POST** `https://api.zsapi.net/zia/api/v1/status/activate`"
+            ]
+          }
+        }
+      ],
+      "impact": "A client that follows the PDF literally and POSTs to /status would not call the endpoint the SDK uses; use the activate path."
+    }
+  }
+}

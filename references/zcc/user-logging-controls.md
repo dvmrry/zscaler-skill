@@ -294,7 +294,7 @@ None of these are affected by ZCC client-side log settings. An organization that
 
 ZPA LSS logs — which record application access sessions through ZPA — are similarly cloud-side and independent of ZCC client log settings.
 
-See [`../zia/api.md`](../zia/api.md) for ZIA API surface, and the ZIA logs directory (`references/zia/logs/`) for NSS/Nanolog field schemas.
+See [`zia.api`](kb:zia.api) for ZIA API surface, and the ZIA logs directory (`references/zia/logs/`) for NSS/Nanolog field schemas.
 
 Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`.
 
@@ -341,4 +341,4 @@ Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-cl
 - Install-time parameters (no install-time logging parameters documented; relevant for VDI and anti-tampering) — [`./install-parameters.md`](./install-parameters.md)
 - Forwarding profile (traffic forwarding decisions visible in ZCC connection logs) — [`./forwarding-profile.md`](./forwarding-profile.md)
 - ZCC SDK (web_policy and web_privacy API access patterns) — [`./sdk.md`](./sdk.md)
-- ZIA API (ZIA-side log APIs, admin audit logs, NSS/Nanolog) — [`../zia/api.md`](../zia/api.md)
+- ZIA API (ZIA-side log APIs, admin audit logs, NSS/Nanolog) — [`zia.api`](kb:zia.api)

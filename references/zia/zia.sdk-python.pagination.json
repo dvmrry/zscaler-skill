@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "id": "zia.sdk-python.pagination",
+  "title": "Paging through ZIA lists with the Python SDK",
+  "aliases": [
+    "python sdk pagination zia",
+    "has_next next",
+    "list returns only first page",
+    "StopIteration next",
+    "pagination bugs python sdk",
+    "N-1 records list_users"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.response-shape"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the caller loops on has_next and stops cleanly, instead of assuming the first call returned the whole collection.",
+      "uses": [
+        "first-page-only",
+        "has-next-next",
+        "stopiteration-at-end"
+      ]
+    },
+    {
+      "do": "Whether the total matches a count the tenant knows (console count, expected size) after a bulk read, given the SDK's pagination fix history.",
+      "uses": [
+        "pagination-fix-history",
+        "n-minus-1-regression"
+      ]
+    }
+  ],
+  "claims": {
+    "first-page-only": {
+      "statement": "A Python SDK list method that supports pagination returns only the first page of results initially.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "only the first page of results is returned initially."
+          ]
+        }
+      ]
+    },
+    "has-next-next": {
+      "statement": "The response object carries has_next and next methods to fetch the following pages.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "You can then use the `response.has_next()` and `response.next()` methods to retrieve subsequent pages."
+          ]
+        }
+      ]
+    },
+    "stopiteration-at-end": {
+      "statement": "Calling next when there is no further page raises StopIteration rather than returning an error value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "The SDK raises a StopIteration if `next()` is called and no more pages are available"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "raise StopIteration(\"No more pages available.\")"
+          ]
+        }
+      ]
+    },
+    "stops-on-short-page": {
+      "statement": "The README says paging stops when fewer results than the page size are returned; in code this applies only when the caller supplied a page size, otherwise it stops on an empty page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "Pagination stops automatically when fewer results than the page size are returned"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Improved pagination termination logic to stop when partial pages are returned"
+          ]
+        }
+      ]
+    },
+    "zia-default-page-size": {
+      "statement": "Since release 1.8.4 the SDK no longer forces a default page size and uses each API's native default, which the changelog gives as 100 for ZIA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Removed forced default page sizes to respect each API's native defaults (ZIA: 100, ZPA: 20)."
+          ]
+        }
+      ]
+    },
+    "pagination-fix-history": {
+      "statement": "The Python changelog records several ZIA pagination fixes: wrong page parameter names (PR 393), has_next returning True forever on flat-list responses (PR 426), and has_next returning False after the first page on flat-list endpoints (PR 478).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed ZIA pagination to use correct API parameter names (`page` and `pageSize` instead of `pageNumber`)."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed pagination `has_next()` returning `True` for flat list API responses causing infinite loops."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed ZIA pagination where `has_next()` returned `False` after the first page for flat-list endpoints."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "n-minus-1-regression": {
+      "kind": "semantic",
+      "title": "Whether list_users and list_groups still drop a record across pages",
+      "status": "open",
+      "detail": "Unverified legacy statement: Three upstream issues (#197, #272 and #477) are said to report pagination returning incomplete data, the latest a regression where list_users and list_groups returned N-1 records and has_next returned False early; none is in the vendored tree, and the changelog fix for flat-list endpoints (PR 478) is not tied to them.",
+      "blocks": "Whether a bulk list read of users or groups can be trusted without a count check.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

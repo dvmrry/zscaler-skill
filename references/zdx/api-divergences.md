@@ -359,4 +359,4 @@ The following are unresolved after cross-referencing the available sources. Each
 - Device fields (Wi-Fi, `os_build`, network) — [`./devices.md`](./devices.md)
 - Deeptrace start chain and snapshot sharing — [`./diagnostics-and-alerts.md`](./diagnostics-and-alerts.md)
 - Cross-product auth / rate-limit comparison — [`../shared/oneapi.md`](../shared/oneapi.md)
-- Sibling divergence docs — [`../zia/api-divergences.md`](../zia/api-divergences.md), [`../zpa/api-divergences.md`](../zpa/api-divergences.md)
+- Sibling divergence docs — [`zia.api`](kb:zia.api), [`../zpa/api-divergences.md`](../zpa/api-divergences.md)

@@ -18,4 +18,4 @@ Every ZIA rule resource that supports ordering hands its declared order to one s
 
 **Rank mismatch.** {{rank-comparison-without-rank-write}} {{rank-mismatch-never-repaired}}
 
-**The bounded exit.** {{oscillation-breaker-guard}} {{mixed-skip-write-path-is-unbounded}}
+**The bounded exit.** {{oscillation-breaker-guard}} The breaker's threshold and what it does when it trips: {{oscillation-breaker-six-passes}} {{mixed-skip-write-path-is-unbounded}}

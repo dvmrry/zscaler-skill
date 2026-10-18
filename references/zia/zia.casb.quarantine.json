@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "id": "zia.casb.quarantine",
+  "title": "CASB quarantine and tombstone files",
+  "aliases": [
+    "quarantine tombstone",
+    "Zscaler_Quarantine",
+    "tombstone template",
+    "quarantine location",
+    "restore quarantined file",
+    "OFLCASB_DLP_QUARANTINE"
+  ],
+  "binds": [
+    "zia/casb-tombstone-templates"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.casb.tenants"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.dlp-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.malware-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.scans"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Where the application puts quarantined content, and whether the quarantine location was set at onboarding or on the rule.",
+      "uses": [
+        "collab-quarantine-places",
+        "file-quarantine-owner-folder",
+        "admin-quarantine",
+        "s3-quarantine-bucket"
+      ]
+    },
+    {
+      "do": "Whether a collaboration-application rule with a Quarantine action names a tombstone template.",
+      "uses": [
+        "collab-quarantine-needs-template"
+      ]
+    },
+    {
+      "do": "Whether the question needs a restore procedure, which no source states.",
+      "uses": [
+        "reversal"
+      ]
+    }
+  ],
+  "claims": {
+    "tombstone-in-original-location": {
+      "statement": "The quarantine action leaves a tombstone file in the original location, built from the description of the tombstone template selected on the rule.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-tombstone-templates"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-malware-detection-policy.md",
+          "quotes": [
+            "The quarantine action creates a tombstone file template in the original location and adds the description from the tombstone template created on the Quarantine page"
+          ],
+          "after": "Quarantine Malware: The Zscaler service quarantines the malware:"
+        }
+      ]
+    },
+    "tombstone-template-purpose": {
+      "statement": "A tombstone file template is a customizable message telling the user why a file was quarantined; its description is the text included in the tombstone file, and it is associated with DLP or malware policy rules.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-tombstone-templates"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-quarantine-tombstone-file-templates.md",
+          "quotes": [
+            "When a file is quarantined, a tombstone file is created to give the user an idea of why this happened.",
+            "Description: The text that is included in the tombstone file.",
+            "Associate the tombstone file templates with DLP or malware policy rules."
+          ]
+        }
+      ]
+    },
+    "collab-quarantine-needs-template": {
+      "statement": "For Slack, Microsoft Teams and Webex Teams, a DLP rule whose action is Quarantine must select a tombstone template; the tombstone appears to end users as a message in Slack or Webex Teams.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "you must select a tombstone template from the drop-down menu. The quarantine action creates a tombstone message that end users see in Slack or Webex Teams."
+          ]
+        }
+      ]
+    },
+    "collab-quarantine-places": {
+      "statement": "For malware quarantine, Zscaler creates a channel named Zscaler_Quarantine in Slack, a site named Zscaler_Quarantine in SharePoint for Microsoft Teams, and a team named Zscaler_Quarantine in Webex Teams.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-malware-detection-policy.md",
+          "quotes": [
+            "For Slack, the Zscaler service creates a channel called Zscaler_Quarantine and moves the malware to the channel for quarantine.",
+            "For Microsoft Teams, the Zscaler service creates a site called Zscaler_Quarantine in Sharepoint and moves the malware files from all the channels to this location.",
+            "For Webex Teams, the Zscaler service creates a team called Zscaler_Quarantine and moves the malware to the team for quarantine."
+          ]
+        }
+      ]
+    },
+    "file-quarantine-owner-folder": {
+      "statement": "For file-sharing applications the malware quarantine location is given as the ID of the user who owns the folder (or the SharePoint site address), and Zscaler creates a folder or library called Zscaler_Quarantine there.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-malware-detection-policy.md",
+          "quotes": [
+            "For Box, enter the Box ID for the user who owns the folder.",
+            "For SharePoint, enter the SharePoint site address where the library belongs.",
+            "The Zscaler service creates a folder or library called Zscaler_Quarantine for the location."
+          ],
+          "after": "To add a Malware Detection rule for CRM applications:"
+        }
+      ]
+    },
+    "admin-quarantine": {
+      "statement": "The DLP Admin Quarantine action moves sensitive files to the location the administrator chose while onboarding the tenant, while Quarantine to User Root Folder moves them to the user's root folder.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "Admin Quarantine: The rule quarantines the sensitive files to a specific location that the admin chooses while onboarding the tenant.",
+            "Quarantine to User Root Folder: The rule reports the incident and quarantines sensitive content to a user's root folder."
+          ]
+        }
+      ]
+    },
+    "s3-quarantine-bucket": {
+      "statement": "For Amazon S3 the onboarding asks for a quarantine bucket name, and a Malware Detection rule with Quarantine Malware moves the malicious files to that bucket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-saas-application-tenants.md",
+          "quotes": [
+            "If you add a Malware Detection rule with the action Quarantine Malware, the Zscaler service moves the malicious files detected to this bucket."
+          ]
+        }
+      ]
+    },
+    "quarantine-location-delete-or-restore": {
+      "statement": "The API describes a rule's `quarantineLocation` as the location where quarantined files are moved and where necessary actions are taken by either deleting or restoring the data.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#quarantineLocation",
+        "zia/casb-malware-rules#quarantineLocation"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/quarantineLocation",
+          "expect": {
+            "description": "Location where all the quarantined files are moved and necessary actions are taken by either deleting or restoring the data"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbMalwareRules/post/requestBody/content/application~1json/schema/properties/quarantineLocation",
+          "expect": {
+            "description": "Location where all the quarantined files are moved and necessary actions are taken by either deleting or restoring the data"
+          }
+        }
+      ]
+    },
+    "assets-report-review": {
+      "statement": "After a message or file has been quarantined, admins can use the SaaS Security Assets Report to review and remove the quarantined content.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "admins can use the SaaS Security Assets Report (Analytics > SaaS Security > Assets) to review and remove the quarantined content."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "reversal": {
+      "kind": "semantic",
+      "title": "How a quarantined file is restored",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Quarantine can be reversed (file restoration) from within the SaaS platform or via the Zscaler console, depending on the application.\" and \"Stopping a scan after quarantine actions have been taken does not automatically restore quarantined files.\" Only the API description of `quarantineLocation` mentions restoring the data; no captured article describes a restore procedure or says what stopping a scan does to quarantined files.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

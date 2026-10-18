@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "id": "zia.api.rate-limits",
+  "title": "ZIA API rate limits and how the Python SDK retries",
+  "aliases": [
+    "zia api rate limit",
+    "429 too many requests zia",
+    "x-ratelimit-reset",
+    "EDIT_LOCK_NOT_AVAILABLE",
+    "python sdk retries",
+    "maxRetries rateLimit",
+    "RetryTooLong"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.retries"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.operations"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which weight class the failing call falls in (delete, write, read) against the per-second, per-minute and per-hour ceilings.",
+      "uses": [
+        "zia-two-bounds",
+        "zia-default-weights"
+      ]
+    },
+    {
+      "do": "Whether the client retried: the status was one the SDK retries, and the retry budget was not exhausted or capped by maxRetrySeconds.",
+      "uses": [
+        "zia.sdk-python.request-conventions:retry-statuses-docstring-mismatch",
+        "sdk-max-retries-default",
+        "sdk-max-retry-seconds"
+      ]
+    },
+    {
+      "do": "Whether a 409 on a write was the edit lock held by another admin session, which the SDK retries on its own schedule.",
+      "uses": [
+        "zia-edit-lock-retry"
+      ]
+    }
+  ],
+  "claims": {
+    "zia-two-bounds": {
+      "statement": "Every ZIA endpoint has two rate limits: a lower-bound limit against short bursts and an upper-bound limit against sustained volume.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/guides-rate-limiting.md",
+          "quotes": [
+            "Every ZIA endpoint has two different types of rate limit:",
+            "A lower bound limit (protects against high bursts over a short period)",
+            "An upper bound limit (protects against high volume over a long period)"
+          ]
+        }
+      ]
+    },
+    "zia-default-weights": {
+      "statement": "Endpoints are weighted: Heavy, typically DELETE, defaults to 1 request per minute and 4 per hour; Medium, POST and PUT, to 1 per second and 400 per hour; Light, GET, to 2 per second and 1,000 per hour.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/guides-rate-limiting.md",
+          "quotes": [
+            "| Heavy | DELETE | - | 1 | 4 |",
+            "| Medium | POST, PUT | 1 | - | 400 |",
+            "| Light | GET | 2 | - | 1,000 |"
+          ],
+          "after": "Every endpoint is assigned a weight with a default rate limit:"
+        }
+      ]
+    },
+    "zia-429-headers": {
+      "statement": "An exceeded limit returns HTTP 429, and ZIA responses carry x-ratelimit-limit, x-ratelimit-remaining and x-ratelimit-reset, the last being the seconds left in the current window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/guides-rate-limiting.md",
+          "quotes": [
+            "When the rate limit is exceeded, an HTTP 429 response code is returned.",
+            "`x-ratelimit-reset`: Time (in seconds) remaining in the current window after which rate limit resets"
+          ]
+        }
+      ]
+    },
+    "sdk-max-retries-default": {
+      "statement": "The Python request executor retries up to the rateLimit maxRetries setting, which defaults to 2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "self._max_retries = config[\"client\"][\"rateLimit\"].get(\"maxRetries\", 2)"
+          ]
+        }
+      ]
+    },
+    "sdk-wait-from-headers": {
+      "statement": "The retry wait comes from Retry-After plus one second, or else from the rate-limit reset header plus one second; with neither header the request is not retried and an error is returned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "backoff = int(retry_after.strip(\"s\")) + 1",
+            "backoff = float(retry_limit_reset_header) + 1",
+            "return None, response, response.text, Exception(ERROR_MESSAGE_429_MISSING_DATE_X_RESET)"
+          ]
+        }
+      ]
+    },
+    "sdk-max-retry-seconds": {
+      "statement": "A rateLimit maxRetrySeconds setting caps the wait: a computed backoff above it raises RetryTooLong instead of sleeping.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "max_retry_seconds = self._config.get(\"client\", {}).get(\"rateLimit\", {}).get(\"maxRetrySeconds\", None)",
+            "raise RetryTooLong("
+          ]
+        }
+      ]
+    },
+    "zia-edit-lock-retry": {
+      "statement": "For ZIA a 409 whose body contains EDIT_LOCK_NOT_AVAILABLE, meaning another admin session holds the edit lock, is retried with a backoff of 5 seconds doubling per attempt and capped at 60.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "if response.status_code == 409 and request.get(\"service_type\") == \"zia\":",
+            "backoff_seconds = 5 * (2**attempts)",
+            "# Cap at 60 seconds max backoff"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "retryable-status-sets": {
+      "summary": "The SDK holds two different sets of retryable statuses: a constant and a helper that include 500 and 502, and the executor's own check that does not.",
+      "positions": [
+        {
+          "says": "RETRYABLE_STATUS_CODES is {429, 500, 502, 503, 504}, and the utils helper tests membership in it.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/constants.py",
+            "quotes": [
+              "RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}"
+            ]
+          }
+        },
+        {
+          "says": "The executor's is_retryable_status returns true only for 429, 503 and 504, though its docstring lists 500 and 502 too.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/request_executor.py",
+            "quotes": [
+              "HTTPStatus.GATEWAY_TIMEOUT,"
+            ],
+            "after": "def is_retryable_status(self, status):"
+          }
+        }
+      ],
+      "impact": "A 500 or 502 from ZIA is not retried by the request executor's rate-limit path even though the constant suggests it would be."
+    }
+  }
+}

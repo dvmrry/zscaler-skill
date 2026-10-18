@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.data-source-lookups",
+  "title": "How some ZIA Terraform data sources look things up",
+  "aliases": [
+    "zia_firewall_filtering_rule data source",
+    "rule_id data source",
+    "data source search jmespath",
+    "zia_ips_categories",
+    "available_actions_without_isolate",
+    "list all rules terraform"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.data-source-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.actions"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a firewall rule data source call used `rule_id` rather than the old `id` argument, and whether it was meant to list all rules.",
+      "uses": [
+        "fw-rule-collection-mode"
+      ]
+    },
+    {
+      "do": "Whether a Cloud App Control rule took its actions from the without-isolate list and used ISOLATE alone.",
+      "uses": [
+        "cac-actions-split"
+      ]
+    },
+    {
+      "do": "Whether a list-all read on a large tenant returned every rule.",
+      "uses": [
+        "fw-rule-list-all-limits"
+      ]
+    }
+  ],
+  "claims": {
+    "fw-rule-collection-mode": {
+      "statement": "Since provider v4.7.21 the `zia_firewall_filtering_rule` data source returns a list of rules in a `rules` block when no single-rule lookup is supplied; the numeric lookup argument is `rule_id` (previously `id`), the name lookup is `name`, and the optional `search` is a client-side JMESPath filter applied after the server-side filters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Enhanced the `zia_firewall_filtering_rule` data source to return a list of rules via the new `rules` block when no single-rule lookup is supplied",
+            "use `rule_id` for the numeric lookup (previously `id`) or `name` for the name lookup"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_firewall_filtering_rule.md",
+          "quotes": [
+            "JMESPath runs **after** the server-side filters, against the raw API JSON."
+          ]
+        }
+      ]
+    },
+    "ips-categories-lookup": {
+      "statement": "The `zia_ips_categories` data source resolves a category by `id`, else by case-insensitive `name`, and with neither returns every category; the returned name is the exact identifier the firewall rules' `res_categories` and `dest_ip_categories` expect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_ips_categories.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "if strings.EqualFold(allCategories[i].Name, nameStr) {",
+            "// Neither id nor name was supplied, so return the whole list and let the",
+            "This is the value used by the `res_categories` and `dest_ip_categories` attributes on firewall rules.",
+            "allCategories, err := ips_signature_rules.GetIPSCategories(ctx, service)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_ips_categories.md",
+          "quotes": [
+            "The category `name` returned by this data source is the exact identifier expected by the `res_categories` and `dest_ip_categories` attributes on firewall rules"
+          ]
+        }
+      ]
+    },
+    "cac-actions-split": {
+      "statement": "The Cloud App Control actions data source returns the available actions both together and split into `available_actions_without_isolate` and `isolate_actions`; the provider documents that ISOLATE actions need a Cloud Browser Isolation subscription and must be used alone in a rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_cloud_app_control_rule_actions.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "List of available actions excluding ISOLATE actions. Use this for standard rules. ISOLATE actions cannot be mixed with other actions.",
+            "_ = d.Set(\"isolate_actions\", isolateActions)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_cloud_app_control_rule.md",
+          "quotes": [
+            "ISOLATE actions require Cloud Browser Isolation subscription and must be used alone (cannot mix with other actions):"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "fw-rule-list-all-limits": {
+      "kind": "semantic",
+      "title": "Whether list-all retrieval on rule data sources is limited by endpoint pagination",
+      "status": "open",
+      "detail": "Unverified legacy statement: provider maintainers called out endpoint pagination limits in the upstream discussion of list-all retrieval, and the same list-all behavior should not be assumed for every rule data source. The vendored sources document the firewall data source's collection mode but say nothing about pagination limits or about which other rule data sources support it.",
+      "blocks": "saying whether a list-all read of a rule data source returns every rule on a large tenant",
+      "resolves_with": [
+        "code-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

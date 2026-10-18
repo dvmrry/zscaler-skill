@@ -264,6 +264,109 @@
           ]
         }
       ]
+    },
+    "all-available-actions-reassigned": {
+      "statement": "At Go SDK v3.8.45 the exported `AllAvailableActions` posted to /{rule_type}/availableActions. At the pin the same exported name posts to /{rule_type}/allAvailableActions and `AvailableActions` holds the older /availableActions path, so a caller compiled against the earlier name selects a different endpoint after upgrading.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "url := fmt.Sprintf(\"%s/%s/availableActions\", webApplicationRulesEndpoint, ruleType)"
+          ],
+          "after": "func AllAvailableActions(ctx context.Context",
+          "at": [
+            "v3.8.45"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "url := fmt.Sprintf(\"%s/%s/allAvailableActions\", webApplicationRulesEndpoint, ruleType)"
+          ],
+          "after": "func AllAvailableActions(ctx context.Context"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "url := fmt.Sprintf(\"%s/%s/availableActions\", webApplicationRulesEndpoint, ruleType)"
+          ],
+          "after": "func AvailableActions(ctx context.Context"
+        }
+      ]
+    },
+    "automate-capture-availableactions-only": {
+      "statement": "The captured Automate OpenAPI document describes one action-discovery operation, POST /webApplicationRules/{rule_type}/availableActions (\"Fetches the granular actions supported for the applications\"), and lists no allAvailableActions path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webApplicationRules~1{rule_type}~1availableActions/post",
+          "expect": {
+            "description": "<p>Fetches the granular actions supported for the applications.</p>"
+          }
+        }
+      ]
+    },
+    "python-docstring-action-vocabulary": {
+      "statement": "The per-category action vocabulary (for example IT_SERVICES, LEGAL, SALES_AND_MARKETING) is enumerated in the Python `add_rule` docstring; the Go model types `Actions` as a plain string list with no equivalent enumeration. The docstring lists `CAUTION_LEGAL_USE` under IT_SERVICES and `DENY_DNS_OVER_HTTPS_USE` under LEGAL. The two named entries (`CAUTION_LEGAL_USE` under IT_SERVICES, `DENY_DNS_OVER_HTTPS_USE` under LEGAL) look misfiled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloudappcontrol.py",
+          "quotes": [
+            "- `ALLOW_IT_SERVICES_USE`\n                - `CAUTION_LEGAL_USE`",
+            "- `ALLOW_LEGAL_USE`\n                - `DENY_DNS_OVER_HTTPS_USE`"
+          ],
+          "after": "def add_rule(self, rule_type: str, **kwargs)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "Actions              []string `json:\"actions,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "mcp-actions-tool-forwards": {
+      "statement": "The MCP list-actions tool forwards `rule_type` and the optional `cloud_apps` list to the Python SDK `list_available_actions` and returns what comes back; it does no category-level probing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/cloud_app_control.py",
+          "quotes": [
+            "rule_type=args.rule_type, cloud_apps=args.cloud_apps or []"
+          ]
+        }
+      ]
+    },
+    "mcp-skill-per-tuple-validation": {
+      "statement": "The MCP create workflow skill says the create endpoint validates each `(rule_type, app, action)` tuple, that a multi-app create is frequently rejected with `INVALID_INPUT_ARGUMENT: \"Invalid action provided for selected applications\"`, that the first incompatible pair fails the entire create, and that one rule per app is the safe pattern. The executable create tool does no such validation: it assembles the payload and calls the SDK `add_rule`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/create-cloud-app-control-rule/SKILL.md",
+          "quotes": [
+            "the create endpoint validates per `(rule_type, app, action)` tuple",
+            "The first incompatible (app, action) pair fails the entire create."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/cloud_app_control.py",
+          "quotes": [
+            "rule, _, err = client.zia.cloudappcontrol.add_rule(args.rule_type, **payload)"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -285,6 +388,9 @@
             "which may omit some newer actions"
           ]
         }
+      ],
+      "former_ids": [
+        "zia-49"
       ]
     },
     "multi-app-aggregation": {
@@ -316,6 +422,82 @@
       ],
       "blocks": "telling an operator whether a notification template set on a CAC rule takes effect",
       "detail": "The deployment guide says CAC does not support custom EUNs, yet the rule form and model have browser notification template, EUN and custom message fields. No source says what users see when a template is set. The earlier statement that blocked users see the default notification is not stated by any registered source."
+    },
+    "per-tuple-validation-contract": {
+      "kind": "semantic",
+      "title": "Whether the create call validates each (rule type, app, action) tuple and rejects a mixed multi-app rule as a whole",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "creating one Cloud App Control rule for several apps in a single call",
+      "detail": "Unverified legacy statement: the whole-create rejection, the INVALID_INPUT_ARGUMENT message and the one-rule-per-app pattern come from an MCP workflow skill, not from either SDK or the executable tool. Static code cannot settle it; a live create with a mixed-validity app list would. Tracked in the legacy ledger as zia-53.",
+      "about": [
+        "zia.cloud-app-control.actions"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/create-cloud-app-control-rule/SKILL.md",
+          "quotes": [
+            "The first incompatible (app, action) pair fails the entire create."
+          ]
+        }
+      ],
+      "former_ids": [
+        "zia-53"
+      ]
+    },
+    "representative-app-actions": {
+      "kind": "semantic",
+      "title": "Whether action discovery needs a category representative app, and whether allAvailableActions removes the need",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "trusting an action list obtained for a single app as the category vocabulary",
+      "detail": "Unverified legacy statement: the MCP workflow generalizes that discovery may be surfaced through a category representative app. That guidance predates the Go allAvailableActions path, and static code does not show that the new endpoint removes the need for it. Comparing both endpoints with single-app and multi-app requests would settle it. Tracked with the atomic-validation gap as zia-53.",
+      "about": [
+        "zia.cloud-app-control.actions"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/create-cloud-app-control-rule/SKILL.md",
+          "quotes": [
+            "not every app in a category is a \"representative\" the API surfaces actions for"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "mcp-representative-app-probing": {
+      "summary": "Whether the MCP action-discovery tool matches the workflow skill's description of it",
+      "positions": [
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "skills/zia/create-cloud-app-control-rule/SKILL.md",
+            "quotes": [
+              "the app the API actually returned actions for (may differ from `resolved_app` because not every app in a category is a \"representative\" the API surfaces actions for \u2014 the tool walks the category until it finds one that does)",
+              "zia_list_cloud_app_control_actions(cloud_app=\"<canonical enum>\")"
+            ]
+          },
+          "says": "The create workflow skill calls `zia_list_cloud_app_control_actions(cloud_app=...)` and describes a result with `category`, `resolved_app` and `actions_surfaced_via`; it says the tool walks the category until it finds a representative app."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zia/cloud_app_control.py",
+            "quotes": [
+              "rule_type=args.rule_type, cloud_apps=args.cloud_apps or []"
+            ]
+          },
+          "says": "The executable tool takes `cloud_apps` (a list), forwards `rule_type` and `cloud_apps` straight to the SDK, and returns the plain list of actions; it has no category walk and no `category`, `resolved_app` or `actions_surfaced_via` field."
+        }
+      ],
+      "impact": "An agent following the skill expects a diagnostic field and a probing step the tool does not implement; the skill describes behavior that the pinned code lacks."
     }
   }
 }

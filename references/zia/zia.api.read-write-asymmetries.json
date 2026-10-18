@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "zia.api.read-write-asymmetries",
+  "title": "Where ZIA reads and writes disagree: an index of round-trip hazards",
+  "aliases": [
+    "zia api round trip",
+    "get put mismatch",
+    "read write asymmetry",
+    "tz country prefix",
+    "sandbox order 127",
+    "auth_methods digest terraform"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.country-timezone"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.multi-step-writes"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a drift or rejection on a rule, location or user is one of these known round-trip cases before treating it as a tenant change.",
+      "uses": [
+        "zia.sandbox.rules:default-rule-marker",
+        "zia.locations.country-timezone:validator-enum-prefixed",
+        "zia.terraform.multi-step-writes:user-auth-validator-basic-only",
+        "zia.api.url-filtering-wire:tf-description-diff-suppression"
+      ]
+    }
+  ]
+}

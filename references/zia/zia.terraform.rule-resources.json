@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.rule-resources",
+  "title": "Constraints shared by ZIA Terraform rule resources: order and predefined rules",
+  "aliases": [
+    "terraform rule order must be positive",
+    "terraform order gaps zia",
+    "terraform destroy predefined rule",
+    "zia rule order zero terraform"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.url-filtering-rules"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether configured orders start at 1 and have no gaps, including after a custom rule was deleted.",
+      "uses": [
+        "order-positive-integer",
+        "order-contiguous"
+      ]
+    },
+    {
+      "do": "Whether a failed destroy was a predefined rule that the provider refuses to delete.",
+      "uses": [
+        "firewall-predefined-delete-errors",
+        "predefined-reorder-not-destroy"
+      ]
+    }
+  ],
+  "claims": {
+    "order-positive-integer": {
+      "statement": "The `zia_dlp_web_rules` documentation says `order` must always be a positive whole number starting at 1, with negative numbers and zero unsupported and an error, and the `zia_url_filtering_rules` and `zia_firewall_filtering_rules` schemas validate it with `IntAtLeast(1)`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_dlp_web_rules.md",
+          "quotes": [
+            "The `order` attribute must always be a positive whole number starting at 1."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "quotes": [
+            "ValidateFunc: validation.IntAtLeast(1),"
+          ],
+          "after": "\"order\": {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "ValidateFunc: validation.IntAtLeast(1),"
+          ],
+          "after": "\"order\": {"
+        }
+      ]
+    },
+    "order-contiguous": {
+      "statement": "The provider documents that rule orders must be contiguous with no gaps, and that deleting a rule must be followed by renumbering the remaining rules so the API honours the order.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_url_filtering_rules.md",
+          "quotes": [
+            "Rule orders must always be contiguous (no gaps).",
+            "Deleting a rule must be followed by order number re-adjustment of the remaining rules"
+          ]
+        }
+      ]
+    },
+    "predefined-reorder-not-destroy": {
+      "statement": "Predefined rules can be managed through the provider for reordering, but destroy is not supported for them and not every attribute of a custom rule applies; to delete a custom rule the documentation says to use `-target`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_url_filtering_rules.md",
+          "quotes": [
+            "`destroy` operations are not supported for predefined rules",
+            "use the Terraform `-target` flag to target the specific rule to be removed"
+          ]
+        }
+      ]
+    },
+    "firewall-predefined-ordering-automatic": {
+      "statement": "For firewall filtering rules the documentation says predefined rules cannot be deleted and the provider reorders around them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_filtering_rule.md",
+          "quotes": [
+            "Zscaler Cloud Firewall contain default and predefined rules which cannot be deleted (not all attributes are supported on predefined rules).",
+            "Handle reordering around predefined rules"
+          ]
+        }
+      ]
+    },
+    "firewall-predefined-delete-errors": {
+      "statement": "Deleting a predefined firewall filtering rule through the provider returns an error, both for a fixed list of predefined rule names and for any rule whose `predefined` flag is set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "fmt.Errorf(\"deletion of predefined rule '%s' is not allowed\", rule.Name)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "req.Name == \"Default Firewall Filtering Rule\""
+          ]
+        }
+      ]
+    },
+    "firewall-predefined-import-then-destroy-fails": {
+      "statement": "A predefined firewall rule can be imported into state, but `terraform destroy` then fails; the documented route is to remove the custom rules you want deleted and re-apply.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_filtering_rule.md",
+          "quotes": [
+            "the provider will fail when executing `terraform destroy`"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "nonpositive-order-effect": {
+      "kind": "semantic",
+      "title": "Whether a zero or negative order can reach ZIA and create undeletable internal rules",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying that a non-positive order creates undeletable rules",
+      "detail": "Unverified legacy statement: a legacy catalog said negative or zero values create undeletable internal rules; the provider docs say they are unsupported and an error, and the schema rejects them at plan time. Whether the API itself would accept such an order is not shown."
+    }
+  }
+}

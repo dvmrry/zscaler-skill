@@ -207,7 +207,7 @@ The SDK signs each client assertion with `exp = now + 600`, a 10-minute window (
 Roles restrict which specific endpoints/operations are accessible. A client with `zpa.read` scope but no role granting access to `GET /appSegments` will fail at the ZPA API level (not at the token level). Roles and scopes are complementary controls; both must be correct.
 
 **8. Legacy tenants without ZIdentity.**
-Legacy tenants (pre-OneAPI migration) cannot use the OAuth 2.0 flow described here. They must use the product-specific legacy auth paths. See [`../zia/api.md § Legacy`](../zia/api.md).
+Legacy tenants (pre-OneAPI migration) cannot use the OAuth 2.0 flow described here. They must use the product-specific legacy auth paths. See [`zia.api`](kb:zia.api).
 
 ## Relationship to the skill's auth setup
 
@@ -232,6 +232,6 @@ The SDKs handle the OAuth 2.0 flow internally — callers don't have to implemen
 - **OneAPI gateway, base URLs, rate limits, error model, Postman collection** — [`../shared/oneapi.md`](../shared/oneapi.md). Start there for any cross-product API question; this doc covers the API Client object model only.
 - ZIdentity overview — [`./overview.md`](./overview.md)
 - ZIdentity API surface (`client.zid.*` in SDK) — [`./api.md`](./api.md)
-- ZIA API authentication section (where legacy vs OneAPI paths are compared) — [`../zia/api.md`](../zia/api.md)
+- ZIA API authentication section (where legacy vs OneAPI paths are compared) — [`zia.api`](kb:zia.api)
 - ZPA API authentication — [`../zpa/api.md`](../zpa/api.md)
 - Step-Up Authentication (the other major ZIdentity feature) — [`./step-up-authentication.md`](./step-up-authentication.md)

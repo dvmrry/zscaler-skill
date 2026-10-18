@@ -535,6 +535,19 @@
           "after": "You then configure your policy rules based on that setting:"
         }
       ]
+    },
+    "tf-docs-web-rule-cap-127": {
+      "statement": "The Terraform DLP web rules documentation warns that ZIA DLP supports a maximum of 127 Web DLP rules created via the API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_dlp_web_rules.md",
+          "quotes": [
+            "Zscaler Internet Access DLP supports a maximum of 127 Web DLP Rules to be created via API."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -578,6 +591,34 @@
       ],
       "blocks": "advising against Any in broad rules",
       "detail": "Unverified legacy statement: \"`Any` engine selection ... Risky in broad allowing/blocking rules; can cascade-trigger on unrelated dictionaries.\" The help says only that Any selects all engines (engine-selection)."
+    }
+  },
+  "divergences": {
+    "web-rule-cap-127-vs-1024": {
+      "summary": "How many Web DLP rules a tenant can hold.",
+      "positions": [
+        {
+          "says": "The Terraform resource documentation says a maximum of 127 Web DLP rules can be created via the API.",
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_dlp_web_rules.md",
+            "quotes": [
+              "Zscaler Internet Access DLP supports a maximum of 127 Web DLP Rules to be created via API."
+            ]
+          }
+        },
+        {
+          "says": "The Ranges and Limitations help page gives a generic policy rule limit of 1,024 rules, raisable to 2,048.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.md",
+            "quotes": [
+              "Contact your Zscaler Account team for a possible increase in this limit from 1,024 rules to 2,048 rules."
+            ]
+          }
+        }
+      ],
+      "impact": "Do not quote 127 or 1,024 as the Web DLP rule cap without saying which source it comes from; the two figures may describe different things (a 127 API cap against a generic per-type limit) and the sources do not reconcile them."
     }
   }
 }

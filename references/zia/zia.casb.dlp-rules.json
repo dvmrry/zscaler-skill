@@ -1,0 +1,955 @@
+{
+  "schema_version": 1,
+  "id": "zia.casb.dlp-rules",
+  "title": "CASB Data at Rest Scanning DLP rules",
+  "aliases": [
+    "casbDlpRules",
+    "data at rest scanning dlp",
+    "saas dlp rule",
+    "OFLCASB_DLP_REPORT_INCIDENT",
+    "casb dlp action",
+    "collaboration scope",
+    "trusted users trusted domains",
+    "saas security dlp policy"
+  ],
+  "binds": [
+    "zia/casb-dlp-rules"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.casb.rule-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.quarantine"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.scans"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.dlp.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.inspection-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.api-surface"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a schedule runs the policy, then where the rule sits among rules of its own category and whether a higher-ranked rule precedes it.",
+      "uses": [
+        "rule-order-ascending",
+        "admin-rank",
+        "zia.casb.rule-types:order-separate-lists"
+      ]
+    },
+    {
+      "do": "Which tenants the rule covers, remembering that an empty tenant list means all tenants.",
+      "uses": [
+        "tenants-empty-means-all",
+        "zia.casb.rule-types:one-provider-per-rule"
+      ]
+    },
+    {
+      "do": "Whether trusted users or domains, or an onboarding profile, make the content count as internal.",
+      "uses": [
+        "trusted-exclusive",
+        "tenant-profiles-considered-internal",
+        "email-fixed-fields"
+      ]
+    },
+    {
+      "do": "Whether the action is offered for the application and whether a message term is shorter than 8 bytes.",
+      "uses": [
+        "actions-depend-on-tenant",
+        "collab-short-terms"
+      ]
+    },
+    {
+      "do": "Whether the question needs first-match behavior or the meaning of an action token, which no source states.",
+      "uses": [
+        "first-match",
+        "action-token-meanings"
+      ]
+    }
+  ],
+  "claims": {
+    "rule-order-ascending": {
+      "statement": "Data at Rest Scanning DLP rules are evaluated in ascending numerical order, and a disabled rule keeps its place in the order while the service skips it and moves to the next rule.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#order",
+        "zia/casb-dlp-rules#state"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on)",
+            "A disabled rule is not actively enforced but does not lose its place in the rule order; the service skips it and moves to the next rule."
+          ],
+          "after": "To add a DLP rule for collaboration applications:"
+        }
+      ]
+    },
+    "admin-rank": {
+      "statement": "A rule's admin rank is a value from 0 to 7 (0 is the highest), an administrator cannot choose a rank higher than their own, a rule with a higher rank always precedes a rule with a lower rank in the order, and the API requires `rank` when admin rank-based access restriction is enabled.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#rank"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "Enter a value from 0–7 (0 is the highest rank).",
+            "You cannot select a rank that is higher than your own.",
+            "a rule with a higher admin rank always precedes a rule with a lower admin rank"
+          ],
+          "after": "To add a DLP rule for collaboration applications:"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/rank",
+          "expect": {
+            "description": "Admin rank that is assigned to this rule. Mandatory when admin rank-based access restriction is enabled."
+          }
+        }
+      ]
+    },
+    "order-contract": {
+      "statement": "Terraform documents `order` for CASB rules as a positive whole number starting at 1 with no gaps; zero and negative values are rejected, and after deleting a rule the remaining orders must be re-adjusted so the API honours the order.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#order"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_casb_dlp_rules.md",
+          "quotes": [
+            "Rule orders must always be contiguous (no gaps). Deleting a rule must be followed by order number re-adjustment of the remaining rules to ensure the API honours the required order.",
+            "The `order` attribute must always be a positive whole number starting at 1. Negative numbers and zero are **not supported** and will result in an error."
+          ]
+        }
+      ]
+    },
+    "predefined-rules": {
+      "statement": "Predefined CASB rules can be reordered through Terraform but not destroyed, and not all attributes available on custom rules apply to them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_casb_dlp_rules.md",
+          "quotes": [
+            "Predefined rules can be managed via the Terraform provider for reordering purposes; however, `destroy` operations are not supported for predefined rules, and not all attributes available on custom rules apply to them."
+          ]
+        }
+      ]
+    },
+    "engines-max-4": {
+      "statement": "A rule's Content Matching selects up to 4 DLP engines, or Any engine.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#dlpEngines"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "Choose Select DLP Engines to select up to 4 DLP engines for content inspection on this rule.",
+            "Select Any to choose all DLP engines for this rule, or select up to 4 engines."
+          ],
+          "after": "To add a DLP rule for collaboration applications:"
+        }
+      ]
+    },
+    "without-content-inspection": {
+      "statement": "Setting `withoutContentInspection` to true sets Content Matching to None for the rule.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#withoutContentInspection"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/withoutContentInspection",
+          "expect": {
+            "description": "If true, Content Matching is set to None"
+          }
+        }
+      ]
+    },
+    "tenants-empty-means-all": {
+      "statement": "A rule whose `cloudAppTenants` is not set applies to all tenants.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#cloudAppTenants"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/cloudAppTenants",
+          "expect": {
+            "description": "Name-ID pairs of the cloud application tenants for which the rule is applied. If the name-ID pairs of the cloud application tenants are not specified, the rule is applied to all tenants."
+          }
+        }
+      ]
+    },
+    "scope-empty-means-all": {
+      "statement": "A rule with no users, groups or departments applies to all of them, and a rule with no `fileTypes` applies across all file types.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#users",
+        "zia/casb-dlp-rules#groups",
+        "zia/casb-dlp-rules#departments",
+        "zia/casb-dlp-rules#fileTypes"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/users",
+          "expect": {
+            "description": "Name-ID pairs of users for which rule is applied. If not set, the rule is applied to all users."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/groups",
+          "expect": {
+            "description": "Name-ID pairs of groups for which the rule is applied. If not set, the rule is applied for all groups."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/departments",
+          "expect": {
+            "description": "Name-ID pairs of departments for which the rule is applied. If not set, the rule is applied to all departments."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/fileTypes",
+          "expect": {
+            "description": "File types for which the rule is applied. If not set, the rule is applied across all file types."
+          }
+        }
+      ]
+    },
+    "device-fields-ignored": {
+      "statement": "When no value is set, `devices`, `deviceGroups` and `deviceTrustLevels` are ignored during policy evaluation; High, Medium and Low Trust apply only to Zscaler Client Connector traffic, while Unknown applies to all traffic.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#devices",
+        "zia/casb-dlp-rules#deviceGroups",
+        "zia/casb-dlp-rules#deviceTrustLevels"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/devices",
+          "expect": {
+            "description": "Name-ID pairs of devices for which rule must be applied. Specifies devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/deviceGroups",
+          "expect": {
+            "description": "Name-ID pairs of device groups for which the rule must be applied. This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/deviceTrustLevels",
+          "expect": {
+            "description": "List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your posture configurations in the Zscaler Client Connector Portal. If no value is set, this field is ignored during the policy evaluation."
+          }
+        }
+      ]
+    },
+    "senders-groups-32": {
+      "statement": "An email rule selects senders as Any or up to 32 users, and groups as Any or up to 32 groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "Select Any to apply the rule to all users, or select up to 32 users under General Users.",
+            "Select Any to apply the rule to all groups, or select up to 32 groups."
+          ],
+          "after": "To add a DLP rule for email applications:"
+        }
+      ]
+    },
+    "email-fixed-fields": {
+      "statement": "For email rules the components (body, attachments and subject) cannot be changed, and the recipients condition cannot be changed: the rule applies only when at least one recipient is outside the organization and is not an external trusted user or in an external trusted domain.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#recipient"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "The Zscaler service inspects the body, attachments, and subject for emails containing sensitive data.",
+            "This rule only applies when at least one email recipient is from outside your organization, and that recipient is not an external trusted user or is not using an external trusted domain.",
+            "This field cannot be changed"
+          ],
+          "after": "To add a DLP rule for email applications:"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/emailRecipientProfiles",
+          "expect": {
+            "description": "Name-ID pairs of recipient profiles for which the rule is applied. The rule is applied only when there is at least one email recipient from outside an organization, and that recipient is not an external trusted user or is not using an external trusted domain."
+          }
+        }
+      ]
+    },
+    "trusted-exclusive": {
+      "statement": "A rule can name trusted users or trusted domains but not both; the service treats them as internal, and a file matching all criteria together with the trusted users or domains is not a violation and is not acted on.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "If you specify trusted users for the rule, you cannot also specify trusted domains.",
+            "If you specify trusted domains for the rule, you cannot also specify trusted users.",
+            "The Zscaler service treats trusted users the same as internal users.",
+            "then the Zscaler service does not consider a transaction to be a rule violation and does not take action on the file."
+          ],
+          "after": "To add a DLP rule for collaboration applications:"
+        }
+      ]
+    },
+    "tenant-profiles-considered-internal": {
+      "statement": "A domain profile or recipient profile used when onboarding a tenant is not available in a DLP rule, because it is already considered internal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "the domain profile or recipient profile is not available to use as part of your SaaS Security Data at Rest Scanning DLP policy rules because the domain profile or recipient profile is already considered internal."
+          ],
+          "after": "To add a DLP rule for collaboration applications:"
+        }
+      ]
+    },
+    "criteria-toggles": {
+      "statement": "The toggles `includeCriteriaDomainProfile`, `includeEmailRecipientProfile` and `includeEntityGroups` decide whether `criteriaDomainProfiles`, `emailRecipientProfiles` and `entityGroups` count as criteria; when false they are excluded from the criteria.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#includeCriteriaDomainProfile",
+        "zia/casb-dlp-rules#includeEmailRecipientProfile",
+        "zia/casb-dlp-rules#includeEntityGroups"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/includeCriteriaDomainProfile",
+          "expect": {
+            "description": "If true, criteriaDomainProfiles is included as part of the criteria, else they are excluded from the criteria."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/includeEmailRecipientProfile",
+          "expect": {
+            "description": "If true, emailRecipientProfiles is included as part of the criteria, else they are excluded from the criteria."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/includeEntityGroups",
+          "expect": {
+            "description": "If true, entityGroups is included as part of the criteria, else are excluded from the criteria."
+          }
+        }
+      ]
+    },
+    "collaborator-count-ranges": {
+      "statement": "The collaborator criteria `numberOfInternalCollaborators` and `numberOfExternalCollaborators` take one named range: 1 to 10, 11 to 100, 101 to 1000 or 1001 and above.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#numberOfInternalCollaborators",
+        "zia/casb-dlp-rules#numberOfExternalCollaborators"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/numberOfInternalCollaborators",
+          "expect": {
+            "description": "Selects the number of internal collaborators for files that are shared with specific collaborators or are discoverable within an organization",
+            "enum": [
+              "CASB_FILE_TYPE_COLLAB_COUNT_RANGE_1_TO_10",
+              "CASB_FILE_TYPE_COLLAB_COUNT_RANGE_11_TO_100",
+              "CASB_FILE_TYPE_COLLAB_COUNT_RANGE_101_TO_1000",
+              "CASB_FILE_TYPE_COLLAB_RANGE_1001_PLUS"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/numberOfExternalCollaborators",
+          "expect": {
+            "description": "Selects the number of external collaborators for files that are shared with specific collaborators outside of an organization",
+            "enum": [
+              "CASB_FILE_TYPE_COLLAB_COUNT_RANGE_1_TO_10",
+              "CASB_FILE_TYPE_COLLAB_COUNT_RANGE_11_TO_100",
+              "CASB_FILE_TYPE_COLLAB_COUNT_RANGE_101_TO_1000",
+              "CASB_FILE_TYPE_COLLAB_RANGE_1001_PLUS"
+            ]
+          }
+        }
+      ]
+    },
+    "shared-channel-domains": {
+      "statement": "The `domains` field names the external organization sharing a channel and applies only when `contentLocation` is CONTENT_LOCATION_SHARED_CHANNEL.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#domains",
+        "zia/casb-dlp-rules#contentLocation"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/domains",
+          "expect": {
+            "description": "The domain for the external organization sharing the channel. This field is applicable only when you select CONTENT_LOCATION_SHARED_CHANNEL in the 'contentLocation' field."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/contentLocation",
+          "expect": {
+            "description": "The location for the content that the Zscaler service inspects for sensitive data",
+            "enum": [
+              "ANY",
+              "CONTENT_LOCATION_PRIVATE_CHANNEL",
+              "CONTENT_LOCATION_PUBLIC_CHANNEL",
+              "CONTENT_LOCATION_SHARED_CHANNEL",
+              "CONTENT_LOCATION_DIRECT_MESSAGE",
+              "CONTENT_LOCATION_MULTI_PERSON_DIRECT_MESSAGE"
+            ]
+          }
+        }
+      ]
+    },
+    "collab-short-terms": {
+      "statement": "For Microsoft Teams, Slack and Webex Teams, keywords within a file are detected regardless of length, but a term searched in a message or chat must be at least 8 bytes or it is not detected by the DLP action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "keywords within a file are detected irrespective of the character length. However, there is a restriction for terms searched in a message or chat to 8 bytes, below which the term or string is not detected by the DLP action."
+          ]
+        }
+      ]
+    },
+    "components-enum": {
+      "statement": "The `components` criterion accepts ANY and component values for email body, attachment and subject, ITSM objects and attachments, CRM chatter messages, attachments in objects and cases, collaboration messages and attachments, Gen AI messages and attachments, and file attachments.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#components"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/components",
+          "expect": {
+            "description": "List of components for which the rule is applied. Zscaler service inspects these components for sensitive data.",
+            "items": {
+              "enum": [
+                "ANY",
+                "COMPONENT_EMAIL_BODY",
+                "COMPONENT_EMAIL_ATTACHMENT",
+                "COMPONENT_EMAIL_SUBJECT",
+                "COMPONENT_ITSM_OBJECTS",
+                "COMPONENT_ITSM_ATTACHMENTS",
+                "COMPONENT_CRM_CHATTER_MESSAGES",
+                "COMPONENT_CRM_ATTACHMENTS_IN_OBJECTS",
+                "COMPONENT_COLLAB_MESSAGES",
+                "COMPONENT_COLLAB_ATTACHMENTS",
+                "COMPONENT_CRM_CASES",
+                "COMPONENT_GENAI_MESSAGES",
+                "COMPONENT_GENAI_ATTACHMENTS",
+                "COMPONENT_FILE_ATTACHMENTS"
+              ],
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "file-types-enum": {
+      "statement": "The `fileTypes` criterion accepts ANY, NONE and FTCATEGORY_ file type categories; the API reference lists the full set.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#fileTypes"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/fileTypes",
+          "expect": {
+            "description": "File types for which the rule is applied. If not set, the rule is applied across all file types."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/fileTypes/items",
+          "expect": {
+            "enum": [
+              "ANY",
+              "NONE",
+              "FTCATEGORY_JAVASCRIPT",
+              "FTCATEGORY_FLASH",
+              "FTCATEGORY_JAVA_APPLET",
+              "FTCATEGORY_ZIP",
+              "FTCATEGORY_GZIP",
+              "FTCATEGORY_TAR",
+              "FTCATEGORY_BZIP2",
+              "FTCATEGORY_RAR",
+              "FTCATEGORY_STUFFIT",
+              "FTCATEGORY_ISO",
+              "FTCATEGORY_CAB",
+              "FTCATEGORY_P7Z",
+              "FTCATEGORY_ADE",
+              "FTCATEGORY_DB2",
+              "FTCATEGORY_SQL",
+              "FTCATEGORY_DBF",
+              "FTCATEGORY_DB",
+              "FTCATEGORY_PYTHON",
+              "FTCATEGORY_POWERSHELL",
+              "FTCATEGORY_VISUAL_BASIC_SCRIPT",
+              "FTCATEGORY_BASH_SCRIPTS",
+              "FTCATEGORY_SHELL_SCRAP",
+              "FTCATEGORY_APPX",
+              "FTCATEGORY_MSC",
+              "FTCATEGORY_BITMAP",
+              "FTCATEGORY_PHOTOSHOP",
+              "FTCATEGORY_WINDOWS_META_FORMAT",
+              "FTCATEGORY_GIF",
+              "FTCATEGORY_JPEG",
+              "FTCATEGORY_PNG",
+              "FTCATEGORY_TIFF",
+              "FTCATEGORY_WINDOWS_SCRIPT_FILES",
+              "FTCATEGORY_ONENOTE",
+              "FTCATEGORY_MS_POWERPOINT",
+              "FTCATEGORY_MS_WORD",
+              "FTCATEGORY_MS_EXCEL",
+              "FTCATEGORY_MS_RTF",
+              "FTCATEGORY_MS_MDB",
+              "FTCATEGORY_MS_MSG",
+              "FTCATEGORY_MS_PST",
+              "FTCATEGORY_VSDX",
+              "FTCATEGORY_OAB",
+              "FTCATEGORY_ENCRYPT",
+              "FTCATEGORY_PDF_DOCUMENT",
+              "FTCATEGORY_POSTSCRIPT",
+              "FTCATEGORY_COMPILED_HTML_HELP",
+              "FTCATEGORY_TXT",
+              "FTCATEGORY_CSV",
+              "FTCATEGORY_STL",
+              "FTCATEGORY_CERT",
+              "FTCATEGORY_PCAP",
+              "FTCATEGORY_CER",
+              "FTCATEGORY_DER",
+              "FTCATEGORY_P7B",
+              "FTCATEGORY_PEM",
+              "FTCATEGORY_JKS",
+              "FTCATEGORY_KEY",
+              "FTCATEGORY_P12",
+              "FTCATEGORY_CHEMDRAW_FILES",
+              "FTCATEGORY_CML",
+              "FTCATEGORY_CP",
+              "FTCATEGORY_MM",
+              "FTCATEGORY_INF",
+              "FTCATEGORY_APPLE_DOCUMENTS",
+              "FTCATEGORY_AUTOCAD",
+              "FTCATEGORY_INTEGRATED_CIRCUIT_FILES",
+              "FTCATEGORY_LOG_FILES",
+              "FTCATEGORY_EML_FILES",
+              "FTCATEGORY_DAT",
+              "FTCATEGORY_INI",
+              "FTCATEGORY_UNK_TXT",
+              "FTCATEGORY_GO_FILES",
+              "FTCATEGORY_RUBY_FILES",
+              "FTCATEGORY_PERL_FILES",
+              "FTCATEGORY_MATLAB_FILES",
+              "FTCATEGORY_INCLUDE_FILES",
+              "FTCATEGORY_JAVA_FILES",
+              "FTCATEGORY_MAKE_FILES",
+              "FTCATEGORY_YAML_FILES",
+              "FTCATEGORY_VISUAL_BASIC_FILES",
+              "FTCATEGORY_C_FILES",
+              "FTCATEGORY_XAML",
+              "FTCATEGORY_BASIC_SOURCE_CODE",
+              "FTCATEGORY_SCT",
+              "FTCATEGORY_MS_CPP_FILES",
+              "FTCATEGORY_ASM",
+              "FTCATEGORY_BORLAND_CPP_FILES",
+              "FTCATEGORY_COBOL",
+              "FTCATEGORY_CSX",
+              "FTCATEGORY_DELPHI",
+              "FTCATEGORY_DMD",
+              "FTCATEGORY_DSP",
+              "FTCATEGORY_F_FILES",
+              "FTCATEGORY_NATVIS",
+              "FTCATEGORY_POD",
+              "FTCATEGORY_QLIKVIEW_FILES",
+              "FTCATEGORY_RES_FILES",
+              "FTCATEGORY_RPY",
+              "FTCATEGORY_RSP",
+              "FTCATEGORY_SAS",
+              "FTCATEGORY_SC",
+              "FTCATEGORY_SCALA",
+              "FTCATEGORY_TLH",
+              "FTCATEGORY_TLI",
+              "FTCATEGORY_VISUAL_CPP_FILES",
+              "FTCATEGORY_X1B",
+              "FTCATEGORY_IFC",
+              "FTCATEGORY_BCP",
+              "FTCATEGORY_FOR",
+              "FTCATEGORY_AU3",
+              "FTCATEGORY_MANIFEST"
+            ]
+          }
+        }
+      ]
+    },
+    "actions-depend-on-tenant": {
+      "statement": "The actions available on a rule depend on the selected SaaS application tenant, and the report-only action reports the incident and makes no changes to the file's collaboration scope.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "The number of actions available depends on the selected SaaS Application Tenant."
+          ],
+          "after": "To add a DLP rule for collaboration applications:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "Report Incident Only: The rule reports the incident only and makes no changes to the file’s collaboration scope."
+          ],
+          "after": "To add a DLP rule for file sharing applications:"
+        }
+      ]
+    },
+    "label-actions-single-tenant": {
+      "statement": "The Box, Google Drive and Atlassian label actions are offered only when a single tenant with defined labels is chosen; Google Drive and Atlassian tenants onboarded earlier must be reauthorized before Zscaler can see their labels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "To see this action, you must choose a single Box tenant with defined classification labels from the SaaS Application Tenant drop-down menu.",
+            "Before you can use labels in a Google Drive tenant that you have already onboarded, you must reauthorize the tenant so that Zscaler can identify all available labels.",
+            "Before you can use Atlassian Classification labels that you have already onboarded, you must reauthorize the tenant so that Zscaler can identify all available labels."
+          ],
+          "after": "To add a DLP rule for file sharing applications:"
+        }
+      ]
+    },
+    "expiry-actions": {
+      "statement": "The \"After Expiry\" sharing actions are available only for Google Drive; a custom expiration cannot be less than 7 days away, a periodic period keeps enforcing the rule on new and existing files while it is enabled and is extended when a collaborator is added, and a fixed expiration date makes the policy inactive after that date and is not extended.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "Remove Collaborators After Expiry: This rule is only available for Google Drive.",
+            "When setting a custom expiration, you cannot set the expiration for less than 7 days from the current time.",
+            "the expiration period is automatically extended when a new collaborator is added.",
+            "In case of a fixed expiration date (e.g., December 10), the policy becomes inactive after this date unless modified or reconfigured."
+          ]
+        }
+      ]
+    },
+    "watermark-versioning": {
+      "statement": "A watermark action can retain the existing versioning, treating the watermarked file as a new version, or delete it, treating the watermarked file as a new file; on Confluence tenants watermarks are applied only to files attached to pages.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#watermarkDeleteOldVersion"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "you can select Retain Existing Versioning to treat the watermarked file as a new version of the existing file on the SaaS provider",
+            "or you can select Delete Existing Versioning to treat the watermarked file as a completely new file on the SaaS provider",
+            "On Confluence tenants, the Zscaler service applies watermarks only on files that are attached to Confluence pages, not on the Confluence pages themselves."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/watermarkDeleteOldVersion",
+          "expect": {
+            "description": "A Boolean value that specifies whether to delete an old version of the watermarked file"
+          }
+        }
+      ]
+    },
+    "buckets-need-saved-rule-and-schedule": {
+      "statement": "For Amazon S3 rules, buckets and a bucket owner can be chosen only after the rule is saved and a scan schedule exists.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#buckets",
+        "zia/casb-dlp-rules#bucketOwner"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "Before you can select buckets or choose a bucket owner, you must have saved this rule and created a scan schedule."
+          ],
+          "after": "To add a DLP rule for public cloud storage applications:"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/bucketOwner",
+          "expect": {
+            "description": "A user who inspect their buckets for sensitive data. When you choose a user, their buckets are available in the Buckets field."
+          }
+        }
+      ]
+    },
+    "genai-scan-exceptions": {
+      "statement": "Generative AI scanning includes attachments uploaded via Custom GPT and predefined GPT but takes no DLP or malware action on them because the download URL is unavailable, and it excludes text fields such as Description, Instructions, Name and Conversation Starters and malware in a conversation prompt.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "Includes attachments uploaded via Custom GPT and predefined GPT but does not include DLP and malware scans, as the download URL is unavailable and there is no policy action",
+            "Excludes the scanning of text fields such as Description, Instructions, Name, or Conversation Starters",
+            "Excludes the scanning of malware content present in the prompt of a conversation"
+          ]
+        }
+      ]
+    },
+    "notification-needs-auditor": {
+      "statement": "A rule sends no notification unless an auditor and a notification template are selected.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#auditor",
+        "zia/casb-dlp-rules#auditorNotification"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "If you do not select an auditor and notification template, a notification is not sent for this rule."
+          ],
+          "after": "To add a DLP rule for collaboration applications:"
+        }
+      ]
+    },
+    "incident-receiver-field": {
+      "statement": "A rule can forward incidents to an on-premises Zscaler Incident Receiver or, with Cloud-to-Cloud Forwarding, to a public cloud such as Amazon S3, Microsoft Azure or Google Cloud Platform, and the API carries the choice in `receiver`.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#receiver",
+        "zia/casb-dlp-rules#zscalerIncidentReceiver"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "If you want to forward the incidents that this policy rule captured to your public cloud, such as Amazon S3, Microsoft Azure, or Google Cloud Platform, select the Cloud-to-Cloud Forwarding option."
+          ],
+          "after": "To add a DLP rule for collaboration applications:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "forward the transactions captured by this policy rule to an on-premises DLP incident receiver"
+          ],
+          "after": "To add a DLP rule for collaboration applications:"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/receiver",
+          "expect": {
+            "description": "Details of the DLP Incident Receiver, which could be one of the following types:  or ."
+          }
+        }
+      ]
+    },
+    "access-control-field": {
+      "statement": "The rule field `accessControl` is the access privilege of the rule under the administrator's Role Based Authorization state, one of NONE, READ_ONLY or READ_WRITE.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#accessControl"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/accessControl",
+          "expect": {
+            "description": "Access privilege of this rule based on the admin's Role Based Authorization (RBA) state",
+            "enum": [
+              "NONE",
+              "READ_ONLY",
+              "READ_WRITE"
+            ]
+          }
+        }
+      ]
+    },
+    "name-required-in-contract": {
+      "statement": "The API contract requires a rule `name`, while the Terraform provider does not mark it required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/zia-divergences.md",
+          "quotes": [
+            "contract required=True, TF required=False (contract stricter than TF)"
+          ],
+          "after": "## casb_dlp_rule"
+        }
+      ]
+    },
+    "severity-values": {
+      "statement": "A rule's severity is RULE_SEVERITY_HIGH, MEDIUM, LOW or INFO, and the Information level exists to track low-risk incidents that must be observed.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules#severity"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/severity",
+          "expect": {
+            "description": "The severity level of the incidents that match the policy rule",
+            "enum": [
+              "RULE_SEVERITY_HIGH",
+              "RULE_SEVERITY_MEDIUM",
+              "RULE_SEVERITY_LOW",
+              "RULE_SEVERITY_INFO"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-data-rest-scanning-dlp-policy.md",
+          "quotes": [
+            "The Information level allows you to track low-risk incidents that must be observed."
+          ],
+          "after": "To add a DLP rule for collaboration applications:"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "first-match": {
+      "kind": "semantic",
+      "title": "Whether evaluation stops at the first matching Data at Rest Scanning DLP or malware rule",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Both use first-match, top-down evaluation within each rule type.\" The help articles say rules are evaluated in ascending numerical order but do not say whether a later rule can also act on content an earlier rule matched.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "stating which rule acts on content that matches several"
+    },
+    "action-token-meanings": {
+      "kind": "semantic",
+      "title": "What each DLP action token does",
+      "status": "open",
+      "detail": "Unverified legacy statement: a table giving an effect for every `action` token, including OFLCASB_DLP_ALLOW (\"Explicitly allow (audit only)\") and OFLCASB_DLP_BLOCK (\"Block access to the object\"). The token list is in the OpenAPI document and the Terraform schema, and the console describes its actions by label; no source maps tokens to labels, and the console lists no allow or block action for Data at Rest Scanning.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "about": [
+        "zia/casb-dlp-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post/requestBody/content/application~1json/schema/properties/action",
+          "expect": {
+            "description": "The configured action for the policy rule"
+          }
+        }
+      ]
+    },
+    "genai-prompt-response": {
+      "kind": "semantic",
+      "title": "Whether Gen AI messages cover both prompts and model responses",
+      "status": "partial",
+      "detail": "The component values COMPONENT_GENAI_MESSAGES and COMPONENT_GENAI_ATTACHMENTS do not separate prompts from responses. The Gen AI log columns include a bot name and a sender type (bot, system or user), which suggests responses are logged, but no source says so for the rule component.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "former_ids": [
+        "api-casb-04"
+      ]
+    }
+  }
+}

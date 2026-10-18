@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.settings",
+  "title": "Terraform global settings resources: URL lists, end user notification and browser control",
+  "aliases": [
+    "zia_security_settings",
+    "zia_end_user_notification",
+    "zia_browser_control_policy",
+    "smart_isolation_profile",
+    "NOT_SUBSCRIBED browser control",
+    "whitelist_urls 255",
+    "blacklist_urls 275000",
+    "browser control ANY drift"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.multi-step-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.data-source-fidelity"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a browser control plan fails with NOT_SUBSCRIBED on a tenant without Cloud Browser Isolation, and whether the profile block holds a real value.",
+      "uses": [
+        "profile-change-skipped-when-empty",
+        "profile-needs-real-value"
+      ]
+    },
+    {
+      "do": "Whether a browser control list drift is the ANY, NONE and empty-list equivalence rather than a real change.",
+      "uses": [
+        "any-normalised-by-api"
+      ]
+    },
+    {
+      "do": "Whether a notification text containing a script tag is the cause of an HTTP 406 on the end user notification resource.",
+      "uses": [
+        "eun-no-javascript"
+      ]
+    },
+    {
+      "do": "Whether the allowlist or denylist length is within the schema caps.",
+      "uses": [
+        "url-lists-capped"
+      ]
+    }
+  ],
+  "claims": {
+    "url-lists-capped": {
+      "statement": "The `zia_security_settings` schema caps the allowlist (`whitelist_urls`) at 255 entries and the denylist (`blacklist_urls`) at 275000 entries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_security_policy_settings.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "Allowlist URLs whose contents will not be scanned. Allows up to 255 URLs.",
+            "URLs on the denylist for your organization. Allow up to 275000 URLs."
+          ]
+        }
+      ]
+    },
+    "eun-no-javascript": {
+      "statement": "The provider documents that the ZIA API does not accept JavaScript tags in end user notification text attributes and answers them with an HTTP 406 Rejected error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_end_user_notification.md",
+          "quotes": [
+            "The ZIA API currently does not accept JavaScript tags in notification text attributes. Using JavaScript tags will result in an HTTP 406 Rejected error."
+          ]
+        }
+      ]
+    },
+    "profile-needs-real-value": {
+      "statement": "The browser control resource treats a `smart_isolation_profile` as configured only when its `id`, `name` or `url` is non-empty, because the service reports an all-zero profile object on tenants that have none and a bare block in HCL flattens to empty strings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_browser_control_policy.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "// the service reports an all-zero profile object on tenants that have none,",
+            "if id != \"\" || name != \"\" || url != \"\" {"
+          ]
+        }
+      ]
+    },
+    "profile-change-skipped-when-empty": {
+      "statement": "A smart isolation profile change is sent only when one side holds a real profile; the code comments that an all-empty block left in state by earlier releases is not worth sending because tenants without a Cloud Browser Isolation subscription are answered with 403 NOT_SUBSCRIBED.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_browser_control_policy.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "// A profile change is only worth an update when one side holds a real",
+            "// tenants without a Cloud Browser Isolation subscription are answered",
+            "// with 403 NOT_SUBSCRIBED."
+          ]
+        }
+      ]
+    },
+    "absent-profile-recorded-as-none": {
+      "statement": "When the service reports no profile, Read records that absence and so clears an all-empty block left by an earlier release, except that state holding a real profile the service did not echo back is left alone to avoid false drift.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_browser_control_policy.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "// that too — an absent profile is a real answer here, and writing it through",
+            "// echo back, which would otherwise be dropped and show up as drift."
+          ]
+        }
+      ]
+    },
+    "any-normalised-by-api": {
+      "statement": "The Browser Control API accepts the value ANY in a request but normalizes it server-side to an empty list or [\"NONE\"], treating ANY, NONE and no entries as equivalent; the provider keeps a declared [\"ANY\"] in state when the API returns that no-entries form so later plans converge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_browser_control_policy.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "// \"ANY\" in the request is accepted but normalized server-side to either an",
+            "// equivalent, so without this normalization every plan after apply shows",
+            "// [\"ANY\"], we keep [\"ANY\"] so subsequent plans converge. Otherwise the API"
+          ]
+        }
+      ]
+    }
+  }
+}

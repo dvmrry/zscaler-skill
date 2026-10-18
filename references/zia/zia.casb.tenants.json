@@ -1,0 +1,457 @@
+{
+  "schema_version": 1,
+  "id": "zia.casb.tenants",
+  "title": "CASB tenants: connecting a SaaS application, states and reauthorization",
+  "aliases": [
+    "casb tenant",
+    "saas application tenant",
+    "casbTenant",
+    "reauthorization required",
+    "reAuth",
+    "validation failed",
+    "tenant limit 16",
+    "external trusted domains"
+  ],
+  "binds": [
+    "zia/casb-tenants"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.casb.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.scans"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.limits"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant shows Active, or Reauthorization Required or Validation Failed, before assuming a scan or rule is running against it.",
+      "uses": [
+        "tenant-states",
+        "reauthorize-procedure",
+        "validate-status-states"
+      ]
+    },
+    {
+      "do": "Whether the tenant the rule names is a CASB tenant and not a Tenant Profile used by Cloud App Control.",
+      "uses": [
+        "not-a-tenant-profile"
+      ]
+    },
+    {
+      "do": "Whether the application already has 16 tenants when a new one will not add.",
+      "uses": [
+        "tenant-limit-16"
+      ]
+    },
+    {
+      "do": "Whether the question needs what reauthorization does to scans, which no source states.",
+      "uses": [
+        "reauth-effect"
+      ]
+    }
+  ],
+  "claims": {
+    "tenant-authorizes-app": {
+      "statement": "A SaaS application is authorized with Zscaler by adding it as a tenant; Zscaler Data at Rest Scanning provides visibility and security for the sanctioned SaaS applications added this way.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-tenants"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-application-tenants.md",
+          "quotes": [
+            "You can authorize sanctioned SaaS applications with Zscaler by adding them as tenants."
+          ]
+        }
+      ]
+    },
+    "tenant-name-unique": {
+      "statement": "A tenant name must be unique, and it is the name shown when configuring the Data at Rest Scanning DLP policy, the Malware Detection policy, Workflow Automation or Scan Configuration.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-tenants#tenantName"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-saas-application-tenants.md",
+          "quotes": [
+            "enter a name for the SaaS application tenant. It must be unique.",
+            "This name is displayed when configuring the Data at Rest Scanning DLP policy, Malware Detection policy, Workflow Automation, or Scan Configuration"
+          ]
+        }
+      ]
+    },
+    "onboarding-features": {
+      "statement": "When adding a tenant the administrator selects the functionality to enable, from DLP and Malware scanning SaaS API, SSPM Scan or Workflow Automation, where the application supports it; the API names these as the tenant features CASB, WORKFLOW_AUTOMATION, SSPM, ACTIVITY_REPORT, TP_APP_REPORT, RT_DLP, APP_GOVERNANCE, REDACTION and CASB_ENTITY_GROUP.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-tenants#featuresSupported"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-saas-application-tenants.md",
+          "quotes": [
+            "You can choose from DLP and Malware scanning SaaS API, SSPM Scan, or Workflow Automation if the app supports the functionality."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1lite/get/parameters/[name=filterByFeature]",
+          "expect": {
+            "description": "Filters the SaaS application tenant by feature",
+            "schema": {
+              "items": {
+                "enum": [
+                  "CASB",
+                  "WORKFLOW_AUTOMATION",
+                  "SSPM",
+                  "ACTIVITY_REPORT",
+                  "TP_APP_REPORT",
+                  "RT_DLP",
+                  "APP_GOVERNANCE",
+                  "REDACTION",
+                  "CASB_ENTITY_GROUP"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            }
+          }
+        }
+      ]
+    },
+    "tenant-states": {
+      "statement": "The console shows a tenant as Active (policies are enforced), Inactive (policies are not enforced), Validation Failed (the admin credentials could not be validated or the application authorized) or Reauthorization Required.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-tenants#status"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-application-tenants.md",
+          "quotes": [
+            "Active: The tenant is in use. Policies are enforced for this SaaS application.",
+            "Inactive: The tenant is not in use. Policies are not enforced for this SaaS application.",
+            "There were issues validating the admin credentials and authorizing the SaaS application.",
+            "Reauthorization Required: Edit the tenant"
+          ]
+        }
+      ]
+    },
+    "reauthorize-procedure": {
+      "statement": "A tenant in Reauthorization Required is fixed by editing the tenant and choosing Reauthorize, which logs in to the SaaS application and gives Zscaler access again; reauthorizing GitHub first requires revoking the existing Zscaler OAuth application authorization in the GitHub portal.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-tenants#reAuth"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-application-tenants.md",
+          "quotes": [
+            "Edit the tenant, and click Reauthorize to log in to the SaaS application and give Zscaler access to it.",
+            "If you're reauthorizing GitHub, you must revoke the existing Zscaler OAuth application authorization in the GitHub portal."
+          ]
+        }
+      ]
+    },
+    "reauth-flag": {
+      "statement": "A tenant record carries a boolean `reAuth`, documented by the Terraform provider as enabling tenant re-authentication, and a `lastTenantValidationTime`.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-tenants#reAuth",
+        "zia/casb-tenants#lastTenantValidationTime"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_casb_tenant.md",
+          "quotes": [
+            "(Boolean) Enable tenant re-authentication",
+            "(Number) Last time the tenant was validated"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/saas_security_api/saas_security_api.go",
+          "quotes": [
+            "ReAuth                   bool           `json:\"reAuth,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "validate-status-states": {
+      "statement": "The tenant validation status endpoint returns a list of states that includes CASB_TENANT_NORMAL_RETHORIZATION and CASB_TENANT_CONNECTOR_RETHORIZATION alongside the active, inactive and validation states, with an error code and message for a failed validation.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-tenants#status"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1validate~1status~1{tenantId}/get/responses/200/content/application~1json/schema/properties/status",
+          "expect": {
+            "description": "Status of the scan",
+            "items": {
+              "enum": [
+                "CASB_TENANT_ACTIVE",
+                "CASB_TENANT_INACTIVE",
+                "CASB_TENANT_VALIDATING",
+                "CASB_TENANT_VALIDATION_SUCCESS",
+                "CASB_TENANT_VALIDATION_FAIL",
+                "CASB_TENANT_NORMAL_RETHORIZATION",
+                "CASB_TENANT_CONNECTOR_RETHORIZATION"
+              ],
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1validate~1status~1{tenantId}/get/responses/200/content/application~1json/schema/properties/lastValidationMsg",
+          "expect": {
+            "description": "The validation error message information",
+            "properties": {
+              "errorCode": {
+                "description": "The validation error code",
+                "format": "int32",
+                "type": "integer"
+              },
+              "errorMsg": {
+                "description": "The validation error message",
+                "type": "string"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "validate-status-carries-authorization-info": {
+      "statement": "The validation status response also carries a `tenantAuthorizationInfo` object whose members include credential fields such as `accessToken`, `clientId`, `clientSecret`, `botToken` and `credJson`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1validate~1status~1{tenantId}/get/responses/200/content/application~1json/schema/properties/tenantAuthorizationInfo/properties/clientSecret",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1validate~1status~1{tenantId}/get/responses/200/content/application~1json/schema/properties/tenantAuthorizationInfo/properties/accessToken",
+          "expect": {
+            "type": "string",
+            "description": "The access token issued to the SaaS tenant application by the authorization serverfor tenant authorization"
+          }
+        }
+      ]
+    },
+    "tenant-limit-16": {
+      "statement": "Up to 16 tenants can be added for each sanctioned SaaS application; Zscaler Support can be asked for an increase.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-tenants"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "Up to 16 tenants can be added for each sanctioned SaaS application. Contact Zscaler Support for a possible increase in this limit."
+          ]
+        }
+      ]
+    },
+    "trusted-profile-limit-32": {
+      "statement": "Up to 32 external trusted domain and user profiles can be added for each sanctioned SaaS application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "Up to 32 profiles can be added for each sanctioned SaaS application."
+          ]
+        }
+      ]
+    },
+    "trusted-profiles-email-only": {
+      "statement": "External trusted domain profiles and external trusted user profiles apply only to email SaaS application tenants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-application-tenants.md",
+          "quotes": [
+            "Displays the total number of added external trusted domains. Click to view a list of the domains. This only applies to email SaaS application tenants.",
+            "Displays the total number of added external trusted users. Click to view a list of the users. This only applies to email SaaS application tenants."
+          ]
+        }
+      ]
+    },
+    "trusted-treated-internal": {
+      "statement": "For a Gmail tenant, the Zscaler service treats email addresses from the added external trusted domains as trusted, internal users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-saas-application-tenants.md",
+          "quotes": [
+            "The Zscaler service views any email addresses from the added domains as trusted, internal users for Gmail."
+          ]
+        }
+      ]
+    },
+    "owner-zia-or-zdx": {
+      "statement": "A tenant records whether it was created in Internet & SaaS (ZIA) or Digital Experience (ZDX); a tenant created in ZDX cannot be deleted in ZIA, and edits in ZIA are allowed on any field except those relating to Workflow Automation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-application-tenants.md",
+          "quotes": [
+            "If the tenant was created in ZDX, the delete functionality is removed in Internet & SaaS.",
+            "Edits in Internet & SaaS for tenants created in ZDX are allowed on any fields except those relating to Workflow Automation."
+          ]
+        }
+      ]
+    },
+    "onboarding-quarantine-location": {
+      "statement": "Choosing DLP and Malware Scanning SaaS API at onboarding asks for a DLP Quarantine Location (a folder path or URL for relocated files) and a DLP Admin Email ID for supported file share applications.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-tenants"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-saas-application-tenants.md",
+          "quotes": [
+            "you need to specify your quarantine location for supported file share applications.",
+            "enter a valid folder path or URL of the designated quarantine location for relocating the files"
+          ]
+        }
+      ]
+    },
+    "webhook-flag": {
+      "statement": "A tenant record carries a boolean `tenantWebhookEnabled`, documented by the Terraform provider as whether the tenant webhook feature is enabled.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-tenants#tenantWebhookEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_casb_tenant.md",
+          "quotes": [
+            "(Boolean) If the tenant webhook feature is enabled"
+          ]
+        }
+      ]
+    },
+    "webex-realtime-dlp": {
+      "statement": "For a Webex Teams tenant the Data at Rest Scanning rules cover messages, but file attachments need the tenant onboarded for Real-time DLP, and DLP and Malware scanning SaaS API and Real-time DLP cannot be enabled at the same time for the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-saas-application-tenants.md",
+          "quotes": [
+            "Both onboarding options for Webex Teams allow you to configure rules for messages, but for file attachments you need to onboard the tenant for Real-time DLP.",
+            "DLP and Malware scanning SaaS API and Real-time DLP cannot be enabled at the same time."
+          ]
+        }
+      ]
+    },
+    "no-create-endpoint": {
+      "statement": "The ZIA OpenAPI document defines only GET operations for CASB tenants (list, scan info, validation status and policy tags), and the Terraform provider exposes the tenant only as a read-only data source, so a tenant cannot be created through the documented API.",
+      "tier": "B",
+      "binds": [
+        "zia/casb-tenants"
+      ],
+      "conditions": "Rests on absence: the `/casbTenant` paths in the ZIA OpenAPI document were searched and carry only `get`; an undocumented create call is not ruled out.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1lite/get",
+          "expect": {
+            "description": "Retrieves information about the SaaS application tenant. ."
+          }
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_casb_tenant.md",
+          "quotes": [
+            "data source to get information about a ZIA SaaS Application Tenants"
+          ]
+        }
+      ]
+    },
+    "not-a-tenant-profile": {
+      "statement": "A CASB tenant is not a Tenant Profile: tenants are chosen when configuring the Data at Rest Scanning DLP policy, the Malware Detection policy and Scan Configuration, while a tenant profile is associated with a Cloud App Control policy rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-application-tenants.md",
+          "quotes": [
+            "The name of the SaaS application tenant that is displayed when configuring the DLP policy, Malware Detection policy, and Scan Configuration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-tenant-profiles.md",
+          "quotes": [
+            "The name of the tenant profile that is displayed when configuring the Cloud App Control policy rule."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "reauth-effect": {
+      "kind": "semantic",
+      "title": "What a tenant needing reauthorization does to its scans and what triggers it",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"When `reAuth = true` on a tenant object, scans for that tenant will not run. This is triggered by expired or revoked OAuth tokens, a change in the SaaS application's OAuth policies, or administrative rotation of API credentials.\" No captured source states the effect on scans or lists the triggers. Resolve with a lab test of a tenant whose authorization is revoked.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "telling an operator whether scans are stopped while a tenant shows Reauthorization Required"
+    },
+    "oauth-scope": {
+      "kind": "semantic",
+      "title": "Whether the access Zscaler is granted to a SaaS tenant exceeds what scanning needs",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The scope of that credential may be broader than the minimum necessary for scanning.\" The onboarding article lists the roles or permissions granted per application, but no source compares them with the minimum a scan needs.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

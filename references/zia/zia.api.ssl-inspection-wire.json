@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "zia.api.ssl-inspection-wire",
+  "title": "SSL Inspection rule wire notes: Kerberos road warriors, ZPA segments and predefined rules",
+  "aliases": [
+    "road_warrior_for_kerberos",
+    "zpa_app_segments ssl inspection",
+    "predefined ssl inspection rules cannot be deleted terraform"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.api-shape"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.rules"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a predefined SSL Inspection rule is being deleted, which the provider does not support.",
+      "uses": [
+        "predefined-not-destroyable"
+      ]
+    },
+    {
+      "do": "Whether the rule was meant to cover remote PAC users on Kerberos, which is its own SSL Inspection rule setting.",
+      "uses": [
+        "road-warrior-kerberos"
+      ]
+    }
+  ],
+  "claims": {
+    "road-warrior-kerberos": {
+      "statement": "The SSL Inspection rule setting road_warrior_for_kerberos applies the rule to remote users that use PAC with Kerberos authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/ssl_inspection_rules.py",
+          "quotes": [
+            "road_warrior_for_kerberos (bool): The rule is applied to remote users that use PAC with Kerberos authentication."
+          ]
+        }
+      ]
+    },
+    "zpa-app-segments": {
+      "statement": "An SSL Inspection rule can name ZPA application segments that have Source IP Anchoring enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/ssl_inspection_rules.py",
+          "quotes": [
+            "zpa_app_segments (list): List of Source IP Anchoring-enabled ZPA Application Segments"
+          ]
+        }
+      ]
+    },
+    "predefined-not-destroyable": {
+      "statement": "Default and predefined rules cannot be deleted; predefined ones can be imported and reordered, but destroying one fails; default rules should not be imported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_ssl_inspection_rules.md",
+          "quotes": [
+            "Zscaler SSL Inspection rules contain default and predefined rules which cannot be deleted.",
+            "`destroy` operations are not supported for predefined rules",
+            "DO NOT import or manage Default Rules."
+          ]
+        }
+      ]
+    }
+  }
+}

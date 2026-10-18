@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.url-filtering-rules",
+  "title": "Terraform user agent validation and isolation on URL Filtering rules",
+  "aliases": [
+    "BRAVE user agent terraform zia",
+    "user_agent_types validation",
+    "zia_url_filtering_rules isolate",
+    "terraform-provider-zia issue 606"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-resources"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.rule-order"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a rejected `user_agent_types` value is BRAVE, which the provider validator omits for three rule resources.",
+      "uses": [
+        "validator-omits-brave",
+        "hcl-cannot-declare-brave"
+      ]
+    },
+    {
+      "do": "Whether the tenant has Cloud Browser Isolation before configuring an `ISOLATE` rule, and whether the rule has a `cbi_profile`, no OTHER user agent type and only HTTP and HTTPS protocols.",
+      "uses": [
+        "isolate-needs-cbi",
+        "isolate-validation"
+      ]
+    }
+  ],
+  "claims": {
+    "validator-omits-brave": {
+      "statement": "In v4.8.8 the provider's `user_agent_types` validator accepts OPERA, FIREFOX, MSIE, MSEDGE, CHROME, SAFARI, MSCHREDGE and OTHER, and omits BRAVE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/validator.go",
+          "quotes": [
+            "\"OPERA\", \"FIREFOX\", \"MSIE\", \"MSEDGE\", \"CHROME\", \"SAFARI\", \"MSCHREDGE\", \"OTHER\","
+          ]
+        }
+      ]
+    },
+    "validator-shared-by-three-resources": {
+      "statement": "The shared `getUserAgentTypes()` schema applies that validator, and `zia_url_filtering_rules`, `zia_ssl_inspection_rules` and `zia_cloud_app_control_rule` all use it for `user_agent_types`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "ValidateDiagFunc: validateUserAgentTypes(),"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "quotes": [
+            "\"user_agent_types\":            getUserAgentTypes(),"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_ssl_inspection_rules.go",
+          "quotes": [
+            "\"user_agent_types\":             getUserAgentTypes(),"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "quotes": [
+            "\"user_agent_types\":       getUserAgentTypes(),"
+          ]
+        }
+      ]
+    },
+    "header-profile-accepts-brave": {
+      "statement": "The `user_agent` criterion of `zia_http_header_profile` is validated against a list that does include BRAVE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_http_header_profile.go",
+          "quotes": [
+            "\"BRAVE\","
+          ],
+          "after": "Description: \"The user agent evaluated by the criteria.\","
+        }
+      ]
+    },
+    "hcl-cannot-declare-brave": {
+      "statement": "So under v4.8.8 HCL cannot declare BRAVE in `user_agent_types` for URL Filtering, SSL Inspection or Cloud App Control rules, although the HTTP header profile accepts it.",
+      "tier": "B",
+      "derived_from": [
+        "validator-omits-brave",
+        "validator-shared-by-three-resources",
+        "header-profile-accepts-brave"
+      ],
+      "conditions": "Follows from the validator list and the three resources sharing it."
+    },
+    "read-copies-user-agents": {
+      "statement": "The URL filtering Read copies the API's `UserAgentTypes` into state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "quotes": [
+            "_ = d.Set(\"user_agent_types\", resp.UserAgentTypes)"
+          ]
+        }
+      ]
+    },
+    "isolate-needs-cbi": {
+      "statement": "Creating a URL Filtering rule with the `ISOLATE` action requires the Cloud Browser Isolation subscription.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_url_filtering_rules.md",
+          "quotes": [
+            "Creating a URL Filtering rule with the action of `ISOLATE` requires the Cloud Browser Isolation subscription.",
+            "This block is required when the attribute `action` is set to `ISOLATE`"
+          ]
+        }
+      ]
+    },
+    "isolate-validation": {
+      "statement": "For an ISOLATE rule the provider requires a cbi_profile, rejects the user agent type OTHER, and allows only HTTP and HTTPS protocols.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "quotes": [
+            "cbi_profile attribute is required when action is ISOLATE",
+            "user_agent_types should not contain 'OTHER' when action is ISOLATE.",
+            "when action is ISOLATE, valid options for protocols are: HTTP and/or HTTPS"
+          ],
+          "after": "// Validation for ISOLATE action"
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "brave-provider-vs-contract": {
+      "summary": "Whether BRAVE is an accepted user agent type on SSL Inspection and Cloud App Control rules.",
+      "positions": [
+        {
+          "says": "The captured Automate contract includes BRAVE in the SSL Inspection `userAgentTypes` enum.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1sslInspectionRules/post/requestBody/content/application~1json/schema/properties/userAgentTypes",
+            "expect": {
+              "description": "User agent type list",
+              "items": {
+                "enum": [
+                  "OPERA",
+                  "FIREFOX",
+                  "MSIE",
+                  "MSEDGE",
+                  "CHROME",
+                  "SAFARI",
+                  "OTHER",
+                  "MSCHREDGE",
+                  "BRAVE"
+                ],
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "says": "The contract omits BRAVE from the Cloud App Control `userAgentTypes` enum.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1webApplicationRules~1{rule_type}/post/requestBody/content/application~1json/schema/properties/userAgentTypes",
+            "expect": {
+              "description": "User Agent types on which this rule will be applied",
+              "items": {
+                "enum": [
+                  "OPERA",
+                  "FIREFOX",
+                  "MSIE",
+                  "MSEDGE",
+                  "CHROME",
+                  "SAFARI",
+                  "OTHER",
+                  "MSCHREDGE"
+                ],
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "says": "The provider validator used by both resources omits BRAVE.",
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/validator.go",
+            "quotes": [
+              "\"OPERA\", \"FIREFOX\", \"MSIE\", \"MSEDGE\", \"CHROME\", \"SAFARI\", \"MSCHREDGE\", \"OTHER\","
+            ]
+          }
+        }
+      ],
+      "impact": "An SSL Inspection rule that the API allows to carry BRAVE cannot be written in HCL under v4.8.8; for Cloud App Control the provider and the contract agree."
+    }
+  },
+  "gaps": {
+    "issue-606-read-time-failure": {
+      "kind": "semantic",
+      "title": "Whether the API returns BRAVE for existing URL Filtering rules and the provider then fails planning",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "saying that a URL Filtering plan fails on read for rules with broad browser selections",
+      "detail": "Unverified legacy statement: upstream issue 606 reports that the API returned BRAVE for existing URL Filtering rules with broad browser selections and that the provider failed during plan. The Read path copies the API value into state and the sources here do not show a validation failure mechanism on read. Reproduce in a scratch tenant with a URL Filtering rule that selects all browsers, then plan with v4.8.8."
+    }
+  }
+}

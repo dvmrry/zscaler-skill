@@ -6,4 +6,4 @@ Bandwidth Control is fully API-manageable; the console is not the only plane. Th
 
 **Class typing.** {{class-type-enum}} {{types-match-predefined}} {{file-size-enum}} {{application-values}}
 
-**Terraform.** {{tf-class-resources}} {{tf-wrappers-update-existing}} Terraform destroy semantics in general: [[zia.terraform.delete-detach]]. The Large Files size field is named differently in the schema and the SDK {{divergence:file-size-field-name}}.
+**Terraform.** {{tf-class-resources}} {{tf-wrappers-update-existing}} The Terraform bandwidth control rule resource is documented as OneAPI-only {{tf-rule-oneapi-only}}, and whether the class resources share the restriction is not stated {{gap:tf-classes-oneapi-only}}. Terraform destroy semantics in general: [[zia.terraform.delete-detach]]. The Large Files size field is named differently in the schema and the SDK {{divergence:file-size-field-name}}.

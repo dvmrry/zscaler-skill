@@ -1,0 +1,515 @@
+{
+  "schema_version": 1,
+  "id": "zia.casb.api-surface",
+  "title": "CASB API, SDK and Terraform surface",
+  "aliases": [
+    "casbTenant lite",
+    "casbTenant scanInfo",
+    "casbDlpRules all",
+    "zia_casb_dlp_rules",
+    "zia_casb_tenant",
+    "saas security api sdk",
+    "domainProfiles lite",
+    "quarantineTombstoneTemplate lite",
+    "casbEmailLabel lite"
+  ],
+  "binds": [
+    "zia/casb-tenants",
+    "zia/casb-dlp-rules",
+    "zia/casb-malware-rules",
+    "zia/domain-profiles",
+    "zia/casb-tombstone-templates",
+    "zia/casb-email-labels"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.casb.tenants"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.rule-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.dlp-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.malware-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order.registry"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a tenant filter uses the API camelCase name when it is written outside Terraform and the Python SDK.",
+      "uses": [
+        "tenant-list-filters",
+        "snake-case-wrappers"
+      ]
+    },
+    {
+      "do": "Whether a Go SDK rule list for one type is a single read, and use GetAll for the complete set.",
+      "uses": [
+        "go-rule-reads"
+      ]
+    },
+    {
+      "do": "Whether domain profile attributes came from the lite list or the full list before comparing SDKs.",
+      "uses": [
+        "domain-profiles-endpoint"
+      ]
+    }
+  ],
+  "claims": {
+    "tenant-read-endpoints": {
+      "statement": "The documented tenant calls are all GET: the tenant list `casbTenant/lite`, scan configuration `casbTenant/scanInfo`, validation status `casbTenant/validate/status/{tenantId}`, and the policy tags `casbTenant/{tenantId}/tags/policy`.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-tenants"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1lite/get",
+          "expect": {
+            "description": "Retrieves information about the SaaS application tenant. ."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1scanInfo/get",
+          "expect": {
+            "description": "Retrieves the SaaS Security Scan Configuration information. ."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1validate~1status~1{tenantId}/get",
+          "expect": {
+            "description": "Retrieves the validation status of the SaaS application tenant based on the tenant ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1{tenantId}~1tags~1policy/get",
+          "expect": {
+            "description": "Retrieves the tags used in the policy rules associated with a tenant, based on the tenant ID."
+          }
+        }
+      ]
+    },
+    "tenant-list-filters": {
+      "statement": "The tenant list filters use camelCase names (`activeOnly`, `includeDeleted`, `scanConfigTenantsOnly`, `includeBucketReadyS3Tenants`, `filterByFeature`, `appType`, `app`, `page`, `pageSize`), and `activeOnly` defaults to true.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-tenants"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1lite/get/parameters/[name=activeOnly]",
+          "expect": {
+            "description": "Indicates that the tenant is in use. Policies are enforced for this SaaS application.",
+            "schema": {
+              "default": true,
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1lite/get/parameters/[name=scanConfigTenantsOnly]",
+          "expect": {
+            "description": "Specifies the tenant for which the scan is already configured",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1lite/get/parameters/[name=includeBucketReadyS3Tenants]",
+          "expect": {
+            "description": "For the AWS S3 SaaS application, this parameter indicates that the buckets have been read and are ready for use in policies and scan configurations.",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    },
+    "snake-case-wrappers": {
+      "statement": "The Python SDK documents the tenant filters as snake_case (`active_only`, `scan_config_tenants_only`, `filter_by_feature`) and the Terraform data source takes the same snake_case arguments, while the Go SDK passes the caller's keys through unchanged.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/saas_security_api.py",
+          "quotes": [
+            "``[query_params.active_only]`` {bool}: Indicates that the tenant is in use.",
+            "``[query_params.scan_config_tenants_only]`` {bool}: Specifies the tenant which the scan is already configured"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_casb_tenant.md",
+          "quotes": [
+            "(Boolean) Specifies the tenant for which the scan is already configured"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/saas_security_api/saas_security_api.go",
+          "quotes": [
+            "for k, v := range queryParams {",
+            "values.Set(k, val)"
+          ]
+        }
+      ]
+    },
+    "scan-info-paging": {
+      "statement": "The scan information and tenant policy tags calls page with `page` (default 1) and `pageSize` (default 500); the tenant list declares no defaults, and the Go SDK reads all three through its all-pages helper.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1scanInfo/get/parameters/[name=pageSize]",
+          "expect": {
+            "description": "Specifies the page size",
+            "schema": {
+              "default": 500,
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1{tenantId}~1tags~1policy/get/parameters/[name=pageSize]",
+          "expect": {
+            "description": "Specifies the page size",
+            "schema": {
+              "default": 500,
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/saas_security_api/saas_security_api.go",
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, casbTenantEndpoint+\"/scanInfo\", &scanInfos)"
+          ]
+        }
+      ]
+    },
+    "scan-info-members": {
+      "statement": "The Go SDK reads scan information as the tenant name, tenant ID, SaaS application, an integer `scanAction`, and a `scanInfo` object with `cur_scan_start_time`, `prev_scan_end_time` and `scan_reset_num`; the OpenAPI document declares `scanInfo` as an object with no members.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/saas_security_api/saas_security_api.go",
+          "quotes": [
+            "CurScanStartTime int `json:\"cur_scan_start_time,omitempty\"`",
+            "PrevScanEndTime  int `json:\"prev_scan_end_time,omitempty\"`",
+            "ScanResetNum     int `json:\"scan_reset_num,omitempty\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1scanInfo/get/responses/200/content/application~1json/schema/items/properties/scanInfo",
+          "expect": {
+            "description": "The scan configuration information",
+            "properties": {},
+            "type": "object"
+          }
+        }
+      ]
+    },
+    "rule-endpoints": {
+      "statement": "Each rule kind has the same endpoint set: create and list at `/casbDlpRules` and `/casbMalwareRules`, list everything at `/all`, and get, update and delete at `/{ruleId}`.",
+      "tier": "A",
+      "binds": [
+        "zia/casb-dlp-rules",
+        "zia/casb-malware-rules"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules~1all/get",
+          "expect": {
+            "description": "Retrieves all the SaaS Security Data at Rest Scanning DLP rules"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules~1{ruleId}/put",
+          "expect": {
+            "description": "Updates the SaaS Security Data at Rest Scanning DLP rule based on the specified ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules~1{ruleId}/delete",
+          "expect": {
+            "description": "Deletes the SaaS Security Data at Rest Scanning DLP rule based on the specified ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbMalwareRules~1all/get",
+          "expect": {
+            "description": "Retrieves all the SaaS Security Data at Rest Scanning Malware Detection rules"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbMalwareRules~1{ruleId}/put",
+          "expect": {
+            "description": "Updates the SaaS Security Data at Rest Scanning Malware Detection rule based on the specified ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbMalwareRules~1{ruleId}/delete",
+          "expect": {
+            "description": "Deletes the SaaS Security Data at Rest Scanning Malware Detection rule based on the specified ID"
+          }
+        }
+      ]
+    },
+    "helper-lite-endpoints": {
+      "statement": "Three helper lists are read-only `lite` calls: domain profiles (`/domainProfiles/lite`), quarantine tombstone templates (`/quarantineTombstoneTemplate/lite`) and CASB email labels (`/casbEmailLabel/lite`).",
+      "tier": "A",
+      "binds": [
+        "zia/domain-profiles",
+        "zia/casb-tombstone-templates",
+        "zia/casb-email-labels"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1domainProfiles~1lite/get",
+          "expect": {
+            "description": "Retrieves the domain profile summary. To learn more about domain profiles, navigate to the 'Domain Profiles' section from ."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1quarantineTombstoneTemplate~1lite/get",
+          "expect": {
+            "description": "Retrieves the templates for the tombstone file created when a file is quarantined. ."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbEmailLabel~1lite/get",
+          "expect": {
+            "description": "Retrieves the email labels generated for the SaaS Security API policies in a user's email account. ."
+          }
+        }
+      ]
+    },
+    "go-domain-profiles-unlisted": {
+      "statement": "The Go SDK reads domain profiles from `/domainProfiles`, which its source comments as publicly available but absent from the swagger, and comments out the `/domainProfiles/lite` endpoint because it misses important attributes.",
+      "tier": "A",
+      "binds": [
+        "zia/domain-profiles"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/saas_security_api/saas_security_api.go",
+          "quotes": [
+            "// Endpoint misses important attributes",
+            "// domainProfilesLiteEndpoint          = \"/zia/api/v1/domainProfiles/lite\"",
+            "// Endpoint is publicly available but not present in the swagger",
+            "domainProfilesEndpoint              = \"/zia/api/v1/domainProfiles\""
+          ]
+        }
+      ]
+    },
+    "python-domain-profiles-lite": {
+      "statement": "The Python SDK reads domain profiles from `/domainProfiles/lite`.",
+      "tier": "A",
+      "binds": [
+        "zia/domain-profiles"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/saas_security_api.py",
+          "quotes": [
+            "{self._zia_base_endpoint} /domainProfiles/lite"
+          ]
+        }
+      ]
+    },
+    "go-rule-reads": {
+      "statement": "In the Go SDK, `GetByRuleType` and `GetByRuleID` make a single read for one rule type, while `GetAll` pages through `/all` with the all-pages helper; Update sends the rule to `/{id}` with no `ruleType`, and Delete requires the rule type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/saas_security_api/casb_dlp_rules/casb_dlp_rules.go",
+          "quotes": [
+            "err := service.Client.Read(ctx, endpoint, &rules)"
+          ],
+          "after": "func GetByRuleType(ctx context.Context, service *zscaler.Service, ruleType string) ([]CasbDLPRules, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/saas_security_api/casb_dlp_rules/casb_dlp_rules.go",
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, casbDlpRulesEndpoint+\"/all\", &rules)",
+            "url := fmt.Sprintf(\"%s/%d\", casbDlpRulesEndpoint, ruleID)",
+            "func Delete(ctx context.Context, service *zscaler.Service, ruleType string, ruleID int) (*http.Response, error) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/saas_security_api/casb_malware_rules/casb_malware_rules.go",
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, casbMalwareRulesEndpoint+\"/all\", &rules)"
+          ]
+        }
+      ]
+    },
+    "python-clients": {
+      "statement": "The Python SDK has a client class for each of the DLP rules (`CasbdDlpRulesAPI`), the malware rules (`CasbMalwareRulesAPI`) and the tenant, scan and helper calls (`SaaSSecurityAPI`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/casb_dlp_rules.py",
+          "quotes": [
+            "class CasbdDlpRulesAPI(APIClient):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/casb_malware_rules.py",
+          "quotes": [
+            "class CasbMalwareRulesAPI(APIClient):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/saas_security_api.py",
+          "quotes": [
+            "class SaaSSecurityAPI(APIClient):"
+          ]
+        }
+      ]
+    },
+    "terraform-resources": {
+      "statement": "Terraform has resources `zia_casb_dlp_rules` and `zia_casb_malware_rules`, and read-only data sources `zia_casb_tenant`, `zia_casb_tombstone_template` and `zia_casb_email_label`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_casb_dlp_rules.md",
+          "quotes": [
+            "The **zia_casb_dlp_rules** resource Adds a new SaaS Security Data at Rest Scanning DLP rule"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_casb_malware_rules.md",
+          "quotes": [
+            "# zia_casb_malware_rules (Resource)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_casb_tombstone_template.md",
+          "quotes": [
+            "data source to get information about templates for the tombstone file created when a file is quarantined"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_casb_email_label.md",
+          "quotes": [
+            "data source to get information about email labels generated for the SaaS Security API policies"
+          ]
+        }
+      ]
+    },
+    "terraform-import-and-target": {
+      "statement": "A CASB rule imports with `<RULE_TYPE:RULE_ID>` or `<RULE_TYPE:RULE_NAME>` as the import ID, and a custom rule is removed by pointing Terraform's `-target` flag at it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_casb_dlp_rules.md",
+          "quotes": [
+            "can be imported by using `<RULE_TYPE:RULE_ID>` or `<RULE_TYPE:RULE_NAME>` as the import ID.",
+            "When deleting existing custom rules, use the Terraform `-target` flag to target the specific rule to be removed."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "domain-profiles-endpoint": {
+      "summary": "The OpenAPI document and the Python SDK use the domain profile `lite` list; the Go SDK reads `/domainProfiles` instead.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1domainProfiles~1lite/get",
+            "expect": {
+              "description": "Retrieves the domain profile summary. To learn more about domain profiles, navigate to the 'Domain Profiles' section from ."
+            }
+          },
+          "says": "Only `/domainProfiles/lite` is documented, and it returns the domain profile summary."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/saas_security_api/saas_security_api.go",
+            "quotes": [
+              "// Endpoint misses important attributes",
+              "domainProfilesEndpoint              = \"/zia/api/v1/domainProfiles\""
+            ]
+          },
+          "says": "The `lite` endpoint misses important attributes, so the SDK reads the full `/domainProfiles` list, which the swagger does not list."
+        }
+      ],
+      "impact": "A client built from the OpenAPI document sees a smaller domain profile than the Go SDK returns, so profile attributes seen through one are not evidence for the other."
+    }
+  }
+}

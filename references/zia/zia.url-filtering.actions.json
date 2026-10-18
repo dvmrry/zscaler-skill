@@ -179,5 +179,34 @@
         }
       ]
     }
+  },
+  "divergences": {
+    "isolate-cbi-profile-get-by-id": {
+      "summary": "Whether GET-by-ID returns cbiProfile for ISOLATE rules",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+            "quotes": [
+              "// API bug workaround: GET by ID does not return the cbiProfile object for ISOLATE rules,"
+            ]
+          },
+          "says": "The Go SDK says GET by ID does not return cbiProfile for ISOLATE rules while GetAll does, and falls back to GetAll to fill it in."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/url_filtering.py",
+            "quotes": [
+              "response, error = self._request_executor.execute(request, URLFilteringRule)"
+            ],
+            "after": "def get_rule("
+          },
+          "says": "The Python get_rule issues one GET and parses the rule; it has no fallback."
+        }
+      ],
+      "impact": "A Python read of an ISOLATE rule by ID can come back without its isolation profile object; read it from the list or use the Go fallback pattern. The Go comment is the only statement of the bug; no capture shows it."
+    }
   }
 }

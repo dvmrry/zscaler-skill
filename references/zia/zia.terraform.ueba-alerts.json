@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.ueba-alerts",
+  "title": "Terraform UEBA alert definitions: accepted names and lookups",
+  "aliases": [
+    "zia_ueba_alert_definitions",
+    "UEBA alert terraform",
+    "alert_name validation",
+    "Security UEBA alert definitions"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.data-source-fidelity"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a rejected `alert_name` is outside the provider's fixed list, which is not proof the backend lacks that alert.",
+      "uses": [
+        "alert-name-closed-list",
+        "list-is-provider-boundary"
+      ]
+    },
+    {
+      "do": "Whether a data source lookup by alert name matched exactly, including case.",
+      "uses": [
+        "data-source-selectors"
+      ]
+    }
+  ],
+  "claims": {
+    "alert-name-closed-list": {
+      "statement": "The `alert_name` of `zia_ueba_alert_definitions` is validated, case-sensitively, against a fixed list of alert names compiled into the provider; a name outside that list fails validation at plan time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_ueba_alert_definitions.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "var supportedUEBAAlertNames = []string{",
+            "ValidateFunc: validation.StringInSlice(supportedUEBAAlertNames, false),"
+          ]
+        }
+      ]
+    },
+    "list-is-provider-boundary": {
+      "statement": "So the closed list is what Terraform accepts, not evidence that the backend's alert catalog is the same set or that every listed alert is enabled for every tenant.",
+      "tier": "B",
+      "derived_from": [
+        "alert-name-closed-list"
+      ],
+      "conditions": "Inferred from the list being a constant in the provider; no source ties it to the backend's catalog."
+    },
+    "data-source-selectors": {
+      "statement": "The UEBA alert definitions data source needs an `id` or an `alert_name`, matches the name by exact case-sensitive equality over the full list, and fails with \"either 'id' or 'alert_name' must be provided\" when neither is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_ueba_alert_definitions.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "if all[i].AlertName == nameStr {",
+            "either 'id' or 'alert_name' must be provided"
+          ]
+        }
+      ]
+    },
+    "import-by-id-or-name": {
+      "statement": "The resource imports by a numeric definition ID or, when the import ID is not numeric, by alert name through a by-name lookup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_ueba_alert_definitions.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := alert_definitions.GetByName(ctx, service, id)"
+          ]
+        }
+      ]
+    },
+    "docs-security-ueba-category": {
+      "statement": "The provider documents `zia_ueba_alert_definitions` under the \"Security & UEBA Alerts\" subcategory, as a resource that creates and manages a ZIA Security & UEBA alert definition.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_ueba_alert_definitions.md",
+          "quotes": [
+            "subcategory: \"Security & UEBA Alerts\"",
+            "Creates and manages a ZIA Security & UEBA alert definition."
+          ]
+        }
+      ]
+    }
+  }
+}

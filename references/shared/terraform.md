@@ -242,9 +242,9 @@ These fields on ZIA/ZPA resources are immutable at the API level. Changing them 
 
 ### Provider validators and API contract enums
 
-In many cases, the TF schema's `validation.StringInSlice([]string{...}, false)` encodes a fuller enum than the help-site docs. When they conflict, treat the TF validator as authoritative only for what the provider accepts. It does not establish what the API accepts or returns. Examples in `references/zia/api.md` and `references/zpa/api.md` per-resource sections.
+In many cases, the TF schema's `validation.StringInSlice([]string{...}, false)` encodes a fuller enum than the help-site docs. When they conflict, treat the TF validator as authoritative only for what the provider accepts. It does not establish what the API accepts or returns. Examples in `kb:zia.api` and `references/zpa/api.md` per-resource sections.
 
-In ZIA provider v4.8.8, the shared `user_agent_types` validator omits `BRAVE` for URL Filtering, SSL Inspection, and Cloud App Control rules (`vendor/terraform-provider-zia/zia/validator.go:231-261`; `vendor/terraform-provider-zia/zia/common.go:1010-1021`). Open upstream issue [zscaler/terraform-provider-zia#606](https://github.com/zscaler/terraform-provider-zia/issues/606) reports that ZIA returns `BRAVE` on existing URL Filtering rules; that read-side behavior is operator-reported and not reproduced here. The contract boundary and resource-level evidence are recorded in [`../zia/terraform.md` § `zia_url_filtering_rules`](../zia/terraform.md#zia_url_filtering_rules).
+In ZIA provider v4.8.8, the shared `user_agent_types` validator omits `BRAVE` for URL Filtering, SSL Inspection, and Cloud App Control rules (`vendor/terraform-provider-zia/zia/validator.go:231-261`; `vendor/terraform-provider-zia/zia/common.go:1010-1021`). Open upstream issue [zscaler/terraform-provider-zia#606](https://github.com/zscaler/terraform-provider-zia/issues/606) reports that ZIA returns `BRAVE` on existing URL Filtering rules; that read-side behavior is operator-reported and not reproduced here. The contract boundary and resource-level evidence are recorded in [`zia.terraform`](kb:zia.terraform).
 
 ### Programmatic constraints beyond schema
 
@@ -265,7 +265,7 @@ Some mutual-exclusions live in resource `Create` / `Update` functions rather tha
 
 ## Cross-links
 
-- ZIA API structure (auth, activation, endpoint catalog) — [`../zia/api.md`](../zia/api.md)
+- ZIA API structure (auth, activation, endpoint catalog) — [`zia.api`](kb:zia.api)
 - ZPA API structure — [`../zpa/api.md`](../zpa/api.md)
 - URL filtering behavior — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZPA app segments — [`../zpa/app-segments.md`](../zpa/app-segments.md)

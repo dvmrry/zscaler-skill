@@ -260,6 +260,42 @@
           ]
         }
       ]
+    },
+    "go-lastmodifiedby-nullable": {
+      "statement": "Go v3.8.46 types the PAC file `lastModifiedBy` as a nullable pointer to the shared ID/name/extensions struct, which has no `externalId` member. The Python PAC model decodes `lastModifiedBy` through the shared `CommonBlocks`, which reads `externalId`, and the Automate response schema for the PAC list includes `externalId` on that object.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/pacfiles/pacfiles.go",
+          "quotes": [
+            "LastModifiedBy *common.IDNameExtensions `json:\"lastModifiedBy,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/common/common.go",
+          "quotes": [
+            "Extensions map[string]interface{} `json:\"extensions,omitempty\"`"
+          ],
+          "after": "type IDNameExtensions struct"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/common.py",
+          "quotes": [
+            "self.external_id = config[\"externalId\"] if \"externalId\" in config else False"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1pacFiles/get/responses/200/content/application~1json/schema/items/properties/lastModifiedBy/properties/externalId",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ]
     }
   },
   "gaps": {
@@ -316,6 +352,119 @@
       "resolves_with": [
         "support-ticket"
       ]
+    },
+    "pac-externalid-populated": {
+      "kind": "semantic",
+      "title": "Whether current PAC responses populate externalId on lastModifiedBy",
+      "status": "open",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "blocks": "relying on externalId from a Go PAC read",
+      "detail": "Unverified legacy statement: the Go response model omits externalId while Python and the Automate schema retain it. The Go change is a response-model change and is not proof the service stopped returning the field.",
+      "about": [
+        "zia.traffic-forwarding.pac"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/pacfiles/pacfiles.go",
+          "quotes": [
+            "LastModifiedBy *common.IDNameExtensions `json:\"lastModifiedBy,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "pac-create-resulting-state": {
+      "kind": "semantic",
+      "title": "Backend state of a newly created PAC file",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "assuming a Terraform-created PAC file is, or is not, serving traffic",
+      "detail": "Unverified legacy statement: the provider and the captured Automate create text contradict each other on whether a created PAC file is already deployed. No live or acceptance result in the audited material shows the resulting state.",
+      "about": [
+        "zia.traffic-forwarding.pac"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/zia-api-reference.json",
+          "quotes": [
+            "This request only adds a PAC file. The PAC file needs to be transitioned to the <b>Deploy</b> state in order for the file to be deployed."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "version-action-body": {
+      "summary": "Request body of the PAC version action (DEPLOY, STAGE, LKG, UNSTAGE, REMOVE_LKG)",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/pacfiles/pacfiles.go",
+            "quotes": [
+              "// serialized object corrupts the version's stored commit message.",
+              "serialized object corrupts the version's stored commit message."
+            ]
+          },
+          "says": "Go v3.8.46 sends the commit message as the raw request body and says serializing an object corrupts the stored commit message."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/pac_files.py",
+            "quotes": [
+              "body.update(kwargs)"
+            ],
+            "after": "def update_pac_file("
+          },
+          "says": "Python builds a dictionary from the keyword fields (including pac_commit_message) and sends it as the JSON object body."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1pacFiles~1{pacId}~1version~1{pacVersion}~1action~1{pacVersionAction}/put",
+            "expect": {
+              "operationId": "Pac Resource Update Pac Version Flag"
+            }
+          },
+          "says": "The Automate operation takes the pacId, pacVersion, pacVersionAction path parameters and an optional newLKGVer query parameter, and declares no request body."
+        }
+      ],
+      "impact": "Go callers pass only the commit message. The Go change is wrapper behavior, not a reproduced tenant test, so do not infer that Python fails or that the service accepts only one representation."
+    },
+    "create-vs-deploy": {
+      "summary": "Whether creating a PAC file deploys it",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/resource_zia_pac_files.go",
+            "quotes": [
+              "// The service always deploys the initial version; surface a clear error",
+              "req.PACVersionStatus = \"DEPLOYED\""
+            ]
+          },
+          "says": "The provider says the service always deploys the initial version, rejects any pac_version_status other than DEPLOYED on create, and sends pacVersionStatus DEPLOYED in the create request."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/zia-api-reference.json",
+            "quotes": [
+              "This request only adds a PAC file. The PAC file needs to be transitioned to the <b>Deploy</b> state in order for the file to be deployed."
+            ]
+          },
+          "says": "The Automate create operation says it only adds a PAC file, which must be transitioned to the Deploy state to be deployed."
+        }
+      ],
+      "impact": "Whether a created PAC file is live (and affects traffic) immediately is not settled; the provider sentences are local validation and request facts, not proof of backend state."
     }
   }
 }

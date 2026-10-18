@@ -562,4 +562,4 @@ The Automate contract corroborates both ZPA profile-list paths as documented GET
 - `references/zbi/overview.md` — Ephemeral container model, double-PSE traversal, Turbo Mode rendering architecture.
 - `references/zbi/policy-integration.md` — ZIA URL Filter `Isolate` action, ZPA Isolation Policy structure, and the subscription-tier model. The configurable knobs table in this file bridges that doc's feature list to the concrete API field names.
 - `references/zbi/_claims-ledger.md` — Claim-by-claim source map for this refresh.
-- `references/zia/sdk.md` — Lists `cloud_browser_isolation.py` as a ZIA SDK service; this file is the deeper dive on what that method actually hits and how it relates to the ZPA-side profile model.
+- `kb:zia.sdk-python` — Lists `cloud_browser_isolation.py` as a ZIA SDK service; this file is the deeper dive on what that method actually hits and how it relates to the ZPA-side profile model.

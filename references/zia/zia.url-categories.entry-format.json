@@ -199,6 +199,48 @@
           ]
         }
       ]
+    },
+    "mcp-list-unpaginated": {
+      "statement": "The MCP URL-category list tool exposes `custom_only`, `type`, `search` and `contains_url`; its source says `/urlCategories` does not paginate and that page and page_size inputs had been silently ignored by the API. The captured Automate operation lists `customOnly` and `includeOnlyUrlKeywordCounts` as its only query parameters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/url_categories.py",
+          "quotes": [
+            "endpoint does not paginate and offers no way to omit a category's URL, keyword",
+            "``page`` /\n    ``page_size`` were dropped on the floor by the API"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/zia-api-reference.json",
+          "quotes": [
+            "\"name\": \"customOnly\",",
+            "\"name\": \"includeOnlyUrlKeywordCounts\","
+          ]
+        }
+      ]
+    },
+    "mcp-lite-not-used": {
+      "statement": "The Python SDK has a `list_categories_lite` wrapper for the lightweight category list, and the MCP URL-category tool deliberately does not use it: its source says `/urlCategories/lite` takes no parameters, so it cannot filter, and it omits `configuredName`, the only handle a custom category has.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_categories.py",
+          "quotes": [
+            "def list_categories_lite(self, query_params: Optional[dict] = None)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/url_categories.py",
+          "quotes": [
+            "``/urlCategories/lite`` is deliberately NOT used. It takes no parameters, so it"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -215,6 +257,70 @@
         "zia/url-categories#dbCategorizedUrls"
       ],
       "detail": "The retired wildcard doc said to put TLD entries in `dbCategorizedUrls` on a `TLD_CATEGORY` category, but its citation only showed that the fields exist, and the Go SDK documents `dbCategorizedUrls` as the retain-parent URL list. Regular entries reject bare TLDs (claim no-tld-only); how TLD categories take their entries is unverified. Upstream terraform-provider-zia#497 (closed in v4.6.4) concerned importing this category type."
+    }
+  },
+  "divergences": {
+    "keyword-counts-parameter": {
+      "summary": "Whether includeOnlyUrlKeywordCounts trims the response",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/zia-api-reference.json",
+            "quotes": [
+              "If set to true, the response only includes URL and keyword counts."
+            ]
+          },
+          "says": "Automate: the parameter, when true, makes the response include only URL and keyword counts for custom categories."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zia/url_categories.py",
+            "quotes": [
+              "byte-for-byte equivalent, ``dbCategorizedUrls`` and ``ipRanges`` populated in"
+            ]
+          },
+          "says": "MCP: a vendor-reported tenant capture with the parameter on and off was equivalent with the lists populated in both, so the tool does not send it."
+        }
+      ],
+      "impact": "Do not rely on the parameter to shrink the listing; the observation is one tenant capture, not proof that every tenant ignores it."
+    },
+    "type-filter-parameter": {
+      "summary": "Whether the type query parameter exists",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/url_categories.py",
+            "quotes": [
+              "``[query_params.type]`` {str}: Filter by category type."
+            ]
+          },
+          "says": "The Python SDK documents a `type` filter and the MCP tool sends it upstream."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zia/url_categories.py",
+            "quotes": [
+              "query_params[\"type\"] = args.type"
+            ]
+          },
+          "says": "The MCP list tool sends `type` as an upstream query parameter."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/zia-api-reference.json",
+            "quotes": [
+              "\"name\": \"includeOnlyUrlKeywordCounts\","
+            ]
+          },
+          "says": "The captured Automate operation lists only customOnly and includeOnlyUrlKeywordCounts as query parameters."
+        }
+      ],
+      "impact": "The type filter rests on SDK and MCP behavior, not on the captured contract."
     }
   }
 }

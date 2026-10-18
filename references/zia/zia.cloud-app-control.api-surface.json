@@ -93,6 +93,133 @@
           ]
         }
       ]
+    },
+    "state-wire-field": {
+      "statement": "The cloud app control rule carries its on/off state as the string field `state` (ENABLED or DISABLED). The Python SDK accepts a boolean `enabled` argument and rewrites it to `state` before sending; the Go struct has only `State`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloudappcontrol.py",
+          "quotes": [
+            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\""
+          ],
+          "after": "def add_rule(self, rule_type: str, **kwargs)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "State                string   `json:\"state,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "rule-type-required-update-is-put": {
+      "statement": "Every Python cloud app control rule call is built under /webApplicationRules/{rule_type}, including get, update and delete by rule ID, and update is a PUT whose body is the caller-supplied fields after `transform_common_id_fields(reformat_params, ...)`. The Go functions likewise take `ruleType` on every call.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloudappcontrol.py",
+          "quotes": [
+            "/webApplicationRules/{rule_type}/{rule_id}",
+            "http_method = \"put\".upper()",
+            "transform_common_id_fields(reformat_params, body, body)"
+          ],
+          "after": "def update_rule(self, rule_type: str, rule_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "func GetByRuleID(ctx context.Context, service *zscaler.Service, ruleType string, ruleID int)"
+          ]
+        }
+      ]
+    },
+    "applications-sent-as-strings": {
+      "statement": "The cloud app control rule lists its applications as plain strings (`applications`) in the Go model. The Python SDK passes the caller kwargs through as the body after ID reshaping through `reformat_params`, which maps only `application_ids` to `applications`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "Applications         []string `json:\"applications,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "(\"application_ids\", \"applications\"),"
+          ]
+        }
+      ]
+    },
+    "python-application-model-comment": {
+      "statement": "The Python `Application` catalog model is annotated \"USED IN /webApplicationRules/{rule_type}/availableActions\", but the Python `list_available_actions` method requires the response to be a list and returns it as a list of strings, not as Application objects.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/cloudappcontrol.py",
+          "quotes": [
+            "# USED IN /webApplicationRules/{rule_type}/availableActions"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloudappcontrol.py",
+          "quotes": [
+            "raise ValueError(\"Unexpected response format: Expected a list.\")"
+          ]
+        }
+      ]
+    },
+    "python-name-31-docstring": {
+      "statement": "The Python `add_rule` docstring describes the rule name as \"Name of the rule, max 31 chars.\"; the Go SDK model carries no length constraint on `name`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloudappcontrol.py",
+          "quotes": [
+            "Name of the rule, max 31 chars."
+          ],
+          "after": "def add_rule(self, rule_type: str, **kwargs)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "Name                 string   `json:\"name,omitempty\"`"
+          ],
+          "after": "type WebApplicationRules struct"
+        }
+      ]
+    },
+    "mcp-skill-name-31": {
+      "statement": "The MCP create workflow skill states that ZIA enforces a hard 31-character maximum on the rule name and rejects longer names with `INVALID_INPUT_ARGUMENT` / \"Name exceeds the max length 31 characters\". The executable MCP create input declares `name` as an unconstrained string.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/create-cloud-app-control-rule/SKILL.md",
+          "quotes": [
+            "ZIA enforces a hard 31-character maximum on the Cloud App Control rule `name`."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/cloud_app_control.py",
+          "quotes": [
+            "name: Annotated[str, Field(description=\"Rule name.\")]"
+          ],
+          "after": "class CreateRuleInput(BaseModel):"
+        }
+      ]
     }
   },
   "divergences": {
@@ -121,6 +248,87 @@
         }
       ],
       "impact": "A hand-built request that follows the reference may differ from what the SDKs send. The reference capture predates allAvailableActions, so it may also be stale."
+    },
+    "mcp-applications-kwarg": {
+      "summary": "Whether the MCP rule tools accept `cloud_applications`",
+      "positions": [
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "skills/zia/create-cloud-app-control-rule/SKILL.md",
+            "quotes": [
+              "The field maps internally to the SDK's `applications` kwarg; we surface it as `cloud_applications`"
+            ]
+          },
+          "says": "The create workflow skill says `cloud_applications` is the tool input and maps internally to the SDK applications kwarg."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zia/cloud_app_control.py",
+            "quotes": [
+              "\"applications, cloud_apps, actions, locations, groups, departments, users, labels, \""
+            ]
+          },
+          "says": "The executable create and update inputs have no `cloud_applications` field; applications travel through the `advanced` passthrough, whose description names `applications` and `cloud_apps`."
+        }
+      ],
+      "impact": "Calls shaped by the skill (`cloud_applications=[...]`) do not match the tool input model; put applications in the advanced passthrough as the tool describes."
+    },
+    "go-python-model-fields": {
+      "summary": "Fields one SDK models that the other does not",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+            "quotes": [
+              "NumberOfApplications int      `json:\"numberOfApplications,omitempty\"`",
+              "//SharingDomainProfiles     []common.CommonEntityReferences `json:\"sharingDomainProfiles,omitempty\"`"
+            ]
+          },
+          "says": "The Go rule struct carries `numberOfApplications` and has `sharingDomainProfiles` and `formSharingDomainProfiles` only as commented-out lines, so Go neither reads nor sends the two sharing-profile fields."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/models/cloudappcontrol.py",
+            "quotes": [
+              "config[\"sharingDomainProfiles\"] if \"sharingDomainProfiles\" in config else [],",
+              "\"formSharingDomainProfiles\": [fsdp.request_format() for fsdp in (self.form_sharing_domain_profiles or [])],"
+            ]
+          },
+          "says": "The Python rule model reads and writes `sharingDomainProfiles` and `formSharingDomainProfiles` and has no `numberOfApplications` attribute."
+        }
+      ],
+      "impact": "A Python read of a rule drops numberOfApplications; a Go read drops both sharing-profile fields and does not send them on write."
+    },
+    "risk-profile-shape": {
+      "summary": "Single object or list for cloudAppRiskProfile",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+            "quotes": [
+              "CloudAppRiskProfile *common.IDCustom          `json:\"cloudAppRiskProfile,omitempty\"`"
+            ]
+          },
+          "says": "The Go struct holds `cloudAppRiskProfile` as one pointer to an ID object."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/models/cloudappcontrol.py",
+            "quotes": [
+              "config[\"cloudAppRiskProfile\"] if \"cloudAppRiskProfile\" in config else [], common_reference.ResourceReference",
+              "\"cloudAppRiskProfile\": self.cloud_app_risk_profile.request_format() if self.cloud_app_risk_profile else None,"
+            ]
+          },
+          "says": "The Python model decodes the same key as a list of references through `form_list`, yet its request format calls `.request_format()` on the attribute as if it were a single object."
+        }
+      ],
+      "impact": "The two SDKs disagree on the type; the Python side is internally inconsistent in source. Whether it raises at runtime has not been run."
     }
   },
   "gaps": {
@@ -134,6 +342,55 @@
       ],
       "blocks": "using the flags to explain why an app stopped matching a rule",
       "detail": "No registered source defines the flags. The earlier doc glossed them (for example that underMigration means the app may behave inconsistently under policy), but that was inference from the names, and it said they are absent from the console, which no source states. Treat a true flag as a lead to check with Zscaler, not as an explanation."
+    },
+    "python-risk-profile-runtime": {
+      "kind": "semantic",
+      "title": "Whether the Python cloudAppRiskProfile list/single mismatch raises",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ],
+      "blocks": "round-tripping a Python-read rule that has a risk profile",
+      "detail": "Unverified legacy statement: the model decodes a list but request_format treats the attribute as one object. This is a code-shape observation; it was not executed to confirm that it raises. Tracked in the legacy ledger as zia-54.",
+      "about": [
+        "zia.cloud-app-control.api-surface"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/cloudappcontrol.py",
+          "quotes": [
+            "\"cloudAppRiskProfile\": self.cloud_app_risk_profile.request_format() if self.cloud_app_risk_profile else None,"
+          ]
+        }
+      ],
+      "former_ids": [
+        "zia-54"
+      ]
+    },
+    "name-length-enforcement": {
+      "kind": "semantic",
+      "title": "Whether the Cloud App Control API enforces a 31-character rule name and returns that error",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "choosing rule names for generated Cloud App Control rules",
+      "detail": "Unverified legacy statement: the 31-character maximum and the error string appear in Python docstrings and an MCP workflow skill. Neither the Go SDK nor the MCP executable tool enforces it, and no capture shows the API response. A create with a 32-character name would settle it.",
+      "about": [
+        "zia.cloud-app-control.api-surface"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloudappcontrol.py",
+          "quotes": [
+            "Name of the rule, max 31 chars."
+          ],
+          "after": "def add_rule(self, rule_type: str, **kwargs)"
+        }
+      ]
     }
   }
 }

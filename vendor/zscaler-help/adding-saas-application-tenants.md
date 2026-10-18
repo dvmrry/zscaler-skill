@@ -1,0 +1,1394 @@
+# Adding SaaS Application Tenants
+
+**Source:** https://help.zscaler.com/zia/adding-saas-application-tenants
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1401256, revision 3246060
+
+---
+
+Watch a video about SaaS Application Tenants (shows legacy UI).
+Zscaler Data at Rest Scanning provides visibility and security for sanctioned SaaS applications used in your organization. You can authorize sanctioned SaaS applications with Zscaler by adding them as tenants. Most apps require configuration to provide Zscaler access and enable their full functionality.
+To add a SaaS application tenant for SaaS Security or SSPM - Essential and Advanced:
+- Go to **Data Security** > **DSPM** > **SaaS Application Tenants**.
+- Click **Add**.
+- The **Add SaaS Application Tenant** page appears.
+- Under **Choose the SaaS Application Provider**, search for or choose from one of the sanctioned SaaS applications.
+- See image.
+- Under **Tenant Name**, enter a name for the SaaS application tenant. It must be unique. This name is displayed when configuring the Data at Rest Scanning DLP policy, Malware Detection policy, Workflow Automation, or Scan Configuration depending on the functionality available for that specific application.
+- Under **Select Features**, select the checkbox for the functionality you want to enable, and click **Next**. You can choose from **DLP and Malware scanning SaaS API**, **SSPM Scan**, or **Workflow Automation** if the app supports the functionality.
+- See image.
+- To learn more about the different onboarding functionalities, see Connecting Your Platforms to 3rd-Party App Governance, About Data at Rest Scanning Malware Detection, What Is Advanced Posture Management?, and What Is Workflow Automation?
+- The App Governance functionality cannot be enabled for Okta, Salesforce, and Slack tenants using the **App Governance** checkbox. You must onboard these tenants from the 3rd-Party App Governance Admin Portal. To learn more, see Connecting Your Platforms to 3rd-Party App Governance.
+- If you selected **DLP and Malware Scanning SaaS API** for onboarding, you need to specify your quarantine location for supported file share applications.
+  - Under **DLP Quarantine Location**, enter a valid folder path or URL of the designated quarantine location for relocating the files (e.g., /home/quarantine_folder).
+  - Under **DLP Admin Email ID**, enter the admin email address for the application.
+- See image.
+- Complete the specific configuration steps for your chosen application:
+  - Amazon S3
+  - To enable Amazon S3 for your organization, contact your Zscaler Account team.
+  - Zscaler and AWS are technology partners. To learn more about the Zscaler and Amazon S3 integration, see the Zscaler and AWS Deployment Guide.
+  - To configure Amazon S3:
+    - a. Configure an IAM Role for the Zscaler S3 Connector
+      - Under **Authorize the SaaS Application**, copy the **Zscaler Connector** **Account Number** and **Zscaler Connector User ARN**.
+    - See image.
+      - Click **Go to AWS**.
+    - See image.
+    - The AWS portal appears.
+      - Log in to AWS.
+      - Go to **Services** > **IAM**.
+      - In the left-side navigation, go to **Access management** > **Roles**.
+    - See image.
+      - Click **Create role**.
+    - See image.
+      - In **Select type of trusted entity**, click **Another AWS account**.
+    - See image.
+      - In **Specify accounts that can use this role**:
+        - **Account ID**: Enter the Zscaler S3 Connector value you copied in Step i.
+        - **Require external ID (Best practice when a third party assumes this role)**: Deselect.
+        - **Require MFA**: Deselect.
+    - See image.
+      - Click **Next: Permissions**.
+      - In **Attach permissions policies**, enter AmazonS3FullAccess in the search bar, and select it.
+    - See image.
+      - Click **Next: Tags**.
+      - In **Add tags (optional)**, enter a key-value pair.
+    - See image.
+      - Click **Next: Review**.
+      - In **Review**:
+        - **Role name**: Enter a role name.
+        - **Role description**: (Optional) Enter additional notes or information.
+    - See image.
+      - Click **Create role**.
+    - b. Edit the Trust Relationship
+      - Click the **Role Name** of the IAM role you created in a. Configure an IAM Role for the Zscaler S3 Connector.
+    - See image.
+      - Click the **Trust relationships** tab.
+    - See image.
+      - Click **Edit trust relationship**.
+    - See image.
+      - Under **Policy Document**, delete the existing AWS value, and enter the Zscaler S3 Connector User ARN you copied in Step i of a. Configure an IAM Role for the Zscaler S3 Connector:
+      - Policy Without External ID: { "Version": "2012-10-17", "Statement": [ { "Effect": "Allow", "Principal": { "AWS": "arn:aws:iam::011284747002:user/ZscalerSaaSConnectorZSTwo01" } , "Action": "sts:AssumeRole" } ] }
+      - Policy With External ID: { "Version": "2012-10-17", "Statement": [ { "Effect": "Allow", "Principal": { "AWS": "arn:aws:iam::011284747002:user/ZscalerSaaSConnectorZSTwo01" } , "Action": "sts:AssumeRole", "Condition": { "StringEquals": { "sts:ExternalId": "zJKQQ0CIPymVOYok" } } } ] }
+    - See image.
+      - Click **Update Trust Policy**.
+      - Under **Summary**, copy the **Role ARN**. You need it for Step vi of d. Create a Quarantine Bucket.
+    - See image.
+    - c. Obtain the CloudTrail Bucket ARN
+    - You can use a single CloudTrail account to onboard multiple tenants. To learn more about CloudTrail, refer to the AWS CloudTrail documentation.
+      - Go to **Services** > **CloudTrail**.
+      - In the left-side navigation, click **Trails**.
+    - See image.
+      - In the **Name** column, click **s3-log-trail**.
+    - See image.
+      - To enable S3 data events, click **Edit** next to **Data events**. If you have already enabled S3 data events, skip to the Trails step.
+      - See image.
+      - Check the **Data events** box. If **Advanced event selectors** are not enabled, click **Switch to advanced event selectors**.
+      - See image.
+      - In the **Data event type** drop-down menu, select **S3**. Then, make sure the **Log selector template** is set to **Log all events**.
+      - See image.
+      - Click **Save changes**.
+      - Back on your **Trails** page, in **General details**, click the **Trail log location**.
+    - See image.
+      - In **Objects**, click **CloudTrail/**.
+    - See image.
+      - Click the **Properties** tab.
+    - See image.
+      - Under **Amazon Resource Name (ARN)**, copy the CloudTrail bucket ARN. You need it for Step vi of d. Create a Quarantine Bucket.
+    - See image.
+    - d. Create a Quarantine Bucket
+      - In the left-side navigation, click **Buckets**.
+    - See image.
+      - Click **Create bucket**.
+    - See image.
+    - The **Create bucket** window appears.
+      - In the **Create bucket** window:
+        - **Bucket name**: Enter a unique name for the quarantine bucket.
+        - **AWS Region**: Use the default region.
+        - **Block** **all** **public access**: Select.
+        - **Bucket Versioning**: Disable.
+        - **Tags**: (Optional) Click **Add tag** to tag your quarantine bucket.
+        - **Default Encryption**: Server-side encryption with Amazon S3 managed keys (SSE-S3)
+    - See image.
+      - Click **Create bucket**.
+      - In the **Name** column, copy the quarantine bucket name.
+    - See image.
+      - In the Zscaler Admin Console, under **Register the SaaS Application**:
+        - **AWS Account ID**: Enter the ID of the AWS account used to configure the Zscaler S3 Connector.
+        - **IAM Role ARN**: Enter the IAM role ARN you copied in b. Edit the Trust Relationship.
+        - **Quarantine Bucket Name**: Enter the quarantine bucket name you copied in Step v. If you add a Malware Detection rule with the action **Quarantine Malware**, the Zscaler service moves the malicious files detected to this bucket.
+        - **CloudTrail Bucket ARN**: Enter the ARN of the CloudTrail bucket, which stores your S3 data event logs.
+    - See image.
+  - To learn more about the steps in AWS, refer to the AWS documentation.
+  - Bitbucket
+  - Zscaler and Atlassian are technology partners. To learn more about the Zscaler and Atlassian (including Bitbucket) integration, see the Zscaler and Atlassian Deployment Guide.
+  - To configure Bitbucket:
+    - Under **Enter Bitbucket Admin Email ID**, enter your admin email ID.
+  - See image.
+    - Click **Provide Admin Credentials** and sign in to your Bitbucket account.
+  - See image.
+    - Click **Save**.
+  - Box
+  - Zscaler and Box are technology partners. To learn more about the Zscaler and Box integration, see the Zscaler and Box Deployment Guide. To learn more about the prerequisites and permissions for onboarding Box, see Permissions for Onboarding SaaS Apps for SSPM.
+  - To configure Box:
+  - Under **Authorize the SaaS Application**, select a **SaaS Connector** option. A Zscaler-defined connector grants the Zscaler service full administrator privileges to the application; whereas, a custom connector grants only necessary permissions.
+  - See image.
+    - Zscaler-Defined
+      - Under **Authorize the SaaS Application**, copy the **Zscaler SaaS Connector**. You need it for when adding a custom application for Box.
+    - See image.
+      - Click **Go to Box Settings**.
+    - See image.
+    - The Box portal appears.
+      - Log in to Box.
+    - You are redirected to the Box Admin Console.
+      - In the Box Admin Console, go to **Platform**.
+    - See image.
+      - Click the **Platform Apps** tab.
+    - See image.
+      - Click **Add**.
+    - The **Add Platform App** window appears.
+    - See image.
+      - In the **Add Platform App** window:
+        - **Client ID**: Enter Zscaler SaaS Connector value you copied in the first step.
+    - See image.
+      - Click **Next**.
+      - Review the required permissions for the Zscaler service to access Box, and click **Authorize**.
+      - Click **Okay**.
+      - Go to **Account & Billing**.
+    - See image.
+      - Under **Account Information**, copy the **Enterprise ID**.
+    - See image.
+      - In the Zscaler Admin Console, under **Enter the Box Enterprise ID**, enter the Enterprise ID you copied from Box in the previous step.
+    - See image.
+    - To learn more about the steps in Box, refer to the Box documentation.
+    - Custom
+      - Under **Authorize the SaaS Application**, select **Custom**.
+      - Sign in to the Box Developer Console, select **My Apps**, and then click **Create new app**.
+      - If you don't have any apps yet, Box might directly open the next step after selecting **My Apps**.
+      - See image.
+      - Select **Custom App**.
+      - See image.
+      - Enter an app name with Zscaler as the prefix, and under **Purpose**, select **Integration**. Fill in the rest of the required information based on your app needs and click **Next**.
+      - See image.
+      - For the **Authentication Method**, select **Server Authentication (with JWT)** and click **Create App**.
+      - See image.
+      - On the **Configuration** tab, next to the **Application Scopes** section, select the following scopes:
+        - **Write all files and folders stored in Box**
+        - **Manage users**
+        - **Manage groups**
+        - **Manage enterprise properties**
+      - In the **Advanced Features** section, select:
+        - **Make API calls using the as-user header**
+        - **Generate user access tokens**
+      - To learn more about the required API permissions, see the following table:
+        - API Permissions for Box
+| Box Permissions | Associated Zscale Actions |
+|---|---|
+| Content Actions > Write all files and folders stored in Box | Scanning, Policy Action |
+| Administrative Actions > Manage Users | Scanning, Policy Action |
+| Administrative Actions > Manage Groups | Scanning |
+| Administrative Actions > Manage Enterprise Properties | Scanning |
+| Administrative Actions > Make API calls using the as-user heading | Scanning, Policy Action |
+      - In the **App Access Level** section, select **App + Enterprise Access** and click **Save Changes**.
+      - See image.
+      - In the **Add and Manage Public Keys** section, select **Generate a Public/Private Keypair** and your JSON file is downloaded.
+      - See image.
+      - Next, you need to enable Suppress Notifications by referring to the Box documentation. You need to contact your Box support contact to request the required scopes to be enabled for your application.
+      - In the Zscaler Admin Console, under **Authorize the SaaS Application**, select **Custom** and then click **Upload File** to upload the JSON file you generated in a previous step.
+      - See image.
+      - Click **Authorize** and then click **Save**.
+  - ChatGPT
+  - To configure ChatGPT:
+    - Sign in to the OpenAI API platform with your admin credentials.
+    - Go to **API Keys** in the left-side navigation.
+    - Click **Create new secret key**.
+    - Enter a **Name**, under **Project** select **Default project**, and under **Permissions** select **All**. Click **Create secret key**.
+    - See image.
+    - Save your key to use during onboarding. It can only be copied and viewed once. If you lose it, you need to generate a new one.
+    - Log in to ChatGPT and then go to the ChatGPT admin settings.
+    - Copy the **Workspace ID** and save it.
+    - See image.
+    - To enable the necessary enterprise APIs, write an email to OpenAI support requesting them to enable the compliance APIs. The email must include your workspace ID and the last 4 digits of your secret key. Wait for confirmation that the compliance APIs are enabled before continuing to onboard the application.
+    - In the Zscaler Admin Console under **Authorize the SaaS Application**, enter your **Workspace Name**, **Workspace ID**, and **Workspace Secret Key**. Click **Authorize**.
+    - See image.
+  - Confluence
+  - To configure Confluence:
+    - Enter the **Atlassian Domain Address** you want to connect with Zscaler.
+  - See image.
+    - Enter your **Confluence Organization API Key**. Zscaler only supports API keys without scopes. To learn how to create API keys without scopes in Atlassian, refer to the Atlassian documentation.
+  - See image.
+    - Click **Provide Admin Credentials** and sign in to your Confluence account.
+    - Click **Save**.
+  - For Confluence, the Data at Rest Scanning DLP rule scans all the blogs, pages, and attachments within a space. The DLP rule does not scan the overview page for any space.
+  - To learn more about the prerequisites and permissions for onboarding Confluence, see Permissions for Onboarding SaaS Apps for SSPM.
+  - Docusign
+  - To configure Docusign:
+    - Log in to the Docusign Developer Center by clicking the **Developer Account** drop-down menu and clicking **Log in**.
+    - Click your **profile** icon in the top-right corner and click **My Apps & Keys**.
+    - See image.
+    - Click on **Add App and Integration Key**.
+    - Enter an **App Name** and then click **Add Secret Key** to auto generate a secret key. Copy the integration and secret keys for use later.
+    - See image.
+    - Click **Add URI** to add the redirect URI for your Zscaler cloud. For example, if your Zscaler cloud name is zscalertwo.net, then your redirect URI is https://admin.zscalertwo.net/. To learn how to find your Zscaler cloud, see Understanding Zscaler Cloud Names.
+    - See image.
+    - Click **Save**.
+    - On the **Apps and Keys** page, copy your **API Account ID** and **Account Base URI**.
+    - See image.
+    - In the Zscaler Admin Console under **Register the OAuth Application**, enter your **Client ID** (your Docusign Integration Key), **Secret Key**, **Account ID**, and **Base URI** that you copied earlier.
+    - See image.
+    - Under **Enter the Docusign Admin Email ID**, enter your admin email ID.
+    - Under **Authorize the SaaS Application**, click **Provide Admin Credentials** and log in with the Docusign account associated with this instance.
+  - Dropbox
+  - To configure Dropbox:
+    - Under **Enter the Dropbox Enterprise ID**, enter your Dropbox Enterprise email address.
+  - See image.
+    - Under **Authorize the SaaS Application**, click **Redirect to Dropbox**.
+  - See image.
+  - The Dropbox portal appears.
+    - Log in to Dropbox.
+    - For the **Before you connect this app...** warning, click **Continue.**
+  - See image.
+    - Review the required permissions for the Zscaler service to access Dropbox and click **Allow**.
+  - The Zscaler Admin Console refreshes and adds the Dropbox **Team ID** under **Authorize the SaaS Application**.
+  - See image.
+  - To learn more about the steps in Dropbox, refer to the Dropbox documentation.
+  - Dynamics 365
+  - To configure Dynamics 365:
+    - Under **Enter Organization Domain Address**, enter the URL used to log in to your Dynamics 365 instance.
+    - Under **Authorize the SaaS Application** you can click **Provide Admin Credentials** and log in with the Microsoft account associated with your Dynamics 365 instance.
+  - See image.
+    - Click **Save**.
+  - To learn more about the steps in Dynamics 365, refer to the Microsoft documentation.
+  - GitHub
+  - To configure GitHub:
+    - Under **Enter the GitHub Admin Email ID**, enter your admin email ID used to log in to the GitHub portal.
+  - See image.
+    - Under **Authorize the SaaS Application**, click **Provide Admin Credentials** and then log in to Github.
+    - See image.
+      - If you don't have SAML enabled for your organization, the GitHub **Permissions** page opens. Click **Grant** for all organizations you would like the scans to run for and then click **Authorize**.
+      - See image.
+      - To learn more about enabling SAML, see Configuring SAML and Adding Identity Providers.
+      - If you do have SAML enabled, the single sign-on page opens. Click **Authorize** and then **Continue**.
+      - See image.
+      - Click Grant on all organizations you want to provide Zscaler access to, and click **Authorize**.
+      - See image.
+    - Click **Save**.
+  - To learn more about the prerequisites and permissions for onboarding GitHub, see Permissions for Onboarding SaaS Apps for SSPM.
+  - GitLab
+  - Zscaler and GitLab are technology partners. To learn more about the Zscaler and GitLab integration, see the Zscaler and GitLab Deployment Guide.
+  - To configure GitLab:
+    - Under **Enter the GitLab Admin Email ID**, enter your admin email ID used to log in to GitLab.
+    - Under **Authorize the SaaS Application**, click **Provide Admin Credentials** and log in with your GitLab information.
+    - Click **Save**.
+  - To learn more about the steps in GitLab, refer to the GitLab documentation.
+  - Gmail
+  - To configure Gmail:
+    - Zscaler Defined
+      - Enter your **Google Admin Email ID**.
+      - Under **Authorize the SaaS Application**, select Zscaler Defined, copy the **Zscaler SaaS Connector** and **Google Workspace Scope**. You need it for a later step when adding an API client for Google Workspace.
+    - See image.
+      - Click **Go to Google Workspace**.
+    - The Google Workspace portal appears.
+      - Log in to Google Workspace.
+    - You are redirected to the Google Admin console.
+      - Go to **Security**.
+    - See image.
+      - Click **API controls**.
+    - See image.
+      - Under **Domain wide delegation**, click **MANAGE DOMAIN WIDE DELEGATION**.
+    - See image.
+      - Click **Add new**.
+    - See image.
+    - The **Add a new client ID** window appears.
+      - In the **Add a new client ID** window:
+        - **Client ID**: Enter Zscaler SaaS Connector value you copied in a previous step.
+        - **Overwrite existing client ID**: Deselect.
+        - **OAuth scopes (comma-delimited)**: Enter the Google Workspace scope you copied in a previous step.
+    - See image.
+      - Click **Authorize**.
+    - The Zscaler Connector App is added as an API client.
+      - (Optional) Under **(Optional) Configure External Trusted Domains & Users for the Tenant**:
+        - **External Trusted Domains**: Enter trusted email domains that are outside your organization (i.e., using a different domain). The Zscaler service views any email addresses from the added domains as trusted, internal users for Gmail. For example, if your organization's domain is safemarch.com and your organization recently acquired a company with the domain example.com, you can add example.com to this list, and the service treats any email addresses from example.com (e.g., johnsmith@example.com) as internal users from safemarch.com. You can add up to 1,000 domains.
+        - **External Trusted Users**: Enter trusted email addresses that are outside your organization (i.e., using a different email domain). The Zscaler service views the email addresses as trusted, internal users for Gmail. For example, if your organization's email domain is safemarch.com and your organization recently contracted with someone using an external email domain (e.g., johnsmith@example.com), you can add the contractor's email to this list, and the service treats the contractor as an internal user from safemarch.com. You can add up to 1,000 email addresses.
+    - See image.
+    - To learn more about the steps in the Google Admin console, refer to the Google documentation.
+    - Custom
+    - To create a custom Gmail Connector, you must first configure permissions in Google so that you can provide the **Private Key JSON** file for the Gmail account in the Zscaler Admin Console. To learn more, see Authorizing a Custom Zscaler Connector for Google Applications.
+  - Use the Zscaler-defined connector or onboarding method only for Proof of Values (PoVs) and small accounts with fewer than 100 users. For all other scenarios or larger accounts, Zscaler recommends using a custom connector.
+  - Google Cloud
+  - To enable Google Cloud for your organization, contact your Zscaler Account team.
+    - Zscaler Defined
+      - a. Configure Google Cloud
+        - Enter your **Google Cloud Admin Email ID**.
+        - Under **Authorize the SaaS Application:**
+          - Click **Zscaler Defined**.
+          - Click **Go to Google Cloud** and sign in with your Google Cloud account credentials.
+          - Enter the name of your **Quarantine Bucket**. If you don’t have a Quarantine Bucket configured yet, follow the instructions in Step B.
+        - Click **Save** to finish.
+      - b. Create Quarantine Bucket
+        - From your Google Cloud Platform console, click on **Cloud Storage**, and then click **Create Bucket**.
+        - Name the bucket and click **Continue**.
+        - Continue configuring the bucket as needed and click **Create** when finished.
+      - See image.
+        - Return to Section a., Step iii.
+      - c. Authorize Service Account and Add Scope
+      - The following tasks have to be performed by an Organization Administrator of the G Suite domain:
+        - Copy the Zscaler Saas Connector ID.
+        - Go to G Suite domain’s Admin console.
+        - Select **Security** > **Access and data control** > **API controls**.
+      - See image.
+        - Select **Manage Domain Wide Delegation**.
+        - If the Zscaler API client isn't listed, select **Add new**.
+        - In the **Client name** field enter the Zscaler Saas Connector ID you copied earlier.
+      - See image.
+        - In the **OAuth scopes** field, enter the list of scopes that your application should be granted access to (copy from following list):
+      - https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/logging.read,https://www.googleapis.com/auth/admin.directory.user,https://www.googleapis.com/auth/admin.reports.audit.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/logging.admin
+        - Click **Authorize**.
+      - d. Create and Assign Role to Organization Administrator
+        - Sign in to the Google Cloud Platform console.
+        - Navigate into the desired organization using the project selection drop-down menu and select the appropriate domain in the listing.
+      - See image.
+      - Organization Administrator should be granted **Members** permissions for your GCP organization.
+        - Go to **IAM & Admin** > **IAM** on the navigation bar.
+        - Select **Add**.
+        - Paste the Organization Administrator email address in the **New principals** field.
+      - See image.
+        - Select the following roles necessary for complete cloud storage visibility/harvesting:
+          - **Browser** (roles/browser): Read access to browse the hierarchy for a project and IAM policy. This role doesn't include permission to view resources in the project.
+          - **Private Logs Viewer**: To view data access logs.
+          - **Storage Admin** (roles/storage.admin): Grants full control of objects and buckets.
+        - Click **Save**.
+      - e. Enable Audit Logs
+      - To access audit log configuration options in the Cloud Console, follow these steps:
+        - Go to the Audit Logs page.
+        - In the main table on the **Audit Logs** page, select one or more Google Cloud services from the **Title** column.
+        - In the **Log Type** tab, select the boxes by the Data Access audit log types that you want to enable and then click **Save**. Where you have successfully enabled audit logs, the table includes a checkmark.
+      - See image.
+        - Select **Cloud Logging API** and **Google Cloud Storage**, and enable **Admin Read**, **Data Write**, and **Data Read** audit logs.
+      - Why should you enable the above operations?
+        - **Admin Read**: Entries for operations that read the configuration or metadata of a project, bucket, or object.
+        - **Data Read**: Entries for operations that read an object.
+        - **Data Write**: Entries for operations that create or modify an object.
+      - f. Confirm Activation of Cloud Storage JSON API for All Older Projects
+        - From Google Cloud Platform, go to **APIs & Services** > **Enabled APIs & services**. Ensure that for all the projects for the organization the Cloud Storage JSON API is activated. The JSON API is activated by default, and it can be used immediately.
+        - To enable the JSON API in an existing project, go to the Google Cloud Storage JSON API page in the Cloud Console API Library, and click the **Enable** button.
+    - Custom
+    - To create a custom Google Cloud Connector, you must first configure permissions in Google so that you can provide the **Organization ID**, **Quarantine Bucket** name, and **Private Key JSON** file for the Google Cloud Platform account in the Zscaler Admin Console. To learn more, see Authorizing a Custom Zscaler Connector for Google Applications.
+  - Use the Zscaler-defined connector or onboarding method only for PoVs and small accounts with fewer than 100 users. For all other scenarios or larger accounts, Zscaler recommends using a custom connector.
+  - Google Drive
+  - To configure Google Drive:
+    - Zscaler Defined
+      - Enter your **Google Admin Email ID**.
+      - Under **Authorize the SaaS Application**, click **Zscaler Defined**, and copy the **Zscaler SaaS Connector** and **Google Workspace Scope**. You need it for a later step when adding an API client for Google Workspace.
+    - See image.
+      - Click **Go to Google Workspace**.
+    - The Google Workspace portal appears.
+      - Log in to Google Workspace.
+    - You are redirected to the Google Admin console.
+      - Go to **Security**.
+    - See image.
+      - Click **API controls**.
+    - See image.
+      - Under **Domain wide delegation**, click **MANAGE DOMAIN WIDE DELEGATION**.
+    - See image.
+      - Click **Add new**.
+    - See image.
+    - The **Add a new client ID** window appears.
+      - In the **Add a new client ID** window:
+        - **Client ID**: Enter Zscaler SaaS Connector value you copied in a previous step.
+        - **Overwrite existing client ID**: Deselect.
+        - **OAuth scopes (comma-delimited)**: Enter the Google Workspace scope you copied in a previous step.
+    - See image.
+      - Click **Authorize**.
+    - The Zscaler Connector App is added as an API client.
+    - To learn more about the steps in the Google Admin console, refer to the Google documentation.
+    - Custom
+    - To create a custom Google Drive Connector, you must first configure permissions in Google so that you can provide the **Private Key JSON** file for the Google Drive account in the Zscaler Admin Console. To learn more, see Authorizing a Custom Zscaler Connector for Google Applications.
+  - Use the Zscaler-defined connector or onboarding method only for PoVs and small accounts with fewer than 100 users. For all other scenarios or larger accounts, Zscaler recommends using a custom connector.
+  - Google Workspace
+  - The Cloud Identity license must be assigned to the Google Workspace Admin onboarding the account. This is critical to ensure appropriate licensing and compliance with Google Cloud Identity and Workspace policies. You can use Google Cloud Identity Free for the integration.
+  - To configure Google Workspace:
+    - Verify Cloud Identity License for the Admin
+    - Zscaler Defined
+    - Custom
+  - Use the Zscaler-defined connector or onboarding method only for PoVs and small accounts with fewer than 100 users. For all other scenarios or larger accounts, Zscaler recommends using a custom connector.
+  - The following additional API scopes are required for existing tenants to view the Cloud Identity policies:
+  - Read-Write https://www.googleapis.com/auth/cloud-identity.policies Read https://www.googleapis.com/auth/cloud-identity.policies.readonly
+  - To learn more about the prerequisites and permissions for onboarding Google Workspace, see Permissions for Onboarding SaaS Apps for SSPM.
+  - To assign and verify the Cloud Identity license for your admin account:
+    - Log in to the Google Admin console with your Super Admin account credentials.
+    - Access Cloud Identity license details:
+      - Go to **Billing** > **Buy Or Upgrade** from the left-side navigation.
+      - Locate the **Cloud Identity** section.
+      - See image.
+      - Select **Cloud Identity Free** or **Cloud Identity Premium**, depending on your organization's requirements.
+        - **Cloud Identity Free**: This is the default option with core identity and device management features for no additional cost.
+        - **Cloud Identity Premium**: This option provides enhanced security, advanced access policies, and additional features at an additional cost.
+      - Click **Get Started** in the relevant option.
+  - A detailed description of the selected plan appears outlining its features and benefits.
+    - Review and confirm plan:
+      - For **Cloud Identity Free**, click **Next** to proceed.
+      - On the **Review your payment plan** page, a billing approval tab appears if **Cloud Identity Premium** is selected.
+      - Confirm the selection. For **Cloud Identity Free**, “Free Plan” displays with no payment required.
+      - Click **Checkout** to finalize your plan selection.
+      - See image.
+    - Verify Cloud Identity license assignment:
+      - Go to **Directory** > **Users**.
+      - Select the Super Admin account used for onboarding integration (e.g., admin@example.com).
+      - On the **User Details** page for the account, locate the **Licenses** section.
+      - See image.
+      - Ensure the Cloud Identity Free license status is **Assigned to All** or **Automatically assigned** to the admin. This ensures the account is enabled for Cloud Identity services.
+      - Purchase additional licenses via the **Billing** section if **0 licenses available** status appears for **Cloud Identity Premium** or **Google** **Workspace Business Standard**.
+  - To learn more about setting up Cloud Identity and how licensing works for Cloud Identity, refer to the Google documentation.
+    - Enter the **Google Admin Email ID**.
+    - Under **Authorize the SaaS Application**, click **Zscaler Defined**, and copy the **Zscaler SaaS Connector** and **Google Workspace Scope**. You need it for a later step when adding an API client for Google Workspace.
+  - See image.
+    - Click **Go to Google Workspace**.
+  - The Google Workspace portal appears.
+    - Log in to Google Workspace.
+  - You are redirected to the Google Admin console.
+    - Go to **Security**.
+  - See image.
+    - Click **API controls**.
+  - See image.
+    - Under **Domain wide delegation**, click **MANAGE DOMAIN WIDE DELEGATION**.
+  - See image.
+    - Click **Add new**.
+  - See image.
+  - The **Add a new client ID** window appears.
+    - In the **Add a new client ID** window:
+      - **Client ID**: Enter Zscaler SaaS Connector value you copied in a previous step.
+      - **Overwrite existing client ID**: Deselect.
+      - **OAuth scopes (comma-delimited)**: Enter the Google Workspace scope you copied in a previous step.
+  - See image.
+    - Click **Authorize**.
+  - The Zscaler Connector App is added as an API client.
+  - To learn more about the steps in the Google Admin console, refer to the Google documentation.
+  - To create a custom Google Workspace Connector, you must first configure permissions in Google so that you can provide the **Private Key JSON** file for the Google Drive account in the Zscaler Admin Console. To learn more, see Authorizing a Custom Zscaler Connector for Google Applications.
+  - To configure Google Workspace Marketplace:
+    - Under **Authorize the SaaS Application**, copy the **Zscaler SaaS Connector** and **Google Workspace Scope**. You need it for a later step. when adding an API client for Google Workspace.
+  - See image.
+    - Click **Go to Google Workspace**.
+  - See image.
+  - The Google Workspace portal appears.
+    - Log in to Google Workspace.
+  - You are redirected to the Google Admin console.
+    - Go to **Security**.
+  - See image.
+    - Click **API controls**.
+  - See image.
+    - Under **Domain wide delegation**, click **MANAGE DOMAIN WIDE DELEGATION**.
+  - See image.
+    - Click **Add new**.
+  - See image.
+  - The **Add a new client ID** window appears.
+    - In the **Add a new client ID** window:
+      - **Client ID**: Enter Zscaler SaaS Connector value you copied in a previous step.
+      - **Overwrite existing client ID**: Deselect.
+      - **OAuth scopes (comma-delimited)**: Enter the Google Workspace scope you copied in a previous step.
+  - See image.
+    - Click **Authorize**.
+  - The Zscaler Connector App is added as an API client.
+    - In the Zscaler Admin Console, under **Enter the Google Admin Email ID**, enter your admin email ID used to log in to the Google Admin console.
+  - See image.
+  - To learn more about the steps in the Google Admin console, refer to the Google documentation.
+  - To configure Jira Software:
+    - Enter the **Atlassian Domain Address** you want to connect with Zscaler.
+  - See image.
+    - Enter your **Jira Organization API Key**. Zscaler only supports API keys without scopes. To learn how to create API keys without scopes in Atlassian, refer to the Atlassian documentation.
+  - See image.
+    - Click **Provide Admin Credentials** and sign in to your Jira account.
+    - Click **Save**.
+  - To learn more about the prerequisites and permissions for onboarding Jira, see Permissions for Onboarding SaaS Apps for SSPM.
+  - To configure JumpCloud:
+    - Log in to the JumpCloud Portal with your administrator log in.
+    - Click **Settings** in the left-side navigation.
+    - See image.
+    - On the **Organization Profile** page, copy your Organization ID by clicking the copy icon and save it for a later step.
+    - See image.
+    - Click your profile icon in the upper-right corner and click **My API Key** to open the **API Key** window.
+    - See image.
+    - In the **API Key** window:
+      - **Expiration Date**: Select **No Expiration**.
+      - Click **Generate New API Key**.
+    - See image.
+    - Click the **Copy** icon to copy your API key.
+    - See image.
+    - Return to the **Add SaaS Application Tenant** page in the Zscaler Admin Console, and under **Authorize the SaaS Application**, enter your **JumpCloud Organization ID** and the **JumpCloud Organization API Key** you copied.
+    - See image.
+    - Click **Authorize**.
+  - To configure Microsoft 365:
+  - Under **Authorize the SaaS Application**, select a **SaaS Connector** option. A Zscaler-defined connector grants the Zscaler service full administrator privileges to the application; whereas, a custom connector grants only necessary permissions.
+  - See image.
+    - Zscaler Defined
+    - Custom
+  - Under **Authorize the SaaS Application**, copy the **SaaS connector ID**. Click **Provide Admin Credentials** to add the tenant ID.
+  - To create a custom Microsoft 365 connector, you must first configure permissions in Azure so that you can provide the **Client ID**, **Client Secret**, and **Tenant ID** for the Microsoft 365 account in the Zscaler Admin Console. To learn more, see Authorizing a Custom Zscaler Connector for Microsoft Applications.
+  - To provide access to Microsoft 365 apps with a Zscaler-defined connector or a custom connector, you must add the Global Reader Admin role. To add the Global Reader Admin role:
+    - On a new browser tab, log in to the Azure Portal with your Global Administrator account.
+    - On the Azure Portal home page, search for and select **Microsoft Entra roles and administrators** from the **Services** drop-down menu.
+  - See image.
+    - On the **All Roles** page, search for **Global Reader**, then select it.
+    - On the **Global Reader | Assignments** page, click **Add assignments**.
+  - See image.
+    - On the **Add Assignments** page, click the **No member selected** link.
+  - See image.
+    - On the **Select a member** page, paste the SaaS connector ID you copied from the Zscaler Admin Console.
+  - See image.
+    - Select the SaaS connector ID from the list that appears, and then click **Select.**
+  - The **Add Assignments** page appears.
+    - On the **Add Assignments** page, click **Next**, provide a justification for the assignment, and click **Assign**.
+  - See image.
+    - On the **Global Reader | Assignments page**, verify that the SaaS connector ID you added appears on the list of active assignments. Click **Refresh** if it does not appear on the list.
+  - The following apps are onboarded with the Microsoft 365 connector:
+    - Microsoft Power Apps
+    - Microsoft Power BI
+  - Microsoft Azure AD, Microsoft Exchange, Microsoft Intune, Microsoft OneDrive, Microsoft Purview, Microsoft Sharepoint, Microsoft Teams, and Microsoft Viva Engage can also be onboarded with Microsoft 365 connector.
+  - To provide access to Microsoft Power Apps:
+    - For Windows:
+      - Install the PowerShell module:
+      - Install-Module -Name Microsoft.PowerApps.Administration.PowerShell
+      - Set your variables:
+      - $TenantId="<YOUR_TENANT_ID>" $ApplicationId="<YOUR_APPLICATION_ID>"
+      - Run the following command as an admin user to log in to the PowerApps module:
+      - Add-PowerAppsAccount -Endpoint prod -TenantID $TenantId
+      - You are prompted to log in via browser.
+      - Run the following command to grant connector access to Power Platform resources:
+      - New-PowerAppManagementApp -ApplicationId $ApplicationId
+    - For macOS:
+      - Install Azure CLI:
+      - brew install azure-cli
+      - Verify installation:
+      - az --version
+      - Set your variables:
+      - TENANT_ID="<YOUR_TENANT_ID>" APP_ID="<YOUR_APPLICATION_ID>"
+      - Run the following command as an admin user to log in to Azure:
+      - az login --tenant $TENANT_ID
+      - Generate your bearer token:
+      - TOKEN=$(az account get-access-token \ --resource https://api.bap.microsoft.com \ --query accessToken -o tsv)
+      - This step is required as the generated token is used to add the Power Apps connector. Ensure to handle the token carefully and avoid printing, copying, or saving it as it is generated by an admin user and can be used to gain access to tenants.
+      - Register the application to access Power Platform:
+      - curl -X PUT "https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/adminApplications/${APP_ID}?api-version=2020-10-01" \ -H "Authorization: Bearer $TOKEN" \ -H "Content-Type: application/json" \ -H "Accept: application/json" \ -d '{}'
+  - To provide access to Microsoft Power BI:
+    - Perform the following steps to create a security group if a preconfigured group is not present. To learn more, refer to the Microsoft documentation.
+      - Go to entra.microsoft.com.
+      - From the **Entra ID** section on the left navigation, select **Groups**.
+      - Click **New group** to create a new group.
+      - See image.
+      - In the **New Group** window:
+        - Select the **Group Type** as **Security**.
+        - Enter the group name and description.
+        - Disable the **Microsoft Entra roles can be assigned to the group** option.
+        - Select **Membership type** as **Assigned**.
+        - Click the **No members selected** link.
+      - See image.
+      - Search for a Zscaler SaaS Connector, and click **Select** to add the connector.
+      - See image.
+      - Click **Create**.
+  - Ensure to keep this group for Power BI access only and add owners according to organization standards.
+    - Go to the Fabric Admin Center Portal. To learn more, refer to the Microsoft documentation.
+    - Go to **Tenant Settings**, and scroll down to **Admin API settings**.
+  - See image.
+    - Expand **Service principals can access read-only admin APIs**, and select **Enabled**.
+    - Under **Apply to**, select **Specific security groups**, and add the group name created earlier.
+    - Click **Apply.**
+    - It might take 15 minutes to 2 hours for the access to be updated.
+  - To learn more about the prerequisites and permissions for onboarding Microsoft 365, see Permissions for Onboarding SaaS Apps for SSPM.
+  - To enable Microsoft Azure for your organization, contact your Zscaler Account team. To learn more about configuring Azure or for help finding your enterprise ID or storage account name, refer to the Microsoft documentation.
+    - Zscaler Defined
+    - Custom
+    - Configure Microsoft Azure
+    - Create and Assign Roles
+    - Under **Authorize the SaaS Application**, select the checkbox for the functionality you want to enable.
+    - See image.
+    - Click **Provide Admin Credentials**, and sign in with your Microsoft Azure account credentials.
+    - Under **Register the SaaS Application**:
+      - Enter your Microsoft Azure **Enterprise ID**.
+      - Enter the name of your **Quarantine Storage Account**.
+      - Click **Save** to finish.
+  - See image.
+  - To create a custom Microsoft Azure Blob Storage Connector, you must first configure permissions in Azure so that you can provide the **Client ID**, **Client Secret**, and **Tenant ID**, and add **Role Assignments** for the Microsoft Azure Blob Storage account in the Zscaler Admin Console. To learn more, see Authorizing a Custom Zscaler Connector for Microsoft Applications.
+    - Copy the **Zscaler SaaS Connector ID**.
+  - See image.
+    - Log in to the Azure Portal with your Global Administrator account. Go to **Azure Active Directory** > **Enterprise Application**.
+    - Copy the Application name matching the ID in Step a.
+  - See image.
+    - Go back to the Azure Portal home page, then go to **Subscriptions** and select your subscription. You must do this for each of your subscriptions.
+  - See image.
+    - Select **Access Control (IAM)** > **Role Assignments** > **Add** > **Add role assignment**.
+  - See image.
+    - Search "**Storage Contributor**". Select **Storage Blob Data Contributor** and **Storage Account Contributor** and then click **Next** (this must be done separately for each role).
+    - Click **Select members** and add the application name from Step c as a member to **Storage Blob Data Contributor** and **Storage Account Contributor**, then select **Review + assign**.
+  - See image.
+  - Steps f and g must be done separately for both the **Storage Blob Data Contributor** and **Storage Account Contributor** roles. Steps d to g must be repeated for all subscriptions.
+  - To configure Microsoft Copilot:
+  - Under **Authorize the SaaS Application**, select a **SaaS Connector** option. A Zscaler-defined connector grants the Zscaler service full administrator privileges to the application; whereas, a custom connector grants only necessary permissions.
+  - See image.
+    - Zscaler Defined
+    - Custom
+    - Click **Provide Admin Credentials**.
+  - The Azure portal appears.
+    - Log in to Azure.
+    - Review the required permissions for the Internet & SaaS service to access the Copilot account and click **Accept**.
+    - After accepting, you return to Internet & SaaS and your **Zscaler SaaS Connector** and **Tenant ID** information is visible. Copy these for use later.
+    - To complete the app registration for Copilot, run the following script in Azure via Power Platform API or PowerShell for Power Platform administrators. Use the **Zscaler Connector ID** you copied earlier:
+    - $appId = "<Zscaler Connector ID>" # log in interactively with a tenant administrator for Power Platform Add-PowerAppsAccount -Endpoint prod -TenantID $tenantId # Register a new application, this gives the SPN/client application the same permissions New-PowerAppManagementApp -ApplicationId $appId
+  - To create a custom Copilot connector, you must first configure permissions in Azure so that you can provide the **Client ID**, **Client Secret**, and **Tenant ID** for the account in the Zscaler Admin Console. To learn more, see Authorizing a Custom Zscaler Connector for Microsoft Applications.
+  - To configure Microsoft Exchange:
+    - Under **Authorize the SaaS Application**, select a **SaaS Connector** option. A Zscaler-defined connector grants the Zscaler service full administrator privileges to the application; whereas, a custom connector grants only necessary permissions.
+      - Zscaler Defined
+      - Custom
+    - (Optional) In the Zscaler Admin Console, under **(Optional) Configure External Trusted Domains & Users for the Tenant**:
+      - **External Trusted Domains**: Enter trusted email domains that are outside your organization (i.e., using a different domain). The Zscaler service views any email addresses from the added domains as trusted, internal users for Exchange. For example, if your organization's domain is safemarch.com and your organization recently acquired a company with the domain example.com, you can add example.com to this list, and the service treats any email addresses from example.com (e.g., johnsmith@example.com) as internal users from safemarch.com. You can add up to 1,000 domains.
+      - **External Trusted Users**: Enter trusted email addresses that are outside your organization (i.e., using a different email domain). The Zscaler service views the email addresses as trusted, internal users for Exchange. For example, if your organization's email domain is safemarch.com and your organization recently contracted with someone using an external email domain (e.g., johnsmith@example.com), you can add the contractor's email to this list, and the service treats the contractor as an internal user from safemarch.com. You can add up to 1,000 email addresses.
+    - See image.
+    - Click **Provide Admin Credentials**.
+  - The Exchange Portal appears.
+    - Log in to Exchange.
+    - Review the required permissions for the Internet & SaaS service to access the Exchange account and click **Accept**.
+  - To create a custom Exchange connector, you must first configure permissions in Azure so that you can provide the **Client ID**, **Client Secret**, and **Tenant ID** for the Exchange account in the Zscaler Admin Console. To learn more, see Authorizing a Custom Zscaler Connector for Microsoft Applications.
+  - To configure Microsoft OneDrive:
+  - Under **Authorize the SaaS Application**, select a **SaaS Connector** option. A Zscaler-defined connector grants the Zscaler service full administrator privileges to the application; whereas, a custom connector grants only necessary permissions.
+  - See image.
+    - Zscaler Defined
+    - Custom
+    - Click **Provide Admin Credentials**.
+  - The OneDrive portal appears.
+    - Log in to OneDrive.
+    - Review the required permissions for the Zscaler service to access OneDrive, and click **Accept**.
+  - To create a custom OneDrive connector, you must first configure permissions in Azure so that you can provide the **Client ID**, **Client Secret**, and **Tenant ID** for the OneDrive account in the Zscaler Admin Console. To learn more, see Authorizing a Custom Zscaler Connector for Microsoft Applications.
+  - Zscaler and Microsoft are technology partners. To learn more about the Zscaler and Microsoft Sharepoint integration, see the Zscaler and Microsoft Sharepoint Online Deployment Guide.
+  - To configure Microsoft SharePoint:
+  - Under **Authorize the SaaS Application**, select a **SaaS Connector** option. A Zscaler-defined connector grants the Zscaler service full administrator privileges to the application; whereas, a custom connector grants only necessary permissions.
+  - See image.
+    - Zscaler Defined
+    - Custom
+    - Click **Provide Admin Credentials**.
+  - The SharePoint portal appears.
+    - Log in to SharePoint.
+    - Review the required permissions for the Zscaler service to access SharePoint, and click **Accept**.
+  - To create a custom SharePoint connector, you must first configure permissions in Azure so that you can provide the **Client ID**, **Client Secret**, and **Tenant ID** for the SharePoint account in the Zscaler Admin Console. To learn more, see Authorizing a Custom Zscaler Connector for Microsoft Applications.
+  - To configure Microsoft Teams:
+    - If you select **Workflow Automation**, an additional step appears to **Configure Microsoft Teams Bot**.
+      - Click **Download Zip File** to download the bot’s AppBundle ZIP file, and then name the bot. The name must be identical to its name in the Teams App overview after the upload. By default, the name is ZCN. All other names lead to a 401 error while validating.
+      - See image.
+      - In the ZIP file, open the **manifest.json** file in a text editor and replace the three id values with your **Zscaler Connector ID** found under the next step in the UI: **Authorize the SaaS Application**. Save the changes to the **manifest.json** file.
+      - See image.
+      - Go to Microsoft Teams and navigate to **Apps** > **Manage your apps** > **Upload an app**.
+      - See image.
+      - Click **Upload a custom app**, select your AppBundle ZIP file, then return to the **Add SaaS Application Tenant** page in the Zscaler Admin Console. To learn more about packaging or uploading your Microsoft Teams Bot, refer to the Microsoft documentation.
+      - Microsoft deprecated multi-tenant bot creation for Teams on July 31, 2025. Existing multi-tenant bots are supported as usual. For new bots, use single-tenant or user-assigned managed identity only.
+    - Under **Authorize the SaaS Application**, select a **SaaS Connector** option. A Zscaler-defined connector grants the Zscaler service full administrator privileges to the application; whereas, a custom connector grants only necessary permissions.
+    - See image.
+      - Zscaler Defined
+      - Custom
+    - Click **Provide Admin Credentials**.
+  - The Teams Portal appears.
+    - Log in to Teams.
+    - Review the required permissions for the Internet & SaaS service to access the Microsoft account and click **Accept**.
+  - To create a custom Teams connector, you must first configure permissions in Azure so that you can provide the **Client ID**, **Client Secret**, and **Tenant ID** for the Teams account in the Zscaler Admin Console. To learn more, see Authorizing a Custom Zscaler Connector for Microsoft Applications.
+  - To provide access to Viva Engage, the following permission is required:
+  - Community.Read.All
+  - To learn more, see Authorizing a Custom Zscaler Connector for Microsoft Applications.
+  - Zscaler and Okta are technology partners. To learn more about the Zscaler and Okta integration, see the Zscaler and Okta Deployment Guide.
+  - To configure Okta:
+    - Under **Register the OAuth Application**, enter your Okta client ID and client secret that you copied (learn more in Step f), as well as the URL used to log in to your admin account in Okta.
+  - See image.
+    - Under **Enter Okta Admin Email ID**, enter your admin email ID used to log in to Okta portal.
+    - Under **Authorize the SaaS Application**, click **Provide Admin Credentials**.
+    - Click **Save**.
+  - Create and configure an Okta App Integration:
+    - From the Okta admin console, go to **Applications** > **Applications** and then click **Create App Integration**.
+  - See image.
+    - Select **OIDC - OpenID Connect** for the sign-in method and **Web Application** for the application type.
+  - See image.
+    - Click **Next**.
+    - Enter a name for the app integration, select **Authorization Code** and **Refresh Token** for grant types, and enter https://admin.<Zscaler Cloud Name>.net for the sign-in and sign-out URIs, where the cloud name is the Internet & SaaS cloud where you are hosted. In the following example we are using https://admin.zscaler.net.
+  - The refresh token is only valid for 90 days, which is a limit set by Okta. After every 90 days, you should reauthorize the connector to continue scanning Okta. To learn more about the Okta refresh token limit, refer to the Okta documentation.
+  - See image.
+    - Under **Assignments**, select **Allow everyone in your organization to access** for **Controlled access** and click **Save**.
+  - See image.
+    - In the **General** tab of the application you created, copy the Client ID and Secret for use in the previous section's Step b.
+  - See image.
+    - In the **Okta API Scopes**, grant access to the following scopes:
+      - okta.apiTokens.read
+      - okta.apps.read
+      - okta.behaviors.read
+      - okta.clients.read
+      - okta.domains.read
+      - okta.events.read
+      - okta.factors.read
+      - okta.groups.read
+      - okta.linkedObjects.read
+      - okta.logs.read
+      - okta.networkZones.read
+      - okta.policies.manage
+      - okta.policies.read
+      - okta.reports.read
+      - okta.riskProviders.read
+      - okta.roles.manage
+      - okta.roles.read
+      - okta.sessions.read
+      - okta.threatInsights.manage
+      - okta.threatInsights.read
+      - okta.trustedOrigins.read
+      - okta.userTypes.read
+      - okta.users.read
+  - See image.
+  - To learn more about the steps in Okta, refer to the Okta documentation.
+  - To learn more about the prerequisites and permissions for onboarding Okta, see Permissions for Onboarding SaaS Apps for SSPM.
+  - To configure Oracle:
+    - Log in to your Oracle Cloud account.
+    - From the left-side navigation, select **Identity & Security** and then select **Domains**.
+    - See image.
+    - Select your domain to go to its page.
+    - Copy your **Domain URL** for use later.
+    - From the domain's page, go to the **Integrated applications** tab and select **Add application**.
+    - See image.
+    - Select **Confidential Application** and click **Launch workflow**.
+    - See image.
+    - Enter a name for the application and click **Submit**. You are taken to the new application's page.
+    - From the application's page, go to the **OAuth configuration** tab and click **Edit OAuth configuration**.
+    - See image.
+    - Under **Client configuration**:
+      - Select **Configure this application as a client now**.
+      - Under **Allowed grant types**, select **Client credentials**.
+    - See image.
+    - At the bottom of the **Edit Oauth configuration** window, select **Add app roles**.
+    - Under **App roles**, click **Add app roles**.
+    - See image.
+    - Select **Identity Domain Administrator** and click **Add**.
+    - See image.
+    - Click **Submit** and the application page opens.
+    - Copy your **Client ID** and **Secret** for use shortly.
+    - Return to the Zscaler Admin Console.
+    - Under Authorize the SaaS Application, enter your **Client ID**, **Client Secret**, **Oracle Admin Email ID**, and your **Instance URL**. The **Instance URL** is the Oracle **Domain URL** you copied earlier.
+    - See image.
+    - Click **Authorize**.
+  - Zscaler and Salesforce are technology partners. To learn more about the Zscaler and Salesforce integration, see the Zscaler and Salesforce Deployment Guide.To learn more about the prerequisites and permissions for onboarding Salesforce, see Permissions for Onboarding SaaS Apps for SSPM.
+    - Zscaler Defined
+    - Custom
+  - To configure Salesforce:
+  - To view the activity report logs for Salesforce, ensure that you have access to the Event Monitoring add-on on your Enterprise or Unlimited Salesforce license.
+    - a. Install the zscalerPackage.
+    - b. Create a user with Minimum Access- API only Integrations profile and Salesforce Integration license.
+    - c. Create a permission set.
+    - d. Assign the permission set.
+    - e. Configure the Zscaler SaaS Connector Application.
+  - To learn more about the steps in Salesforce, refer to the Salesforce documentation.
+  - You must install the zscalerPackage, which contains the contents for the Zscaler SaaS Connector application.
+    - Under **Select Tenant Type**, choose the appropriate tenant type based on your deployment:
+      - **Sandbox Account**: This option allows you to access Salesforce from the test.salesforce.com URL where you can test your changes without having them affecting your customers until you move it to your production environment.
+      - **Production Account**: This option allows you to access Salesforce from the log in.salesforce.com URL where your changes affect your customers directly as they are applied to your production environment.
+  - You can add both tenant types separately, but you can't change from a sandbox tenant type to production, or from production to sandbox.
+  - See image.
+    - Under **Authorize the SaaS Application**, click **Go to Salesforce**.
+  - See image.
+  - The Salesforce portal appears.
+    - Log in to Salesforce.
+  - The **Install zscalerPackage** page appears.
+    - On the **Install zscalerPackage** page:
+      - Ensure **Install for Admins Only** is selected.
+      - Select **I acknowledge that I’m installing a Non-Salesforce Application that is not authorized for distribution as part of Salesforce’s AppExchange Partner Program**.
+      - Click **Install**.
+  - See image.
+    - After installation is complete, click **Done**.
+  - See image.
+  - You are redirected to the **Installed Packages** page.
+    - In the left-side navigation, go to **Users**.
+    - See image.
+    - Select **New User** and enter the required general information. For **User License** select **Salesforce Integration**, for **Profile** select **Minimum Access- API only Integrations**, and uncheck the following checkboxes:
+      - Salesforce CRM Content User
+      - Receive Salesforce CRM Content Email Alerts
+      - Receive Salesforce CRM Content Alerts as Daily Digest
+      - Quick Access Menu
+      - Load Lightning Pages While Scrolling
+    - See image.
+    - Click the checkbox for **Generate new password and notify user immediately**.
+    - See image.
+    - Click the **Save** button.
+    - You receive a verification email from Salesforce at the address you entered while creating the new user. Follow the instructions in the email and set a new password for the user. Since this is an integration user, you are not able to log in with this user account.
+  - You must create a permission set to assign to your user account and the Zscaler SaaS Connector application.
+  - To create a permission set:
+    - In the left-side navigation, go to **Users** > **Permission Sets**.
+  - See image.
+    - Click **New**.
+  - See image.
+  - The **Permission Set Create** window appears.
+    - In the **Permission Set Create** window:
+      - **Label**: Enter a label for the permission set. In this example, it's Zscaler SaaS Connector User.
+      - **API Name**: This field populates based on the label you entered.
+      - **License**: Choose **Salesforce API Integration**.
+  - See image.
+    - Click **Save**.
+    - In the **Apps** section, click **App Permissions**.
+  - See image.
+    - Click **Edit**.
+  - See image.
+    - In the **Content** section, select the following permissions:
+    - Ensure all checkboxes are unchecked before selecting the following permissions. When selected, a few more related permissions are checked automatically, so do not uncheck them.
+      - For SaaS Security Scan:
+        - Manage record types and layouts for Files
+        - Manage Salesforce CRM Content
+        - Query All Files
+        - View All Forecasts
+      - See image.
+      - For SSPM Scan:
+        - Query All Files
+        - View All Forecasts
+      - See image.
+    - Click **Save** and then **Save** again to confirm.
+    - In the **System** section, click **System Permissions**.
+    - See image.
+    - In the **System** and **Users** section, select the following permissions:
+      - For SaaS Security Scan:
+        - Access Libraries
+        - Manage Chatter Messages and Direct Messages
+        - View All Data
+        - View Dashboards in Public Folders
+        - View Event Log Files
+        - View Login Forensic Events
+        - View Real-Time Event Monitoring Data
+        - View Reports in Public Folder
+        - View Roles and Roles Hierarchy
+        - View Setup and Configuration
+        - View All Users
+      - See image.
+      - For SaaS Security Remediation:
+        - Modify All Data
+      - For SSPM Scan:
+        - Customize Application
+        - Merge Certificates
+        - Manage Custom Permissions
+        - Manage Certificates
+        - Modify Metadata Through Metadata API Functions
+        - View All Data
+        - View Data in Public Folders
+        - View Event Log Files
+        - View Health Check
+        - View Login Forensics Events
+        - View Real-Time Event Monitoring
+        - View Reports in Public Folder
+        - View Roles and Roles Hierarchy
+        - View Setup and Configuration
+        - Manage Sharing
+      - See image.
+    - Click **Save** and then **Save** again to confirm.
+  - You must assign the permission set you created to your Salesforce user account.
+  - To assign the permission set to your user account:
+    - In the left-side navigation, go to **Users** > **Users**.
+  - See image.
+    - In the **Full Name** column, click your name.
+  - See image.
+    - In the **Permission Set Assignments** section, click **Edit Assignments**.
+  - See image.
+  - The **Permission Sets** window appears.
+    - In the **Permission Sets** window, under **Available Permission Sets**, select the permission set you configured in the previous step, and click **Add**. In this example, it's Zscaler SaaS Connector User.
+  - See image.
+    - Click **Save**.
+  - To configure the Zscaler SaaS Connector application:
+    - In the left-side navigation, go to **Apps** > **App Manager**.
+  - See image.
+    - Click the down arrow icon for the Zscaler SaaS Connector application. The name of the Zscaler SaaS Connector application varies depending on the URL you use to log in to the Zscaler service. For example, if you log in to https://admin.zscalerbeta.net, then your Zscaler SaaS Connector application name is similar to ZscalerSaaSConnectorZSBeta01. This guide uses the ZscalerSaaSConnectorZSBeta01 application as an example.
+  - See image.
+    - Click **Manage**.
+  - See image.
+    - Click **Edit Policies**.
+  - See image.
+  - The **Connected App Edit** window appears.
+    - In the **Connected App Edit** window:
+      - **Permitted Users**: Choose **Admin approved users are pre-authorized**.
+      - **IP Relaxation**: Choose **Relax IP restrictions**.
+      - **Refresh Token Policy**: Ensure **Refresh token is valid until revoked** is chosen.
+  - See image.
+    - Click **Save**.
+    - In the **Profiles** section, click **Manage Profiles**.
+  - See image.
+  - The **Application Profile Assignment** window appears.
+    - In the **Application Profile Assignment** window, select **Minimum Access- API only Integrations**.
+    - See image.
+    - Click **Save**.
+    - In the Zscaler Admin Console, under **Enter the Salesforce Admin Username**, enter your admin username used to log in to the Salesforce portal.
+  - See image.
+  - To create a custom Salesforce Connector, you must first configure permissions in Salesforce so that you can provide the client ID, client secret, username of integration user, instance URL, and quarantine library names (if using DLP and Malware scanning) for the Salesforce account in the Zscaler Admin Console. To learn more, see Authorizing a Custom Zscaler Connector for Salesforce.
+  - Zscaler and ServiceNow are technology partners. To learn more about the Zscaler and ServiceNow integration, see the Zscaler and ServiceNow Deployment Guide. To configure ServiceNow as a tenant, you must have a ServiceNow user account with an admin role.
+  - To configure ServiceNow:
+    - a. Verify the OAuth 2.0 Plugin is Active
+    - b. Verify the OAuth Property is Active
+    - c. Configure an OAuth Client Application
+    - d. Add ServiceNow as a Tenant
+  - To learn more about the steps in ServiceNow, refer to the ServiceNow documentation. To learn more about adding additional object types for ServiceNow tenants, see Adding Object Types for ServiceNow Tenants. To learn more about the prerequisites and permissions for onboarding ServiceNow, see Permissions for Onboarding SaaS Apps for SSPM.
+  - To verify the OAuth 2.0 plugin is installed and active:
+    - Log in to your ServiceNow instance.
+    - Go to **System Applications** > **All Available Applications** > **All**.
+    - See image.
+    - Enter OAuth 2.0 in the search bar. The OAuth 2.0 plugin appears. Ensure it's **Installed**.
+    - See image.
+    - If the plugin isn't installed, click **Install** and then **Activate**.
+  - To verify that the OAuth property is active:
+    - In the **Filter navigator**, enter sys_properties.list and press **Enter** on your keyboard.
+    - See image.
+    - On the **System Properties** page, enter the following property in the search bar and press **Enter** on your keyboard:
+  - com.snc.platform.security.oauth.is.active
+  - See image.
+    - Ensure that the **Value** column for the **com.snc.platform.security.oauth.is.active** property is **true**.
+    - See image.
+    - If it's not, in the **Name** column, click **com.snc.platform.security.oauth.is.active**, enter true for the **Value**, and then click **Update**.
+    - See image.
+  - To configure an OAuth client application:
+    - Go to **System OAuth** > **Application Registry**.
+    - See image.
+    - Click **New**.
+    - See image.
+    - Click **Create an OAuth API endpoint for external clients**.
+    - See image.
+    - The **Application Registries New Record** window appears.
+    - In the **Application Registries New Record** window:
+      - **Name**: Enter a name for the OAuth client application. In this example, it's Zscaler SaaS Application Tenant.
+      - **Client ID**: Copy the client ID of the application. You need it for Step ii of d. Add ServiceNow as a Tenant.
+      - **Client Secret**: The shared secret of the application, which the ServiceNow instance and the OAuth client application use to authorize their communication. The secret generates after you submit this application registry.
+      - **Refresh Token Lifespan**: The default lifespan is 8,640,000 seconds (100 days). Zscaler recommends changing it to a larger value, such as 157,700,000 seconds (5 years) because you'll need to configure ServiceNow as a new tenant after the refresh token expires.
+      - **Access Token Lifespan**: The default value is 1,800 seconds (30 minutes). Zscaler recommends changing it to a larger value, such as 86,400 seconds (24 hours).
+    - See image.
+    - Click **Submit**.
+    - On the **Application Registries** page, in the **Name** column, click the name of the configured OAuth client application. In this example, it's Zscaler SaaS Application Tenant.
+    - See image.
+    - The **Application Registries** window appears.
+    - In the **Application Registries** window, click the **Lock** icon for **Client Secret**.
+    - See image.
+    - Copy the client secret. You need it for Step ii of d. Add ServiceNow as a Tenant.
+    - See image.
+  - To add ServiceNow as a SaaS application tenant:
+    - Under **Register the OAuth Application**:
+      - **Client ID**: Enter the client ID you copied in c. Configure an OAuth Client Application.
+      - **Client Secret**: Enter the Client Secret you copied in c. Configure an OAuth Client Application.
+      - **Instance URL**: Enter the URL used to log in to your ServiceNow instance.
+      - **User ID**: Enter the user ID of the user account used to configure the OAuth client application.
+      - **User Password**: Enter the password of the user account used to configure the OAuth client application.
+    - See image.
+    - Under **Enter the ServiceNow Admin Email ID**, enter your admin email ID used to log in to your ServiceNow instance.
+    - See image.
+    - Under **Authorize the SaaS Application**, click **Authorize**.
+    - See image.
+  - Zscaler and Slack are technology partners. To learn more about the Zscaler and Slack integration, see the Zscaler and Slack Deployment Guide.
+    - Zscaler defined
+    - Custom
+  - To configure Slack:
+    - Under **Authorize the SaaS Application**, configure the following:
+      - **SaaS Connector**: Choose **Zscaler Defined**.
+      - See image.
+      - For SSPM Scan and Workflow Automation, this option is by default set to **Zscaler Defined**.
+      - **Slack Admin Email ID**: Enter your admin email ID used to log in to your Slack account.
+      - Click **Provide Admin Credentials**.
+      - See image.
+      - The Slack portal appears.
+    - Log in to Slack.
+    - Review the required permissions for the Zscaler service to access Slack, and click **Allow**.
+    - Under **Authorize Access to a Slack Bot**, click **Create a Bot**.
+    - See image.
+    - Review the required permissions for the Zscaler service to send notifications to users through the custom Slack bot, and click **Allow**.
+    - See image.
+  - To create a custom Slack connector, you must first configure permissions in Slack. This authorizes your Slack account within the Zscaler Admin Console, allowing the Zscaler service to securely access the application. To learn more, see Authorizing a Custom Zscaler Connector for Slack.
+    - Some necessary scopes (like discovery scopes) require the Slack team's approval, which can take 3–5 business days. Zscaler recommends securing these approvals before configuring your custom Slack connector. Refer to the Slack documentation to raise a support request.
+    - Slack custom connector is only available for DLP and Malware scanning.
+  - To configure Smartsheet:
+    - a. Generate the Smartsheet API Access Token
+    - b. Add Smartsheet as a Tenant
+  - To configure Smartsheet as a SaaS tenant, you must have a Smartsheet admin account with an Event Reporting license.
+    - Log in to Smartsheet using a valid Smartsheet admin account.
+    - See image.
+    - In the left-side navigation, click the **Account** icon, then select **Personal Settings**.
+    - See image.
+    - In the **Personal Settings** dialog box, select **API Access**.
+    - See image.
+    - In the **Manage API Access Tokens** panel, click the **Generate new access token** button, then enter a name for the token and click **OK**. Zscaler recommends that you add Zscaler to the token name to make it easier to find later.
+    - See image.
+    - Copy the token to your computer's clipboard. You need it when you add Smartsheet as a tenant in Zscaler.
+    - See image.
+    - Under **Authorize the SaaS Application**, add the Smartsheet API access token you generated and copied to your clipboard.
+    - See image.
+  - To configure Snowflake:
+    - Log in to Snowflake.
+    - Go to **Worksheets**, and select **Type** as **SQL**.
+    - Create a new worksheet.
+    - Set the **Role** to **Account Admin** or equivalent.
+    - Run the following SQL script:
+    - USER ROLE ACCOUNTADMIN; CREATE OR REPLACE SECURITY INTEGRATION my_snowflake_oauth TYPE = OAUTH ENABLED = TRUE OAUTH_CLIENT = CUSTOM OAUTH_CLIENT_TYPE = 'CONFIDENTIAL' OAUTH_REDIRECT_URI = 'https://10.65.31.120' OAUTH_ISSUE_REFRESH_TOKENS = TRUE;
+    - Run the following commands to fetch the client ID and client secret:
+    - DESC SECURITY INTEGRATION my_snowflake_oauth; SELECT SYSTEM$SHOW_OAUTH_CLIENT_SECRETS('MY_SNOWFLAKE_OAUTH');
+    - Copy the client ID and clientSecret2 from the following response:
+    - {"OAUTH_CLIENT_SECRET_2":"clientSecret2","OAUTH_CLIENT_SECRET":"clientSecret","OAUTH_CLIENT_ID":"clientId"}
+    - To view the privileges assigned to a role, run the following command:
+    - SHOW GRANTS TO ROLE ACCOUNTADMIN;
+    - To assign privileges to a role, run the following script:
+    - USE ROLE ACCOUNTADMIN; GRANT MONITOR SECURITY ON ACCOUNT TO ROLE "SVC_ROLE_MYAPP"; GRANT MONITOR USAGE ON ACCOUNT TO ROLE "SVC_ROLE_MYAPP"; GRANT MONITOR ON ACCOUNT TO ROLE SVC_ROLE_MYAPP; GRANT ROLE TRUST_CENTER_VIEWER_ROLE TO ROLE SVC_ROLE_MYAPP;
+  - You must assign a role to the user you want to authenticate during onboarding from **Governance and Security** > **User and roles**, and set this newly created role as a default role.
+    - In the Zscaler Admin Console, under **Register the OAuth Application**, enter the **Client ID**, **Client Secret**, and **Instance URL**. This is the URL used to log in to your admin account in Snowflake. The **Instance URL** must be in the following format:
+    - https://<account-identifier>.snowflakecomputing.com
+  - See image.
+  - To configure Trello:
+  - Trello can only be configured for SSPM scan which requires Advanced SSPM. If you don't have Advanced SSPM, a message to upgrade appears next to the **SSPM scan** checkbox.
+    - Log in to the Trello Power-Ups and Integrations with your admin credentials.
+    - Click **New**.
+    - See image.
+    - Enter your information in the **New Power-Up or Integration** fields. Click **Create** when done.
+    - Under **API key**, click **Generate a new API key**.
+    - In the **Generate API key** window, click **Generate API key**.
+    - See image.
+    - Copy the **API key** and **Secret** for use later and add the Internet & SaaS URL in the **Allowed origins** field.
+    - See image.
+    - Required API scopes are as follows:
+      - read: Reading of boards, organizations, etc. on behalf of the user
+      - write: Writing of boards, organizations, etc. on behalf of the user
+      - account: Read member email, writing of member info, and marking notifications read
+    - To learn more, refer to Authorizing with Trello's REST API.
+    - In the Zscaler Admin Console under **Enter the Trello Admin Email ID**, enter your admin email ID used to log in to Trello.
+    - Under **Authorize the SaaS Application**, enter your **Trello API Key** and **Organization ID**.
+    - See image.
+    - You should have copied your API key earlier, and the Organization ID can be found in the address bar of your Trello workspace page.
+    - See image.
+    - Click **Provide Admin Credentials**. Log in with your Trello admin information and click **Allow** to give Zscaler access to the application.
+  - To learn more about the prerequisites and permissions for onboarding Trello, see Permissions for Onboarding SaaS Apps for SSPM.
+  - To configure Twilio:
+  - Twilio can only be configured for SSPM scan which requires an Advanced SSPM license. If you don't have the correct license, you will see a message to upgrade your license next to the **SSPM Scan** checkbox.
+    - Log in to the Twilio Portal with your admin credentials.
+    - Go to **Account management** from the top-right corner.
+    - See image.
+    - In the left-side navigation, click **API keys & tokens.**
+    - See image.
+    - Copy the **Account** **SID** and **Primary token**.
+    - See image.
+    - In the Zscaler Admin Console, under **Enter the Twilio Admin Email ID**, enter your admin email ID used to log in to Twilio.
+    - Under **Authorize the SaaS Application**, enter the **Account SID** and **Secret** you copied earlier and click **Provide Admin Credentials** to grant Zscaler access to the application.
+    - See image.
+  - To learn more about the prerequisites and permissions for onboarding Twilio, see Permissions for Onboarding SaaS Apps for SSPM.
+  - To configure Webex Teams:
+    - Both onboarding options for Webex Teams allow you to configure rules for messages, but for file attachments you need to onboard the tenant for Real-time DLP. To learn more about rules and in-line DLP configuration, see Adding a Collaboration & Online Meetings Rule for Cloud App Control and Configuring DLP Policy Rules.
+    - DLP and Malware scanning SaaS API and Real-time DLP cannot be enabled at the same time. You have the ability to easily switch between the two when editing the tenant. To learn more, see Editing, Deleting, or Duplicating Items.
+    - Configuring Webex Teams for the SSPM scan requires Advanced SSPM. If you don't have Advanced SSPM, a message to upgrade appears next to the SSPM scan checkbox. To learn more about the prerequisites and permissions for onboarding Webex Teams, see Permissions for Onboarding SaaS Apps for SSPM.
+    - DLP and Malware Scanning SaaS API and SSPM Scan
+    - Real-time DLP
+  - Onboarding for the SSPM scan requires additional scopes compared to DLP and Malware Scanning. These are applied automatically during the **Authorize the SaaS Application** step in the following instructions. If you want to add SSPM scan to an existing tenant, you need to reauthorize Webex Teams by editing it and revalidating, or deleting the tenant and creating a new one. To learn more, see About SaaS Application Tenants.
+    - Under **Enter Webex Teams Admin Email ID**, enter your admin email ID used to log in to the Webex portal.
+  - See image.
+    - Under **Authorize the SaaS Application**, click **Provide Admin Credentials**.
+  - See image.
+  - The Webex portal appears.
+    - Log in to Webex.
+    - Review the required permissions for the Zscaler service to access Webex Teams, follow the on-screen instructions, and click **Allow**.
+    - In the Zscaler Admin Console, click **Authorize** if you already have a Cisco connection, or click **Create a Bot** if you don't.
+  - See image.
+  - The Webex portal appears.
+    - Sign in and review the required permissions for the Zscaler service to send notifications to users through a custom bot, and click **Allow**.
+    - Under **Enter Webex Teams Admin Email ID**, enter your admin email ID used to log in to the Webex portal.
+    - See image.
+    - Under **Authorize the SaaS Application**, click **Provide Admin Credentials**.
+    - Log in to Webex.
+    - Review the required permissions for the Zscaler service to access Webex Teams, follow the on-screen instructions, and click **Allow**.
+    - In the Zscaler Admin Console, click **Authorize**.
+  - Workday can only be configured for SSPM scan which requires Advanced SSPM. If you don't have Advanced SSPM, a message to upgrade appears next to the **SSPM scan** checkbox.
+  - To configure Workday SSPM scan:
+    - a. Create the integration user.
+    - b. Create a security group.
+    - c. Custom report creation.
+    - d. Add a domain security policy to the security group.
+    - e. Register an API Client for the Workday integration.
+    - f. Onboarding with Internet & SaaS.
+  - To learn more about the prerequisites and permissions for onboarding Workday, see Permissions for Onboarding SaaS Apps for SSPM.
+    - Sign in to your Workday portal.
+    - In the search bar, enter Create Integration System User and select the result.
+    - The **Create Integration System User** page opens.
+    - On the **Create Integration System User** page, under **Account Information**, enter a **User Name** (such as Zscaler_Saas_Integration), **New Password**, and then select **Do Not Allow UI Sessions**.
+    - See image.
+    - Click **OK** and then **Done**.
+    - In the search bar, enter Create Security Group and select the result.
+    - The **Create Security Group** page opens.
+    - On the **Create Security Group** page, under **Type of Tenanted Security Group**, select **Integration System Security Group (Unconstrained)** from the drop-down menu and enter a name for the security group (such as Zscaler_saas_connector).
+    - See image.
+    - Click **OK**.
+    - For **Integration Systems Users**, select the integration system user created earlier.
+    - See image.
+    - Click **OK** and then **Done**.
+    - In the search bar, enter Create Custom Report and select the result.
+    - The **Create Custom Report** page opens.
+    - On the **Create Custom Report** page, enter or select the following information:
+      - **Report Name**: Enter a name for the report, such as Zscaler_Report.
+      - **Report Type**: Select **Advanced**.
+      - **Enable as Web Service**: Check this checkbox.
+      - **Optimized for Performance**: Uncheck this checkbox.
+      - **Data Source**: Select **All Workday Accounts**.
+    - See image.
+    - Click **OK** and go to the **Columns** tab.
+    - On the **Columns** tab, click the **Add** icon (**+**) to create a new entry.
+    - Configure the **Field** and **Column Heading Override XML Alias** entries in the following table. Each entry's **Business Object** should be set to **Workday Account** as shown in the screenshot after the table:
+| Field | Column Heading Override XML Alias |
+|---|---|
+| Time of Most Recent Sign On | timeOfMostRecentSignOn |
+| Email Address | email |
+| Session Timeout Minutes | sessionTimeoutMinutes |
+| Account Disabled or Expired | accountDisabledOrExpired |
+| Days Since Last Password Change | daysSinceLastPasswordChange |
+| Exempt from Delegated Authentication | exemptFromDelegatedAuthentication |
+| Grace Period Enabled | one_TimePasscodeAuthenticationGracePeriodEnabled |
+| Is Integration User | isIntegrationUser |
+| Do Not Allow UI Sessions | doNotAllowUISessions |
+| Is Eligible for Purge | isEligibleForPurge |
+| Sensitive Data is Masked in Output | sensitiveDataIsMaskedInOutput |
+| Username | username |
+| Workday ID | workdayID |
+| Last Functionally Updated | lastFunctionallyUpdated |
+    - See image.
+    - Go to the **Filter** tab.
+    - On the **Filter** tab, click on the **Add** icon (**+**) and enter the fields as depicted below:
+      - **And/Or**: Enter **And**.
+      - **Field**: Select **Email Address**.
+      - **Operator**: Select **equal to**.
+      - **Comparison Type**: Select **Prompt the user for the value and ignore the filter condition if the value is blank**.
+      - **Comparison Value**: Select **Prompt #2**.
+      - **And/Or**: Enter **And**.
+      - **Field**: Select **Last Functionally Updated**.
+      - **Operator**: Select **greater than or equal to**.
+      - **Comparison Type**: Select **Prompt the user for the value and ignore the filter condition if the value is blank**.
+      - **Comparison Value**: Select **Starting Prompt**.
+      - **And/Or**: Enter **And**.
+      - **Field**: Select **Last Functionally Updated**.
+      - **Operator**: Select **less than or equal to**.
+      - **Comparison Type**: Select **Prompt the user for the value and ignore the filter condition if the value is blank**.
+      - **Comparison Value**: Select **Ending Prompt**.
+    - See image.
+    - Go to the **Prompts** tab.
+    - On the **Prompts** tab, add an entry with the following fields:
+      - **Field**: Select **Last Functionally Updated**.
+      - **Prompt Qualifier**: Select **Starting Prompt**.
+      - **Label For Prompt XML Alias**: Enter LastFunctionallyUpdatedGreaterThan.
+      - **Field**: Select **Last Functionally Updated**.
+      - **Prompt Qualifier**: Select **Ending Prompt**.
+      - **Label For Prompt XML Alias**: Enter LastFunctionallyUpdatedLessThan.
+      - **Field**: Select **Email Address**.
+      - **Prompt Qualifier**: Select **Prompt #2**.
+      - **Label For Prompt XML Alias**: Enter email.
+    - See image.
+    - Go to the **Share** tab.
+    - On the **Share** tab, under **Report Definition Sharing Options**, select **Share with specific authorized groups and users**.
+    - See image.
+    - In the **Authorized Groups** section, select the security group created earlier.
+    - Go to the **Advanced** tab.
+    - On the **Advanced** tab under **Web Services Options**, select **Enable As Web Service**.
+    - See image.
+    - Click the **Settings** icon (**...**) next to the report name and go to **Web Service** > **URLs**.
+    - See image.
+    - In the **View URLs Web Service** window, leave the **Starting Last Functionally Updated, Ending Last Functionally Updated,** and **Email Address(2)** fields blank and click **OK**.
+    - See image.
+    - From the **View URLs Web Service** page, copy the **JSON URL** to use later on the Zscaler tenant onboarding page.
+    - See image.
+    - In the search bar, enter Maintain Permissions for Security Group and select the result.
+    - The **Maintain Permissions for Security Group** page opens.
+    - On the **Maintain Permissions for Security Group** page, under **Operation**, select **Maintain**.
+    - For **Source Security Group**, select the integration system security group you previously created.
+    - See image.
+    - Click **OK**.
+    - On the **Maintain Permissions for Security Group** page, click the **Add** icon (**+**) to add the following domain security policy permission rows. Two rows are required for each of the following domain security policy entries unless specified otherwise; one to configure **View Only** access, and one to configure **Get Only** access:
+      - **Worker Data: Current Staffing Information**
+      - **Purge Person Data**
+      - **Worker Data: Staffing**
+      - **Worker Data: Public Worker Reports**
+      - **System Auditing**
+      - **Workday Accounts**
+      - **Workday Query Language**
+      - **Security Administration** (Only configure **View Only** permission for this policy; not **Get Only**)
+    - See image.
+    - Click **OK** and then **Done**.
+    - In the search bar, enter Activate Pending Security Policy Changes and select the result.
+    - The **Activate Pending Security Policy Changes** page opens.
+    - On the **Activate Pending Security Policy Changes** page, enter your comments to describe the security changes to be published.
+    - See image.
+    - Click **OK** and then **Done**.
+    - Select **Confirm**. Click **OK** and then **Done**.
+    - See image.
+    - In the search bar, enter Register API Client for Integrations and select the result.
+    - The **Register API Client for Integrations** page opens.
+    - On the **Register API Client for Integrations** page, enter a **Client Name** such as Zscaler_Integration.
+    - See image.
+    - Select **Non-Expiring Refresh Tokens**.
+    - For **Scope (Functional Areas)**, select the following:
+      - Staffing
+      - System
+      - Integrations
+      - Organization and Roles
+      - Tenant Non-Configurable
+    - Click **OK**.
+    - Copy and save the **Client ID** and **Client Secret** fields that are displayed, as these are required when onboarding the Workday tenant in the Zscaler Admin Console.
+    - See image.
+    - The **Client Secret** is only displayed once. If it is lost, compromised, or simply not copied, it can be regenerated by clicking on the **Settings** icon (**...**) next to the client name and selecting **API Client** > **Generate New Client Secret**.
+    - Click the **Settings** icon (**...**) next to the client name and select **API Client** > **Manage Refresh Tokens for Integrations**.
+    - See image.
+    - For **Workday Account**, enter the integration user you previously created and click **OK**.
+    - See image.
+    - From the **Delete or Regenerate Refresh Token** page, select **Generate New Refresh Token** and click **OK**.
+    - See image.
+    - Copy the **Refresh Token** as it is used when onboarding the Workday tenant on the Zscaler Admin Console.
+    - In the search bar, enter View API Clients and select the result.
+    - Copy the **Workday REST API Endpoint** and **Token Endpoint**. These are required on the Internet & SaaS onboarding page.
+    - See image.
+    - In the Zscaler Admin Console, under **Register the OAuth Application**, select **REST API** or **Custom Report** for your authorization method.
+      - For **REST API**, enter your **Client ID**, **Client Secret**, **Refresh Token**, **Token Endpoint**, and **Workday REST API Endpoint**.
+      - See image.
+      - For Custom Report, enter your **Client ID**, **Client Secret**, **Refresh Token**, **Token Endpoint**, and **Custom Report Web Service URL**.
+      - See image.
+    - Enter your Workday admin email ID.
+    - Under **Authorize the SaaS Application**, click **Provide Admin Credentials** and enter your Workday login details.
+    - See image.
+  - To configure Zoom:
+    - DLP and Malware Scanning SaaS API
+    - SSPM Scan
+    - Sign in to Zoom with your admin account.
+    - Go to the Zoom Marketplace.
+    - Go to **Develop** > **Build App**.
+    - See image.
+    - Select **General App** and click **Create**.
+    - Go to the **Production** tab and choose **Admin-managed** for the app type. Click **Save**.
+    - See image.
+    - Go to the **App Credentials** tab in the left-side navigation and note down your **Client ID** and **Client Secret** for use later.
+    - See image.
+    - Under **OAuth Redirect URL** and **OAuth Allow Lists**, enter the URL of your Zscaler server.
+    - List of Zscaler URLs:
+      - https://admin.zscalerbeta.net
+      - https://admin.zscalertwo.net
+      - https://admin.zscalerthree.net
+      - https://admin.zscaler.net
+      - https://admin.zscloud.net
+    - Go to the **App Listing** tab and add **Short Description**, **Long Description**, **Developer Contact Information**, and any other mandatory fields.
+    - Go to the **Scopes** tab and add the following scopes:
+      - account:read:settings:admin
+      - account:update:settings:admin
+    - See image.
+    - After adding the scopes, add a **Scope Description** and click **Continue**.
+    - Go to **Beta Test** in the left-side navigation. If everything has been set up correctly, you will see an **Add App Now** button. Don't click the button, it just indicates you have configured everything. If any required information is missing, this page will show you what is still missing before the **Add App Now** button appears.
+    - See image.
+    - In the Zscaler Admin Console, under **Authorize the SaaS Application**, enter your **Client ID** and **Client Secret** noted down earlier.
+    - In the **Admin Email ID** field, enter the email address of the Zoom user assigned the **Owner** role, and click **Authorize**. For information on Zoom user roles, refer to the Zoom documentation.
+    - See image.
+  - To learn more about the prerequisites and permissions for onboarding Zoom, see Permissions for Onboarding SaaS Apps for SSPM.
+    - Sign in to Zoom with your admin account.
+    - Go to the Zoom Marketplace.
+    - Go to **Develop** > **Build App**.
+    - See image.
+    - Select **General App** and click **Create**.
+    - Go to **Production** and choose **Admin-managed** for the app type. Click **Save**.
+    - See image.
+    - Go to the **App Credentials** tab in the left-side navigation and note down your **Client ID** and **Client Secret** for use later.
+    - See image.
+    - Under **OAuth Redirect URL** and **OAuth Allow Lists**, enter the URL of your Zscaler server.
+    - List of Zscaler URLs:
+      - https://admin.zscalerbeta.net
+      - https://admin.zscalertwo.net
+      - https://admin.zscalerthree.net
+      - https://admin.zscaler.net
+      - https://admin.zscloud.net
+    - On the **Add Feature** page, copy your **Secret Token**.
+    - See image.
+    - Go back to the Zscaler Admin Console and under the **Webhook Integration**, in the **Admin Email ID** field, enter the email address of the Zoom user assigned the **Owner** role. To learn more about Zoom user roles, refer to the Zoom documentation. In the **Secret Token** field, enter the secret token you copied earlier. Click **Initiate Integration**.
+    - See image.
+    - Copy the **Event notification endpoint URL**.
+    - Back in Zoom, go to the **Feature** page and enable **Event subscriptions**. Enter a name and paste the **Event notification endpoint URL** you copied earlier and click **Validate**.
+    - See image.
+    - Click **Add Events** and add the following events:
+      - Add Chat Message > Chat Message Sent, Updated, and Replied as Event Types
+      - Chat Channel > Chat Channel Created, Chat Channel Updated, Chat Channel Deleted, Member Invited, Member removed, Member Joined, Member Left
+      - User Activity > User has signed in, User has signed out
+      - Recording > All recordings have been completed
+      - Meeting > AIC Transcript completed
+      - Meeting > Meeting summary has been completed
+      - Meeting > Meeting summary has been shared
+      - Meeting > Meeting summary has been updated
+    - Click **Done** and **Save**.
+    - Go to **Information** and add **Short Description**, **Long Description**, **Developer Contact Information**, and any other mandatory fields.
+    - Go to **Scopes** and add the following scopes:
+      - report:read:list_chat_sessions:admin
+      - report:read:chat_session:admin
+      - team_chat:read:list_user_messages:admin
+      - team_chat:read:list_members:admin
+      - dashboard:read:list_meetings:admin
+      - cloud_recording:read:list_recording_files:admin
+      - report:read:operation_logs:admin
+      - report:read:user_activities:admin
+      - team_chat:delete:user_message:admin
+      - meeting:read:list_past_participants:admin
+      - team_chat:read:user_message:admin
+      - team_chat:read:user_channel:admin
+      - cloud_recording:read:meeting_transcript:admin
+      - meeting:read:list_summaries:admin
+      - meeting:read:summary:admin
+    - See image.
+    - After adding the scopes, add a **Scope Description** and click **Continue**.
+    - Go to **Beta Test** in the left-side navigation. If everything has been set up correctly, you see an **Add App Now** button. If any required information is missing, this page shows you what is still missing before the **Add App Now** button appears.
+    - See image.
+    - In the Zscaler Admin Console, under **Webhook Integration**, in the **Admin Email ID** field, enter the email address of the Zoom user assigned the **Owner** role. In the **Secret Token** field, enter the secret token you copied earlier. To learn more about Zoom user roles, refer to the Zoom documentation. Click **Initiate Integration**.
+    - Under **Authorize the SaaS Application**, enter your **Client ID** and **Client Secret** noted down earlier.
+    - See image.
+  - You must enable AI Companion for your Zoom account to generate transcripts and summaries.
+  - To enable the AI Transcripts and Summaries capability for an existing tenant:
+    - Add the transcript and summary scopes mentioned in a previous step to the existing Server-to-Server OAuth app.
+    - Subscribe to the transcript and summary webhook events mentioned in a previous step.
+    - Verify you have subscribed to the event Recording > All recordings have completed.
+    - Reauthorize the tenant, so the scopes take effect on the stored access token.
+# Zoom Integration Details and Limitations
+  - The following list includes details and limitations of the Zoom DLP and Malware Scanning SaaS API integration:
+    - Inbound messages from external users are not reflected in the API until an internal user sends a message.
+    - If an external user is not in the contact list of an internal user, the API doesn't return the sender email. Zscaler shows the display name in this case.
+    - Edited messages can only be given through webhook and need their own handling. Edit history for a message cannot be retrieved, only the latest instance of the message can be scanned.
+    - Meeting transcriptions and files cannot be retrieved with Zoom on-premise deployments.
+    - In-meeting chats cannot be scanned unless continuous meeting chat is enabled.
+    - Transcription scanning can only be done if closed captioning is enabled for the user or globally by the admin in the Settings tab.
+    - For transcripts, meeting ID is appended in the messageId field with the file ID.
+    - The DLP/Malware remove functionality removes files and messages.
+    - For files, messageId is appended in the fileId field.
+    - The meeting topic is in the channel name field.
+    - Each sub-account is considered a separate organization and needs its own connector and scan.
+    - The whiteboard and notes are not scanned.
+    - log in Fail activity is not reported.
+    - The Delete functionality cannot be performed on files added by external users.
+    - Only user collaborators are shown in the collaborator list. Link and group share logging are currently not supported.
+    - If you remove a collaborator after sharing a summary, the collaborator might still appear as “Shared” in the collaborator list.
+  - Google Workspace Marketplace
+  - Jira Software
+  - JumpCloud
+  - Microsoft 365
+  - Microsoft Azure
+  - Microsoft Copilot
+  - Microsoft Exchange
+  - Microsoft OneDrive
+  - Microsoft SharePoint
+  - Microsoft Teams
+  - Okta
+  - Oracle
+  - Salesforce
+  - ServiceNow
+  - ShareFile
+  - To configure ShareFile:
+    - Under **Enter the ShareFile Admin Email ID**, enter your admin email ID used to log in to the ShareFile portal.
+  - See image.
+    - Under **Authorize the SaaS Application**, click **Provide Admin Credentials**.
+  - See image.
+  - The ShareFile portal appears.
+    - Log in to ShareFile.
+  - Slack
+  - Smartsheet
+  - Snowflake
+  - Trello
+  - Twilio
+  - Webex Teams
+  - Workday
+  - Zoom
+- Under **(Optional) Configure External Trusted Domains & Users for the Tenant**:
+  - Click the drop-down menu for **External Trusted Domains** or **External Trusted Users**.
+  - See image.
+    - **External Trusted Domains**: Select trusted email domains that are outside your organization (i.e., using a different domain). The Zscaler service views any email addresses from the added domains as trusted, internal users. For example, if your organization's domain is safemarch.com and your organization recently acquired a company with the domain example.com, you can add example.com to this list, and the service treats any email addresses from example.com (e.g., johnsmith@example.com) as internal users from safemarch.com. You can add up to 1,000 domains.
+    - **External Trusted Users**: Select trusted email addresses that are outside your organization (i.e., using a different email domain). The Zscaler service views the email addresses as trusted, internal users. For example, if your organization's email domain is safemarch.com and your organization recently salecontracted with someone using an external email domain (e.g., johnsmith@example.com), you can add the contractor's email to this list, and the service treats the contractor as an internal user from safemarch.com. You can add up to 1,000 email addresses.
+  - If you use an external trusted domain or external trusted user when onboarding a SaaS application tenant, the same domain or user profile is not available to use as part of your SaaS Security Data at Rest Scanning DLP policy rules because those domains and users are already considered internal. To learn more, see Configuring the Data at Rest Scanning DLP Policy with Content Inspection and Configuring the Data at Rest Scanning DLP Policy without Content Inspection.
+  - You can search for and select from your list of domain or recipient profiles created under the **Email Profiles** page. Up to 32 profiles can be selected for a single tenant. To learn more, see About Email Profiles and Ranges & Limitations.
+  - See image.
+  - If you don’t have any domain or recipient profiles created, you can click the **Add** icon next to the search bar and create a new one. To learn more about creating profiles, see About Email Profiles.
+  - After selecting your profiles, click **Done**.
+- Click **Save** and activate the change.
+After adding the tenants, you can configure the Data at Rest Scanning DLP policy, Malware Detection policy, and Scan Configuration. You can also view reports and data for the tenants in the SaaS Security Report, Insights, and Logs.
+You can add up to 16 tenants per SaaS application. Contact Zscaler Support for a possible increase in this limit.

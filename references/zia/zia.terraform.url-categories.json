@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.url-categories",
+  "title": "Terraform custom and predefined URL category resources",
+  "aliases": [
+    "zia_url_categories terraform",
+    "zia_url_categories_predefined",
+    "custom url category val dlp",
+    "delete url category still in use terraform",
+    "url category import terraform"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.delete-detach"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.multi-step-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-categories.entry-format"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a DLP rule references the category by `val` rather than by name.",
+      "uses": [
+        "val-for-dlp-reference"
+      ]
+    },
+    {
+      "do": "Whether an import of a predefined category lists every custom item the HCL should keep before the next apply.",
+      "uses": [
+        "predefined-import-captures-existing"
+      ]
+    },
+    {
+      "do": "Which custom category cap applies to the tenant, since the provider docs and the help page differ.",
+      "uses": [
+        "tf-limit-48-custom"
+      ]
+    }
+  ],
+  "claims": {
+    "url-order-diff-suppressed": {
+      "statement": "Provider v4.7.23 fixed `zia_url_categories` planning failing after import, or whenever the API returned `urls` in a different order from the HCL, and re-ordering URLs in the configuration produces no diff.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "or any time the API returned the `urls` list in a different order than the one declared in HCL",
+            "re-ordering URLs in the configuration continues to produce no diff"
+          ]
+        }
+      ]
+    },
+    "val-for-dlp-reference": {
+      "statement": "The numeric `val` attribute is the category's unique ID and the one to use when referencing the category in other resources such as DLP web rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_url_categories.md",
+          "quotes": [
+            "The unique ID for the URL category. This attribute is particularly useful when referencing the URL category in other resources like DLP web rules."
+          ]
+        }
+      ]
+    },
+    "tf-limit-48-custom": {
+      "statement": "The provider documentation says up to 48 custom URL categories can be added per organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_url_categories.md",
+          "quotes": [
+            "Up to 48 custom URL categories can be added per organization."
+          ]
+        }
+      ]
+    },
+    "import-custom-only": {
+      "statement": "`zia_url_categories` imports only custom categories, by category ID or name; built-in categories cannot be imported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_url_categories.md",
+          "quotes": [
+            "This provider only supports the importing of custom URL categories. The importing of built-in categories is not supported."
+          ]
+        }
+      ]
+    },
+    "delete-detaches-v4-7-26": {
+      "statement": "From provider v4.7.26 deleting a custom URL category first detaches it from every rule that references it, avoiding the API error for a category still in use.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "now automatically detaches a custom URL category from any rules that reference it before deleting the category."
+          ]
+        }
+      ]
+    },
+    "predefined-incremental": {
+      "statement": "`zia_url_categories_predefined` changes predefined categories with incremental `ADD_TO_LIST` and `REMOVE_FROM_LIST` operations for its list fields rather than replacing the category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_url_categories_predefined.md",
+          "quotes": [
+            "The provider uses incremental `ADD_TO_LIST` and `REMOVE_FROM_LIST` API operations for all list fields"
+          ]
+        }
+      ]
+    },
+    "predefined-description-drift": {
+      "statement": "The `description` attribute is not supported on predefined categories because the API accepts it in the PUT but does not return it in the GET, which would cause persistent drift.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_url_categories_predefined.md",
+          "quotes": [
+            "the value is not returned in the GET response for predefined categories, which would cause persistent state drift."
+          ]
+        }
+      ]
+    },
+    "predefined-import-captures-existing": {
+      "statement": "Importing a predefined category that already has custom URLs, keywords or IP ranges captures them in state, and the next apply removes any that the HCL omits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_url_categories_predefined.md",
+          "quotes": [
+            "those existing items will be captured in the Terraform state."
+          ]
+        }
+      ]
+    },
+    "predefined-import-only": {
+      "statement": "`zia_url_categories_predefined` imports only predefined categories, by category ID or display name; custom categories use `zia_url_categories`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_url_categories_predefined.md",
+          "quotes": [
+            "This resource only supports importing **predefined** URL categories."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "custom-category-cap-48-vs-64": {
+      "summary": "How many custom URL categories a tenant can hold by default.",
+      "positions": [
+        {
+          "says": "The Terraform resource documentation says up to 48 custom URL categories per organization.",
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_url_categories.md",
+            "quotes": [
+              "Up to 48 custom URL categories can be added per organization."
+            ]
+          }
+        },
+        {
+          "says": "The Ranges and Limitations help page gives 64 as the default limit for custom categories.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.md",
+            "quotes": [
+              "The default limit for custom categories is 64."
+            ]
+          }
+        }
+      ],
+      "impact": "Do not quote 48 as the tenant limit from the provider docs alone; the help page figure is 64, raisable through Support, and which is current for a given tenant is not settled here."
+    }
+  },
+  "gaps": {
+    "large-category-plan-time": {
+      "kind": "semantic",
+      "title": "How long a plan or refresh takes for a custom category with tens of thousands of URLs",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying that planning a large custom URL category is slow or fast",
+      "detail": "Unverified legacy statement: upstream issue 575 reported a roughly 20,000 URL category taking about 18 minutes during plan and refresh, and v4.7.22 introducing a `SetNew only operates on computed keys` failure that v4.7.23 fixed. Neither figure is in the vendored changelog; time a plan on a category of that size."
+    }
+  }
+}

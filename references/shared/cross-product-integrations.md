@@ -156,7 +156,7 @@ Both actions delegate auth-challenge presentation to ZIdentity. A tenant without
 - **API client scope restricts product access.** A client scoped only to `zia.*` can't reach ZPA or ZDX endpoints regardless of tenant configuration. Always the first thing to check on 403 responses.
 - **Token TTL is tenant-wide** — not per-product. A long-running script that's working fine for ZIA calls will also work for ZPA calls until the shared token expires.
 - **Client secret rotation invalidates all callers immediately** — rotating the secret for a single automation breaks every script/CI/TF pipeline that shared it. Plan rotations.
-- **Legacy-auth tenants can't use OneAPI.** They use per-product auth paths and don't have ZIdentity. Fork admins on legacy tenants need a different auth setup per [`../zia/api.md § Legacy`](../zia/api.md) and [`../zpa/api.md`](../zpa/api.md).
+- **Legacy-auth tenants can't use OneAPI.** They use per-product auth paths and don't have ZIdentity. Fork admins on legacy tenants need a different auth setup per [`zia.api`](kb:zia.api) and [`../zpa/api.md`](../zpa/api.md).
 
 ### Cloud Connector → ZIA + ZPA (workload-side traffic forwarding)
 

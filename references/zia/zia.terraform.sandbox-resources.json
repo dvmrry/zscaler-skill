@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.sandbox-resources",
+  "title": "Terraform sandbox resources: file submission and the MD5 blocklist",
+  "aliases": [
+    "zia_sandbox_file_submission",
+    "zia_sandbox_behavioral_analysis_v2",
+    "sandbox_settings import",
+    "ZSCALER_SANDBOX_TOKEN",
+    "terraform sandbox submit discan"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.provider-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.md5-blocklist"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.submission"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which sandbox variables are set, since the resource page names variables the provider no longer reads.",
+      "uses": [
+        "submission-page-names-legacy-vars"
+      ]
+    },
+    {
+      "do": "Whether a submission resource was expected to be refreshed or imported, which it cannot be.",
+      "uses": [
+        "submission-read-noop",
+        "submission-delete-state-only"
+      ]
+    }
+  ],
+  "claims": {
+    "submission-read-noop": {
+      "statement": "`zia_sandbox_file_submission` has a Read that does nothing, because only POST methods exist and the data cannot be fetched again, and it defines no importer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_submission.go",
+          "quotes": [
+            "// Only POST methods are available, we can't fetch data again"
+          ]
+        }
+      ]
+    },
+    "submission-delete-state-only": {
+      "statement": "Deleting `zia_sandbox_file_submission` only clears it from state, since the API has no DELETE method.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_submission.go",
+          "quotes": [
+            "// Since there is no DELETE method for this API, simply remove it from state"
+          ]
+        }
+      ]
+    },
+    "submission-resubmits-on-change": {
+      "statement": "A change to `file_path` or `force` makes Update submit the file again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_submission.go",
+          "quotes": [
+            "// Trigger a re-creation of the resource if either 'file_path' or 'force' attributes change"
+          ]
+        }
+      ]
+    },
+    "submission-methods": {
+      "statement": "`submission_method` is validated as `submit` or `discan`, and `force` makes the sandbox reanalyze a file that already has a verdict.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_submission.go",
+          "quotes": [
+            "\"submit\",",
+            "\"discan\","
+          ],
+          "after": "\"submission_method\": {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_sandbox_file_submission.md",
+          "quotes": [
+            "If a verdict already exists for the file, you can use set force = `true` to make the sandbox reanalyze the file."
+          ]
+        }
+      ]
+    },
+    "submission-license-and-limits": {
+      "statement": "Sandbox submission needs the separately licensed Cloud Sandbox, allows up to 100 files per day, and limits each file to 400 MB; the verdict is retrieved from the report endpoint about 10 minutes after submission.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_sandbox_file_submission.md",
+          "quotes": [
+            "Zscaler Cloud Sandbox is a subscription service and requires additional license.",
+            "You can submit up to 100 files per day",
+            "each file is limited to a size of 400 MB",
+            "You can get the Sandbox report 10 minutes after a file is sent for analysis."
+          ]
+        }
+      ]
+    },
+    "submission-page-names-legacy-vars": {
+      "statement": "The resource page says the provider requires `ZIA_CLOUD` and `ZIA_SANDBOX_TOKEN` to authenticate to the sandbox.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_sandbox_file_submission.md",
+          "quotes": [
+            "requires both the `ZIA_CLOUD` and `ZIA_SANDBOX_TOKEN` in order to authenticate to the Zscaler Cloud Sandbox environment."
+          ]
+        }
+      ]
+    },
+    "blocklist-resources-import-id": {
+      "statement": "Both `zia_sandbox_behavioral_analysis` and its `_v2` form are imported with the literal ID `sandbox_settings`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_sandbox_behavioral_analysis.md",
+          "quotes": [
+            "can be imported by using `sandbox_settings` as the import ID."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_sandbox_behavioral_analysis_v2.md",
+          "quotes": [
+            "can be imported by using `sandbox_settings` as the import ID."
+          ]
+        }
+      ]
+    },
+    "v2-overwrites-blocklist": {
+      "statement": "`zia_sandbox_behavioral_analysis_v2` overwrites a previously generated MD5 blocklist.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_sandbox_behavioral_analysis_v2.md",
+          "quotes": [
+            "This overwrites a previously generated blocklist."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "sandbox-token-variable-names": {
+      "summary": "Which environment variables authenticate the provider to the sandbox.",
+      "positions": [
+        {
+          "says": "The sandbox file submission page says the provider requires `ZIA_CLOUD` and `ZIA_SANDBOX_TOKEN`.",
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_sandbox_file_submission.md",
+            "quotes": [
+              "requires both the `ZIA_CLOUD` and `ZIA_SANDBOX_TOKEN` in order to authenticate to the Zscaler Cloud Sandbox environment."
+            ]
+          }
+        },
+        {
+          "says": "The provider index page says those legacy variables are no longer supported since v4.0.0 and the provider reads `ZSCALER_SANDBOX_CLOUD` and `ZSCALER_SANDBOX_TOKEN`.",
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/index.md",
+            "quotes": [
+              "the legacy sandbox authentication environment variables `ZIA_CLOUD` and `ZIA_SANDBOX_TOKEN` are no longer supported."
+            ]
+          }
+        }
+      ],
+      "impact": "Set ZSCALER_SANDBOX_TOKEN and ZSCALER_SANDBOX_CLOUD (or the provider attributes); the variable names on the resource page are stale."
+    }
+  }
+}

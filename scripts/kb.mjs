@@ -11,6 +11,8 @@
 //   export-zscalerctl                export the pinned zscalerctl catalogue (needs Go)
 //   import-types                     regenerate references/_meta/types/*.json
 //   migrate-links                    rewrite legacy links to converted docs as kb: links
+//   surface <query>                  API, SDK and Terraform surface for a Terraform name, API path,
+//                                    Go SDK package, or Python module, class or method (generated layer)
 //
 // Exit codes: 0 ok, 1 validation failed, 2 usage error.
 import fs from "node:fs";
@@ -23,7 +25,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 function usage(msg) {
   if (msg) console.error(`kb: ${msg}`);
-  console.error("usage: kb.mjs <validate|resolve|render|manifest|verified|export-zscalerctl|import-types|migrate-links> [args]");
+  console.error("usage: kb.mjs <validate|resolve|render|manifest|verified|export-zscalerctl|import-types|migrate-links|surface> [args]");
   process.exit(2);
 }
 
@@ -48,6 +50,13 @@ async function main(argv) {
     for (const f of written) console.log(`wrote ${f}`);
     if (unmatched.length) console.log(`${unmatched.length} types have no infrawright Terraform mapping: ${unmatched.join(", ")}`);
     return 0;
+  }
+  if (cmd === "surface") {
+    if (!args[0]) usage("surface needs a query");
+    const { lookupSurface } = await import("./kb-surface.mjs");
+    const hits = lookupSurface(ROOT, args[0]);
+    console.log(JSON.stringify(hits, null, 2));
+    return hits.length ? 0 : 1;
   }
   const g = buildGraph(loadPublic(ROOT));
   if (cmd === "validate") {

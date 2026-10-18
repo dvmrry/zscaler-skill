@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "zia.api.cloud-nss-feeds",
+  "title": "Cloud NSS feed settings: HTTPS-only URLs and OAuth fields",
+  "aliases": [
+    "cloud nss feed oauth2",
+    "nss feed http rejected",
+    "connection_url https",
+    "authentication_url azure sentinel",
+    "oauth_authentication nss"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.request-handling"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a feed's destination and authentication URLs use HTTPS, which the provider validates before calling the API.",
+      "uses": [
+        "https-only-urls"
+      ]
+    },
+    {
+      "do": "Whether OAuth is on and which SIEM types the authentication URL applies to.",
+      "uses": [
+        "oauth-fields"
+      ]
+    }
+  ],
+  "claims": {
+    "https-only-urls": {
+      "statement": "The Terraform provider validates a Cloud NSS feed's connection_url and authentication_url as HTTPS URLs, so an http endpoint is rejected before the API is called.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_nss_server.go",
+          "quotes": [
+            "The HTTPS URL of the SIEM log collection API endpoint",
+            "validation.IsURLWithHTTPS,"
+          ],
+          "after": "\"connection_url\": {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_nss_server.go",
+          "quotes": [
+            "validation.IsURLWithHTTPS,"
+          ],
+          "after": "\"authentication_url\": {"
+        }
+      ]
+    },
+    "oauth-fields": {
+      "statement": "A Cloud NSS feed has an oauth_authentication switch, and its authentication URL is described as applying when the SIEM type is Azure Sentinel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_cloud_nss_feed.md",
+          "quotes": [
+            "`oauth_authentication` - (Optional) A Boolean value indicating whether OAuth 2.0 authentication is enabled or not",
+            "`authentication_url` - (Optional) Authentication URL applicable when SIEM type is set to Azure Sentinel"
+          ]
+        }
+      ]
+    }
+  }
+}

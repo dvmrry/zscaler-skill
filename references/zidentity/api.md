@@ -336,5 +336,5 @@ For API client creation in the context of setting up OneAPI credentials for ZPA 
 - Overview (ZIdentity role, migration, step-up) — [`./overview.md`](./overview.md)
 - Full SDK service catalog — [`./sdk.md`](./sdk.md)
 - Step-up authentication — [`./step-up-authentication.md`](./step-up-authentication.md)
-- ZIA API authentication section (legacy vs OneAPI) — [`../zia/api.md`](../zia/api.md)
+- ZIA API authentication section (legacy vs OneAPI) — [`zia.api`](kb:zia.api)
 - ZPA SDK client construction — [`../zpa/sdk.md §1.1`](../zpa/sdk.md)
