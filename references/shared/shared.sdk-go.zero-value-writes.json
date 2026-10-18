@@ -1,0 +1,900 @@
+{
+  "schema_version": 1,
+  "id": "shared.sdk-go.zero-value-writes",
+  "title": "Why Terraform cannot clear some fields: omitted zero values and empty objects in SDK writes",
+  "aliases": [
+    "omitempty",
+    "cannot set false",
+    "cannot clear a field terraform",
+    "terraform cannot disable setting",
+    "empty string not cleared",
+    "empty list not cleared",
+    "zero value not sent",
+    "sends empty object",
+    "extranetDTO empty object",
+    "persistent drift after apply false"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.sdk-go.write-encoding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.delete-paths"
+    }
+  ],
+  "claims": {
+    "zpa-writes-marshal-caller-struct": {
+      "statement": "ZPA creates, updates and deletes go through one request function that serializes the caller's struct directly with `json.Marshal`, so each field's JSON tag alone decides whether it is sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "func (client *Client) NewRequestDo(ctx context.Context, method, endpoint string, options, body, v interface{}) (*http.Response, error) {",
+          "quotes": [
+            "bodyBytes, err := json.Marshal(body)"
+          ]
+        }
+      ]
+    },
+    "ztw-writes-marshal-caller-struct": {
+      "statement": "Cloud and Branch Connector (ZTW) writes serialize the caller's struct directly with `json.Marshal`, and the PUT helper that most ZTW services use sends the whole struct.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "after": "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) {",
+          "quotes": [
+            "data, err := json.Marshal(o)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztwrequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "after": "func (c *Client) UpdateWithPutResource(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {",
+          "quotes": [
+            "return c.updateGeneric(ctx, endpoint, o, \"PUT\", contentTypeJSON)"
+          ]
+        }
+      ]
+    },
+    "zcc-writes-marshal-caller-struct": {
+      "statement": "Client Connector (ZCC) writes serialize the caller's struct directly with `json.Marshal`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zccrequests.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "after": "func (client *Client) NewZccRequestDo(ctx context.Context, method, endpoint string, options, body, v interface{}) (*http.Response, error) {",
+          "quotes": [
+            "bodyBytes, err := json.Marshal(body)"
+          ]
+        }
+      ]
+    },
+    "omitempty-drops-zero-values": {
+      "statement": "In every product, a field tagged `omitempty` is left out of the request body when it holds false, 0, an empty string, or a nil or empty slice. So when a provider rebuilds a struct from Terraform state and sends it as a full PUT, a user's change to false, zero, empty string or empty list reaches the SDK but never reaches the wire.",
+      "tier": "B",
+      "derived_from": [
+        "zpa-writes-marshal-caller-struct",
+        "ztw-writes-marshal-caller-struct",
+        "zcc-writes-marshal-caller-struct",
+        "zia.sdk-go.write-encoding:marshals-caller-struct"
+      ],
+      "conditions": "Chain of evidence: the writers marshal the caller's struct (the claims derived from), and Go's encoding/json omits a zero-valued scalar or an empty slice when the field is tagged omitempty. That language behavior was reproduced with a scratch program on go1.26.8, not quoted from the repositories. It also assumes the cited struct types define no custom MarshalJSON; a search of the ZPA common package, the ZPA server-group and policy-v2 packages at v3.8.42 found none. Each instance claim checks the tag on its own field, because tags differ field by field inside one struct.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 3 (zero-value writes) of the 2026-08 provider audit."
+        }
+      ],
+      "gaps": [
+        "omission-semantics"
+      ]
+    },
+    "zpa-policy-rule-extranet-enabled-false": {
+      "statement": "The ZPA v2 policy rule request tags `extranetEnabled` as `omitempty`, and the access-rule resource always assigns the Terraform boolean to it, so switching `extranet_enabled` from true to false produces no `extranetEnabled` key in the PUT.",
+      "tier": "B",
+      "derived_from": [
+        "omitempty-drops-zero-values"
+      ],
+      "conditions": "Depends on the chain in omitempty-drops-zero-values. Whether ZPA then keeps or clears the stored value is server behavior (gap omission-semantics). The same request struct sends `appServerGroups`, `appConnectorGroups` and `devicePostureFailureNotificationEnabled` without omitempty, so only the fields it tags are affected.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "ExtranetEnabled bool `json:\"extranetEnabled,omitempty\"`"
+          ],
+          "after": "type PolicyRule struct {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "ExtranetEnabled: d.Get(\"extranet_enabled\").(bool),"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 3 (zero-value writes) of the 2026-08 provider audit."
+        }
+      ],
+      "gaps": [
+        "omission-semantics"
+      ]
+    },
+    "zpa-provisioning-key-enabled-false": {
+      "statement": "The ZPA provisioning key request tags `enabled` as `omitempty`, and the resource always assigns the Terraform boolean to it, so setting `enabled = false` on a key sends no `enabled` member. The same holds for private cloud group `enabled` and `overrideVersionProfile`.",
+      "tier": "B",
+      "derived_from": [
+        "omitempty-drops-zero-values"
+      ],
+      "conditions": "Depends on the chain in omitempty-drops-zero-values. Whether a key stays enabled after the update depends on how ZPA treats an omitted `enabled` (gap omission-semantics). The private cloud group tags were read at v3.8.42; its provider expand was read at v4.4.10.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "Enabled bool `json:\"enabled,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_provisioning_key.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "Enabled: d.Get(\"enabled\").(bool),"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/private_cloud_group/private_cloud_group.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "Enabled bool `json:\"enabled,omitempty\"`",
+            "OverrideVersionProfile bool `json:\"overrideVersionProfile,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_private_cloud_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "OverrideVersionProfile: d.Get(\"override_version_profile\").(bool),"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 3 (zero-value writes) of the 2026-08 provider audit."
+        }
+      ],
+      "gaps": [
+        "omission-semantics"
+      ]
+    },
+    "zpa-tag-descriptions-cannot-clear": {
+      "statement": "ZPA tag group, tag key and tag namespace requests tag `description` as `omitempty`, and the tag group resource always assigns the Terraform string to it, so changing a description to an empty string sends no `description` member.",
+      "tier": "B",
+      "derived_from": [
+        "omitempty-drops-zero-values"
+      ],
+      "conditions": "Depends on the chain in omitempty-drops-zero-values. The tag key and tag namespace SDK tags were read; their provider expand functions were not re-read here. Whether the old description survives is server behavior (gap omission-semantics).",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/tag_controller/tag_group/tag_group.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "Description string `json:\"description,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/tag_controller/tag_key/tag_key.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "Description string `json:\"description,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/tag_controller/tag_namespace/tag_namespace.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "Description string `json:\"description,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_tag_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "Description: d.Get(\"description\").(string),"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 3 (zero-value writes) of the 2026-08 provider audit."
+        }
+      ],
+      "gaps": [
+        "omission-semantics"
+      ]
+    },
+    "zpa-same-pattern-elsewhere": {
+      "statement": "The same tag-and-assign pattern appears on further ZPA request structs: inspection app segment (`bypassOnReauth`, `autoAppProtectEnabled`, `passiveHealthEnabled`), PRA app segment (`bypassOnReauth`), private cloud (`enabled`, `fireDrillEnabled`), and User Portal AUP, controller and link (`enabled`). In each, a false written by Terraform produces no key.",
+      "tier": "B",
+      "derived_from": [
+        "omitempty-drops-zero-values"
+      ],
+      "conditions": "Chain of evidence plus a search: `git -C vendor/zscaler-sdk-go grep -E 'bool +`json:\"[A-Za-z]+,omitempty\"`' v3.8.42 -- zscaler/zpa/services` matches 46 non-test files, so this list is a sample chosen for write impact, not the full set. The listed tags were read at v3.8.42. Provider expand functions were read only for the inspection segment (v4.4.10); the others were not re-read. PRA `passiveHealthEnabled`, PRA `enabled` (AppSegmentPRA) and tag key and namespace `enabled` are NOT tagged omitempty (claim zpa-some-structs-send-false), so they are not in this list.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "BypassOnReauth bool `json:\"bypassOnReauth,omitempty\"`",
+            "AutoAppProtectEnabled bool `json:\"autoAppProtectEnabled,omitempty\"`",
+            "PassiveHealthEnabled bool `json:\"passiveHealthEnabled,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_inspection.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "BypassOnReauth: d.Get(\"bypass_on_reauth\").(bool),",
+            "PassiveHealthEnabled: d.Get(\"passive_health_enabled\").(bool),"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "BypassOnReauth bool `json:\"bypassOnReauth,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/private_cloud/private_cloud.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "FireDrillEnabled bool `json:\"fireDrillEnabled,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/userportal/aup/aup.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "Enabled bool `json:\"enabled,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/userportal/portal_controller/portal_controller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "UserNotificationEnabled bool `json:\"userNotificationEnabled,omitempty\"`"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 3 (zero-value writes) of the 2026-08 provider audit."
+        }
+      ],
+      "gaps": [
+        "omission-semantics"
+      ]
+    },
+    "zpa-some-structs-send-false": {
+      "statement": "Tags differ field by field, and the SDK sometimes handles it deliberately. The ZPA server group sends `enabled`, `dynamicDiscovery` and `extranetEnabled` without omitempty, the PRA app segment sends `passiveHealthEnabled` without it, and the tag group update replaces a nil `Tags` slice with an empty one because, per the SDK comment, the API requires tags even when empty. A false in these fields does reach the wire.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type ServerGroup struct {",
+          "quotes": [
+            "Enabled bool `json:\"enabled\"`",
+            "DynamicDiscovery bool `json:\"dynamicDiscovery\"`",
+            "ExtranetEnabled bool `json:\"extranetEnabled\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "PassiveHealthEnabled bool `json:\"passiveHealthEnabled\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/tag_controller/tag_group/tag_group.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "// API requires tags in the payload even when empty; ensure it's never nil",
+            "payload.Tags = []Tag{}"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, tagGroupID string, tagGroup *TagGroup) (*http.Response, error) {"
+        }
+      ]
+    },
+    "ztc-gateway-fail-closed-false": {
+      "statement": "The Cloud and Branch Connector forwarding gateway request tags `failClosed` as `omitempty`, the resource always assigns the Terraform boolean to it, and the update is a full PUT of the rebuilt struct, so setting `fail_closed = false` sends no `failClosed` member.",
+      "tier": "B",
+      "derived_from": [
+        "omitempty-drops-zero-values",
+        "ztw-writes-marshal-caller-struct"
+      ],
+      "conditions": "Depends on the chain. Whether the gateway stays fail-closed after the update is server behavior (gap omission-semantics). The forwarding-rule update in the same SDK is also a full PUT, but only this field was traced end to end.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/forwarding_gateways/zia_forwarding_gateway/zia_forwarding_gateway.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "FailClosed bool `json:\"failClosed,omitempty\"`",
+            "service.Client.UpdateWithPutResource(ctx, fmt.Sprintf(\"%s/%d\", forwardGatewayEndpoint, ruleID), *rules)"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_forwarding_gateway.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "FailClosed: d.Get(\"fail_closed\").(bool),"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 3 (zero-value writes) of the 2026-08 provider audit."
+        }
+      ],
+      "gaps": [
+        "omission-semantics"
+      ]
+    },
+    "zcc-trusted-network-active-and-lists": {
+      "statement": "The ZCC trusted network v2 request tags `active` and every criterion list `omitempty`, so `active = false` and an explicit empty list send no key. The provider's own comment says its empty slices are omitted on the wire.",
+      "tier": "B",
+      "derived_from": [
+        "omitempty-drops-zero-values",
+        "zcc-writes-marshal-caller-struct"
+      ],
+      "conditions": "Depends on the chain. Whether the Client Connector API treats a missing `active` or list as keep, default or clear is server behavior (gap omission-semantics).",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "Active bool `json:\"active,omitempty\"`",
+            "DNSServerIPs []string `json:\"dnsServerIps,omitempty\"`",
+            "TrustedSubnetIPs []string `json:\"trustedSubnetIps,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/trusted_network.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "Active: plan.Active.ValueBool(),",
+            "become empty []string slices that the SDK will then omit on the wire"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 3 (zero-value writes) of the 2026-08 provider audit."
+        }
+      ],
+      "gaps": [
+        "omission-semantics"
+      ]
+    },
+    "zcc-notification-template-int-zeros": {
+      "statement": "The ZCC notification template request tags `durationInSeconds` and `zpaReauthIntervalInMinutes` `omitempty` while its booleans are sent unconditionally, so a zero for either integer sends no key but a false boolean does.",
+      "tier": "B",
+      "derived_from": [
+        "omitempty-drops-zero-values",
+        "zcc-writes-marshal-caller-struct"
+      ],
+      "conditions": "Depends on the chain. Whether a zero is distinct from an omitted value for these two settings is server behavior (gap omission-semantics). The unconditional booleans are shown in the same struct, quoted below.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/notification_template/notification_template.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "DurationInSeconds int `json:\"durationInSeconds,omitempty\"`",
+            "ZpaReauthIntervalInMinutes int `json:\"zpaReauthIntervalInMinutes,omitempty\"`",
+            "EnablePersistent bool `json:\"enablePersistent\"`"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/notification_template.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "DurationInSeconds: int(plan.DurationInSeconds.ValueInt64()),",
+            "ZpaReauthIntervalInMinutes: helpers.IntFromAttr(a[\"zpa_reauth_interval_in_minutes\"]),"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 3 (zero-value writes) of the 2026-08 provider audit."
+        }
+      ],
+      "gaps": [
+        "omission-semantics"
+      ]
+    },
+    "zcc-forwarding-profile-zero-ints": {
+      "statement": "The ZCC forwarding profile request encodes some booleans as integers and tags `sendTrustedNetworkResultToZpa` and `sameAsOnTrusted` `omitempty`, so the provider's 0 for false sends no key. `isSameAsOnTrustedNetwork` is a pointer, which is the form that can carry an explicit false.",
+      "tier": "B",
+      "derived_from": [
+        "omitempty-drops-zero-values",
+        "zcc-writes-marshal-caller-struct"
+      ],
+      "conditions": "Depends on the chain. Other integer fields in the same request structs are sent without omitempty. Whether the API treats the missing key as keep, default or clear is server behavior (gap omission-semantics).",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "SendTrustedNetworkResultToZpa int `json:\"sendTrustedNetworkResultToZpa,omitempty\"`",
+            "IsSameAsOnTrustedNetwork *bool `json:\"isSameAsOnTrustedNetwork,omitempty\"`"
+          ],
+          "after": "type ForwardingProfileZpaActionRequest struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "after": "type UnifiedTunnelRequest struct {",
+          "quotes": [
+            "SameAsOnTrusted int `json:\"sameAsOnTrusted,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "SendTrustedNetworkResultToZpa: boolToInt(a.SendTrustedNetworkResultToZpa),",
+            "SameAsOnTrusted: boolToInt(t.SameAsOnTrusted),"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 3 (zero-value writes) of the 2026-08 provider audit."
+        }
+      ],
+      "gaps": [
+        "omission-semantics"
+      ]
+    },
+    "value-struct-omitempty-emits-empty-object": {
+      "statement": "A nested struct held by value (not a pointer) and tagged `omitempty` is never omitted by Go's JSON encoder. When the caller leaves it at its zero value, the request carries an empty object, for example `\"extranetDTO\":{}`, instead of no member.",
+      "tier": "B",
+      "derived_from": [
+        "zpa-writes-marshal-caller-struct"
+      ],
+      "conditions": "Chain of evidence: the writers marshal the caller's struct, and Go's encoding/json does not treat a struct value as empty for omitempty. That behavior was reproduced with a scratch program on go1.26.8 (a struct-valued field tagged omitempty printed as `{}` while a nil pointer field was omitted); it is not quoted from the repositories. It assumes the cited struct defines no custom MarshalJSON; none exists in the ZPA common package at v3.8.42. The `omitzero` tag option is not used on the cited fields. What the server does with an empty object is a separate question (gap empty-object-semantics). The empty object results only because every member of the nested struct is itself `omitempty`, which holds for the instances named here.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type ExtranetDTO struct {",
+          "quotes": [
+            "ZiaErName string `json:\"ziaErName,omitempty\"`"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 3 (zero-value writes) of the 2026-08 provider audit."
+        }
+      ],
+      "gaps": [
+        "empty-object-semantics"
+      ]
+    },
+    "zpa-extranet-dto-empty-object": {
+      "statement": "The ZPA server group request and the v2 policy rule request hold `ExtranetDTO` by value with `omitempty`. The server group and v2 policy rule resources fill it only when the user set `extranet_dto`, so otherwise every create and update carries `\"extranetDTO\":{}`. The v1 policy rule request has the same field and the v1 access rule resource never references it.",
+      "tier": "B",
+      "derived_from": [
+        "value-struct-omitempty-emits-empty-object"
+      ],
+      "conditions": "Depends on the chain. Search: `git -C vendor/zscaler-sdk-go grep -E 'ExtranetDTO +[a-zA-Z.]+ +`json' v3.8.42 -- zscaler/zpa` matched policysetcontroller.go (v1 request struct), policysetcontrollerv2.go (the v2 request struct and the v2 response struct (`PolicyRuleResource`)) and zpa_server_group.go. The v1 access rule resource was searched case-insensitively for `extranet` at v4.4.10 with no match. Only the server group provider expand was read in full; the v2 policy rule expand shows the same guard. Other ZPA value-typed nested structs (privileged capabilities, common apps DTO) share the tag form but were not traced through their providers. Whether ZPA reads the empty object as no change or as a reset of the extranet configuration is server behavior (gap empty-object-semantics). The empty object results only because every member of the nested struct is itself `omitempty`, which holds for the instances named here.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "ExtranetDTO common.ExtranetDTO `json:\"extranetDTO,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func expandServerGroup(d *schema.ResourceData) servergroup.ServerGroup {",
+          "quotes": [
+            "// Conditionally set extranet DTO if the user actually set it in TF",
+            "if extranetDTO, ok := d.GetOk(\"extranet_dto\"); ok {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "ExtranetDTO common.ExtranetDTO `json:\"extranetDTO,omitempty\"`"
+          ],
+          "after": "type PolicyRule struct {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 3 (zero-value writes) of the 2026-08 provider audit."
+        }
+      ],
+      "gaps": [
+        "empty-object-semantics"
+      ]
+    },
+    "zia-cloud-app-control-cbi-profile-empty-object": {
+      "statement": "The ZIA cloud app control rule request holds `CBIProfile` by value with `omitempty`, and the resource's expand function returns an empty `CBIProfile{}` when `cbi_profile` is not configured, so rules without a browser isolation profile are written with `\"cbiProfile\":{}`.",
+      "tier": "B",
+      "derived_from": [
+        "value-struct-omitempty-emits-empty-object",
+        "zia.sdk-go.write-encoding:marshals-caller-struct"
+      ],
+      "conditions": "Depends on the chain. The rule update is the full PUT (`UpdateWithPut`) covered by zia.sdk-go.write-encoding. Whether ZIA treats the empty profile object as no profile, a validation error or a reset is server behavior (gap empty-object-semantics).",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "CBIProfile CBIProfile `json:\"cbiProfile,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func expandCloudAppControlCBIProfile(d *schema.ResourceData) cloudappcontrol.CBIProfile {",
+          "quotes": [
+            "return cloudappcontrol.CBIProfile{}"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 3 (zero-value writes) of the 2026-08 provider audit."
+        }
+      ],
+      "gaps": [
+        "empty-object-semantics"
+      ]
+    },
+    "zia-value-struct-same-pattern": {
+      "statement": "Other ZIA request structs hold a nested struct by value with `omitempty`: advanced settings (`ecsObject`), browser control settings (`smartIsolationProfile`), endpoint DLP resources (`printer`, `removableStorage`, `application`), ZPA gateways (`zpaServerGroup`), SSL inspection rules (`action`) and workload groups (`expressionJson`).",
+      "tier": "B",
+      "derived_from": [
+        "value-struct-omitempty-emits-empty-object"
+      ],
+      "conditions": "Chain plus a read of each SDK tag at v3.8.44, all unchanged at the pin. Whether each provider resource leaves the field at its zero value, so that an empty object is actually sent, was NOT traced for these; only cloud app control was (claim zia-cloud-app-control-cbi-profile-empty-object). Treat this as a list of places to check, not confirmed wire output.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/advanced_settings/advanced_settings.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "EcsObject common.IDNameExternalID `json:\"ecsObject,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/browser_control_settings/browser_control_settings.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "SmartIsolationProfile SmartIsolationProfile `json:\"smartIsolationProfile,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/endpoint_resource/endpoint_resource.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "Printer Printer `json:\"printer,omitempty\"`",
+            "RemovableStorage RemovableStorage `json:\"removableStorage,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/forwarding_control_policy/zpa_gateways/zpa_gateways.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "ZPAServerGroup ZPAServerGroup `json:\"zpaServerGroup,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "Action Action `json:\"action,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/workloadgroups/workloadgroups.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "WorkloadTagExpression WorkloadTagExpression `json:\"expressionJson,omitempty\"`"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 3 (zero-value writes) of the 2026-08 provider audit."
+        }
+      ],
+      "gaps": [
+        "empty-object-semantics"
+      ]
+    },
+    "zcc-zia-posture-criteria-empty-object": {
+      "statement": "The ZCC ZIA posture request holds each trust tier (`highTrustCriteria`, `mediumTrustCriteria`, `lowTrustCriteria`) as a struct value whose only member is an `omitempty` list. The resource always builds all three tiers, and its helper returns an empty slice or nil for a missing or null tier, so a tier with no criteria is sent as `{}`, and an explicit empty `cs` list cannot be sent as `[]`.",
+      "tier": "B",
+      "derived_from": [
+        "value-struct-omitempty-emits-empty-object",
+        "omitempty-drops-zero-values",
+        "zcc-writes-marshal-caller-struct"
+      ],
+      "conditions": "Depends on the chains. The provider helper's own comment says the empty slice is there so the SDK can omit it on the wire. Whether the API reads `{}` or a missing `cs` as keep, default or clear for a trust tier is server behavior (gaps empty-object-semantics and omission-semantics).",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "HighTrustCriteria HighTrustCriteria `json:\"highTrustCriteria,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "after": "type HighTrustCriteria struct {",
+          "quotes": [
+            "Cs []TrustCriteriaSet `json:\"cs,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/zia_posture.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "HighTrustCriteria: zia_posture.HighTrustCriteria{Cs: expandTrustCriteriaSets(plan.HighTrustCriteria)},",
+            "empty slice so the SDK can `omitempty` it on the wire."
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 3 (zero-value writes) of the 2026-08 provider audit."
+        }
+      ],
+      "gaps": [
+        "empty-object-semantics",
+        "omission-semantics"
+      ]
+    }
+  },
+  "gaps": {
+    "omission-semantics": {
+      "kind": "semantic",
+      "title": "Whether ZPA, Cloud and Branch Connector and Client Connector treat an omitted field as unchanged or as cleared",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether a false, zero, empty string or empty list set in Terraform is really impossible to apply on ZPA, ZTW or ZCC, or only looks so in the request body",
+      "detail": "The client side is proven: the field is not sent. If the server keeps the stored value on omission, the user's change is lost and the next read shows drift. If the server resets an omitted field to its default, an omitted false could still land. Neither is established for any of these products; ZIA's settings endpoint is the only place a maintainer states the keep behavior (see zia.sdk-go.write-encoding). Resolve with a scratch-tenant test per product: set a field true or non-empty, update through the SDK with it false or empty, re-read."
+    },
+    "empty-object-semantics": {
+      "kind": "semantic",
+      "title": "What the servers do with an empty nested object in a full PUT",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether an empty `{}` for extranet, capability, browser isolation profile or trust criteria objects is ignored, rejected, or resets stored configuration",
+      "detail": "The client side is proven: the request carries `{}` for an unset by-value struct. Whether the service ignores it, validates it, or treats it as a replace-with-empty is server behavior and may differ by endpoint. Resolve with a scratch-tenant test: configure the nested object, update with the zero-valued struct, re-read."
+    }
+  }
+}

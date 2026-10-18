@@ -1,0 +1,563 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.field-fidelity",
+  "title": "ZIA Terraform resource fields that are not sent, not read back, or sent wrongly",
+  "aliases": [
+    "terraform field ignored",
+    "terraform attribute not applied",
+    "terraform attribute dropped",
+    "capture_pcap not applied",
+    "terraform silently ignores",
+    "phantom block terraform",
+    "only first block sent",
+    "terraform expand missing field",
+    "terraform attribute not in state"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.sdk-go.write-encoding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    }
+  ],
+  "claims": {
+    "fwd-control-ipv6-eczpa-never-expanded": {
+      "statement": "The forwarding control rule resource accepts `src_ipv6_groups`, `dest_ipv6_groups`, `zpa_application_segments` and `zpa_application_segment_groups`, but its expand function never assigns the matching SDK fields, so they are never sent. The IPv6 groups are flattened on read; the two ECZPA fields are not flattened on read either. The SDK fields are slices tagged `omitempty`.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"src_ipv6_groups\":                setIDsSchemaTypeCustom(nil,",
+            "\"zpa_application_segments\":       setIDsSchemaTypeCustom(intPtr(255),",
+            "\"zpa_application_segment_groups\": setIDsSchemaTypeCustom(intPtr(255),",
+            "d.Set(\"src_ipv6_groups\", flattenIDExtensionsListIDs(resp.SrcIpv6Groups))"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "ZPAAppSegments:      expandZPAAppSegmentSet(d, \"zpa_app_segments\"),",
+            "DeviceGroups:        expandIDNameExtensionsSet(d, \"device_groups\"),"
+          ],
+          "after": "func expandForwardingControlRule(d *schema.ResourceData) forwarding_rules.ForwardingRules {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/forwarding_control_policy/forwarding_rules/forwarding_rules.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "SrcIpv6Groups []common.IDNameExtensions `json:\"srcIpv6Groups,omitempty\"`",
+            "ZPAApplicationSegments []ZPAApplicationSegments `json:\"zpaApplicationSegments,omitempty\"`",
+            "ZPAApplicationSegmentGroups []ZPAApplicationSegmentGroups `json:\"zpaApplicationSegmentGroups,omitempty\"`"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. Search: `git -C vendor/terraform-provider-zia grep -n -E 'Ipv6Groups|ZPAApplicationSegment|zpa_application_segment' <ref> -- zia/resource_zia_forwarding_control_rule.go` at v4.8.3 and HEAD matches only the schema entries, the two `d.Set` calls for the IPv6 groups, and two attribute-name validation lists; no expand assignment and no flatten of the ECZPA fields. The plain `zpa_app_segments` field is expanded and is not part of this claim. The data source does flatten the ECZPA groups; resources only here.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 8 (ZIA field fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "fwd-control-update-drops-selectors": {
+      "statement": "Because the IPv6 and ECZPA selectors are dropped from the update body (ECZPA selectors apply only to the ECZPA forwarding method), an update of a rule that has them configured (in HCL or out of band) sends a body without them. Whether the API then clears the restriction, which would widen what the rule matches, or keeps it, depends on how the API treats omitted members.",
+      "tier": "C",
+      "derived_from": [
+        "fwd-control-ipv6-eczpa-never-expanded"
+      ],
+      "conditions": "Depends on how the ZIA API treats members absent from a rule PUT (gap zia.sdk-go.write-encoding:rule-omission-semantics) and on the rule actually carrying such a selector server-side.",
+      "gaps": [
+        "zia.sdk-go.write-encoding:rule-omission-semantics"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 8 (ZIA field fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "endpoint-dlp-zero-struct-channels": {
+      "statement": "The endpoint DLP resource request model holds `printer`, `removableStorage` and `application` as value structs tagged `omitempty`, and the expand function fills `Printer` and `RemovableStorage` with a zero struct when that block is absent and never sets `Application`. A resource configured for one channel is therefore built with zero-value objects for the other channels. Go's `encoding/json` does not omit zero structs, so the body carries empty `printer`, `removableStorage` and `application` objects. Every field inside those structs is also `omitempty`, so each absent channel is sent as an empty object (`\"printer\":{}`, `\"removableStorage\":{}`, `\"application\":{}`).",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/endpoint_resource/endpoint_resource.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "Printer          Printer          `json:\"printer,omitempty\"`",
+            "RemovableStorage RemovableStorage `json:\"removableStorage,omitempty\"`",
+            "Application      Application      `json:\"application,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_endpoint_dlp_resource.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "RemovableStorage: expandEndpointDLPRemovableStorage(d),"
+          ],
+          "after": "func expandEndpointDLPResource(d *schema.ResourceData) endpoint_resource.EndpointResource {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_endpoint_dlp_resource.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "return endpoint_resource.Printer{}"
+          ],
+          "after": "func expandEndpointDLPPrinter(d *schema.ResourceData) endpoint_resource.Printer {"
+        }
+      ],
+      "conditions": "The wire shape follows from Go `encoding/json` semantics (a struct value is never empty for `omitempty`); it was not captured on the wire. What the API does with the empty objects (rejects them, ignores them, or treats them as clearing channel data) is not shown by any client code (gap api-empty-object-reaction).",
+      "gaps": [
+        "api-empty-object-reaction"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 8 (ZIA field fidelity) of the 2026-08 provider audit."
+        }
+      ],
+      "derived_from": [
+        "shared.sdk-go.zero-value-writes:value-struct-omitempty-emits-empty-object"
+      ]
+    },
+    "endpoint-dlp-custom-app-empty-application": {
+      "statement": "The custom endpoint application resource requires an `application` block, but every attribute inside it is optional, and an empty block expands to a zero `Application` struct that is sent as an empty `application` object. On read, the `application` block is always written to state, populated or not.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_endpoint_dlp_custom_apps.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "Required:    true,\n\t\t\t\tMaxItems:    1,\n\t\t\t\tDescription: \"The application details of the custom endpoint application.\","
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_endpoint_dlp_custom_apps.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "return endpoint_resource.Application{}"
+          ],
+          "after": "func expandEndpointDLPCustomAppApplication(d *schema.ResourceData) endpoint_resource.Application {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_endpoint_dlp_custom_apps.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "_ = d.Set(\"application\", []interface{}{"
+          ],
+          "after": "func setEndpointDLPCustomAppFromResource(d *schema.ResourceData, resp *endpoint_resource.EndpointResource) {"
+        }
+      ],
+      "conditions": "Same `encoding/json` reasoning as endpoint-dlp-zero-struct-channels, and the same unknown server reaction (gap api-empty-object-reaction). Applies only to a configuration whose `application` block has no attributes set.",
+      "gaps": [
+        "api-empty-object-reaction"
+      ],
+      "derived_from": [
+        "endpoint-dlp-zero-struct-channels"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 8 (ZIA field fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "dns-capture-pcap-read-not-sent": {
+      "statement": "The firewall DNS rule resource exposes `capture_pcap` and sets it from the API response on read, but its expand function never assigns `CapturePCAP`. The SDK field has no `omitempty`, so the request always carries `capturePCAP:false`.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_dns_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "_ = d.Set(\"capture_pcap\", resp.CapturePCAP)",
+            "ExcludeContextShieldEndPoint: d.Get(\"exclude_context_shield_end_point\").(bool),"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "CapturePCAP bool `json:\"capturePCAP\"`"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. Search: `git -C vendor/terraform-provider-zia grep -n -i pcap <ref> -- zia/resource_zia_firewall_dns_rules.go` at v4.8.3 and HEAD returns three lines: the schema entry, its description, and the read-side `d.Set`. For contrast, the file type control rule resource does assign `CapturePCAP: d.Get(\"capture_pcap\").(bool)`.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 8 (ZIA field fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "ips-capture-pcap-not-read-or-sent": {
+      "statement": "The firewall IPS rule resource exposes `capture_pcap` but neither reads it from the response nor assigns it in the expand function. The SDK field has no `omitempty`, so the request always carries `capturePCAP:false`, and state cannot show a server-side value.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_ips_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "Description: \"A Boolean value that indicates whether packet capture (PCAP) is enabled or not\","
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/ips_control_policies/ips_policies/ips_policies.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "CapturePCAP bool `json:\"capturePCAP\"`"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. Search: `git -C vendor/terraform-provider-zia grep -n -i pcap <ref> -- zia/resource_zia_firewall_ips_rules.go` at v4.8.3 and HEAD returns only the schema entry and its description.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 8 (ZIA field fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "file-type-password-protected-never-mapped": {
+      "statement": "The file type control rule resource has no `password_protected` attribute and never references the field, while the SDK model sends `passwordProtected` without `omitempty`. Every create and update therefore carries `passwordProtected:false`.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/filetypecontrol/filetypecontrol.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "PasswordProtected bool `json:\"passwordProtected\"`"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_file_type_control_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "CapturePCAP:          d.Get(\"capture_pcap\").(bool),"
+          ],
+          "after": "func expandFileTypeControlRules(d *schema.ResourceData) filetypecontrol.FileTypeRules {"
+        }
+      ],
+      "conditions": "Rests on an absence. Search: `git -C vendor/terraform-provider-zia grep -n -i password <ref> -- zia/resource_zia_file_type_control_rules.go` at v4.8.3 and HEAD returns nothing. Whether the API applies `false` on update, or keeps the stored value, is a server behavior this claim does not cover (gap api-bool-write-effect).",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 8 (ZIA field fidelity) of the 2026-08 provider audit."
+        }
+      ],
+      "gaps": [
+        "api-bool-write-effect"
+      ]
+    },
+    "non-omitempty-bools-force-false": {
+      "statement": "For the DNS and IPS `capture_pcap` fields and the file type `passwordProtected` field, an unmapped non-`omitempty` bool is serialized as `false` on every write. Configuration cannot turn the setting on, and an update may turn off, if the API applies the false, a value that was enabled out of band.",
+      "tier": "C",
+      "derived_from": [
+        "dns-capture-pcap-read-not-sent",
+        "ips-capture-pcap-not-read-or-sent",
+        "file-type-password-protected-never-mapped"
+      ],
+      "conditions": "Depends on the API applying a `false` sent in a rule update rather than ignoring it, and on the setting having been enabled out of band (gap api-bool-write-effect). The omitted-when-false direction of the same SDK problem is in [[zia.sdk-go.write-encoding]].",
+      "gaps": [
+        "api-bool-write-effect"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 8 (ZIA field fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "cloud-nss-exclusions-dead": {
+      "statement": "The cloud NSS server resource declares `web_applications_exclude` and `nw_applications_exclude`, but the SDK `NSSFeed` model has no member for them, and the resource neither expands nor reads them. A configured exclusion cannot reach the API and cannot round-trip. The inclusion fields beside them are mapped.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_nss_server.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"web_applications_exclude\": {",
+            "\"nw_applications_exclude\": {",
+            "_ = d.Set(\"web_applications\", resp.WebApplications)",
+            "WebApplications:             SetToStringList(d, \"web_applications\"),"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudnss/cloudnss/cloudnss.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "WebApplications             []string                  `json:\"webApplications,omitempty\"`",
+            "NwApplications              []string                  `json:\"nwApplications,omitempty\"`"
+          ]
+        }
+      ],
+      "conditions": "Rests on absences. Searches: `git -C vendor/terraform-provider-zia grep -n -i exclude <ref> -- zia/resource_zia_cloud_nss_server.go` at v4.8.3 and HEAD returns only the two schema blocks and their description text; `git -C vendor/zscaler-sdk-go grep -n -i exclu <ref> -- zscaler/zia/services/cloudnss/cloudnss/cloudnss.go` at v3.8.44 and HEAD returns nothing. The paired data source was not examined.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 8 (ZIA field fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "casb-dlp-excluded-domains-wrong-key": {
+      "statement": "The CASB DLP rule resource declares `excluded_domain_profiles` and reads it back under that name, but its expand function reads the key `exclude_domain_profiles`, which is not in the schema. The domain exclusion is therefore not read from configuration on create or update.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_casb_dlp_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"excluded_domain_profiles\":  setIDsSchemaTypeCustom(nil,",
+            "d.Set(\"excluded_domain_profiles\", flattenIDExtensionsListIDs(resp.ExcludedDomainProfiles))",
+            "ExcludedDomainProfiles:       expandIDNameExtensionsSet(d, \"exclude_domain_profiles\"),"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/saas_security_api/casb_dlp_rules/casb_dlp_rules.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "ExcludedDomainProfiles        []common.IDNameExtensions `json:\"excludedDomainProfiles,omitempty\"`"
+          ]
+        }
+      ],
+      "conditions": "Depends on `d.GetOk` returning not-ok for a key absent from the schema (terraform-plugin-sdk v2 behavior, not run here), which makes `expandIDNameExtensionsSet` return an empty list. Search: `git -C vendor/terraform-provider-zia grep -n exclude_domain_profiles <ref> -- zia/` at v4.8.3 and HEAD returns only the expand line. The rule can match domains the configuration says are excluded.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 8 (ZIA field fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "casb-labels-expanded-not-flattened": {
+      "statement": "The CASB DLP rule's `redaction_profile` and `casb_email_label`, and the CASB malware rule's `casb_email_label`, are expanded into the request but never set from the response on read. Import and refresh cannot populate them, and an out-of-band value is invisible to state.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_casb_dlp_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "RedactionProfile:             expandIDNameExtensionsSetSingle(d, \"redaction_profile\"),",
+            "CasbEmailLabel:               expandIDNameExtensionsSetSingle(d, \"casb_email_label\"),"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_casb_malware_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "CasbEmailLabel:        expandIDNameExtensionsSetSingle(d, \"casb_email_label\"),"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. Search: `git -C vendor/terraform-provider-zia grep -n -E 'd.Set\\(\"(redaction_profile|casb_email_label)\"' <ref> -- zia/resource_zia_casb_dlp_rules.go zia/resource_zia_casb_malware_rules.go` at v4.8.3 and HEAD returns nothing.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 8 (ZIA field fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "admin-user-role-first-element-only": {
+      "statement": "The admin user resource declares `role` as a set, but its expand function sends only element zero of the set, and the SDK model holds a single role. Additional configured roles never reach the API, and which element is first is the set's iteration order, not the order written in configuration.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_admin_users.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "roleMap := roles[0].(map[string]interface{})"
+          ],
+          "after": "func expandAdminUserRoles(d *schema.ResourceData) *admins.Role {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/adminuserrolemgmt/admins/adminusers.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "Role *Role `json:\"role,omitempty\"`"
+          ]
+        }
+      ],
+      "conditions": "The schema has no `MaxItems` on `role` (search: `git grep -n MaxItems <ref> -- zia/resource_zia_admin_users.go` at v4.8.3 and HEAD returns nothing for that resource), so Terraform raises no validation error for a second role. That the set's `List()` order is hash order rather than configuration order is Terraform SDK behavior, not run here.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 8 (ZIA field fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "first-block-truncation-elsewhere": {
+      "statement": "Two more schemas accept several blocks while the SDK model holds one, and expansion keeps the first: the cloud app control rule's `cbi_profile` list, and the DLP dictionary's `adp_idm_profile` set inside each `idm_profile_match_accuracy` entry.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "cbiProfileData := cbiProfileList[0].(map[string]interface{})"
+          ],
+          "after": "func expandCloudAppControlCBIProfile(d *schema.ResourceData) cloudappcontrol.CBIProfile {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_dlp_dictionaries.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "profile = &profiles[0]",
+            "// MaxItems:    1,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlpdictionaries/dlpdictionaries.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "AdpIdmProfile *common.IDNameExtensions `json:\"adpIdmProfile,omitempty\"`"
+          ]
+        }
+      ],
+      "conditions": "Candidate search: `git -C vendor/terraform-provider-zia grep -n -E '\\\\[0\\\\]\\\\.\\\\(map\\\\[string\\\\]interface' <ref> -- zia/resource_zia_*.go` was used only to locate candidates; the two listed here were read in full. Neither schema has an active `MaxItems`: `cbi_profile` has none, and the IDM profile's limit is commented out. Other resources that index `[0]` were not examined.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 8 (ZIA field fidelity) of the 2026-08 provider audit."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "api-empty-object-reaction": {
+      "kind": "semantic",
+      "title": "How the ZIA API reacts to an empty nested object in a request body",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether empty `printer`, `removableStorage`, `application` or `cbiProfile` objects are rejected, ignored, or clear stored data",
+      "detail": "No client code shows the reaction. Test in a scratch tenant: create an endpoint DLP resource of one channel with the other channels as empty objects, then re-read it and update it, checking the other channels' stored values."
+    },
+    "api-bool-write-effect": {
+      "kind": "semantic",
+      "title": "Whether a `false` in a ZIA rule update overwrites an enabled value",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying that an update turns off a PCAP capture or password-protected setting enabled out of band",
+      "detail": "Enable the setting in the admin console on a rule, update the rule through the provider with the field unmapped, and re-read the rule."
+    }
+  }
+}

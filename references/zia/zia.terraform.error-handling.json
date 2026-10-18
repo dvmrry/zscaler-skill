@@ -1,0 +1,539 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.error-handling",
+  "title": "When the ZIA Terraform provider reports success after an error, or crashes",
+  "aliases": [
+    "terraform provider panic",
+    "provider crashed nil pointer",
+    "index out of range update",
+    "terraform refresh succeeds but api failed",
+    "error swallowed terraform read",
+    "duplicate rules after terraform create",
+    "terraform destroy succeeded but rule still in state",
+    "plugin crashed zia",
+    "dlpWebRulesLock",
+    "Update returned nil, nil"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.sdk-go.write-encoding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.delete-detach"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation"
+    }
+  ],
+  "claims": {
+    "read-error-returns-nil": {
+      "statement": "The FTP control policy Read returns `nil` diagnostics when the SDK getter fails, before it touches the resource data. The SDK getter returns `(nil, err)` on a failed request, so a failed refresh produces no error and no change to what Terraform holds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_ftp_control_policy.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := ftp_control_policy.GetFTPControlPolicy(ctx, service)",
+            "return nil"
+          ],
+          "after": "func resourceFTPControlPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/ftp_control_policy/ftp_control_policy.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "func GetFTPControlPolicy(ctx context.Context, service *zscaler.Service) (*FTPControlPolicy, error) {",
+            "return nil, err"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 5 (success-shaped errors and panics) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "read-error-returns-nil-sites": {
+      "statement": "The same swallow is repeated in 12 settings-style resources and 10 data sources: ATP (malicious URLs, malware inspection, malware policy, malware protocols, malware settings, security exceptions, settings), browser control, DLP global options, FTP control, security policy settings, URL filtering and cloud app settings; and the data sources for ATP malware inspection/policy/protocols/settings, ATP settings, browser control, DLP global options, sandbox behavioral analysis advanced settings, security policy settings and URL filtering and cloud app settings.",
+      "tier": "B",
+      "derived_from": [
+        "read-error-returns-nil"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_atp_settings.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := advancedthreatsettings.GetAdvancedThreatSettings(ctx, service)"
+          ],
+          "after": "func resourceAdvancedThreatSettingsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_dlp_global_options.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "dlp_global_options.GetDLPGlobalOptions(ctx, service)"
+          ]
+        }
+      ],
+      "conditions": "Found by a multi-line regex over zia/resource_zia_*.go and zia/data_source_zia_*.go (an `x, err := pkg.Fn(ctx...)` line, then `if err != nil {`, then a bare `return nil`, then `}`), run against a `git archive` of tf-zia at v4.8.3 and at HEAD (v4.8.8). Both refs return the same 22 files (12 resources, 10 data sources). Other Read handlers that swallow errors in a different shape (for example a differently named return or an intermediate statement) are not found by this search.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 5 (success-shaped errors and panics) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "update-preflight-ignores-errors": {
+      "statement": "Update first calls the object's Get and only reacts when the error is an object-not-found response (clearing the ID and returning). Any other Get error is dropped and execution continues straight into the write with the request built from configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_rule_labels.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, err := rule_labels.Get(ctx, service, id); err != nil {",
+            "if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {",
+            "if _, _, err := rule_labels.Update(ctx, service, id, &req); err != nil {"
+          ],
+          "after": "func resourceRuleLabelsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 5 (success-shaped errors and panics) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "update-preflight-sites": {
+      "statement": "The same preflight shape (Get, react only to object-not-found, then write) is used in at least 46 resources (about 50 files and 52 handlers by a looser search, which adds admin users, the two bandwidth classes and the DC exclusions Delete), including 2 Delete handlers (email profile and extranet; a Delete that falls through still reports its own error). Resources: admin_roles alerts bandwidth_classes bandwidth_control_rules casb_dlp_rules casb_malware_rules cloud_app_control_rules cloud_application_instance cloud_nss_server custom_file_types dlp_dictionaries dlp_engines dlp_notification_templates dns_application_groups email_profile endpoint_dlp_rules extranet file_type_control_rules firewall_dns_rules firewall_filtering_rules firewall_ips_rules forwarding_control_proxies forwarding_control_rule forwarding_control_zpa_gateway fw_filtering_ip_source_groups fw_filtering_network_application_groups fw_filtering_network_services fw_filtering_network_services_groups ips_signature_rules location_management nat_control_rules nss_server risk_profiles rule_labels sandbox_rules ssl_inspection_rules tenant_restriction_profile traffic_capture_rules traffic_forwarding_gre_tunnels traffic_forwarding_vpn_credentials ueba_alert_definitions url_filtering_rules user_management_users vzen_cluster vzen_nodes workload_groups.",
+      "tier": "B",
+      "derived_from": [
+        "update-preflight-ignores-errors"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_email_profile.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, err := email_profiles.Delete(ctx, service, id); err != nil {"
+          ],
+          "after": "func resourceEmailProfileDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "conditions": "Found by a regex over zia/resource_zia_*.go (an `if _, [_, ]err := pkg.Fn(ctx...); err != nil {` line followed by the `err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound()` check whose body only clears the ID and returns nil), attributing each match to its enclosing func, against a `git archive` of tf-zia at v4.8.3 and at HEAD. Both refs return 48 matches in 46 files (a looser search found 52 in 50). Preflights written another way are not found.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 5 (success-shaped errors and panics) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "not-found-destroy-keeps-id": {
+      "statement": "When the DLP web rule delete call fails with RESOURCE_NOT_FOUND, Delete treats the rule as already gone and returns `nil` diagnostics, which Terraform accepts as a successful destroy. That is the right outcome; the one difference from the success path is that it returns before the activation step, so nothing triggers activation for this destroy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_dlp_web_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, err := dlp_web_rules.Delete(ctx, service, id); err != nil {",
+            "if strings.Contains(err.Error(), \"RESOURCE_NOT_FOUND\") {",
+            "return nil",
+            "// Check if ZIA_ACTIVATION is set to a truthy value before triggering activation"
+          ],
+          "after": "func resourceDlpWebRulesDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ]
+    },
+    "not-found-destroy-keeps-id-sites": {
+      "statement": "The same early return on not-found is in the Delete handlers of endpoint DLP rules, endpoint DLP sub-rules and outbound email DLP.",
+      "tier": "B",
+      "derived_from": [
+        "not-found-destroy-keeps-id"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_outbound_email_dlp.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if strings.Contains(err.Error(), \"RESOURCE_NOT_FOUND\") {",
+            "log.Printf(\"[INFO] outbound email dlp rule %d not found, skipping deletion\", id)"
+          ]
+        }
+      ],
+      "conditions": "Found by searching every Delete handler in zia/resource_zia_*.go for an object-not-found branch (RESOURCE_NOT_FOUND, IsObjectNotFound or 404) whose body returns nil without SetId, against a `git archive` of tf-zia at v4.8.3 and at HEAD. Both refs list exactly four handlers: dlp_web_rules, endpoint_dlp_rules, endpoint_dlp_sub_rules, outbound_email_dlp. What Terraform does with a destroy that succeeds while the ID is still set is Terraform core behavior and was not tested."
+    },
+    "create-reposts-after-read-error": {
+      "statement": "In DLP web rule create, after the POST succeeds and the ID is set, a Read that returns an error diagnostic makes the create loop sleep and `continue` while time remains in the create timeout. The next loop pass calls `Create` again with the same request; the object from the first POST is not looked up or adopted before it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_dlp_web_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := dlp_web_rules.Create(ctx, service, &req)",
+            "if diags := resourceDlpWebRulesRead(ctx, d, meta); diags.HasError() {",
+            "time.Sleep(10 * time.Second)",
+            "continue"
+          ],
+          "after": "func resourceDlpWebRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "gaps": [
+        "duplicate-post-response"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 5 (success-shaped errors and panics) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "create-reposts-after-read-error-sites": {
+      "statement": "The same post-then-Read-error retry loop is in seven rule resources: bandwidth control, CASB DLP, CASB malware, DLP web, endpoint DLP (parent rules), NAT control and outbound email DLP.",
+      "tier": "B",
+      "derived_from": [
+        "create-reposts-after-read-error"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_endpoint_dlp_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, _, err := endpoint_dlp_rules.Create(ctx, service, &req)",
+            "if diags := resourceEndpointDLPRulesRead(ctx, d, meta); diags.HasError() {"
+          ],
+          "after": "func resourceEndpointDLPRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "conditions": "Found by searching zia/resource_zia_*.go for `diags.HasError()` followed within three lines by `time.Sleep` and `continue`, then confirming in each file that the enclosing `for {` also contains the resource's Create call and a prior `d.SetId`. Run against tf-zia at v4.8.3 and at HEAD; the seven files are identical at both. I read the DLP web and endpoint DLP loops in full; the other five were confirmed by line order (for, Create, SetId, Read check, continue).",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 5 (success-shaped errors and panics) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "duplicate-post-result": {
+      "statement": "A second POST of the same rule may create a duplicate policy rule, or may be rejected (for example on a name clash), leaving the first rule created but the apply failing. The code shows only that the second POST is sent.",
+      "tier": "C",
+      "derived_from": [
+        "create-reposts-after-read-error"
+      ],
+      "conditions": "Depends on how the ZIA API treats a second create with an identical name and body: duplicates are allowed, or it is refused. Not tested (gap duplicate-post-response).",
+      "gaps": [
+        "duplicate-post-response"
+      ]
+    },
+    "create-order-from-ignored-list-error": {
+      "statement": "Bandwidth control create discards the error from listing existing rules, treats an empty list as no rules, falls back to order 1, and POSTs the rule at that order. A failed list is therefore indistinguishable from an empty policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_bandwidth_control_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "list, _ := bandwidth_control_rules.GetAll(ctx, service)",
+            "bandwidthControlStartingOrder = 1",
+            "req.Order = bandwidthControlStartingOrder"
+          ],
+          "after": "func resourceBandwdithControlRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 5 (success-shaped errors and panics) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "create-order-from-ignored-list-error-sites": {
+      "statement": "Create paths discard the list error the same way in URL filtering, file type control, firewall DNS, firewall IPS, firewall filtering, forwarding control, NAT control, sandbox, SSL inspection, traffic capture, DLP web, endpoint DLP and outbound email DLP (via GetAll), and in CASB DLP, CASB malware and cloud app control (via GetByRuleType).",
+      "tier": "B",
+      "derived_from": [
+        "create-order-from-ignored-list-error"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "rules, _ := cloudappcontrol.GetByRuleType(ctx, service, req.Type)"
+          ]
+        }
+      ],
+      "conditions": "Found by `git grep -nE ', _ :?= \\w+\\.GetAll\\(ctx'` and the `rules, _ := ...GetByRuleType(` variants over zia/resource_zia_*.go at tf-zia v4.8.3 and HEAD: 14 GetAll sites and 3 GetByRuleType sites, the same files at both refs. Where the first position is later corrected depends on the reorder worker (see zia.terraform.rule-order).",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 5 (success-shaped errors and panics) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "sandbox-update-index-after-logged-error": {
+      "statement": "Sandbox rule update logs a failed list of existing rules, removes the default rule from whatever came back, sorts, and reads the last element with no length check. An empty result (a failed list) panics with an index out of range instead of returning an error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "log.Printf(\"[ERROR] error getting all sandbox rules: %v\", err)",
+            "existingRules = filterOutDefaultRule(existingRules)",
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
+          ],
+          "after": "existingRules, err := sandbox_rules.GetAll(ctx, service)"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 5 (success-shaped errors and panics) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "update-index-panic-sites": {
+      "statement": "The same log-then-index-last-element update code is in eight more rule resources besides URL Filtering and the sandbox rules above: cloud app control, file type control, firewall filtering, firewall DNS, firewall IPS, forwarding control, SSL inspection and traffic capture. Endpoint DLP update has a `len(existingRules) > 0` guard and does not share it.",
+      "tier": "B",
+      "derived_from": [
+        "zia.terraform.rule-order:list-error-then-panic",
+        "sandbox-update-index-after-logged-error"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_dns_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "log.Printf(\"[ERROR] error getting all firewall dns rules: %v\", err)",
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
+          ],
+          "after": "func resourceFirewallDNSRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_endpoint_dlp_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if len(existingRules) > 0 {"
+          ],
+          "after": "existingRules, err := endpoint_dlp_rules.GetAll(ctx, service)"
+        }
+      ],
+      "conditions": "Found by `grep -n 'existingRules\\[len(existingRules)-1\\]' zia/resource_zia_*.go` at tf-zia v4.8.3 and HEAD: eleven matches (ten unguarded plus endpoint DLP, whose index sits inside the length guard). For the ten unguarded ones I confirmed the preceding GetAll error branch only calls log.Printf. At HEAD cloud app control's index sits at a different line but is unchanged in shape.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 5 (success-shaped errors and panics) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "rule-labels-update-same-assertion": {
+      "statement": "Rule label update in the SDK ignores the result of its type assertion and reads the object's ID from it, the same shape as URL Filtering Update. An empty update response (nil result, nil error) makes it dereference a nil pointer.",
+      "tier": "A",
+      "derived_from": [
+        "zia.sdk-go.write-encoding:empty-body-nil-nil"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/rule_labels/rule_labels.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "updatedRuleLabel, _ := resp.(*RuleLabels)",
+            "updatedRuleLabel.ID"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, ruleLabelID int, ruleLabels *RuleLabels) (*RuleLabels, *http.Response, error) {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 5 (success-shaped errors and panics) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "empty-body-panic-sites": {
+      "statement": "The unchecked assertion followed by a field read is in about 68 SDK service functions across about 66 files, mostly each service's Update. Among them are the services behind the provider's admin roles, alerts, bandwidth control, CASB rules, DLP web rules, endpoint DLP, firewall and DNS rules, forwarding, IPS, location management, NAT control, sandbox rules, SSL inspection, traffic capture, GRE tunnels, static IPs, VPN credentials, URL categories, users, VZEN and workload group resources.",
+      "tier": "B",
+      "derived_from": [
+        "zia.sdk-go.write-encoding:empty-body-nil-nil",
+        "zia.sdk-go.write-encoding:rule-update-panics-on-empty-body",
+        "rule-labels-update-same-assertion"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "updatedRules, _ := resp.(*SandboxRules)",
+            "updatedRules.ID"
+          ],
+          "after": "updatedSandboxRule, _ := resp.(*SandboxRules)"
+        }
+      ],
+      "conditions": "Found by a regex over zscaler/zia/services/**/*.go (`x, _ := y.(*T)` where `x.<field>` is read within 400 characters) on a `git archive` of sdk-go at v3.8.44 and at HEAD; both return the same 68 matches in 66 files (a few are not on a provider resource update path, for example EUSA status and make-default certificate). The matches do not prove each provider resource reaches its function with an empty body, only that the function cannot handle one. Whether the ZIA API ever answers these updates with an empty body is gap rule-update-empty-body in zia.sdk-go.write-encoding.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 5 (success-shaped errors and panics) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "dlp-web-subrule-create-nil-deref-under-lock": {
+      "statement": "DLP web subrule create takes the global rule lock, then fetches the parent rule and discards the error. The SDK Get returns `(nil, err)` on failure, so the next line reads `SubRules` through a nil pointer and panics while the lock is held.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_dlp_web_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "dlpWebRulesLock.Lock()",
+            "list, _ := dlp_web_rules.Get(ctx, service, req.ParentRule)",
+            "for _, subRule := range list.SubRules {"
+          ],
+          "after": "func resourceDlpWebRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "return nil, err"
+          ],
+          "after": "func Get(ctx context.Context, service *zscaler.Service, ruleID int) (*WebDLPRules, error) {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 5 (success-shaped errors and panics) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "dlp-web-lock-not-released-on-error": {
+      "statement": "Inside that locked section, a failed Get of any subrule returns the error directly, and the panic above also unwinds, without releasing `dlpWebRulesLock`. The lock is released only by one explicit `Unlock` later in the loop body. Every later DLP web rule create (parent or subrule) then blocks on the same lock for the life of the provider process.",
+      "tier": "B",
+      "derived_from": [
+        "dlp-web-subrule-create-nil-deref-under-lock"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_dlp_web_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "r, err := dlp_web_rules.Get(ctx, service, subRule.ID)",
+            "dlpWebRulesLock.Unlock()"
+          ],
+          "after": "func resourceDlpWebRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "conditions": "Rests on an absence: `grep -n dlpWebRulesLock zia/resource_zia_dlp_web_rules.go` at tf-zia v4.8.3 and HEAD shows the declaration, one Lock and one Unlock, with no `defer`. A panic inside a provider normally ends the process, so the held lock matters in practice for the error return and for a host that recovers panics.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 5 (success-shaped errors and panics) of the 2026-08 provider audit."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "duplicate-post-response": {
+      "kind": "semantic",
+      "title": "What the ZIA API does with a second create of an identical rule",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether a create retried after a Read error leaves duplicate rules or an orphaned first rule",
+      "detail": "The provider re-sends the same POST. No captured source states whether ZIA accepts a second rule with the same name or rejects it. Test in a scratch tenant by creating a rule, then creating an identical one, and listing rules."
+    }
+  }
+}

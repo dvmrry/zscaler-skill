@@ -1,0 +1,602 @@
+{
+  "schema_version": 1,
+  "id": "zpa.terraform.data-source-selection",
+  "title": "Which object a ZPA Terraform data source actually returns",
+  "aliases": [
+    "zpa data source returns wrong object",
+    "data source id and name both set",
+    "data source name overrides id",
+    "zpa data source wrong microtenant",
+    "microtenant_id data source ignored",
+    "assistant schedule data source id ignored",
+    "application_segment_by_type first result",
+    "microtenant name resolution returns nothing",
+    "ZPA_MICROTENANT_ID overrides"
+  ],
+  "claims": {
+    "id-and-name-both-run-name-wins": {
+      "statement": "A segment group data source given both `id` and `name` runs the ID lookup, then runs the name lookup as well, and the name result replaces the ID result. If the name lookup returns an error the read fails even though the ID lookup succeeded. Nothing compares the two results.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func dataSourceSegmentGroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "res, _, err := segmentgroup.Get(ctx, service, id)",
+            "res, _, err := segmentgroup.GetByName(ctx, service, name)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "res, _, err := segmentgroup.GetByName(ctx, service, name)",
+          "quotes": [
+            "resp = res",
+            "return diag.FromErr(err)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "overwrite-pattern-is-widespread": {
+      "statement": "The same structure (an `id` block assigning `resp`, then an independent `name` block assigning `resp` again, with no conflict constraint on the schema) is present in 44 data source files, including connector groups, server groups, service edge groups, user portal objects, tag objects, PRA objects and the main application segment data sources.",
+      "tier": "B",
+      "derived_from": [
+        "id-and-name-both-run-name-wins"
+      ],
+      "conditions": "Heuristic search, not a parse. At v4.4.10 and at HEAD, over zpa/data_source_zpa_*.go (excluding tests): files containing both `d.Get(\"id\").(string)` and `d.Get(\"name\").(string)` (52 files; none contains ExactlyOneOf or ConflictsWith) and with at least two lines matching `^\\s+resp = ` and no `else if (nameOk|nameExists)` and no `resp == nil && name`. The set is identical at both refs. Files: app_connector_controller, app_connector_group, app_server_controller, application_segment, application_segment_browser_access, application_segment_inspection, application_segment_pra, ba_certificate, branch_connector_group, c2c_ip_ranges, cloud_browser_isolation_banner, cloud_browser_isolation_external_profile, cloud_connector_group, enrollement_cert, extranet_resource_partner, idp_controller, inspection_custom_controls, inspection_predefined_controls, inspection_profile, lss_config_controller, machine_group, managed_browser_profile, microtenant_controller, posture_profile, pra_console, pra_credential_controller, pra_credential_pool, pra_portal_controller, private_cloud, private_cloud_controller, private_cloud_group, provisioning_key, segment_group, server_group, service_edge, service_edge_group, tag_group, tag_key, tag_namespace, trusted_network, user_portal_aup, user_portal_controller, user_portal_link, workload_tag_group. Only segment_group is quoted. Several (for example branch_connector_group, c2c_ip_ranges, extranet_resource_partner, managed_browser_profile, workload_tag_group) assign `resp` from a list scan in the ID branch, and were not read line by line.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "invalid-id-falls-back-to-name-region": {
+      "statement": "The Cloud Browser Isolation region data source scans the full region list for the given `id`; if no region has that ID it does not fail but runs the name lookup, so a wrong or stale ID with a valid name returns the name-selected region.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_cloud_browser_isolation_region.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func dataSourceCBIRegionsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if resp == nil && nameOk && name != \"\" {",
+            "// Check if searching by name (only if ID search didn't find anything)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "invalid-id-falls-back-to-name-isolation-profile": {
+      "statement": "The isolation profile data source has the same fallback: an `id` that matches no profile in the list is ignored and the `name` lookup supplies the result.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_isolation_profiles.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func dataSourceIsolationProfileRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if resp == nil && nameOk && name != \"\" {",
+            "// Check if searching by name (only if ID search didn't find anything)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "id-fallback-only-two-sites": {
+      "statement": "These two are the only data sources that explicitly gate the name lookup on the ID finding nothing. List-scan data sources whose name block is unconditional (workload tag group and branch connector group, for example) also fall through to the name lookup when the ID matches nothing; the location summary data source instead returns an error when the ID matches nothing.",
+      "tier": "B",
+      "derived_from": [
+        "invalid-id-falls-back-to-name-region",
+        "invalid-id-falls-back-to-name-isolation-profile"
+      ],
+      "conditions": "Search: `git grep -n \"resp == nil &&\" <ref> -- 'zpa/data_source_zpa_*.go'` in vendor/terraform-provider-zpa at v4.4.10 and HEAD returns exactly these two files. Data sources that run both lookups unconditionally are the separate overwrite pattern. The location summary behavior was read at v4.4.10 only.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "app-connector-schedule-selectors-ignored": {
+      "statement": "The App Connector assistant schedule data source accepts optional `id` and `customer_id`, but its `id` branch, its `customer_id` branch and its default branch all make the identical call to the SDK's `GetSchedule`, which takes no selector and reads one fixed path built from the client's own customer ID. A wrong ID or customer ID is never sent and cannot cause an error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_app_connector_assistant_schedule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "if idOk && id != \"\" {",
+          "quotes": [
+            "appconnectorschedule.GetSchedule(ctx, service)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_app_connector_assistant_schedule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "} else if customerIDOk && customerID != \"\" {",
+          "quotes": [
+            "appconnectorschedule.GetSchedule(ctx, service)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_app_connector_assistant_schedule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "fetching default schedule\")",
+          "quotes": [
+            "appconnectorschedule.GetSchedule(ctx, service)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "func GetSchedule(ctx context.Context, service *zscaler.Service) (*AssistantSchedule, *http.Response, error) {",
+            "path := fmt.Sprintf(\"%v\", mgmtConfig+service.Client.GetCustomerID()+scheduleEndpoint)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "service-edge-schedule-selectors-ignored": {
+      "statement": "The Service Edge assistant schedule data source has the same three branches, and the SDK's `GetSchedule` for Service Edges likewise takes no selector.",
+      "tier": "B",
+      "derived_from": [
+        "app-connector-schedule-selectors-ignored"
+      ],
+      "conditions": "Same structure read in data_source_zpa_service_edge_assistant_schedule.go at v4.4.10 and HEAD: three calls to serviceedgeschedule.GetSchedule(ctx, service), one per branch, counted by search rather than quoted individually.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_service_edge_assistant_schedule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "} else if customerIDOk && customerID != \"\" {",
+            "fetching default schedule\")"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgeschedule/serviceedgeschedule.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "func GetSchedule(ctx context.Context, service *zscaler.Service) (*AssistantSchedule, *http.Response, error) {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "by-type-takes-first-element": {
+      "statement": "The application-segment-by-type data source passes the `name` as a search term to the SDK, which returns every segment of that type matching the search, and then uses the first element of the list. The SDK sends the name both as a search term and as a `name+EQ+` filter, so whether non-exact matches come back depends on the API; the provider does not check that the result is unique. With no `name`, it returns the first segment of the type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_application_segment_by_type.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, _, err := applicationsegmentbytype.GetByApplicationType(ctx, service, name, applicationType, true)",
+            "// Assuming we are only interested in the first result for simplicity",
+            "appSegment := resp[0]"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbytype/applicationsegmentbytype.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "func GetByApplicationType(ctx context.Context, service *zscaler.Service, appName, applicationType string, expandAll bool) ([]AppSegmentBaseAppDto, *http.Response, error) {",
+          "quotes": [
+            "query.Set(\"search\", appName)",
+            "list, resp, err := common.GetAllPagesGenericWithCustomFilters[AppSegmentBaseAppDto](ctx, service.Client, constructedURL, filter)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "browser-protection-no-name-takes-first": {
+      "statement": "The browser protection data source, given no `name`, takes the first profile of the list the SDK returns. The source comment says this is \"typically the default/active one\", which is an assumption about API ordering.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_browser_protection.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "// If no name is provided, get the first profile (typically the default/active one)",
+            "resp = &allProfiles[0]"
+          ]
+        }
+      ],
+      "gaps": [
+        "api-list-order-and-search-match"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "by-type-result-depends-on-api-order": {
+      "statement": "Which segment the by-type data source returns for a non-unique or partial name, or for no name, depends on how the ZPA API matches the search term and orders its results, which the client does not control. A multi-word name whose search fails is retried with its first two words, which widens the match further.",
+      "tier": "C",
+      "derived_from": [
+        "by-type-takes-first-element"
+      ],
+      "conditions": "Depends on the API's search matching (substring or exact) and result ordering for the getAppsByType endpoint (gap api-list-order-and-search-match).",
+      "gaps": [
+        "api-list-order-and-search-match"
+      ]
+    },
+    "microtenant-input-computed-only-pra-approval": {
+      "statement": "The PRA approval data source declares `microtenant_id` as Computed only, so it cannot be set in configuration, yet its read branches on `d.Get(\"microtenant_id\")` to scope the service to a microtenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_pra_approval.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "\"microtenant_id\": {",
+          "quotes": [
+            "Computed:    true,"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_pra_approval.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "microTenantID := GetString(d.Get(\"microtenant_id\"))",
+            "service = service.WithMicroTenant(microTenantID)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "microtenant-input-unavailable-pattern": {
+      "statement": "The same dead input recurs: `microtenant_id` is Computed only for the BA certificate, PRA approval, PRA console, PRA credential controller, PRA credential pool, PRA portal controller and User Portal AUP data sources, and is missing from the top-level schema for application segment inspection, multimatch bulk, service edge group and trusted network, while each of those reads `d.Get(\"microtenant_id\")`.",
+      "tier": "B",
+      "derived_from": [
+        "microtenant-input-computed-only-pra-approval"
+      ],
+      "conditions": "Search at v4.4.10 and HEAD (identical results): for each zpa/data_source_zpa_*.go containing `d.Get(\"microtenant_id\")`, inspect the first line matching `^\\t\\t\\t\"microtenant_id\": \\{` and the three lines after it; files whose block lacks Optional are 'computed-only', files with no such top-level line are 'missing'. Nested `microtenant_id` keys (indented deeper) do not count. Not parsed as Go.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "managed-browser-profile-never-scoped": {
+      "statement": "The managed browser profile data source declares `microtenant_id` as Computed only and its read calls the SDK with the unmodified client service, with no microtenant scoping at all.",
+      "tier": "B",
+      "conditions": "Absence: `git grep -c WithMicroTenant <ref> -- zpa/data_source_zpa_managed_browser_profile.go` finds nothing at v4.4.10 or HEAD. The quotes show the read starting from the unmodified service.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_managed_browser_profile.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func dataSourceManagedBrowserProfileRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "service := zClient.Service",
+            "allProfiles, _, err := managed_browser.GetAll(ctx, service)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "reads-run-unscoped-wrong-microtenant": {
+      "statement": "For these data sources an operator cannot choose the microtenant per data source: the read uses the unscoped service, so a name, ID or list lookup is made in whatever scope the client defaults to, and can return an object from a different microtenant than the one intended or miss one that exists only in the intended microtenant.",
+      "tier": "C",
+      "derived_from": [
+        "microtenant-input-unavailable-pattern",
+        "managed-browser-profile-never-scoped"
+      ],
+      "conditions": "Depends on (1) Terraform's plugin SDK giving a data source read only its configuration, so a Computed-only or undeclared `microtenant_id` reads as empty; (2) the ZPA API's behavior for a request with no microtenant (gap api-unscoped-read-scope), including whether the process environment variable or client configuration supplies one (claim inject-precedence-env-over-config).",
+      "gaps": [
+        "api-unscoped-read-scope"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "inject-precedence-env-over-config": {
+      "statement": "When a ZPA request has no `microtenantId` query parameter, the SDK takes it from the request body, then from the `ZPA_MICROTENANT_ID` environment variable, and only then from the client's configured microtenant. A set environment variable therefore overrides the configured value. One call site passes an empty string for the configured value, so on that path the configuration is never used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/common/zpa.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "func InjectMicrotentantID(body interface{}, q url.Values, microtenantIDFromConfig string) url.Values {",
+          "quotes": [
+            "microTenantID = getMicrotenantIDFromEnvVar()",
+            "microTenantID = microtenantIDFromConfig"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "q = common.InjectMicrotentantID(body, q, client.oauth2Credentials.Zscaler.Client.MicrotenantID)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/v2_client.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "q = common.InjectMicrotentantID(body, q, \"\")"
+          ]
+        }
+      ],
+      "conditions": "Which call site a given provider resource goes through is not established here.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "inject-numeric-zero-overrides-config": {
+      "statement": "A request body whose `microtenantId` is the number 0 is treated as a real value: it is non-empty after generic JSON decoding, is formatted as the string \"0\", and is injected ahead of the environment variable and the configured microtenant. A body value of 0 therefore replaces a configured microtenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/common/zpa.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "func getMicrotenantIDFromBody(body interface{}) string {",
+          "quotes": [
+            "if microTenantID, ok := dataMap[\"microtenantId\"]; ok && microTenantID != nil && microTenantID != \"\" {",
+            "return fmt.Sprintf(\"%v\", microTenantID)"
+          ]
+        }
+      ],
+      "conditions": "Reproduced with a small program calling this function with body {\"microtenantId\": 0} and configured value mt-2: the query becomes microtenantId=0. The SDK's typed models declare microtenant IDs as strings, so a numeric value arises only from a map or other body that holds a number; no numeric-typed microtenant field was found in the zpa packages (search over v3.8.42). The provider's schema descriptions treat 0 as the Default Microtenant, so what the API does with 0 is a gap.",
+      "gaps": [
+        "api-microtenant-zero"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "sdk-microtenant-name-success-returns-nothing": {
+      "statement": "When a `MicroTenantName` filter is supplied and the name lookup succeeds, the SDK's paged-list helper returns immediately with a nil list and a nil error. The caller sees a successful empty result, and the resolved microtenant ID is never applied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "mt, resp, err := getMicroTenantByName(ctx, client, *filters.MicroTenantName)",
+          "quotes": [
+            "if err == nil {",
+            "return nil, resp, err",
+            "filters.MicroTenantID = &mt.ID"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit. SDK root cause."
+        }
+      ]
+    },
+    "sdk-microtenant-name-failure-falls-through-unscoped": {
+      "statement": "When the name lookup fails (no such microtenant, or an API error), the error is discarded and the helper goes on to list objects with no microtenant in the filter, so the request carries no microtenant unless the injection precedence supplies one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "mt, resp, err := getMicroTenantByName(ctx, client, *filters.MicroTenantName)",
+          "quotes": [
+            "if mt != nil {",
+            "// Ensure Search term is sanitized correctly (prevent double encoding)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "// Build pagination struct with search filter (already converted to filter format)",
+          "quotes": [
+            "MicroTenantID: filters.MicroTenantID,"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit. SDK root cause."
+        }
+      ]
+    },
+    "sdk-microtenant-name-resolver-has-no-active-callers": {
+      "statement": "No ZPA service in the SDK and no provider data source sets the `MicroTenantName` filter, so the name resolver is reachable only by direct SDK callers.",
+      "tier": "B",
+      "derived_from": [
+        "sdk-microtenant-name-success-returns-nothing",
+        "sdk-microtenant-name-failure-falls-through-unscoped"
+      ],
+      "conditions": "Search: `git grep -n \"MicroTenantName\" v3.8.42 -- zscaler/zpa/services` in vendor/zscaler-sdk-go finds the field only in the Pagination and Filter declarations and in the resolver (response models with a json tag excluded); `git grep -n \"MicroTenantName:\" <ref> -- zpa` in vendor/terraform-provider-zpa at v4.4.10 and HEAD finds one match, in zpa/common.go, which copies a response field rather than building a Filter.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit. SDK root cause."
+        }
+      ]
+    },
+    "success-shaped-wrong-object": {
+      "statement": "In each selection defect above (name overriding ID, unmatched ID falling back to name, first-of-many) the read finishes without an error and sets the data source ID and attributes from an object the configuration did not identify, so downstream references use the wrong object's ID. The ignored schedule selectors are different: a tenant has one schedule, so they return the right object and only give false assurance that the selector was checked.",
+      "tier": "B",
+      "derived_from": [
+        "id-and-name-both-run-name-wins",
+        "invalid-id-falls-back-to-name-region",
+        "invalid-id-falls-back-to-name-isolation-profile",
+        "by-type-takes-first-element"
+      ],
+      "conditions": "Follows from the quoted control flow. Whether a wrong object is a security problem depends on what the configuration does with its ID (for example attaching it to an access policy or application segment); that is not shown by this code."
+    }
+  },
+  "gaps": {
+    "api-unscoped-read-scope": {
+      "kind": "semantic",
+      "title": "What a ZPA read with no microtenant returns",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether an unscoped data source read sees only the default microtenant or objects from other microtenants",
+      "detail": "The provider's schema descriptions say microtenant 0 means the Default Microtenant and null means all customers' data, but no captured source states what a read without the parameter returns. Test in a scratch tenant with a microtenant holding an object whose name duplicates a default-scope object: list with and without microtenantId and compare."
+    },
+    "api-microtenant-zero": {
+      "kind": "semantic",
+      "title": "How the ZPA API treats microtenantId=0",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating whether a body value of 0 selects the Default Microtenant or is rejected",
+      "detail": "Provider descriptions say to pass 0 for the Default Microtenant. Send a read with microtenantId=0 while another microtenant is configured and see which scope answers."
+    },
+    "api-list-order-and-search-match": {
+      "kind": "semantic",
+      "title": "Search matching and result order of the ZPA list endpoints used for first-element selection",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying which object a first-element lookup returns when several match",
+      "detail": "Create two application segments of one type whose names share a prefix, call getAppsByType with search set to the prefix and to the full name, and record the order and the match type (exact or substring)."
+    }
+  }
+}
