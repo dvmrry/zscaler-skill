@@ -1,0 +1,481 @@
+{
+  "schema_version": 1,
+  "id": "zia.sdk-go.service-defects",
+  "title": "ZIA Go SDK service functions that return wrong results, mutate inputs, or reject valid input",
+  "aliases": [
+    "sdk returns empty user",
+    "sublocation not found",
+    "sub-location lookup error swallowed",
+    "invalid action type ssl inspection",
+    "dc exclusion import panic",
+    "CreateDuplicate nil payload",
+    "GetVIPRecommendedList not enough vips",
+    "SDK ignores context"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.write-encoding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.error-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.pipeline"
+    }
+  ],
+  "claims": {
+    "update-admin-user-zero-result": {
+      "statement": "`UpdateAdminUser` asserts the helper's response to the value type `AdminUsers`, but the update helper builds its response object with `reflect.New`, which is a pointer. The assertion fails, its failure is discarded, and the function returns a pointer to a zero-value `AdminUsers` with a nil error, whatever the server returned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/adminuserrolemgmt/admins/adminusers.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func UpdateAdminUser(ctx context.Context, service *zscaler.Service, adminUserID int, adminUser AdminUsers) (*AdminUsers, error) {",
+          "quotes": [
+            "res, _ := resp.(AdminUsers)",
+            "return &res, err"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) {",
+          "quotes": [
+            "responseObject := reflect.New(t).Interface()"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v2_client.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) {",
+          "quotes": [
+            "responseObject := reflect.New(t).Interface()"
+          ]
+        }
+      ],
+      "conditions": "Applies to both the OneAPI and the legacy client, which build the response the same way. An empty reply body returns nil before this point and is a separate defect (see zia.sdk-go.write-encoding).",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 14 (ZIA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "admin-user-result-unused-by-provider": {
+      "statement": "The provider's admin-user update discards the value `UpdateAdminUser` returns, so the zero-value result does not reach Terraform state. The defect is observable only to other SDK callers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_admin_users.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, err := admins.UpdateAdminUser(ctx, service, id, req); err != nil {"
+          ]
+        }
+      ]
+    },
+    "sub-location-lookups-swallow-errors": {
+      "statement": "Sub-location lookups by ID and by name treat an API error as \"keep looking\". `GetSubLocationBySubID` ignores the error from each parent's lookup and only returns on success, and `GetSubLocationByName` discards the error from listing sub-locations outright. A permission, rate-limit, or server error on every parent ends as the synthetic \"not found\" error (by ID) or \"no sublocation found\" (by name). `GetLocationOrSublocationByID` and `...ByName` do the same with their first lookup, falling through to the sub-location search on any error. By name, an error listing the parent locations themselves is still returned; only the per-parent sub-location errors are dropped.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/location/locationmanagement/locationmanagement.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err == nil && subLoc != nil {",
+            "return nil, fmt.Errorf(\"sublocation not found: %d\", subLocationID)\n}\n\n// GetSublocations gets all",
+            "subLocs, _ := GetSublocations(context.Background(), service, location.ID)",
+            "location, err := GetLocation(context.Background(), service, id)\n\tif err == nil && location != nil {"
+          ]
+        }
+      ],
+      "conditions": "What an operator sees depends on which status the API returns; the code shows only that the error is dropped, not which statuses occur.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 14 (ZIA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "sub-location-lookups-drop-caller-context": {
+      "statement": "Several location helpers receive a caller `ctx` and then call the API with `context.Background()`, so cancellation and deadlines do not reach those requests. The sub-location lookups by ID and by names are examples.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/location/locationmanagement/locationmanagement.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "locations, err := GetSublocations(context.Background(), service, locationID)",
+            "location, err := GetLocationByName(context.Background(), service, locationName)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 14 (ZIA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "provider-location-lookups-use-these-helpers": {
+      "statement": "The provider's location resource importer (by name), read and update (by ID), and its data source call the combined location-or-sub-location lookups and `GetSubLocationByNames`, so they inherit the dropped errors and the dropped context.",
+      "tier": "A",
+      "derived_from": [
+        "sub-location-lookups-swallow-errors",
+        "sub-location-lookups-drop-caller-context"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_location_management.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "res, err := locationmanagement.GetLocationOrSublocationByID(ctx, service, id)",
+            "res, err := locationmanagement.GetLocationOrSublocationByName(ctx, service, name)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := locationmanagement.GetLocationOrSublocationByName(ctx, service, id)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := locationmanagement.GetLocationOrSublocationByID(ctx, service, id)",
+            "if _, err := locationmanagement.GetLocationOrSublocationByID(ctx, service, id); err != nil {"
+          ]
+        }
+      ]
+    },
+    "url-review-update-drops-context": {
+      "statement": "`UpdateURLReview` takes a `ctx` and sends its request with `context.Background()`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlcategories/urlcategories.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.UpdateWithSlicePayload(context.Background(), urlCategoriesEndpoint+\"/review/domains\", reviews)"
+          ]
+        }
+      ],
+      "conditions": "No call to this function was found in the provider at v4.8.3 (git grep for UpdateURLReview in zia/), so the provider does not currently inherit it.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 14 (ZIA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "context-background-sites": {
+      "statement": "Within the ZIA services directory the only places that replace a caller's context with `context.Background()` are in the location management package (nine) and `UpdateURLReview` (one).",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlcategories/urlcategories.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "service.Client.UpdateWithSlicePayload(context.Background(),"
+          ]
+        }
+      ],
+      "conditions": "Search: `git -C vendor/zscaler-sdk-go grep -n 'context.Background()' <ref> -- zscaler/zia/services`, test files excluded, at v3.8.44 and HEAD. At HEAD the match counts are 9 in locationmanagement.go and 1 in urlcategories.go; at v3.8.44 the listing shows the same lines. Other ZIA packages that use a different mechanism to drop the context (for example a client constructed without it) were not searched for.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 14 (ZIA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "url-filtering-get-fallback-swallows-error": {
+      "statement": "For an ISOLATE rule whose GET by ID returned no `cbiProfile`, `Get` calls `GetAll` to fill it in. If `GetAll` fails, the error is not examined and the incomplete rule is returned with a nil error; the same happens if the rule is absent from the list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func Get(ctx context.Context, service *zscaler.Service, ruleID int) (*URLFilteringRule, error) {",
+          "quotes": [
+            "allRules, getAllErr := GetAll(ctx, service)",
+            "if getAllErr == nil {",
+            "return &rule, nil"
+          ]
+        }
+      ],
+      "conditions": "The fallback runs only when the rule's action is ISOLATE, `CBIProfile` is nil, and `CBIProfileID` is non-zero. The first, per the SDK's own comment, depends on the API omitting the profile from GET by ID; that is server behavior this file does not establish. See [[zia.url-filtering]] for the rule model.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 14 (ZIA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "ssl-validator-requires-conditional-fields": {
+      "statement": "The SSL inspection SDK validates every create and update before sending. It switches on `Action.Type` and its default branch rejects any value other than DECRYPT, DO_NOT_DECRYPT, or BLOCK, including the empty string. Under DECRYPT it also rejects an unset sub-action block or empty `ServerCertificates`, `MinClientTLSVersion`, or `MinServerTLSVersion`; under DO_NOT_DECRYPT it requires or forbids certificate and TLS fields depending on `BypassOtherPolicies`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "rule.Action.DecryptSubActions.MinServerTLSVersion == \"\" {",
+            "return fmt.Errorf(\"invalid action type: %s\", rule.Action.Type)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func Create(ctx context.Context, service *zscaler.Service, rule *SSLInspectionRules) (*SSLInspectionRules, error) {",
+          "quotes": [
+            "if err := validateSSLInspectionRule(rule); err != nil {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, ruleID int, rule *SSLInspectionRules) (*SSLInspectionRules, error) {",
+          "quotes": [
+            "if err := validateSSLInspectionRule(rule); err != nil {"
+          ]
+        }
+      ],
+      "conditions": "The conditional rules may mirror the ZIA API contract; the code shows only that the SDK enforces them locally and returns an error before any request. Whether the API would accept the rejected bodies is gap ssl-action-api-contract.",
+      "gaps": [
+        "ssl-action-api-contract"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 14 (ZIA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "provider-checks-ssl-action-at-plan-time": {
+      "statement": "The provider declares `action` optional on the SSL inspection rule, but its CustomizeDiff rejects a missing `action` block at plan time (`action block must be set`) and also rejects a DECRYPT action with empty server certificates or TLS versions. So the SDK validator is a second line that Terraform users do not normally reach; it matters to direct SDK callers that send a zero or partial `Action`.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_ssl_inspection_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {",
+            "return fmt.Errorf(\"action block must be set\")"
+          ]
+        }
+      ],
+      "conditions": "The TLS-version fields are Optional and Computed, not defaulted; the CustomizeDiff checks are read from the resource definition at v4.8.3 and the pin."
+    },
+    "extranet-update-mutates-input": {
+      "statement": "`extranet.Update` writes the ID argument into the caller's `Extranet` before sending the PUT, so the caller's object is changed even if the request then fails. After the PUT it also discards the type-assertion result and reads `updatedExtranet.ID`, which panics if the update returns an empty body (the generic updater then returns nil, nil).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/trafficforwarding/extranet/extranet.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, extranetID int, extranet *Extranet) (*Extranet, error) {",
+          "quotes": [
+            "extranet.ID = extranetID",
+            "updatedExtranet, _ := resp.(*Extranet)"
+          ]
+        }
+      ],
+      "conditions": "The provider passes the address of a freshly expanded local (`extranet.Update(ctx, service, id, &req)` in its update function), and whether that object is read again afterwards was not traced, so the effect for Terraform is probably nil. The behavior matters to other SDK callers.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 14 (ZIA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "dc-exclusion-name-lookup-nil-deref": {
+      "statement": "`dc_exclusions.GetByName` dereferences `DcName.Name` on every item, but `DcName` is a pointer tagged `omitempty`. One listed exclusion without `dcName` makes the lookup panic instead of returning an error. The provider's importer calls it for any ID that is not an integer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/trafficforwarding/dc_exclusions/dc_exclusions.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "DcName      *common.IDNameExtensions `json:\"dcName,omitempty\"`",
+            "if strings.EqualFold(dcExclusions[i].DcName.Name, dcName) {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_dc_exclusions.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := dc_exclusions.GetByName(ctx, service, id)"
+          ]
+        }
+      ],
+      "conditions": "Panics only if the API returns at least one exclusion with no `dcName` object, ahead of the match in list order. Whether the API ever omits it is server behavior and was not observed.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 14 (ZIA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "cloud-app-duplicate-cannot-send": {
+      "statement": "`CreateDuplicate` for cloud app control rules passes a nil payload to `Create`, which (in both the OneAPI and legacy clients) returns an error for a nil payload before making any request. The helper also interpolates the new name into the query string without escaping it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "url := fmt.Sprintf(\"%s/%s/duplicate/%d?name=%s\", webApplicationRulesEndpoint, ruleType, ruleID, newName)",
+            "resp, err := service.Client.Create(ctx, url, nil)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "return nil, errors.New(\"tried to create with a nil payload not a Struct\")"
+          ]
+        }
+      ],
+      "conditions": "The legacy client's `Create` has the same nil-payload check, so both clients reject the request. No provider call to CreateDuplicate was found at v4.8.3 (git grep in zia/).",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 14 (ZIA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "vip-recommended-fallback-cannot-add": {
+      "statement": "`GetVIPRecommendedList`'s \"ensure at least two\" loop iterates the existing list and appends a VIP only if its ID is not already in that same list, which is never true, so the list cannot grow; a one-VIP response ends in the \"not enough vips\" error. Separately, the function calls every option callback unchecked, so a nil option panics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/trafficforwarding/virtualipaddress/virtualipaddress.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func GetVIPRecommendedList(ctx context.Context, service *zscaler.Service, options ...func(*url.Values)) (*[]GREVirtualIPList, error) {",
+          "quotes": [
+            "if !containsVIP(zscalerVips, vip) {\n\t\t\t\tzscalerVips = append(zscalerVips, vip)",
+            "option(&queryParams)",
+            "return nil, fmt.Errorf(\"not enough vips, got %d vips, required: %d\", len(zscalerVips), 2)"
+          ]
+        }
+      ],
+      "conditions": "Whether the API can return a single VIP, and whether that should be an error, is the remaining contract question; the provider's data source is the only consumer found.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 14 (ZIA SDK services) of the 2026-08 provider audit."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ssl-action-api-contract": {
+      "kind": "semantic",
+      "title": "Whether the ZIA API accepts the SSL inspection action bodies the SDK validator rejects",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "telling whether the SDK validator is stricter than the API or only mirrors it",
+      "detail": "Build a rule body with an omitted action, and a DECRYPT action with empty certificate and TLS fields, and send each straight to the SSL inspection endpoint in a scratch tenant. Record whether the API rejects, defaults, or accepts them."
+    }
+  }
+}

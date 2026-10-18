@@ -1,0 +1,563 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.terraform.delete-detach",
+  "title": "How the ZTC Terraform provider detaches references before deleting objects",
+  "aliases": [
+    "ztc terraform destroy network service group",
+    "DetachRuleIDNameExtensions ztc",
+    "ztc_network_service_groups destroy",
+    "ztc destroy ip source group still referenced",
+    "ztc destroy ip pool group",
+    "group deleted but forwarding rule still references it"
+  ],
+  "binds": [
+    "ztw/forwarding-rules#nwServiceGroups",
+    "ztw/forwarding-rules#nwApplicationGroups"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.rule-protection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.delete-detach"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.rule-order"
+    }
+  ],
+  "claims": {
+    "helper-sweeps-forwarding-rules-only": {
+      "statement": "The helper lists forwarding rules and nothing else, and its getter and setter closures are typed on the forwarding rule model. It never lists the DNS rules or log rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/utils.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "rules, err := forwarding_rules.GetAll(ctx, service)"
+          ],
+          "after": "func DetachRuleIDNameExtensions("
+        }
+      ]
+    },
+    "rule-types-are-separate-endpoints": {
+      "statement": "In the Go SDK, forwarding rules, DNS rules and log rules are three separate endpoints, so listing forwarding rules does not return the other two rule types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "forwardingRulesEndpoint = \"/ztw/api/v1/ecRules/ecRdr\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/traffic_dns_rules/traffic_dns_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "dnsRulesEndpoint = \"/ztw/api/v1/ecRules/ecDns\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/traffic_log_rules/traffic_log_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "logRulesEndpoint = \"/ztw/api/v1/ecRules/self\""
+          ]
+        }
+      ]
+    },
+    "helper-label-selects-nothing": {
+      "statement": "The `resource` string a caller passes to the helper is used only in a log line. Which field is swept is decided entirely by the getter and setter closures.",
+      "tier": "B",
+      "conditions": "Absence claim: read the whole helper body at both refs; `resource` appears in the signature and in the one log call quoted here, and nowhere else.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/utils.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "log.Printf(\"[INFO] Detaching filtering rule from %s: %d\\n\", resource, id)"
+          ],
+          "after": "func DetachRuleIDNameExtensions("
+        }
+      ]
+    },
+    "helper-callers": {
+      "statement": "Four resources call this helper on delete: IP destination groups, IP source groups, network services, and network service groups.",
+      "tier": "B",
+      "conditions": "Count from `git grep -n DetachRuleIDNameExtensions` over ztc/ at v0.2.0 and at the pin; both refs list the same four call sites plus the declaration. Each call site's field choice is quoted in the claims below.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_destination_groups.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "return r.DestIpGroups"
+          ],
+          "after": "func resourceIPDestinationGroupsDelete("
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_source_groups.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "return r.SrcIpGroups"
+          ],
+          "after": "func resourceIPSourceGroupsGroupsDelete("
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_network_services.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "return r.NwServices"
+          ],
+          "after": "func resourceNetworkServicesDelete("
+        }
+      ]
+    },
+    "service-group-delete-sweeps-nw-application-groups": {
+      "statement": "Deleting a network service group calls the helper labelled \"NwApplicationGroups\", with getter and setter closures over the forwarding rule's `NwApplicationGroups` field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_network_services_groups.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"NwApplicationGroups\",",
+            "return r.NwApplicationGroups",
+            "r.NwApplicationGroups = ids"
+          ],
+          "after": "func resourceNetworkServiceGroupsDelete("
+        }
+      ]
+    },
+    "forwarding-rule-separates-service-groups": {
+      "statement": "The forwarding rule model has separate `NwApplicationGroups` and `NwServiceGroups` fields, and the ZTC forwarding rule resource writes its `nw_service_groups` argument to `NwServiceGroups`.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#nwServiceGroups",
+        "ztw/forwarding-rules#nwApplicationGroups"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "NwApplicationGroups []common.IDNameExtensions `json:\"nwApplicationGroups,omitempty\"`",
+            "NwServiceGroups []common.IDNameExtensions `json:\"nwServiceGroups,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "NwServiceGroups:             expandIDNameExtensionsSet(d, \"nw_service_groups\"),"
+          ]
+        }
+      ]
+    },
+    "service-group-delete-follows-detach": {
+      "statement": "The network service group delete removes the group whenever the helper returns no error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_network_services_groups.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, err := networkservicegroups.DeleteNetworkServiceGroups(ctx, service, id); err != nil {"
+          ],
+          "after": "func resourceNetworkServiceGroupsDelete("
+        }
+      ]
+    },
+    "service-group-references-not-detached": {
+      "statement": "So deleting a network service group never removes the group from the `nwServiceGroups` of the forwarding rules that use it, and the delete follows regardless.",
+      "tier": "B",
+      "derived_from": [
+        "service-group-delete-sweeps-nw-application-groups",
+        "forwarding-rule-separates-service-groups",
+        "service-group-delete-follows-detach"
+      ],
+      "conditions": "Depends on no other code in the delete path touching nwServiceGroups (the delete function body at both refs contains only the helper call and the group delete). What ZTC then does with a group that rules still reference is gap in-use-enforcement.",
+      "binds": [
+        "ztw/forwarding-rules#nwServiceGroups"
+      ],
+      "gaps": [
+        "in-use-enforcement"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "service-group-delete-can-strip-unrelated-application-groups": {
+      "statement": "The same sweep removes any entry whose numeric ID equals the network service group's ID from the network application groups of every forwarding rule, a different kind of object.",
+      "tier": "C",
+      "derived_from": [
+        "service-group-delete-sweeps-nw-application-groups",
+        "helper-sweeps-forwarding-rules-only"
+      ],
+      "conditions": "Code shows the match is on ID alone. It matters only if a network service group and a network application group can share a numeric ID (gap id-namespace).",
+      "binds": [
+        "ztw/forwarding-rules#nwApplicationGroups"
+      ],
+      "gaps": [
+        "id-namespace"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "dns-rules-reference-ip-groups": {
+      "statement": "The DNS rule model has its own source and destination IP group fields, and the ZTC DNS rule resource writes them. They use the same field names and reference type as the forwarding-rule fields that the IP source group and IP destination group deletes sweep.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/traffic_dns_rules/traffic_dns_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "SrcIpGroups []common.IDNameExtensions `json:\"srcIpGroups,omitempty\"`",
+            "DestIpGroups []common.IDNameExtensions `json:\"destIpGroups,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "SrcIpGroups:     expandIDNameExtensionsSet(d, \"src_ip_groups\"),",
+            "DestIpGroups:    expandIDNameExtensionsSet(d, \"dest_ip_groups\"),"
+          ]
+        }
+      ]
+    },
+    "ip-group-delete-follows-detach": {
+      "statement": "The IP source group and IP destination group deletes remove the group whenever the helper returns no error. Their closures cover only the forwarding rule's `SrcIpGroups` and `DestIpGroups` respectively.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_source_groups.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "r.SrcIpGroups = ids",
+            "if _, err := ipsourcegroups.Delete(ctx, service, id); err != nil {"
+          ],
+          "after": "func resourceIPSourceGroupsGroupsDelete("
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_destination_groups.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "r.DestIpGroups = ids",
+            "if _, err := ipdestinationgroups.Delete(ctx, service, id); err != nil {"
+          ],
+          "after": "func resourceIPDestinationGroupsDelete("
+        }
+      ]
+    },
+    "ip-group-references-in-dns-rules-not-detached": {
+      "statement": "So deleting an IP source group or IP destination group never removes it from DNS rules that use it. The detach step edits only forwarding rules, and the delete follows regardless.",
+      "tier": "B",
+      "derived_from": [
+        "helper-sweeps-forwarding-rules-only",
+        "rule-types-are-separate-endpoints",
+        "dns-rules-reference-ip-groups",
+        "ip-group-delete-follows-detach"
+      ],
+      "conditions": "Depends on no other code in the two delete functions touching DNS rules (each body at both refs contains only the helper call and the group delete), and on the DNS rules actually holding references to these groups on the server. What ZTC then does with a group that rules still reference is gap in-use-enforcement. Log rules were not found to have IP group fields in the SDK model (grep of srcIpGroups|destIpGroups over traffic_log_rules.go at v3.8.40 returned nothing).",
+      "gaps": [
+        "in-use-enforcement"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "get-failure-skips-update-silently": {
+      "statement": "For each rule that references the object, the helper first re-reads the rule. If that read fails, the rule is skipped: the update is inside `if err == nil`, and the failure is neither logged nor returned, so the helper still returns nil.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/utils.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "_, err = forwarding_rules.Get(ctx, service, rule.ID)",
+            "if err == nil {"
+          ],
+          "after": "func DetachRuleIDNameExtensions("
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "reread-result-discarded": {
+      "statement": "The re-read is only an existence gate: its result is discarded, and the update sends the rule copy taken from the earlier listing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/utils.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "_, err = forwarding_rules.Update(ctx, service, rule.ID, &rule)"
+          ],
+          "after": "func DetachRuleIDNameExtensions("
+        }
+      ]
+    },
+    "five-second-sleep-per-rule": {
+      "statement": "The helper sleeps five seconds for each rule that references the object, before re-reading it, even if that rule is then skipped.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/utils.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "time.Sleep(time.Second * 5)"
+          ],
+          "after": "func DetachRuleIDNameExtensions("
+        }
+      ]
+    },
+    "update-is-put-of-snapshot": {
+      "statement": "In the Go SDK, the forwarding rule update is a PUT of the rule struct it is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.UpdateWithPutResource(ctx, fmt.Sprintf(\"%s/%d\", forwardingRulesEndpoint, ruleID), *rules)"
+          ],
+          "after": "func Update("
+        }
+      ]
+    },
+    "stale-snapshot-put": {
+      "statement": "So the detach writes back the rule as it was when the helper listed all rules, minus the one reference, after a five-second wait and a re-read it ignores. Edits made to that rule in between are not part of what is sent.",
+      "tier": "B",
+      "derived_from": [
+        "reread-result-discarded",
+        "five-second-sleep-per-rule",
+        "update-is-put-of-snapshot"
+      ],
+      "conditions": "Depends on ZTC treating the PUT as a replacement of the rule and not merging or rejecting a stale body (gap put-semantics). The listing is taken once, before the loop, so with several referencing rules the later snapshots are older still.",
+      "gaps": [
+        "put-semantics"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "masked-read-failure-reaches-delete": {
+      "statement": "So a transient failure re-reading one referencing rule leaves that rule attached, yet the group delete is still attempted and the resource reports success if ZTC accepts it. The operator sees either an in-use refusal on the delete or a deleted group still referenced in policy.",
+      "tier": "B",
+      "derived_from": [
+        "get-failure-skips-update-silently",
+        "service-group-delete-follows-detach",
+        "ip-group-delete-follows-detach"
+      ],
+      "conditions": "Depends on how ZTC answers a delete of an object that rules still reference (gap in-use-enforcement); no captured source states it.",
+      "gaps": [
+        "in-use-enforcement"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "ztc-helper-matches-zia-except-rule-type": {
+      "statement": "The ZTC helper has the same control flow as the ZIA helper: list all rules once, filter the target ID out of one field, sleep five seconds, re-read and discard, then PUT the stale copy only when the re-read succeeded. The differences are the rule type (forwarding rules here, firewall filtering rules there) and the number of callers (four here, nine there). ZTC's helper carries no RESOURCE_IN_USE comment.",
+      "tier": "B",
+      "conditions": "Line-by-line comparison of the helper bodies at tf-zia v4.8.3 and tf-ztc v0.2.0; the two differ only in the package names, the model type, and `GetAll(ctx, service)` versus `GetAll(ctx, service, nil)`. The ZIA caller count is from its own subject, not re-run here.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/utils.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "time.Sleep(time.Second * 5)",
+            "if err == nil {"
+          ],
+          "after": "func DetachRuleIDNameExtensions("
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "time.Sleep(time.Second * 5)",
+            "_, err = filteringrules.Update(ctx, service, rule.ID, &rule)"
+          ],
+          "after": "func DetachRuleIDNameExtensions("
+        }
+      ]
+    },
+    "ip-pool-delete-calls-no-detach": {
+      "statement": "The IP pool group resource deletes the pool directly and does not call the detach helper.",
+      "tier": "B",
+      "conditions": "Absence claim: the delete function body at both refs holds only the delete call, and `git grep DetachRuleIDNameExtensions` lists no call in resource_ztc_ip_pool_groups.go at v0.2.0 or the pin. Whether any rule type holds a reference that needs detaching is gap ip-pool-references; the provider code references no DNS-related field in this resource.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_pool_groups.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, err := ipgroups.Delete(ctx, service, id); err != nil {"
+          ],
+          "after": "func resourceIPPoolSourceGroupsDelete("
+        }
+      ],
+      "gaps": [
+        "ip-pool-references"
+      ]
+    }
+  },
+  "gaps": {
+    "in-use-enforcement": {
+      "kind": "semantic",
+      "title": "How ZTC treats deleting an object that rules still reference",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating whether a missed detach shows up as a failed delete or as a dangling reference",
+      "detail": "The ZTC helper carries no comment about the API's behavior. No captured source says whether ZTC refuses deleting a service group, IP group or network service that forwarding or DNS rules still reference. Test in a scratch tenant: reference an object from a rule, delete the object directly, and re-read the rule."
+    },
+    "id-namespace": {
+      "kind": "semantic",
+      "title": "Whether numeric IDs of different ZTC object types can collide",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating whether the ID-only match can strip a reference to an unrelated object",
+      "detail": "The helper matches on numeric ID alone. Whether a network service group and a network application group can have the same ID depends on server-side ID allocation, which no captured source describes. Compare IDs across object types in a scratch tenant."
+    },
+    "put-semantics": {
+      "kind": "semantic",
+      "title": "Whether a stale PUT to a ZTC forwarding rule overwrites newer edits",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating whether the stale snapshot loses concurrent edits or is rejected",
+      "detail": "The client sends the whole rule it listed earlier. Whether ZTC replaces the rule, merges fields, or rejects an out-of-date body is server behavior. Test in a scratch tenant: list a rule, edit it elsewhere, then PUT the old copy."
+    },
+    "ip-pool-references": {
+      "kind": "semantic",
+      "title": "Whether deleting an IP pool group needs references detached first",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "stating whether the missing detach in the IP pool delete matters",
+      "detail": "The provider docs say an IP pool group is associated with traffic forwarding rules, and the audit lead suggested DNS forwarding references. Provider and SDK code show no reference from DNS rules or DNS gateways to an IP pool group, and no delete-time handling. Reference a pool from each rule and gateway type that accepts one, delete it, and record the response."
+    }
+  }
+}
