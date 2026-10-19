@@ -2,6 +2,8 @@
 // scripts/kb.mjs — the knowledge-graph CLI.
 //
 //   validate [--no-citations]        schema + reference + prose + citation checks
+//   lint [--json] [--strict]         deterministic Tier A evidence checks (version, identifier, number);
+//                                    --strict exits 1 on any error-level finding
 //   resolve <id | text> [--overlay <dir> | --no-overlay] [--evidence] [--cases] [--pretty]
 //     The overlay defaults to $ZSCALER_KB_OVERLAY, then <runtime-data mount>/overlay if it has overlay.json.
 //                                    one layer-labelled bundle (JSON on stdout)
@@ -25,7 +27,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 function usage(msg) {
   if (msg) console.error(`kb: ${msg}`);
-  console.error("usage: kb.mjs <validate|resolve|render|manifest|verified|export-zscalerctl|import-types|migrate-links|surface|freshness> [args]");
+  console.error("usage: kb.mjs <validate|lint|resolve|render|manifest|verified|export-zscalerctl|import-types|migrate-links|surface|freshness> [args]");
   process.exit(2);
 }
 
@@ -66,6 +68,15 @@ async function main(argv) {
     const r = freshness(g, { days, upstream: args.includes("--upstream") });
     process.stdout.write(json ? `${JSON.stringify(r, null, 2)}\n` : freshnessText(r));
     return 0;
+  }
+  if (cmd === "lint") {
+    const { lintGraph } = await import("./kb-lint.mjs");
+    const findings = lintGraph(g);
+    if (args.includes("--json")) process.stdout.write(`${JSON.stringify(findings, null, 2)}\n`);
+    else for (const f of findings) console.log(`${f.level}: ${f.file}: ${f.id}: ${f.check} not in evidence: ${f.missing.join(", ")}`);
+    const count = (level) => findings.filter((f) => f.level === level).length;
+    console.error(`kb lint: ${count("error")} errors, ${count("warning")} warnings`);
+    return args.includes("--strict") && count("error") ? 1 : 0;
   }
   if (cmd === "validate") {
     const { errors, warnings, stats } = validateGraph(g, { citations: !args.includes("--no-citations") });
