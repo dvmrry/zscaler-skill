@@ -13,7 +13,9 @@
 // Code is read at the submodule pin (HEAD); the spec is a committed capture, identified by its hash.
 // The output changes only when a pin or the captured spec changes.
 //
-// Usage: node scripts/gen-surfaces.mjs [zia|zpa|zcc|ztw] [--check]
+// A product may lack a spec, a Go SDK or a Terraform provider; that part of its layer is then empty.
+//
+// Usage: node scripts/gen-surfaces.mjs [zia|zpa|zcc|ztw|zdx|zid|aiguard|aisec|bi|easm|zcell|zwa|zms|ztb|zins] [--check]
 //   --check  exit 1 if the committed file differs from what the pins generate.
 
 import { createHash } from "node:crypto";
@@ -72,6 +74,24 @@ const PRODUCTS = {
     pyModules: "zscaler/ztw",
     pyBases: true,
   },
+  // The products below have no Terraform provider. Their Go services build paths from string constants
+  // (`ongoingEndpoint = baseEndpoint + "/ongoing"`, `fmt.Sprintf("%s/%s", apiClientsEndpoint, id)`), which
+  // `goConsts` resolves; their Python modules template a base held in any `_name` attribute
+  // (`{self._zbi_base_endpoint}/report/download`, `{self._ztb_base_v2}/devices`).
+  zdx: { spec: "automate-zscaler/openapi/zdx.openapi.json", base: "/zdx", goServices: "zscaler/zdx/services", goConsts: true, pyModules: "zscaler/zdx", pyBases: true },
+  zid: { spec: "automate-zscaler/openapi/zid.openapi.json", base: "/ziam/admin/api/v1", goServices: "zscaler/ziam/services", goConsts: true, pyModules: "zscaler/zid", pyBases: true },
+  aiguard: { spec: "automate-zscaler/openapi/aiguard.openapi.json", base: "/aiguard", pyModules: "zscaler/aiguard", pyBases: true },
+  // AI Security (AI Red Teaming and AI-SPM): a spec with two servers (`/aisecurity/airt`, `/aisecurity/aispm`) and no SDK.
+  aisec: { spec: "automate-zscaler/openapi/ai-security.openapi.json", base: "/aisecurity" },
+  // Business Insights. The Python SDK calls it `zbi` (`client.zbi`), which is not the KB's `zbi` (Zero Trust Browser).
+  bi: { spec: "automate-zscaler/openapi/bi.openapi.json", base: "/bi", pyModules: "zscaler/zbi", pyBases: true },
+  easm: { spec: "automate-zscaler/openapi/easm.openapi.json", base: "/easm/easm-ui/v1", pyModules: "zscaler/zeasm", pyBases: true },
+  zcell: { spec: "automate-zscaler/openapi/zcell.openapi.json", base: "/zcell/config", pyModules: "zscaler/zcell", pyBases: true },
+  // No captured spec: the layer lists SDK calls and their paths only. ZMS and Z-Insights are one GraphQL endpoint each.
+  zwa: { base: "/zwa", goServices: "zscaler/zwa/services", goConsts: true, pyModules: "zscaler/zwa", pyBases: true },
+  zms: { base: "/zms", pyModules: "zscaler/zms", pyBases: true },
+  ztb: { base: "/ztb", pyModules: "zscaler/ztb", pyBases: true },
+  zins: { base: "/zins", pyModules: "zscaler/zins", pyBases: true },
 };
 const P = PRODUCTS[product];
 if (!P) throw new Error(`unknown product ${product}; known: ${Object.keys(PRODUCTS).join(", ")}`);
@@ -85,8 +105,8 @@ const pin = (repo) => git(repo, "rev-parse", "HEAD").trim();
 const shape = (p) => p.replace(/\{[^}]*\}|%[dsv]/g, "{}").replace(/\/+$/, "");
 
 // ---------------------------------------------------------------- API
-const specText = fs.readFileSync(path.join(ROOT, "vendor/zscaler-api-specs", P.spec), "utf8");
-const spec = JSON.parse(specText);
+const specText = P.spec ? fs.readFileSync(path.join(ROOT, "vendor/zscaler-api-specs", P.spec), "utf8") : null;
+const spec = specText ? JSON.parse(specText) : { paths: {} };
 const api = {};
 for (const [p, ops] of Object.entries(spec.paths)) {
   api[p] = {};
@@ -150,19 +170,56 @@ function stripGoComments(src) {
   return out;
 }
 
+/**
+ * Paths a Go service package builds from string constants: every constant that resolves to a path
+ * (`alertEndpoint = baseEndpoint + "/%s"`), and every `fmt.Sprintf` whose format is a path or starts with
+ * a constant, its verbs filled from constant arguments and left as `{}` otherwise.
+ */
+function constGo(src) {
+  const exprs = new Map([...src.matchAll(/^\s*(\w+)\s*(?:string\s*)?=\s*((?:"[^"\n]*"|\w+)(?:\s*\+\s*(?:"[^"\n]*"|\w+))*)\s*$/gm)].map((m) => [m[1], m[2]]));
+  const consts = {};
+  const value = (tok) => (tok.startsWith('"') ? tok.slice(1, -1) : consts[tok]);
+  for (let changed = true; changed; ) {
+    changed = false;
+    for (const [name, expr] of exprs) {
+      if (name in consts) continue;
+      const parts = expr.split(/\s*\+\s*/).map(value);
+      if (parts.every((v) => v !== undefined)) { consts[name] = parts.join(""); changed = true; }
+    }
+  }
+  const out = new Set();
+  const suffixes = new Set(); // constants only ever appended to another path (`scoreEndpoint = "/score"`)
+  for (const m of src.matchAll(/fmt\.Sprintf\(\s*("[^"]*"|\w+)((?:\s*,\s*[\w.]+(?:\(\))?)*)\s*\)/g)) {
+    const format = value(m[1]);
+    if (format === undefined) continue;
+    const argv = m[2].split(",").map((a) => a.trim()).filter(Boolean);
+    if (!format.startsWith("%")) argv.forEach((a) => suffixes.add(a));
+    else argv.slice(1).forEach((a) => suffixes.add(a));
+    let k = 0;
+    const p = format.replace(/%[a-z]/g, () => { const v = consts[argv[k++]]; return v ?? "{}"; });
+    if (/^\/[A-Za-z]/.test(p)) out.add(p);
+  }
+  for (const [name, v] of Object.entries(consts)) if (/^\/[A-Za-z]/.test(v) && !suffixes.has(name)) out.add(v);
+  return [...out];
+}
+
 const sdkGo = {};
-for (const file of list("zscaler-sdk-go", P.goServices)) {
+// Constants may sit in another file of the same package, so constGo reads each package whole.
+const goPackageSrc = {};
+for (const file of P.goServices ? list("zscaler-sdk-go", P.goServices) : []) {
   if (!file.endsWith(".go") || file.endsWith("_test.go")) continue;
   const pkg = path.posix.dirname(file).slice(P.goServices.length + 1);
   const src = stripGoComments(show("zscaler-sdk-go", file));
   if (!sdkGo[pkg]) sdkGo[pkg] = { endpoints: new Set(), functions: new Set() };
   const entry = sdkGo[pkg];
-  if (P.assembled) for (const e of assembledGo(src)) entry.endpoints.add(e);
+  if (P.goConsts) goPackageSrc[pkg] = (goPackageSrc[pkg] || "") + "\n" + src;
+  else if (P.assembled) for (const e of assembledGo(src)) entry.endpoints.add(e);
   else for (const m of src.matchAll(/"(\/(?:zia\/api\/v1)?\/?[A-Za-z][\w./{}%-]*)"/g)) {
     if (m[1].startsWith(P.base) || /^\/[a-z][A-Za-z]+(\/|$)/.test(m[1])) entry.endpoints.add(m[1]);
   }
   for (const m of src.matchAll(/^func ([A-Z]\w*)\(/gm)) entry.functions.add(m[1]);
 }
+for (const [pkg, src] of Object.entries(goPackageSrc)) for (const e of constGo(src)) sdkGo[pkg].endpoints.add(e);
 for (const e of Object.values(sdkGo)) {
   e.endpoints = [...e.endpoints].sort();
   e.functions = [...e.functions].sort();
@@ -171,74 +228,79 @@ for (const e of Object.values(sdkGo)) {
 
 // ---------------------------------------------------------------- Python SDK
 const sdkPython = {};
-for (const file of list("zscaler-sdk-python", P.pyModules)) {
+for (const file of P.pyModules ? list("zscaler-sdk-python", P.pyModules) : []) {
   if (!file.endsWith(".py") || path.posix.dirname(file) !== P.pyModules || file.endsWith("__init__.py")) continue;
   const src = show("zscaler-sdk-python", file);
   const cls = src.match(/^class (\w+API)\b/m);
   if (!cls) continue;
   // ZPA modules template their base (`self._zpa_base_endpoint = f"/zpa/.../customers/{customer_id}"`).
-  const bases = Object.fromEntries([...src.matchAll(/self\.(_\w*base_endpoint\w*)\s*=\s*f?"([^"]+)"/g)].map((m) => [m[1], m[2]]));
-  const endpoints = [...new Set([...src.matchAll(/\{self\.(_\w*base_endpoint\w*)\}\s*(\/[A-Za-z][^\s"'`)]*)/g)].map((m) =>
-    P.pyBases && bases[m[1]] ? bases[m[1]] + m[2] : m[2]))].sort();
+  const bases = Object.fromEntries([...src.matchAll(/(?:self\.|^    )(_\w+)\s*=\s*f?"(\/[^"]*)"/gm)].map((m) => [m[1], m[2]]));
+  // A base followed by a path (`{self._x}/users`), or a base that is the whole URL (`format_url(self._zms_base_endpoint)`,
+  // one GraphQL endpoint); a base followed by a variable (`{self._x}{endpoint_path}`) names no path.
+  const uses = [...src.matchAll(/\{self\.(_\w+)\}\s*(\/[A-Za-z{][^\s"'`)]*)|format_url\(self\.(_\w+)\)/g)]
+    .map((m) => [m[1] || m[3], m[2] || ""]).filter(([b, rest]) => rest || bases[b]);
+  const endpoints = [...new Set(uses.map(([b, rest]) => (P.pyBases && bases[b] ? bases[b] + rest : rest)))].sort();
   const methods = [...new Set([...src.matchAll(/^    def ([a-z]\w*)\(/gm)].map((m) => m[1]))].sort();
   sdkPython[path.posix.basename(file, ".py")] = { class: cls[1], methods, endpoints, api: [...new Set(endpoints.flatMap(apiPaths))].sort() };
 }
 
 // ---------------------------------------------------------------- Terraform
-const providerGo = show(P.provider, `${P.providerDir}/provider.go`);
-const providerFiles = list(P.provider, P.providerDir).filter((f) => f.endsWith(".go") && !f.endsWith("_test.go"));
-const funcFile = new Map();
-const fileImports = new Map();
-const providerSrc = {};
-for (const f of providerFiles) {
-  const src = show(P.provider, f);
-  providerSrc[f] = src;
-  for (const m of src.matchAll(/^func (\w+)\(/gm)) funcFile.set(m[1], f);
-  const pkgs = [...src.matchAll(new RegExp(`"github\\.com/zscaler/zscaler-sdk-go/v\\d+/${P.goServices}/([^"]+)"`, "g"))].map((m) => m[1]);
-  fileImports.set(f, [...new Set(pkgs)].sort());
-}
 const terraform = {};
-const registered = {};
-for (const [kind, mapName] of P.framework ? [] : [["resource", "ResourcesMap"], ["data-source", "DataSourcesMap"]]) {
-  const block = providerGo.slice(providerGo.indexOf(`${mapName}:`));
-  // A commented-out registration (`//"zpa_x": resourceX(),`) is not registered.
-  const body = block.slice(0, block.indexOf("\n\t\t},")).replace(/\/\/.*$/gm, "");
-  for (const m of body.matchAll(/"(\w+)":\s*(\w+)\(\)/g)) {
-    const file = funcFile.get(m[2]);
-    const sdk = file ? fileImports.get(file) : [];
-    registered[`${kind}:${m[1]}`] = m[2];
-    terraform[`${kind}:${m[1]}`] = {
-      kind, name: m[1], file: file || null, sdk_go: sdk,
-      api: [...new Set(sdk.flatMap((p) => sdkGo[p]?.api || []))].sort(),
-    };
+if (P.provider) {
+  const providerGo = show(P.provider, `${P.providerDir}/provider.go`);
+  const providerFiles = list(P.provider, P.providerDir).filter((f) => f.endsWith(".go") && !f.endsWith("_test.go"));
+  const funcFile = new Map();
+  const fileImports = new Map();
+  const providerSrc = {};
+  for (const f of providerFiles) {
+    const src = show(P.provider, f);
+    providerSrc[f] = src;
+    for (const m of src.matchAll(/^func (\w+)\(/gm)) funcFile.set(m[1], f);
+    const pkgs = [...src.matchAll(new RegExp(`"github\\.com/zscaler/zscaler-sdk-go/v\\d+/${P.goServices}/([^"]+)"`, "g"))].map((m) => m[1]);
+    fileImports.set(f, [...new Set(pkgs)].sort());
   }
-}
-// The provider's own configuration (credentials, cloud, retries and their environment variables).
-if (!P.framework) {
-  const providerFunc = providerGo.match(/^func (\w+)\(\) \*schema\.Provider \{/m)?.[1];
-  if (!providerFunc) throw new Error(`no func returning *schema.Provider in ${P.providerDir}/provider.go`);
-  registered[`provider:${product}`] = providerFunc;
-  terraform[`provider:${product}`] = { kind: "provider", name: product, file: `${P.providerDir}/provider.go`, sdk_go: [], api: [] };
-}
-// Arguments come from the schema literals, read with go/ast by scripts/tf-schema.go (stdlib only; needs
-// the go toolchain). What it cannot follow is listed per type under `unresolved`, never guessed. A Plugin
-// Framework provider's types are discovered there, from its Resources() and DataSources() lists.
-const schemas = JSON.parse(execFileSync("go", ["run", path.join(ROOT, "scripts/tf-schema.go")], {
-  input: JSON.stringify({ files: providerSrc, ...(P.framework ? { framework: true } : { types: registered }) }),
-  encoding: "utf8", maxBuffer: 256 << 20,
-}));
-if (P.framework) {
-  for (const [id, s] of Object.entries(schemas)) {
-    const [kind, name] = id.split(":");
-    const sdk = (s.file && fileImports.get(s.file)) || [];
-    terraform[id] = { kind, name, file: s.file || null, sdk_go: sdk, api: [...new Set(sdk.flatMap((p) => sdkGo[p]?.api || []))].sort() };
+  const registered = {};
+  for (const [kind, mapName] of P.framework ? [] : [["resource", "ResourcesMap"], ["data-source", "DataSourcesMap"]]) {
+    const block = providerGo.slice(providerGo.indexOf(`${mapName}:`));
+    // A commented-out registration (`//"zpa_x": resourceX(),`) is not registered.
+    const body = block.slice(0, block.indexOf("\n\t\t},")).replace(/\/\/.*$/gm, "");
+    for (const m of body.matchAll(/"(\w+)":\s*(\w+)\(\)/g)) {
+      const file = funcFile.get(m[2]);
+      const sdk = file ? fileImports.get(file) : [];
+      registered[`${kind}:${m[1]}`] = m[2];
+      terraform[`${kind}:${m[1]}`] = {
+        kind, name: m[1], file: file || null, sdk_go: sdk,
+        api: [...new Set(sdk.flatMap((p) => sdkGo[p]?.api || []))].sort(),
+      };
+    }
   }
-}
-for (const [id, t] of Object.entries(terraform)) {
-  const s = schemas[id];
-  t.arguments = s?.arguments || {};
-  if (s?.customize_diff) t.customize_diff = s.customize_diff; // plan-time checks beyond the schema
-  if (s?.unresolved?.length) t.unresolved = s.unresolved;
+  // The provider's own configuration (credentials, cloud, retries and their environment variables).
+  if (!P.framework) {
+    const providerFunc = providerGo.match(/^func (\w+)\(\) \*schema\.Provider \{/m)?.[1];
+    if (!providerFunc) throw new Error(`no func returning *schema.Provider in ${P.providerDir}/provider.go`);
+    registered[`provider:${product}`] = providerFunc;
+    terraform[`provider:${product}`] = { kind: "provider", name: product, file: `${P.providerDir}/provider.go`, sdk_go: [], api: [] };
+  }
+  // Arguments come from the schema literals, read with go/ast by scripts/tf-schema.go (stdlib only; needs
+  // the go toolchain). What it cannot follow is listed per type under `unresolved`, never guessed. A Plugin
+  // Framework provider's types are discovered there, from its Resources() and DataSources() lists.
+  const schemas = JSON.parse(execFileSync("go", ["run", path.join(ROOT, "scripts/tf-schema.go")], {
+    input: JSON.stringify({ files: providerSrc, ...(P.framework ? { framework: true } : { types: registered }) }),
+    encoding: "utf8", maxBuffer: 256 << 20,
+  }));
+  if (P.framework) {
+    for (const [id, s] of Object.entries(schemas)) {
+      const [kind, name] = id.split(":");
+      const sdk = (s.file && fileImports.get(s.file)) || [];
+      terraform[id] = { kind, name, file: s.file || null, sdk_go: sdk, api: [...new Set(sdk.flatMap((p) => sdkGo[p]?.api || []))].sort() };
+    }
+  }
+  for (const [id, t] of Object.entries(terraform)) {
+    const s = schemas[id];
+    t.arguments = s?.arguments || {};
+    if (s?.customize_diff) t.customize_diff = s.customize_diff; // plan-time checks beyond the schema
+    if (s?.unresolved?.length) t.unresolved = s.unresolved;
+  }
 }
 
 // ---------------------------------------------------------------- write
@@ -246,9 +308,10 @@ const out = {
   schema_version: 1,
   generated_by: "scripts/gen-surfaces.mjs",
   product,
+  base: P.base,
   inputs: {
-    [`zscaler-api-specs/${P.spec}`]: `sha256:${createHash("sha256").update(specText).digest("hex")}`,
-    ...Object.fromEntries(["zscaler-sdk-go", "zscaler-sdk-python", P.provider].map((r) => [r, pin(r)])),
+    ...(P.spec ? { [`zscaler-api-specs/${P.spec}`]: `sha256:${createHash("sha256").update(specText).digest("hex")}` } : {}),
+    ...Object.fromEntries([P.goServices && "zscaler-sdk-go", P.pyModules && "zscaler-sdk-python", P.provider].filter(Boolean).map((r) => [r, pin(r)])),
   },
   api,
   sdk_go: Object.fromEntries(Object.entries(sdkGo).sort()),

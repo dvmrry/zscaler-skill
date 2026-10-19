@@ -38,7 +38,7 @@ export function lookupSurface(root, query) {
       if (t.name === q || `${t.kind}:${t.name}` === q) out.push({ product, match: "terraform", ...t, operations: pick(s.api, t.api) });
     }
     if (q.startsWith("/")) {
-      const rel = shape(q.replace(/^\/[a-z]+\/api\/v\d+/, ""));
+      const rel = shape(s.base && q.startsWith(s.base + "/") ? q.slice(s.base.length) : q.replace(/^\/[a-z]+\/api\/v\d+/, ""));
       const paths = Object.keys(s.api).filter((p) => shape(p) === rel || shape(p).startsWith(rel + "/"));
       if (paths.length) out.push({ product, match: "api", operations: pick(s.api, paths), reached_by: reaching(s, paths) });
     }
