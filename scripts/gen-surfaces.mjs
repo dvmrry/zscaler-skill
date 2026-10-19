@@ -13,7 +13,7 @@
 // Code is read at the submodule pin (HEAD); the spec is a committed capture, identified by its hash.
 // The output changes only when a pin or the captured spec changes.
 //
-// Usage: node scripts/gen-surfaces.mjs [zia|zpa] [--check]
+// Usage: node scripts/gen-surfaces.mjs [zia|zpa|zcc] [--check]
 //   --check  exit 1 if the committed file differs from what the pins generate.
 
 import { createHash } from "node:crypto";
@@ -47,6 +47,19 @@ const PRODUCTS = {
     goServices: "zscaler/zpa/services",
     pyModules: "zscaler/zpa",
     assembled: true,
+    pyBases: true,
+  },
+  // ZCC: Go services carry full literal paths; Python modules template one base
+  // (`self._zcc_base_endpoint = "/zcc/papi/public/v1"`). The provider is a Plugin Framework provider.
+  zcc: {
+    spec: "automate-zscaler/openapi/zcc.openapi.json",
+    base: "/zcc",
+    provider: "terraform-provider-zcc",
+    providerDir: "internal/framework",
+    goServices: "zscaler/zcc/services",
+    pyModules: "zscaler/zcc",
+    pyBases: true,
+    framework: true,
   },
 };
 const P = PRODUCTS[product];
@@ -130,7 +143,7 @@ for (const file of list("zscaler-sdk-python", P.pyModules)) {
   // ZPA modules template their base (`self._zpa_base_endpoint = f"/zpa/.../customers/{customer_id}"`).
   const bases = Object.fromEntries([...src.matchAll(/self\.(_\w*base_endpoint\w*)\s*=\s*f?"([^"]+)"/g)].map((m) => [m[1], m[2]]));
   const endpoints = [...new Set([...src.matchAll(/\{self\.(_\w*base_endpoint\w*)\}\s*(\/[A-Za-z][^\s"'`)]*)/g)].map((m) =>
-    P.assembled && bases[m[1]] ? bases[m[1]] + m[2] : m[2]))].sort();
+    P.pyBases && bases[m[1]] ? bases[m[1]] + m[2] : m[2]))].sort();
   const methods = [...new Set([...src.matchAll(/^    def ([a-z]\w*)\(/gm)].map((m) => m[1]))].sort();
   sdkPython[path.posix.basename(file, ".py")] = { class: cls[1], methods, endpoints, api: [...new Set(endpoints.flatMap(apiPaths))].sort() };
 }
@@ -150,7 +163,7 @@ for (const f of providerFiles) {
 }
 const terraform = {};
 const registered = {};
-for (const [kind, mapName] of [["resource", "ResourcesMap"], ["data-source", "DataSourcesMap"]]) {
+for (const [kind, mapName] of P.framework ? [] : [["resource", "ResourcesMap"], ["data-source", "DataSourcesMap"]]) {
   const block = providerGo.slice(providerGo.indexOf(`${mapName}:`));
   // A commented-out registration (`//"zpa_x": resourceX(),`) is not registered.
   const body = block.slice(0, block.indexOf("\n\t\t},")).replace(/\/\/.*$/gm, "");
@@ -165,15 +178,26 @@ for (const [kind, mapName] of [["resource", "ResourcesMap"], ["data-source", "Da
   }
 }
 // The provider's own configuration (credentials, cloud, retries and their environment variables).
-const providerFunc = providerGo.match(/^func (\w+)\(\) \*schema\.Provider \{/m)?.[1];
-if (!providerFunc) throw new Error(`no func returning *schema.Provider in ${P.providerDir}/provider.go`);
-registered[`provider:${product}`] = providerFunc;
-terraform[`provider:${product}`] = { kind: "provider", name: product, file: `${P.providerDir}/provider.go`, sdk_go: [], api: [] };
+if (!P.framework) {
+  const providerFunc = providerGo.match(/^func (\w+)\(\) \*schema\.Provider \{/m)?.[1];
+  if (!providerFunc) throw new Error(`no func returning *schema.Provider in ${P.providerDir}/provider.go`);
+  registered[`provider:${product}`] = providerFunc;
+  terraform[`provider:${product}`] = { kind: "provider", name: product, file: `${P.providerDir}/provider.go`, sdk_go: [], api: [] };
+}
 // Arguments come from the schema literals, read with go/ast by scripts/tf-schema.go (stdlib only; needs
-// the go toolchain). What it cannot follow is listed per type under `unresolved`, never guessed.
+// the go toolchain). What it cannot follow is listed per type under `unresolved`, never guessed. A Plugin
+// Framework provider's types are discovered there, from its Resources() and DataSources() lists.
 const schemas = JSON.parse(execFileSync("go", ["run", path.join(ROOT, "scripts/tf-schema.go")], {
-  input: JSON.stringify({ files: providerSrc, types: registered }), encoding: "utf8", maxBuffer: 256 << 20,
+  input: JSON.stringify({ files: providerSrc, ...(P.framework ? { framework: true } : { types: registered }) }),
+  encoding: "utf8", maxBuffer: 256 << 20,
 }));
+if (P.framework) {
+  for (const [id, s] of Object.entries(schemas)) {
+    const [kind, name] = id.split(":");
+    const sdk = (s.file && fileImports.get(s.file)) || [];
+    terraform[id] = { kind, name, file: s.file || null, sdk_go: sdk, api: [...new Set(sdk.flatMap((p) => sdkGo[p]?.api || []))].sort() };
+  }
+}
 for (const [id, t] of Object.entries(terraform)) {
   const s = schemas[id];
   t.arguments = s?.arguments || {};

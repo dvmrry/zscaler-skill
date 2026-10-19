@@ -120,6 +120,79 @@ func XProvider() *schema.Provider {
   assert.deepEqual(a.cloud, { type: "string", optional: true, env: ["X_CLOUD", "Y_CLOUD"], default: "PROD" });
 });
 
+test("a Plugin Framework provider: types discovered from Resources/DataSources, attributes, blocks, validators", () => {
+  const provider = `package framework
+func (p *XProvider) Metadata(_ context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
+	resp.TypeName = "x"
+}
+func (p *XProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{"cloud": schema.StringAttribute{Optional: true}}}
+}
+func (p *XProvider) Resources(ctx context.Context) []func() resource.Resource {
+	return []func() resource.Resource{resources.NewThingResource}
+}
+func (p *XProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
+	return []func() datasource.DataSource{}
+}`;
+  const res = `package resources
+var fields = []struct {
+	name string
+	get  func() string
+}{{"alpha", nil}, {"beta", nil}}
+
+func NewThingResource() resource.Resource { return &ThingResource{} }
+
+func (r *ThingResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_thing"
+}
+
+func extra() map[string]schema.Attribute {
+	out := make(map[string]schema.Attribute, len(fields))
+	for _, f := range fields {
+		out[f.name] = schema.StringAttribute{Computed: true}
+	}
+	return out
+}
+
+func (r *ThingResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	list := func(desc string) schema.Attribute {
+		return schema.ListAttribute{Optional: true, Description: desc, ElementType: types.StringType}
+	}
+	resp.Schema = schema.Schema{
+		Attributes: map[string]schema.Attribute{
+			"mode": schema.StringAttribute{
+				Required:      true,
+				Validators:    []validator.String{stringvalidator.OneOfCaseInsensitive("ON", "OFF")},
+				PlanModifiers: []planmodifier.String{stringplanmodifier.RequiresReplace()},
+			},
+			"enabled": schema.BoolAttribute{Optional: true, Computed: true, Default: booldefault.StaticBool(true)},
+			"ips":     list("IP list."),
+			"config":  schema.SingleNestedAttribute{Computed: true, Attributes: extra()},
+		},
+		Blocks: map[string]schema.Block{
+			"rule": schema.ListNestedBlock{NestedObject: schema.NestedBlockObject{Attributes: map[string]schema.Attribute{
+				"id": schema.Int64Attribute{Required: true, Validators: []validator.Int64{int64validator.OneOf(1, 2)}},
+			}}},
+		},
+	}
+}`;
+  const out = JSON.parse(execFileSync("go", ["run", path.join(ROOT, "scripts/tf-schema.go")], {
+    input: JSON.stringify({ files: { "internal/framework/provider.go": provider, "internal/framework/resources/thing.go": res }, framework: true }),
+    encoding: "utf8",
+  }));
+  assert.deepEqual(Object.keys(out).sort(), ["provider:x", "resource:x_thing"]);
+  const t = out["resource:x_thing"];
+  assert.equal(t.file, "internal/framework/resources/thing.go");
+  assert.equal(t.unresolved, undefined);
+  const a = t.arguments;
+  assert.deepEqual(a.mode, { type: "string", required: true, force_new: true, validate: { enum: ["ON", "OFF"], ignore_case: true } });
+  assert.deepEqual(a.enabled, { type: "bool", optional: true, computed: true, default: "true" });
+  assert.deepEqual(a.ips, { type: "list", optional: true, description: "IP list.", elem_type: "string" }, "a closure held in a local");
+  assert.deepEqual(Object.keys(a.config.block), ["alpha", "beta"], "a range over a literal slice of structs");
+  assert.deepEqual(a.rule.block.id, { type: "int", required: true, validate: { enum: ["1", "2"] } });
+  assert.deepEqual(out["provider:x"].arguments.cloud, { type: "string", optional: true });
+});
+
 test("what the extractor cannot follow is listed, never guessed", () => {
   const src = `package p
 func resourceY() *schema.Resource {

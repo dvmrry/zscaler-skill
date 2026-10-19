@@ -8,15 +8,25 @@
 // The schema-building functions are interpreted, not pattern-matched: each function's statements run in
 // order with its parameters bound to the call's arguments, so locals, field assignments after construction
 // (`ids.MaxItems = *maxItems`), map writes (`m["k"] = ...`), `delete(m, "k")` and the returned value all
-// count, and a *schema.Schema or schema map is shared by reference as in Go. Both branches of an `if` run;
-// loops do not, except a merge helper (a function whose last parameter is a variadic map), whose maps are
-// merged in order. MaxItems or MinItems 0 means no limit, as in the SDK. Enum values come from
+// count, and a *schema.Schema or schema map is shared by reference as in Go. Both branches of an `if` run.
+// A `range` loop runs over a literal slice (binding struct elements, whose fields can be read) or over a
+// schema map; other loops do not run. Function literals assigned to locals can be called. A merge helper
+// (a function whose last parameter is a variadic map) merges its maps in order. MaxItems or MinItems 0 means no limit, as in the SDK. Enum values come from
 // validation.StringInSlice, through helper functions and package variables; other validators are named;
 // EnvDefaultFunc / MultiEnvDefaultFunc give `env`. What cannot be followed is listed under `unresolved`
 // rather than guessed.
 //
+// Plugin Framework providers (`"framework": true`) are read the same way: the provider's Resources() and
+// DataSources() lists give each type's constructor, the type's Metadata method its name, and its Schema
+// method (`resp.Schema = schema.Schema{Attributes: ..., Blocks: ...}`) its arguments; validators such as
+// stringvalidator.OneOf give enums, a RequiresReplace plan modifier ForceNew, Static* defaults the default.
+// Functions and package values resolve within their own package, then by package selector.
+//
 // Input:  {"files": {"zpa/x.go": "<source>"}, "types": {"resource:zpa_x": "resourceX"}}
-// Output: {"resource:zpa_x": {"arguments": {...}, "customize_diff": "...", "unresolved": [...]}}
+//
+//	or {"files": {...}, "framework": true} (types are discovered)
+//
+// Output: {"resource:zpa_x": {"arguments": {...}, "customize_diff": "...", "file": "...", "unresolved": [...]}}
 package main
 
 import (
@@ -71,6 +81,7 @@ type Arg struct {
 type Result struct {
 	Arguments     map[string]*Arg `json:"arguments"`
 	CustomizeDiff string          `json:"customize_diff,omitempty"`
+	File          string          `json:"file,omitempty"` // framework mode: the file defining the type's schema
 	Unresolved    []string        `json:"unresolved,omitempty"`
 }
 
@@ -95,16 +106,53 @@ type raw struct {
 type scope struct {
 	vars   map[string]value
 	parent *scope // nil: package level
+	pkg    string
 }
 
+// Framework method parameters: the request (carrying the provider's type name) and the response, whose
+// fields the method assigns (resp.Schema, resp.TypeName).
+type fwReq struct{ providerTypeName string }
+
+// A struct element of a literal slice: its fields by name (keyed) or by position in the struct type.
+type structLit struct {
+	lit    *ast.CompositeLit
+	fields []string
+	sc     *scope
+}
+
+func (s structLit) field(name string) (ast.Expr, bool) {
+	for i, el := range s.lit.Elts {
+		if kv, ok := el.(*ast.KeyValueExpr); ok {
+			if src(kv.Key) == name {
+				return kv.Value, true
+			}
+		} else if i < len(s.fields) && s.fields[i] == name {
+			return el, true
+		}
+	}
+	return nil, false
+}
+
+type fwResp struct{ fields map[string]value }
+
 var (
-	fset   = token.NewFileSet()
-	funcs  = map[string]*ast.FuncDecl{}
-	values = map[string]ast.Expr{} // package-level var and const values
-	pkg    = &scope{vars: map[string]value{}}
-	notes  []string
-	depth  int
+	fset    = token.NewFileSet()
+	funcs   = map[string]*ast.FuncDecl{} // "pkg.Name"
+	methods = map[string]*ast.FuncDecl{} // "Type.Method"
+	values  = map[string]ast.Expr{}      // "pkg.Name": package-level var and const values
+	pkgOf   = map[*ast.FuncDecl]string{}
+	fileOf  = map[*ast.FuncDecl]string{}
+	scopes  = map[string]*scope{}
+	notes   []string
+	depth   int
 )
+
+func pkgScope(p string) *scope {
+	if scopes[p] == nil {
+		scopes[p] = &scope{vars: map[string]value{}, pkg: p}
+	}
+	return scopes[p]
+}
 
 func note(format string, a ...any) { notes = append(notes, fmt.Sprintf(format, a...)) }
 
@@ -128,10 +176,23 @@ func (s *scope) get(name string) (value, bool) {
 			return v, true
 		}
 	}
-	if e, ok := values[name]; ok {
-		return eval(e, pkg), true
+	if e, ok := values[s.pkg+"."+name]; ok {
+		return eval(e, pkgScope(s.pkg)), true
 	}
 	return nil, false
+}
+
+// fn resolves a called function: a name in the caller's package, or pkg.Name across packages.
+func fn(e ast.Expr, sc *scope) *ast.FuncDecl {
+	switch f := e.(type) {
+	case *ast.Ident:
+		return funcs[sc.pkg+"."+f.Name]
+	case *ast.SelectorExpr:
+		if x, ok := f.X.(*ast.Ident); ok {
+			return funcs[x.Name+"."+f.Sel.Name]
+		}
+	}
+	return nil
 }
 
 func unparen(e ast.Expr) ast.Expr {
@@ -160,10 +221,29 @@ func eval(e ast.Expr, sc *scope) value {
 		if val, ok := sc.get(v.Name); ok {
 			return val
 		}
+	case *ast.SelectorExpr:
+		if x, ok := v.X.(*ast.Ident); ok {
+			if e, ok := values[x.Name+"."+v.Sel.Name]; ok { // a package value: common.SomeList
+				return eval(e, pkgScope(x.Name))
+			}
+		}
+		switch x := eval(v.X, sc).(type) {
+		case *fwReq:
+			if v.Sel.Name == "ProviderTypeName" {
+				return raw{&ast.BasicLit{Kind: token.STRING, Value: strconv.Quote(x.providerTypeName)}, sc}
+			}
+		case structLit:
+			if f, ok := x.field(v.Sel.Name); ok {
+				return eval(f, x.sc)
+			}
+		}
 	case *ast.CompositeLit:
 		t := ""
 		if v.Type != nil {
 			t = src(v.Type)
+		}
+		if fw := frameworkLit(t, v, sc); fw != nil {
+			return fw
 		}
 		switch {
 		case strings.HasPrefix(t, "map[string]"):
@@ -181,7 +261,7 @@ func eval(e ast.Expr, sc *scope) value {
 				m[k] = argOf(kv.Value, sc, k)
 			}
 			return m
-		case strings.HasSuffix(t, "Resource") || strings.HasSuffix(t, "Provider"):
+		case t == "schema.Resource" || t == "schema.Provider":
 			r := &resource{}
 			for _, el := range v.Elts {
 				if kv, ok := el.(*ast.KeyValueExpr); ok {
@@ -197,7 +277,7 @@ func eval(e ast.Expr, sc *scope) value {
 				}
 			}
 			return r
-		case t == "" || strings.HasSuffix(t, "Schema"):
+		case t == "" || t == "schema.Schema":
 			a := &Arg{}
 			for _, el := range v.Elts {
 				if kv, ok := el.(*ast.KeyValueExpr); ok {
@@ -207,9 +287,21 @@ func eval(e ast.Expr, sc *scope) value {
 			return a
 		}
 	case *ast.CallExpr:
+		if fd := fn(v.Fun, sc); fd != nil {
+			return call(fd, v.Args, sc)
+		}
 		if id, ok := v.Fun.(*ast.Ident); ok {
-			if fd := funcs[id.Name]; fd != nil {
-				return call(fd, v.Args, sc)
+			if id.Name == "make" && len(v.Args) > 0 {
+				if _, isMap := v.Args[0].(*ast.MapType); isMap {
+					return schemaMap{}
+				}
+			}
+			if r, ok := sc.get(id.Name); ok { // a function literal held in a local
+				if rv, ok := r.(raw); ok {
+					if lit, ok := rv.expr.(*ast.FuncLit); ok {
+						return callBody(lit.Type, lit.Body, v.Args, sc, rv.sc, id.Name)
+					}
+				}
 			}
 		}
 	}
@@ -239,18 +331,30 @@ func call(fd *ast.FuncDecl, args []ast.Expr, caller *scope) value {
 			}
 		}
 	}
-	sc := &scope{vars: map[string]value{}, parent: pkg}
+	return callBody(fd.Type, fd.Body, args, caller, pkgScope(pkgOf[fd]), fd.Name.Name)
+}
+
+// callBody runs a function body (a declaration's or a literal's) with parameters bound to the arguments,
+// evaluated in the caller's scope; the body's own scope encloses `outer` (its package, or a closure's).
+func callBody(ft *ast.FuncType, body *ast.BlockStmt, args []ast.Expr, caller, outer *scope, name string) value {
+	if depth > 40 {
+		note("call nesting too deep at %s", name)
+		return nil
+	}
+	depth++
+	defer func() { depth-- }()
+	sc := &scope{vars: map[string]value{}, parent: outer, pkg: outer.pkg}
 	i := 0
-	for _, f := range params {
-		for _, name := range f.Names {
+	for _, f := range ft.Params.List {
+		for _, n := range f.Names {
 			if i < len(args) {
-				sc.vars[name.Name] = eval(args[i], caller)
+				sc.vars[n.Name] = eval(args[i], caller)
 			}
 			i++
 		}
 	}
 	var ret value
-	run(fd.Body.List, sc, &ret)
+	run(body.List, sc, &ret)
 	return ret
 }
 
@@ -297,10 +401,58 @@ func run(stmts []ast.Stmt, sc *scope, ret *value) {
 			}
 		case *ast.BlockStmt:
 			run(s.List, sc, ret)
+		case *ast.RangeStmt:
+			rangeLoop(s, sc, ret)
 		case *ast.ReturnStmt:
 			if len(s.Results) == 1 && src(s.Results[0]) != "nil" {
 				*ret = eval(s.Results[0], sc)
 			}
+		}
+	}
+}
+
+// rangeLoop runs a range over a literal slice or a schema map; any other loop is not run.
+func rangeLoop(s *ast.RangeStmt, sc *scope, ret *value) {
+	bind := func(e ast.Expr, v value) {
+		if id, ok := e.(*ast.Ident); ok && id.Name != "_" {
+			sc.vars[id.Name] = v
+		}
+	}
+	switch x := eval(s.X, sc).(type) {
+	case schemaMap:
+		keys := make([]string, 0, len(x))
+		for k := range x {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			bind(s.Key, raw{&ast.BasicLit{Kind: token.STRING, Value: strconv.Quote(k)}, sc})
+			bind(s.Value, x[k])
+			run(s.Body.List, sc, ret)
+		}
+	case raw:
+		cl, ok := x.expr.(*ast.CompositeLit)
+		if !ok {
+			return
+		}
+		var fields []string
+		if at, ok := cl.Type.(*ast.ArrayType); ok {
+			if st, ok := at.Elt.(*ast.StructType); ok {
+				for _, f := range st.Fields.List {
+					for _, n := range f.Names {
+						fields = append(fields, n.Name)
+					}
+				}
+			}
+		}
+		for i, el := range cl.Elts {
+			bind(s.Key, raw{&ast.BasicLit{Kind: token.INT, Value: strconv.Itoa(i)}, x.sc})
+			if elc, ok := el.(*ast.CompositeLit); ok && fields != nil {
+				bind(s.Value, structLit{elc, fields, x.sc})
+			} else {
+				bind(s.Value, eval(el, x.sc))
+			}
+			run(s.Body.List, sc, ret)
 		}
 	}
 }
@@ -312,8 +464,13 @@ func assign(l, r ast.Expr, sc *scope) {
 			sc.vars[lv.Name] = eval(r, sc)
 		}
 	case *ast.SelectorExpr: // s.MaxItems = n on a schema built earlier; a nil value (an unset pointer) sets nothing
-		if a, ok := eval(lv.X, sc).(*Arg); ok && !isNil(r, sc) {
-			setField(a, lv.Sel.Name, r, sc)
+		switch x := eval(lv.X, sc).(type) {
+		case *Arg:
+			if !isNil(r, sc) {
+				setField(x, lv.Sel.Name, r, sc)
+			}
+		case *fwResp: // resp.Schema = ..., resp.TypeName = ...
+			x.fields[lv.Sel.Name] = eval(r, sc)
 		}
 	case *ast.IndexExpr: // m["k"] = &schema.Schema{...}
 		if m, ok := eval(lv.X, sc).(schemaMap); ok {
@@ -556,6 +713,308 @@ func setField(a *Arg, key string, val ast.Expr, sc *scope) {
 	}
 }
 
+// ---------------------------------------------------------------- Plugin Framework
+
+var fwTypes = map[string]string{
+	"StringAttribute": "string", "BoolAttribute": "bool", "Int64Attribute": "int", "Int32Attribute": "int",
+	"Float64Attribute": "float", "Float32Attribute": "float", "NumberAttribute": "number",
+	"ListAttribute": "list", "SetAttribute": "set", "MapAttribute": "map", "ObjectAttribute": "object",
+	"ListNestedAttribute": "list", "SetNestedAttribute": "set", "MapNestedAttribute": "map", "SingleNestedAttribute": "object",
+	"ListNestedBlock": "list", "SetNestedBlock": "set", "SingleNestedBlock": "object",
+}
+
+var fwElemTypes = map[string]string{"StringType": "string", "BoolType": "bool", "Int64Type": "int", "Int32Type": "int", "Float64Type": "float", "NumberType": "number"}
+
+// frameworkLit evaluates a Plugin Framework literal: the root schema.Schema{Attributes, Blocks}, an
+// attribute or block, or a nested object; nil for anything else.
+func frameworkLit(t string, cl *ast.CompositeLit, sc *scope) value {
+	if !strings.HasPrefix(t, "schema.") {
+		return nil
+	}
+	kind := strings.TrimPrefix(t, "schema.")
+	keys := map[string]ast.Expr{}
+	for _, el := range cl.Elts {
+		if kv, ok := el.(*ast.KeyValueExpr); ok {
+			keys[src(kv.Key)] = kv.Value
+		}
+	}
+	_, hasAttrs := keys["Attributes"]
+	_, hasBlocks := keys["Blocks"]
+	switch {
+	case kind == "Schema" && (hasAttrs || hasBlocks): // the root
+		return &resource{schema: fwMembers(keys, sc)}
+	case kind == "NestedAttributeObject" || kind == "NestedBlockObject":
+		return fwMembers(keys, sc)
+	case fwTypes[kind] != "":
+		a := &Arg{Type: fwTypes[kind]}
+		for _, el := range cl.Elts {
+			if kv, ok := el.(*ast.KeyValueExpr); ok {
+				fwField(a, src(kv.Key), kv.Value, sc)
+			}
+		}
+		if strings.HasSuffix(kind, "Block") || strings.HasPrefix(kind, "SingleNested") {
+			if a.Block == nil {
+				a.Block = fwMembers(keys, sc)
+			}
+		}
+		return a
+	}
+	return nil
+}
+
+// fwMembers merges an object's Attributes and Blocks maps.
+func fwMembers(keys map[string]ast.Expr, sc *scope) schemaMap {
+	out := schemaMap{}
+	for _, k := range []string{"Attributes", "Blocks"} {
+		if e, ok := keys[k]; ok {
+			for n, a := range mapOf(e, sc, strings.ToLower(k)) {
+				out[n] = a
+			}
+		}
+	}
+	return out
+}
+
+func fwField(a *Arg, key string, val ast.Expr, sc *scope) {
+	switch key {
+	case "Required", "Optional", "Computed", "Sensitive", "Description", "DeprecationMessage":
+		if key == "DeprecationMessage" {
+			key = "Deprecated"
+		}
+		setField(a, key, val, sc)
+	case "MarkdownDescription":
+		if a.Description == "" {
+			a.Description = text(val, sc)
+		}
+	case "Default": // stringdefault.StaticString("x"), booldefault.StaticBool(true), ...
+		if r, ok := eval(val, sc).(raw); ok {
+			if c, ok := r.expr.(*ast.CallExpr); ok && strings.Contains(src(c.Fun), ".Static") && len(c.Args) == 1 {
+				d := text(c.Args[0], r.sc)
+				a.Default = &d
+				return
+			}
+		}
+		note("default not followed: %s", trim(src(val)))
+	case "ElementType":
+		if r, ok := eval(val, sc).(raw); ok {
+			if sel, ok := r.expr.(*ast.SelectorExpr); ok && fwElemTypes[sel.Sel.Name] != "" {
+				a.ElemType = fwElemTypes[sel.Sel.Name]
+				return
+			}
+		}
+		a.ElemType = trim(src(val))
+	case "NestedObject":
+		if m, ok := eval(val, sc).(schemaMap); ok {
+			a.Block = m
+		} else {
+			note("nested object not followed: %s", trim(src(val)))
+		}
+	case "PlanModifiers":
+		if strings.Contains(src(val), "RequiresReplace") {
+			a.ForceNew = true
+		}
+	case "Validators":
+		r, ok := eval(val, sc).(raw)
+		if !ok {
+			return
+		}
+		cl, ok := r.expr.(*ast.CompositeLit)
+		if !ok {
+			note("validators not followed: %s", trim(src(val)))
+			return
+		}
+		var vs []*Validator
+		for _, el := range cl.Elts {
+			if v := fwValidator(a, el, r.sc); v != nil {
+				vs = append(vs, v)
+			}
+		}
+		switch len(vs) {
+		case 0:
+		case 1:
+			a.Validate = vs[0]
+		default:
+			a.Validate = &Validator{All: vs}
+		}
+	}
+}
+
+// fwValidator reads one framework validator; path-based ones (ConflictsWith, ...) and element validators
+// set fields on the argument instead and return nil.
+func fwValidator(a *Arg, e ast.Expr, sc *scope) *Validator {
+	r, ok := eval(e, sc).(raw)
+	if !ok {
+		return &Validator{Func: trim(src(e))}
+	}
+	c, ok := r.expr.(*ast.CallExpr)
+	if !ok {
+		return &Validator{Func: trim(src(r.expr))}
+	}
+	name := src(c.Fun)
+	short := name[strings.LastIndex(name, ".")+1:]
+	values := func() []string {
+		if c.Ellipsis.IsValid() && len(c.Args) == 1 {
+			return list(c.Args[0], r.sc)
+		}
+		out := []string{}
+		for _, x := range c.Args {
+			out = append(out, text(x, r.sc))
+		}
+		return out
+	}
+	paths := func() []string {
+		out := []string{}
+		for _, x := range c.Args {
+			if pc, ok := unparen(x).(*ast.CallExpr); ok && len(pc.Args) == 1 {
+				out = append(out, text(pc.Args[0], r.sc))
+			} else {
+				out = append(out, trim(src(x)))
+			}
+		}
+		return out
+	}
+	switch short {
+	case "OneOf":
+		return &Validator{Enum: values()}
+	case "OneOfCaseInsensitive":
+		return &Validator{Enum: values(), IgnoreCase: true}
+	case "LengthBetween", "Between", "SizeBetween":
+		return &Validator{Range: values(), Func: name}
+	case "AtLeast", "LengthAtLeast", "SizeAtLeast":
+		return &Validator{AtLeast: text(c.Args[0], r.sc), Func: name}
+	case "ConflictsWith":
+		a.ConflictsWith = append(a.ConflictsWith, paths()...)
+		return nil
+	case "ExactlyOneOf":
+		a.ExactlyOneOf = append(a.ExactlyOneOf, paths()...)
+		return nil
+	case "AtLeastOneOf":
+		a.AtLeastOneOf = append(a.AtLeastOneOf, paths()...)
+		return nil
+	case "AlsoRequires":
+		a.RequiredWith = append(a.RequiredWith, paths()...)
+		return nil
+	case "ValueStringsAre", "ValueInt64sAre":
+		if len(c.Args) == 1 {
+			a.ElemValidate = fwValidator(&Arg{}, c.Args[0], r.sc)
+		}
+		return nil
+	}
+	return &Validator{Func: trim(src(r.expr))}
+}
+
+// method runs a framework method with its request and response parameters bound and returns the response.
+func method(fd *ast.FuncDecl, providerTypeName string) *fwResp {
+	resp := &fwResp{fields: map[string]value{}}
+	sc := &scope{vars: map[string]value{}, parent: pkgScope(pkgOf[fd]), pkg: pkgOf[fd]}
+	if fd.Recv != nil && len(fd.Recv.List[0].Names) > 0 {
+		sc.vars[fd.Recv.List[0].Names[0].Name] = nil
+	}
+	for _, f := range fd.Type.Params.List {
+		t := src(f.Type)
+		for _, n := range f.Names {
+			switch {
+			case strings.HasSuffix(t, "Response"):
+				sc.vars[n.Name] = resp
+			case strings.HasSuffix(t, "Request"):
+				sc.vars[n.Name] = &fwReq{providerTypeName}
+			}
+		}
+	}
+	var ret value
+	run(fd.Body.List, sc, &ret)
+	return resp
+}
+
+func recvType(fd *ast.FuncDecl) string {
+	t := fd.Recv.List[0].Type
+	if st, ok := t.(*ast.StarExpr); ok {
+		t = st.X
+	}
+	return src(t)
+}
+
+// framework discovers a Plugin Framework provider's types and reads each one's schema.
+func framework(out map[string]*Result) {
+	var prov string
+	for k := range methods {
+		if t, m, _ := strings.Cut(k, "."); m == "Resources" && methods[t+".DataSources"] != nil {
+			prov = t
+		}
+	}
+	if prov == "" {
+		fmt.Fprintln(os.Stderr, "tf-schema: no provider type with Resources and DataSources methods")
+		os.Exit(1)
+	}
+	name := ""
+	if md := methods[prov+".Metadata"]; md != nil {
+		if s, ok := method(md, "").fields["TypeName"].(raw); ok {
+			name, _ = str(s.expr, s.sc)
+		}
+	}
+	read := func(id string, schemaFn *ast.FuncDecl) {
+		notes = nil
+		res := &Result{Arguments: map[string]*Arg{}, File: fileOf[schemaFn]}
+		if r, ok := method(schemaFn, name).fields["Schema"].(*resource); ok {
+			res.Arguments = r.schema
+		} else {
+			note("Schema method sets no resp.Schema")
+		}
+		for i := range notes {
+			notes[i] = id + ": " + notes[i]
+		}
+		sort.Strings(notes)
+		res.Unresolved = notes
+		out[id] = res
+	}
+	if ps := methods[prov+".Schema"]; ps != nil {
+		read("provider:"+name, ps)
+	}
+	for _, kind := range [][2]string{{"resource", "Resources"}, {"data-source", "DataSources"}} {
+		var ret ast.Expr
+		ast.Inspect(methods[prov+"."+kind[1]].Body, func(n ast.Node) bool {
+			if r, ok := n.(*ast.ReturnStmt); ok && len(r.Results) == 1 {
+				ret = r.Results[0]
+			}
+			return true
+		})
+		cl, ok := ret.(*ast.CompositeLit)
+		if !ok {
+			fmt.Fprintf(os.Stderr, "tf-schema: %s.%s returns no list literal\n", prov, kind[1])
+			os.Exit(1)
+		}
+		for _, el := range cl.Elts {
+			ctor := fn(el, pkgScope(pkgOf[methods[prov+"."+kind[1]]]))
+			if ctor == nil {
+				out[kind[0]+":?"+src(el)] = &Result{Arguments: map[string]*Arg{}, Unresolved: []string{"constructor not found: " + src(el)}}
+				continue
+			}
+			// The constructor returns &XResource{}: the type whose Metadata and Schema methods define it.
+			var typ string
+			ast.Inspect(ctor.Body, func(n ast.Node) bool {
+				if r, ok := n.(*ast.ReturnStmt); ok && len(r.Results) == 1 {
+					if lit, ok := unparen(r.Results[0]).(*ast.CompositeLit); ok {
+						t := src(lit.Type)
+						typ = t[strings.LastIndex(t, ".")+1:]
+					}
+				}
+				return true
+			})
+			md, sm := methods[typ+".Metadata"], methods[typ+".Schema"]
+			if md == nil || sm == nil {
+				out[kind[0]+":?"+typ] = &Result{Arguments: map[string]*Arg{}, Unresolved: []string{"no Metadata or Schema method on " + typ}}
+				continue
+			}
+			tn, _ := method(md, name).fields["TypeName"].(raw)
+			id, ok := str(tn.expr, tn.sc)
+			if !ok {
+				id = "?" + typ
+			}
+			read(kind[0]+":"+id, sm)
+		}
+	}
+}
+
 func isTypeName(t string) bool {
 	for _, v := range typeNames {
 		if v == t {
@@ -569,8 +1028,9 @@ func isTypeName(t string) bool {
 
 func main() {
 	var in struct {
-		Files map[string]string `json:"files"`
-		Types map[string]string `json:"types"`
+		Files     map[string]string `json:"files"`
+		Types     map[string]string `json:"types"`
+		Framework bool              `json:"framework"`
 	}
 	if err := json.NewDecoder(os.Stdin).Decode(&in); err != nil {
 		fmt.Fprintln(os.Stderr, "tf-schema:", err)
@@ -590,15 +1050,18 @@ func main() {
 		for _, d := range f.Decls {
 			switch v := d.(type) {
 			case *ast.FuncDecl:
+				pkgOf[v], fileOf[v] = f.Name.Name, n
 				if v.Recv == nil {
-					funcs[v.Name.Name] = v
+					funcs[f.Name.Name+"."+v.Name.Name] = v
+				} else {
+					methods[recvType(v)+"."+v.Name.Name] = v
 				}
 			case *ast.GenDecl:
 				for _, s := range v.Specs {
 					if vs, ok := s.(*ast.ValueSpec); ok {
 						for i, id := range vs.Names {
 							if i < len(vs.Values) {
-								values[id.Name] = vs.Values[i]
+								values[f.Name.Name+"."+id.Name] = vs.Values[i]
 							}
 						}
 					}
@@ -607,17 +1070,25 @@ func main() {
 		}
 	}
 	out := map[string]*Result{}
-	for typ, fn := range in.Types {
+	if in.Framework {
+		framework(out)
+	}
+	// SDKv2: the registration functions are named; the provider is one package.
+	byName := map[string]*ast.FuncDecl{}
+	for k, fd := range funcs {
+		byName[k[strings.Index(k, ".")+1:]] = fd
+	}
+	for typ, name := range in.Types {
 		notes = nil
 		res := &Result{Arguments: map[string]*Arg{}}
-		fd := funcs[fn]
+		fd := byName[name]
 		if fd == nil {
-			note("function %s not found", fn)
-		} else if r, ok := call(fd, nil, pkg).(*resource); ok {
+			note("function %s not found", name)
+		} else if r, ok := call(fd, nil, pkgScope(pkgOf[fd])).(*resource); ok {
 			res.Arguments = r.schema
 			res.CustomizeDiff = r.customizeDiff
 		} else {
-			note("%s returns no schema.Resource or schema.Provider", fn)
+			note("%s returns no schema.Resource or schema.Provider", name)
 		}
 		for i := range notes {
 			notes[i] = typ + ": " + notes[i]
