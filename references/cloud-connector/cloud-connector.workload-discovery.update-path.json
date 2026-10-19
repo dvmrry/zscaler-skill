@@ -1,0 +1,309 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.workload-discovery.update-path",
+  "title": "How tag changes reach Cloud Connector: polling, EventBridge, SNS and SQS",
+  "aliases": [
+    "workload discovery polling interval",
+    "eventbridge zscaler bus",
+    "eventBusName",
+    "tag changes slow to apply",
+    "auto scaling group tags delay",
+    "cloud connector sqs permissions",
+    "cloud_tags_enabled"
+  ],
+  "binds": [
+    "ztw/public-cloud-info#accountDetails"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.workload-discovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.workload-discovery.aws-accounts"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Polling.",
+      "text": "{{polling-5-min}}"
+    },
+    {
+      "label": "EventBridge.",
+      "text": "{{eventbridge-for-fast-updates}} {{rule-on-default-bus}} {{event-pattern}} {{target-arn}} {{event-bus-name-field}} What happens to tag freshness when the rule is missing or targets the wrong bus is not documented beyond polling {{gap:eventbridge-misconfigured}}."
+    },
+    {
+      "label": "Delivery to Cloud Connector.",
+      "text": "{{sns-sqs-push}} {{cc-role-permissions}} {{module-policy-history}} The help says Cloud Connector must receive messages, yet the current lists hold no receive action {{gap:receive-permission}}."
+    },
+    {
+      "label": "New deployments.",
+      "text": "{{new-deployments-default}} The Zscaler Terraform modules attach these permissions only when asked {{divergence:new-deployment-permissions}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a delay of up to 5 minutes explains a tag change not yet applied, before suspecting the integration.",
+      "uses": [
+        "polling-5-min"
+      ]
+    },
+    {
+      "do": "Whether an EventBridge rule exists on the default bus in each region the account uses, matching EC2 Instance State-change Notification for the pending state, targeting the Zscaler bus ARN with the region replaced.",
+      "uses": [
+        "rule-on-default-bus",
+        "event-pattern",
+        "target-arn"
+      ]
+    },
+    {
+      "do": "Whether the Cloud Connector IAM role carries the SNS and SQS permissions, and for Terraform-built deployments whether `cloud_tags_enabled` was set.",
+      "uses": [
+        "cc-role-permissions",
+        "new-deployment-permissions"
+      ]
+    }
+  ],
+  "claims": {
+    "polling-5-min": {
+      "statement": "The default polling time of the workload discovery service is 5 minutes, so changes can take up to 5 minutes to be distributed for policy enforcement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+          "quotes": [
+            "The default polling time for the workload discovery service is 5 minutes, which means changes can take up to 5 minutes to be distributed for policy enforcement."
+          ]
+        }
+      ]
+    },
+    "eventbridge-for-fast-updates": {
+      "statement": "For deployments such as auto scaling groups that need Zscaler notified immediately, EventBridge can trigger an update within a few seconds of an EC2 notification.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+          "quotes": [
+            "For other users using auto scaling groups (ASGs), Zscaler must be notified immediately.",
+            "The workload discovery service allows you to use EventBridge to trigger an update within a few seconds of an EC2 notification."
+          ]
+        }
+      ]
+    },
+    "rule-on-default-bus": {
+      "statement": "The rule is configured in the operator account's EventBridge on the default bus and sends a notification to an EventBridge bus in the Zscaler account assigned to the tenant, whose name is shown on the account page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+          "quotes": [
+            "You configure a rule in the EventBridge service of your account on the default bus. The rule sends a notification to an EventBridge bus in the Zscaler account assigned to your tenant.",
+            "You can locate the name of the EventBridge on the account page of the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "event-pattern": {
+      "statement": "The documented rule is a rule with an event pattern from AWS services: service EC2, event type EC2 Instance State-change Notification, specific state pending, any instance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+          "quotes": [
+            "Rule type: Select Rule with an event pattern.",
+            "Event source: Select AWS services.",
+            "AWS service: Select EC2.",
+            "Event type: Select EC2 Instance State-change Notification.",
+            "Specific state(s): Select pending.",
+            "Event Type Specification 2: Select Any instance."
+          ]
+        }
+      ]
+    },
+    "target-arn": {
+      "statement": "The rule's target is an EventBridge event bus in a different account or Region, given as the ARN from the Admin Console with its region field replaced by the region the rule is created in (the help's example is arn:aws:events:<REGION>:11111111111:event-bus/zscaler-bus-146530-zsdevel.net), with a new execution role created for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+          "quotes": [
+            "The format is an ARN. You must replace the REGION field, such as in the following example: arn:aws:events:<REGION>:11111111111:event-bus/zscaler-bus-146530-zsdevel.net.",
+            "Target types: Select Event bus in a different account or Region.",
+            "Event bus as target: Enter the ARN from the Zscaler Admin Console. Replace the region field with the region the rule has created.",
+            "Execution role: Select Create a new role for this specific resource."
+          ]
+        }
+      ]
+    },
+    "event-bus-name-field": {
+      "statement": "The account's Event Bus Name is the name of the event bus that sends notifications to the Zscaler service using EventBridge, and the help calls it the target of the EventBridge; the API carries it as `eventBusName` in the account details.",
+      "tier": "A",
+      "binds": [
+        "ztw/public-cloud-info#accountDetails"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-amazon-web-services-account-details.json",
+          "quotes": [
+            "Event Bus Name: The name of the event bus that sends notifications to the Zscaler service using EventBridge. This event bus is the target of the EventBridge."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo/post/requestBody/content/application~1json/schema/properties/accountDetails/properties/eventBusName",
+          "expect": {
+            "description": "The name of the event bus that sends notifications to the Zscaler service using EventBridge.",
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "sns-sqs-push": {
+      "statement": "The service communicates through API calls and an SNS and SQS publish-subscribe mechanism: new tag discoveries are pushed through it to Cloud Connector, from an SNS topic in the Zscaler account that has all relevant changes to an account and is protected by a resource-based policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+          "quotes": [
+            "The workload discovery service communicates through API calls and a publish-subscribe mechanism based on the Amazon Simple Notification Service (SNS) and the Amazon Simple Queue Service (SQS).",
+            "New tag discoveries are pushed through the SNS-SQS publish-subscribe mechanism to Cloud Connector. The SNS topic is in the Zscaler account, has all relevant changes to an account, and is protected by a resource-based policy."
+          ]
+        }
+      ]
+    },
+    "cc-role-permissions": {
+      "statement": "Cloud Connector must be able to manage queues, receive messages and subscribe to SNS. For existing deployments the permissions to add to the Cloud Connector IAM role are sns:ListTopics, sns:ListSubscriptions, sns:Subscribe, sns:Unsubscribe, sqs:CreateQueue and sqs:DeleteQueue.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+          "quotes": [
+            "Cloud Connector must have the ability to manage queues, receive messages, and subscribe to SNS.",
+            "For existing deployments, add the following permissions to the Cloud Connector IAM role:",
+            "sns:ListTopics",
+            "sns:ListSubscriptions",
+            "sns:Subscribe",
+            "sns:Unsubscribe",
+            "sqs:CreateQueue",
+            "sqs:DeleteQueue"
+          ]
+        }
+      ]
+    },
+    "new-deployments-default": {
+      "statement": "The help says that in a new deployment using Terraform or CloudFormation Zscaler adds these permissions by default, and that in an existing deployment they must be added manually to the IAM roles associated with the Cloud Connector instances.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+          "quotes": [
+            "In a new deployment using Terraform or CloudFormation, Zscaler adds the permissions by default. In an existing deployment, you must manually add permissions to the existing IAM roles that are associated with the Cloud Connector instances."
+          ]
+        }
+      ]
+    },
+    "module-policy-history": {
+      "statement": "The Zscaler AWS Cloud Connector Terraform modules added the optional tags policy in v1.2.0 with sqs:DeleteMessage, sqs:ReceiveMessage, sqs:GetQueueUrl, sqs:GetQueueAttributes, sqs:SetQueueAttributes, sqs:DeleteQueue, sqs:CreateQueue and sns:Subscribe, behind the `cloud_tags_enabled` variable; release 1.4.1 updated the CCAllowTags policy to its minimum SQS/SNS dependencies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "CHANGELOG.md",
+          "after": "## v1.2.0 (December 16, 2023)",
+          "quotes": [
+            "feat: add optional cc_tags IAM Policy for AWS Workload Tags support with Cloud Connector Instance IAM Role creation. Permissions include:",
+            "- sqs:DeleteMessage",
+            "- sqs:ReceiveMessage",
+            "- sqs:GetQueueUrl",
+            "- sqs:GetQueueAttributes",
+            "- sqs:SetQueueAttributes",
+            "- sqs:DeleteQueue",
+            "- sqs:CreateQueue",
+            "- sns:Subscribe",
+            "feat: add conditional variable cloud_tags_enabled"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "CHANGELOG.md",
+          "after": "## 1.4.1 (May 6, 2025)",
+          "quotes": [
+            "update CCAllowTags minimum SQS/SNS IAM Policy dependencies"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "new-deployment-permissions": {
+      "summary": "The help says new Terraform deployments get the Cloud Connector SNS and SQS permissions by default; the Zscaler AWS Terraform IAM module creates that policy only when `cloud_tags_enabled` is true, and the variable defaults to false.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+            "quotes": [
+              "In a new deployment using Terraform or CloudFormation, Zscaler adds the permissions by default."
+            ]
+          },
+          "says": "New Terraform or CloudFormation deployments receive the permissions by default."
+        },
+        {
+          "evidence": {
+            "source": "tfmod-aws-cloud-connector",
+            "path": "modules/terraform-zscc-iam-aws/variables.tf",
+            "quotes": [
+              "variable \"cloud_tags_enabled\" { type = bool description = \"Determines whether or not to create the cc_tags_policy IAM Policy and attach it to the CC IAM Role\" default = false }"
+            ]
+          },
+          "says": "The tags policy (the same six SNS and SQS actions) is created and attached only when `cloud_tags_enabled` is set; by default it is not."
+        },
+        {
+          "evidence": {
+            "source": "tfmod-aws-cloud-connector",
+            "path": "modules/terraform-zscc-iam-aws/main.tf",
+            "quotes": [
+              "count = var.byo_iam == false && var.cloud_tags_enabled == true ? var.iam_count : 0 policy_arn = aws_iam_policy.cc_tags_policy[count.index].arn"
+            ]
+          },
+          "says": "The attachment of the tags policy is counted only when `cloud_tags_enabled` is true and the module builds the IAM role itself."
+        }
+      ],
+      "impact": "A Cloud Connector built from the Terraform modules with defaults has no SNS or SQS permissions, so tag updates are not delivered to it until the variable is set or the permissions are added by hand."
+    }
+  },
+  "gaps": {
+    "eventbridge-misconfigured": {
+      "kind": "semantic",
+      "title": "Behavior when the EventBridge rule is missing or misdirected",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'EventBridge rules not created in the operator's account: discovery falls back to polling (or fails to pick up real-time changes); tag data may lag significantly behind workload state changes. Cross-account EventBridge target ARN uses wrong bus name: events silently dropped by AWS routing.' The help gives a 5-minute default polling time and presents EventBridge as the faster path; it does not describe failure behavior, and whether polling continues alongside EventBridge is not stated.",
+      "blocks": "Estimating tag staleness when the EventBridge rule is absent or wrong.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "receive-permission": {
+      "kind": "semantic",
+      "title": "How Cloud Connector receives SQS messages without a receive permission",
+      "status": "partial",
+      "detail": "The help says Cloud Connector must be able to receive messages, but the permissions it lists for existing deployments, and the Terraform module's current tags policy, have no sqs:ReceiveMessage. The module's first tags policy (v1.2.0) did include sqs:ReceiveMessage and other queue actions, and release 1.4.1 cut it to a stated minimum, so the omission looks deliberate; whether the queue's own resource policy grants receive is still not stated.",
+      "blocks": "Building a least-privilege Cloud Connector role that still receives tag updates.",
+      "resolves_with": [
+        "operator-experience",
+        "support-ticket"
+      ]
+    }
+  }
+}

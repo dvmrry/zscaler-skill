@@ -1,0 +1,424 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.dns.policies",
+  "title": "Cloud & Branch Connector DNS policies: scope, criteria, actions, predefined rules",
+  "aliases": [
+    "cloud connector dns policy",
+    "cloud connector dns rule",
+    "dns forwarding rule",
+    "ecRules/ecDns",
+    "ztc_traffic_forwarding_dns_rule",
+    "REDIR_REQ",
+    "REDIR_ZPA",
+    "REDIR_RES",
+    "Default Connector DNS Rule",
+    "Redirect Resolution of Zscaler Domains to WAN CTR",
+    "ZPA Resolver"
+  ],
+  "binds": [
+    "ztw/traffic-dns-rules",
+    "ztw/traffic-dns-rules#action",
+    "ztw/traffic-dns-rules#defaultRule"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.dns.gateways"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.terraform.rule-protection"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.terraform.rule-order"
+    }
+  ],
+  "prose": [
+    {
+      "text": "DNS policies are Cloud & Branch Connector's own DNS rule engine, separate from ZIA DNS Control: [[zia.dns-control:cbc-has-dns-policies]]. {{scope-doh}}"
+    },
+    {
+      "label": "What the help says it does.",
+      "text": "{{conditions}} {{capability-actions}} {{tunnels}} {{trusted-resolver}} How tunnel detection triggers and how DoH is identified are not described {{gap:criteria-tunnel-doh}}."
+    },
+    {
+      "label": "Actions.",
+      "text": "{{page-actions}} {{contract-actions}} {{tf-actions}} {{tf-subset}}"
+    },
+    {
+      "text": "Whether the console's response overwrite is REDIR_RES, or another contract action, is not stated {{gap:response-overwrite}}."
+    },
+    {
+      "label": "Redirect targets.",
+      "text": "A REDIR_REQ rule names a DNS gateway and a REDIR_ZPA rule an IP pool group; the provider documents but does not check the combinations: [[cloud-connector.terraform.forwarding-rules:dns-action-constraints-documented]], [[cloud-connector.terraform.forwarding-rules:dns-constraints-not-checked]]. The Terraform resource never sends its ZPA IP group: [[cloud-connector.terraform.provider-behavior:dns-rule-zpa-ip-group-dropped]]."
+    },
+    {
+      "label": "Criteria in the API.",
+      "text": "{{contract-criteria}} {{go-struct-narrower}}"
+    },
+    {
+      "label": "Default and predefined rules.",
+      "text": "{{default-rule}} Whether the first matching rule ends evaluation is not stated {{gap:first-match}}. {{wan-ctr-rule}} The Terraform provider names a third predefined rule, `ZPA Resolver`, which no captured help describes {{gap:zpa-resolver}}; its deletion guard is commented out: [[cloud-connector.terraform.rule-protection:dns-delete-guard-commented-out]]."
+    },
+    {
+      "text": "Rule order as written by Terraform: [[cloud-connector.terraform.rule-order]]. What a rule does when the gateway it redirects to is deleted is not stated {{gap:deleted-gateway-reference}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the workloads' DNS, including any DoH, actually transits the Connector; traffic that bypasses it is outside these policies.",
+      "uses": [
+        "scope-doh",
+        "cloud-connector.dns:route-through"
+      ]
+    },
+    {
+      "do": "The matching rule's action and, for REDIR_REQ, the DNS gateway it names and that gateway's failure behavior.",
+      "uses": [
+        "cloud-connector.terraform.forwarding-rules:dns-action-constraints-documented",
+        "cloud-connector.dns.gateways:failure-behavior"
+      ]
+    },
+    {
+      "do": "Whether filtering rules sit above the Default Connector DNS Rule, which allows all queries.",
+      "uses": [
+        "default-rule"
+      ]
+    },
+    {
+      "do": "For a rule whose action Terraform cannot express (such as REDIR_RES or the DoH, TCP and UDP redirects), whether it was made in the console or through the API.",
+      "uses": [
+        "tf-subset"
+      ]
+    }
+  ],
+  "claims": {
+    "scope-doh": {
+      "statement": "DNS policies monitor and apply policy to all DNS requests and responses whatever the protocol and encryption, including UDP, TCP and DNS over HTTPS (DoH).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-dns-policies.json",
+          "quotes": [
+            "Monitor and apply policies to all DNS requests and responses, irrespective of the protocol and the encryption used. This includes UDP, TCP, and DNS over HTTPS (DoH)."
+          ]
+        }
+      ]
+    },
+    "conditions": {
+      "statement": "The help names DNS conditions such as users, groups or departments, client locations, categorization of domains and IP addresses, DNS record types, and the location of resolved IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-dns-policies.json",
+          "quotes": [
+            "Define granular DNS filtering rules using a number of DNS conditions, such as users, groups or departments, client locations, categorization of domains and IP addresses, DNS record types, the location of resolved IP addresses, etc."
+          ]
+        }
+      ]
+    },
+    "tunnels": {
+      "statement": "DNS policies are described as detecting and preventing DNS-based attacks and data exfiltration through DNS tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-dns-policies.json",
+          "quotes": [
+            "Detect and prevent DNS-based attacks and data exfiltration through DNS tunnels."
+          ]
+        }
+      ]
+    },
+    "trusted-resolver": {
+      "statement": "The help also names using the Zscaler Trusted DNS Resolver for domain resolution.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-dns-policies.json",
+          "quotes": [
+            "Enhance your security posture by using Zscaler Trusted DNS Resolver for domain resolution."
+          ]
+        }
+      ]
+    },
+    "page-actions": {
+      "statement": "The DNS Policies page shows each rule's action as Allow, Block, Resolved by ZPA, or Redirect Request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-dns-policies.json",
+          "quotes": [
+            "Action: Whether the policy is set to Allow, Block, Resolved by ZPA, or Redirect Request."
+          ]
+        }
+      ]
+    },
+    "contract-criteria": {
+      "statement": "The contract's DNS rule request carries user, group and department members, destination IP address categories (`resCategories`), destination IP categories, destination countries, and a `redirectIp` (the IP the traffic is redirected to when the rule triggers).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecDns/post/requestBody/content/application~1json/schema/properties/users",
+          "expect": {
+            "description": "The name-ID pair of users for which the policy must be applied.",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecDns/post/requestBody/content/application~1json/schema/properties/departments",
+          "expect": {
+            "description": "Name-ID pair of departments to which the rule applies.",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecDns/post/requestBody/content/application~1json/schema/properties/groups",
+          "expect": {
+            "description": "Specifies the groups to which the rule applies.",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecDns/post/requestBody/content/application~1json/schema/properties/resCategories",
+          "expect": {
+            "description": "The destination IP address categories for which the DNS rule applies.",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecDns/post/requestBody/content/application~1json/schema/properties/destIpCategories",
+          "expect": {
+            "description": "The destination IP categories to which the rule applies.",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecDns/post/requestBody/content/application~1json/schema/properties/destCountries",
+          "expect": {
+            "description": "The destination countries to which the rule applies.",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecDns/post/requestBody/content/application~1json/schema/properties/redirectIp",
+          "expect": {
+            "description": "The IP address to which the traffic is redirected to when the DNS rule is triggered.",
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "go-struct-narrower": {
+      "statement": "The Go SDK's DNS rule model has none of those members: its criteria are source IPs, destination addresses, locations, location groups, Connector groups, and source and destination IP groups, plus the DNS gateway and ZPA IP group references.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/traffic_dns_rules/traffic_dns_rules.go",
+          "quotes": [
+            "SrcIps []string `json:\"srcIps,omitempty\"`",
+            "DestAddresses []string `json:\"destAddresses,omitempty\"`",
+            "Locations []common.IDNameExtensions `json:\"locations,omitempty\"`",
+            "LocationsGroups []common.IDNameExtensions `json:\"locationGroups,omitempty\"`",
+            "ECGroups []common.IDNameExtensions `json:\"ecGroups,omitempty\"`",
+            "SrcIpGroups []common.IDNameExtensions `json:\"srcIpGroups,omitempty\"`",
+            "DestIpGroups []common.IDNameExtensions `json:\"destIpGroups,omitempty\"`",
+            "DNSGateway *common.CommonIDName `json:\"dnsGateway,omitempty\"`",
+            "ZPAIPGroup *common.CommonIDName `json:\"zpaIpGroup,omitempty\"`",
+            "LastModifiedBy *common.IDNameExtensions `json:\"lastModifiedBy,omitempty\"`\n}"
+          ]
+        }
+      ]
+    },
+    "default-rule": {
+      "statement": "The default rule allows all DNS traffic and always keeps the lowest precedence; its action can be modified but it cannot be deleted. It is listed as the Default Connector DNS Rule, the catch-all that permits all queries.",
+      "tier": "A",
+      "binds": [
+        "ztw/traffic-dns-rules#defaultRule"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-dns-policies.json",
+          "quotes": [
+            "The DNS Policies page has a default rule that allows all DNS traffic. These rules always maintain the lowest precedence. You can modify their actions, but you cannot delete them.",
+            "Default Connector DNS Rule: The default catch-all rule that permits all DNS queries."
+          ]
+        }
+      ]
+    },
+    "wan-ctr-rule": {
+      "statement": "The predefined rule Redirect Resolution of Zscaler Domains to WAN CTR is disabled by default, matches Zscaler domains from the Zscaler Cloud Endpoints application service group, applies only to hardware devices in gateway mode, appears according to the tenant's licenses, and allows edits only to Rule Order, Rule Status, Location/Sublocation and Cloud & Branch Connector Groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-dns-policies.json",
+          "quotes": [
+            "View a list of predefined policy rules created by Zscaler. They are disabled by default, but you can enable them:",
+            "Redirect Resolution of Zscaler Domains to WAN CTR: This policy rule matches Zscaler domains from the predefined Zscaler Cloud Endpoints application service group. It only applies to hardware devices deployed in gateway mode and appears based on the licenses enabled in your tenant.",
+            "You can only edit certain fields for this rule (i.e., Rule Order, Rule Status, Location/Sublocation, and Cloud & Branch Connector Groups)."
+          ]
+        }
+      ]
+    },
+    "capability-actions": {
+      "statement": "The help names condition-based actions such as allowing or blocking traffic, redirecting requests to specific DNS servers, and redirecting users by overwriting DNS responses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-dns-policies.json",
+          "quotes": [
+            "Enforce condition-based actions on DNS traffic, such as allowing or blocking traffic, redirecting requests to specific DNS servers, redirecting users by overwriting DNS responses, etc."
+          ]
+        }
+      ]
+    },
+    "contract-actions": {
+      "statement": "The API contract lists eleven DNS rule `action` values: ALLOW, BLOCK, REDIR_REQ, REDIR_RES, REDIR_ZPA, REDIR_REQ_DOH, REDIR_REQ_KEEP_SENDER, REDIR_REQ_TCP, REDIR_REQ_UDP, BLOCK_WITH_RESPONSE and BLOCK_WITH_EUN.",
+      "tier": "A",
+      "binds": [
+        "ztw/traffic-dns-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecDns/post/requestBody/content/application~1json/schema/properties/action",
+          "expect": {
+            "enum": [
+              "ALLOW",
+              "BLOCK",
+              "REDIR_REQ",
+              "REDIR_RES",
+              "REDIR_ZPA",
+              "REDIR_REQ_DOH",
+              "REDIR_REQ_KEEP_SENDER",
+              "REDIR_REQ_TCP",
+              "REDIR_REQ_UDP",
+              "BLOCK_WITH_RESPONSE",
+              "BLOCK_WITH_EUN"
+            ]
+          }
+        }
+      ]
+    },
+    "tf-actions": {
+      "statement": "The Terraform DNS rule resource validates `action` against four values: ALLOW, BLOCK, REDIR_ZPA and REDIR_REQ.",
+      "tier": "A",
+      "binds": [
+        "ztw/traffic-dns-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "after": "\"action\": {",
+          "quotes": [
+            "\"ALLOW\",",
+            "\"BLOCK\",",
+            "\"REDIR_ZPA\",",
+            "\"REDIR_REQ\",",
+            "}, false),"
+          ]
+        }
+      ]
+    },
+    "tf-subset": {
+      "statement": "A DNS rule using any of the seven other contract actions (including REDIR_RES and the DoH, TCP and UDP redirects) cannot be written through the Terraform resource.",
+      "tier": "B",
+      "derived_from": [
+        "contract-actions",
+        "tf-actions"
+      ],
+      "conditions": "Follows from the provider's validator; whether the backend accepts all eleven contract values is not confirmed."
+    }
+  },
+  "gaps": {
+    "criteria-tunnel-doh": {
+      "kind": "semantic",
+      "title": "DNS record-type and resolved-location criteria, tunnel detection, and DoH handling",
+      "status": "partial",
+      "former_ids": [
+        "cloud-connector-12"
+      ],
+      "detail": "The help names users, groups, departments, categorization, record types and the location of resolved IPs as conditions. The API contract carries users, groups, departments, categories and destination countries (not the Go SDK), but no member for DNS record type or resolved-IP location is identified. Tunnel-detection triggers, thresholds and responses, and how DoH is identified and handled, are not described by any captured source.",
+      "blocks": "writing DNS rules on record type, and explaining tunnel-detection or DoH outcomes",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "zpa-resolver": {
+      "kind": "semantic",
+      "title": "The ZPA Resolver predefined DNS rule",
+      "status": "open",
+      "detail": "The Terraform provider's predefined-rule validator names `ZPA Resolver` alongside the WAN CTR rule, but no captured help page or SDK comment describes it: its default state, criteria, action (presumably REDIR_ZPA) and license or mode gating are unconfirmed. Part of ledger entry cloud-connector-13 (whose gateway questions are in cloud-connector.dns.gateways:failover-default-ipv6).",
+      "blocks": "explaining a ZPA Resolver rule found in a tenant",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "deleted-gateway-reference": {
+      "kind": "semantic",
+      "title": "Behavior of a REDIR_REQ rule whose DNS gateway is deleted",
+      "status": "open",
+      "detail": "Unverified legacy statement: a deleted gateway still referenced by a policy rule is not documented as producing an error or a fallback, so such rules \"may fail open or silently misroute\".",
+      "blocks": "predicting DNS behavior after gateway cleanup",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "response-overwrite": {
+      "kind": "semantic",
+      "title": "Whether \"overwriting DNS responses\" is the REDIR_RES action",
+      "status": "partial",
+      "former_ids": [
+        "cloud-connector-11"
+      ],
+      "detail": "The legacy reference concluded that no response-rewrite action exists because the Go SDK and Terraform list only ALLOW, BLOCK, REDIR_REQ and REDIR_ZPA. The API contract now lists REDIR_RES, BLOCK_WITH_RESPONSE and a `redirectIp` member, which fit the help's \"redirecting users by overwriting DNS responses\", but no source ties the console capability to one of them or describes how the answer is rewritten. The console page's action list shows only Allow, Block, Resolved by ZPA and Redirect Request.",
+      "blocks": "configuring a DNS sinkhole or rewrite through the API",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "first-match": {
+      "kind": "semantic",
+      "title": "Whether DNS policy evaluation stops at the first matching rule",
+      "status": "open",
+      "detail": "Unverified legacy statement: DNS Policy rules are evaluated in ascending order and \"first match wins\". The help states ascending evaluation and a lowest-precedence default rule, but not that evaluation ends at the first match.",
+      "blocks": "deterministic answers about which DNS rule handled a query",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

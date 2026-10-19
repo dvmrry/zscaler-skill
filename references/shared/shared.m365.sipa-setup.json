@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "id": "shared.m365.sipa-setup",
+  "title": "Configuring Source IP Anchoring for Microsoft 365 sign-in",
+  "aliases": [
+    "configure sipa for office 365",
+    "office 365 application segment source ip anchor",
+    "login.microsoftonline.com app segment",
+    "m365 sipa client forwarding policy",
+    "m365 sipa access policy zia service edge",
+    "m365 sipa forwarding rule zpa gateway"
+  ],
+  "related": [
+    { "rel": "depends-on", "to": "shared.m365" },
+    { "rel": "see-also", "to": "zia.forwarding-control.sipa" },
+    { "rel": "see-also", "to": "zia.forwarding-control.zpa-gateway" },
+    { "rel": "see-also", "to": "zia.dns-control.predefined-rules" },
+    { "rel": "see-also", "to": "zpa.server-groups" },
+    { "rel": "see-also", "to": "zia.forwarding-control.sipa-direct" }
+  ],
+  "prose": [
+    {
+      "text": "The vendor's Microsoft 365 article specialises the general Source IP Anchoring setup in the same order, Private Access first and then Internet & SaaS. Where the two articles agree, this subject links the general claim."
+    },
+    {
+      "heading": "Private Access side"
+    },
+    {
+      "steps": [
+        {
+          "label": "Initial setup, if Private Access is used only for anchoring.",
+          "text": "[[zia.forwarding-control.sipa:pa-solely]]"
+        },
+        {
+          "label": "Application segment.",
+          "text": "The hosts and ports: [[zia.saas-apps.conditional-access:login-hosts]] The Source IP Anchor option and the bypass setting: [[zia.forwarding-control.sipa:segment-settings]]"
+        },
+        {
+          "label": "Segment group and server group.",
+          "text": "{{segment-and-server-group}}"
+        },
+        {
+          "label": "Client forwarding policy.",
+          "text": "{{client-forwarding-action}} The general article prescribes a different rule pair for a domain-based segment such as this one {{divergence:client-forwarding-rules}}."
+        },
+        {
+          "label": "Access policy.",
+          "text": "{{access-zia-service-edge-only}} User-based SAML or SCIM criteria stay off this rule: [[zia.forwarding-control.sipa:no-user-criteria]]"
+        }
+      ]
+    },
+    {
+      "heading": "Internet & SaaS side"
+    },
+    {
+      "steps": [
+        {
+          "label": "Private Access gateway and forwarding rule.",
+          "text": "{{gateway-and-forwarding-rule}} The gateway object and its segment list: [[zia.forwarding-control.zpa-gateway]]."
+        },
+        {
+          "label": "DNS Control.",
+          "text": "The two predefined resolver rules, enabled and ranked first: [[zia.saas-apps.conditional-access:dns-resolver-rules]] Their relative order and the case against disabling the Road Warrior rule: [[zia.dns-control.predefined-rules:road-warrior-above-locations]], [[zia.dns-control.predefined-rules:dont-disable-road-warrior]]. {{ip-pool-in-action}}"
+        },
+        {
+          "label": "Z-Tunnel 1.0 and PAC remote users.",
+          "text": "[[zia.forwarding-control.sipa:ztunnel1-option]]"
+        }
+      ]
+    },
+    {
+      "text": "The Microsoft side (named locations and the Conditional Access policy) has no captured source; its open questions are in [[shared.m365.troubleshooting]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which client forwarding rules the Office 365 segment's segment group actually has: one Only Forward Allowed Applications rule, or the Bypass ZPA and Forward to ZPA pair. Record which, since a disaster recovery switch changes them differently.",
+      "uses": [
+        "client-forwarding-action",
+        "client-forwarding-rules",
+        "zia.forwarding-control.sipa-direct:switch-rules"
+      ]
+    },
+    {
+      "do": "That the gateway names the server group whose connector group holds the anchoring App Connectors, and the forwarding rule names that gateway and the Office 365 segment.",
+      "uses": [
+        "segment-and-server-group",
+        "gateway-and-forwarding-rule"
+      ]
+    },
+    {
+      "do": "That both ZPA resolver DNS rules are enabled at the top of DNS Control, Road Warrior above Locations, and which IP pool each shows in its Action column.",
+      "uses": [
+        "zia.saas-apps.conditional-access:dns-resolver-rules",
+        "zia.dns-control.predefined-rules:road-warrior-above-locations",
+        "ip-pool-in-action"
+      ]
+    }
+  ],
+  "claims": {
+    "segment-and-server-group": {
+      "statement": "The Office 365 application segment needs a segment group and a server group, and the server group must be associated with the configured App Connector group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "sipa-microsoft-365-conditional-access-config.json",
+          "quotes": [
+            "Configure a segment group and a server group for the Office 365 application segment. Ensure that your server group is associated with the connector group that you have configured."
+          ]
+        }
+      ]
+    },
+    "client-forwarding-action": {
+      "statement": "The Microsoft 365 article says to select Only Forward Allowed Applications as the rule action of the client forwarding policy for the Office 365 application segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "sipa-microsoft-365-conditional-access-config.json",
+          "quotes": [
+            "Ensure that you select the Rule of Action as Only Forward Allowed Applications in the Client Forwarding policy for the Office 365 application segment."
+          ]
+        }
+      ]
+    },
+    "access-zia-service-edge-only": {
+      "statement": "The access policy for the Office 365 application segment allows access only to the ZIA Service Edge client type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "sipa-microsoft-365-conditional-access-config.json",
+          "quotes": [
+            "Ensure that you allow access only to the ZIA Service Edge client type in the access policy for the application segment."
+          ]
+        }
+      ]
+    },
+    "gateway-and-forwarding-rule": {
+      "statement": "On the Internet & SaaS side, the Private Access gateway for the Office 365 segment selects the server group created for it, and a forwarding rule uses the ZPA forwarding method, takes trust criteria such as location and users on its General tab, selects the Office 365 segment on its Destination tab, and selects that gateway under Forward to ZPA Gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "sipa-microsoft-365-conditional-access-config.json",
+          "quotes": [
+            "Configure the Private Access gateway for the Office 365 application segment. Ensure that you select the server group that you created for the Office 365 application segment.",
+            "Under the Forwarding Rule section, select ZPA as the Forwarding Method.",
+            "Under the General tab, select the required trust criteria, such as location, users etc.",
+            "Under the Destination tab, select the Office 365 application segment that you created in the Zscaler Admin Console from the Application Segment drop-down menu.",
+            "Select the Private Access gateway that you created in the previous step from the Forward to ZPA Gateway drop-down menu."
+          ]
+        }
+      ]
+    },
+    "ip-pool-in-action": {
+      "statement": "Each ZPA resolver DNS rule is associated with its preconfigured IP pool, and a change to the pool shows in the rule's Action column while the rule is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "sipa-microsoft-365-conditional-access-config.json",
+          "quotes": [
+            "The DNS rules are associated with the respective preconfigured IP pools. Any change in the IP pool is reflected in the Action column of the respective DNS rule when the rule is enabled."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "client-forwarding-rules": {
+      "summary": "The Microsoft 365 article gives the Office 365 segment, which is defined by domain names, the Only Forward Allowed Applications action; the general Source IP Anchoring article reserves that action for IP address-based segments and gives domain-based segments a Bypass ZPA and Forward to ZPA rule pair.",
+      "positions": [
+        {
+          "says": "Select Only Forward Allowed Applications in the client forwarding policy for the Office 365 application segment.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "sipa-microsoft-365-conditional-access-config.json",
+            "quotes": [
+              "Ensure that you select the Rule of Action as Only Forward Allowed Applications in the Client Forwarding policy for the Office 365 application segment.",
+              "Under the Applications section, enter login.microsoftonline.com."
+            ]
+          }
+        },
+        {
+          "says": "Only Forward Allowed Applications is for IP address-based applications; domain-based applications get Rule 1, Bypass ZPA for all client types except ZIA Service Edge, and Rule 2, Forward to ZPA for only the ZIA Service Edge client type.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-source-ip-anchoring.json",
+            "quotes": [
+              "For IP address-based applications, select the Only Forward Allowed Applications rule action for Source IP Anchoring application segments.",
+              "Rule 1: Select the Bypass ZPA rule action for Source IP Anchoring Segment Groups and add all client types, except ZIA Service Edge client type.",
+              "Rule 2: Select the Forward to ZPA rule action for Source IP Anchoring Segment Groups and add only the ZIA Service Edge client type."
+            ]
+          }
+        }
+      ],
+      "impact": "Which client forwarding rules to build for the Microsoft sign-in segment, and therefore which rule the disaster recovery switch to Source IP Anchoring Direct has to change. Neither article says what Client Connector traffic to the sign-in hosts does under the other form."
+    }
+  }
+}

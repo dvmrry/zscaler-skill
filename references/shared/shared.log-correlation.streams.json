@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "id": "shared.log-correlation.streams",
+  "title": "Where ZIA, ZPA and Client Connector logs can be read, and for how long",
+  "aliases": [
+    "zia log retention",
+    "how long are zscaler logs kept",
+    "nss vs lss",
+    "do i need a siem for older logs",
+    "zcc logs in siem",
+    "log streaming per product",
+    "zia log latency"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.logs.nss-feed-format"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logs.client-log"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Each product keeps and exports its logs differently, which decides where a correlation query can run and how far back it can reach."
+    },
+    {
+      "heading": "ZIA: the Nanolog and NSS"
+    },
+    {
+      "text": "{{zia-retention}} {{zia-consolidation-latency}}"
+    },
+    {
+      "text": "Web and firewall logs are held in the Nanolog, and each NSS receives copies: [[zia.logs.nss-feed-format:one-store]]. A Cloud NSS instance takes one feed per log type: [[zia.logs.nss-feed-format:cloud-feed-limit]]. The web, firewall and DNS feeds each have their own field set: [[zia/web-log]], [[zia/firewall-log]], [[zia/dns-log]]. VM-based and Cloud NSS deployment is described in [[shared.nss.delivery-modes]], and the feed format specifiers in [[shared.nss.feeds:format-specifiers]]."
+    },
+    {
+      "heading": "ZPA: the Log Streaming Service"
+    },
+    {
+      "text": "LSS streams through a Public Service Edge to an App Connector that forwards to the log receiver, and it is separate from NSS: [[zpa.log-receivers.architecture:two-components]], [[zpa.log-receivers.architecture:not-nss]]. A receiver can carry nineteen log types: [[zpa.log-receivers.log-types:help-log-types]]. User Activity, User Status and App Connector logs are retained for at least 14 days and audit logs for at least 6 months: [[zpa.log-receivers.delivery:cloud-retention]]. Data generated during a connection loss is not delivered except as the help describes: [[zpa.app-connectors.health:lss-retransmit-limits]]. Mutual TLS between connector and receiver is optional and has certificate requirements: [[zpa.log-receivers.tls]]."
+    },
+    {
+      "heading": "Client Connector: logs on the device"
+    },
+    {
+      "text": "Client Connector's log is collected from the device, by user export or an admin fetch: [[zcc.logging.user-access:visible-capabilities]], [[zcc.logging.collection:fetch-prereq]]. Whether it records individual transactions is open: [[zcc.logs.client-log:transaction-records]]. Whether any Client Connector log reaches a SIEM directly is open {{gap:zcc-siem-stream}}; the ZIA view of its traffic is in [[shared.log-correlation.zcc-in-zia]]."
+    },
+    {
+      "heading": "Cloud Connector"
+    },
+    {
+      "text": "Cloud Connector's log paths are described in [[cloud-connector.logs]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before querying, check that the window is inside what the source still holds: 180 days in the Nanolog for ZIA Insights logs, at least 14 days for ZPA User Activity, User Status and App Connector logs in the console; beyond that only a SIEM copy has it.",
+      "uses": [
+        "zia-retention",
+        "zpa.log-receivers.delivery:cloud-retention"
+      ]
+    },
+    {
+      "do": "For very recent events, allow for ZIA's consolidation latency before concluding a record is missing.",
+      "uses": [
+        "zia-consolidation-latency"
+      ]
+    }
+  ],
+  "claims": {
+    "zia-retention": {
+      "statement": "The ZIA Insights Logs article says logs are stored for 180 days in the Zscaler Nanolog servers, and that NSS, a virtual machine, can stream web traffic logs in real time from the Nanolog to a SIEM, enabling real-time alerting, correlation with the logs of firewalls and other devices, and long-term local log archival.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-insights-logs.json",
+          "quotes": [
+            "Logs are stored for 180 days in the Zscaler Nanolog servers.",
+            "Zscaler also offers the Nanolog Streaming Service (NSS), a virtual machine (VM) that can stream web traffic logs in real time from the Zscaler Nanolog to your security information and event management (SIEM) system",
+            "enabling real-time alerting, correlation with the logs of your firewall and other devices, and long-term local log archival"
+          ]
+        }
+      ]
+    },
+    "zia-consolidation-latency": {
+      "statement": "The ZIA Insights Logs article says the Zscaler service performs global time-ordered log consolidation, with a potential latency of several seconds to a few minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-insights-logs.json",
+          "quotes": [
+            "The Zscaler service performs global time-ordered log consolidation, with potential latency ranging from several seconds to a few minutes"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zcc-siem-stream": {
+      "kind": "semantic",
+      "title": "Whether any Client Connector log reaches a SIEM directly",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"ZCC does not produce a SIEM-streamable log feed equivalent to NSS or LSS\"; its logs cover tunnel, authentication, posture and forwarding events, and \"the SIEM-queryable view of what a ZCC device was doing lives entirely in ZIA NSS.\" The registered sources describe device-side collection and Flow Logging reports to ZIA, but no page states that Client Connector has no SIEM export.",
+      "blocks": "Answering whether Client Connector events can be searched in a SIEM",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

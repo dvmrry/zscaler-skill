@@ -9,8 +9,8 @@ confidence: medium
 source-tier: practice
 sources:
   - "references/_meta/clarifications.md"
-  - "references/shared/terminology.md"
-  - "references/shared/cloud-architecture.md"
+  - "kb:shared.terminology"
+  - "kb:shared.cloud-architecture"
   - "agents/siem-emission-discipline.md"
   - "docs/data-contract/knowledge.md"
 dependencies:
@@ -56,7 +56,7 @@ portfolio directories) plus `shared/` for cross-product material and `_meta/`
 for clarifications, evals, and skill metadata. Cross-product clarifications and
 open questions live in `references/_meta/clarifications.md`. Shared terminology,
 disambiguations, and naming conventions are in
-`references/shared/terminology.md`. Tenant-specific data comes from the knowledge graph (`node scripts/kb.mjs resolve <id | text>`), the overlay's IaC, and live read-only `zscalerctl`; the overlay lives at `$ZSCALER_KB_OVERLAY` or `<runtime-data mount>/overlay/`. If root
+`node scripts/kb.mjs resolve shared.terminology`. Tenant-specific data comes from the knowledge graph (`node scripts/kb.mjs resolve <id | text>`), the overlay's IaC, and live read-only `zscalerctl`; the overlay lives at `$ZSCALER_KB_OVERLAY` or `<runtime-data mount>/overlay/`. If root
 `zscaler-skill-runtime.json` or local `zscaler-skill-setup.json` sets
 `runtimeData.mountPath`, treat that configured relative path as the runtime-data
 mount and substitute it for `_data` in tenant-data paths. Use targeted `rg`

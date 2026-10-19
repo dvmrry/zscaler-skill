@@ -25,7 +25,7 @@
       "text": "A GRE tunnel that is up on the router can still be useless, so health has two layers. {{keepalive-limit}} {{monitoring-required}} {{health-checks}} {{no-popular-site-checks}}"
     },
     {
-      "text": "{{failover-profiles}} {{delay-down-up}}"
+      "text": "{{failover-profiles}} {{delay-down-up}} {{sample-config}}"
     },
     {
       "text": "The tunnel design itself (primary and secondary in different data centers) is in [[zia.traffic-forwarding.gre]]."
@@ -145,6 +145,21 @@
             "The delay down command prevents frequent failovers due to short-lived flaps in the connection.",
             "This command ensures that the failover happens only when multiple connection drops are observed consecutively.",
             "In the following example, the delay time to mark an IP SLA test as down is configured as 120 seconds. The delay time to mark an object as up is configured as 180 seconds. The router generates an HTTP SLA probe once every 60 seconds."
+          ]
+        }
+      ]
+    },
+    "sample-config": {
+      "statement": "The vendor's Cisco sample probes the primary and secondary Global Public Service Edge IP addresses with IP SLA HTTP raw requests (a 500 ms round-trip threshold in the example, to be set from observed latency) and ties failover to the track objects with a route-map using set ip next-hop verify-availability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-gre-tunnels.json",
+          "quotes": [
+            "Configure latency thresholds based on the response time observed between a client location and the Zscaler data center. In the following example, 500 is the threshold Round Trip Time.",
+            "with Global Public Service Edge IP addresses. To learn more, see About Global Public Service Edges for Internet & SaaS.",
+            "set ip next-hop verify-availability 172.18.56.162 1 track 1"
           ]
         }
       ]

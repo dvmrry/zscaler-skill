@@ -1,0 +1,364 @@
+{
+  "schema_version": 1,
+  "id": "shared.analytics.graphql-queries",
+  "title": "Writing Analytics GraphQL queries: time range, units, limits, filters and open schema questions",
+  "aliases": [
+    "zins query start_time end_time milliseconds",
+    "WebTrafficUnits",
+    "TRANSACTIONS BYTES traffic_unit",
+    "zins limit pagination",
+    "zins obfuscated flag",
+    "categorize_by LOCATION_ID",
+    "zins filter_by StringFilter in",
+    "zins mutation"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.analytics.graphql"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.iot.api-surface"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{multi-domain-request}}"
+    },
+    {
+      "label": "Time range.",
+      "text": "{{time-in-milliseconds}}"
+    },
+    {
+      "label": "Units.",
+      "text": "{{units-sample}} {{sdk-web-traffic-units}} Whether the server accepts `BYTES` is not yet confirmed {{gap:bytes-unit}}."
+    },
+    {
+      "label": "Limits and paging.",
+      "text": "{{limit-per-entries}} Whether `limit` is the whole paging model, and what the default and maximum are, is open {{gap:pagination}}. The ZDX GraphQL API pages differently: {{zdx-graphql-cursor}}"
+    },
+    {
+      "label": "Filtering, ordering and grouping.",
+      "text": "{{filter-in}} {{other-options}} {{categorize-by}}"
+    },
+    {
+      "label": "Obfuscated names.",
+      "text": "{{obfuscated-field}} What turns it on is open {{gap:obfuscated-source}}."
+    },
+    {
+      "label": "IoT device stats.",
+      "text": "The IoT `device_stats` query takes no time window: [[zia.iot.api-surface:graphql-no-time-window]]. That question is largely settled {{gap:iot-time-range}}."
+    },
+    {
+      "label": "Schema.",
+      "text": "{{sdk-queries-only}} Whether the schema has mutations at all is open {{gap:mutations}}, as is the full type and field inventory {{gap:schema-inventory}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether start_time and end_time are in milliseconds, not seconds.",
+      "uses": [
+        "time-in-milliseconds"
+      ]
+    },
+    {
+      "do": "Whether a result that looks short hit the entries limit rather than the end of the data.",
+      "uses": [
+        "limit-per-entries",
+        "pagination"
+      ]
+    },
+    {
+      "do": "Before reporting entity names from a response, whether its obfuscated flag is true.",
+      "uses": [
+        "obfuscated-field",
+        "obfuscated-source"
+      ]
+    }
+  ],
+  "claims": {
+    "multi-domain-request": {
+      "statement": "A single request can carry several queries across data domains, and the guide's example uses query variables (`$start_time`, `$end_time`, `$unit`) shared by every query.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "quotes": [
+            "You can also execute queries across multiple data domains.",
+            "You can use the same start_time and end_time values across all queries by leveraging variables in Postman.",
+            "$start_time: Long!",
+            "$unit: WebTrafficUnits!"
+          ]
+        }
+      ]
+    },
+    "time-in-milliseconds": {
+      "statement": "`start_time` and `end_time` are given in milliseconds (type `Long`), for example 1743552000000.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "quotes": [
+            "Select start_time and enter the value in milliseconds in the text field.",
+            "\"start_time\": 1743552000000,",
+            "$start_time: Long!",
+            "Select end_time and enter the value in milliseconds in the text field."
+          ]
+        }
+      ]
+    },
+    "units-sample": {
+      "statement": "Web traffic queries take a `traffic_unit` of type `WebTrafficUnits`; the guide's examples use `TRANSACTIONS`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "quotes": [
+            "$unit: WebTrafficUnits!",
+            "protocols(end_time: $end_time, start_time: $start_time, traffic_unit: $unit) {",
+            "\"unit\": \"TRANSACTIONS\""
+          ]
+        }
+      ]
+    },
+    "sdk-web-traffic-units": {
+      "statement": "The Python SDK's `WebTrafficUnits` enum defines `TRANSACTIONS` and `BYTES`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zins/models/enums.py",
+          "after": "class WebTrafficUnits(str, Enum):",
+          "quotes": [
+            "TRANSACTIONS = \"TRANSACTIONS\"",
+            "BYTES = \"BYTES\""
+          ]
+        }
+      ]
+    },
+    "limit-per-entries": {
+      "statement": "`limit` is an argument of a query's `entries` and sets the number of entries in that response, for example `entries(limit: 5)`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "quotes": [
+            "GraphQL allows selecting the exact fields that should be part of the response. You can do this by selecting entries and choosing the list of fields that should appear in the response:",
+            "Select limit, and enter the number of entries to be present in the response.",
+            "entries(limit: 5) {"
+          ]
+        }
+      ]
+    },
+    "zdx-graphql-cursor": {
+      "statement": "The ZDX GraphQL API pages with a cursor: `first` (at most 1000) and `end_cursor` until `has_next_page` is false, with `end_cursor` an empty string on the last page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/zscaler-analytics-working-with-zdx-graphql.json",
+          "quotes": [
+            "The end_cursor field returns an empty string (not null) on the final page. Page through data using first: 1000 (the maximum allowed value) and iterate through end_cursor until has_next_page is false."
+          ]
+        }
+      ]
+    },
+    "filter-in": {
+      "statement": "`entries` takes a `filter_by` argument; the guide filters threat classes by name with an `in` list, for example `name: { in: [\"BEHAVIORAL_ANALYSIS\", \"ADVANCED\"] }`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "quotes": [
+            "entries(filter_by: { name: { in: [\"BEHAVIORAL_ANALYSIS\", \"ADVANCED\"] } }) {"
+          ]
+        }
+      ]
+    },
+    "other-options": {
+      "statement": "Queries can also take `order_by`, `order` and `filter_by` options, depending on the use case.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "quotes": [
+            "You can select other options, such as order_by, order, and filter_by, depending on the use cases."
+          ]
+        }
+      ]
+    },
+    "categorize-by": {
+      "statement": "The `CYBER_SECURITY` domain's `cyber_security_location` query takes `categorize_by`, for example `LOCATION_ID`, to group incidents by location, returning `id`, `name` and `total` entries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "quotes": [
+            "Select cyber_security_location and select the following associated options:",
+            "Select categorize_by and select LOCATION_ID from the drop-down menu.",
+            "Select id, name, and total."
+          ]
+        }
+      ]
+    },
+    "obfuscated-field": {
+      "statement": "Several queries return an `obfuscated` field beside their `entries`, for example `casb_app` and the firewall `location_firewall`, `action`, `overall_traffic` and `network_service` queries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "after": "casb_app(start_time: $start_time, end_time: $end_time) {",
+          "quotes": [
+            "obfuscated"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "after": "location_firewall(start_time: $start_time, end_time: $end_time) {",
+          "quotes": [
+            "obfuscated"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "after": "action(start_time: $start_time, end_time: $end_time) {",
+          "quotes": [
+            "obfuscated"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "after": "overall_traffic(start_time: $start_time, end_time: $end_time) {",
+          "quotes": [
+            "obfuscated"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "after": "network_service(start_time: $start_time, end_time: $end_time) {",
+          "quotes": [
+            "obfuscated"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "after": "location_firewall(start_time: $start_time, end_time: $end_time) {",
+          "quotes": [
+            "entries(limit: 5) {"
+          ]
+        }
+      ]
+    },
+    "sdk-queries-only": {
+      "statement": "The Python SDK's Z-Insights modules and the MCP server's Z-Insights tools send only GraphQL queries; neither contains a mutation.",
+      "tier": "B",
+      "conditions": "Search of `zscaler/zins` in the Python SDK and `src/zscaler_mcp/tools/zins` in the MCP server for 'mutation' at the pins found nothing; an absence in clients does not show the schema has none.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zins/web_traffic.py",
+          "quotes": [
+            "query WebTrafficByLocation("
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "bytes-unit": {
+      "kind": "semantic",
+      "former_ids": [
+        "shared-36"
+      ],
+      "title": "Whether WebTrafficUnits BYTES is accepted",
+      "status": "partial",
+      "detail": "The Python SDK enum includes BYTES (claim sdk-web-traffic-units), but no vendor guide or live query shows the server accepting it; the guide's examples use TRANSACTIONS only.",
+      "blocks": "telling a caller to request byte totals instead of transaction counts",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "pagination": {
+      "kind": "semantic",
+      "former_ids": [
+        "shared-31"
+      ],
+      "title": "Paging and truncation in Z-Insights queries",
+      "status": "open",
+      "detail": "Unverified legacy statement: the API has no cursor or offset paging, `limit` on entries is the only control, repeated queries over different time windows are the intended slicing, and the server default when `limit` is omitted is unknown. No source states the default, the maximum, or whether results above a cap are truncated silently.",
+      "blocks": "knowing whether a Z-Insights result is complete",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "obfuscated-source": {
+      "kind": "semantic",
+      "former_ids": [
+        "shared-32"
+      ],
+      "title": "What sets the obfuscated flag",
+      "status": "open",
+      "detail": "Unverified legacy statement: when obfuscated is true, entry names have been masked by tenant policy (location or user names replaced with anonymized identifiers). No captured source names the setting or role that turns it on.",
+      "blocks": "explaining masked names in Z-Insights results",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "iot-time-range": {
+      "kind": "semantic",
+      "former_ids": [
+        "shared-33"
+      ],
+      "title": "Whether IoT device_stats has a time window",
+      "status": "partial",
+      "detail": "The MCP server documents device_stats as having no time window and reflecting the present network state (zia.iot.api-surface:graphql-no-time-window), and the guide's example passes no time arguments. A vendor API reference statement is still missing.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "mutations": {
+      "kind": "semantic",
+      "former_ids": [
+        "shared-35"
+      ],
+      "title": "Whether the Z-Insights schema has mutations",
+      "status": "open",
+      "detail": "The guide's introspection examples and the clients show only queries (claim sdk-queries-only); no introspection output shows whether a mutation type exists.",
+      "blocks": "answering whether Z-Insights can change anything",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "schema-inventory": {
+      "kind": "data",
+      "title": "The Z-Insights type and field inventory",
+      "status": "open",
+      "detail": "Unverified legacy statement: a 'complete list from introspection' of about 65 GraphQL types (ActionStatus through WebTrend), per-domain query counts (Web Traffic 5, SaaS Security 1, Cyber Security 2, Zero Trust Firewall 5, Shadow IT 2, IoT 1), that entry `total` is a transaction count, that protocol entries are names such as HTTP, HTTPS and FTP, and that a cyber-security location `id` matches the ZIA location ID. No introspection output is captured; the Python SDK's zins models hold part of the type list.",
+      "blocks": "answering field-level questions without running introspection",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

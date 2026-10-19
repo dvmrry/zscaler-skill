@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "id": "shared.activation.cbc",
+  "title": "Reading Cloud & Branch Connector activation status",
+  "aliases": [
+    "ecAdminActivateStatus status",
+    "orgEditStatus",
+    "adminActivateStatus",
+    "cbc activation pending",
+    "ztw activation status"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api.activation-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdk-python.client-configuration"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Cloud & Branch Connector stages changes like ZIA, but its status read does not answer in ZIA's terms. The activate calls themselves are in [[cloud-connector.api.activation-wire]]."
+    },
+    {
+      "label": "Reading the status.",
+      "text": "{{no-zia-status-vocabulary}} What each status value means is not documented {{gap:status-meanings}}."
+    },
+    {
+      "label": "Activation nobody triggered.",
+      "text": "Whether Cloud & Branch Connector also activates on its own, as ZIA does when a session ends, is only partly settled {{gap:session-autoactivation}}. The Python SDK says a ZTW session, like ZIA's, needs an explicit logout to activate staged configurations: [[cloud-connector.sdk-python.client-configuration:sdk-says-logout-activates]]. The ZIA behavior is [[zia.terraform.activation-methods:session-end-autoactivation]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether orgEditStatus shows edits present, and which admins' states in adminStatusMap are not done, rather than looking for PENDING.",
+      "uses": [
+        "no-zia-status-vocabulary",
+        "status-meanings"
+      ]
+    },
+    {
+      "do": "Whether the last activation status names a timer or autosync activation when changes went live without an activate call.",
+      "uses": [
+        "session-autoactivation"
+      ]
+    }
+  ],
+  "claims": {
+    "no-zia-status-vocabulary": {
+      "statement": "The Cloud & Branch Connector status read does not return ZIA's ACTIVE, PENDING or INPROGRESS: it returns an organization policy edit status (EDITS_CLEARED, EDITS_PRESENT or EDITS_ACTIVATED_ON_RESTART), the organization's last activation status, an admin activation status (ADM_LOGGED_IN through ADM_EXPIRED) and a per-admin status map, so a pending-change check reads the edit status instead.",
+      "tier": "B",
+      "derived_from": [
+        "zia.api.activation:status-values"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecAdminActivateStatus/get/responses/default/content/application~1json/schema",
+          "expect": {
+            "title": "OrgEditActivateStatus",
+            "description": "Organization policy edit/update activation status."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecAdminActivateStatus/get/responses/default/content/application~1json/schema/properties/orgEditStatus",
+          "expect": {
+            "description": "Organization policy edit status.",
+            "enum": [
+              "EDITS_CLEARED",
+              "EDITS_PRESENT",
+              "EDITS_ACTIVATED_ON_RESTART"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecAdminActivateStatus/get/responses/default/content/application~1json/schema/properties/adminActivateStatus",
+          "expect": {
+            "description": "Admin activation status.",
+            "enum": [
+              "ADM_LOGGED_IN",
+              "ADM_EDITING",
+              "ADM_ACTV_QUEUED",
+              "ADM_ACTIVATING",
+              "ADM_ACTV_DONE",
+              "ADM_ACTV_FAIL",
+              "ADM_EXPIRED"
+            ]
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/activation/activation.go",
+          "quotes": [
+            "OrgEditStatus         string                 `json:\"orgEditStatus\"`",
+            "AdminStatusMap        map[string]interface{} `json:\"adminStatusMap\"`"
+          ]
+        }
+      ],
+      "conditions": "The value lists come from the specification's enums; that EDITS_PRESENT is the pending state is read from the names, which no source defines (gap status-meanings)."
+    }
+  },
+  "gaps": {
+    "status-meanings": {
+      "kind": "semantic",
+      "title": "What the Cloud & Branch Connector activation status values mean",
+      "status": "open",
+      "detail": "The specification lists the values of orgEditStatus, orgLastActivateStatus and adminActivateStatus with one-line field descriptions and no per-value meaning. Which value shows staged but unactivated changes, what EDITS_ACTIVATED_ON_RESTART and ADM_EXPIRED mean, and how adminStatusMap is keyed are not documented.",
+      "blocks": "telling from a status read whether Cloud & Branch Connector changes are still pending",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "session-autoactivation": {
+      "kind": "semantic",
+      "title": "Whether Cloud & Branch Connector activates pending changes on its own",
+      "status": "partial",
+      "detail": "Unverified legacy statement: \"The captured CBC sources do not establish whether ZIA's session-boundary autoactivation behavior also applies to CBC.\" The Python SDK's code comment and 1.5.9 changelog say ZTW, like ZIA, needs the explicit logout to activate staged configurations (cloud-connector.sdk-python.client-configuration:sdk-says-logout-activates), which points to activation at session end; no vendor help or API page states it, says whether a session timeout does the same, or explains the last-activation values CAC_ACTV_AUTOSYNC and CAC_ACTV_TIMER and the edit status EDITS_ACTIVATED_ON_RESTART.",
+      "blocks": "predicting whether staged Cloud & Branch Connector changes go live without an activate call",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.api.activation-wire",
+  "title": "Cloud Connector activation on the wire: activate, forced activate, and what the clients send",
+  "aliases": [
+    "ztw activation",
+    "ecAdminActivateStatus",
+    "forcedActivate",
+    "cloud connector activate changes api",
+    "ztc_activation_status",
+    "ztw force activate"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.write-practices"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Cloud & Branch Connector stages configuration changes until they are activated, as ZIA does. The activation paths and the clients' functions are generated; this subject holds what the calls do and how the clients differ."
+    },
+    {
+      "label": "Why activation exists.",
+      "text": "{{activation-pushes-to-ca}} The OneAPI guide names Cloud & Branch Connector, with ZIA, as needing explicit activation: [[shared.oneapi.write-practices:activation-zia-cbc]]. The ZIA counterpart is [[zia.api.activation]]."
+    },
+    {
+      "label": "The two operations.",
+      "text": "{{contract-descriptions}} What forcing changes beyond that description is open {{gap:force-semantics}}. The OneAPI guide says activate is a POST while the contract and both SDKs use PUT: [[shared.oneapi.write-practices:cbc-activate-method]]."
+    },
+    {
+      "label": "Clients.",
+      "text": "{{python-force-flag}} {{go-sends-status-struct}} The contract shows no request body for either operation {{divergence:activate-request-body}}. The Go SDK's writes never activate on their own, [[cloud-connector.sdk-go.coverage:no-auto-activation]], while a Python OneAPI client that wrote ZTW objects ends its session on exit in a way the SDK says activates them, [[cloud-connector.sdk-python.client-configuration:exit-can-activate]]."
+    },
+    {
+      "text": "{{tf-create-only}} {{tf-never-forces}} What that means for an apply, and the out-of-band activator CLI, are in [[cloud-connector.terraform.activation:resource-activates-only-on-create]] and [[cloud-connector.terraform.activation:two-ways]]. In legacy mode the activation status read goes through the ZIA legacy client and fails in the provider: [[cloud-connector.sdk-go.service-defects:legacy-ztw-only-client-fails-generic-calls]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Terraform run that changed Cloud Connector objects actually activated: the activation resource activates only when it is created or replaced, not on every apply.",
+      "uses": [
+        "tf-create-only"
+      ]
+    },
+    {
+      "do": "Before using forced activation in automation, whether Zscaler has confirmed what it does differently from a normal activation.",
+      "uses": [
+        "contract-descriptions",
+        "force-semantics"
+      ]
+    }
+  ],
+  "claims": {
+    "activation-pushes-to-ca": {
+      "statement": "The Activation API resources activate configuration changes by pushing them to the Central Authority (CA); for any configuration change to take effect, the service requires it to be activated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-zscaler-cloud-branch-connector-api.json",
+          "quotes": [
+            "Activation API resources allow you to activate your configuration changes by pushing them to the Central Authority (CA). In order for any configuration changes to take effect, the Zscaler service requires you to activate the changes."
+          ]
+        }
+      ]
+    },
+    "contract-descriptions": {
+      "statement": "The contract describes the activate operation only as \"Activates configuration changes.\" and the forced activate operation only as \"Force activates configuration changes.\"",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecAdminActivateStatus~1activate/put",
+          "expect": {
+            "description": "Activates configuration changes."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecAdminActivateStatus~1forcedActivate/put",
+          "expect": {
+            "description": "Force activates configuration changes."
+          }
+        }
+      ]
+    },
+    "python-force-flag": {
+      "statement": "The Python SDK's `activate` takes `force` (default False) and sends a PUT to `/ecAdminActivateStatus/forcedActivate` when it is True and to `/ecAdminActivateStatus/activate` otherwise, with any keyword arguments as the body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/activation.py",
+          "quotes": [
+            "def activate(self, force: bool = False, **kwargs) -> APIResult[dict]:",
+            "http_method = \"put\".upper()",
+            "if force: endpoint_path = \"/ecAdminActivateStatus/forcedActivate\" else: endpoint_path = \"/ecAdminActivateStatus/activate\"",
+            "body = kwargs"
+          ]
+        }
+      ]
+    },
+    "go-sends-status-struct": {
+      "statement": "The Go SDK's `UpdateActivationStatus` and `ForceActivationStatus` each send a PUT whose body is the caller's `ECAdminActivation` struct; none of its four fields is tagged to be omitted when empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/activation/activation.go",
+          "quotes": [
+            "type ECAdminActivation struct { OrgEditStatus string `json:\"orgEditStatus\"` OrgLastActivateStatus string `json:\"orgLastActivateStatus\"` AdminStatusMap map[string]interface{} `json:\"adminStatusMap\"` AdminActivateStatus string `json:\"adminActivateStatus\"` }",
+            "func UpdateActivationStatus(ctx context.Context, service *zscaler.Service, activation ECAdminActivation) (*ECAdminActivation, error) { resp, err := service.Client.UpdateWithPutResource(ctx, ecAdminActivateEndpoint, activation)",
+            "func ForceActivationStatus(ctx context.Context, service *zscaler.Service, forceActivation ECAdminActivation) (*ECAdminActivation, error) { resp, err := service.Client.UpdateWithPutResource(ctx, ecAdminForceActivateEndpoint, forceActivation)"
+          ]
+        }
+      ]
+    },
+    "tf-create-only": {
+      "statement": "The ZTC provider's `ztc_activation_status` resource activates in its create function (calling `UpdateActivationStatus`), has no update function, and its delete is a no-op; its settable arguments are all ForceNew.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_activation_status.go",
+          "quotes": [
+            "CreateContext: resourceActivationStatusCreate, ReadContext: resourceActivationStatusRead, DeleteContext: resourceFuncNoOp,",
+            "resp, err := activation.UpdateActivationStatus(ctx, service, req)",
+            "\"org_edit_status\": { Type: schema.TypeString, Optional: true, ForceNew: true,",
+            "\"org_last_activate_status\": { Type: schema.TypeString, Optional: true, ForceNew: true,",
+            "\"admin_activate_status\": { Type: schema.TypeString, Optional: true, ForceNew: true,"
+          ]
+        }
+      ]
+    },
+    "tf-never-forces": {
+      "statement": "The ZTC provider never calls forced activation: the resource has no force option, and the provider does not call `ForceActivationStatus` or the forced activate path.",
+      "tier": "B",
+      "derived_from": [
+        "tf-create-only"
+      ],
+      "conditions": "Absence by search: `git grep` for ForceActivationStatus and forcedActivate in the ztc directory of terraform-provider-ztc v0.2.0 finds nothing; UpdateActivationStatus has one call site."
+    }
+  },
+  "divergences": {
+    "activate-request-body": {
+      "summary": "Whether the activate calls carry a request body.",
+      "positions": [
+        {
+          "says": "The contract's activate and forced activate operations define no request body.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1ecAdminActivateStatus~1activate/put",
+            "expect_absent": [
+              "requestBody"
+            ]
+          }
+        },
+        {
+          "says": "The Go SDK sends the four-field activation status struct as the body.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/ztw/services/activation/activation.go",
+            "quotes": [
+              "resp, err := service.Client.UpdateWithPutResource(ctx, ecAdminActivateEndpoint, activation)"
+            ]
+          }
+        },
+        {
+          "says": "The Python SDK sends the caller's keyword arguments, which are empty for a plain call.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/ztw/activation.py",
+            "quotes": [
+              "body = kwargs"
+            ]
+          }
+        }
+      ],
+      "impact": "No source says whether the API reads the status fields a Go or Terraform caller sends; activation through either SDK is the tested path, and a raw call can follow the contract and send no body."
+    }
+  },
+  "gaps": {
+    "force-semantics": {
+      "kind": "semantic",
+      "title": "What forced activation does that a normal activation does not",
+      "status": "open",
+      "detail": "Unverified legacy statement: none of the static sources says that forced activation bypasses validation, clears an edit lock, or is meant for a stuck activation, and those semantics should not be assumed. The contract describes it only as force-activating configuration changes; the SDKs expose it as a force choice.",
+      "blocks": "using forced activation as an automated recovery step",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

@@ -137,5 +137,5 @@ For custom apps, at least one Web probe is required to enable monitoring; Networ
 - Diagnostics Sessions and Alerts — [`./diagnostics-and-alerts.md`](./diagnostics-and-alerts.md)
 - API surface — [`./api.md`](./api.md)
 - ZCC entitlement (ZDX gate) — [`zcc.entitlements`](kb:zcc.entitlements)
-- Location-collection dual-source — [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)
-- Shared cloud architecture (how ZDX CA fits into the broader platform) — [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md)
+- Location-collection dual-source — [`shared.integrations`](kb:shared.integrations)
+- Shared cloud architecture (how ZDX CA fits into the broader platform) — [`shared.cloud-architecture`](kb:shared.cloud-architecture)

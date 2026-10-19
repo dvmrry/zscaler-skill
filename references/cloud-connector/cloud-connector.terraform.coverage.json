@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.terraform.coverage",
+  "title": "What the ZTC Terraform provider covers, and how existing objects are imported",
+  "aliases": [
+    "ztc terraform missing resource",
+    "ztc provider api parity",
+    "zscaler-terraformer ztc",
+    "ztc terraform import",
+    "ztc import by name",
+    "ztc brownfield"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.forwarding-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.doc-errata"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdk-go.coverage"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The provider's resources and data sources are generated: run `node scripts/kb.mjs surface ztw` and read the `terraform` entries. This subject holds why something may have no resource and what the vendor's import tooling covers."
+    },
+    {
+      "label": "Public API only.",
+      "text": "{{api-parity}} Workload groups and ZPA segment lookups, which have no resource or data source of their own, are in [[cloud-connector.terraform.forwarding-rules]]; connector-group writes the SDK lacks are in [[cloud-connector.sdk-go.coverage]]."
+    },
+    {
+      "label": "Importing existing objects.",
+      "text": "{{import-id-or-name}} {{importer-guide-ztc-list}} {{importer-limitations}} The legacy doc's count of Terraformer-supported ZTC resources rests on a source this repository does not register {{gap:terraformer-ztc-inventory}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the setting is exposed by the public Cloud & Branch Connector API before looking for a provider resource for it.",
+      "uses": [
+        "api-parity"
+      ]
+    },
+    {
+      "do": "Whether the resource to bring under management is in the Terraformer list; for one that is not, use terraform import with the resource's own importer.",
+      "uses": [
+        "importer-guide-ztc-list",
+        "importer-limitations",
+        "import-id-or-name"
+      ]
+    }
+  ],
+  "claims": {
+    "api-parity": {
+      "statement": "The provider documentation says it keeps parity with the publicly available API and implements only what that API exposes, so a feature available in the console but not through the API cannot be in the provider.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/index.md",
+          "quotes": [
+            "The ZTC Terraform provider maintain parity with publicly available API endpoints.",
+            "we implement only the features that are currently exposed by the public API.",
+            "certain features or attributes available via the Zscaler UI may not be immediately available through the API, and therefore cannot be included in the Terraform provider."
+          ]
+        }
+      ]
+    },
+    "import-id-or-name": {
+      "statement": "The forwarding rule and DNS gateway importers take the import ID as a numeric ID when it parses as a number and otherwise look the object up by name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "quotes": [
+            "idInt, parseIDErr := strconv.ParseInt(id, 10, 64) if parseIDErr == nil { _ = d.Set(\"rule_id\", idInt) } else { resp, err := forwarding_rules.GetRulesByName(ctx, service, id)"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_dns_gateway.go",
+          "quotes": [
+            "idInt, parseIDErr := strconv.ParseInt(id, 10, 64) if parseIDErr == nil { _ = d.Set(\"gateway_id\", idInt) } else { resp, err := dnsgateway.GetByName(ctx, service, id)"
+          ]
+        }
+      ]
+    },
+    "importer-guide-ztc-list": {
+      "statement": "The provider's resource-importer guide lists nine ZTC resources that zscaler-terraformer can generate and import (forwarding gateway, IP destination, IP source and IP pool groups, network service groups, network services, location template, provisioning URL, traffic forwarding rule) and says any resource not listed is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/guides/resource-importer.md",
+          "after": "## ZTC Supported Resources",
+          "quotes": [
+            "Any resources not listed are currently not supported.",
+            "zscaler-terraformer --supported-resources=\"ztc\"",
+            "| Forward Gateway | ✅ | ✅ |",
+            "[ztc_ip_destination_groups](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_ip_destination_groups) | Policy Resources | ✅ | ✅ |",
+            "[ztc_ip_source_groups](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_ip_source_groups) | Policy Resources | ✅ | ✅ |",
+            "[ztc_ip_pool_groups](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_ip_pool_groups) | Policy Resources | ✅ | ✅ |",
+            "[ztc_network_service_groups](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_network_service_groups) | Policy Resources | ✅ | ✅ |",
+            "[ztc_network_services](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_network_services) | Policy Resources | ✅ | ✅ |",
+            "[ztc_location_template](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_location_template) | Location Management | ✅ | ✅ |",
+            "[ztc_provisioning_url](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_provisioning_url) | Provisioning | ✅ | ✅ |",
+            "[ztc_traffic_forwarding_rule](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_traffic_forwarding_rule) | Policy Management| ✅ | ✅ |"
+          ]
+        }
+      ]
+    },
+    "importer-limitations": {
+      "statement": "The same guide says the tool is not meant to be perfect: some resources may not be supported yet and should be imported with `terraform import` directly, and drift after generation can come from provider schema issues or API behavior and may need manual edits to the generated HCL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/guides/resource-importer.md",
+          "quotes": [
+            "Some provider resources may not be immediately supported - use `terraform import` directly for these cases.",
+            "Configuration drifts may be due to provider schema issues or odd API behavior. Many drift issues can be resolved by manually editing the generated HCL code."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "terraformer-ztc-inventory": {
+      "kind": "data",
+      "status": "open",
+      "title": "Which ZTC resources the current zscaler-terraformer release supports",
+      "blocks": "Whether a brownfield ZTC import can use zscaler-terraformer for a given resource or needs terraform import.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "detail": "Unverified legacy statement: \"Zscaler-Terraformer v2.1.21 supports generate/import for 14 of the provider's 16 managed resources ... ztc_activation_status and ztc_dns_gateway are absent\", citing the zscaler-terraformer README and cmd/root.go, which are vendored but not registered sources; the legacy doc also cited a Terraform Skills brownfield table saying ZTC has no Terraformer support. The provider's own importer guide lists nine. Resolves by registering the zscaler-terraformer source and reading its ZTC inventory, or by running zscaler-terraformer --supported-resources=\"ztc\".",
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

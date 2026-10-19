@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.forwarding.predefined-rules",
+  "title": "Predefined Cloud Connector traffic forwarding rules",
+  "aliases": [
+    "default forwarding rule cloud connector",
+    "ZPA Pool For Stray Traffic",
+    "ZPA Forwarding Rule",
+    "Direct rule for Zscaler Cloud Endpoints",
+    "Direct rule for WAN Destinations Group",
+    "Direct rule for LAN Destinations Group",
+    "predefined forwarding rule gateway mode"
+  ],
+  "binds": [
+    "ztw/forwarding-rules#defaultRule",
+    "ztw/forwarding-rules#zpaBrokerRule"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding.rule-order"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.terraform.rule-protection"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Internet & SaaS.",
+      "text": "{{default-zia}}"
+    },
+    {
+      "label": "Private Access.",
+      "text": "{{zpa-rule}} {{zpa-stray}} What the stray-traffic rule is meant to catch is not stated {{gap:zpa-predefined-purpose}}."
+    },
+    {
+      "label": "Direct rules for gateway-mode devices.",
+      "text": "{{direct-rules}} {{gateway-mode-only}} {{editable-fields}}"
+    },
+    {
+      "text": "Same-named ZIA Forwarding Control rules are a different product's policy: [[zia.forwarding-control.predefined-rules]]. Whether the Terraform provider stops a predefined rule from being deleted is covered in [[cloud-connector.terraform.rule-protection]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a predefined Direct rule is enabled at all (they ship disabled) and whether the device is in gateway mode.",
+      "uses": [
+        "direct-rules",
+        "gateway-mode-only"
+      ]
+    },
+    {
+      "do": "For dropped Private Access traffic, whether it matched the view-only ZPA Pool For Stray Traffic rule.",
+      "uses": [
+        "zpa-stray"
+      ]
+    }
+  ],
+  "claims": {
+    "default-zia": {
+      "statement": "A default forwarding rule with a default gateway is predefined for Internet & SaaS: each tenant comes with a default rule that forwards internet-bound traffic to Internet & SaaS using automatically selected gateways.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "quotes": [
+            "A default forwarding rule with a default gateway is predefined for Internet & SaaS."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "By default, each Cloud Connector tenant comes with a default rule to forward internet-bound traffic to Internet & SaaS using automatically selected gateways."
+          ]
+        }
+      ]
+    },
+    "zpa-rule": {
+      "statement": "A ZPA Forwarding Rule with a default gateway is created when the tenant subscribes to the Private Access license.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "quotes": [
+            "ZPA Forwarding Rule with a default gateway is created when you are subscribed to the Private Access license."
+          ]
+        }
+      ]
+    },
+    "zpa-stray": {
+      "statement": "ZPA Pool For Stray Traffic is a rule with the Drop method, created automatically with view-only access when a ZPA server's SKU is enabled on the Cloud or Branch Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "quotes": [
+            "ZPA Pool For Stray Traffic with the forwarding method set to Drop is automatically created with view-only access when you enable a ZPA server's SKU on your Cloud or Branch Connector."
+          ]
+        }
+      ]
+    },
+    "direct-rules": {
+      "statement": "Three predefined Direct rules, disabled by default and shown according to the tenant's licenses, send to Direct traffic whose destination is the Zscaler Cloud Endpoints application service group, a WAN IP group, or a LAN IP group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-traffic-forwarding.json",
+          "quotes": [
+            "They are disabled by default, but you can enable them. Predefined rules appear based on the licenses enabled in your tenant:",
+            "Direct rule for Zscaler Cloud Endpoints: This rule states that if the destination is a Zscaler Cloud Endpoints application service group, then the forwarding method is set to Direct.",
+            "Direct rule for WAN Destinations Group: This rule states that if the destination is a WAN IP group, then the forwarding method is set to Direct.",
+            "Direct rule for LAN Destinations Group: This rule states that if the destination is a LAN IP group, then the forwarding method is set to Direct."
+          ]
+        }
+      ]
+    },
+    "gateway-mode-only": {
+      "statement": "These predefined rules apply only to hardware devices deployed in gateway mode; they can be enabled only once a location or Branch Connector group is configured for them, and only gateway-mode devices can join that mandatory group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-traffic-forwarding.json",
+          "quotes": [
+            "Predefined forwarding rules are only applicable to hardware devices deployed in gateway mode. Additionally, you can only enable predefined forwarding rules if you have configured a location or Branch Connector group for them.",
+            "Zscaler only allows devices deployed in gateway mode to be a part of the mandatory group used for these rules."
+          ]
+        }
+      ]
+    },
+    "editable-fields": {
+      "statement": "On predefined forwarding rules only Rule Order, Rule Status, Location/Sublocation and Cloud & Branch Connector Groups can be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-traffic-forwarding.json",
+          "quotes": [
+            "You can only edit the Rule Order, Rule Status, Location/Sublocation, and Cloud & Branch Connector Groups fields for predefined forwarding rules."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zpa-predefined-purpose": {
+      "kind": "semantic",
+      "title": "What ZPA Pool For Stray Traffic catches",
+      "status": "open",
+      "detail": "Unverified legacy statement: the rule \"is read-only and catches stray ZPA-server traffic\". The help gives only its method (Drop), view-only status and creation trigger.",
+      "blocks": "explaining Private Access traffic dropped by this rule",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

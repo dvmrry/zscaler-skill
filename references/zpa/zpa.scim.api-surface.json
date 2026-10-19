@@ -49,6 +49,9 @@
     {
       "label": "Terraform.",
       "text": "{{tf-data-sources}} Id-over-name selection in these data sources is in [[zpa.terraform.data-source-selection]], and the SDK's name search in [[zpa.sdk-go.service-defects]]."
+    },
+    {
+      "text": "{{go-scim-server-client}}"
     }
   ],
   "checks": [
@@ -475,7 +478,7 @@
       ]
     },
     "no-sdk-writes": {
-      "statement": "Neither SDK has a create, update or delete function for SCIM groups or SCIM attribute headers.",
+      "statement": "In the management-API packages (Go scimgroup and scimattributeheader, Python scim_groups and scim_attributes), neither SDK has a create, update or delete function for SCIM groups or SCIM attribute headers.",
       "tier": "B",
       "evidence": [
         {
@@ -486,7 +489,7 @@
           ]
         }
       ],
-      "conditions": "Absence claim from a read of the Go scimgroup and scimattributeheader files, and of the Python scim_groups.py and scim_attributes.py: the functions listed in claims go-functions and python-methods are the only public ones (Go scimgroup re-read at v3.8.55: Get, GetByName, GetByNameAndIamIdp, GetAllByIdpId)."
+      "conditions": "Absence claim from a read of the Go scimgroup and scimattributeheader files, and of the Python scim_groups.py and scim_attributes.py: the functions listed in claims go-functions and python-methods are the only public ones (Go scimgroup re-read at v3.8.55: Get, GetByName, GetByNameAndIamIdp, GetAllByIdpId). The Go scim_api package, which calls the ZPA SCIM server rather than the management API, does have write functions (go-scim-server-client)."
     },
     "tf-data-sources": {
       "statement": "The zpa_scim_groups and zpa_scim_attribute_header data sources fail unless idp_id or idp_name is set, find the object by id when it is given and otherwise by name, and zpa_scim_attribute_header also reads the attribute's values into a values set.",
@@ -514,6 +517,32 @@
             "} else if nameExists && name != \"\" {",
             "res, _, err := scimattributeheader.GetByName(ctx, service, name, idpResp.ID)",
             "_ = d.Set(\"values\", values)"
+          ]
+        }
+      ]
+    },
+    "go-scim-server-client": {
+      "statement": "Separately from the management-API packages, the Go SDK's ZPA scim_api package calls the ZPA SCIM server and has write functions: CreateUser, UpdateUser, PatchUser and DeleteUser for users and CreateGroup, UpdateGroup, PatchGroup and DeleteGroup for groups, besides Get, GetByName and GetAll reads.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scim_api/scim_user_api.go",
+          "quotes": [
+            "func CreateUser(ctx context.Context, service *zscaler.ScimZPAService, scimUser *ScimUser)",
+            "func UpdateUser(ctx context.Context, service *zscaler.ScimZPAService, userID string, scimUser *ScimUser)",
+            "func PatchUser(ctx context.Context, service *zscaler.ScimZPAService, userID string, scimUser *ScimUser)",
+            "func DeleteUser(ctx context.Context, service *zscaler.ScimZPAService, userID string)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scim_api/scim_group_api.go",
+          "quotes": [
+            "func CreateGroup(ctx context.Context, service *zscaler.ScimZPAService, scimGroup *ScimGroup)",
+            "func UpdateGroup(ctx context.Context, service *zscaler.ScimZPAService, groupID string, scimGroup *ScimGroup)",
+            "func PatchGroup(ctx context.Context, service *zscaler.ScimZPAService, groupID string, scimGroup *ScimGroup)",
+            "func DeleteGroup(ctx context.Context, service *zscaler.ScimZPAService, groupID string)"
           ]
         }
       ]

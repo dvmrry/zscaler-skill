@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "id": "shared.oneapi",
+  "title": "OneAPI: Zscaler's unified API gateway, and where each part of calling it is covered",
+  "aliases": [
+    "oneapi",
+    "automate.zscaler.com",
+    "zscaler unified api",
+    "how do I call the zscaler api",
+    "oneapi vs legacy api",
+    "zscaler sdk oneapi",
+    "use_legacy_client"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.legacy-api.auth-models"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{unified-access}} {{central-management}}"
+    },
+    {
+      "label": "Products.",
+      "text": "{{products}} {{periodic-updates}}"
+    },
+    {
+      "label": "Calling it.",
+      "text": "Getting a token is in [[shared.oneapi.authentication]], hosts and base paths in [[shared.oneapi.base-urls]], and government and beta clouds in [[shared.oneapi.government-clouds]]."
+    },
+    {
+      "label": "Limits and errors.",
+      "text": "Limits differ by product: [[shared.oneapi.rate-limits]]. Status codes and the ZIA maintenance mode are in [[shared.oneapi.response-codes]], and fetching before update, activation and edit locks in [[shared.oneapi.write-practices]]."
+    },
+    {
+      "label": "Other OneAPI services.",
+      "text": "The Analytics GraphQL API is in [[shared.analytics.graphql]] and the Event Monitoring & Notification API in [[shared.event-monitoring.api]]."
+    },
+    {
+      "label": "Products' own API subjects.",
+      "text": "Endpoint-level behavior is in [[zia.api]], [[zpa.api]] and [[zcc.api]]; ZDX, ZIdentity and Cloud & Branch Connector are in [[doc:references/zdx/api.md]], [[doc:references/zidentity/api.md]] and [[cloud-connector.api]]."
+    },
+    {
+      "label": "SDKs.",
+      "text": "{{sdk-support}} {{python-legacy-switch}} {{no-use-legacy-env}} The environment variables the Python SDK reads are [[zia.sdk-python.authentication:oneapi-env-vars]]. Go SDK token renewal, retries and request handling are in [[shared.sdk-go.auth-lifecycle]], [[shared.sdk-go.retries]] and [[shared.sdk-go.request-handling]]."
+    },
+    {
+      "label": "Legacy APIs.",
+      "text": "The pre-OneAPI per-product APIs are in [[shared.legacy-api.auth-models]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant and client use OneAPI or a product's legacy API, before applying anything here.",
+      "uses": [
+        "python-legacy-switch",
+        "zia.sdk-python.authentication:legacy-framework"
+      ]
+    },
+    {
+      "do": "Which product's limits and status codes apply to the failing call.",
+      "uses": [
+        "shared.oneapi.rate-limits:models-differ",
+        "shared.oneapi.response-codes:common-codes"
+      ]
+    }
+  ],
+  "claims": {
+    "unified-access": {
+      "statement": "OneAPI provides unified programmatic access to different Zscaler services with a consistent API design across products.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "OneAPI provides unified programmatic access to different Zscaler services with consistency in API design and experience across all products, reliability, and high performance."
+          ]
+        }
+      ]
+    },
+    "central-management": {
+      "statement": "It centralizes API authentication, tenant access policies and management, rate limiting, caching and API lifecycle management.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "OneAPI allows for a centralized management of key components and features of APIs, including but not limited to API authentication, tenant access policies and management, rate limiting, caching, API lifecycle management, etc."
+          ]
+        }
+      ]
+    },
+    "products": {
+      "statement": "OneAPI's OAuth 2.0 access covers the ZIA, ZPA, ZDX, Client Connector, Cloud & Branch Connector, Business Insights, EASM, Cellular, Event Monitoring & Notification and AI Security APIs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "OneAPI uses the OAuth 2.0 authorization framework to provide secure access to Zscaler Internet Access (ZIA), Zscaler Private Access (ZPA), Zscaler Digital Experience (ZDX), Client Connector, Cloud & Branch Connector, Business Insights,",
+            "External Attack Surface Management (EASM), Cellular, Event Monitoring & Notification, and AI Security APIs."
+          ]
+        }
+      ]
+    },
+    "periodic-updates": {
+      "statement": "Zscaler may periodically change the request and response parameters of OneAPI endpoints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "Zscaler can make periodic updates to the request and response parameters used by OneAPI endpoints."
+          ]
+        }
+      ]
+    },
+    "sdk-support": {
+      "statement": "Zscaler's tools page describes Python SDK v1 as multi-product, using OneAPI with a single OAuth2 client and backward compatible with legacy APIs, Python SDK v2 as covering Authentication Service, ZDX and ZIA so far, and the Go SDK as supporting Authentication Service, Client Connector, Workflow Automation, ZDX, ZIA and ZPA on both the OneAPI and legacy frameworks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/tools-and-sdks.json",
+          "quotes": [
+            "Supports multi-product (Authentication Service, Client Connector,",
+            "Uses the OneAPI framework with a single OAuth2 client",
+            "Is backward compatible with legacy APIs",
+            "Current support is available for Authentication Service, Zscaler Digital Experience (ZDX), and Zscaler Internet Access (ZIA).",
+            "Supports Authentication Service, Client Connector, Workflow Automation, ZDX, ZIA, and ZPA",
+            "Supports both OneAPI and legacy frameworks"
+          ]
+        }
+      ]
+    },
+    "python-legacy-switch": {
+      "statement": "The Python SDK's unified client chooses a legacy client through its `use_legacy_client` constructor argument, which defaults to False.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "use_legacy_client: bool = False,",
+            "self.use_legacy_client = use_legacy_client"
+          ]
+        }
+      ]
+    },
+    "no-use-legacy-env": {
+      "statement": "The Python SDK reads no `ZSCALER_USE_LEGACY` environment variable; the legacy path is selected in code, not by that variable.",
+      "tier": "B",
+      "derived_from": [
+        "python-legacy-switch"
+      ],
+      "conditions": "Search of the pinned Python SDK (code and README) for USE_LEGACY found nothing. The ZPA Terraform provider has its own ZSCALER_USE_LEGACY_CLIENT variable (zpa.terraform.provider-config:legacy-client-switch)."
+    }
+  }
+}

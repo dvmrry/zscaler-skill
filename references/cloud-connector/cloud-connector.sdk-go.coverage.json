@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.sdk-go.coverage",
+  "title": "What the Go SDK's ZTW packages leave out: commented-out functions, uncovered endpoints and activation",
+  "aliases": [
+    "ztw go sdk workload groups create",
+    "workload_groups commented out",
+    "activation_cli",
+    "zconActivator",
+    "ztw ecgroup create update",
+    "ztw go sdk activate after change",
+    "GetEcRDRCount log rules",
+    "destWorkloadGroups go sdk"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api.ec-groups-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api.partner-integrations-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.activation.cbc"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.activation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Which functions each ZTW package exports, and which endpoints they call, is generated (`node scripts/kb.mjs surface ztw`). This subject records the vendor code that sits in block comments and does not compile, and what the packages do not cover."
+    },
+    {
+      "label": "Functions that do not compile.",
+      "text": "{{workload-groups-writes-commented}} {{log-rule-count-commented}} {{activation-cli-commented}} A working activation CLI ships with the Terraform provider instead: [[cloud-connector.terraform.activation]]."
+    },
+    {
+      "label": "Activation.",
+      "text": "{{no-auto-activation}} The activate and forced-activate calls are described in [[shared.activation.cbc]]."
+    },
+    {
+      "label": "Connector groups.",
+      "text": "{{ecgroup-endpoints}} {{bulk-vm-ops-not-in-go}}"
+    },
+    {
+      "label": "Forwarding rules.",
+      "text": "{{go-no-dest-workload-groups}} The Python SDK sends that field: [[cloud-connector.sdk-python.coverage]]."
+    },
+    {
+      "label": "Partner integrations.",
+      "text": "Whether REST paths exist for Azure and GCP partner integration, which neither SDK covers, is open in [[cloud-connector.api.partner-integrations-wire]]."
+    },
+    {
+      "text": "Two packages that write the same DNS gateway endpoint are compared in [[cloud-connector.terraform.gateways]]; the read-only ZPA-resources package is in [[cloud-connector.terraform.forwarding-rules]]; service functions that misroute or mis-assert are in [[cloud-connector.sdk-go.service-defects]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a ZTW function is inside a block comment in the vendor source before relying on it (workload group writes, the log-rule count, the activation CLI).",
+      "uses": [
+        "workload-groups-writes-commented",
+        "log-rule-count-commented",
+        "activation-cli-commented"
+      ]
+    },
+    {
+      "do": "Whether the Go program calls activation after its writes; nothing in the ZTW services activates for it.",
+      "uses": [
+        "no-auto-activation"
+      ]
+    }
+  ],
+  "claims": {
+    "workload-groups-writes-commented": {
+      "statement": "In the Go SDK's ZTW `workload_groups` package, `Create`, `Update` and `Delete` sit inside one block comment (it opens before `Create` and closes after `Delete`) and are not compiled; `Get`, `GetByName` and `GetAll` are outside it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/workload_groups/workload_groups.go",
+          "quotes": [
+            "/* func Create(ctx context.Context, service *zscaler.Service, groups *WorkloadGroup) (*WorkloadGroup, *http.Response, error) {",
+            "func Get(ctx context.Context, service *zscaler.Service, workloadID int) (*WorkloadGroup, error) {",
+            "func GetByName(ctx context.Context, service *zscaler.Service, workloadName string) (*WorkloadGroup, error) {",
+            "func Update(ctx context.Context, service *zscaler.Service, workloadGroupID int, workloadGroup *WorkloadGroup) (*WorkloadGroup, *http.Response, error) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/workload_groups/workload_groups.go",
+          "quotes": [
+            "func Delete(ctx context.Context, service *zscaler.Service, workloadGroupID int) (*http.Response, error) { err := service.Client.Delete(ctx, fmt.Sprintf(\"%s/%d\", workloadGroupsEndpoint, workloadGroupID)) if err != nil { return nil, err } return nil, nil } */ func GetAll("
+          ]
+        }
+      ]
+    },
+    "log-rule-count-commented": {
+      "statement": "The `traffic_log_rules` package's `GetEcRDRCount` is inside a block comment, while the forwarding and DNS rule packages each define a compiled `GetEcRDRCount`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/traffic_log_rules/traffic_log_rules.go",
+          "quotes": [
+            "/* // GetEcRDRCount retrieves the count of forwarding dns rules using optional filters"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "quotes": [
+            "func GetEcRDRCount(ctx context.Context, service *zscaler.Service, params *ForwardingRulesCountQuery) (*ForwardingRulesCountResponse, error) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/traffic_dns_rules/traffic_dns_rules.go",
+          "quotes": [
+            "func GetEcRDRCount(ctx context.Context, service *zscaler.Service, params *DNSRulesCountQuery) (*DNSRulesCountResponse, error) {"
+          ]
+        }
+      ]
+    },
+    "activation-cli-commented": {
+      "statement": "The SDK's `activation_cli/zconActivator.go` declares `package main`, but everything after that line, its imports and `main` included, is one block comment, so it is neither a runnable command nor an importable package.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/activation_cli/zconActivator.go",
+          "quotes": [
+            "package main /* import (",
+            "zconClient.Logout(context.Background()) return nil } */"
+          ]
+        }
+      ]
+    },
+    "no-auto-activation": {
+      "statement": "The Go SDK's ZTW create, update and delete functions do not activate; staged changes take effect only when the caller calls `activation.UpdateActivationStatus` or `activation.ForceActivationStatus`.",
+      "tier": "B",
+      "conditions": "Absence: the ZTW service packages were searched at the pin for calls into the activation package or the activate endpoints; only the activation package itself uses them.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/activation/activation.go",
+          "quotes": [
+            "func UpdateActivationStatus(ctx context.Context, service *zscaler.Service, activation ECAdminActivation) (*ECAdminActivation, error) {",
+            "func ForceActivationStatus(ctx context.Context, service *zscaler.Service, forceActivation ECAdminActivation) (*ECAdminActivation, error) {"
+          ]
+        }
+      ]
+    },
+    "ecgroup-endpoints": {
+      "statement": "The Go `ecgroup` package defines only two endpoints, the group collection and its lite view, and six functions: `Get`, `GetByName`, `GetAll`, `GetEcGroupLiteID` and `GetEcGroupLiteByName` read groups and `Delete` deletes one; none creates or updates a group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/ecgroup/ecgroup.go",
+          "quotes": [
+            "const ( ecGroupEndpoint = \"/ztw/api/v1/ecgroup\" ecGroupLiteEndpoint = \"/ztw/api/v1/ecgroup/lite\" )",
+            "func Get(ctx context.Context, service *zscaler.Service, ecGroupID int) (*EcGroup, error) {",
+            "func GetByName(ctx context.Context, service *zscaler.Service, ecGroupName string) (*EcGroup, error) {",
+            "func Delete(ctx context.Context, service *zscaler.Service, ecGroupID int) (*http.Response, error) {",
+            "func GetAll(ctx context.Context, service *zscaler.Service) ([]EcGroup, error) {",
+            "func GetEcGroupLiteID(ctx context.Context, service *zscaler.Service, ecGroupID int) (*EcGroup, error) {",
+            "func GetEcGroupLiteByName(ctx context.Context, service *zscaler.Service, ecGroupLiteName string) (*EcGroup, error) {"
+          ]
+        }
+      ],
+      "conditions": "The six function signatures quoted are every func declaration in ecgroup.go at the pin."
+    },
+    "bulk-vm-ops-not-in-go": {
+      "statement": "So the bulk VM status, release-channel and upgrade-metrics operations of the group API have no Go SDK function; a Go program reaches them only with raw requests.",
+      "tier": "B",
+      "derived_from": [
+        "ecgroup-endpoints",
+        "cloud-connector.upgrades:release-channel-api",
+        "cloud-connector.upgrades:vm-status-api",
+        "cloud-connector.upgrades.monitoring:upgrade-metrics"
+      ],
+      "conditions": "Absence: no ZTW Go package at the pin defines the releaseChannel, vmStatus or vmUpgradeMetrics paths of the group API reference (searched zscaler/ztw/services)."
+    },
+    "go-no-dest-workload-groups": {
+      "statement": "The Go SDK's ZTW forwarding rule struct carries source workload groups (`srcWorkloadGroups`) and no destination workload groups field.",
+      "tier": "B",
+      "conditions": "Absence: forwarding_rules.go was searched at the pin for workload; SrcWorkloadGroups is the only match.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "quotes": [
+            "SrcWorkloadGroups []common.IDNameExtensions `json:\"srcWorkloadGroups,omitempty\"`"
+          ]
+        }
+      ]
+    }
+  }
+}

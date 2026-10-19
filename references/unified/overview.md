@@ -80,7 +80,7 @@ This refresh did not find a separate Experience Center API in the audited SDK, T
 
 The `/unified` help path maps to top-level "Getting Started with Zscaler" documentation, including onboarding flows, Experience Center, cloud naming, data privacy, user import, URL filtering, SSL inspection, threat protection, and data-protection policies (`vendor/zscaler-help/unified-what-zscaler-experience-center.json:27-29`). Do not assume every `/unified` help article describes the Experience Center product itself; some pages are shared getting-started material.
 
-The current **Understanding Zscaler Cloud Names** article is one such shared page. It publishes the public production cloud-name map for ZIA, ZPA, ZDX, Client Connector, Cloud & Branch Connector, Zero Trust Branch, Zscaler Cellular, Risk360, and the Authentication Service (`vendor/zscaler-help/understanding-zscaler-cloud-names.json:16-30`). The canonical operational map and its government-cloud/endpoint-selection guardrails live in [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md#public-production-cloud-name-map); its presence under `/unified` does not make those cloud names Experience Center features.
+The current **Understanding Zscaler Cloud Names** article is one such shared page. It publishes the public production cloud-name map for ZIA, ZPA, ZDX, Client Connector, Cloud & Branch Connector, Zero Trust Branch, Zscaler Cellular, Risk360, and the Authentication Service (`vendor/zscaler-help/understanding-zscaler-cloud-names.json:16-30`). The canonical operational map and its government-cloud/endpoint-selection guardrails live in [`shared.cloud-architecture.cloud-names`](kb:shared.cloud-architecture.cloud-names); its presence under `/unified` does not make those cloud names Experience Center features.
 
 ## What Experience Center Is Not
 
@@ -100,4 +100,4 @@ The current **Understanding Zscaler Cloud Names** article is one such shared pag
 - ZDX: [`../zdx/index.md`](../zdx/index.md)
 - ZCC: [`../zcc/index.md`](../zcc/index.md)
 - Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
-- Public production cloud-name map: [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md#public-production-cloud-name-map)
+- Public production cloud-name map: [`shared.cloud-architecture.cloud-names`](kb:shared.cloud-architecture.cloud-names)

@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "id": "shared.mcp-server",
+  "title": "The Zscaler MCP server: release, protocol and where its behavior is described",
+  "aliases": [
+    "zscaler mcp",
+    "zscaler-mcp",
+    "zscaler mcp server",
+    "mcp server version",
+    "zscaler_mcp",
+    "mcp 2026-07-28",
+    "mcp protocol revision"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.mcp-server.tool-inventory"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.mcp-server.delete-confirmation"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.mcp-server.results"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.mcp-server.http-deployment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This walks the subjects that describe the Zscaler MCP server as a tool: which tools it registers, how writes and deletes are gated, what a tool result contains, and how an HTTP deployment is secured. Product-specific MCP tool behavior is described in the product subjects that use it. {{release}}"
+    },
+    {
+      "label": "Under the tools.",
+      "text": "{{sdk-does-api-calls}} {{dependency-floor}} {{lock-resolution}}"
+    },
+    {
+      "label": "Protocol revision.",
+      "text": "{{protocol-negotiated}} {{conformance-gate}}"
+    },
+    {
+      "label": "Where to read next.",
+      "text": "Which tools exist on a given server is in [[shared.mcp-server.tool-inventory]]; how creates, updates and deletes are gated is in [[shared.mcp-server.delete-confirmation]]; what a result carries (full records, untrusted-content banners, JMESPath, CSV) is in [[shared.mcp-server.results]]; TLS, Host validation, client authentication, logging and cloud secrets are in [[shared.mcp-server.http-deployment]]."
+    },
+    {
+      "label": "Product examples.",
+      "text": "ZPA list paging through MCP is in [[zpa.api.pagination]], and the Sandbox report banner in [[zia.sandbox.report]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which MCP server release the deployment runs, since the write gate and the confirmation channels changed in 0.15.0.",
+      "uses": [
+        "release",
+        "shared.mcp-server.tool-inventory:write-gate-history"
+      ]
+    },
+    {
+      "do": "Which Python SDK version the MCP installation actually resolved, before tracing a tool's behavior to SDK code.",
+      "uses": [
+        "lock-resolution"
+      ]
+    }
+  ],
+  "claims": {
+    "release": {
+      "statement": "The pinned MCP server tree declares package version 0.15.4 and requires Python >=3.11,<4.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "pyproject.toml",
+          "quotes": [
+            "version = \"0.15.4\"",
+            "requires-python = \">=3.11,<4.0\""
+          ]
+        }
+      ]
+    },
+    "sdk-does-api-calls": {
+      "statement": "The MCP server calls Zscaler through the Python SDK, which does every API call, token exchange, pagination and retry; the server's package metadata leaves `zscaler-sdk-python` unconstrained so installs pull the latest SDK.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "pyproject.toml",
+          "quotes": [
+            "Transport / auth shim — UNCHANGED from v1. The SDK still does every",
+            "API call, token exchange, pagination, and retry. v2 only changes the",
+            "Intentionally unconstrained so installs always pull the latest SDK",
+            "\"zscaler-sdk-python\","
+          ]
+        }
+      ]
+    },
+    "dependency-floor": {
+      "statement": "The server requires `mcp[cli]>=2.0.0,<3`; 2.0.0 is the floor because the `2026-07-28` revision features (`InputRequiredResult`, `RequestStateSecurity`, `cache_hints`) land there. Standalone `fastmcp` is not a dependency of any auth mode, and a test fails if it becomes a base dependency.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "pyproject.toml",
+          "quotes": [
+            "\"mcp[cli]>=2.0.0,<3\",",
+            "The floor is 2.0.0 because that is where the `2026-07-28` revision lands:",
+            "`InputRequiredResult` (SEP-2322's stateless form), `RequestStateSecurity`",
+            "and `cache_hints` (SEP-2549) are all constructor-",
+            "Standalone `fastmcp` is not a dependency of any auth mode"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "tests/test_dependency_caps.py",
+          "quotes": [
+            "def test_fastmcp_is_not_a_base_dependency():",
+            "assert \"fastmcp\" not in names"
+          ]
+        }
+      ]
+    },
+    "lock-resolution": {
+      "statement": "The MCP tree's generated requirements resolve `mcp==2.0.0` and `zscaler-sdk-python==1.9.43`, while the Python SDK vendored in this repository is version 1.11.2; the lock file's own editable entry for `zscaler-mcp` still says 0.15.3.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "requirements.txt",
+          "quotes": [
+            "mcp==2.0.0",
+            "zscaler-sdk-python==1.9.43"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "uv.lock",
+          "quotes": [
+            "name = \"zscaler-mcp\" version = \"0.15.3\" source = { editable = \".\" }"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "pyproject.toml",
+          "quotes": [
+            "version = \"1.11.2\""
+          ]
+        }
+      ]
+    },
+    "protocol-negotiated": {
+      "statement": "Version 0.15.0 adopted the `2026-07-28` MCP revision; clients on older revisions keep working because the revision is negotiated per connection, with nothing to configure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "**Adopted the `2026-07-28` MCP revision.** Clients on older revisions continue to work unchanged — the revision is negotiated per connection, with nothing to configure on either side."
+          ],
+          "after": "## 0.15.0 (August 5, 2026)"
+        }
+      ]
+    },
+    "conformance-gate": {
+      "statement": "CI gates on the conformance scenarios of the published 2025-11-25 revision; a separate baseline for the 2026-07-28 revision runs on a prerelease runner and does not gate CI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": ".github/conformance-baseline.yml",
+          "quotes": [
+            "every scenario in the \"active\" suite for the published 2025-11-25 protocol"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": ".github/conformance-baseline-next.yml",
+          "quotes": [
+            "# MCP conformance baseline for the 2026-07-28 revision (NOT gating CI).",
+            "Why it does not gate CI: an alpha runner can add, rename or reinterpret"
+          ]
+        }
+      ]
+    }
+  }
+}

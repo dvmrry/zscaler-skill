@@ -486,7 +486,7 @@ with a valid turn JSON or manually reconcile the journal.
 
 Use `actionType: "query-request"` only for a SIEM/Splunk catalog-pattern
 request. It must include `queryPatterns` from
-`references/shared/splunk-queries.md`.
+`node scripts/kb.mjs resolve shared.splunk`.
 
 Use `actionType: "request-user-evidence"` for non-Splunk evidence requests
 such as Azure changes, API/manual lookups, screenshots, support tickets, or

@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "id": "shared.terraform",
+  "title": "The Zscaler Terraform providers: where their behavior is described",
+  "aliases": [
+    "zscaler terraform",
+    "zscaler terraform providers",
+    "terraform provider zscaler",
+    "zscaler/zia",
+    "zscaler/zpa",
+    "zscaler/zcc",
+    "zscaler/ztc",
+    "terraform resource map"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.terraform"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terraform.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terraform.plan-diffs"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terraform.credential-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terraform.terraformer"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler publishes separate Terraform providers for ZIA, ZPA, ZCC and Cloud Connector (ZTC), and this walks the subjects that describe them. Which resources and data sources each provider has, the API paths and SDK packages each uses, and every argument (type, required or optional, computed, ForceNew, defaults, enum validators, conflicts, nested blocks) are generated from the provider code: run `node scripts/kb.mjs surface <resource name>`, or `provider:<product>` for a provider's own settings."
+    },
+    {
+      "label": "Per provider.",
+      "text": "ZIA: [[zia.terraform]]. ZPA: [[zpa.terraform]]. ZCC: [[zcc.terraform]]. Cloud Connector: [[cloud-connector.terraform.provider-behavior]], [[cloud-connector.terraform.rule-order]], [[cloud-connector.terraform.delete-detach]] and [[cloud-connector.terraform.rule-protection]]."
+    },
+    {
+      "label": "Across providers.",
+      "text": "Signing the providers in is in [[shared.terraform.authentication]]; secrets in state, plans and logs in [[shared.terraform.credential-handling]]; plans that show no diff, or a replacement, in [[shared.terraform.plan-diffs]]."
+    },
+    {
+      "label": "Through the Go SDK.",
+      "text": "Paging that drops records is in [[shared.sdk-go.list-pagination]], zero values that cannot be sent in [[shared.sdk-go.zero-value-writes]], retries in [[shared.sdk-go.retries]], and token handling in [[shared.sdk-go.auth-lifecycle]]."
+    },
+    {
+      "label": "Bringing existing configuration in.",
+      "text": "{{terraformer-offered}} What is known about its output is in [[shared.terraform.terraformer]]."
+    },
+    {
+      "label": "Not yet placed.",
+      "text": "What the Cloud App Control instance resource models as instance levels is open {{gap:cloud-app-instance-levels}}. Features a Microtenant cannot use, such as extranet application support, are in [[zpa.microtenants.limits:default-only-features]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a setting has a resource at all, in the generated surface, before assuming the provider manages it; the providers track the public API only.",
+      "uses": [
+        "zia.terraform.provider-modes:provider-tracks-public-api",
+        "zpa.terraform.provider-config:api-parity-only",
+        "zcc.terraform.coverage:api-parity"
+      ]
+    }
+  ],
+  "gaps": {
+    "cloud-app-instance-levels": {
+      "kind": "semantic",
+      "title": "What instance hierarchy zia_cloud_application_instance models",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"zia_cloud_application_instance - discovered cloud-app instances (level 1/2/3 instance hierarchy; see web-log-schema.md for the matching log fields)\". The resource documentation does not describe levels, and no ZIA subject holds the hierarchy or its log fields yet.",
+      "blocks": "mapping a cloud application instance resource to the log fields that report it",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  },
+  "claims": {
+    "terraformer-offered": {
+      "statement": "The ZIA provider documentation says Zscaler offers a dedicated tool, Zscaler-Terraformer, for the automated import of ZIA configurations into Terraform HCL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_url_categories.md",
+          "quotes": [
+            "Zscaler offers a dedicated tool called Zscaler-Terraformer to allow the automated import of ZIA configurations into Terraform-compliant HashiCorp Configuration Language."
+          ]
+        }
+      ]
+    }
+  }
+}

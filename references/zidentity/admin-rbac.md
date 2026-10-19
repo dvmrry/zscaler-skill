@@ -175,6 +175,6 @@ Source: `vendor/zscaler-help/admin-rbac-captures.json`; `vendor/zscaler-sdk-pyth
 
 ## Cross-links
 
-- `references/shared/admin-rbac.md` — federation story covering ZIA, ZPA, and ZIdentity admin RBAC
+- `node scripts/kb.mjs resolve shared.admin-rbac` — federation story covering ZIA, ZPA, and ZIdentity admin RBAC
 - `references/zidentity/api-clients.md` — API client management via ZIdentity
 - `references/zidentity/users.md` — ZIdentity users reference (Task 8)

@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.sdk-python.client-configuration",
+  "title": "The Python SDK against Cloud and Branch Connector: legacy client settings and session logout on exit",
+  "aliases": [
+    "client.ztw",
+    "LegacyZTWClient",
+    "ZTW_USERNAME python",
+    "ztw python context manager activation",
+    "ztw python deauthenticate",
+    "python sdk ztw legacy"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.api.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.activation.cbc"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.activation-and-session"
+    }
+  ],
+  "prose": [
+    {
+      "text": "How the unified Python client routes ZTW calls to OneAPI or to a legacy helper is in [[cloud-connector.api.authentication]]. This subject holds the legacy helper's settings and what leaving a client session does to staged changes."
+    },
+    {
+      "label": "Legacy client.",
+      "text": "{{legacy-env-vars}} {{legacy-host}} {{same-legacy-host-as-go}} {{env-names-differ-from-go}}"
+    },
+    {
+      "label": "Leaving a with block.",
+      "text": "{{exit-deauth-after-mutation}} {{sdk-says-logout-activates}} {{exit-can-activate}} Whether the service also activates on its own, and the ZIA equivalent, are in [[shared.activation.cbc]] and [[zia.sdk-python.activation-and-session]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For the legacy Python client, that ZTW_USERNAME, ZTW_PASSWORD, ZTW_API_KEY and ZTW_CLOUD are set (or passed in the config), not the ZTC_* names the Go SDK and the provider read.",
+      "uses": [
+        "legacy-env-vars",
+        "env-names-differ-from-go"
+      ]
+    },
+    {
+      "do": "Whether a Python script that wrote ZTW objects ran inside a with block, whose exit logs out and, per the SDK, activates the staged changes.",
+      "uses": [
+        "exit-deauth-after-mutation",
+        "exit-can-activate"
+      ]
+    }
+  ],
+  "claims": {
+    "legacy-env-vars": {
+      "statement": "`LegacyZTWClient` takes `username`, `password`, `api_key` and `cloud` from its config, falling back to `ZTW_USERNAME`, `ZTW_PASSWORD`, `ZTW_API_KEY` and `ZTW_CLOUD`, and a partner ID from `partnerId` or `ZSCALER_PARTNER_ID`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "after": "class LegacyZTWClient(Client):",
+          "quotes": [
+            "username = config.get(\"username\", os.getenv(\"ZTW_USERNAME\"))",
+            "password = config.get(\"password\", os.getenv(\"ZTW_PASSWORD\"))",
+            "api_key = config.get(\"api_key\", os.getenv(\"ZTW_API_KEY\"))",
+            "cloud = config.get(\"cloud\", os.getenv(\"ZTW_CLOUD\"))",
+            "partner_id = config.get(\"partnerId\", os.getenv(\"ZSCALER_PARTNER_ID\"))"
+          ]
+        }
+      ]
+    },
+    "legacy-host": {
+      "statement": "The legacy ZTW helper sends requests to https://connector.<cloud>.net and authenticates at its /api/v1/auth path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/legacy.py",
+          "quotes": [
+            "self.url = f\"https://connector.{self.env_cloud}.net\"",
+            "url = f\"{self.url}/api/v1/auth\""
+          ]
+        }
+      ]
+    },
+    "env-names-differ-from-go": {
+      "statement": "The Python legacy variables are named ZTW_* while the Go SDK's legacy configuration and the ZTC provider read ZTC_*, so one set of environment variables does not serve both SDKs.",
+      "tier": "B",
+      "derived_from": [
+        "legacy-env-vars",
+        "cloud-connector.api.authentication:go-legacy-credentials",
+        "cloud-connector.terraform.provider-config:legacy-required-values"
+      ],
+      "conditions": "Comparison of the variable names each SDK and the provider read at the pin; not run."
+    },
+    "exit-deauth-after-mutation": {
+      "statement": "When a OneAPI client's with block exits and the last service it called was ZTW, the request executor ends the session at /ztw/api/v1/auth, but only if a POST, PUT or DELETE was sent during the session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "service_type = getattr(self._request_executor, \"_last_service_type\", None)",
+            "self._request_executor.deauthenticate(service_type)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "For both ZIA and ZTW services, deauthentication is only performed if mutations (POST/PUT/DELETE) have occurred during the session.",
+            "endpoint = \"/ztw/api/v1/auth\"",
+            "# Send DELETE request to deauthenticate"
+          ]
+        }
+      ]
+    },
+    "sdk-says-logout-activates": {
+      "statement": "The SDK's code comment and its 1.5.9 changelog say ZTW, like ZIA, needs this explicit logout to activate staged configurations, and that the context-manager logout ensures staged configurations are activated on exit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "# Both ZIA and ZTW require explicit deauthentication to activate staged configurations"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "after": "## 1.5.9 (July 17, 2025)",
+          "quotes": [
+            "(`/zia/api/v1/authenticatedSession` for `ZIA` and `/ztw/api/v1/auth` for `ZTW`), ensuring staged configurations are activated upon context manager exit."
+          ]
+        }
+      ]
+    },
+    "exit-can-activate": {
+      "statement": "So a Python script that writes ZTW objects inside a with block may see its staged changes go live when the block exits, without calling activate, while a read-only script does not log out; the Go SDK has no such step and activates only on an explicit call.",
+      "tier": "B",
+      "derived_from": [
+        "exit-deauth-after-mutation",
+        "sdk-says-logout-activates",
+        "cloud-connector.sdk-go.coverage:no-auto-activation"
+      ],
+      "conditions": "Rests on the SDK's own statement that the logout activates; no Cloud & Branch Connector help page or API description states it (see shared.activation.cbc:session-autoactivation). The logout targets the last service called, so a script that writes ZTW and then calls another service logs out of that service instead."
+    },
+    "same-legacy-host-as-go": {
+      "statement": "That is the same connector host the Go SDK's legacy ZTW client uses.",
+      "tier": "B",
+      "derived_from": [
+        "legacy-host",
+        "cloud-connector.api.authentication:go-legacy-host"
+      ],
+      "conditions": "Comparison of the two SDKs' URL construction; not run."
+    }
+  }
+}

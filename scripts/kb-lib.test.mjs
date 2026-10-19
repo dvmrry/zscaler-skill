@@ -322,6 +322,7 @@ test("a derived claim names real claims, and Tier A needs its own evidence", () 
       claims: {
         "first-match": { statement: "Rules stop at the first match.", tier: "A", evidence: [{ source: "fake-help", path: "doc.txt", quotes: ["stops at the first match"] }] },
         chained: { statement: "So later rules are skipped.", tier: "A", derived_from: ["first-match", "missing"] },
+        bare: { statement: "So it is slow.", tier: "B", derived_from: ["first-match"] },
         observed: { statement: "A tenant saw it.", tier: "B", derived_from: ["first-match"], conditions: "Observed once." },
         "on-observed": { statement: "Rules stop at the first match, as seen.", tier: "A", derived_from: ["observed"], evidence: [{ source: "fake-help", path: "doc.txt", quotes: ["stops at the first match"] }] },
       },
@@ -331,6 +332,8 @@ test("a derived claim names real claims, and Tier A needs its own evidence", () 
   assert.ok(errs.some((m) => /a Tier A claim needs its own evidence/.test(m)));
   assert.ok(errs.some((m) => /unknown ID zia\.example:missing/.test(m)));
   assert.ok(errs.some((m) => /on-observed: a Tier A claim cannot follow from Tier B zia\.example:observed/.test(m)));
+  assert.ok(!errs.some((m) => /observed: a Tier B claim needs conditions/.test(m)));
+  assert.ok(errs.some((m) => /bare: a Tier B claim needs conditions/.test(m)));
 });
 
 test("a subject's file name and directory must match its ID", () => {

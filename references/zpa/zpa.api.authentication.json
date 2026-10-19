@@ -49,6 +49,12 @@
     {
       "label": "Python SDK generations.",
       "text": "[[zpa.sdk-python.client-configuration:python-v2-no-legacy]]"
+    },
+    {
+      "text": "{{legacy-signin}}"
+    },
+    {
+      "text": "{{legacy-key-role}}"
     }
   ],
   "checks": [
@@ -81,6 +87,37 @@
             "scheme": "bearer",
             "type": "http"
           }
+        }
+      ]
+    },
+    "legacy-signin": {
+      "statement": "The legacy ZPA API signs in with a form-encoded POST of `client_id` and `client_secret` to `/signin` on the tenant's config host (config.private.zscaler.com in the article, which differs by cloud) and returns a Bearer token with `expires_in` 3600; the token is sent as `Authorization: Bearer` and `/signout` ends it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zpa-api.json",
+          "quotes": [
+            "import requests url = \"https://config.private.zscaler.com/signin\" payload={'client_id':{client_id},'client_secret':{client_secret}} headers = { 'Content-Type': 'application/x-www-form-urlencoded' }",
+            "- \"expires_in\" : \"3600\"",
+            "- url = \"https://config.private.zscaler.com/signout\"",
+            "The request URLs and references to config.private.zscaler.com within this article differ depending on your organization’s assigned cloud.",
+            "- Authorization: Bearer <access_token>"
+          ]
+        }
+      ]
+    },
+    "legacy-key-role": {
+      "statement": "Only admins with full access to the API Key Management role can create legacy ZPA API keys, and Zscaler does not officially provide a Postman collection for the legacy ZPA API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zpa-api.json",
+          "quotes": [
+            "Only admins with full access to the API Key Management role can create keys.",
+            "If you choose to use the API management tool Postman, Zscaler does not officially provide a Postman collection."
+          ]
         }
       ]
     }

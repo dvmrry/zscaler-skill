@@ -232,6 +232,6 @@ configuration for every government tenant.
 - API client types, scopes, and OneAPI auth flow — [`./sdk.md`](./sdk.md)
 - Step-up authentication detail — [`./step-up-authentication.md`](./step-up-authentication.md)
 - ZPA step-up auth level SDK object — [`zpa.sdk-python`](kb:zpa.sdk-python)
-- Cross-product integration hooks — [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)
+- Cross-product integration hooks — [`shared.integrations`](kb:shared.integrations)
 - ZIA URL Filtering Conditional action — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZPA Require Approval / Conditional Access — [`zpa.policy`](kb:zpa.policy)

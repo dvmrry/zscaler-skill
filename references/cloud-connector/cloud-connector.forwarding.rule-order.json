@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.forwarding.rule-order",
+  "title": "Cloud Connector traffic forwarding rule order, status, rank and rule type",
+  "aliases": [
+    "cloud connector forwarding rule order",
+    "ecRdr rule order",
+    "cloud connector rule precedence",
+    "cloud connector admin rank",
+    "EC_RDR",
+    "cloud connector disabled forwarding rule"
+  ],
+  "binds": [
+    "ztw/forwarding-rules#order",
+    "ztw/forwarding-rules#state",
+    "ztw/forwarding-rules#rank",
+    "ztw/forwarding-rules#type"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding.predefined-rules"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.terraform.rule-order"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{ascending}} {{disabled-keeps-place}} Whether evaluation stops at the first matching rule is not stated in the Cloud & Branch Connector help {{gap:first-match}}."
+    },
+    {
+      "text": "Where the predefined Internet & SaaS default rule sits relative to custom rules is not stated either {{gap:default-position}}; the predefined rules themselves are in [[cloud-connector.forwarding.predefined-rules]]."
+    },
+    {
+      "label": "Name.",
+      "text": "{{name-31}}"
+    },
+    {
+      "label": "Rank.",
+      "text": "The Go SDK and the API contract disagree on whether a forwarding rule's rank applies to Cloud & Branch Connector at all {{divergence:rank-applicability}}. Whether rank limits the editable rule order, as it does in ZIA, and how many forwarding rules a tenant may hold, are open {{gap:rank-and-rule-limit}}."
+    },
+    {
+      "label": "Rule type.",
+      "text": "{{type-ec-rdr}}"
+    },
+    {
+      "text": "How the Terraform provider writes rank and order on every update, and how it can report success with rules out of order, is in [[cloud-connector.terraform.rule-order]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The rule's order and status: a disabled rule is skipped but keeps its slot.",
+      "uses": [
+        "ascending",
+        "disabled-keeps-place"
+      ]
+    },
+    {
+      "do": "Whether the rule order in the tenant matches the declared order after a Terraform apply.",
+      "uses": [
+        "cloud-connector.terraform.rule-order:wrong-order-reported-success"
+      ]
+    }
+  ],
+  "claims": {
+    "ascending": {
+      "statement": "The Zscaler service evaluates traffic forwarding rules in ascending numerical order (Rule 1 before Rule 2), and a rule's order setting is its place in that order.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#order"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Internet & SaaS",
+          "quotes": [
+            "The Zscaler service evaluates forwarding rules in ascending numerical order (Rule 1 before Rule 2, and so on). The rule order setting reflects this rule's place in the order."
+          ]
+        }
+      ]
+    },
+    "disabled-keeps-place": {
+      "statement": "When a rule is disabled the service skips it and moves to the next one, but the rule keeps its place in the rule order.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#state"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Internet & SaaS",
+          "quotes": [
+            "If you disable this option, the service skips the rule and moves to the next one. However, the rule does not lose its place in the rule order."
+          ]
+        }
+      ]
+    },
+    "name-31": {
+      "statement": "A rule name is generated automatically and can be changed; its maximum length is 31 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Internet & SaaS",
+          "quotes": [
+            "The forwarding control feature automatically creates a rule name, which you can change. The maximum length is 31 characters."
+          ]
+        }
+      ]
+    },
+    "type-ec-rdr": {
+      "statement": "The API contract says all traffic forwarding rules are assigned the `EC_RDR` type by default.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#type"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecRdr/post/requestBody/content/application~1json/schema/properties/type",
+          "expect": {
+            "description": "Type of the forwarding rule. By default, all traffic forwarding rules are assigned the <code>EC_RDR</code> type."
+          }
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "rank-applicability": {
+      "summary": "Whether the `rank` member of a traffic forwarding rule applies to Cloud & Branch Connector.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+            "quotes": [
+              "// Admin rank assigned to the forwarding rule"
+            ]
+          },
+          "says": "The Go SDK's ZTW forwarding rule model describes `Rank` as the admin rank assigned to the forwarding rule."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1ecRules~1ecRdr/post/requestBody/content/application~1json/schema/properties/rank",
+            "expect": {
+              "description": "Not applicable to Cloud & Branch Connector."
+            }
+          },
+          "says": "The API contract describes the `rank` member of the traffic forwarding rule request as not applicable to Cloud & Branch Connector."
+        }
+      ],
+      "impact": "Reasoning that a Cloud Connector forwarding rule's rank constrains its order, as admin rank does for ZIA rules, rests on the SDK comment alone; the contract says the member does not apply."
+    }
+  },
+  "gaps": {
+    "first-match": {
+      "kind": "semantic",
+      "title": "Whether traffic forwarding evaluation stops at the first matching rule",
+      "status": "open",
+      "detail": "Unverified legacy statement: rules are evaluated \"top-down by rule order, first match wins\", so a Direct exemption placed below a broad ZIA rule never fires. The help states ascending evaluation and that disabled rules are skipped, but not that evaluation ends at the first match.",
+      "blocks": "deterministic answers about which forwarding rule handled a flow",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "default-position": {
+      "kind": "semantic",
+      "title": "Position of the predefined default Internet & SaaS forwarding rule",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"the pre-provisioned default gateway ZIA rule sits at the terminal position. Traffic not matching any custom rule routes to ZIA via the default gateway.\" The help says a default rule is predefined but not where it sits or that it catches all unmatched traffic.",
+      "blocks": "answering what happens to traffic no custom rule matches",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "rank-and-rule-limit": {
+      "kind": "semantic",
+      "title": "Forwarding rule count limit and whether rank gates rule order",
+      "status": "open",
+      "former_ids": [
+        "cloud-connector-10"
+      ],
+      "detail": "How many traffic forwarding rules a tenant may define is not captured (the 16K-per-organization and 8,000-per-rule caps are wildcard and FQDN entry limits). Whether admin rank limits the editable rule order, as with ZIA admin rank, is not stated, and the API contract says rank does not apply to Cloud & Branch Connector.",
+      "blocks": "capacity planning and admin-rank questions for forwarding rules",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

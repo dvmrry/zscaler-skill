@@ -1,0 +1,512 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.terraform.provider-config",
+  "title": "ZTC Terraform provider configuration: OneAPI or legacy credentials, environment variables, defaults and government clouds",
+  "aliases": [
+    "ztc provider use_legacy_client",
+    "ZSCALER_USE_LEGACY_CLIENT ztc",
+    "ztc provider environment variables",
+    "ztc max_retries default",
+    "ztc provider fedramp",
+    "ztc zscaler_cloud gov",
+    "ztc_cloud",
+    "ztc oneapi only resources",
+    "ztc terraform version",
+    "zidentitygov ztc"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.api.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.provider-behavior"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terraform.credential-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.government-clouds"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The ZTC provider builds either a OneAPI client or a legacy ZTW client, chosen by one flag. The argument list and its validators are generated (`node scripts/kb.mjs surface provider:ztw`); this subject holds how the provider reads them, which defaults it really uses, and where its documentation disagrees with its code."
+    },
+    {
+      "label": "Choosing the framework.",
+      "text": "{{auth-mode-selection}} {{explicit-false-defers-to-env}}"
+    },
+    {
+      "label": "OneAPI credentials.",
+      "text": "{{oneapi-required-values}} {{oneapi-env-vars}} {{private-key-format}} {{zscaler-cloud-values}}"
+    },
+    {
+      "label": "Legacy credentials.",
+      "text": "{{legacy-required-values}} {{api-key-sku}} The legacy host is described differently by the provider documentation and the SDK {{divergence:legacy-base-url}}; the SDK's legacy client and its session handling are in [[cloud-connector.api.authentication]]."
+    },
+    {
+      "label": "Which resources need OneAPI.",
+      "text": "{{dns-log-rules-oneapi-only}} {{legacy-api-documents-rules}} The SDK calls that fail when only the legacy ZTW client exists (activation status, provisioning URL writes) are in [[cloud-connector.sdk-go.service-defects]]. Whether the rule resources work through the provider's legacy client is open {{gap:legacy-mode-rule-resources}}."
+    },
+    {
+      "label": "Defaults.",
+      "text": "The retry default differs between the documentation and the code {{divergence:max-retries-default}}. The `parallelism` setting changes nothing: [[cloud-connector.terraform.provider-behavior]]."
+    },
+    {
+      "label": "Government (FedRAMP) clouds.",
+      "text": "The SDK's government routes are in [[shared.oneapi.government-clouds]]. {{gov-routes-added-3-8-39}} {{provider-carries-gov-routes}} {{docs-claim-gov-support}} {{importer-guide-no-gov}} {{version-floors-not-ztc}} Whether a ZTW tenant on gov or govus accepts OneAPI calls is open {{gap:fedramp-live-acceptance}}."
+    },
+    {
+      "label": "Terraform version.",
+      "text": "{{terraform-version}}"
+    },
+    {
+      "text": "How the provider stores and logs secrets is in [[shared.terraform.credential-handling]]; how it builds its client twice is in [[cloud-connector.terraform.provider-behavior]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether use_legacy_client or ZSCALER_USE_LEGACY_CLIENT=true is in effect, remembering that use_legacy_client = false does not override the environment variable.",
+      "uses": [
+        "auth-mode-selection",
+        "explicit-false-defers-to-env"
+      ]
+    },
+    {
+      "do": "For OneAPI, that client ID, vanity domain and exactly one of client secret or private key reach the provider, from arguments or ZSCALER_* variables.",
+      "uses": [
+        "oneapi-required-values",
+        "oneapi-env-vars"
+      ]
+    },
+    {
+      "do": "For legacy mode, that username, password, API key and ztc_cloud are set (ZTC_* variables) and that the configuration does not manage DNS or log forwarding rules, which the documentation lists as OneAPI only.",
+      "uses": [
+        "legacy-required-values",
+        "dns-log-rules-oneapi-only",
+        "legacy-mode-rule-resources"
+      ]
+    },
+    {
+      "do": "For a government tenant, whether OneAPI on gov or govus has been confirmed for ZTW before moving off legacy credentials.",
+      "uses": [
+        "docs-claim-gov-support",
+        "fedramp-live-acceptance"
+      ]
+    }
+  ],
+  "claims": {
+    "auth-mode-selection": {
+      "statement": "The provider uses the legacy client when `use_legacy_client` is set, or, when that argument is not set, when `ZSCALER_USE_LEGACY_CLIENT` is `true` (case-insensitive); otherwise it builds the OneAPI client.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/config.go",
+          "quotes": [
+            "if val, ok := d.GetOk(\"use_legacy_client\"); ok { config.useLegacyClient = val.(bool) } else if os.Getenv(\"ZSCALER_USE_LEGACY_CLIENT\") != \"\" {",
+            "config.useLegacyClient = strings.ToLower(os.Getenv(\"ZSCALER_USE_LEGACY_CLIENT\")) == \"true\"",
+            "if c.useLegacyClient { log.Println(\"[INFO] Initializing ZTC V2 (Legacy) client\")",
+            "log.Println(\"[INFO] Initializing ZTC V3 client\")",
+            "log.Println(\"[INFO] Initializing ZTC V3 client\") v3Client, err := zscalerSDKV3Client(c)"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/config.go",
+          "quotes": [
+            "v3Client, err := zscaler.NewOneAPIClient(config)"
+          ]
+        }
+      ]
+    },
+    "explicit-false-defers-to-env": {
+      "statement": "Setting `use_legacy_client = false` in the provider block does not override `ZSCALER_USE_LEGACY_CLIENT=true`: the provider reads the argument with `GetOk`, which treats a false boolean as not set, and then falls back to the environment variable.",
+      "tier": "B",
+      "derived_from": [
+        "auth-mode-selection"
+      ],
+      "conditions": "Rests on the Terraform plugin SDK's documented behavior that GetOk returns ok=false for a zero value (false for a bool); not run against the provider.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/config.go",
+          "quotes": [
+            "if val, ok := d.GetOk(\"use_legacy_client\"); ok {"
+          ]
+        }
+      ]
+    },
+    "oneapi-required-values": {
+      "statement": "In OneAPI mode the provider needs a client ID and a vanity domain together with either a client secret or a private key; any other combination fails with \"invalid authentication configuration: missing required parameters\". It passes `zscaler_cloud` to the SDK only when it is non-empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/config.go",
+          "quotes": [
+            "case c.clientID != \"\" && c.clientSecret != \"\" && c.vanityDomain != \"\":",
+            "case c.clientID != \"\" && c.privateKey != \"\" && c.vanityDomain != \"\":",
+            "return nil, fmt.Errorf(\"invalid authentication configuration: missing required parameters\")",
+            "if val, ok := d.GetOk(\"zscaler_cloud\"); ok {",
+            "// Main switch for OAuth2 authentication"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/config.go",
+          "after": "case c.clientID != \"\" && c.clientSecret != \"\" && c.vanityDomain != \"\":",
+          "quotes": [
+            "if c.cloud != \"\" { setters = append(setters, zscaler.WithZscalerCloud(c.cloud)) }"
+          ]
+        }
+      ]
+    },
+    "oneapi-env-vars": {
+      "statement": "Each OneAPI argument left empty is taken from an environment variable: `client_id` from `ZSCALER_CLIENT_ID`, `client_secret` from `ZSCALER_CLIENT_SECRET`, `private_key` from `ZSCALER_PRIVATE_KEY`, `vanity_domain` from `ZSCALER_VANITY_DOMAIN`, `zscaler_cloud` from `ZSCALER_CLOUD`, and `http_proxy` from `ZSCALER_HTTP_PROXY`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/config.go",
+          "quotes": [
+            "if config.clientID == \"\" && os.Getenv(\"ZSCALER_CLIENT_ID\") != \"\" {",
+            "if config.clientSecret == \"\" && os.Getenv(\"ZSCALER_CLIENT_SECRET\") != \"\" {",
+            "if config.privateKey == \"\" && os.Getenv(\"ZSCALER_PRIVATE_KEY\") != \"\" {",
+            "if config.vanityDomain == \"\" && os.Getenv(\"ZSCALER_VANITY_DOMAIN\") != \"\" {",
+            "if config.cloud == \"\" && os.Getenv(\"ZSCALER_CLOUD\") != \"\" {",
+            "if config.httpProxy == \"\" && os.Getenv(\"ZSCALER_HTTP_PROXY\") != \"\" {"
+          ]
+        }
+      ]
+    },
+    "private-key-format": {
+      "statement": "The documentation says `private_key` may be a file path or the key itself, in PKCS#1 or PKCS#8 unencrypted form, and conflicts with `client_secret`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/index.md",
+          "quotes": [
+            "This is the private key for obtaining the API token (can be represented by a filepath, or the key itself).",
+            "The format of the PK is PKCS#1 unencrypted (header starts with `-----BEGIN RSA PRIVATE KEY-----` or PKCS#8 unencrypted (header starts with `-----BEGIN PRIVATE KEY-----`).",
+            "`private_key` conflicts with `client_secret`."
+          ]
+        }
+      ]
+    },
+    "zscaler-cloud-values": {
+      "statement": "The documentation says `zscaler_cloud` is not needed for the production commercial clouds, is `beta` for the test commercial cloud, and is `gov` or `govus` for the FedRAMP clouds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/index.md",
+          "quotes": [
+            "- Production Commericial Clouds: The cloud parameter `IS NOT` required.",
+            "- Test (Beta) Commercial Clouds: `beta`",
+            "- FedRAMP Clouds: `gov` or `govus`",
+            "* `zscaler_cloud` - (Optional) This refers to Zscaler cloud name where API calls will be directed to i.e `beta`."
+          ]
+        }
+      ]
+    },
+    "legacy-required-values": {
+      "statement": "In legacy mode the provider requires `username`, `password`, `api_key` and `ztc_cloud`, each from its argument or from `ZTC_USERNAME`, `ZTC_PASSWORD`, `ZTC_API_KEY` or `ZTC_CLOUD`, and fails configuration with an error naming the missing value, checking them in that order.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/config.go",
+          "quotes": [
+            "config.Username = os.Getenv(\"ZTC_USERNAME\")",
+            "config.Password = os.Getenv(\"ZTC_PASSWORD\")",
+            "config.APIKey = os.Getenv(\"ZTC_API_KEY\")",
+            "config.ZTCBaseURL = os.Getenv(\"ZTC_CLOUD\")",
+            "return nil, fmt.Errorf(\"username is required for legacy client authentication. Please provide it via the 'username' parameter or ZTC_USERNAME environment variable\")",
+            "return nil, fmt.Errorf(\"ztc_cloud is required for legacy client authentication. Please provide it via the 'ztc_cloud' parameter or ZTC_CLOUD environment variable\")",
+            "return nil, fmt.Errorf(\"password is required for legacy client authentication. Please provide it via the 'password' parameter or ZTC_PASSWORD environment variable\")",
+            "return nil, fmt.Errorf(\"api_key is required for legacy client authentication. Please provide it via the 'api_key' parameter or ZTC_API_KEY environment variable\")"
+          ]
+        }
+      ]
+    },
+    "api-key-sku": {
+      "statement": "The documentation says the legacy `api_key` is the obfuscated API key from the portal's API key management page and requires the `Z_API` SKU.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/index.md",
+          "after": "## Legacy API Framework",
+          "quotes": [
+            "A string that contains the obfuscated API key (i.e., the return value of the obfuscateApiKey() method)."
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "docs/index.md",
+          "quotes": [
+            "`api_key` - (Optional) API key found in the Zero Trust Cloud portal `Administration > API Key Mangement > API Key Management`.",
+            "Ensure you have the following SKU enabled `Z_API`"
+          ]
+        }
+      ]
+    },
+    "dns-log-rules-oneapi-only": {
+      "statement": "The documentation for `ztc_traffic_forwarding_dns_rule` and `ztc_traffic_forwarding_log_rule` (resources and data sources) says each is available only via OneAPI; the `ztc_traffic_forwarding_rule` pages carry no such note.",
+      "tier": "B",
+      "conditions": "Absence: the provider's docs/resources and docs/data-sources pages were searched at the pin for OneAPI; only the four DNS-rule and log-rule pages carry the note.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/resources/ztc_traffic_forwarding_dns_rule.md",
+          "quotes": [
+            "**NOTE**: Resource available only via OneAPI"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "docs/resources/ztc_traffic_forwarding_log_rule.md",
+          "quotes": [
+            "**NOTE**: Resource available only via OneAPI"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "docs/data-sources/ztc_traffic_forwarding_dns_rule.md",
+          "quotes": [
+            "**NOTE**: Resource available only via OneAPI"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "docs/data-sources/ztc_traffic_forwarding_log_rule.md",
+          "quotes": [
+            "**NOTE**: Resource available only via OneAPI"
+          ]
+        }
+      ]
+    },
+    "gov-routes-added-3-8-39": {
+      "statement": "The Go SDK changelog records OneAPI support for the government (FedRAMP) clouds through `cloud=gov` and `cloud=govus` in release 3.8.39; before it those clouds produced non-resolvable hostnames.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "after": "# 3.8.39 (June 23, 2026)",
+          "quotes": [
+            "Added OneAPI (Zidentity) support for the government (FedRAMP) clouds. Setting `cloud=gov` or `cloud=govus` on `ZscalerClient`",
+            "Previously these clouds produced non-resolvable hostnames and failed on every call."
+          ]
+        }
+      ]
+    },
+    "provider-carries-gov-routes": {
+      "statement": "The provider passes a non-empty `zscaler_cloud` to the SDK unchanged, and v0.2.0 is built with SDK v3.8.40, which already builds the gov and govus OneAPI routes, so setting `zscaler_cloud` to `gov` or `govus` sends authentication and API calls to the government hosts.",
+      "tier": "B",
+      "derived_from": [
+        "oneapi-required-values",
+        "shared.oneapi.government-clouds:go-gov-routing",
+        "gov-routes-added-3-8-39"
+      ],
+      "conditions": "Route construction only; this does not show that the ZTW API accepts the calls there (see the gap).",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "go.mod",
+          "quotes": [
+            "github.com/zscaler/zscaler-sdk-go/v3 v3.8.40"
+          ]
+        }
+      ]
+    },
+    "terraform-version": {
+      "statement": "The changelog for release 0.2.0 gives the supported Terraform version as v1.x.",
+      "tier": "A",
+      "conditions": "Corrects the legacy doc's \"Terraform minimum version: 0.12.x\", which no provider source states.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "CHANGELOG.md",
+          "after": "## 0.2.0 (June 29, 2026)",
+          "quotes": [
+            "- Supported Terraform version: **v1.x**"
+          ]
+        }
+      ]
+    },
+    "version-floors-not-ztc": {
+      "statement": "The version floors the documentation gives, v4.0.0 for legacy compatibility and >=v4.7.25 for FedRAMP, are not releases of this provider, whose changelog runs through 0.x releases to 0.2.0; they read as copied from another provider's documentation.",
+      "tier": "B",
+      "conditions": "Compared the version strings in docs/index.md with the release headings in CHANGELOG.md at the pin (latest 0.2.0). That they were copied is an inference.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/index.md",
+          "after": "### ZTC native authentication",
+          "quotes": [
+            "As of version v4.0.0, this Terraform provider offers backwards compatibility to the Zscaler legacy API framework."
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "docs/index.md",
+          "quotes": [
+            "**NOTE** FedRAMP cloud is only supported when upgrading to the provider version `>=v4.7.25`. Earlier versions are NOT supported."
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 0.2.0 (June 29, 2026)"
+          ]
+        }
+      ]
+    },
+    "docs-claim-gov-support": {
+      "statement": "The provider's main documentation page says OneAPI and ZIdentity now support the government (FedRAMP) clouds through `cloud=gov` and `cloud=govus`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/index.md",
+          "quotes": [
+            "Attention Government customers. OneAPI and Zidentity now support the government (FedRAMP) clouds via the unified `cloud=gov` and `cloud=govus` values."
+          ]
+        }
+      ]
+    },
+    "importer-guide-no-gov": {
+      "statement": "The provider's resource-importer guide, which documents the separate zscaler-terraformer tool, says OneAPI and ZIdentity are not currently supported for the ZIA/ZTC clouds `zscalergov` and `zscalerten` or the ZPA clouds `GOV` and `GOVUS`, and points to the legacy framework there.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/guides/resource-importer.md",
+          "quotes": [
+            "Notice that OneAPI and Zidentity is NOT currently supported for the following ZIA/ZTC and ZPA clouds respectively: `zscalergov` and `zscalerten` or `GOV` and `GOVUS`."
+          ]
+        }
+      ]
+    },
+    "legacy-api-documents-rules": {
+      "statement": "The legacy API overview documents DNS forwarding rule, log and control forwarding rule, and policy management (traffic forwarding rule) resources, with create and update operations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-zscaler-cloud-branch-connector-api.json",
+          "quotes": [
+            "DNS Control Forwarding Rule API resources allow you to retrieve DNS forwarding rules. These resources allow you to create, update, or delete DNS forwarding rule configuration.",
+            "Log and Control Forwarding API resources allow you to retrieve the list of forwarding rules. These resources allow you to create, update, or delete forwarding rule configurations.",
+            "Policy Management API resources allow you to create and update traffic forwarding rules and retrieve the list of available rules and the count of rules"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "max-retries-default": {
+      "summary": "The documentation gives `max_retries` a default of 5; the code's default retry count is 30, passed to the SDK's rate-limit retry setting.",
+      "positions": [
+        {
+          "says": "max_retries defaults to 5.",
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "docs/index.md",
+            "quotes": [
+              "Maximum number of retries to attempt before returning an error, the default is `5`."
+            ]
+          }
+        },
+        {
+          "says": "With max_retries unset, the provider's retry count is 30, and that value is what it passes to WithRateLimitMaxRetries.",
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "ztc/config.go",
+            "quotes": [
+              "retryCount: 30,",
+              "zscaler.WithRateLimitMaxRetries(int32(c.retryCount)),"
+            ]
+          }
+        }
+      ],
+      "impact": "An operator sizing retries from the documentation expects 5; an unset max_retries actually allows 30 rate-limit retries."
+    },
+    "legacy-base-url": {
+      "summary": "The documentation describes the legacy API host as a zsapi host for the cloud name; the SDK's legacy ZTW client builds a connector.<cloud>.net host.",
+      "positions": [
+        {
+          "says": "The host and base path for the legacy API is $zsapi.<cloud name>/api/v1.",
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "docs/index.md",
+            "quotes": [
+              "The host and basePath for the cloud services API is `$zsapi.<Zscaler Cloud Name>/api/v1`."
+            ]
+          }
+        },
+        {
+          "says": "The legacy ZTW client sends requests to https://connector.<cloud>.net/api/v1.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/ztw/v2_config.go",
+            "quotes": [
+              "rawURL := fmt.Sprintf(\"https://connector.%s.net/%s\", cfg.ZTW.Client.ZTCCloud, ztwAPIVersion)"
+            ]
+          }
+        }
+      ],
+      "impact": "Firewall or proxy allow-lists built from the documentation name the wrong host for legacy-mode traffic.",
+      "resolution": {
+        "by": "cloud-connector.api.authentication:go-legacy-host",
+        "rule": "source-rank",
+        "note": "The SDK code is what the provider runs."
+      }
+    }
+  },
+  "gaps": {
+    "fedramp-live-acceptance": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether a ZTW tenant on the gov or govus cloud accepts OneAPI calls through the ZTC provider",
+      "former_ids": [
+        "cloud-connector-19"
+      ],
+      "blocks": "Whether a government Cloud and Branch Connector tenant can move from legacy credentials to OneAPI with this provider.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "detail": "Unverified legacy statement: \"Retain legacy auth for a production government tenant unless current release notes, vendor confirmation, or a tenant test establishes OneAPI support.\" The SDK builds the gov and govus routes and the provider passes the cloud through; the provider's main page claims support while its importer guide (for zscaler-terraformer) says the government clouds are unsupported, and the version floor they cite is not a ZTC release. The legacy doc also cited Terraform Skills v0.3.1 (not a registered source) as saying no released ZTC version supports OneAPI FedRAMP. The other half of the ledger entry (why provisioning_url and workload_groups.Get use the ZIA-style request methods) is answered as far as behavior goes by cloud-connector.sdk-go.service-defects:ztw-services-use-generic-legacy-path; no source says why. Resolves with a ZTC release note or vendor statement, or a test that authenticates and completes a ZTW call through OneAPI on gov or govus."
+    },
+    "legacy-mode-rule-resources": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether the ZTC rule resources work through the provider's legacy client",
+      "former_ids": [
+        "cloud-connector-16"
+      ],
+      "blocks": "Whether a legacy-mode configuration can manage forwarding, DNS and log forwarding rules.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: \"Whether traffic forwarding rules require OneAPI or work with both auth frameworks is not confirmed from available sources.\" The legacy API overview documents all three rule families, and in the SDK the three rule services use the ZTW request methods that the legacy ZTW client serves (cloud-connector.sdk-go.service-defects:legacy-ztw-only-client-fails-generic-calls); against that, the provider documentation marks the DNS and log rule resources OneAPI only. Open: whether those resources fail, or only lack vendor support, in legacy mode. The ZPA segment-ID half of the ledger entry is cloud-connector.terraform.forwarding-rules:zpa-segment-id-equivalence."
+    }
+  }
+}

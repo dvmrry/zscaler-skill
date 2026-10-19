@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.regions.deployment",
+  "title": "Where a customer-deployed Cloud Connector VM can be deployed",
+  "aliases": [
+    "cloud connector azure china",
+    "cloud connector govcloud",
+    "cloud connector azure government",
+    "cloud connector marketplace regions",
+    "cloud connector vm size",
+    "cloud connector gcp regions"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.regions"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.regions.zero-trust-gateways"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The captured help has no region list for the Cloud Connector VM in any cloud; what it does say is cloud-specific. The Zero Trust Gateway tables are not a VM allowlist: [[cloud-connector.regions.zero-trust-gateways]]."
+    },
+    {
+      "label": "Azure.",
+      "text": "{{azure-marketplace-regions}} {{azure-china-gateway}}"
+    },
+    {
+      "label": "GCP.",
+      "text": "{{gcp-terraform}}"
+    },
+    {
+      "label": "VM size.",
+      "text": "{{vm-size}}"
+    },
+    {
+      "text": "Per-region availability of the VM in AWS (including GovCloud and China), GCP, Azure Government and other sovereign clouds, and of each VM size, is not captured {{gap:standard-cc-regions}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For Azure China, whether the deployment used Terraform rather than the Marketplace application.",
+      "uses": [
+        "azure-marketplace-regions"
+      ]
+    },
+    {
+      "do": "For any region outside commercial Azure, whether the cloud's marketplace lists the image, or Zscaler confirms support.",
+      "uses": [
+        "standard-cc-regions"
+      ]
+    }
+  ],
+  "claims": {
+    "azure-marketplace-regions": {
+      "statement": "The Zscaler Cloud Connector Application in the Azure Marketplace is available in all regions except China; deploying from the China region requires Terraform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "The Zscaler Cloud Connector Application in the Azure Marketplace is available in all regions except China. If you are deploying Cloud Connector from the China region, you must use Terraform."
+          ]
+        }
+      ]
+    },
+    "azure-china-gateway": {
+      "statement": "For Cloud Connector in China, Zscaler recommends a custom gateway with Zscaler China data centers and traffic forwarding policies that reference the China location and that custom gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "If you are deploying Cloud Connector in China, Zscaler recommends creating a custom gateway with Zscaler China data centers and traffic forwarding policies referencing your China location and custom gateway."
+          ]
+        }
+      ]
+    },
+    "gcp-terraform": {
+      "statement": "The GCP deployment guide deploys Cloud Connector as a VM using Terraform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-google-cloud-platform.json",
+          "quotes": [
+            "how to deploy Zscaler Cloud Connector as a virtual machine (VM) on the Google Cloud Platform (GCP)",
+            "This procedure describes the steps for deploying Zscaler Cloud Connector using Terraform."
+          ]
+        }
+      ]
+    },
+    "vm-size": {
+      "statement": "In the cloud provisioning template, AWS offers Small, Medium or Large, with Small the default when autoscaling is enabled; for Azure and GCP the page says only that Small is set by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-cloud-provisioning-template.json",
+          "quotes": [
+            "Amazon Web Services: Select from Small, Medium, or Large. Small is set by default when autoscaling is enabled.",
+            "Azure: Small is set by default.",
+            "GCP: Small is set by default."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "standard-cc-regions": {
+      "kind": "semantic",
+      "title": "Region availability of the customer-deployed Cloud Connector VM",
+      "status": "open",
+      "former_ids": [
+        "cloud-connector-22"
+      ],
+      "detail": "Unverified legacy statements and open questions: AWS AMI availability has no enumerated region list; AWS GovCloud (`us-gov-east-1`, `us-gov-west-1`) and AWS China (`cn-north-1`, `cn-northwest-1`) are not addressed, and a GovCloud blog post reportedly names Cloud Connector without regional detail; Azure Government and other sovereign Azure clouds are not addressed; AWS China \"likely\" needs the same China gateway handling as Azure; the GCP VM's region list is not enumerated, and a 2026 release entry reportedly names a Google Cloud Marketplace image (the release-summary capture holds only its introduction); whether VM sizes other than Small exist for Azure and GCP, or vary by region, is not stated; the Azure Function App Flex Consumption plan is unavailable in some Azure regions, affecting VMSS deployments. The region-set comparison is in cloud-connector.regions:region-set-parity.",
+      "blocks": "telling an operator whether a Cloud Connector VM can be deployed in a given region or sovereign cloud",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

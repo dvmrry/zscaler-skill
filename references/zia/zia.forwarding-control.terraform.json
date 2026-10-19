@@ -40,6 +40,9 @@
     },
     {
       "text": "Other provider behavior for this resource: required and forbidden fields per method are in [[zia.forwarding-control.methods]]; predefined rule handling in [[zia.forwarding-control.predefined-rules]]; the gateway resource's read workaround in [[zia.forwarding-control.zpa-gateway]]; selectors the provider never sends in [[zia.terraform.field-fidelity]]; order handling in [[zia.terraform.rule-order]]."
+    },
+    {
+      "text": "Older providers lack the Dedicated IP and GeoIP methods: {{method-version-history}}"
     }
   ],
   "checks": [
@@ -158,6 +161,44 @@
         "zpa-delay"
       ],
       "conditions": "Interpretation of the sleep claim. A pause well beyond 60 seconds per rule, or one with errors, is not covered; the retry path adds 30 second waits ([zpa-retry])."
+    },
+    "method-version-history": {
+      "statement": "In the ZIA provider, the `ENATDEDIP` forward method was added to `zia_forwarding_control_rule` in 4.7.0 and its forward method validation was fixed in 4.7.4; the `zia_dedicated_ip_proxy` data source arrived in 4.7.9, and support for the `GEOIP` forward method in 4.7.15.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "after": "## 4.7.0 (February, 9 2026)",
+          "quotes": [
+            "Added new `forward_method` `ENATDEDIP` to resource `zia_forwarding_control_rule`."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "after": "## 4.7.4 (February, 17 2026)",
+          "quotes": [
+            "Fixed `zia_forwarding_control_rule` forward method validation for `ENATDEDIP`."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "after": "## 4.7.9 (March, 5 2026)",
+          "quotes": [
+            "Added new data source `zia_dedicated_ip_proxy` for retrieving Dedicated IP Gateway information from the forwarding control policy."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "after": "## 4.7.15 (April, 2 2026)",
+          "quotes": [
+            "Updated `zia_forwarding_control_rule` Included support to the new `forward_method` `GEOIP`."
+          ]
+        }
+      ]
     }
   }
 }

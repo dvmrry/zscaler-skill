@@ -13,7 +13,7 @@
 // Code is read at the submodule pin (HEAD); the spec is a committed capture, identified by its hash.
 // The output changes only when a pin or the captured spec changes.
 //
-// Usage: node scripts/gen-surfaces.mjs [zia|zpa|zcc] [--check]
+// Usage: node scripts/gen-surfaces.mjs [zia|zpa|zcc|ztw] [--check]
 //   --check  exit 1 if the committed file differs from what the pins generate.
 
 import { createHash } from "node:crypto";
@@ -60,6 +60,17 @@ const PRODUCTS = {
     pyModules: "zscaler/zcc",
     pyBases: true,
     framework: true,
+  },
+  // Cloud & Branch Connector: the API, SDKs and spec call it ZTW (`/ztw/api/v1`), the provider ZTC. Go services
+  // carry full literal paths; Python modules template one base (`self._ztw_base_endpoint = "/ztw/api/v1"`).
+  ztw: {
+    spec: "automate-zscaler/openapi/zcloudconnector.openapi.json",
+    base: "/ztw/api/v1",
+    provider: "terraform-provider-ztc",
+    providerDir: "ztc",
+    goServices: "zscaler/ztw/services",
+    pyModules: "zscaler/ztw",
+    pyBases: true,
   },
 };
 const P = PRODUCTS[product];
@@ -114,11 +125,36 @@ function assembledGo(src) {
 }
 
 // ---------------------------------------------------------------- Go SDK
+/** Go source with comments removed (string and rune literals kept), so commented-out code is not surface. */
+function stripGoComments(src) {
+  let out = "";
+  for (let i = 0; i < src.length; ) {
+    const c = src[i];
+    if (c === "/" && src[i + 1] === "/") {
+      while (i < src.length && src[i] !== "\n") i++;
+    } else if (c === "/" && src[i + 1] === "*") {
+      const end = src.indexOf("*/", i + 2);
+      const body = src.slice(i, end < 0 ? src.length : end + 2);
+      out += body.replace(/[^\n]/g, ""); // keep line breaks so `^` anchors still see line starts
+      i += body.length;
+    } else if (c === '"' || c === "'" || c === "`") {
+      let j = i + 1;
+      while (j < src.length && src[j] !== c) j += c !== "`" && src[j] === "\\" ? 2 : 1;
+      out += src.slice(i, j + 1);
+      i = j + 1;
+    } else {
+      out += c;
+      i++;
+    }
+  }
+  return out;
+}
+
 const sdkGo = {};
 for (const file of list("zscaler-sdk-go", P.goServices)) {
   if (!file.endsWith(".go") || file.endsWith("_test.go")) continue;
   const pkg = path.posix.dirname(file).slice(P.goServices.length + 1);
-  const src = show("zscaler-sdk-go", file);
+  const src = stripGoComments(show("zscaler-sdk-go", file));
   if (!sdkGo[pkg]) sdkGo[pkg] = { endpoints: new Set(), functions: new Set() };
   const entry = sdkGo[pkg];
   if (P.assembled) for (const e of assembledGo(src)) entry.endpoints.add(e);

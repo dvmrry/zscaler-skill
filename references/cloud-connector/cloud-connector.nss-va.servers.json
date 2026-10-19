@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.nss-va.servers",
+  "title": "NSS servers for Cloud & Branch Connector: certificate, buffering and sizing",
+  "aliases": [
+    "nss server cloud connector",
+    "nss va certificate",
+    "nss client certificate",
+    "nss buffer",
+    "nss va sizing",
+    "nss va high availability",
+    "nss server state"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.nss-va"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.nss-va.feeds"
+    }
+  ],
+  "prose": [
+    {
+      "text": "An NSS server is the Admin Console record of one NSS virtual machine. It decides how that VM authenticates, what it buffers and how it is sized."
+    },
+    {
+      "label": "Registration.",
+      "text": "{{server-type-default}} {{status-and-state}} What a server of another type would stream is open {{gap:server-type-mismatch}}."
+    },
+    {
+      "label": "Certificate.",
+      "text": "{{client-certificate}} {{certificate-regenerate}} How long a certificate is valid and what happens when it lapses is open {{gap:certificate-lifetime}}."
+    },
+    {
+      "label": "Buffering.",
+      "text": "{{buffer-one-hour}} What the Nanolog does when the VM itself is unreachable is the NSS model shared with ZIA, in [[shared.nss.reliability]]."
+    },
+    {
+      "label": "Sizing.",
+      "text": "{{sizing-computed}} Sizing figures for given connector fleets are open {{gap:sizing-numbers}}."
+    },
+    {
+      "label": "Redundancy and placement.",
+      "text": "Whether two NSS VMs can stream the same logs at once is open {{gap:active-active}}. Network egress and placement requirements for the VM are open {{gap:egress-and-placement}}, and so is the clock-sync requirement {{gap:clock-sync}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The NSS server's State in the Admin Console, which shows its health, before looking at the SIEM.",
+      "uses": [
+        "status-and-state"
+      ]
+    },
+    {
+      "do": "Whether the certificate installed on the VM is the one currently issued for the server, after anyone generated a new certificate.",
+      "uses": [
+        "certificate-regenerate",
+        "certificate-lifetime"
+      ]
+    },
+    {
+      "do": "How long the SIEM was unreachable, against the at-least-one-hour buffer.",
+      "uses": [
+        "buffer-one-hour"
+      ]
+    }
+  ],
+  "claims": {
+    "server-type-default": {
+      "statement": "When an NSS server is added, its NSS Type is set to NSS for Firewall, Cloud and Branch Connector by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-servers.json",
+          "quotes": [
+            "NSS Type: The type is set to NSS for Firewall, Cloud and Branch Connector by default."
+          ]
+        }
+      ]
+    },
+    "status-and-state": {
+      "statement": "An NSS server has a Status the admin enables or disables and a non-configurable State that shows the server's health.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-servers.json",
+          "quotes": [
+            "Status: Enable or disable the NSS server.",
+            "State: The health of the NSS server. This field is non-configurable."
+          ]
+        }
+      ]
+    },
+    "client-certificate": {
+      "statement": "NSS servers let an admin issue a client certificate and a private key to install on the NSS VM, and let the NSS authenticate to the Zscaler service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-nss-servers.json",
+          "quotes": [
+            "Issue a client certificate and a private key that you can install on the NSS VM.",
+            "Authenticate to the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "certificate-regenerate": {
+      "statement": "In the Edit NSS Server window an admin can download the server's SSL certificate or generate a new certificate for the server, and upload it to the NSS platform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-servers.json",
+          "quotes": [
+            "under SSL Certificate, you can either download the SSL certificate or generate a new certificate for that NSS server. You can upload this SSL certificate to the desired platform."
+          ]
+        }
+      ]
+    },
+    "buffer-one-hour": {
+      "statement": "The NSS buffers logs for at least one hour: when the SIEM goes offline or the NSS-to-SIEM connection is disrupted, it buffers and sends the logs after the connection is re-established. The buffer memory is part of the VM spec computation, and the buffer grows in proportion to the RAM allocated to the NSS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-servers.json",
+          "quotes": [
+            "The NSS buffers the logs for at least one hour.",
+            "the NSS buffers the logs and sends them after the connection is re-established.",
+            "The amount of memory required to buffer the logs is incorporated into the VM spec computation.",
+            "The buffer size increases proportionally to the amount of RAM allocated to the NSS."
+          ]
+        }
+      ]
+    },
+    "sizing-computed": {
+      "statement": "Before an NSS server is set up, the admin enters information about traffic and users so the Zscaler service can compute the appropriate resources for the NSS VM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-servers.json",
+          "quotes": [
+            "Before you set up a Nanolog Streaming Service (NSS) server on the Zscaler Admin Console",
+            "you must enter information about your traffic and users so the Zscaler service can compute the appropriate resources for your NSS."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-nss-virtual-appliances.json",
+          "quotes": [
+            "the Zscaler service needs to compute the appropriate resources for your NSS."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "certificate-lifetime": {
+      "kind": "semantic",
+      "title": "NSS client certificate validity and what expiry does",
+      "status": "partial",
+      "blocks": "planning certificate renewal for an NSS VM before the stream stops",
+      "detail": "Unverified legacy statement: \"If the certificate expires, is revoked, or the private key is rotated on the VM without updating the server record, the Nanolog tunnel drops. Zscaler does not automatically push new certificates; operators must track certificate expiry and re-register if needed.\" The help shows that a new certificate can be generated from the server record (claim certificate-regenerate); the certificate's validity period and the behavior at expiry are not stated. Former cloud-connector-20 item 3.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "sizing-numbers": {
+      "kind": "semantic",
+      "title": "NSS VM sizing for a given connector fleet",
+      "status": "partial",
+      "blocks": "estimating NSS VM CPU and memory before deployment",
+      "detail": "Unverified legacy statement: \"Sizing follows the same model as ZIA NSS for Firewall.\" The help states that the service computes the VM resources from traffic and user information (claim sizing-computed); no figures for typical fleet sizes are captured. Former cloud-connector-20 item 2.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "active-active": {
+      "kind": "semantic",
+      "title": "Whether two NSS VMs can stream the same Cloud Connector logs at once",
+      "status": "open",
+      "former_ids": [
+        "cloud-connector-20"
+      ],
+      "blocks": "designing NSS VM redundancy for Cloud Connector logs",
+      "detail": "Unverified legacy statement: \"Operators with high availability requirements should consider running two NSS VAs in separate availability zones / cloud regions and configuring two NSS server records in the admin console, each with its own set of feeds. Nanolog supports multiple concurrent connections.\" Whether the Nanolog streams to two servers at once or a standby must wait is not stated. Ledger cloud-connector-20 grouped seven NSS questions; this gap carries its ID, and the other items are certificate-lifetime and sizing-numbers here, the DNS log type and JSON output (answered by cloud-connector.nss-va:log-types and cloud-connector.nss-va.feeds:output-types), and log-upload-starvation and rule-first-match in cloud-connector.nss-va.log-control-path.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "egress-and-placement": {
+      "kind": "semantic",
+      "title": "Network egress and placement requirements for the NSS VM",
+      "status": "open",
+      "blocks": "firewall and routing design for an NSS VM in a locked-down cloud account",
+      "detail": "Unverified legacy statement: the VM \"needs outbound internet access to reach the Nanolog (Zscaler cloud endpoints)\", isolated VPCs need \"a NAT gateway or equivalent\", the VM is \"typically placed in the same VPC/VNet as the Cloud Connector, or in a dedicated security/logging VPC\", and since \"the Nanolog is cloud-global\" one centrally placed VM can serve connectors in all regions. No captured Cloud & Branch Connector article states the destinations, ports or placement.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "clock-sync": {
+      "kind": "semantic",
+      "title": "Whether NSS VM clock drift breaks its connection to the Zscaler cloud",
+      "status": "open",
+      "blocks": "diagnosing an NSS VM that cannot connect although the network path is open",
+      "detail": "Unverified legacy statement: \"If the VM's clock drifts, TLS handshakes to the Nanolog fail with certificate validation errors that can look like network connectivity issues. Ensure the NSS VA and all Cloud Connector VMs are NTP-synchronized\" (169.254.169.123 on AWS, time.windows.com on Azure). No captured source states the requirement.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "server-type-mismatch": {
+      "kind": "semantic",
+      "title": "What an NSS server of the wrong type does with Cloud Connector logs",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The NSS server type for CBC is NSS for Firewall. Selecting the wrong type (NSS for Web) will connect to the wrong Nanolog partition and produce no useful CBC logs.\" The Cloud & Branch Connector help says the type is set to NSS for Firewall, Cloud and Branch Connector by default (claim server-type-default); whether another type can be chosen, and what it then streams, is not stated.",
+      "blocks": "diagnosing an NSS server that is up but streams no connector logs",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

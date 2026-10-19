@@ -1,0 +1,752 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.azure.terraform-modules",
+  "title": "Zscaler's Azure Terraform package for Cloud Connector: image, VM sizes, provider constraint, examples and FIPS",
+  "aliases": [
+    "terraform-azurerm-cloud-connector-modules",
+    "azure cloud connector terraform",
+    "azure cloud connector marketplace image",
+    "zia_cloud_connector",
+    "zs_ser_gen1_cc_01",
+    "az vm image terms accept",
+    "ccvm_instance_type azure",
+    "Standard_D2ds_v5",
+    "Standard_DS2_v2",
+    "azurerm provider version cloud connector",
+    "azure cloud connector examples",
+    "zsec azure",
+    "fips_enabled azure",
+    "LegacyVMNVA",
+    "enable_legacy_vm_nva_tag",
+    "MANA cloud connector"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure.vmss"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure.network"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp.terraform-modules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler's Azure Terraform package is a reference implementation: its modules, example roots and the zsec helper script each enforce their own defaults and checks, and those layers do not always agree with each other or with the package's own documentation. Nothing here is a Cloud Connector service limit unless a claim says so."
+    },
+    {
+      "label": "Image.",
+      "text": "{{image-defaults}} {{image-override}} {{image-terms}} What a deployment without accepted terms fails with is not captured {{gap:image-terms-error}}."
+    },
+    {
+      "label": "VM sizes.",
+      "text": "{{vm-sizes}} {{marketplace-vm-size}} {{zsec-size-menu}} {{vmss-wrapper-ds2}} {{ds2-vmss-fails-in-child}} The changelog says otherwise about the VMSS allow-list {{divergence:ds2-vmss-allow-list}}."
+    },
+    {
+      "label": "Provider constraint.",
+      "text": "{{azurerm-constraint}} The changelog and the generated READMEs give older ranges {{divergence:azurerm-constraint-docs}}."
+    },
+    {
+      "heading": "Templates and examples"
+    },
+    {
+      "text": "Where each cloud's templates are published is [[cloud-connector.aws:iac-paths]]. {{help-azure-templates}} {{package-examples}} {{readme-type-lists}} {{no-bicep}} Whether ARM templates sit behind the Marketplace wizard is not covered {{gap:arm-marketplace-path}}."
+    },
+    {
+      "label": "What each example builds.",
+      "items": [
+        {
+          "text": "{{ex-starter}}"
+        },
+        {
+          "text": "{{ex-lb}}"
+        },
+        {
+          "text": "{{ex-zpa}}"
+        },
+        {
+          "text": "{{ex-vmss}}"
+        },
+        {
+          "text": "{{ex-gwlb}}"
+        },
+        {
+          "text": "{{ex-public-lb}}"
+        },
+        {
+          "text": "{{ex-brownfield}}"
+        }
+      ]
+    },
+    {
+      "heading": "FIPS through user data"
+    },
+    {
+      "text": "{{fips-variable}} {{fips-roots}} {{zsec-fips-prompt}} {{fips-noop-roots}} {{direct-modules-no-fips}}"
+    },
+    {
+      "heading": "MANA and the LegacyVMNVA tag"
+    },
+    {
+      "text": "{{legacy-vm-nva-tag}} {{legacy-vm-nva-help}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the Marketplace image terms were accepted in the target subscription before the first apply.",
+      "uses": [
+        "image-terms",
+        "image-terms-error"
+      ]
+    },
+    {
+      "do": "Whether the chosen VM size is in the allow-list of the module that will receive it (the VMSS module has no Standard_DS2_v2), not only the example root's list.",
+      "uses": [
+        "vm-sizes",
+        "vmss-wrapper-ds2",
+        "ds2-vmss-fails-in-child"
+      ]
+    },
+    {
+      "do": "Whether the azurerm provider in use satisfies the modules' versions.tf, not the README range.",
+      "uses": [
+        "azurerm-constraint",
+        "azurerm-constraint-docs"
+      ]
+    },
+    {
+      "do": "Whether the selected example root declares fips_enabled before relying on the zsec FIPS answer, by reading the rendered user_data for FIPS_ENABLED.",
+      "uses": [
+        "fips-roots",
+        "fips-noop-roots",
+        "zsec-fips-prompt"
+      ]
+    }
+  ],
+  "claims": {
+    "image-defaults": {
+      "statement": "Both direct modules default to the Azure Marketplace image with publisher `zscaler1579058425289`, offer `zia_cloud_connector`, SKU `zs_ser_gen1_cc_01` and version `latest`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-azure/variables.tf",
+          "quotes": [
+            "description = \"Azure Marketplace Cloud Connector Image Publisher\" default = \"zscaler1579058425289\"",
+            "description = \"Azure Marketplace Cloud Connector Image Offer\" default = \"zia_cloud_connector\"",
+            "description = \"Azure Marketplace Cloud Connector Image SKU\" default = \"zs_ser_gen1_cc_01\"",
+            "description = \"Azure Marketplace Cloud Connector Image Version\" default = \"latest\""
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/variables.tf",
+          "quotes": [
+            "description = \"Azure Marketplace Cloud Connector Image Publisher\" default = \"zscaler1579058425289\"",
+            "description = \"Azure Marketplace Cloud Connector Image Offer\" default = \"zia_cloud_connector\"",
+            "description = \"Azure Marketplace Cloud Connector Image SKU\" default = \"zs_ser_gen1_cc_01\"",
+            "description = \"Azure Marketplace Cloud Connector Image Version\" default = \"latest\""
+          ]
+        }
+      ]
+    },
+    "image-override": {
+      "statement": "Setting `ccvm_source_image_id` to a local subscription Microsoft.Compute image replaces the Marketplace image and plan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-azure/variables.tf",
+          "quotes": [
+            "Set this value to the path of a local subscription Microsoft.Compute image to override the Cloud Connector deployment instead of using the marketplace publisher"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-azure/main.tf",
+          "quotes": [
+            "dynamic \"plan\" { for_each = var.ccvm_source_image_id == null ? [var.ccvm_image_publisher] : []"
+          ]
+        }
+      ]
+    },
+    "image-terms": {
+      "statement": "The package's prerequisites require accepting the Cloud Connector VM image terms in each subscription where Cloud Connector is deployed, for example with `az vm image terms accept --urn zscaler1579058425289:zia_cloud_connector:zs_ser_gen1_cc_01:latest`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "README.md",
+          "quotes": [
+            "Accept the Cloud Connector VM image terms for the Subscription(s) where Cloud Connector is to be deployed.",
+            "Run Command: `az vm image terms accept --urn zscaler1579058425289:zia_cloud_connector:zs_ser_gen1_cc_01:latest`"
+          ]
+        }
+      ]
+    },
+    "vm-sizes": {
+      "statement": "Both direct modules default `ccvm_instance_type` to Standard_D2ds_v5; the VM module accepts Standard_D2s_v3, Standard_DS2_v2, Standard_DS3_v2, Standard_D2ds_v5 and Standard_D2ads_v5, and the VMSS module accepts the same list without Standard_DS2_v2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-azure/variables.tf",
+          "quotes": [
+            "description = \"Cloud Connector Image size\" default = \"Standard_D2ds_v5\"",
+            "var.ccvm_instance_type == \"Standard_D2s_v3\" || var.ccvm_instance_type == \"Standard_DS2_v2\" || var.ccvm_instance_type == \"Standard_DS3_v2\" || var.ccvm_instance_type == \"Standard_D2ds_v5\" || var.ccvm_instance_type == \"Standard_D2ads_v5\" )"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/variables.tf",
+          "quotes": [
+            "description = \"Cloud Connector Image size\" default = \"Standard_D2ds_v5\"",
+            "condition = ( var.ccvm_instance_type == \"Standard_D2s_v3\" || var.ccvm_instance_type == \"Standard_DS3_v2\" || var.ccvm_instance_type == \"Standard_D2ds_v5\" || var.ccvm_instance_type == \"Standard_D2ads_v5\" )"
+          ]
+        }
+      ]
+    },
+    "marketplace-vm-size": {
+      "statement": "In the Azure Marketplace deployment the instance type is Small by default and the VM size is set automatically to Standard D2ds v5, which can be changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "Cloud Connectors Instance Type: The Cloud Connector instance type is set to Small by default.",
+            "The VM size is set automatically to 1x Standard D2ds v5. To change the VM size, click Change size."
+          ]
+        }
+      ]
+    },
+    "zsec-size-menu": {
+      "statement": "The `zsec` helper offers VM sizes by region: Standard_DS2_v2 in chinanorth and chinaeast; Standard_DS3_v2, Standard_D2ds_v5 and Standard_DS2_v2 in chinanorth2 and chinaeast2; those plus Standard_D2ads_v5 in chinanorth3 and chinaeast3; and Standard_D2ds_v5 or Standard_D2ads_v5 everywhere else.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/zsec",
+          "quotes": [
+            "if [[ \"$azure_location\" == \"chinanorth\" || \"$azure_location\" == \"chinaeast\" ]]; then vm_sizes=(\"Standard_DS2_v2\")",
+            "elif [[ \"$azure_location\" == \"chinanorth2\" || \"$azure_location\" == \"chinaeast2\" ]]; then vm_sizes=(\"Standard_DS3_v2\" \"Standard_D2ds_v5\" \"Standard_DS2_v2\")",
+            "elif [[ \"$azure_location\" == \"chinanorth3\" || \"$azure_location\" == \"chinaeast3\" ]]; then vm_sizes=(\"Standard_DS3_v2\" \"Standard_D2ds_v5\" \"Standard_D2ads_v5\" \"Standard_DS2_v2\") else vm_sizes=(\"Standard_D2ds_v5\" \"Standard_D2ads_v5\")"
+          ]
+        }
+      ]
+    },
+    "vmss-wrapper-ds2": {
+      "statement": "The `base_cc_vmss` example root accepts Standard_DS2_v2 in its own `ccvm_instance_type` validation and passes the value to the VMSS module.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_cc_vmss/variables.tf",
+          "quotes": [
+            "var.ccvm_instance_type == \"Standard_D2s_v3\" || var.ccvm_instance_type == \"Standard_DS2_v2\" ||"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_cc_vmss/main.tf",
+          "quotes": [
+            "source = \"../../modules/terraform-zscc-ccvmss-azure\"",
+            "ccvm_instance_type = var.ccvm_instance_type"
+          ]
+        }
+      ]
+    },
+    "ds2-vmss-fails-in-child": {
+      "statement": "Choosing Standard_DS2_v2 for a VMSS deployment (which zsec offers in the China regions) passes the example root's validation and then fails the VMSS module's validation. This is a defect between the package's layers; it says nothing about whether Azure or the Cloud Connector service would accept the size.",
+      "tier": "B",
+      "conditions": "Follows from the helper menu, the root and child validators at the pin; not run.",
+      "derived_from": [
+        "zsec-size-menu",
+        "vmss-wrapper-ds2",
+        "vm-sizes"
+      ]
+    },
+    "azurerm-constraint": {
+      "statement": "Both direct modules, and the `base_1cc` example root, require the azurerm provider `>= 4.9.0, < 5.0.0`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-azure/versions.tf",
+          "quotes": [
+            "azurerm = { source = \"hashicorp/azurerm\" version = \">= 4.9.0, < 5.0.0\" }"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/versions.tf",
+          "quotes": [
+            "azurerm = { source = \"hashicorp/azurerm\" version = \">= 4.9.0, < 5.0.0\" }"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_1cc/versions.tf",
+          "quotes": [
+            "version = \">= 4.9.0, < 5.0.0\""
+          ]
+        }
+      ]
+    },
+    "help-azure-templates": {
+      "statement": "Help's Azure deployment templates are `base_1cc`, `base_1cc_zpa`, `base_cc_lb`, `base_cc_lb_zpa`, `cc_lb`, `base_cc_vmss`, `base_cc_vmss_zpa`, `cc_vmss` and the standalone `ztags_standalone`, which deploys an Event Grid system topic and event subscription and no Cloud Connector resources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deployment-templates-zscaler-cloud-connector.json",
+          "after": "# Azure Deployment Templates",
+          "quotes": [
+            "Use the Starter Deployment Template (base_1cc) to deploy your Cloud Connector in a new resource group and virtual network.",
+            "Use the Starter Deployment Template with Private Access (base_1cc_zpa)",
+            "Use the Starter Deployment Template with Load Balancer (base_cc_lb)",
+            "Use the Starter Deployment Template with Load Balancer and Private Access (base_cc_lb_zpa)",
+            "Use the Custom Deployment Template with Load Balancer (cc_lb)",
+            "Use the Starter Deployment Template with VMSS and Load Balancer (base_cc_vmss)",
+            "Use the Starter Deployment Template with VMSS, Load Balancer, and Private Access (base_cc_vmss_zpa)",
+            "Use the Custom Deployment Template with VMSS and Load Balancer (cc_vmss)",
+            "Use the Standalone Zscaler Tags (ZTags) Enablement Template (ztags_standalone) to deploy an Azure Event Grid system topic and partner destination event subscription",
+            "This template does not provision any Cloud Connector resources"
+          ]
+        }
+      ]
+    },
+    "package-examples": {
+      "statement": "At the pin the package ships 17 example roots besides `zsec`: greenfield `base`, `base_1cc`, `base_1cc_zpa`, `base_cc_lb`, `base_cc_lb_zpa`, `base_cc_vmss`, `base_cc_vmss_zpa`, `base_cc_gwlb`, `base_cc_gwlb_vmss`, `base_cc_public_lb` and `base_cc_public_vmss`; brownfield `cc_lb`, `cc_vmss`, `cc_gwlb`, `cc_gwlb_vmss` and `cc_public_lb`; and standalone `ztags_standalone`.",
+      "tier": "B",
+      "conditions": "Directory listing of examples/ at the pinned commit, grouped by the package README's greenfield (base_*), brownfield (cc_*) and standalone categories; a listing is not a quotable source.",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "add: greenfield example base_cc_public_lb (CC VMs + standalone Public LB)",
+            "add: greenfield example base_cc_public_vmss (CC VMSS + standalone Public LB)",
+            "add: brownfield example cc_public_lb (CC VMs + standalone Public LB in existing VNet)",
+            "add: brownfield example cc_gwlb_vmss (CC VMSS + GWLB in existing VNet)",
+            "add: greenfield example base_cc_gwlb_vmss (CC VMSS + GWLB)"
+          ]
+        }
+      ]
+    },
+    "readme-type-lists": {
+      "statement": "The package README's brownfield deployment-type list is `cc_lb`, `cc_vmss`, `cc_gwlb` and `cc_gwlb_vmss` (the cc_public_lb root is not in it), while the examples README lists greenfield types `base` through `base_cc_vmss_zpa` and brownfield types `cc_lb` and `cc_vmss` only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "README.md",
+          "quotes": [
+            "Deployment Type: (cc_lb | cc_vmss | cc_gwlb | cc_gwlb_vmss):"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/README.md",
+          "quotes": [
+            "Deployment Type: (base | base_1cc | base_1cc_zpa | base_cc_lb | base_cc_lb_zpa | base_cc_vmss | base_cc_vmss_zpa):",
+            "Deployment Type: (cc_lb | cc_vmss):"
+          ]
+        }
+      ]
+    },
+    "no-bicep": {
+      "statement": "No captured source describes Bicep templates for Cloud Connector; the published Azure paths are the Terraform repository and the Marketplace application.",
+      "tier": "B",
+      "conditions": "Rests on the Deployment Templates article naming only CloudFormation and Terraform repositories (held in cloud-connector.aws:iac-paths), the Azure deployment article naming the Marketplace application and Terraform as its two methods, and a search of vendor/zscaler-help for Bicep that found nothing.",
+      "derived_from": [
+        "cloud-connector.aws:iac-paths",
+        "cloud-connector.azure:two-methods"
+      ]
+    },
+    "fips-variable": {
+      "statement": "The changelog adds a `fips_enabled` variable for enabling FIPS mode through user data, and the example roots that have it write `FIPS_ENABLED=${var.fips_enabled}` into the `[ZSCALER]` user data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "add new `fips_enabled` variable for enabling FIPS mode via userdata"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_1cc/main.tf",
+          "quotes": [
+            "userdata = <<USERDATA [ZSCALER]",
+            "FIPS_ENABLED=${var.fips_enabled}"
+          ]
+        }
+      ]
+    },
+    "fips-roots": {
+      "statement": "At the pin, `fips_enabled` and `FIPS_ENABLED` appear in `base_1cc`, `base_1cc_zpa`, `base_cc_lb`, `base_cc_lb_zpa`, `base_cc_vmss`, `base_cc_vmss_zpa`, `cc_lb` and `cc_vmss`, and in none of `base_cc_gwlb`, `base_cc_gwlb_vmss`, `base_cc_public_lb`, `base_cc_public_vmss`, `cc_gwlb`, `cc_gwlb_vmss` and `cc_public_lb` (nor `base` and `ztags_standalone`).",
+      "tier": "B",
+      "conditions": "Search of each example root's variables.tf and main.tf at the pinned commit for fips_enabled and FIPS_ENABLED.",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_cc_vmss/main.tf",
+          "quotes": [
+            "FIPS_ENABLED=${var.fips_enabled}"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/cc_lb/main.tf",
+          "quotes": [
+            "FIPS_ENABLED=${var.fips_enabled}"
+          ]
+        }
+      ]
+    },
+    "zsec-fips-prompt": {
+      "statement": "For every deployment type other than `base`, the `zsec` helper asks whether to enable FIPS mode and writes `TF_VAR_fips_enabled` ('True' or 'False') to .zsecrc.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/zsec",
+          "after": "if [[ \"$dtype\" != \"base\" ]]; then",
+          "quotes": [
+            "Enable FIPS mode for this Cloud Connector deployment? (yes/no):",
+            "echo \"export TF_VAR_fips_enabled='True'\" >> .zsecrc",
+            "echo \"export TF_VAR_fips_enabled='False'\" >> .zsecrc"
+          ]
+        }
+      ]
+    },
+    "fips-noop-roots": {
+      "statement": "For the seven GWLB and Public LB roots, answering yes to the zsec FIPS prompt has no effect: the roots declare no `fips_enabled` input, so Terraform does not use the exported value and their user data carries no FIPS setting. This is a helper and example defect; it does not show whether the service supports FIPS on those topologies.",
+      "tier": "B",
+      "conditions": "Terraform ignores a TF_VAR_ environment value for which the root declares no variable; that behavior is Terraform's, not quoted from a registered source.",
+      "derived_from": [
+        "zsec-fips-prompt",
+        "fips-roots"
+      ]
+    },
+    "direct-modules-no-fips": {
+      "statement": "The direct VM and VMSS modules take caller-built `user_data` and declare no `fips_enabled` variable, so FIPS coverage comes from the example roots, not from the modules.",
+      "tier": "B",
+      "conditions": "Search of both direct modules' variables.tf at the pin for fips; only the user_data input is quoted.",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-azure/variables.tf",
+          "quotes": [
+            "variable \"user_data\" { type = string description = \"Cloud Init data\" }"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/variables.tf",
+          "quotes": [
+            "variable \"user_data\" { type = string description = \"Cloud Init data\" }"
+          ]
+        }
+      ]
+    },
+    "legacy-vm-nva-tag": {
+      "statement": "Both direct modules expose `enable_legacy_vm_nva_tag` (default true), described as emitting the LegacyVMNVA tag to be set to false once MANA host support is available; when true they merge `LegacyVMNVA = \"true\"` into the VM or scale-set tags.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-azure/variables.tf",
+          "quotes": [
+            "description = \"Emit the LegacyVMNVA tag on the Cloud Connector VM. Set to false once MANA host support is available.\" default = true"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/variables.tf",
+          "quotes": [
+            "description = \"Emit the LegacyVMNVA tag on the Cloud Connector VMSS. Set to false once MANA host support is available.\" default = true"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-azure/main.tf",
+          "quotes": [
+            "tags = merge(var.global_tags, var.enable_legacy_vm_nva_tag ? { LegacyVMNVA = \"true\" } : {})"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/main.tf",
+          "quotes": [
+            "tags = merge(var.global_tags, var.enable_legacy_vm_nva_tag ? { LegacyVMNVA = \"true\" } : {})"
+          ]
+        }
+      ]
+    },
+    "legacy-vm-nva-help": {
+      "statement": "Help's Marketplace procedure says to enable the LegacyVMNVA tag to opt out of Microsoft Azure Network Adapter (MANA)-enabled hardware.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "To opt out of Microsoft Azure Network Adapter (MANA)-enabled hardware, enable LegacyVMNVA."
+          ]
+        }
+      ]
+    },
+    "ex-starter": {
+      "statement": "`base_1cc` adds to the base deployment one Cloud Connector private subnet associated to a NAT gateway, one Cloud Connector VM, and a workload subnet UDR repointed to the Cloud Connector's service interface IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_1cc/README.md",
+          "quotes": [
+            "Additionally: Creates 1 Cloud Connector private subnet associated to a NAT Gateway; 1 Cloud Connector VM; and workload private subnet UDR repointed to service interface IP of Cloud Connector."
+          ]
+        }
+      ]
+    },
+    "ex-lb": {
+      "statement": "`base_cc_lb` creates two Cloud Connector private subnets with two NAT gateways, two Cloud Connector VMs and a Standard Azure Load Balancer, with the workload subnet UDR routing to the load balancer frontend IP; the README calls the Standard Load Balancer Zscaler's recommended deployment method.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_cc_lb/README.md",
+          "quotes": [
+            "Additionally: Creates 2 Cloud Connector private subnets associated to a 2 NAT Gateways; 2 Cloud Connector VMs; Standard Azure Load Balancer; and workload private subnet UDR routing to the Load Balancer Frontend IP."
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "README.md",
+          "after": "(examples/base_cc_lb)",
+          "quotes": [
+            "to load balance traffic across multiple Cloud Connectors. Zscaler's recommended deployment method is Azure Standard Load Balancer."
+          ]
+        }
+      ]
+    },
+    "ex-zpa": {
+      "statement": "The `_zpa` greenfield variants add a Private DNS Resolver, ruleset, rules per entered domain, a virtual network link and an outbound endpoint in a dedicated outbound DNS subnet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_1cc_zpa/README.md",
+          "quotes": [
+            "Private DNS Resolver, Private DNS Resolver Ruleset, Private DNS Resolver rules based on the number of domains entered, Virtual Network Link for Ruleset, and Outbound Endpoint in a dedicated Outbound DNS subnet."
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_cc_lb_zpa/README.md",
+          "quotes": [
+            "Private DNS Resolver, Private DNS Resolver Ruleset, Private DNS Resolver rules based on the number of domains entered, Virtual Network Link for Ruleset, and Outbound Endpoint in a dedicated Outbound DNS subnet."
+          ]
+        }
+      ]
+    },
+    "ex-vmss": {
+      "statement": "`base_cc_vmss` creates one or more Flexible Orchestration scale sets with scaling policies, one Function App for VMSS and a Standard Azure Load Balancer, with the workload UDR routing to the load balancer frontend IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_cc_vmss/README.md",
+          "quotes": [
+            "Additionally: Depending on the configuration, creates 1 or more Flexible Orchestration Virtual Machine Scale Sets (VMSS) and scaling policies for Cloud Connector in private subnet(s); and 1 function app for VMSS; Standard Azure Load Balancer; and workload private subnet UDR routing to the Load Balancer Frontend IP."
+          ]
+        }
+      ]
+    },
+    "ex-gwlb": {
+      "statement": "`base_cc_gwlb` and `cc_gwlb` deploy Cloud Connectors with an Azure Gateway Load Balancer for transparent inline traffic inspection, and `base_cc_gwlb_vmss` and `cc_gwlb_vmss` add Virtual Machine Scale Sets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "README.md",
+          "quotes": [
+            "Use the [**Starter Deployment Template with Gateway Load Balancer**](examples/base_cc_gwlb) to deploy your Cloud Connectors in a new resource group and virtual network with an Azure Gateway Load Balancer for transparent inline traffic inspection.",
+            "Use the [**Starter Deployment Template with Gateway Load Balancer and VMSS**](examples/base_cc_gwlb_vmss)",
+            "Use the [**Custom Deployment template with Gateway Load Balancer**](examples/cc_gwlb) to deploy your Cloud Connectors in a new or existing VNet with an Azure Gateway Load Balancer for transparent inline traffic inspection.",
+            "Use the [**Custom Deployment template with Gateway Load Balancer and VMSS**](examples/cc_gwlb_vmss)"
+          ]
+        }
+      ]
+    },
+    "ex-public-lb": {
+      "statement": "`base_cc_public_lb` fronts the Cloud Connectors with an Azure Standard Public Load Balancer for inbound traffic distribution (for example fwd ZIA DNAT), implementing a routed PLB to Cloud Connector to ILB ingress topology; `base_cc_public_vmss` does the same with scale sets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "README.md",
+          "quotes": [
+            "fronted by an Azure Standard Public Load Balancer for inbound traffic distribution (e.g. `fwd ZIA` DNAT use cases).",
+            "Use the [**Starter Deployment Template with Public Load Balancer and VMSS**](examples/base_cc_public_vmss)"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_cc_public_lb/README.md",
+          "quotes": [
+            "implementing the **routed-mode PLB → CC → ILB ingress topology** for ZIA inspection."
+          ]
+        }
+      ]
+    },
+    "ex-brownfield": {
+      "statement": "`cc_lb` and `cc_vmss` are intended for brownfield/production use, deploying into a new or existing VNet with at least one Cloud Connector subnet and NAT gateway and a Standard Azure Load Balancer (`cc_vmss` adds scale sets and a Function App), with optional Private DNS Resolver resources per `zpa_enabled`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/cc_lb/README.md",
+          "quotes": [
+            "This deployment type is intended for brownfield/production purposes.",
+            "at least 1 Cloud Connector private subnet; at least 1 NAT Gateway with Public IP Address association to the Cloud Connector subnets;"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/cc_vmss/README.md",
+          "quotes": [
+            "at least 1 Virtual Machine Scale Set (VMSS); and 1 function app for VMSS;"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "README.md",
+          "after": "(examples/cc_lb)",
+          "quotes": [
+            "to deploy your Cloud Connector in a new or existing VNet and load balance traffic across multiple Cloud Connectors.",
+            "Optional Azure Private DNS Resolver resource creation per variable zpa_enabled."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "ds2-vmss-allow-list": {
+      "summary": "Whether Standard_DS2_v2 is in the VMSS module's VM-size allow-list.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tfmod-azure-cloud-connector",
+            "path": "CHANGELOG.md",
+            "quotes": [
+              "legacy `Standard_D2s_v3`, `Standard_DS2_v2`, and `Standard_DS3_v2` remain in the allow-list to preserve compatibility with Azure China (Mooncake) regions"
+            ]
+          },
+          "says": "The v0.9.0 entry says the legacy sizes, Standard_DS2_v2 included, remain in the VM and VMSS allow-lists."
+        },
+        {
+          "evidence": {
+            "source": "tfmod-azure-cloud-connector",
+            "path": "modules/terraform-zscc-ccvmss-azure/variables.tf",
+            "quotes": [
+              "condition = ( var.ccvm_instance_type == \"Standard_D2s_v3\" || var.ccvm_instance_type == \"Standard_DS3_v2\" || var.ccvm_instance_type == \"Standard_D2ds_v5\" || var.ccvm_instance_type == \"Standard_D2ads_v5\" )"
+            ]
+          },
+          "says": "The VMSS module's validator has no Standard_DS2_v2."
+        }
+      ],
+      "impact": "Trusting the changelog, a China VMSS deployment on Standard_DS2_v2 looks supported but fails the module's validation at plan time.",
+      "resolution": {
+        "by": "vm-sizes",
+        "rule": "source-rank",
+        "note": "The validator is what Terraform evaluates."
+      }
+    },
+    "azurerm-constraint-docs": {
+      "summary": "Which azurerm provider versions the Azure Cloud Connector modules accept.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tfmod-azure-cloud-connector",
+            "path": "modules/terraform-zscc-ccvm-azure/versions.tf",
+            "quotes": [
+              "version = \">= 4.9.0, < 5.0.0\""
+            ]
+          },
+          "says": "The modules' versions.tf require >= 4.9.0, < 5.0.0."
+        },
+        {
+          "evidence": {
+            "source": "tfmod-azure-cloud-connector",
+            "path": "CHANGELOG.md",
+            "quotes": [
+              "bump `hashicorp/azurerm` provider constraint to `>= 3.108.0, < 5.0.0` across examples and modules"
+            ]
+          },
+          "says": "The v0.9.1 changelog entry says the constraint is >= 3.108.0, < 5.0.0."
+        },
+        {
+          "evidence": {
+            "source": "tfmod-azure-cloud-connector",
+            "path": "modules/terraform-zscc-ccvm-azure/README.md",
+            "quotes": [
+              "| <a name=\"requirement_azurerm\"></a> [azurerm](#requirement\\_azurerm) | >= 3.108.0, < 5.0.0 |"
+            ]
+          },
+          "says": "The generated VM module README (like the VMSS module and base_1cc READMEs) renders >= 3.108.0, < 5.0.0."
+        },
+        {
+          "evidence": {
+            "source": "tfmod-azure-cloud-connector",
+            "path": "modules/terraform-zscc-gwlb-azure/README.md",
+            "quotes": [
+              "| <a name=\"requirement_azurerm\"></a> [azurerm](#requirement\\_azurerm) | >= 3.108.0, <= 3.116 |"
+            ]
+          },
+          "says": "The GWLB module README (like the Public LB module README) renders >= 3.108.0, <= 3.116."
+        }
+      ],
+      "impact": "Pinning azurerm to a 3.x release from the README or changelog fails terraform init against the modules' 4.9 floor.",
+      "resolution": {
+        "by": "azurerm-constraint",
+        "rule": "source-rank",
+        "note": "versions.tf is the constraint Terraform enforces; the README tables and changelog line are documentation."
+      }
+    }
+  },
+  "gaps": {
+    "image-terms-error": {
+      "kind": "semantic",
+      "title": "Failure when Marketplace image terms are not accepted",
+      "status": "open",
+      "detail": "Unverified legacy statement: skipping the image-terms acceptance produces an Azure Resource Manager error rather than a Zscaler error, which is easy to misdiagnose. The package README requires the acceptance but does not show the failure.",
+      "blocks": "recognizing a first-deploy failure caused by unaccepted terms",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "arm-marketplace-path": {
+      "kind": "semantic",
+      "title": "ARM templates behind the Marketplace deployment",
+      "status": "open",
+      "detail": "Unverified legacy statement: ARM templates exist as the Azure Marketplace wizard path but are not separately published as a standalone repository. The captured sources describe the Marketplace application and the Terraform repository as the two methods and say nothing about ARM templates.",
+      "blocks": "telling an operator whether an ARM or Bicep template is available for Azure Cloud Connector",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

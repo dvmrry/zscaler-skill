@@ -875,6 +875,160 @@
   },
   "subjects": [
     {
+      "id": "shared.log-correlation.zcc-in-zia",
+      "title": "Client Connector traffic, devices and bypasses as seen in ZIA logs",
+      "claims": [
+        {
+          "id": "shared.log-correlation.zcc-in-zia:zcc-markers",
+          "statement": "The web feed gives DNAT, GRE, IPSEC, PBF, PAC, PAC_GRE, PAC_IPSEC and Zscaler Client Connector as example trafficredirectmethod values, and lists devicetype, the type of device, with Zscaler Client Connector as the example.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#trafficredirectmethod",
+            "zia/web-log#devicetype"
+          ]
+        },
+        {
+          "id": "shared.log-correlation.zcc-in-zia:ztunnel-flow",
+          "statement": "The web and firewall feeds list ztunnelversion, the Z-Tunnel version, with ZTUNNEL_1_0 as the example, and flow_type, the flow type of the transaction, with Direct, Loopback, VPN, VPN Tunnel, ZIA and ZPA as examples.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#ztunnelversion",
+            "zia/web-log#flow_type",
+            "zia/firewall-log#ztunnelversion",
+            "zia/firewall-log#flow_type"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared.log-correlation.zia-feeds",
+      "title": "Correlating ZIA web, firewall and DNS records for one user or event",
+      "claims": [
+        {
+          "id": "shared.log-correlation.zia-feeds:client-ip-names",
+          "statement": "The client address is cip in the web and DNS feeds: the user's IP address, internal when it is visible (for example through a GRE tunnel or XFF); otherwise the web feed describes it as the same as cintip and the DNS feed as the client's internet (NATed public) address. The firewall feed has csip, the client source IP address, and tsip, the client's tunnel IP address, each holding the last session's value for an aggregate, plus cdfqdn, the client destination FQDN such as the HTTP host header.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#cip",
+            "zia/dns-log#cip",
+            "zia/firewall-log#csip",
+            "zia/firewall-log#tsip",
+            "zia/firewall-log#cdfqdn"
+          ]
+        },
+        {
+          "id": "shared.log-correlation.zia-feeds:common-fields",
+          "statement": "The web, firewall and DNS NSS field tables each list time, epochtime, login, dept, location, datacenter, datacentercity, devicehostname, deviceowner, deviceostype, recordid and eedone; login is the user's login name in email address format in each.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#login",
+            "zia/firewall-log#login",
+            "zia/dns-log#login"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared.log-correlation.zia-zpa-join",
+      "title": "Joining ZIA logs to ZPA User Activity logs",
+      "claims": [
+        {
+          "id": "shared.log-correlation.zia-zpa-join:client-fields",
+          "statement": "User Activity's Platform is the platform on the device as reported by Client Connector (for example Windows) and ClientPublicIP the public IP address of Client Connector; the ZIA web feed's cpubip is the client public IP address.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zpa/user-activity-log#Platform",
+            "zpa/user-activity-log#ClientPublicIP",
+            "zia/web-log#cpubip"
+          ]
+        },
+        {
+          "id": "shared.log-correlation.zia-zpa-join:segment-name",
+          "statement": "The web and firewall feeds carry zpa_app_seg_name, the name of the Private Access (ZPA) application segment, and fwd_type, the type of forwarding method used, with Direct, Drop, Proxy Chaining and ZPA as examples.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#zpa_app_seg_name",
+            "zia/firewall-log#zpa_app_seg_name",
+            "zia/web-log#fwd_type",
+            "zia/firewall-log#fwd_type"
+          ]
+        },
+        {
+          "id": "shared.log-correlation.zia-zpa-join:time-fields",
+          "statement": "ZIA's epochtime is the epoch time of the transaction, while User Activity's LogTimestamp is the timestamp when the log was generated.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#epochtime",
+            "zpa/user-activity-log#LogTimestamp"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared.nss.feeds",
+      "title": "NSS feeds: limits, log types, filters and the output format string",
+      "claims": []
+    },
+    {
+      "id": "shared.siem-mapping",
+      "title": "Zscaler log types and where they land in a SIEM",
+      "claims": []
+    },
+    {
+      "id": "shared.splunk.zia-policy-validation",
+      "title": "Checking a ZIA policy answer against web logs",
+      "claims": [
+        {
+          "id": "shared.splunk.zia-policy-validation:ssl-fields",
+          "statement": "ssldecrypted says whether the transaction was SSL/TLS inspected, with Yes and No as examples; externalspr holds the SSL/TLS policy reasons, with Blocked, Inspected, N/A, Not inspected because of Microsoft 365 bypass, Not inspected because of SSL/TLS policy, Not inspected because of UCaaS bypass and Not inspected because of Zscaler best practices as examples, and the full list is under the SSL/TLS Policy Reason filter on the Web Insights page.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#ssldecrypted",
+            "zia/web-log#externalspr"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared.terminology.product-names",
+      "title": "Product names and SDK or API names with a source: Internet & SaaS, Private Access, Zscaler App, Zero Trust Browser, ZBI, ZGuard, ecgroup, deep trace, ZTC",
+      "claims": [
+        {
+          "id": "shared.terminology.product-names:zscaler-app",
+          "statement": "The NSS web log lists the Client Connector forwarding method value as \"Zscaler Client Connector (Zscaler App)\", with Zscaler App in parentheses.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#trafficredirectmethod"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared.z-tunnel",
+      "title": "Z-Tunnel 1.0 and 2.0: where each question is answered",
+      "claims": [
+        {
+          "id": "shared.z-tunnel:log-field",
+          "statement": "The NSS web and firewall log formats both carry `ztunnelversion`, the Z-Tunnel version of Client Connector traffic, with ZTUNNEL_1_0 as the documented example value.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#ztunnelversion",
+            "zia/firewall-log#ztunnelversion"
+          ]
+        }
+      ]
+    },
+    {
       "id": "zia.logs.field-enablement",
       "title": "Which ZIA log fields are not logged until enabled",
       "claims": [
@@ -1292,7 +1446,23 @@
       ]
     }
   ],
-  "gaps": [],
+  "gaps": [
+    {
+      "id": "shared.z-tunnel:log-value-2",
+      "kind": "semantic",
+      "title": "The ztunnelversion value for Z-Tunnel 2.0 traffic",
+      "status": "open",
+      "about": [
+        "zia/web-log#ztunnelversion",
+        "zia/firewall-log#ztunnelversion"
+      ],
+      "blocks": "telling from logs whether a device fell back from Z-Tunnel 2.0",
+      "detail": "Unverified legacy statement: ZIA web logs show ztunnelversion as ZTUNNEL_1_0 or ZTUNNEL_2_0. The NSS format tables give only ZTUNNEL_1_0 as an example; no captured source lists the value for Z-Tunnel 2.0.",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    }
+  ],
   "company": [
     {
       "layer": "company",

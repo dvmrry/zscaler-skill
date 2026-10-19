@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.aws.autoscaling.lifecycle",
+  "title": "Cloud Connector autoscaling lifecycle: launch and terminate hooks, warm pools",
+  "aliases": [
+    "cloud connector warm pool",
+    "cloud connector lifecycle hook",
+    "pending:wait cloud connector",
+    "terminating:wait cloud connector",
+    "reuse_on_scale_in",
+    "warm_pool_max_group_prepared_capacity",
+    "cloud connector stuck pending wait"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.aws.autoscaling"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.autoscaling.health"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Lifecycle hooks hold a Cloud Connector in a wait state while it registers or is removed from the Admin Console; warm pools keep pre-initialized Cloud Connectors ready for scale-out."
+    },
+    {
+      "label": "Launch.",
+      "text": "{{launch-hook}} {{module-launch-hook}} {{abandon-on-timeout}}"
+    },
+    {
+      "label": "Termination.",
+      "text": "{{terminate-hook}} {{module-terminate-hook}}"
+    },
+    {
+      "label": "Warm pool.",
+      "text": "{{warm-pool}} {{warm-pool-state}} {{warm-pool-sizing}} {{reuse-policy}} {{warm-lifecycle}} {{module-warm-pool}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a launching Cloud Connector registered within the launch hook's 30-minute wait; one that does not is abandoned.",
+      "uses": [
+        "launch-hook",
+        "module-launch-hook",
+        "abandon-on-timeout"
+      ]
+    },
+    {
+      "do": "Whether a terminated Cloud Connector was removed from its Cloud Connector group in the Admin Console during the terminate hook.",
+      "uses": [
+        "terminate-hook",
+        "cloud-connector.aws.autoscaling.health:lambda-cleanup"
+      ]
+    },
+    {
+      "do": "Whether red, inactive VMs in the Admin Console are stopped warm-pool instances rather than failures.",
+      "uses": [
+        "warm-pool-state"
+      ]
+    }
+  ],
+  "claims": {
+    "launch-hook": {
+      "statement": "The launch hook holds a new VM in Pending:Wait while custom actions register it and report it healthy; the VM stays there for 30 minutes by Zscaler default, and if the actions complete earlier the launch continues to Pending:Proceed and then InService.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "The launch lifecycle hook puts the VM in the Pending:Wait state and performs the custom actions associated with the hook, including registering the VM and reporting that the VM is healthy. The VM remains in that state for 30 minutes (the Zscaler default value).",
+            "If it completes the custom actions before 30 minutes elapse, the autoscaling group continues the launch process.",
+            "The VM enters the Pending:Proceed state.",
+            "4. The autoscaling group moves the VM into the InService state."
+          ]
+        }
+      ]
+    },
+    "module-launch-hook": {
+      "statement": "The reference ASG module's launch hook has default_result ABANDON and a heartbeat timeout of `lifecyclehook_instance_launch_wait_time`, default 1800 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/main.tf",
+          "quotes": [
+            "default_result = \"ABANDON\" heartbeat_timeout = var.lifecyclehook_instance_launch_wait_time lifecycle_transition = \"autoscaling:EC2_INSTANCE_LAUNCHING\""
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/variables.tf",
+          "quotes": [
+            "The maximum amount of time to wait in pending:wait state on instance launch in warmpool\" default = 1800"
+          ]
+        }
+      ]
+    },
+    "abandon-on-timeout": {
+      "statement": "With ABANDON as the launch default, a Cloud Connector that has not completed the launch action when the wait expires is not put into service; with CONTINUE as the terminate default, termination proceeds when the terminate wait expires.",
+      "tier": "B",
+      "derived_from": [
+        "module-launch-hook",
+        "module-terminate-hook"
+      ],
+      "conditions": "AWS lifecycle-hook semantics for default_result, which the module and Zscaler Help do not state."
+    },
+    "terminate-hook": {
+      "statement": "The termination hook holds a VM in Terminating:Wait while custom actions remove it from the Cloud Connector group by API and notify the group; the VM stays there for 15 minutes by Zscaler default, and if the actions complete earlier the termination continues.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "The termination lifecycle hook puts the VM into the Terminating:Wait state and performs the custom actions associated with the hook.",
+            "These actions include making an API call to remove the VM from the Cloud Connector Group in the Zscaler Admin Console and notifying the autoscaling group that the VM is ready to be terminated. The VM remains in that state for 15 minutes (the Zscaler default value).",
+            "If the custom actions complete before 15 minutes elapse, the autoscaling group continues the termination process."
+          ]
+        }
+      ]
+    },
+    "module-terminate-hook": {
+      "statement": "The reference ASG module's terminate hook has default_result CONTINUE and a heartbeat timeout of `lifecyclehook_instance_terminate_wait_time`, default 900 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/main.tf",
+          "quotes": [
+            "default_result = \"CONTINUE\" heartbeat_timeout = var.lifecyclehook_instance_terminate_wait_time lifecycle_transition = \"autoscaling:EC2_INSTANCE_TERMINATING\""
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/variables.tf",
+          "quotes": [
+            "The maximum amount of time to wait in terminating:wait state on instance termination\" default = 900"
+          ]
+        }
+      ]
+    },
+    "warm-pool": {
+      "statement": "A warm pool holds pre-initialized VMs that the group draws from on scale-out; VMs leaving the pool count toward desired capacity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "A warm pool contains pre-initialized VMs that are ready to start handling traffic.",
+            "When a scale-out event happens, the autoscaling group draws from its warm pool to meet the new desired capacity. VMs that leave the warm pool count toward the desired capacity of the group."
+          ]
+        }
+      ]
+    },
+    "warm-pool-state": {
+      "statement": "Warm-pool VMs are Stopped or Running as chosen at deployment; Stopped saves cost, and stopped VMs show as inactive (red) in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "The VMs in the warm pool are in either the Stopped or Running state, based on your selection during deployment. Keeping the VMs in a Stopped state saves on cost",
+            "In the Zscaler Admin Console, stopped VMs are shown as inactive (red)."
+          ]
+        }
+      ]
+    },
+    "warm-pool-sizing": {
+      "statement": "By default the warm pool size is the group's maximum minus its desired capacity; MaxGroupPreparedCapacity replaces the maximum in that calculation, and a warm-pool minimum, unset by default, makes the size static.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "By default, the size of a warm pool is dynamic, being calculated as the difference between the autoscaling group's maximum capacity and its desired capacity.",
+            "In this case, the warm pool size is the difference between the custom value and the desired capacity of the group.",
+            "To set the warm pool size to a static value, set a warm pool minimum size during deployment.",
+            "No minimum size is set by default.",
+            "During deployment, you can use the MaxGroupPreparedCapacity option to specify a custom value that is greater than the current capacity for the group."
+          ]
+        }
+      ]
+    },
+    "reuse-policy": {
+      "statement": "By default scale-in terminates a VM and launches a new one into the warm pool; the reuse policy instead returns already-configured VMs to the pool.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "By default, when a scale-in event happens, AWS autoscaling terminates a VM and then launches a new VM into the warm pool to replace it.",
+            "The reuse policy returns VMs that are already configured and able to handle traffic to the warm pool."
+          ]
+        }
+      ]
+    },
+    "warm-lifecycle": {
+      "statement": "A warm-pool VM passes Warmed:Pending and Warmed:Pending:Wait for a custom action before Warmed:Stopped (or Warmed:Running), then on launch pauses again at Pending:Wait before InService; if the pool is depleted and the group is below maximum, a VM can be launched directly into the group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "The new VM in the warm pool starts up and enters the Warmed:Pending state.",
+            "After the VM enters the Warmed:Pending:Wait state, it pauses to perform a custom action.",
+            "If VMs are configured to be in a Running state, the state is Warmed:Running instead of Warmed:Stopped.",
+            "After the VM reaches the Pending:Wait state, it pauses to perform a custom action.",
+            "If traffic is high enough to deplete the warm pool, the autoscaling group can launch a VM directly into itself, if the group is not at its maximum capacity."
+          ]
+        }
+      ]
+    },
+    "module-warm-pool": {
+      "statement": "In the reference ASG module the warm pool is off by default (`warm_pool_enabled` false) and is added only when enabled, with `warm_pool_state` Stopped, `warm_pool_min_size` 0 (validated 0 to 16), `warm_pool_max_group_prepared_capacity` null and `reuse_on_scale_in` false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/variables.tf",
+          "quotes": [
+            "variable \"warm_pool_enabled\" {",
+            "If set to true, add a warm pool to the specified Auto Scaling group.",
+            "Valid values are: Stopped (default) or Running. Ignored when 'warm_pool_enabled' is false\" default = \"Stopped\"",
+            "variable \"warm_pool_state\" {",
+            "variable \"warm_pool_min_size\" {",
+            "always a certain number of warmed instances available to handle traffic spikes. Ignored when 'warm_pool_enabled' is false\" default = 0",
+            "Input warm_pool_min_size must be set to a number between 0 and 16.",
+            "variable \"warm_pool_max_group_prepared_capacity\" {",
+            "Ignored when 'warm_pool_enabled' is false\" default = null",
+            "variable \"reuse_on_scale_in\" {",
+            "Specifies whether instances in the Auto Scaling group can be returned to the warm pool on scale in.\" default = false",
+            "#warm_pool).\" default = false"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/main.tf",
+          "quotes": [
+            "for_each = var.warm_pool_enabled == true ? [var.warm_pool_enabled] : []"
+          ]
+        }
+      ]
+    }
+  }
+}

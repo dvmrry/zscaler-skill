@@ -235,7 +235,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.json`; `vendor/zscaler-help/ai-gua
 | [`zia.dlp`](kb:zia.dlp) — DLP GenAI prompt scanning, HTTP GET query inspection | Navigation target for sensitive-data-in-prompt questions. |
 | [`zia.ssl-inspection`](kb:zia.ssl-inspection) | Navigation target for SSL bypass and decrypt prerequisites that can affect inline inspection. |
 | [`../zbi/policy-integration.md`](../zbi/policy-integration.md) — Isolate action | Navigation target for AI app isolation questions under the Secure Access pillar. |
-| [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md) | Future cross-product hook target. |
+| [`shared.integrations`](kb:shared.integrations) | Future cross-product hook target. |
 
 ## Edge cases / gotchas
 

@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "id": "shared.z-tunnel",
+  "title": "Z-Tunnel 1.0 and 2.0: where each question is answered",
+  "aliases": [
+    "z-tunnel",
+    "ztunnel",
+    "z-tunnel 1.0 vs 2.0",
+    "z-tunnel 2.0 migration",
+    "z-tunnel 2.0 falling back to 1.0",
+    "ztunnelversion"
+  ],
+  "binds": [
+    "zia/web-log#ztunnelversion",
+    "zia/firewall-log#ztunnelversion"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.z-tunnel"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.zcc"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "shared.gre"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Z-Tunnel is how Client Connector carries traffic to the service in Tunnel mode. The protocol, bypass and rollout detail lives in the Client Connector subjects; this subject routes the cross-product questions."
+    },
+    {
+      "steps": [
+        {
+          "label": "What does each version carry?",
+          "text": "Z-Tunnel 1.0 is CONNECT-based for proxy-aware or port 80 and 443 traffic, Z-Tunnel 2.0 a DTLS or TLS packet tunnel for all ports and protocols: [[zia.traffic-forwarding.zcc:z-tunnel-1]], [[zia.traffic-forwarding.zcc:z-tunnel-2]], with the selection rules in [[zcc.z-tunnel.versions]]."
+        },
+        {
+          "label": "Which network types use which version?",
+          "text": "The version is set per forwarding profile and the action per network type: [[zcc.forwarding-profiles.internet-actions:four-actions]], [[zcc.z-tunnel.versions:version-select-needs-pf]]."
+        },
+        {
+          "label": "Where do bypasses go?",
+          "text": "Not in the app profile PAC for Z-Tunnel 2.0, but in VPN gateway bypasses and destination exclusions, with domain bypasses through PAC files and the listening proxy: [[zcc.z-tunnel.bypasses]]."
+        },
+        {
+          "label": "How is a tenant migrated?",
+          "text": "The vendor's phased procedures for a new deployment and a migration from 1.0: [[zcc.z-tunnel.deployment]]."
+        },
+        {
+          "label": "What happens when Z-Tunnel 2.0 cannot be set up?",
+          "text": "Transport fallback and the configurable setup failure behavior: [[zcc.z-tunnel.transport]]."
+        }
+      ]
+    },
+    {
+      "label": "Why a device is on Z-Tunnel 1.0.",
+      "text": "A NAT that does not keep one IP per device splits the control and data connections and Z-Tunnel 2.0 falls back: [[zia.traffic-forwarding.zcc:z-tunnel-2-single-ip-nat]]; GRE egress with several IPs or ECMP is one way that happens: [[zia.traffic-forwarding.mixed-deployments:gre-ztunnel2-egress]]. A Z-Tunnel 2.0 profile also sends some web traffic over 1.0 by design: [[zcc.z-tunnel.versions:web-on-1-under-2]]. Whether a device keeps running 1.0 when the policy changed before its client was upgraded is open {{gap:client-version-lag}}."
+    },
+    {
+      "label": "What Z-Tunnel 1.0 leaves out.",
+      "text": "Z-Tunnel 1.0 carries only proxy-aware or port 80 and 443 traffic: [[zia.traffic-forwarding.zcc:z-tunnel-1]]; QUIC then leaves the device directly: [[zia.saas-apps.quic-conferencing:tunnel1-udp-leaves]]. What happens to the rest of the traffic (other UDP, ICMP, non-web TCP and non-standard ports) is open {{gap:tunnel-1-other-traffic}}."
+    },
+    {
+      "label": "Seeing the version.",
+      "text": "{{log-field}} Whether Z-Tunnel 2.0 traffic is logged as ZTUNNEL_2_0 is open {{gap:log-value-2}}. The field definitions are in the log types [[zia/web-log]] and [[zia/firewall-log]]."
+    },
+    {
+      "label": "GRE sites.",
+      "text": "Zscaler's guidance is [[zcc.z-tunnel.deployment:gre-guidance]], and the GRE side is [[shared.gre]]. The legacy explanation that double encapsulation inside GRE causes the performance problem is open {{gap:gre-double-encapsulation}}."
+    },
+    {
+      "label": "Business Continuity Cloud.",
+      "text": "Z-Tunnel 2.0 is not supported in business continuity mode: [[zia.private-service-edge.business-continuity:z-tunnel-2-unsupported]], with the supported methods in [[zia.private-service-edge.business-continuity]]."
+    },
+    {
+      "label": "Upstream proxies.",
+      "text": "Whether Z-Tunnel 1.0 works through an enterprise proxy on the network path is open {{gap:tunnel-1-upstream-proxy}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which Z-Tunnel version the traffic actually used, from the ztunnelversion field of the web or firewall log.",
+      "uses": [
+        "log-field",
+        "log-value-2"
+      ]
+    },
+    {
+      "do": "Whether the device's egress keeps one public IP for all its connections (no ECMP or several GRE source IPs on the path).",
+      "uses": [
+        "zia.traffic-forwarding.zcc:z-tunnel-2-single-ip-nat",
+        "zia.traffic-forwarding.mixed-deployments:gre-ztunnel2-egress"
+      ]
+    },
+    {
+      "do": "Whether the device runs a Client Connector version that supports Z-Tunnel 2.0.",
+      "uses": [
+        "zcc.z-tunnel.deployment:supported-version",
+        "client-version-lag"
+      ]
+    }
+  ],
+  "claims": {
+    "log-field": {
+      "statement": "The NSS web and firewall log formats both carry `ztunnelversion`, the Z-Tunnel version of Client Connector traffic, with ZTUNNEL_1_0 as the documented example value.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#ztunnelversion",
+        "zia/firewall-log#ztunnelversion"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{ztunnelversion} | The Z-Tunnel version | ZTUNNEL_1_0 | Zscaler Client Connector"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-firewall-logs.json",
+          "quotes": [
+            "| %s{ztunnelversion} | The Z-Tunnel version | ZTUNNEL_1_0 | Zscaler Client Connector"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "log-value-2": {
+      "kind": "semantic",
+      "title": "The ztunnelversion value for Z-Tunnel 2.0 traffic",
+      "status": "open",
+      "about": [
+        "zia/web-log#ztunnelversion",
+        "zia/firewall-log#ztunnelversion"
+      ],
+      "detail": "Unverified legacy statement: ZIA web logs show ztunnelversion as ZTUNNEL_1_0 or ZTUNNEL_2_0. The NSS format tables give only ZTUNNEL_1_0 as an example; no captured source lists the value for Z-Tunnel 2.0.",
+      "blocks": "telling from logs whether a device fell back from Z-Tunnel 2.0",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "client-version-lag": {
+      "kind": "semantic",
+      "title": "Devices on an older client after the profile selects Z-Tunnel 2.0",
+      "status": "open",
+      "detail": "Unverified legacy statement: tenants that changed the forwarding profile to Z-Tunnel 2.0 before upgrading the Client Connector agent keep running on Z-Tunnel 1.0. The sources say only that Z-Tunnel 2.0 needs a supported Client Connector version; what an unsupported client does with a Z-Tunnel 2.0 profile is not stated.",
+      "blocks": "explaining Z-Tunnel 1.0 traffic from devices whose profile selects 2.0",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "gre-double-encapsulation": {
+      "kind": "semantic",
+      "title": "Why Z-Tunnel 2.0 through GRE degrades performance",
+      "status": "open",
+      "detail": "Unverified legacy statement: double-encapsulating Z-Tunnel 2.0 DTLS or TLS traffic inside a GRE tunnel causes overhead and MTU fragmentation that degrade performance. The vendor says only that the GRE options prevent performance issues; the mechanism is not stated.",
+      "blocks": "explaining Z-Tunnel 2.0 performance at a GRE site with a single egress IP",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "tunnel-1-upstream-proxy": {
+      "kind": "semantic",
+      "title": "Z-Tunnel 1.0 through an enterprise proxy",
+      "status": "open",
+      "detail": "Unverified legacy statement: Z-Tunnel 1.0 works in environments where the network enforces HTTP proxy semantics and is compatible with enterprise network-layer proxies. No captured source states it.",
+      "blocks": "choosing a Z-Tunnel version where an upstream proxy sits on the path",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "tunnel-1-other-traffic": {
+      "kind": "semantic",
+      "title": "Traffic Z-Tunnel 1.0 does not carry",
+      "status": "open",
+      "detail": "Unverified legacy statement: under Z-Tunnel 1.0, UDP, non-web TCP, ICMP and non-standard-port traffic are not forwarded and either go direct or are blocked depending on the local firewall policy. The sources state what Z-Tunnel 1.0 carries and, for QUIC, that it leaves the device directly; no source states the outcome for the other traffic or the role of the local firewall.",
+      "blocks": "saying whether non-web traffic from a Z-Tunnel 1.0 device reaches the internet uninspected",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

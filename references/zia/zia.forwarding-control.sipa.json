@@ -61,7 +61,7 @@
       ]
     },
     {
-      "text": "If the ZIA tenant is in disaster recovery, the Private Access side changes: [[zia.forwarding-control.sipa-direct]]. What happens when the gateway's server group has no healthy connectors is open {{gap:unhealthy-connectors}}. Why anchoring is wanted and where the connector may sit is open {{gap:anchor-rationale}}, and what a segment without the Source IP Anchor option does is open {{gap:missing-anchor-flag}}. Customer-owned addresses are a different feature: [[zia.forwarding-control.byoip]]."
+      "text": "If the ZIA tenant is in disaster recovery, the Private Access side changes: [[zia.forwarding-control.sipa-direct]]. What happens when the gateway's server group has no healthy connectors is open {{gap:unhealthy-connectors}}. Why anchoring is wanted is partly answered by [[shared.source-ip-anchoring.egress-options]]; the rest, and where the connector may sit, is open {{gap:anchor-rationale}}, and what a segment without the Source IP Anchor option does is open {{gap:missing-anchor-flag}}. Customer-owned addresses are a different feature: [[zia.forwarding-control.byoip]]."
     }
   ],
   "checks": [
@@ -233,16 +233,26 @@
     "anchor-rationale": {
       "kind": "semantic",
       "title": "Why anchoring is needed and where the connector can sit",
-      "status": "open",
+      "status": "partial",
       "about": [
         "zia/zpa-gateways"
       ],
-      "detail": "Unverified legacy statement: \"When ZIA forwards traffic to the internet, egress comes from Zscaler's shared cloud IPs ... For applications that enforce IP-based allowlists, geo-IP checks, or conditional-access policies keyed to 'internal network' IPs, this breaks access\" and the connector is \"inside the customer's network (or in a chosen data center)\". The help states only that the destination sees the App Connector's address. Resolve with a vendor article on the use case, or a lab comparison of egress addresses.",
+      "detail": "Answered by the reference architecture (shared.source-ip-anchoring.egress-options:ip-requirements and :three-methods): ZIA changes the source address to the processing Service Edge's, some applications accept only a preset list of source addresses or restrict by geography, and the App Connector can sit in a public cloud (AWS, Azure, GCP) or the on-premises data center. Microsoft 365 Conditional Access is in zia.saas-apps.conditional-access. Still open, unverified legacy statement: that anchoring is needed for other \"conditional-access policies keyed to 'internal network' IPs\" beyond Microsoft 365. Resolve with a vendor article on other SaaS or a lab test.",
       "resolves_with": [
         "lab-test",
         "support-ticket"
       ],
-      "blocks": "explaining why a destination rejects ZIA egress and where connectors may be placed"
+      "blocks": "explaining why a destination rejects ZIA egress and where connectors may be placed",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "some applications and vendors that require the source IP address for traffic comes from a preset list of IP addresses. Any traffic from a non-registered IP address is automatically dropped.",
+            "By using ZPA App Connectors in a public cloud such as Amazon AWS, Microsoft Azure, Google GCP, or your on-premises data center, your traffic is routed through that App Connector which then becomes the source IP address for the traffic."
+          ]
+        }
+      ]
     },
     "missing-anchor-flag": {
       "kind": "semantic",

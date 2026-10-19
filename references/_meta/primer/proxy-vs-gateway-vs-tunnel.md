@@ -58,7 +58,7 @@ Browsers and OSes can be told "use proxy X for HTTP/HTTPS traffic." Three common
 
 ### Where Zscaler uses it
 
-- **PAC files** are a major Zscaler forwarding option for browser traffic. Default Zscaler PACs (`recommended.pac`, `proxy.pac`, `mobile_proxy.pac`, `kerberos.pac`) are hosted by Zscaler with auto-substituted Service Edge IPs. See [`../../shared/pac-files.md`](../../shared/pac-files.md).
+- **PAC files** are a major Zscaler forwarding option for browser traffic. Default Zscaler PACs (`recommended.pac`, `proxy.pac`, `mobile_proxy.pac`, `kerberos.pac`) are hosted by Zscaler with auto-substituted Service Edge IPs. See [`shared.pac-files`](kb:shared.pac-files).
 - **ZIA Public Service Edges (PSEs)** function as proxies for traffic forwarded to them — they parse HTTP, do URL filtering, do SSL inspection, etc.
 
 ## Tunnel — packet-level encapsulation
@@ -191,6 +191,6 @@ A proxy understands the most about your traffic (knows the URL, the headers, the
 - Networking basics (TCP/IP/ports/DNS): [`./networking-basics.md`](./networking-basics.md)
 - ZCC forwarding profile decisions: [`zcc.forwarding-profiles`](kb:zcc.forwarding-profiles)
 - Z-Tunnel 1.0 vs 2.0 details: [`zcc.z-tunnel`](kb:zcc.z-tunnel)
-- PAC files: [`../../shared/pac-files.md`](../../shared/pac-files.md)
-- Cloud Connector as inline gateway for workloads: [`../../cloud-connector/overview.md`](../../cloud-connector/overview.md)
+- PAC files: [`shared.pac-files`](kb:shared.pac-files)
+- Cloud Connector as inline gateway for workloads: [`cloud-connector.overview`](kb:cloud-connector.overview)
 - Zero-trust mental model (different lens, same architecture): [`./zero-trust.md`](./zero-trust.md)

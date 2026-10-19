@@ -131,7 +131,7 @@ OneAPI uses this. The dance:
 5. When token expires, repeat from step 2
 ```
 
-The `audience` parameter is **REQUIRED** for OneAPI — `audience=https://api.zscaler.com`. Forgetting it causes 401 errors with otherwise-valid credentials. See [`../../shared/oneapi.md`](../../shared/oneapi.md).
+The `audience` parameter is **REQUIRED** for OneAPI — `audience=https://api.zscaler.com`. Forgetting it causes 401 errors with otherwise-valid credentials. See [`shared.oneapi`](kb:shared.oneapi).
 
 ## SCIM — provisioning, not authentication
 
@@ -142,7 +142,7 @@ SCIM (System for Cross-domain Identity Management) is **identity provisioning**,
 
 SCIM is how Okta automatically creates a Salesforce account when a new hire is added in Okta. The IdP is the source of truth; SCIM-aware SPs are kept in sync.
 
-Zscaler's SCIM coverage is in `references/shared/scim-provisioning.md`. ZIA and ZPA both support SCIM, with subtly different attribute schemas.
+Zscaler's SCIM coverage is in `node scripts/kb.mjs resolve shared.scim`. ZIA and ZPA both support SCIM, with subtly different attribute schemas.
 
 ## MFA / multi-factor authentication
 
@@ -217,6 +217,6 @@ This makes ZIdentity a **federation hub** — one upstream IdP can serve all of 
 - ZIdentity overview: [`../../zidentity/overview.md`](../../zidentity/overview.md)
 - Step-up authentication: [`../../zidentity/step-up-authentication.md`](../../zidentity/step-up-authentication.md)
 - API client (OAuth client credentials): [`../../zidentity/api-clients.md`](../../zidentity/api-clients.md)
-- OneAPI gateway and audience parameter: [`../../shared/oneapi.md`](../../shared/oneapi.md)
-- SCIM provisioning: [`../../shared/scim-provisioning.md`](../../shared/scim-provisioning.md)
+- OneAPI gateway and audience parameter: [`shared.oneapi`](kb:shared.oneapi)
+- SCIM provisioning: [`shared.scim`](kb:shared.scim)
 - Zero-trust mental model: [`./zero-trust.md`](./zero-trust.md)

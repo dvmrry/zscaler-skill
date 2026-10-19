@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.workload-discovery.permission-status",
+  "title": "AWS account permission status: Pending, Allowed, Denied, and refreshing it",
+  "aliases": [
+    "aws account stuck pending",
+    "aws account denied workload discovery",
+    "permissionStatus",
+    "refresh aws account zscaler",
+    "latest sync aws account",
+    "verify discovery permissions"
+  ],
+  "binds": [
+    "ztw/public-cloud-info#lastSyncTime"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.workload-discovery.aws-accounts"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.workload-discovery.account-groups"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{three-states}} {{state-meanings}}"
+    },
+    {
+      "label": "Moving out of Pending.",
+      "text": "{{refresh-moves-state}} {{latest-sync-is-refresh-time}} {{sync-needed}} Whether the service ever re-checks on its own is not stated {{gap:automatic-recheck}}."
+    },
+    {
+      "label": "What a status means for tags.",
+      "text": "{{denied-no-tags}} {{regenerated-id-denies}}"
+    },
+    {
+      "label": "Through the API.",
+      "text": "{{verify-endpoint}} The SDKs and the contract name that path parameter three different ways {{gap:verify-path-id}}. {{permission-status-in-contract}} {{go-permission-status-commented-out}} {{python-permission-status}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the account was refreshed after the role was deployed; a Pending account with a deployed role may only need a refresh.",
+      "uses": [
+        "refresh-moves-state",
+        "sync-needed"
+      ]
+    },
+    {
+      "do": "For a Denied account, whether the role exists in the account ID that was entered and its trust policy names the Zscaler trusted role and the current external ID.",
+      "uses": [
+        "state-meanings",
+        "regenerated-id-denies"
+      ]
+    },
+    {
+      "do": "Read the status with the Python SDK or the API, since the Go SDK does not expose it.",
+      "uses": [
+        "go-permission-status-commented-out",
+        "python-permission-status"
+      ]
+    }
+  ],
+  "claims": {
+    "three-states": {
+      "statement": "An account's permission status is Pending, Allowed or Denied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-amazon-web-services-accounts.json",
+          "quotes": [
+            "Permission: The permission status of the account (i.e., Pending, Allowed, or Denied)."
+          ]
+        }
+      ]
+    },
+    "state-meanings": {
+      "statement": "Allowed means the IAM role was correctly deployed and the service can discover tags. Denied means the service cannot assume the role provided; the role must be properly deployed and its trust policy must use the correct Zscaler role and external ID. Pending means the account was added but is waiting for the role to be deployed; once the role is deployed and the Zscaler admin syncs it, the status moves to Allowed or Denied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-amazon-web-services-account-group-details.json",
+          "quotes": [
+            "Allowed: The IAM role was correctly deployed, and the service can discover tags.",
+            "Denied: The service cannot assume the role that you provided. Ensure that the role is properly deployed and the trust policy uses the correct Zscaler role and external ID.",
+            "Pending: The account was added to the Zscaler service, but it is waiting for the role to be deployed. When the role is deployed and the Zscaler admin syncs it, the role moves into the Allowed or Denied status."
+          ]
+        }
+      ]
+    },
+    "refresh-moves-state": {
+      "statement": "After an account is onboarded, the trusted role is set in AWS and the account is refreshed in the Admin Console; the status then updates from Pending to Allowed or Denied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-amazon-web-services-accounts.json",
+          "quotes": [
+            "After an account is onboarded, set the trusted role in AWS and refresh the account in the Zscaler Admin Console. The status updates from Pending to either Allowed or Denied."
+          ]
+        }
+      ]
+    },
+    "latest-sync-is-refresh-time": {
+      "statement": "The Latest Sync column shows the last time the account synced; after a refresh it shows the time the admin clicked Refresh.",
+      "tier": "A",
+      "binds": [
+        "ztw/public-cloud-info#lastSyncTime"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-amazon-web-services-accounts.json",
+          "quotes": [
+            "Latest Sync: The last time the account synced. After refreshing, this column displays the time when the user clicked the Refresh button."
+          ]
+        }
+      ]
+    },
+    "sync-needed": {
+      "statement": "Deploying the role is therefore not described as enough on its own: the documented move out of Pending follows an admin refresh or sync.",
+      "tier": "B",
+      "conditions": "Both help pages describe the change after a refresh or sync; neither says the status never changes without one.",
+      "derived_from": [
+        "refresh-moves-state",
+        "state-meanings"
+      ]
+    },
+    "denied-no-tags": {
+      "statement": "Tags are discovered for an Allowed account; a Denied account, whose role the service cannot assume, yields no tags for its workloads.",
+      "tier": "B",
+      "conditions": "Follows from the status definitions; the help does not state the consequence for policy directly.",
+      "derived_from": [
+        "state-meanings"
+      ]
+    },
+    "regenerated-id-denies": {
+      "statement": "An account whose external ID is regenerated without updating the role in AWS no longer matches the trust policy, so its next check is expected to end in Denied.",
+      "tier": "B",
+      "conditions": "Combines the requirement to update a regenerated ID in AWS with the definition of Denied; not observed.",
+      "derived_from": [
+        "cloud-connector.workload-discovery.aws-accounts:external-id-must-be-in-role",
+        "state-meanings"
+      ]
+    },
+    "verify-endpoint": {
+      "statement": "The API verifies an AWS account's permissions with a PUT carrying the discovery role and the external ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1discoveryService~1{id}~1permissions/put",
+          "expect": {
+            "description": "Verifies the specified AWS account permissions using the discovery role and external ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1discoveryService~1{id}~1permissions/put/requestBody/content/application~1json/schema/properties",
+          "expect": {
+            "discoveryRole": {
+              "description": "The IAM role associated with the AWS account.",
+              "type": "string"
+            },
+            "externalId": {
+              "description": "The unique external ID for the AWS account.",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "permission-status-in-contract": {
+      "statement": "The API contract carries `permissionStatus` on the account, described as whether the provided credentials (external ID and AWS role name) have permission to access the AWS account, with no type or value list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo~1{id}/get/responses/default/content/application~1json/schema/properties/permissionStatus",
+          "expect": {
+            "description": "Indicates whether the provided credentials (external ID and AWS role name) have permission to access the AWS account."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo~1{id}/get/responses/default/content/application~1json/schema/properties/permissionStatus",
+          "expect_absent": [
+            "type",
+            "enum"
+          ]
+        }
+      ]
+    },
+    "go-permission-status-commented-out": {
+      "statement": "The Go SDK's account struct has the permission status field commented out, so Go callers cannot read it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/partner_integrations/public_cloud_info/public_cloud_info.go",
+          "quotes": [
+            "// PermissionStatus string `json:\"permissionStatus,omitempty\"`"
+          ],
+          "after": "type PublicCloudInfo struct {"
+        }
+      ]
+    },
+    "python-permission-status": {
+      "statement": "The Python SDK model reads `permissionStatus` into `permission_status`, and the create docstring lists `permission_status` as an optional string with the example value \"TBD\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/models/public_cloud_info.py",
+          "quotes": [
+            "self.permission_status = config[\"permissionStatus\"] if \"permissionStatus\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/public_cloud_info.py",
+          "quotes": [
+            "permission_status (str, optional): Permission status (e.g., \"TBD\")."
+          ],
+          "after": "def add_public_cloud_info(self, **kwargs)"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "automatic-recheck": {
+      "kind": "semantic",
+      "title": "Whether the permission status changes without an admin refresh",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'IAM role deployed but operator has not clicked Refresh in the Zscaler console: status stays Pending indefinitely. The console does not poll; the operator must trigger the sync.' The help describes the change after a refresh but does not say whether the service also re-checks on a schedule, nor when a Denied account returns to Allowed after the role is fixed.",
+      "blocks": "Telling whether a Pending account with a deployed role needs only a refresh.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "verify-path-id": {
+      "kind": "semantic",
+      "title": "Which ID the permission verification path takes",
+      "status": "open",
+      "detail": "The contract names the path parameter `id`, 'The unique identifier for the AWS account', typed int32; the Go SDK names it `awsAccountID` and the Python SDK `account_group_id`. A 12-digit AWS account ID does not fit int32, which suggests the Zscaler account record ID, but no source says so.",
+      "blocks": "Calling the verification endpoint for a given account.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1discoveryService~1{id}~1permissions/put/parameters/[name=id]",
+          "expect": {
+            "description": "The unique identifier for the AWS account.",
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/partner_integrations/partner_integrations.go",
+          "quotes": [
+            "endpoint := fmt.Sprintf(\"/ztw/api/v1/discoveryService/%d/permissions\", awsAccountID)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/discovery_service.py",
+          "quotes": [
+            "def update_discovery_service_permissions(self, account_group_id: int, **kwargs)"
+          ]
+        }
+      ]
+    }
+  }
+}

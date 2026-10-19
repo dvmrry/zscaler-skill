@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "id": "shared.scim",
+  "title": "SCIM provisioning across ZIA and ZPA: where the two differ",
+  "aliases": [
+    "scim provisioning",
+    "scim zia vs zpa",
+    "active=false scim",
+    "user deleted in idp still present",
+    "scim sync",
+    "scim not syncing"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.scim"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.saml-auto-provisioning"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZIA and ZPA each run their own SCIM server, configured per IdP, and the same IdP push can mean different things to each. The per-product subjects hold the detail; this table lines up the differences."
+    },
+    {
+      "table": {
+        "columns": [
+          "Question",
+          "ZIA",
+          "ZPA"
+        ],
+        "rows": [
+          [
+            "Overview",
+            "[[zia.scim]]",
+            "[[zpa.scim]]"
+          ],
+          [
+            "Prerequisites",
+            "[[zia.scim.setup:scim2-and-saml]], [[zia.scim.setup:domain-preregistered]]",
+            "[[zpa.scim.attributes-and-groups:any-idp]], [[zpa.scim.attributes-and-groups:required-unique]]"
+          ],
+          [
+            "active=false",
+            "[[zia.scim.deactivation:active-flag]]",
+            "[[zia.scim.deactivation:zpa-deletes]], [[zpa.scim.group-lifecycle:okta-deactivates]]"
+          ],
+          [
+            "Attributes",
+            "[[zia.scim.attribute-mapping:user-fields]], [[zia.scim.attribute-mapping:name-prefix]]",
+            "[[zpa.scim.attributes-and-groups:supported-attributes]], [[zpa.scim.attributes-and-groups:read-only-objects]]"
+          ],
+          [
+            "Groups and limits",
+            "[[zia.scim.groups-and-departments]], [[zia.scim.operations:rate-limit]]",
+            "[[zpa.scim.provisioning-timing:group-limits]], [[zpa.scim.policy-criteria:scim-group-operand]]"
+          ],
+          [
+            "How fast changes land",
+            "[[zia.scim.propagation:push-near-real-time]]",
+            "[[zpa.scim.provisioning-timing:several-days]], [[zpa.policy.scim-sync:scim-wait-48-hours]]"
+          ],
+          [
+            "Client authentication",
+            "[[zia.scim.setup:bearer-token]]",
+            "[[zpa.scim.policy-criteria:idp-flags]], [[zpa.api.idp-scim-wire:scim-requests-use-scim-json]]"
+          ],
+          [
+            "SDKs",
+            "[[zia.scim.sdk-coverage]]",
+            "[[zpa.scim.api-surface]], [[zpa.api.idp-scim-wire]]"
+          ],
+          [
+            "First sync with Okta",
+            "Not documented",
+            "[[zpa.scim.provisioning-timing:okta-first-enable]]"
+          ]
+        ]
+      }
+    },
+    {
+      "label": "SAML beside SCIM.",
+      "text": "In ZIA, SAML auto-provisioning is to be disabled when SCIM is enabled for the IdP: [[zia.ad-integration.saml-auto-provisioning:scim-excludes]]. Whether a session links to a SCIM user only when userName equals the SAML nameID is open in ZIA: [[zia.ad-integration.saml-auto-provisioning:username-nameid-link]]. What happens when an IdP changes a user's userName and nameID is open {{gap:username-change}}."
+    },
+    {
+      "label": "Ordering and nesting.",
+      "text": "Whether a user pushed before its group keeps the membership is open {{gap:group-user-order}}, as is how nested groups are treated {{gap:nested-groups}}."
+    },
+    {
+      "label": "Deprovisioning.",
+      "text": "Whether disabling or deleting a user revokes tokens the user holds is open: [[zia.scim.deactivation:token-revocation]]. What a ZPA user loses when deleted through active=false and later re-created is open {{gap:zpa-recreate-loses-settings}}."
+    },
+    {
+      "label": "IdP differences.",
+      "text": "How each IdP populates SCIM fields and how often it pushes is not consolidated {{gap:per-idp-quirks}}; the ZIA cadence question is held in [[zia.scim.propagation]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which product the user or group is missing from, and whether the IdP sent active=false or a delete, since ZIA disables while ZPA deletes.",
+      "uses": [
+        "zia.scim.deactivation:active-flag",
+        "zia.scim.deactivation:zpa-deletes"
+      ]
+    },
+    {
+      "do": "For ZPA, whether the initial sync has had time to complete before SCIM criteria are used.",
+      "uses": [
+        "zpa.scim.provisioning-timing:several-days",
+        "zpa.policy.scim-sync:scim-wait-48-hours"
+      ]
+    },
+    {
+      "do": "Whether the user exceeds a group limit (ZIA per-user cap, ZPA 1,000 groups per user).",
+      "uses": [
+        "zpa.scim.provisioning-timing:group-limits"
+      ]
+    },
+    {
+      "do": "Whether a ZIA username's domain is registered to the tenant.",
+      "uses": [
+        "zia.scim.setup:domain-preregistered"
+      ]
+    }
+  ],
+  "gaps": {
+    "username-change": {
+      "kind": "semantic",
+      "title": "What happens when an IdP changes a user's userName",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"if a user's email address changes in the IdP and the IdP updates both SAML nameID and SCIM userName, but Zscaler's records link by the old value, sync can fail silently. Some IdPs emit a userName change event; others just push the new value and expect Zscaler to match on externalId.\"",
+      "blocks": "diagnosing a renamed user who stops matching policy",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "group-user-order": {
+      "kind": "semantic",
+      "title": "A user pushed with a group that does not exist yet",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"If a user is created with a group reference but the group doesn't exist yet, the user record may end up with empty group memberships. IdPs typically sync groups before users for this reason.\"",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "nested-groups": {
+      "kind": "semantic",
+      "title": "How ZIA and ZPA treat nested SCIM groups",
+      "status": "open",
+      "detail": "SCIM 2.0 allows group members that are themselves groups; neither product's SCIM documentation says whether nested members are expanded, ignored or rejected.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "zpa-recreate-loses-settings": {
+      "kind": "semantic",
+      "title": "What a ZPA user re-created after a SCIM delete loses",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"deleting a ZPA user via SCIM loses their per-user settings. A reactivated user has to be re-provisioned from scratch.\" ZPA documents that active=false deletes the user, not what per-user state is lost.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "per-idp-quirks": {
+      "kind": "semantic",
+      "title": "Per-IdP SCIM attribute mapping and push cadence",
+      "status": "open",
+      "detail": "Unverified legacy statements: Entra ID, Okta, Ping and Google Workspace populate SCIM fields differently and push on different schedules; an IdP that sends a group displayName that does not match ZPA's records leaves a new user without groups. The per-IdP configuration guides are not captured.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

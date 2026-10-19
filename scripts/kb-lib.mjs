@@ -539,6 +539,7 @@ export function validateGraph(g, { citations = true } = {}) {
       if (d.status === "superseded" && !d.superseded_by) err(node.file, `${node.id}: superseded claims need superseded_by`);
       for (const c of d.derived_from || []) expectKind(node.file, node.id, qualify(node.subject, c), ["claim"]);
       if (d.tier === "A" && !(d.evidence || []).length) err(node.file, `${node.id}: a Tier A claim needs its own evidence; derived claims are Tier B or lower`);
+      if (d.tier !== "A" && !String(d.conditions || "").trim()) err(node.file, `${node.id}: a Tier ${d.tier} claim needs conditions saying what it rests on (a chain, a search, an absence, an observation)`);
       if (d.tier === "A") {
         // A chain is as strong as its weakest link: a Tier A claim may only follow from Tier A claims.
         for (const c of d.derived_from || []) {

@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "id": "shared.m365",
+  "title": "Microsoft 365 Conditional Access through Source IP Anchoring",
+  "aliases": [
+    "m365 conditional access",
+    "microsoft 365 conditional access zscaler",
+    "entra id conditional access named locations",
+    "azure ad conditional access sipa",
+    "office 365 trusted location zscaler",
+    "unexpected mfa m365 zia",
+    "m365 sign-in blocked behind zscaler"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.m365.sipa-setup"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.m365.troubleshooting"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.forwarding-control.sipa"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.saas-apps.conditional-access"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.sipa-direct"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.app-segments.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.methods"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Microsoft 365 Conditional Access policies that trust a set of source IP ranges see Zscaler addresses, not corporate ones, once sign-ins go through Internet & SaaS. Source IP Anchoring is the vendor's answer for that use case, and this subject walks it end to end."
+    },
+    {
+      "steps": [
+        {
+          "label": "Why is it needed?",
+          "text": "The vendor's use case: [[zia.saas-apps.conditional-access:ca-use-case]] Without anchoring, the sign-in arrives from a shared Public Service Edge address: [[zia.saas-apps.conditional-access:shared-edge-ips-fail-named-location]] With it, the destination sees the App Connector's address: [[zia.forwarding-control.sipa:purpose]]"
+        },
+        {
+          "label": "What has to be anchored?",
+          "text": "Only the sign-in: [[zia.saas-apps.conditional-access:anchor-login-only]] The segment names the Microsoft sign-in hosts: [[zia.saas-apps.conditional-access:login-hosts]] {{narrow-scope}}"
+        },
+        {
+          "label": "How is it configured?",
+          "text": "The Private Access and Internet & SaaS steps, and where the Microsoft 365 article departs from the general one: [[shared.m365.sipa-setup]]."
+        },
+        {
+          "label": "Why does a sign-in still get challenged or blocked?",
+          "text": "Failure paths, and the Microsoft-side behavior no captured source settles: [[shared.m365.troubleshooting]]."
+        }
+      ]
+    },
+    {
+      "heading": "Prerequisites and limits"
+    },
+    {
+      "items": [
+        {
+          "label": "Licensing.",
+          "text": "[[zia.forwarding-control.sipa:licensing]] What the API returns when anchoring is configured without the subscription is open {{gap:missing-subscription-error}}."
+        },
+        {
+          "label": "Z-Tunnel 1.0 users.",
+          "text": "[[zia.forwarding-control.sipa:ztunnel1-option]]"
+        },
+        {
+          "label": "Segment settings that exclude anchoring.",
+          "text": "Double Encryption: [[zpa.app-segments.settings:double-encryption-exclusions]] Inspect Traffic with ZIA: [[zpa.app-segments.settings:sipa-inspect-zia-exclusive]] Multimatch: [[zpa.app-segments.multimatch-requirements:sipa-health-reporting]] Whether Browser Access excludes it too is open: [[zpa.app-segments.settings:sipa-browser-access]]."
+        },
+        {
+          "label": "Other stable-address paths.",
+          "text": "Whether a Cloud Connector (ECZPA) gateway or a Dedicated IP gateway can stand in for the App Connector here is open {{gap:other-anchors}}. Dedicated IP is a separate forwarding method: [[zia.forwarding-control.methods:dedicated-ip-gateway]], [[zia.forwarding-control.byoip:not-sipa]]."
+        },
+        {
+          "label": "Country criteria in Private Access.",
+          "text": "[[zpa.policy.criteria:country-last-nat-ip]]"
+        },
+        {
+          "label": "Disaster recovery.",
+          "text": "While Internet & SaaS is in disaster recovery mode, the admin changes the anchoring configuration to Source IP Anchoring Direct and reverts it afterwards: [[zia.forwarding-control.sipa-direct:definition]], [[zia.forwarding-control.sipa-direct:revert-rules]]"
+        }
+      ]
+    },
+    {
+      "text": "The general Source IP Anchoring reference, not converted yet, is [[shared.source-ip-anchoring]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which source IP Microsoft's sign-in log recorded for the failed sign-in: a Zscaler Public Service Edge address, an App Connector address, or the user's own ISP address. Each points to a different branch in shared.m365.troubleshooting.",
+      "uses": [
+        "zia.saas-apps.conditional-access:shared-edge-ips-fail-named-location",
+        "zia.forwarding-control.sipa:purpose"
+      ]
+    },
+    {
+      "do": "Whether the tenant holds the Source IP Anchoring subscription, and whether the segment carries a setting that excludes anchoring.",
+      "uses": [
+        "zia.forwarding-control.sipa:licensing",
+        "zpa.app-segments.settings:double-encryption-exclusions",
+        "zpa.app-segments.settings:sipa-inspect-zia-exclusive"
+      ]
+    }
+  ],
+  "claims": {
+    "narrow-scope": {
+      "statement": "With the anchored segment limited to the Microsoft sign-in hosts, the application traffic that follows sign-in does not take the anchored path through the App Connector.",
+      "tier": "B",
+      "derived_from": [
+        "zia.saas-apps.conditional-access:anchor-login-only",
+        "zia.saas-apps.conditional-access:login-hosts"
+      ],
+      "conditions": "Follows from the segment naming only the sign-in hosts; the legacy rationale that this reduces App Connector load and latency is not measured in any source."
+    }
+  },
+  "gaps": {
+    "other-anchors": {
+      "kind": "semantic",
+      "title": "Whether a Cloud Connector or Dedicated IP path can anchor Microsoft 365 sign-ins",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The following cannot serve as SIPA anchors: Zscaler Cloud Connector ... The forwarding method for Cloud Connector deployments is ECZPA, not ZPA. ECZPA does not implement SIPA ... Dedicated IP gateway (ENATDEDIP) ... provides a stable customer-attributable IP, it is a distinct product from SIPA ... requires a separate ZIA Dedicated IP SKU ... Branch connector or SD-WAN path — these are not SIPA egress paths.\" The gateway object has an ECZPA type for Cloud Connector (zia.forwarding-control.zpa-gateway:fields), and Dedicated IP is its own forwarding method, but no capture says whether either produces a source address a Conditional Access named location can trust.",
+      "blocks": "recommending an alternative to App Connector anchoring for workloads or tenants without the subscription",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "missing-subscription-error": {
+      "kind": "semantic",
+      "title": "What the API returns when anchoring is configured without the Source IP Anchoring subscription",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Operators who encounter licensing questions or API `400` errors when configuring SIPA forwarding rules should verify that the tenant has the SIPA add-on, not just ZPA.\" No captured source states the error a tenant without the subscription receives.",
+      "blocks": "diagnosing a rejected anchoring configuration",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -1,0 +1,412 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.aws.reference-modules",
+  "title": "Zscaler's Terraform modules for Cloud Connector on AWS: examples, defaults, FIPS, Transit Gateway",
+  "aliases": [
+    "terraform-aws-cloud-connector-modules",
+    "cloud connector terraform examples aws",
+    "base_cc_gwlb",
+    "cc_gwlb_asg",
+    "zsec cloud connector",
+    "cloud connector fips aws terraform",
+    "cloud connector transit gateway terraform",
+    "tgw_enabled"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.aws"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.cloudformation"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.provider-behavior"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The repository is Zscaler's reference IaC for AWS: submodules per resource group and complete examples that call them. It does not configure the Zscaler side; the provider is covered by [[cloud-connector.terraform.provider-behavior]]."
+    },
+    {
+      "label": "Scope.",
+      "text": "{{repo-scope}} {{greenfield}} {{brownfield}} Help and the README disagree on whether Terraform deployments include a bastion {{divergence:bastion-scope}}."
+    },
+    {
+      "label": "Examples.",
+      "items": [
+        {
+          "text": "{{ex-base}}"
+        },
+        {
+          "text": "{{ex-1cc}}"
+        },
+        {
+          "text": "{{ex-zpa}}"
+        },
+        {
+          "text": "{{ex-gwlb}}"
+        },
+        {
+          "text": "{{ex-gwlb-asg}}"
+        },
+        {
+          "text": "{{ex-brownfield}}"
+        },
+        {
+          "text": "{{ex-deprecated}}"
+        }
+      ]
+    },
+    {
+      "label": "Network defaults.",
+      "text": "{{network-defaults}}"
+    },
+    {
+      "label": "Transit Gateway.",
+      "text": "{{tgw-mode}} {{tgw-appliance-mode}}"
+    },
+    {
+      "label": "FIPS.",
+      "text": "{{fips-variable}} {{fips-zsec}} {{fips-examples-only}}"
+    },
+    {
+      "label": "The zsec helper.",
+      "text": "{{zsec-counts}} Autoscaling size limits differ between the module, the examples and zsec: [[cloud-connector.aws.autoscaling]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which example the deployment came from, since greenfield examples add a bastion and test workloads and the deprecated ones use Lambda route failover instead of GWLB.",
+      "uses": [
+        "greenfield",
+        "brownfield",
+        "ex-deprecated"
+      ]
+    },
+    {
+      "do": "For a Transit Gateway hub-and-spoke deployment, whether the hub attachment has appliance mode enabled.",
+      "uses": [
+        "tgw-appliance-mode"
+      ]
+    },
+    {
+      "do": "For FIPS, whether the user data carries FIPS_ENABLED=True, since a direct module caller must set it in its own user data.",
+      "uses": [
+        "fips-variable",
+        "fips-examples-only"
+      ]
+    }
+  ],
+  "claims": {
+    "repo-scope": {
+      "statement": "The AWS Terraform repository creates the resources to deploy and operate Cloud Connector in a new or existing VPC, and its examples directory holds complete automation for greenfield/POV and brownfield/production use.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "README.md",
+          "quotes": [
+            "Use this repository to create the deployment resources required to deploy and operate Cloud Connector in a new or existing virtual private cloud (VPC).",
+            "The [examples](examples/) directory contains complete automation scripts for both greenfield/POV and brownfield/production use."
+          ]
+        }
+      ]
+    },
+    "greenfield": {
+      "statement": "The greenfield templates include a bastion host and test workloads and are designed for greenfield/POV testing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "README.md",
+          "quotes": [
+            "These templates include a bastion host and test workloads and are designed for greenfield/POV testing."
+          ]
+        }
+      ]
+    },
+    "brownfield": {
+      "statement": "The brownfield templates are the ones most applicable to production, have more customization options, and deploy no bastion or workload hosts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "README.md",
+          "quotes": [
+            "Brownfield deployment templates are most applicable for production deployments and have more customization options than a",
+            "They also do not include a bastion or workload hosts deployed."
+          ]
+        }
+      ]
+    },
+    "ex-base": {
+      "statement": "The base example creates the network infrastructure (a VPC, public and workload subnets, an internet gateway and a NAT gateway), one workload server and a bastion host, but no Cloud Connector appliances.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base/README.md",
+          "quotes": [
+            "It does not deploy any Cloud Connector appliances.",
+            "Creates 1 new VPC with 1 public subnet and 1 private/workload subnet; 1 IGW; 1 NAT Gateway; 1 Amazon Linux 2023 server workload in the private subnet routing to NAT Gateway; 1 Bastion Host in the public subnet"
+          ]
+        }
+      ]
+    },
+    "ex-1cc": {
+      "statement": "base_1cc adds one Cloud Connector private subnet and one Cloud Connector VM routing to the NAT gateway, and repoints the workload subnet route to the Cloud Connector's service ENI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_1cc/README.md",
+          "quotes": [
+            "Additionally: Creates 1 Cloud Connector private subnet; 1 Cloud Connector VM routing to NAT Gateway; workload private subnet route repointed to service ENI of Cloud Connector."
+          ]
+        }
+      ]
+    },
+    "ex-zpa": {
+      "statement": "The _zpa variants add two Route 53 subnets routing to the Cloud Connector service ENI, a Route 53 outbound resolver endpoint and resolver rules for ZPA DNS redirection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_1cc_zpa/README.md",
+          "quotes": [
+            "Additionally: Creates 2 Route 53 subnets routing to the service ENI of Cloud Connector; Route 53 outbound resolver endpoint; and Route 53 resolver rules for ZPA DNS redirection."
+          ]
+        }
+      ]
+    },
+    "ex-gwlb": {
+      "statement": "base_cc_gwlb creates 4 Cloud Connectors (2 per subnet and AZ), a GWLB that auto-registers their service IPs with health checks, a VPC endpoint service, one GWLB endpoint per Cloud Connector subnet, and workload routes to the GWLB endpoint in the same AZ.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_cc_gwlb/README.md",
+          "quotes": [
+            "Additionally: Creates 4 Cloud Connectors (2 per subnet/AZ) routing to NAT Gateway; Gateway Load Balancer auto registers service IPs to target group with health checks; VPC Endpoint Service; 2 GWLB Endpoints (1 in each Cloud Connector subnet); workload private subnet routes pointing to the GWLB Endpoint in their same AZ"
+          ]
+        }
+      ]
+    },
+    "ex-gwlb-asg": {
+      "statement": "base_cc_gwlb_asg deploys the Cloud Connectors as an Auto Scaling group with a launch template spanning all Cloud Connector subnets, behind a GWLB with an instance-based target group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_cc_gwlb_asg/README.md",
+          "quotes": [
+            "Cloud Connector Autoscaling Group + Launch Template spanning all CC subnets routing to the NAT Gateway in their same AZ",
+            "Gateway Load Balancer with Instance based target group and health checks"
+          ]
+        }
+      ]
+    },
+    "ex-brownfield": {
+      "statement": "cc_gwlb (4 Cloud Connector VMs by default, 2 per subnet and AZ) and cc_gwlb_asg (an Auto Scaling group) are the brownfield/production examples, able to reuse an existing VPC, subnets, IGW and NAT gateways and to toggle ZPA/Route 53 resources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/cc_gwlb/README.md",
+          "quotes": [
+            "This deployment type is intended for brownfield/production purposes.",
+            "4 Cloud Connector VMs (2 per subnet/AZ) routing to the NAT Gateway in their same AZ",
+            "ability to use existing resources (VPC, subnets, IGW, NAT Gateways), toggle ZPA/R53 resources"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/cc_gwlb_asg/README.md",
+          "quotes": [
+            "This deployment type is intended for brownfield/production purposes.",
+            "Cloud Connector Autoscaling Group + Launch Template spanning all CC subnets",
+            "ability to use existing resources (VPC, subnets, IGW, NAT Gateways), toggle ZPA/R53 resources"
+          ]
+        }
+      ]
+    },
+    "ex-deprecated": {
+      "statement": "base_2cc, base_2cc_zpa and cc_ha are marked deprecated; each README says it is only available as reference for legacy users and that Zscaler's recommended deployment method is GWLB. base_2cc and base_2cc_zpa add a second Cloud Connector with a Lambda that fails workload route tables over between the two, and cc_ha can toggle Lambda HA failover.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_2cc/README.md",
+          "quotes": [
+            "(Base_2cc) (deprecated)",
+            "This is only available as reference for legacy users. Zscaler's recommended deployment method is Gateway Load Balancer (GWLB)",
+            "Creates a second Cloud Connector in a new subnet/Availability Zone wwith Lambda configured for HA failover of workload route tables between the two Cloud Connectors"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_2cc_zpa/README.md",
+          "quotes": [
+            "# Zscaler Starter Deployment Template with HA and ZPA (Base_2cc_zpa) (deprecated)",
+            "This is only available as reference for legacy users. Zscaler's recommended deployment method is Gateway Load Balancer (GWLB)",
+            "Creates a second Cloud Connector in a new subnet/Availability Zone wwith Lambda configured for HA failover of workload route tables between the two Cloud Connectors"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/cc_ha/README.md",
+          "quotes": [
+            "# Zscaler Custom Deployment Template with HA (cc_ha) (deprecated)",
+            "This is only available as reference for legacy users. Zscaler's recommended deployment method is Gateway Load Balancer (GWLB)",
+            "toggle ZPA/R53 and Lambda HA failover features"
+          ]
+        }
+      ]
+    },
+    "network-defaults": {
+      "statement": "The network module defaults `vpc_cidr` to 10.1.0.0/16 and derives all subnets from it, and defaults `az_count` to 2 with validation limiting it to 1 through 3.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-network-aws/variables.tf",
+          "quotes": [
+            "variable \"vpc_cidr\" { type = string description = \"VPC IP CIDR Range.",
+            "All subnet resources that might get created (public, workload, cloud connector) are derived from this /16 CIDR.",
+            "default = \"10.1.0.0/16\"",
+            "description = \"Default number of subnets to create based on availability zone input\" default = 2",
+            "Input az_count must be set to a single value between 1 and 3."
+          ]
+        }
+      ]
+    },
+    "tgw-mode": {
+      "statement": "Release 1.5.0 added Transit Gateway hub-and-spoke inspection to base_cc_gwlb and cc_gwlb: `tgw_enabled` (default false) deploys a hub VPC with the Cloud Connectors and GWLB and two spoke VPCs whose traffic the Transit Gateway forwards to the hub.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "CHANGELOG.md",
+          "after": "## [1.5.0] - (June 22, 2026)",
+          "quotes": [
+            "feat: add Transit Gateway Hub-and-Spoke inspection support to `base_cc_gwlb` and `cc_gwlb` examples",
+            "New variable `tgw_enabled` (default `false`): when set to `true`, deploys a three-VPC TGW hub-and-spoke topology. The hub VPC hosts Cloud Connectors and the GWLB; two spoke VPCs contain workload instances whose traffic is forwarded to the hub for centralized inspection via the Transit Gateway."
+          ]
+        }
+      ]
+    },
+    "tgw-appliance-mode": {
+      "statement": "The Transit Gateway module enables appliance mode on the hub attachment because, per its README, without it TGW may return traffic through a different AZ, breaking GWLB flow stickiness and letting traffic bypass Cloud Connector inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-tgw-aws/README.md",
+          "quotes": [
+            "appliance_mode_support = \"enable\"",
+            "this is required for GWLB-based inspection. Without it, TGW may route return traffic through a different AZ ENI than the original flow, breaking GWLB's 5-tuple flow stickiness and causing traffic to bypass Cloud Connector inspection."
+          ]
+        }
+      ]
+    },
+    "fips-variable": {
+      "statement": "Release 1.5.1 added a `fips_enabled` variable to the Cloud Connector examples that enables FIPS mode through user data; it takes the strings \"False\" (default) or \"True\" and is written as FIPS_ENABLED.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "CHANGELOG.md",
+          "after": "## [1.5.1] - (Aug 7, 2026)",
+          "quotes": [
+            "add new `fips_enabled` variable for enabling FIPS mode via userdata in Cloud Connector examples"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_1cc/variables.tf",
+          "quotes": [
+            "Enable FIPS mode for Cloud Connector provisioning. Supported values are 'False' or 'True'.",
+            "default = \"False\""
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_1cc/main.tf",
+          "quotes": [
+            "FIPS_ENABLED=${var.fips_enabled}"
+          ]
+        }
+      ]
+    },
+    "fips-zsec": {
+      "statement": "The zsec helper asks whether to enable FIPS mode and exports `TF_VAR_fips_enabled` as 'True' or 'False'.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/zsec",
+          "quotes": [
+            "Enable FIPS mode for this Cloud Connector deployment? (yes/no):",
+            "echo \"export TF_VAR_fips_enabled='True'\" >> .zsecrc",
+            "echo \"export TF_VAR_fips_enabled='False'\" >> .zsecrc"
+          ]
+        }
+      ]
+    },
+    "fips-examples-only": {
+      "statement": "FIPS is an example-level input: every Cloud Connector example declares `fips_enabled` while the base example (no Cloud Connector) and the CCVM and ASG modules do not, so a caller of the modules directly must put FIPS_ENABLED in its own user data.",
+      "tier": "B",
+      "derived_from": [
+        "fips-variable",
+        "cloud-connector.aws.provisioning:module-user-data"
+      ],
+      "conditions": "Rests on a search of every examples/*/variables.tf and modules/*/variables.tf at the pin for variable \"fips_enabled\": present in base_1cc, base_1cc_zpa, base_2cc, base_2cc_zpa, base_cc_gwlb, base_cc_gwlb_asg, base_cc_gwlb_asg_zpa, base_cc_gwlb_zpa, cc_gwlb, cc_gwlb_asg and cc_ha; absent from base and from every module."
+    },
+    "zsec-counts": {
+      "statement": "zsec accepts 1 to 20 for the static Cloud Connector count and 1 to 10 for the Auto Scaling group minimum and maximum.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/zsec",
+          "quotes": [
+            "if ((cc_count >= 1 && cc_count <= 20)); then",
+            "case $min_size in 1|2|3|4|5|6|7|8|9|10)",
+            "case $max_size in 1|2|3|4|5|6|7|8|9|10)"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "bastion-scope": {
+      "summary": "Whether a Terraform deployment of Cloud Connector includes a bastion host.",
+      "positions": [
+        {
+          "says": "When Terraform configures new appliances, a bastion host is created automatically for management and troubleshooting.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+            "quotes": [
+              "When using Terraform to configure new appliances, a Bastion host is automatically created for management and troubleshooting purposes."
+            ]
+          }
+        },
+        {
+          "says": "Only the greenfield templates include a bastion; the brownfield templates do not deploy a bastion or workload hosts.",
+          "evidence": {
+            "source": "tfmod-aws-cloud-connector",
+            "path": "README.md",
+            "quotes": [
+              "They also do not include a bastion or workload hosts deployed."
+            ]
+          }
+        }
+      ],
+      "impact": "Troubleshooting guidance that assumes a Terraform bastion for CLI access fails for brownfield deployments; use SSM or a management-interface elastic IP instead."
+    }
+  }
+}

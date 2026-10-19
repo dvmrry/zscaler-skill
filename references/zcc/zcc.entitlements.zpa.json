@@ -41,6 +41,9 @@
     {
       "label": "In the API.",
       "text": "{{api-field-names}} Whether the group list survives while the all-users switch is on, and becomes effective again when it is turned off, is open {{gap:stale-group-list}}. What the machine tunnel switch does without a Private Access subscription is open {{gap:machine-tunnel-without-zpa}}."
+    },
+    {
+      "text": "Whether the machine tunnel can be limited to some devices is open {{gap:machine-tunnel-subset}}."
     }
   ],
   "checks": [
@@ -229,6 +232,17 @@
       "detail": "Unverified legacy statement: \"machine_tun_enabled_for_all is meaningless without a ZPA subscription. If ZPA is not licensed, toggling this flag has no effect.\"",
       "resolves_with": [
         "source-read"
+      ]
+    },
+    "machine-tunnel-subset": {
+      "kind": "semantic",
+      "title": "Whether the machine tunnel can be enabled for some devices only",
+      "status": "open",
+      "detail": "Unverified legacy statement (references/shared/cross-product-integrations.md): \"Machine Tunnel is separately gated (machineTunEnabledForAll) — an all-or-nothing tenant-wide toggle. A tenant that wants Machine Tunnel for a subset of devices doesn't have a group-level knob at the SDK layer we've seen.\" The help describes only the Enable Machine Tunnel For All switch (claim machine-tunnel-for-all), which applies to users whose app profile carries a machine token; whether the app profile's machine token is itself the per-group control is not stated.",
+      "blocks": "advising how to roll the machine tunnel out to a subset of devices",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
       ]
     }
   }

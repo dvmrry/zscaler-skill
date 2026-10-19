@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "id": "shared.zsdk",
+  "title": "Zscaler SDK for Mobile Apps (ZSDK): what it is and where it is described",
+  "aliases": [
+    "zsdk",
+    "zscaler sdk for mobile apps",
+    "zscaler mobile sdk",
+    "zsdk admin portal",
+    "admin.zsdkone.net",
+    "zsdkone.net",
+    "zsdk terraform",
+    "zsdk api automation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.architecture"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.developer-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.error-codes"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This places ZSDK among the Zscaler products and points to where each part of it is described. {{what-it-is}} {{embedded-in-app}}"
+    },
+    {
+      "label": "Where it is administered.",
+      "text": "{{one-cloud}} {{no-automation-surface}}"
+    },
+    {
+      "label": "How it is built.",
+      "text": "Components, the tunnel path and App Connector placement are in [[shared.zsdk.architecture]]; the connectors run ZPA's App Connector software ([[shared.zsdk.architecture:connector-zpa-software]]; see also [[zpa.app-connectors]]), and whether one enrolled connector can serve both products is open {{gap:zsdk-connectors-vs-zpa}}."
+    },
+    {
+      "label": "Setting it up.",
+      "text": "Registered apps, app keys, segment groups and access policy are in [[shared.zsdk.configuration]], and per-organization limits in [[shared.zsdk.limits]]."
+    },
+    {
+      "label": "In the app.",
+      "text": "Classes, tunnel methods, lifecycle calls and notifications are in [[shared.zsdk.developer-api]]; error codes from the SDK and from the ZSDK API are in [[shared.zsdk.error-codes]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the question is about ZSDK (an SDK embedded in a mobile app, administered in its own portal) rather than Client Connector or ZPA, from the admin portal host the organization uses.",
+      "uses": [
+        "what-it-is",
+        "one-cloud"
+      ]
+    },
+    {
+      "do": "For automation questions, that no Zscaler SDK or Terraform provider covers ZSDK configuration.",
+      "uses": [
+        "no-automation-surface"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "ZSDK is a Zero Trust Network Access (ZTNA) security solution designed for consumer mobile applications, managed from the ZSDK Admin Portal; it is designed for native (iOS or Android) and hybrid mobile applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-what-zscaler-sdk-mobile-apps.json",
+          "quotes": [
+            "Zscaler SDK for Mobile Apps (ZSDK) is a Zero Trust Network Access (ZTNA) security solution designed for consumer mobile applications.",
+            "The ZSDK Admin Portal allows you to manage your applications' security policies in a central location.",
+            "Designed for native (iOS or Android) and hybrid mobile applications"
+          ]
+        }
+      ]
+    },
+    "embedded-in-app": {
+      "statement": "ZSDK is embedded into the application's source code during development, and it prevents public exposure of the app's APIs and back-end services by rendering them invisible to unauthorized users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-what-zscaler-sdk-mobile-apps.json",
+          "quotes": [
+            "ZSDK is embedded into the application's source code during development by activating the security features from the first launch.",
+            "Prevents public exposure of APIs and back-end services to the internet by rendering them invisible to unauthorized users."
+          ]
+        }
+      ]
+    },
+    "one-cloud": {
+      "statement": "An organization is provisioned on one ZSDK cloud and its traffic is processed by that cloud only; the cloud name is in the URL admins log in to, so an organization that logs in to admin.zsdkone.net is on the zsdkone.net cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-what-my-cloud-name-zsdk.json",
+          "quotes": [
+            "An organization is provisioned on one cloud and its traffic is processed by that cloud only.",
+            "If an organization logs in to admin.zsdkone.net, then that organization's cloud name is zsdkone.net."
+          ]
+        }
+      ]
+    },
+    "no-automation-surface": {
+      "statement": "Neither the Go nor the Python Zscaler SDK has a ZSDK product package, and none of the vendored Zscaler Terraform providers (ZIA, ZPA, ZCC, ZTC) manages ZSDK, so ZSDK configuration is done in the ZSDK Admin Portal rather than through these tools.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "README.md",
+          "quotes": [
+            "This repository contains the ZIA/ZPA/ZDX/ZCC/ZTW SDK for Golang."
+          ]
+        }
+      ],
+      "conditions": "Absence from a search: the Go SDK, Python SDK, MCP server and the ZIA, ZPA, ZCC and ZTC provider repositories were searched at their pins for \"zsdk\" (case-insensitive); the only hits were binary-looking SVG images and a recorded test cassette, not code or packages. The Go SDK README names the products it covers."
+    }
+  },
+  "gaps": {
+    "zsdk-connectors-vs-zpa": {
+      "kind": "semantic",
+      "title": "Whether one enrolled App Connector can serve both ZSDK and ZPA",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"ZSDK App Connectors are not the same as ZPA App Connectors - they are registered against different clouds and cannot be shared between products.\" The ZSDK pages show the same connector software (the zpa-connector service, \"Zscaler Private Access App Connector\") reaching ZSDK Service Edges on *.prod.zpath.net, and the ZSDK API needs a registered Private Access (ZPA) service (shared.zsdk.architecture:connector-zpa-software, :connector-zpath-hosts; shared.zsdk.error-codes:api-private-access), so \"different clouds\" is not supported. Whether a single enrolled connector can serve a ZPA tenant and a ZSDK tenant at once is still not stated.",
+      "blocks": "whether an existing ZPA App Connector deployment can be reused for a ZSDK app",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

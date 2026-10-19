@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.nss-va.feeds",
+  "title": "NSS feeds for Cloud & Branch Connector: limits, output and SIEM destination",
+  "aliases": [
+    "cloud connector nss feed",
+    "nss feed limit",
+    "session feed limit 8",
+    "nss feed json",
+    "nss siem fqdn",
+    "nss duplicate logs",
+    "nss siem rate",
+    "nss feed filters cloud connector"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.nss-va"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.nss-va.servers"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.logs.session-records"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A feed is one connection from an NSS server to a SIEM for one log type. Its settings decide what is sent, in which format and to which address."
+    },
+    {
+      "label": "How many.",
+      "text": "{{feed-limits}} {{per-feed-config}}"
+    },
+    {
+      "label": "Format.",
+      "text": "{{output-types}} {{timezone}} How a Session feed records sessions individually or in aggregates is in [[cloud-connector.logs.session-records]]."
+    },
+    {
+      "label": "Destination.",
+      "text": "{{siem-destination}} {{siem-rate}} Whether a feed can deliver to an HTTPS endpoint is open {{gap:https-destination}}."
+    },
+    {
+      "label": "Gaps in delivery.",
+      "text": "{{duplicate-logs}} The buffer that covers a SIEM outage is in [[cloud-connector.nss-va.servers]]."
+    },
+    {
+      "label": "Filters.",
+      "text": "{{session-filters}} {{event-filters}} {{filter-cost}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "How many feeds the server already carries, and how many of them are Session feeds, before adding one.",
+      "uses": [
+        "feed-limits"
+      ]
+    },
+    {
+      "do": "Whether the feed's filters exclude the records the SIEM is missing, for example a Session feed limited to Branch Connector groups or to one gateway.",
+      "uses": [
+        "session-filters",
+        "event-filters"
+      ]
+    },
+    {
+      "do": "Whether a SIEM destination given as an FQDN has changed address while the old connection stayed up, since the NSS re-resolves only when the connection goes down.",
+      "uses": [
+        "siem-destination"
+      ]
+    }
+  ],
+  "claims": {
+    "feed-limits": {
+      "statement": "Up to 16 NSS feeds can be added for each NSS, and Session logs are limited to 8 of them per NSS. Event log feeds can be configured up to 16.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-nss-feeds.json",
+          "quotes": [
+            "You can add up to 16 NSS feeds for each NSS. (Session logs are limited to 8 feeds per NSS to ensure optimal performance.)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-feeds-event-logs.json",
+          "quotes": [
+            "You can configure up to 16 Nanolog Streaming Service (NSS) feeds to specify the data from the Event logs"
+          ]
+        }
+      ]
+    },
+    "per-feed-config": {
+      "statement": "Each feed can have its own list of fields, format and filters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-feeds.json",
+          "quotes": [
+            "Each feed can have a different list of fields, a different format, and different filters."
+          ]
+        }
+      ]
+    },
+    "output-types": {
+      "statement": "Feed output is a CSV list by default; Name Value Pairs, Tab Separated, JSON or Custom can be selected instead (stated in the Session and Event feed articles).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-feeds-session-logs.json",
+          "quotes": [
+            "The output is a comma-separated value (CSV) list by default. You can select from Name Value Pairs, Tab Separated, JSON, or Custom if your SIEM accepts any of these formats."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-feeds-event-logs.json",
+          "quotes": [
+            "The output is a comma-separated values (CSV) list by default. You can also select Custom, JSON, Name Value Pairs, or Tab Separated if your SIEM accepts any of these formats."
+          ]
+        }
+      ]
+    },
+    "timezone": {
+      "statement": "A feed's time zone defaults to the organization's time zone and applies to the time field in the output; the configured time zone can also be output as a separate field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-feeds-session-logs.json",
+          "quotes": [
+            "By default, this is set to the organization's time zone. The time zone you set applies to the time field in the output file.",
+            "The configured time zone can be output to the logs as a separate field."
+          ]
+        }
+      ]
+    },
+    "siem-destination": {
+      "statement": "A feed streams to a SIEM IP address or FQDN on a SIEM TCP port. With an FQDN the NSS re-resolves the name only when the existing connection goes down, which allows failover from one IP to another without relying on a DNS update, and the FQDN cannot be used for DNS-based load balancing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-feeds-session-logs.json",
+          "quotes": [
+            "SIEM Destination Type: The type of destination. Select from IP Address or FQDN.",
+            "SIEM FQDN: Enter the destination for the TCP connection to which the logs are streamed. This allows failover from one IP to the other without manual intervention, but without relying on updating the DNS entry.",
+            "The NSS re-resolves the FQDN only when the existing connection goes down. This feature cannot be used for DNS-based load balancing.",
+            "SIEM TCP Port: Enter the port number of the SIEM to which the logs are streamed."
+          ]
+        }
+      ]
+    },
+    "siem-rate": {
+      "statement": "SIEM Rate is Unlimited by default; Limited caps the stream at a configured number of events per second, for SIEM licensing or other constraints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-feeds-session-logs.json",
+          "quotes": [
+            "The SIEM rate is set to Unlimited by default. Select Limited if you need to control the output stream due to SIEM licensing or other constraints.",
+            "SIEM Rate Limit (Events per Second)"
+          ]
+        }
+      ]
+    },
+    "duplicate-logs": {
+      "statement": "Duplicate Logs sets the number of minutes for which the NSS sends duplicate logs, so that no logs are skipped during downtime; in the Event feed article it is Disabled by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-feeds-session-logs.json",
+          "quotes": [
+            "Duplicate Logs: To ensure that no logs are skipped during any downtime, specify the number of minutes that the NSS sends duplicate logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-feeds-event-logs.json",
+          "quotes": [
+            "specify the number of minutes that the NSS sends duplicate logs. This is Disabled by default."
+          ]
+        }
+      ]
+    },
+    "session-filters": {
+      "statement": "A Session feed can be filtered by policy action and rule name (both per the traffic forwarding rules), by location, Branch Connector group, Branch Connector and client IP address, by network service, and by gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-feeds-session-logs.json",
+          "quotes": [
+            "Policy Actions: Use this filter to limit the logs based on the action the service took, in accordance with the traffic forwarding rules.",
+            "Rule Name: Use this filter to limit the logs based on the configured traffic forwarding rule.",
+            "Locations: Use this filter to limit the logs to specific locations.",
+            "Branch Connector Groups: Use this filter to limit the logs to specific Branch Connector groups.",
+            "Branch Connector: Use this filter to limit the logs to specific Branch Connectors.",
+            "Client IP Addresses: Use this filter to limit the logs based on a client’s IP address.",
+            "Network Services: Select Any to apply the NSS feed to all network services",
+            "Gateway: Use this filter to limit the logs to specific gateways."
+          ]
+        }
+      ]
+    },
+    "event-filters": {
+      "statement": "An Event feed can be filtered by location, by Cloud or Branch Connector group and by Cloud or Branch Connector VM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-feeds-event-logs.json",
+          "quotes": [
+            "Locations: Use this filter to limit the logs to specific locations.",
+            "Cloud/Branch Connector Groups: Use this filter to limit the logs to specific Cloud or Branch Connector groups.",
+            "Cloud/Branch Connector VM: Use this filter to limit the logs to specific Cloud or Branch Connector VMs."
+          ]
+        }
+      ]
+    },
+    "filter-cost": {
+      "statement": "A large number of filters, or complex filters such as string searches, can impact the performance of the NSS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-feeds-session-logs.json",
+          "quotes": [
+            "A large number of filters or complex filters, such as string searches, can impact the performance of the NSS."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "https-destination": {
+      "kind": "semantic",
+      "title": "Whether a Cloud & Branch Connector NSS feed can deliver to an HTTPS endpoint",
+      "status": "open",
+      "blocks": "connecting an NSS VM to a SIEM that only exposes an HTTPS ingestion API",
+      "detail": "Unverified legacy statement: \"The NSS VA's raw TCP output cannot directly hit an HTTPS endpoint without a middleware adapter\", with SIEM-specific guidance (Splunk raw TCP input on a heavy forwarder rather than HEC, ArcSight CEF over TCP, QRadar syslog TCP, Elastic Logstash TCP input). The Cloud & Branch Connector feed articles show only a SIEM TCP port; the ZIA NSS overview describes an HTTPS feed type for VM-based NSS, and whether it applies to Cloud & Branch Connector feeds is not stated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "HTTPS Feed: Uses the TLS protocol to load-balance and encrypt syslog feeds between NSS and your SIEM."
+          ]
+        }
+      ]
+    }
+  }
+}

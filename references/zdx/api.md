@@ -125,7 +125,7 @@ ZDX has **two auth paths** depending on tenant migration state. Both end with a 
 Same as ZIA / ZPA:
 
 - `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` (or `ZSCALER_PRIVATE_KEY`), `ZSCALER_VANITY_DOMAIN`, optional `ZSCALER_CLOUD`. The SDK handles token exchange via ZIdentity.
-- Token endpoint: `https://<vanity>.zslogin.net/oauth2/v1/token` with `audience=https://api.zscaler.com` (see [`../shared/oneapi.md`](../shared/oneapi.md)).
+- Token endpoint: `https://<vanity>.zslogin.net/oauth2/v1/token` with `audience=https://api.zscaler.com` (see [`shared.oneapi`](kb:shared.oneapi)).
 
 ### ZDX-specific legacy auth
 
@@ -177,7 +177,7 @@ ZDX exposes two introspection endpoints that the OneAPI path doesn't:
 - `GET /zdx/v1/oauth/jwks` — JWKS public-key set used to verify ZDX-issued JWTs.
 - `GET /zdx/v1/oauth/validate` — checks whether a presented JWT is valid. Useful for token-validity probing in long-running scripts.
 
-See [`../shared/oneapi.md § Three authentication mechanisms`](../shared/oneapi.md) for the cross-product comparison (OneAPI / ZDX legacy / ZCC legacy).
+See [`shared.oneapi`](kb:shared.oneapi) for the cross-product comparison (OneAPI / ZDX legacy / ZCC legacy).
 
 ## Wire format quirks
 
@@ -199,7 +199,7 @@ ZDX is read-dominant, but the SDK exposes five mutating endpoints. None of them 
 
 ## Rate limits
 
-The server-side tier table (limits keyed to license count, different from ZIA's weight-based / ZPA's per-IP) lives in [`../shared/oneapi.md § ZDX — tier-based by license count`](../shared/oneapi.md).
+The server-side tier table (limits keyed to license count, different from ZIA's weight-based / ZPA's per-IP) lives in [`shared.oneapi`](kb:shared.oneapi).
 
 **Two response-header families appear across the sources, apparently split by transport** — the SDK-honored direct-cloud form vs the help-documented gateway form. Which family the *live* server actually emits per host is not confirmed from source (see open question below). What each source establishes:
 

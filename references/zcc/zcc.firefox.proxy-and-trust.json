@@ -11,10 +11,22 @@
     "security.enterprise_roots.enabled"
   ],
   "related": [
-    { "rel": "depends-on", "to": "zcc.firefox.integration" },
-    { "rel": "interacts-with", "to": "zia.ssl-inspection.certificates" },
-    { "rel": "interacts-with", "to": "zia.traffic-forwarding.zcc" },
-    { "rel": "see-also", "to": "zcc.ssl-inspection.certificate-install" }
+    {
+      "rel": "depends-on",
+      "to": "zcc.firefox.integration"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.certificates"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.traffic-forwarding.zcc"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.ssl-inspection.certificate-install"
+    }
   ],
   "prose": [
     {
@@ -37,17 +49,23 @@
       "text": "The app profile's Install Zscaler SSL Certificate puts it in the operating system store on Windows, Linux and macOS before Big Sur: [[zcc.ssl-inspection.certificate-install]]."
     },
     {
-      "text": "PAC file mechanics, including what a self-hosted copy loses, are in [[doc:references/shared/pac-files.md]]."
+      "text": "PAC file mechanics, including what a self-hosted copy loses, are in [[shared.pac-files]]."
     }
   ],
   "checks": [
     {
       "do": "For certificate errors in Firefox only, whether the integration is disabled; if so, whether the signing certificate was installed in Firefox by hand.",
-      "uses": ["manual-certs", "enterprise-roots"]
+      "uses": [
+        "manual-certs",
+        "enterprise-roots"
+      ]
     },
     {
       "do": "For Firefox traffic missing from ZIA logs, which Z-Tunnel version and forwarding mode the device uses.",
-      "uses": ["z-tunnel-1", "z-tunnel-2"]
+      "uses": [
+        "z-tunnel-1",
+        "z-tunnel-2"
+      ]
     }
   ],
   "claims": {
@@ -68,13 +86,19 @@
       "statement": "Z-Tunnel 1.0 sends either all proxy-aware traffic or all port 80/443 traffic, depending on the forwarding profile. A Firefox that does not use the system proxy is not proxy-aware towards Client Connector, so it reaches Zscaler through Z-Tunnel 1.0 only when the profile sends port 80/443 traffic; the integration makes Firefox use the system proxy, and so proxy-aware.",
       "tier": "B",
       "conditions": "Combines the vendor's two Z-Tunnel 1.0 modes with the integration's stated effect; no source describes Firefox under Z-Tunnel 1.0 directly.",
-      "derived_from": ["zia.traffic-forwarding.zcc:z-tunnel-1", "zcc.firefox.integration:what-it-does"]
+      "derived_from": [
+        "zia.traffic-forwarding.zcc:z-tunnel-1",
+        "zcc.firefox.integration:what-it-does"
+      ]
     },
     "z-tunnel-2": {
       "statement": "Z-Tunnel 2.0 carries all ports and protocols, so Firefox traffic reaches Zscaler whether or not Firefox uses the system proxy; certificate trust still depends on Firefox's own store.",
       "tier": "B",
       "conditions": "Follows from Z-Tunnel 2.0 carrying all ports and protocols and Firefox keeping its own trust store; no source describes Firefox under Z-Tunnel 2.0 directly.",
-      "derived_from": ["zia.traffic-forwarding.zcc:z-tunnel-2", "zia.ssl-inspection.certificates:own-trust-stores"]
+      "derived_from": [
+        "zia.traffic-forwarding.zcc:z-tunnel-2",
+        "zia.ssl-inspection.certificates:own-trust-stores"
+      ]
     }
   },
   "gaps": {
@@ -82,10 +106,15 @@
       "kind": "semantic",
       "title": "Whether the integration makes Firefox trust the operating system's certificate store",
       "status": "open",
-      "former_ids": ["zcc-40"],
+      "former_ids": [
+        "zcc-40"
+      ],
       "detail": "Whether enabling the integration sets Firefox's security.enterprise_roots.enabled (so Firefox trusts roots in the OS store, including one Client Connector installed) or certificate trust needs a separate step. Unverified legacy statement: an inspected HTTPS site then shows SEC_ERROR_UNKNOWN_ISSUER or a similar error in Firefox only, and the remedy is a policies.json Certificates policy with ImportEnterpriseRoots: true or a manual import. The article states only that without the integration the certificates must be installed manually.",
       "blocks": "whether an integrated Firefox needs its own certificate deployment",
-      "resolves_with": ["lab-test", "operator-experience"]
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
     },
     "z-tunnel-2-proxy-behavior": {
       "kind": "semantic",
@@ -103,7 +132,9 @@
         }
       ],
       "blocks": "explaining Firefox-only policy differences on Z-Tunnel 2.0",
-      "resolves_with": ["lab-test"]
+      "resolves_with": [
+        "lab-test"
+      ]
     }
   }
 }

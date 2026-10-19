@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.terraform.activation",
+  "title": "Activating ZTC changes from Terraform: the activation resource and the ztcActivator CLI",
+  "aliases": [
+    "ztcActivator",
+    "ztc activator",
+    "ztc terraform activate",
+    "ztc_activation_status apply",
+    "ZTW_USERNAME",
+    "ztc changes not activated after apply"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.api.activation-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.activation.cbc"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.provider-config"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Cloud and Branch Connector stages every change until it is activated, and the ZTC provider offers two ways to do that from a Terraform workflow. {{two-ways}}"
+    },
+    {
+      "label": "The resource.",
+      "text": "What `ztc_activation_status` sends and why it never forces activation is in [[cloud-connector.api.activation-wire]] and [[shared.activation.cbc]]. {{resource-activates-only-on-create}} In legacy mode its read fails: [[cloud-connector.sdk-go.service-defects]]."
+    },
+    {
+      "label": "The CLI.",
+      "text": "{{cli-build}} {{cli-env-vars}} {{cli-cloud-optional-0-1-9}} {{cli-no-private-key}} {{cli-env-names-differ}} The guide describes credential sources the code does not read {{divergence:cli-credential-sources}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the activation resource was created or replaced in this apply; if it was already in state and unchanged, the apply did not activate.",
+      "uses": [
+        "resource-activates-only-on-create"
+      ]
+    },
+    {
+      "do": "For the CLI in legacy mode, that ZTW_USERNAME, ZTW_PASSWORD, ZTW_API_KEY and ZTW_CLOUD are set, not only the ZTC_* variables the provider reads.",
+      "uses": [
+        "cli-env-vars",
+        "cli-env-names-differ"
+      ]
+    }
+  ],
+  "claims": {
+    "two-ways": {
+      "statement": "The provider documentation says the ZTC platform requires every configuration to be activated, and offers an out-of-band CLI (ztcActivator) or the `ztc_activation_status` resource for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/index.md",
+          "quotes": [
+            "The ZTC platform requires every configuration to be activated.",
+            "or leverage the dedicated activation resource `ztc_activation_status`.",
+            "made available a dedicated out of band CLI method described here [ztc activator](guides/ztc-activator-overview.md)"
+          ]
+        }
+      ]
+    },
+    "resource-activates-only-on-create": {
+      "statement": "Because the resource activates only in its create function and every settable argument forces replacement, an apply activates only when `ztc_activation_status` is created or replaced. Once it is in state, a later apply that changes other ZTC resources does not activate unless the status read back from the API differs from the configured arguments and forces a replacement.",
+      "tier": "B",
+      "derived_from": [
+        "cloud-connector.api.activation-wire:tf-create-only"
+      ],
+      "conditions": "Follows from the resource's lifecycle functions and ForceNew arguments; not run. Which status values the API reports after an apply, and therefore whether a replacement is planned, is not shown by any source."
+    },
+    "cli-build": {
+      "statement": "The ztcActivator CLI is built from the provider repository with `make ztcActivator`, which installs the binary in /usr/local/bin (C:\\Windows\\System32 on Windows); the guide shows it run after `terraform apply`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/guides/ztc-activator-overview.md",
+          "quotes": [
+            "$ make ztcActivator",
+            "$ terraform init && terraform apply && ztcActivator"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "GNUmakefile",
+          "quotes": [
+            "ztcActivator: DESTINATION=C:\\Windows\\System32",
+            "ztcActivator: DESTINATION=/usr/local/bin",
+            "@go build -o $(DESTINATION)/ztcActivator ./cli/ztcActivator.go"
+          ]
+        }
+      ]
+    },
+    "cli-env-vars": {
+      "statement": "The CLI chooses legacy mode when `ZSCALER_USE_LEGACY_CLIENT` is `true`. In legacy mode it exits unless `ZTW_USERNAME`, `ZTW_PASSWORD`, `ZTW_API_KEY` and `ZTW_CLOUD` are set; otherwise it requires `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` and `ZSCALER_VANITY_DOMAIN`, with `ZSCALER_CLOUD` optional. It then calls the normal `UpdateActivationStatus`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "cli/ztcActivator.go",
+          "quotes": [
+            "useLegacy := strings.ToLower(os.Getenv(\"ZSCALER_USE_LEGACY_CLIENT\")) == \"true\"",
+            "username := getEnvVarOrFail(\"ZTW_USERNAME\")",
+            "password := getEnvVarOrFail(\"ZTW_PASSWORD\")",
+            "apiKey := getEnvVarOrFail(\"ZTW_API_KEY\")",
+            "cloud := getEnvVarOrFail(\"ZTW_CLOUD\")",
+            "clientID := getEnvVarOrFail(\"ZSCALER_CLIENT_ID\")",
+            "clientSecret := getEnvVarOrFail(\"ZSCALER_CLIENT_SECRET\")",
+            "vanityDomain := getEnvVarOrFail(\"ZSCALER_VANITY_DOMAIN\")",
+            "cloud := strings.TrimSpace(os.Getenv(\"ZSCALER_CLOUD\"))",
+            "// ZSCALER_CLOUD is optional: unset or empty selects the default production cloud",
+            "resp, err := activation.UpdateActivationStatus(ctx, service, activation.ECAdminActivation{",
+            "log.Fatalf(\"[ERROR] Couldn't find environment variable %s\\n\", k)"
+          ]
+        }
+      ]
+    },
+    "cli-cloud-optional-0-1-9": {
+      "statement": "Provider release 0.1.9 made `ZSCALER_CLOUD` optional for the CLI's OneAPI startup; unset, it uses the default production cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "CHANGELOG.md",
+          "after": "## 0.1.9 (May 13, 2026)",
+          "quotes": [
+            "Updated `ztcActivator` OneAPI startup so `ZSCALER_CLOUD` is optional (unset uses the default production cloud)."
+          ]
+        }
+      ]
+    },
+    "cli-no-private-key": {
+      "statement": "The CLI's OneAPI mode authenticates only with a client secret: it never reads `ZSCALER_PRIVATE_KEY`, so a deployment that authenticates the provider with a private key cannot run the CLI with the same credentials.",
+      "tier": "B",
+      "derived_from": [
+        "cli-env-vars"
+      ],
+      "conditions": "Absence: cli/ztcActivator.go was read in full at the pin; it reads no private-key variable and sets no private-key option.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "cli/ztcActivator.go",
+          "quotes": [
+            "zscaler.WithClientSecret(clientSecret),"
+          ]
+        }
+      ]
+    },
+    "cli-env-names-differ": {
+      "statement": "The CLI's legacy variables are named ZTW_* while the provider's legacy mode reads ZTC_*, so an environment prepared for the provider's legacy mode does not satisfy the CLI.",
+      "tier": "B",
+      "derived_from": [
+        "cli-env-vars",
+        "cloud-connector.terraform.provider-config:legacy-required-values"
+      ],
+      "conditions": "Comparison of the variable names in cli/ztcActivator.go and ztc/config.go at the pin; not run."
+    }
+  },
+  "divergences": {
+    "cli-credential-sources": {
+      "summary": "The activator guide says credentials can come from CLI arguments (highest priority) or environment variables; the CLI code reads only environment variables.",
+      "positions": [
+        {
+          "says": "Credentials can be given as CLI arguments or environment variables, with CLI arguments taking priority.",
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "docs/guides/ztc-activator-overview.md",
+            "quotes": [
+              "The authentication credentials can be given multiple ways, and if all are present then this is the order, from highest to lowest priority:",
+              "1. CLI arguments"
+            ]
+          }
+        },
+        {
+          "says": "Every credential is read from an environment variable, and a missing required one ends the program; the file parses no command-line arguments.",
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "cli/ztcActivator.go",
+            "quotes": [
+              "func getEnvVarOrFail(k string) string { if v := os.Getenv(k); v != \"\" { return v }"
+            ]
+          }
+        }
+      ],
+      "impact": "Passing credentials as flags, as the guide suggests, has no effect; the CLI still exits for a missing environment variable.",
+      "resolution": {
+        "by": "cli-env-vars",
+        "rule": "source-rank",
+        "note": "The CLI source is what runs."
+      }
+    }
+  }
+}

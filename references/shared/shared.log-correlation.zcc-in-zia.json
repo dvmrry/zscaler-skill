@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "id": "shared.log-correlation.zcc-in-zia",
+  "title": "Client Connector traffic, devices and bypasses as seen in ZIA logs",
+  "aliases": [
+    "zcc traffic in zia logs",
+    "which device made this request",
+    "deviceowner devicehostname",
+    "traffic not going through zcc",
+    "zcc bypass in logs",
+    "bypassed_traffic",
+    "z-tunnel version in logs",
+    "trafficredirectmethod values"
+  ],
+  "binds": [
+    "zia/web-log#trafficredirectmethod",
+    "zia/web-log#devicetype",
+    "zia/web-log#ztunnelversion",
+    "zia/web-log#flow_type",
+    "zia/firewall-log#ztunnelversion",
+    "zia/firewall-log#flow_type"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.log-correlation.zia-feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logs.client-log"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.z-tunnel.versions"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zcc.logs.flow-logging"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Client Connector's own log is collected from the device: [[zcc.logging.collection]]. Whether any of it reaches a SIEM directly is open: [[shared.log-correlation.streams:zcc-siem-stream]]. What the ZIA records of the traffic it forwards show is below."
+    },
+    {
+      "label": "How the traffic arrived.",
+      "text": "[[zia.logs.web-records:psedge-field]] {{zcc-markers}} The firewall feed calls its counterpart ttype: [[zia.logs.firewall-records:names-differ]]."
+    },
+    {
+      "label": "Which tunnel and flow.",
+      "text": "{{ztunnel-flow}} {{dns-no-ztunnel}} The version values and what each implies are open {{gap:ztunnel-values}}; a profile set to Z-Tunnel 2.0 can still carry web traffic over 1.0: [[zcc.z-tunnel.versions:web-on-1-under-2]]."
+    },
+    {
+      "label": "Which device and owner.",
+      "text": "The device fields devicehostname, deviceowner and deviceostype are in all three feeds: [[shared.log-correlation.zia-feeds:common-fields]]. When they are filled, and what deviceowner holds relative to login, is open {{gap:device-fields-population}}."
+    },
+    {
+      "label": "Bypassed traffic.",
+      "text": "The web and firewall feeds flag traffic that bypassed Client Connector: [[zia.logs.web-field-semantics:bypass-flag]], [[zia.logs.firewall-records:flags-1-0]]. Flow Logging reports to ZIA direct traffic that neither Zscaler nor a VPN handles: [[zcc.logs.flow-logging:flow-areas]]. Where Flow Logging records appear is open: [[zcc.logs.flow-logging:flow-record-fields]]. Whether bypasses on a trusted network or by explicit bypass configuration produce records is open {{gap:bypass-record-source}}."
+    },
+    {
+      "label": "Gaps in a user's traffic.",
+      "text": "When a Client Connector tunnel fails the app can fail open to direct internet access: [[zcc.forwarding-profiles.fail-open:failover-options]]. What a gap in a user's web records says about the tunnel is open {{gap:traffic-gap-reading}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Separate Client Connector traffic from site and PAC traffic by grouping web records on trafficredirectmethod; for records with no device fields, read the method rather than assuming a bypass.",
+      "uses": [
+        "zcc-markers",
+        "device-fields-population"
+      ]
+    },
+    {
+      "do": "For a device question, search web records by deviceowner or devicehostname and compare deviceowner with login on the same records.",
+      "uses": [
+        "shared.log-correlation.zia-feeds:common-fields",
+        "device-fields-population"
+      ]
+    },
+    {
+      "do": "Count records with bypassed_traffic (web) or bypassed_session (firewall) set to 1 per user and compare with the user's forwarding profile and trusted-network detection.",
+      "uses": [
+        "zia.logs.web-field-semantics:bypass-flag",
+        "zia.logs.firewall-records:flags-1-0",
+        "bypass-record-source",
+        "zcc.forwarding-profiles.network-types:on-trusted",
+        "zcc.logs.flow-logging:flow-record-fields"
+      ]
+    },
+    {
+      "do": "To see which users are on which Z-Tunnel version, group web or firewall records by ztunnelversion per login; DNS records do not carry it.",
+      "uses": [
+        "ztunnel-flow",
+        "dns-no-ztunnel",
+        "ztunnel-values"
+      ]
+    },
+    {
+      "do": "For a suspected tunnel drop, look for gaps in the user's web records over the window and check the user's ZPA User Status records at the same time.",
+      "uses": [
+        "traffic-gap-reading",
+        "zpa.logs.user-status:session-status-values"
+      ]
+    }
+  ],
+  "claims": {
+    "zcc-markers": {
+      "statement": "The web feed gives DNAT, GRE, IPSEC, PBF, PAC, PAC_GRE, PAC_IPSEC and Zscaler Client Connector as example trafficredirectmethod values, and lists devicetype, the type of device, with Zscaler Client Connector as the example.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#trafficredirectmethod",
+        "zia/web-log#devicetype"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{trafficredirectmethod} | The traffic forwarding method to Public Service Edges for Internet & SaaS (ZIA) |",
+            "DNAT (Destination Translation)GRE (GRE Tunnel)IPSEC (IPSec Tunnel)PBF (Policy Based Forwarding)PAC (PAC File)PAC_GRE (PAC File over GRE Tunnel)PAC_IPSEC (PAC File over IPSec Tunnel)Zscaler Client Connector (Zscaler App)",
+            "| %s{devicetype} | The type of device | Zscaler Client Connector | Device Type |"
+          ]
+        }
+      ]
+    },
+    "ztunnel-flow": {
+      "statement": "The web and firewall feeds list ztunnelversion, the Z-Tunnel version, with ZTUNNEL_1_0 as the example, and flow_type, the flow type of the transaction, with Direct, Loopback, VPN, VPN Tunnel, ZIA and ZPA as examples.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#ztunnelversion",
+        "zia/web-log#flow_type",
+        "zia/firewall-log#ztunnelversion",
+        "zia/firewall-log#flow_type"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{ztunnelversion} | The Z-Tunnel version | ZTUNNEL_1_0 | Zscaler Client Connector",
+            "| %s{flow_type} | The flow type of the transaction | DirectLoopbackVPNVPN TunnelZIAZPA"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-firewall-logs.json",
+          "quotes": [
+            "| %s{ztunnelversion} | The Z-Tunnel version | ZTUNNEL_1_0 | Zscaler Client Connector",
+            "| %s{flow_type} | The flow type of the transaction | DirectLoopbackVPNVPN TunnelZIAZPA"
+          ]
+        }
+      ]
+    },
+    "dns-no-ztunnel": {
+      "statement": "The DNS field table lists neither ztunnelversion nor flow_type, so DNS records cannot be split by tunnel version or flow type.",
+      "tier": "B",
+      "derived_from": [
+        "ztunnel-flow"
+      ],
+      "conditions": "Rests on a search of the DNS field table capture (nss-feed-output-format-dns-logs.json) for both field names, which finds neither."
+    }
+  },
+  "gaps": {
+    "ztunnel-values": {
+      "kind": "semantic",
+      "title": "The ztunnelversion values and what each implies",
+      "status": "open",
+      "detail": "Unverified legacy statement: the field holds ZTUNNEL_1_0 or ZTUNNEL_2_0; elsewhere the values were given as 1.0 and 2.0, with \"ztunnelversion=2.0 is the default on modern ZCC; 1.0 may indicate an older ZCC version or a compatibility fallback.\" The field tables give only ZTUNNEL_1_0 as an example, and the version is a forwarding-profile choice (zcc.z-tunnel.versions).",
+      "blocks": "Reading the tunnel version mix of a fleet from the logs",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "device-fields-population": {
+      "kind": "semantic",
+      "title": "When the device fields are filled, and what deviceowner holds",
+      "status": "open",
+      "detail": "Unverified legacy statement: devicehostname is set for \"ZCC-forwarded traffic only\"; \"If deviceowner is absent or empty, the request may have been forwarded via a PAC proxy or GRE tunnel rather than ZCC\"; traffic from GRE or IPsec tunnels, PAC or any path other than Client Connector has no deviceowner; deviceowner is the device owner as registered in Client Connector, typically its primary user, so a deviceowner that differs from login points at a shared device or a credential issue. The field tables describe the fields only as the hostname, owner and OS type of the device. The legacy check also named proto and clientsourceip for disambiguation; the web feed has no clientsourceip field.",
+      "blocks": "Treating an empty deviceowner as traffic that did not come through Client Connector",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    },
+    "bypass-record-source": {
+      "kind": "semantic",
+      "title": "Whether trusted-network and configured bypasses produce ZIA records",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"ZCC can bypass traffic when a user is on a trusted network or through explicit bypass configuration. Bypassed traffic still produces ZIA log entries but with bypassed_traffic = 1 (web) or bypassed_session = 1 (firewall)\", and a non-zero count means Client Connector is forwarding some connections outside ZIA inspection. The field tables define the flags only. Flow Logging reports direct traffic to ZIA when enabled, and where its records appear is open in zcc.logs.flow-logging:flow-record-fields; whether traffic bypassed on a trusted network or by an explicit bypass is reported at all is not stated.",
+      "blocks": "Counting a user's bypassed traffic from the logs",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "traffic-gap-reading": {
+      "kind": "semantic",
+      "title": "What a gap in a user's web records says about the Client Connector tunnel",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"when ZCC's tunnel drops, web traffic stops appearing in ZIA NSS logs\"; gaps longer than 15 minutes during business hours indicate a tunnel down, a network change, or off-network use without a forwarding fallback, confirmed by ZPN_STATUS_DISCONNECTED User Status records at the same time. Whether failed-open traffic is logged anywhere, and how User Status disconnects line up with the ZIA tunnel, is not stated.",
+      "blocks": "Diagnosing tunnel outages from web log gaps",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

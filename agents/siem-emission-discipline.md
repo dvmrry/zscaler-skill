@@ -7,7 +7,7 @@ confidence: high
 source-tier: practice
 sources:
   - "agents/investigator/methodology.md"
-  - "references/shared/splunk-queries.md"
+  - "kb:shared.splunk"
 dependencies:
   - "investigator/methodology.md"
 author-status: draft
@@ -15,7 +15,7 @@ author-status: draft
 
 # SIEM emission discipline
 
-How the agent emits queries against any SIEM (Splunk, Sentinel, Chronicle, Elastic, Sumo, etc.) when investigating Zscaler issues. Generic — applies regardless of the SIEM's query language or table model. SIEM-specific catalogs (e.g., [`splunk-queries.md`](../references/shared/splunk-queries.md)) reference this doc rather than duplicating it.
+How the agent emits queries against any SIEM (Splunk, Sentinel, Chronicle, Elastic, Sumo, etc.) when investigating Zscaler issues. Generic — applies regardless of the SIEM's query language or table model. SIEM-specific catalogs (e.g., [`shared.splunk`](kb:shared.splunk)) reference this doc rather than duplicating it.
 
 ## Execution modes
 
@@ -54,7 +54,7 @@ When the agent has access to per-tenant SIEM plumbing, it substitutes the placeh
 - **Auto-memory** — same content, persists across sessions.
 - **A private fork's local config** that overrides placeholder env vars at run time.
 
-The catalog placeholder names (e.g., `$INDEX_ZIA_WEB`, `<zia-web-log-destination>`) are documented per SIEM in the relevant catalog and in [`siem-log-mapping.md`](../references/shared/siem-log-mapping.md).
+The catalog placeholder names (e.g., `$INDEX_ZIA_WEB`, `<zia-web-log-destination>`) are documented per SIEM in the relevant catalog and in [`shared.siem-mapping`](kb:shared.siem-mapping).
 
 ## What stays private
 
@@ -70,7 +70,7 @@ The public skill assumes Zscaler-published schemas only. The private side (the u
 
 ## Cross-links
 
-- [`siem-log-mapping.md`](../references/shared/siem-log-mapping.md) — catalog of Zscaler log types and how they typically land per SIEM
-- [`splunk-queries.md`](../references/shared/splunk-queries.md) — Splunk-specific SPL pattern catalog
+- [`shared.siem-mapping`](kb:shared.siem-mapping) — catalog of Zscaler log types and how they typically land per SIEM
+- [`shared.splunk`](kb:shared.splunk) — Splunk-specific SPL pattern catalog
 - [`investigator/methodology.md`](./investigator/methodology.md) — discovery journal, claim status, anti-patterns
 - [`investigator/prompt.md`](./investigator/prompt.md) — `/z-investigator` slash command playbook

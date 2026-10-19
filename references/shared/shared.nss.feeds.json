@@ -1,0 +1,307 @@
+{
+  "schema_version": 1,
+  "id": "shared.nss.feeds",
+  "title": "NSS feeds: limits, log types, filters and the output format string",
+  "aliases": [
+    "nss feed",
+    "nss feed limit",
+    "how many nss feeds per server",
+    "nss feed filter",
+    "nss feed output format",
+    "nss log types",
+    "nss alert feed",
+    "mcas nss feed",
+    "http nss feed",
+    "tcp nss feed"
+  ],
+  "binds": [
+    "zia/web-log",
+    "zia/firewall-log",
+    "zia/dns-log"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.nss"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.logs.nss-feed-format"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.delivery-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api.cloud-nss-feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs.streaming"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{feed-purpose}}"
+    },
+    {
+      "heading": "How many feeds"
+    },
+    {
+      "text": "{{feed-limits}} A Cloud NSS instance instead holds one feed per log type: [[zia.logs.nss-feed-format:cloud-feed-limit]]."
+    },
+    {
+      "heading": "Kinds of feed and what they carry"
+    },
+    {
+      "text": "{{feed-kinds}} {{feed-columns}} {{feed-log-types}} {{alert-feed}}"
+    },
+    {
+      "text": "The 3rd-Party App Governance and Posture Management feeds were announced with a subscription requirement and API log-type values that the current captures no longer show {{gap:new-log-types}}."
+    },
+    {
+      "heading": "Filters"
+    },
+    {
+      "text": "{{filter-caps}} {{filtered-not-sent}} How several values and several filter fields combine is not stated {{gap:filter-logic}}."
+    },
+    {
+      "heading": "Output format"
+    },
+    {
+      "text": "{{field-order}} {{format-specifiers}} Field count, escaping, URL encoding and case sensitivity are in [[zia.logs.nss-feed-format]]."
+    },
+    {
+      "text": "The output types a feed accepts and the full Cloud NSS feed body are in the OpenAPI document behind `node scripts/kb.mjs surface /nssFeeds`; the fields of each log type are the generated types [[zia/web-log]], [[zia/firewall-log]] and [[zia/dns-log]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Count the server's existing feeds by log type and transport before adding one: 16 in total, 8 Web, 8 Firewall, 2 HTTP.",
+      "uses": [
+        "feed-limits"
+      ]
+    },
+    {
+      "do": "Whether a record missing from the SIEM was excluded by the feed's own filter rather than lost in transit.",
+      "uses": [
+        "filtered-not-sent",
+        "filter-caps"
+      ]
+    },
+    {
+      "do": "Whether the feed output format uses the right specifier for each field, and the fields in the order the SIEM parser expects.",
+      "uses": [
+        "format-specifiers",
+        "field-order"
+      ]
+    }
+  ],
+  "claims": {
+    "feed-purpose": {
+      "statement": "An NSS feed specifies the data from the logs that the NSS sends to the SIEM; each feed can have different filters and fields and a different output format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-nss-feeds.json",
+          "quotes": [
+            "An NSS feed specifies the data from the logs that the NSS sends to your security information and event management (SIEM) system."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-nss-feeds.json",
+          "quotes": [
+            "Each feed can have different filters and fields, and a different output format (e.g., CSV)."
+          ]
+        }
+      ]
+    },
+    "feed-limits": {
+      "statement": "An NSS server takes as many as 16 feeds, TCP NSS and HTTP NSS together; to ensure optimal performance, Web and Firewall log types are each limited to 8 feeds per server and HTTP logs are restricted to 2 feeds within the total.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-nss-feeds.json",
+          "quotes": [
+            "You can add as many as 16 feeds per NSS server for a TCP NSS and HTTP NSS together.",
+            "To ensure optimal performance, Web and Firewall log types are each limited to 8 feeds per server and the HTTP logs are restricted to 2 feeds within the total."
+          ]
+        }
+      ]
+    },
+    "feed-kinds": {
+      "statement": "From the NSS Feeds page an administrator can add a TCP NSS feed, an MCAS NSS feed, an HTTP NSS feed or a Cloud NSS feed, add an NSS Collector server, and test connectivity to the SIEM, a column populated only for HTTP NSS feeds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-nss-feeds.json",
+          "quotes": [
+            "Add a TCP NSS feed.",
+            "Add an MCAS NSS feed.",
+            "Add an HTTP NSS Feed.",
+            "Add a Cloud NSS feed.",
+            "Add an NSS Collector server.",
+            "Test the connectivity to the SIEM. This field is only populated for the HTTP NSS Feeds."
+          ]
+        }
+      ]
+    },
+    "feed-columns": {
+      "statement": "For each NSS feed the list shows a Feed Overview (for example Feed Name, NSS Server, Status), the Log Filter (the log type and its attributes), the Feed Output Format, Feed Attributes (for example Duplicate Logs, Time Zone) and the Last Connectivity Test; a Cloud NSS feed's overview shows Feed Name and Status, and its attributes include Time Zone and Max Batch Size.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-nss-feeds.json",
+          "quotes": [
+            "Feed Overview: The general parts of the NSS feed (e.g., Feed Name, NSS Server, Status).",
+            "Log Filter: The log type and its log type attributes.",
+            "Feed Output Format: The strings pertaining to the log type.",
+            "Feed Attributes: Other feed attributes (e.g., Duplicate Logs, Time Zone).",
+            "Last Connectivity Test: The time of the last completed connectivity test."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-cloud-nss-feeds.json",
+          "quotes": [
+            "Feed Overview: The general parts of the Cloud NSS feed (e.g., Feed Name, Status).",
+            "Feed Attributes: Other feed attributes (e.g., Time Zone, Max Batch Size)."
+          ]
+        }
+      ]
+    },
+    "feed-log-types": {
+      "statement": "The help has configuration articles for TCP NSS feeds and for Cloud NSS feeds for the same fifteen log types: Web, Firewall, DNS, Tunnel, SaaS Security, SaaS Security Activity, Alerts, Admin Audit, Endpoint DLP, Email DLP, Sandbox Verdict, Authentication, SCIM, 3rd-Party App Governance and Posture Management.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-nss-feeds.json",
+          "quotes": [
+            "Adding TCP NSS Feeds for Web Logs - Adding TCP NSS Feeds for Firewall Logs - Adding TCP NSS Feeds for DNS Logs - Adding TCP NSS Feeds for Tunnel Logs - Adding TCP NSS Feeds for SaaS Security Logs",
+            "Adding TCP NSS Feeds for SaaS Security Activity Logs - Adding TCP NSS Feeds for Alerts - Adding TCP NSS Feeds for Admin Audit Logs - Adding TCP NSS Feeds for Endpoint DLP Logs - Adding TCP NSS Feeds for Email DLP Logs",
+            "Adding TCP NSS Feeds for Sandbox Verdict Logs - Adding TCP NSS Feeds for Authentication Logs - Adding TCP NSS Feeds for SCIM Logs - Adding TCP NSS Feeds for 3rd-Party App Governance Logs - Adding TCP NSS Feeds for Posture Management Logs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-cloud-nss-feeds.json",
+          "quotes": [
+            "Adding Cloud NSS Feeds for Web Logs - Adding Cloud NSS Feeds for Firewall Logs - Adding Cloud NSS Feeds for DNS Logs - Adding Cloud NSS Feeds for Tunnel Logs - Adding Cloud NSS Feeds for SaaS Security Logs",
+            "Adding Cloud NSS Feeds for SaaS Security Activity Logs - Adding Cloud NSS Feeds for Alerts - Adding Cloud NSS Feeds for Admin Audit Logs - Adding Cloud NSS Feeds for Endpoint DLP Logs - Adding Cloud NSS Feeds for Email DLP Logs",
+            "Adding Cloud NSS Feeds for Sandbox Verdict Logs - Adding Cloud NSS Feeds for Authentication Logs - Adding Cloud NSS Feeds for SCIM Logs - Adding Cloud NSS Feeds for 3rd-Party App Governance Logs - Adding Cloud NSS Feeds for Posture Management Logs"
+          ]
+        }
+      ]
+    },
+    "alert-feed": {
+      "statement": "A separate feed can carry real-time alerts that monitor the NSS connections to the Zscaler Nanolog and to the SIEM; the service sends these alerts in RFC-compliant Syslog format to the specified IP address and port.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-nss-feeds.json",
+          "quotes": [
+            "Add a separate feed for real-time alerts to monitor essential NSS connections to the Zscaler Nanolog and to your SIEM."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "For monitoring purposes, you can configure a separate feed for NSS alerts. The service sends the alerts in an RFC-compliant Syslog format to the specified IP address and port."
+          ]
+        }
+      ]
+    },
+    "filter-caps": {
+      "statement": "An NSS feed filter takes up to 1,024 users, 1,024 departments, 1,024 locations, 1,024 clients and 1,024 threat names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Number of Users per NSS Feed Filter | 1,024 users |",
+            "| Number of Departments per NSS Feed Filter | 1,024 departments |",
+            "| Number of Locations per NSS Feed Filter | 1,024 locations |",
+            "| Number of Clients per NSS Feed Filter | 1,024 clients |",
+            "| Number of Threat Names per NSS Feed Filter | 1,024 threat names |"
+          ]
+        }
+      ]
+    },
+    "filtered-not-sent": {
+      "statement": "A record that a feed's filters exclude is not sent by that feed, while the original stays in the Nanolog and other feeds apply their own filters to their own copies.",
+      "tier": "B",
+      "derived_from": [
+        "zia.logs.nss-feed-format:one-store",
+        "shared.nss:originals-retained",
+        "feed-purpose"
+      ],
+      "conditions": "Follows from filtering being a per-feed step on a copy; the help does not discuss filtered records further."
+    },
+    "field-order": {
+      "statement": "Fields must be entered in the Feed Output Format in the order they are to appear in the output.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "general-guidelines-nss-feeds-and-feed-formats.json",
+          "quotes": [
+            "When configuring an NSS feed in the Zscaler Admin Console, enter the desired fields in the Feed Output Format text box.",
+            "The fields must be in the order you want them to appear in the output."
+          ]
+        }
+      ]
+    },
+    "format-specifiers": {
+      "statement": "In the Feed Output Format each field name is replaced by its value: `%s{<fieldname>}` prints a string, `%d{<fieldname>}` a decimal number and `%x{<fieldname>}` a hexadecimal number; static text and padding for constant width are allowed, and % is escaped with another %.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "general-guidelines-nss-feeds-and-feed-formats.json",
+          "quotes": [
+            "The field names specified are substituted by the corresponding value when NSS sends logs to the SIEM.",
+            "%s{<fieldname>} displays the string name.",
+            "%d{<fieldname>} prints a number in decimal format.",
+            "%x{<fieldname>} prints a number in hexadecimal (base-16) format.",
+            "You can optionally include static text strings in the output.",
+            "You can also specify the padding if you want constant width strings.",
+            "% must be escaped with another %"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "filter-logic": {
+      "kind": "semantic",
+      "title": "How feed filter values and fields combine",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Filter criteria are additive per field (OR within a field; AND across fields). A feed filtering on 'Location = HQ AND Threat = Malware' emits records that match both conditions.\" The captured NSS articles describe filters only as excluding unwanted logs.",
+      "blocks": "predicting which records a feed with several filter fields sends",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "new-log-types": {
+      "kind": "semantic",
+      "title": "Subscription and API values for the 3rd-Party App Governance and Posture Management feeds",
+      "status": "open",
+      "detail": "Unverified legacy statement: the July 2026 ZIA release summary \"adds NSS and Cloud NSS feed support for 3rd-Party App Governance and Posture Management logs and states that both log types require an Advanced SaaS Security Posture Management subscription\", and \"for the Cloud NSS /nssFeeds model, Help names new nssLogType values POSTURE_CONTROL and APP_GOVERNANCE\". The feed articles for both log types are now listed, but the current capture of the release summary holds only its introduction, and the Automate nssLogType enum has no value for either log type.",
+      "blocks": "configuring either feed through the API, and saying which subscription it needs",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

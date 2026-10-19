@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "id": "shared.nss.servers",
+  "title": "NSS servers: the VM record, its certificate, platforms and Nanolog capacity",
+  "aliases": [
+    "nss server",
+    "nss vm",
+    "nss virtual appliance",
+    "nss certificate",
+    "nss deployment platforms",
+    "nanolog cluster capacity",
+    "1 billion web transactions",
+    "nss mib"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.nss"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.delivery-modes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{server-record}}"
+    },
+    {
+      "label": "Deploying it.",
+      "text": "{{appliance-platforms}} {{auto-update}}"
+    },
+    {
+      "label": "Managing it.",
+      "text": "{{servers-page}} The feeds a server carries are in [[shared.nss.feeds]]."
+    },
+    {
+      "label": "Capacity.",
+      "text": "{{nanolog-capacity}} {{scale-out}}"
+    },
+    {
+      "text": "Cloud & Branch Connector NSS deployments have their own server and feed limits: [[cloud-connector.nss-va]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the NSS VM holds the client certificate issued for its server record.",
+      "uses": [
+        "server-record",
+        "servers-page"
+      ]
+    },
+    {
+      "do": "For a high-volume tenant, how many Nanolog clusters it has, since each needs its own NSS VM server.",
+      "uses": [
+        "nanolog-capacity",
+        "scale-out"
+      ]
+    }
+  ],
+  "claims": {
+    "server-record": {
+      "statement": "An NSS server is the representation of the NSS VM in the Admin Console; after a server is created, Zscaler issues a client certificate and private key to install on the NSS VM so that it can authenticate to the Zscaler service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-nss-servers.json",
+          "quotes": [
+            "An NSS server is the representation of the NSS virtual machine (VM) in the Zscaler Admin Console. After you create a server, Zscaler issues a client certificate and private key that you can install on the NSS VM so that it can authenticate to the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "appliance-platforms": {
+      "statement": "VM-based NSS requires a virtual appliance; deployment guides cover Amazon Web Services, Google Cloud Platform, Hyper-V, Microsoft Azure, Nutanix and VMware vSphere, and the architecture is the same whichever is used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "Requires a virtual appliance for deployment.",
+            "NSS Deployment Guide for Amazon Web Services - NSS Deployment Guide for Google Cloud Platform - NSS Deployment Guide for Hyper-V - NSS Deployment Guide for Microsoft Azure - NSS Deployment Guide for Nutanix - NSS Deployment Guide for VMware vSphere",
+            "The architecture remains the same regardless of the deployment method selected."
+          ]
+        }
+      ]
+    },
+    "auto-update": {
+      "statement": "After deployment the NSS requires minimal administration and automatically polls the Zscaler service for updates and installs them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "After deployment, the NSS requires minimal administration and automatically polls the Zscaler service for updates and installs them."
+          ]
+        }
+      ]
+    },
+    "servers-page": {
+      "statement": "The NSS Servers page lets an administrator add a server, deploy an NSS virtual appliance, download MIB files, and download or add an SSL certificate for a server; it lists each server's name, type, status and health state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-nss-servers.json",
+          "quotes": [
+            "Add an NSS server.",
+            "Deploy an NSS virtual appliance.",
+            "Download MIB files.",
+            "Download the SSL Certificate for an NSS server.",
+            "Add a new SSL Certificate for an NSS Server.",
+            "Server Name: The name of the server.",
+            "Type: The server type.",
+            "Status: The server status.",
+            "State: The health state of the server."
+          ]
+        }
+      ]
+    },
+    "nanolog-capacity": {
+      "statement": "A Nanolog cluster is listed at 1 billion web transactions, beyond which additional Nanolog clusters are required; an NSS VM server takes 1 Nanolog cluster, so additional clusters require an adequate number of NSS VM servers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Number of Web Transactions per Nanolog Cluster | 1 billion web transactions | If your organization surpasses more than 1 billion web transactions, additional Nanolog clusters are required. |",
+            "| Number of Nanolog Clusters per NSS Virtual Machine (VM) Server | 1 Nanolog cluster | If additional Nanolog clusters are required, your organization must support an adequate number of NSS VM servers. |"
+          ]
+        }
+      ]
+    },
+    "scale-out": {
+      "statement": "A tenant whose web traffic needs more than one Nanolog cluster also needs at least one NSS VM server per cluster for a VM-based NSS export to cover all of it.",
+      "tier": "B",
+      "derived_from": [
+        "nanolog-capacity"
+      ],
+      "conditions": "Follows from one cluster per NSS VM server; the help does not say how a tenant's logs are divided between clusters or over what period the transaction count is measured."
+    }
+  }
+}

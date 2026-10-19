@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "id": "shared.terminology.service-edge-names",
+  "title": "Service Edge names in logs, APIs and support: ZEN, broker, PSEN, VZEN",
+  "aliases": [
+    "zen",
+    "public zen",
+    "private zen",
+    "pzen",
+    "vzen",
+    "psen",
+    "vsen",
+    "zscaler enforcement node",
+    "broker",
+    "zpa broker",
+    "private broker",
+    "clientzen",
+    "connectorzen",
+    "virtualzen"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.terminology"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.user-activity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Current help pages say Service Edge, but older names survive in log fields, API paths and conversation. Where a source shows the older name, it is below."
+    },
+    {
+      "label": "ZEN.",
+      "text": "[[zpa.logs.user-activity:client-zen-private-access]] {{connector-zen}} {{virtual-zen-api}} {{zen-is-service-edge}}"
+    },
+    {
+      "label": "Broker.",
+      "text": "{{broker-is-zpa-service-edge}}"
+    },
+    {
+      "label": "Internet & SaaS logs.",
+      "text": "ZIA web and firewall logs identify the data center rather than the edge: [[shared.multi-cluster:datacenter-in-logs]]."
+    },
+    {
+      "label": "Unconfirmed.",
+      "text": "The expansions and abbreviations used for each edge (PZEN, PSEN, VSEN and others) are not in a captured source {{gap:legacy-acronyms}}, and neither is the form of edge host names in logs {{gap:edge-hostnames}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "When a log, ticket or runbook says ZEN or broker, read it as a Service Edge and keep the original term when quoting it.",
+      "uses": [
+        "zen-is-service-edge",
+        "broker-is-zpa-service-edge"
+      ]
+    },
+    {
+      "do": "Before reading PZEN as public or private, ask which product and form factor is meant; the abbreviation's expansion is unconfirmed.",
+      "uses": [
+        "legacy-acronyms"
+      ]
+    }
+  ],
+  "claims": {
+    "connector-zen": {
+      "statement": "In the Private Access user activity log, ConnectorZEN is the Public Service Edge that sent the request from the App Connector.",
+      "tier": "A",
+      "binds": [
+        "zpa/user-activity-log#ConnectorZEN"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "ConnectorZEN | The Public Service Edge that sent the request from the App Connector",
+            "The Public Service Edge for Private Access that received the request from the Zscaler Client Connector"
+          ]
+        }
+      ]
+    },
+    "virtual-zen-api": {
+      "statement": "The ZIA API manages Virtual Service Edge clusters at /virtualZenClusters and Virtual Service Edges at /virtualZenNodes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1virtualZenClusters/get",
+          "expect": {
+            "description": "Retrieves a list of ZIA Virtual Service Edge clusters. ."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1virtualZenNodes/get",
+          "expect": {
+            "description": "Retrieves the ZIA Virtual Service Edge for an organization. ."
+          }
+        }
+      ]
+    },
+    "zen-is-service-edge": {
+      "statement": "So ZEN in a Zscaler field or path name denotes a Service Edge: the ZPA log's ClientZEN and ConnectorZEN hold Public Service Edges, and the ZIA API's virtualZen paths hold Virtual Service Edges.",
+      "tier": "B",
+      "derived_from": [
+        "zpa.logs.user-activity:client-zen-private-access",
+        "connector-zen",
+        "virtual-zen-api"
+      ],
+      "conditions": "Generalizes from the names these sources use; no source defines ZEN."
+    },
+    "broker-is-zpa-service-edge": {
+      "statement": "Broker is a name for a Private Access Service Edge: the help describes the ZPA Private Service Edge as a single-tenant broker that provides the functionality of a Public Service Edge for Private Access.",
+      "tier": "B",
+      "derived_from": [
+        "zpa.private-service-edges.what-it-is:single-tenant-broker",
+        "zia.private-service-edge.what-it-is:zpa-pse-is-different"
+      ],
+      "conditions": "The sources use broker descriptively for the Private Service Edge; no source states that broker is a former product name or names the Public Service Edge a broker."
+    }
+  },
+  "gaps": {
+    "legacy-acronyms": {
+      "kind": "semantic",
+      "title": "Older names and abbreviations for each Service Edge",
+      "status": "open",
+      "detail": "Unverified legacy statements: the ZIA Public Service Edge was Public ZEN, Public Zscaler Enforcement Node, PZEN; the Private Service Edge was Private ZEN, also PZEN, with PSEN (Private Service Edge Node) for an instance; the Virtual Service Edge was Virtual ZEN, VZEN, with VSEN for a VM instance; the ZPA Public Service Edge was the ZPA broker, \"the canonical on-wire term\"; the ZPA Private Service Edge was the private broker or ZPA PSE. No captured source gives these expansions or abbreviations.",
+      "blocks": "translating an abbreviation in a ticket or runbook with certainty",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "edge-hostnames": {
+      "kind": "semantic",
+      "title": "Form of Service Edge host names in logs",
+      "status": "open",
+      "detail": "Unverified legacy statement: ZEN fields carry values like broker1b.pdx2 or zs2-fra1a; broker host names are instance-level identifiers useful for support correlation, and the suffix (pdx2, fra1a) is the data-center code. No captured source documents the value format.",
+      "blocks": "mapping a log value to a data center",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    }
+  }
+}

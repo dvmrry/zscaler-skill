@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.aws.cloudformation",
+  "title": "Cloud Connector on AWS: CloudFormation templates, order, and parameter defaults",
+  "aliases": [
+    "cloud connector cloudformation template",
+    "pre-deployment template cloud connector",
+    "zs_cc_cf_template_simple",
+    "zs_cc_cf_template_asg_gwlb",
+    "cloud connector cloudformation autoscaling",
+    "cloud connector add-on template private access route 53",
+    "ZS/CC/credentials"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.aws"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.reference-modules"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.traffic-steering"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler's CloudFormation templates deploy Cloud Connector into a VPC the customer already has. The Terraform path is in [[cloud-connector.aws.reference-modules]]."
+    },
+    {
+      "label": "Which templates, in which order.",
+      "text": "{{existing-vpc}} {{template-sets}} {{template-names}} {{pre-deployment-first}}"
+    },
+    {
+      "label": "Standard (no autoscaling) parameters.",
+      "text": "{{probe-port-required}} {{standard-defaults}} {{ha-addon-deprecated}}"
+    },
+    {
+      "label": "Autoscaling template.",
+      "text": "{{asg-prerequisites}} {{asg-defaults}} {{asg-recommendations}} How the group then scales is in [[cloud-connector.aws.autoscaling]]."
+    },
+    {
+      "label": "Private Access add-on.",
+      "text": "{{zpa-addon}}"
+    },
+    {
+      "label": "After the stack.",
+      "text": "{{route-after-stack}} The route targets are in [[cloud-connector.aws.traffic-steering]]. {{monitoring-page}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the Pre-Deployment Template stack exists and is current before the starter template was deployed.",
+      "uses": [
+        "pre-deployment-first"
+      ]
+    },
+    {
+      "do": "Whether the workload route table was edited after the stack completed.",
+      "uses": [
+        "route-after-stack"
+      ]
+    },
+    {
+      "do": "Whether the HTTP Monitor Probe Port parameter was set.",
+      "uses": [
+        "probe-port-required"
+      ]
+    },
+    {
+      "do": "For autoscaling, whether the Lambda ZIP is in an S3 bucket in the deployment region and the template was left at one autoscaling group per availability zone.",
+      "uses": [
+        "asg-prerequisites",
+        "asg-defaults"
+      ]
+    }
+  ],
+  "claims": {
+    "existing-vpc": {
+      "statement": "The CloudFormation templates create the resources to deploy and operate Cloud Connector in an existing VPC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deployment-templates-zscaler-cloud-connector.json",
+          "quotes": [
+            "Use the templates in the CloudFormation repository to create the deployment resources you need to deploy and operate Cloud Connector in an existing virtual private cloud (VPC)."
+          ]
+        }
+      ]
+    },
+    "template-sets": {
+      "statement": "A standard deployment (no autoscaling) uses the Pre-Deployment Template, the Starter Deployment Template, and optionally the GWLB add-on and the Private Access add-on; an advanced (autoscaling) deployment uses the Pre-Deployment Template, the Starter Deployment Template with Autoscaling and GWLB, and optionally the Private Access add-on.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deployment-templates-zscaler-cloud-connector.json",
+          "quotes": [
+            "| Standard Deployment (No Autoscaling) | Advanced Deployment (Autoscaling) |",
+            "| Pre-Deployment TemplateStarter Deployment TemplateAdd-on Template with Gateway Load Balancer (GWLB) (optional)(Optional) Add-on Template with Private Access (ZPA) |",
+            "Pre-Deployment TemplateStarter Deployment Template with Autoscaling and Gateway Load Balancer (GWLB)Add-on Template with Private Access (optional) |"
+          ]
+        }
+      ]
+    },
+    "template-names": {
+      "statement": "The template files are zs_cc_cf_template_zscc_macro (Pre-Deployment), zs_cc_cf_template_simple (Starter), zs_cc_cf_template_zpa_r53 (Private Access add-on), zs_cc_cf_template_gwlb (GWLB add-on) and zs_cc_cf_template_asg_gwlb (Starter with Autoscaling and GWLB).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deployment-templates-zscaler-cloud-connector.json",
+          "quotes": [
+            "Use the Pre-Deployment Template (zs_cc_cf_template_zscc_macro)",
+            "Use the Starter Deployment Template (zs_cc_cf_template_simple)",
+            "Use the Add-on Template with Private Access (zs_cc_cf_template_zpa_r53)",
+            "Use the Add-on Template with GWLB (zs_cc_cf_template_gwlb)",
+            "Use the Starter Deployment Template with Autoscaling and GWLB (zs_cc_cf_template_asg_gwlb)"
+          ]
+        }
+      ]
+    },
+    "pre-deployment-first": {
+      "statement": "The Pre-Deployment Template stack must be deployed before any Cloud Connector CloudFormation deployment, and an out-of-date Pre-Deployment stack must be updated and replaced.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deployment-templates-zscaler-cloud-connector.json",
+          "quotes": [
+            "Before deploying your Cloud Connectors using CloudFormation, you must upload the Pre-Deployment Template to the AWS CloudFormation console and deploy the Pre-Deployment Template stack.",
+            "If there is an existing Pre-Deployment Template stack that is out of date, you must update and replace the existing template."
+          ]
+        }
+      ]
+    },
+    "probe-port-required": {
+      "statement": "The HTTP Monitor Probe Port parameter must be defined to check the liveliness of the Cloud Connectors and to achieve high availability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "You must define the HTTP Monitor Probe Port parameter to check the liveliness of the designated Cloud Connectors and to achieve high availability."
+          ]
+        }
+      ]
+    },
+    "standard-defaults": {
+      "statement": "In the Starter Deployment Template, EBS encryption, the Cloud Tag Collection IAM policy, and a management security group rule permitting egress TCP/12002 to Zscaler Support servers all default to true; Help says disabling the support rule is not recommended.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "after": "EBS Encryption Enabled: From the drop-down menu, select true to enable EBS encryption (default) or false to disable it.",
+          "quotes": [
+            "select true to enable Cloud Tag Collection IAM Policy creation (default) or false to disable it.",
+            "select true to enable the creation of a Management Security Group rule that permits egress TCP/12002 Zscaler Support Server Destinations (default) or false to disable rule creation. (Disabling is not recommended"
+          ]
+        }
+      ]
+    },
+    "ha-addon-deprecated": {
+      "statement": "The Add-on Template with High Availability, which takes route tables with affinity for each Cloud Connector and a Lambda package from S3, is deprecated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Add-on Template with High Availability (deprecated)",
+            "List of Route Tables with affinity for each Cloud Connector: Enter the route tables associated with each Cloud Connector.",
+            "S3 Key for Lambda Deployment Package: Enter the AWS S3 key for the Lambda deployment package ZIP file."
+          ]
+        }
+      ]
+    },
+    "asg-prerequisites": {
+      "statement": "An autoscaling deployment needs a provisioning template with autoscaling Enabled, which Zscaler Support enables, and an S3 bucket in the deployment region holding the Zscaler Cloud Connector Lambda ZIP file, whose bucket name and key are stack parameters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "after": "Create a stack in the AWS CloudFormation console with Autoscaling (Advanced Deployment).",
+          "quotes": [
+            "Cloud Connector with autoscaling requires a new provisioning template with autoscaling set to Enabled. To enable autoscaling, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "To deploy Cloud Connectors with autoscaling, you must first create a new Amazon Simple Storage Service (S3) bucket and store your Lambda ZIP file.",
+            "Lambda S3 Bucket Name: Enter the name of the AWS S3 bucket in this region where the Lambda deployment package ZIP file exists.",
+            "Lambda S3 Key: Enter the Lambda S3 key."
+          ]
+        }
+      ]
+    },
+    "asg-defaults": {
+      "statement": "In the autoscaling template, availability-zone-based autoscaling groups default to true (one group per zone), the secret name defaults to ZS/CC/credentials, the instance size is small with other sizes not yet supported for autoscaling, and leaving the AMI blank deploys the latest Marketplace AMI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "select true to create one autoscaling group for each availability zone (default) or false to create a single autoscaling group spanning all selected availability zones.",
+            "By default, the name is set to ZS/CC/credentials.",
+            "Zscaler Cloud Connector Instance Size: By default, this field is set to small. Other sizes are not yet supported for autoscaling.",
+            "Leave blank to deploy the latest marketplace AMI (recommended)."
+          ]
+        }
+      ]
+    },
+    "asg-recommendations": {
+      "statement": "For the autoscaling template Zscaler recommends a target CPU value of 80%, warm pool instances in the Stopped state to reduce cost, and 5-tuple flow stickiness; the tag-collection policy setting applies only when CloudFormation creates a new IAM role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "enter a target value number (recommended default 80%)",
+            "Zscaler recommends selecting Stopped to reduce cost.",
+            "Zscaler recommends selecting 5-tuple for optimal load disbursement unless otherwise required for your specific environments.",
+            "select true to enable Cloud Tag Collection IAM Policy creation (default) or false to disable it. This setting is enforced only if CloudFormation creates a new IAM Role."
+          ]
+        }
+      ]
+    },
+    "zpa-addon": {
+      "statement": "The Private Access add-on creates an outbound Route 53 resolver and up to 10 resolver rules, one per domain, takes the Cloud Connector's service ENI, and uses the Private Access cloud name ZPA for production clouds and ZPA-Beta for all others.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deployment-templates-zscaler-cloud-connector.json",
+          "quotes": [
+            "Outbound Route 53 resolver",
+            "Up to 10 Resolver rules, one per domain"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "For all production clouds, your Private Access cloud name is ZPA. For all other clouds, your Private Access cloud name is ZPA-Beta.",
+            "ServiceENI ID of Zscaler CC: Enter the elastic service interface (ENI) of the Zscaler Cloud Connector instance.",
+            "You can enter up to 10 domain names."
+          ]
+        }
+      ]
+    },
+    "route-after-stack": {
+      "statement": "After the CloudFormation deployment, the route table and associated subnet must be modified so traffic from the private workload subnet goes to Cloud Connector; by default traffic leaves the workload subnet without it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "After you finish deploying the Cloud Connector from the AWS CloudFormation console, modify your route table and associated subnet to ensure that traffic is sent from the private workload subnet to Cloud Connector. By default, traffic is going out of the workload subnet."
+          ]
+        }
+      ]
+    },
+    "monitoring-page": {
+      "statement": "A deployed Cloud Connector appears on the dashboard, and the Cloud & Branch Connector Monitoring page shows the name, group, location, geolocation and status of the deployed AMIs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "A deployed Cloud Connector is displayed on the dashboard. The Cloud & Branch Connector Monitoring page provides information on the name, group, location, geolocation (shown below), and status of the Cloud Connector AMIs deployed in your cloud account."
+          ]
+        }
+      ]
+    }
+  }
+}

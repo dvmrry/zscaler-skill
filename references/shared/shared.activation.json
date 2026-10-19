@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "id": "shared.activation",
+  "title": "Which Zscaler products stage changes behind an activation",
+  "aliases": [
+    "activation gate",
+    "rule change not taking effect",
+    "do I need to activate",
+    "pending changes",
+    "cross-product activation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.activation.cbc"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation-methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.write-practices"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.response-codes"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api.activation-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Whether a product stages a saved change until someone activates it decides whether an ignored change is an activation question at all. The OneAPI guide names ZIA and Cloud & Branch Connector, and says a queued activation cannot be cancelled: [[shared.oneapi.write-practices:activation-zia-cbc]]."
+    },
+    {
+      "label": "Everywhere else.",
+      "text": "{{object-activate-paths}} {{no-other-gate}} When a write in those products takes effect is not documented: [[shared.oneapi.write-practices:other-products-no-activation]], and for ZPA [[zpa.api.activation]]."
+    },
+    {
+      "label": "ZIA.",
+      "text": "Saving versus activating, the status values and the activate call are in [[zia.api.activation]]. The platform also activates when an admin or API session ends, and a queued activation publishes every pending change in the tenant: [[zia.terraform.activation-methods]]. How the Terraform provider and the Python SDK trigger activation is in [[zia.terraform.activation]], [[zia.terraform.activation-resource]] and [[zia.sdk-python.activation-and-session]]."
+    },
+    {
+      "label": "Cloud & Branch Connector.",
+      "text": "The activate and forced-activate calls and the Terraform resource are in [[cloud-connector.api.activation-wire]], and the guide's POST against the contract's PUT is [[shared.oneapi.write-practices:cbc-activate-method]]. Its status read uses a different vocabulary from ZIA's: [[shared.activation.cbc]]."
+    },
+    {
+      "label": "Writes refused before activation.",
+      "text": "An edit-lock 409 and the maintenance read-only 403 stop a write before anything is staged: [[shared.oneapi.write-practices:edit-lock-409]], [[shared.oneapi.response-codes:read-only-mode]], [[shared.oneapi.response-codes:read-only-distinguishable]]. The ZIA clients' retries on the lock are in [[zia.api.rate-limits:zia-edit-lock-retry]] and [[zia.terraform.activation-methods:lock-errors-retried]]."
+    },
+    {
+      "label": "Failures and tooling.",
+      "text": "Why an activation fails and what then stays staged is open {{gap:activation-failure}}, and so is how long the in-progress state lasts {{gap:inprogress-duration}}. {{mcp-zia-only}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which product the change was made in: only ZIA and Cloud & Branch Connector changes wait for an activation.",
+      "uses": [
+        "shared.oneapi.write-practices:activation-zia-cbc",
+        "no-other-gate",
+        "shared.oneapi.write-practices:other-products-no-activation"
+      ]
+    },
+    {
+      "do": "For ZIA, the activation status, and whether a session end has already activated the change.",
+      "uses": [
+        "zia.api.activation:status-values",
+        "zia.terraform.activation-methods:session-end-autoactivation"
+      ]
+    },
+    {
+      "do": "For Cloud & Branch Connector, the organization edit status and the per-admin activation states, not a PENDING value.",
+      "uses": [
+        "shared.activation.cbc:no-zia-status-vocabulary"
+      ]
+    },
+    {
+      "do": "Whether an activation queued behind other editing sessions, which cannot be cancelled, explains the delay.",
+      "uses": [
+        "shared.oneapi.write-practices:activation-zia-cbc",
+        "zia.terraform.activation-methods:activation-queues"
+      ]
+    },
+    {
+      "do": "Whether the write was refused with an edit-lock 409 or a maintenance 403 and never staged.",
+      "uses": [
+        "shared.oneapi.write-practices:edit-lock-409",
+        "shared.oneapi.response-codes:read-only-distinguishable"
+      ]
+    },
+    {
+      "do": "Whether a Terraform run created the activation resource after the last change.",
+      "uses": [
+        "zia.terraform.activation-resource:create-posts-activation",
+        "cloud-connector.api.activation-wire:tf-create-only"
+      ]
+    }
+  ],
+  "claims": {
+    "object-activate-paths": {
+      "statement": "Other products' API specifications have activate operations that act on one object: the ZCC web policy activate enables or disables a policy or app profile for a platform, the ZDX application activate activates one application by its ID, and the ZPA emergency-access activate activates one emergency access user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1activate/put",
+          "expect": {
+            "description": "Enables or disables a policy or app profile for the company by platform (iOS, Android, Windows, macOS, and Linux)."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1activate/put",
+          "expect": {
+            "description": "Activates a specific application by its ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1emergencyAccess~1user~1{userId}~1activate/put",
+          "expect": {
+            "description": "Activates the emergency access user for the specified customer."
+          }
+        }
+      ]
+    },
+    "no-other-gate": {
+      "statement": "Outside ZIA and Cloud & Branch Connector the captured API specifications have no call that activates staged configuration for the organization, so a saved change in ZPA, ZCC, ZDX or ZIdentity has no activation step to check.",
+      "tier": "B",
+      "derived_from": [
+        "shared.oneapi.write-practices:activation-zia-cbc",
+        "object-activate-paths",
+        "shared.oneapi.write-practices:activation-named-for-two"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1status~1activate/post",
+          "expect": {
+            "tags": [
+              "Activation"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecAdminActivateStatus~1activate/put",
+          "expect": {
+            "description": "Activates configuration changes.",
+            "tags": [
+              "Activation"
+            ]
+          }
+        }
+      ],
+      "conditions": "Rests on a search of every captured OneAPI specification (ZIA, ZPA, ZCC, ZDX, Cloud & Branch Connector, ZIdentity, Unified RBAC, BI, EASM, Cellular, Event Monitoring, AI Guard, AI Security) for paths containing 'activat': only ZIA and Cloud & Branch Connector have an organization-wide activate, and the remaining matches act on one object. Absence of an activation call does not establish when a write in those products takes effect (gap shared.oneapi.write-practices:other-products-no-activation)."
+    },
+    "mcp-zia-only": {
+      "statement": "The MCP server implements a ZIA activation-status tool and a ZIA activate tool, and its Cloud & Branch Connector tool modules include no activation tool.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/activation.py",
+          "quotes": [
+            "def zia_get_activation_status(args: _NoArgs) -> dict[str, Any]:",
+            "def zia_activate_configuration(args: _NoArgs) -> dict[str, Any]:",
+            "Activate staged ZIA configuration changes (write). Run after any ZIA write."
+          ]
+        }
+      ],
+      "conditions": "The Cloud & Branch Connector absence rests on listing src/zscaler_mcp/tools/ztw at the pin: account details, discovery service, IP destination, IP and IP source groups, admins, roles, network service groups, network services and public cloud info."
+    }
+  },
+  "gaps": {
+    "activation-failure": {
+      "kind": "semantic",
+      "title": "Why an activation fails and what stays staged",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"If a pending change exceeds a ranges-and-limitations ceiling or fails server-side validation, activation may fail with a specific error. The config remains staged; fix the offending resource and re-activate.\" No captured source describes activation failures, their errors, or whether the staged configuration survives one. The Cloud & Branch Connector status carries an ADM_ACTV_FAIL admin state without a description.",
+      "blocks": "diagnosing an activation call that returned an error",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "inprogress-duration": {
+      "kind": "semantic",
+      "title": "How long ZIA reports INPROGRESS",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"INPROGRESS: Activation is currently running (transient; should clear within seconds-to-minutes)\"; scripts should poll until ACTIVE or PENDING. The specification lists INPROGRESS as a status value without a duration or polling guidance.",
+      "blocks": "choosing a polling interval and timeout after an activate call",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

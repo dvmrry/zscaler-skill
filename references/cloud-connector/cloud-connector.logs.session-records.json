@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.logs.session-records",
+  "title": "Cloud Connector session records: aggregation and rule attribution",
+  "aliases": [
+    "cloud connector session log",
+    "cloud connector aggregate logs",
+    "full session logs",
+    "aggregated session last session",
+    "forwarding rule logged as 0",
+    "self rule name cloud connector"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.nss-va.feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.firewall-records"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A Cloud Connector session record can stand for one session or for an aggregate of many. Reading it correctly depends on which, and on which rule it names."
+    },
+    {
+      "label": "Individual or aggregated.",
+      "text": "{{session-log-type}} What a Full Session Logs feed records for HTTP and HTTPS sessions is open {{gap:full-mode-http}}."
+    },
+    {
+      "label": "Reading an aggregate.",
+      "text": "{{aggregate-last-session}} {{aggregate-duration}} The ZIA firewall record aggregates in a similar way, with its own open questions, in [[zia.logs.firewall-records]]."
+    },
+    {
+      "label": "Which rule.",
+      "text": "{{rule-fields}} {{forwarding-rule-zero}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the feed sends Full Session Logs, Aggregate Logs or both, before treating one record as one connection.",
+      "uses": [
+        "session-log-type"
+      ]
+    },
+    {
+      "do": "Whether a forwarding rule of 0 is traffic addressed to the connector's own service IP rather than a missing rule.",
+      "uses": [
+        "forwarding-rule-zero"
+      ]
+    }
+  ],
+  "claims": {
+    "session-log-type": {
+      "statement": "A Session feed records Full Session Logs (every session of the rule individually, except HTTP and HTTPS), Aggregate Logs (sessions grouped by user, rule, network service and network application and recorded periodically), or both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-feeds-session-logs.json",
+          "quotes": [
+            "Full Session Logs: Logs all sessions of the rule individually, except HTTP and HTTPS.",
+            "Aggregate Logs: Individual sessions are grouped together based on {user, rule, network service, network application} and recorded periodically.",
+            "Both Session and Aggregate Logs"
+          ]
+        }
+      ]
+    },
+    "aggregate-last-session": {
+      "statement": "In an aggregated record the client and server IP addresses and ports are those of the last session in the aggregate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-session-logs.json",
+          "quotes": [
+            "Client source IPv4 address. For aggregated sessions, this is the client source IP address of the last session in the aggregate.",
+            "Client destination port. For aggregated sessions, this is the client destination port of the last session in the aggregate.",
+            "Server destination IPv4 address. For aggregated sessions, this is the server destination IP address of the last session in the aggregate.",
+            "Server source port. For aggregated sessions, this is the server source port of the last session in the aggregate."
+          ]
+        }
+      ]
+    },
+    "aggregate-duration": {
+      "statement": "In the console's Session Insights logs, Session Duration is in milliseconds and, for an aggregate, is the sum of the individual session durations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-session-insights-logs-columns.json",
+          "quotes": [
+            "Session Duration: The duration of the session in milliseconds. For aggregated sessions, this indicates the sum of individual session durations."
+          ]
+        }
+      ]
+    },
+    "rule-fields": {
+      "statement": "A session record can name two rules: the redirect (traffic forwarding) rule applied to the transaction, and the Cloud or Branch Connector self-rule applied to it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-session-logs.json",
+          "quotes": [
+            "Name of redirect rule that was applied to the transaction",
+            "Cloud Connector or Branch Connector self-rule name that was applied to the transaction"
+          ]
+        }
+      ]
+    },
+    "forwarding-rule-zero": {
+      "statement": "When the client destination IP is the service IP of the Cloud or Branch Connector instance, the forwarding rule is logged as 0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-session-insights-logs-columns.json",
+          "quotes": [
+            "If the client destination IP address entered is the service IP address of the Cloud or Branch Connector instance, the forwarding rule is logged as 0."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "full-mode-http": {
+      "kind": "semantic",
+      "title": "What a Full Session Logs feed records for HTTP and HTTPS sessions",
+      "status": "open",
+      "blocks": "deciding whether a missing HTTP or HTTPS session in a Full Session Logs feed is expected",
+      "detail": "The feed article says Full Session Logs logs all sessions of the rule individually except HTTP and HTTPS; whether those sessions then appear only in aggregates, elsewhere, or not at all is not stated.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "id": "shared.event-monitoring.channels",
+  "title": "Event Monitoring notification channels: email, webhook and Amazon SNS setup and verification",
+  "aliases": [
+    "subscriptions/channels",
+    "sns:verify",
+    "zscaler_role_arn",
+    "sns topic policy template",
+    "event monitoring sns 422",
+    "event monitoring webhook not receiving",
+    "setup_required"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.event-monitoring.api"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{channel-operations}}"
+    },
+    {
+      "label": "Discovering channels.",
+      "text": "{{channel-list}}"
+    },
+    {
+      "label": "Email and webhook.",
+      "text": "{{validation-rules}}"
+    },
+    {
+      "label": "Amazon SNS.",
+      "text": "{{sns-cross-account}} {{sns-details}} {{sns-regions}}"
+    },
+    {
+      "label": "Verifying SNS access.",
+      "text": "{{verify-request}} {{verify-read-only}} {{verify-codes}}"
+    },
+    {
+      "label": "Coverage.",
+      "text": "{{no-delivery-proof}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before creating an SNS subscription, whether sns:verify returned 200 with verified true for the topic ARN.",
+      "uses": [
+        "verify-request",
+        "verify-codes"
+      ]
+    },
+    {
+      "do": "For a 422 from sns:verify, whether the topic exists and its policy lets the Zscaler role call sns:GetTopicAttributes and sns:Publish.",
+      "uses": [
+        "verify-codes",
+        "sns-details"
+      ]
+    },
+    {
+      "do": "For an email or webhook subscription that never fires, whether the address matches the channel's validation pattern and the webhook is reachable.",
+      "uses": [
+        "validation-rules"
+      ]
+    }
+  ],
+  "claims": {
+    "channel-operations": {
+      "statement": "The contract has five channel operations: GET /subscriptions/channels, GET on /subscriptions/channels/email, /webhook and /sns, and POST /subscriptions/channels/sns:verify.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/event-monitoring.openapi.json",
+          "pointer": "/paths/~1subscriptions~1channels/get",
+          "expect": {
+            "operationId": "Subscription Resource List Channels"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/event-monitoring.openapi.json",
+          "pointer": "/paths/~1subscriptions~1channels~1email/get",
+          "expect": {
+            "operationId": "Subscription Resource Get Email Channel"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/event-monitoring.openapi.json",
+          "pointer": "/paths/~1subscriptions~1channels~1webhook/get",
+          "expect": {
+            "operationId": "Subscription Resource Get Webhook Channel"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/event-monitoring.openapi.json",
+          "pointer": "/paths/~1subscriptions~1channels~1sns/get",
+          "expect": {
+            "operationId": "Subscription Resource Get Sns Channel"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/event-monitoring.openapi.json",
+          "pointer": "/paths/~1subscriptions~1channels~1sns:verify/post",
+          "expect": {
+            "operationId": "Subscription Resource Verify Sns Topic Access"
+          }
+        }
+      ]
+    },
+    "channel-list": {
+      "statement": "GET /subscriptions/channels lists the channel types supported for the tenant, each with `type`, `description` and `setup_required`; SNS shows `setup_required: true`, meaning more configuration is needed before it can be used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/event-monitoring-working-with-the-event-monitoring-notification-api.json",
+          "quotes": [
+            "Use GET /subscriptions/channels to retrieve the list of all notification channel types supported for your tenant, shown as follows.",
+            "\"description\": \"Email notifications\",",
+            "The sns entry with \"setup_required\": true indicates that additional configuration is needed before you can use the SNS channel."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/event-monitoring-working-with-the-event-monitoring-notification-api.json",
+          "after": "Use GET /subscriptions/channels to retrieve the list of all notification channel types supported for your tenant, shown as follows.",
+          "quotes": [
+            "\"type\": \"email\",",
+            "\"setup_required\": false,"
+          ]
+        }
+      ]
+    },
+    "validation-rules": {
+      "statement": "Email addresses in `email.to`, `cc` and `bcc` must match `^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$`, and `webhook_url` must match `^https?://.+$`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/event-monitoring-working-with-the-event-monitoring-notification-api.json",
+          "quotes": [
+            "| Email | email.to/cc/bcc | Must match: ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$ |",
+            "| Webhook | webhook_url | Must match: ^https?://.+$ |"
+          ]
+        }
+      ]
+    },
+    "sns-cross-account": {
+      "statement": "Zscaler publishes to the customer's SNS topic from a Zscaler-managed AWS account using an assumed IAM role, and the customer controls who can publish through the topic policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/event-monitoring.json",
+          "quotes": [
+            "Cross‑account publishing: Zscaler publishes messages to your SNS topic from a Zscaler‑managed AWS account using an assumed Identity and Access Management (IAM) role associated with your AWS account.",
+            "Customer‑managed permissions: You control who can publish to your SNS topic via an SNS topic policy"
+          ]
+        }
+      ]
+    },
+    "sns-details": {
+      "statement": "GET /subscriptions/channels/sns returns the Zscaler IAM role ARN (`zscaler_role_arn`), the required permissions (`sns:Publish` and `sns:GetTopicAttributes` in the example) and an SNS topic policy template (`sns_topic_policy_template`) to apply to the topic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/event-monitoring-working-with-the-event-monitoring-notification-api.json",
+          "quotes": [
+            "Use GET /subscriptions/channels/sns to retrieve the Zscaler IAM role ARN, the minimum required permissions, and a ready‑to‑use SNS topic policy template that you can apply to your SNS topic.",
+            "\"zscaler_role_arn\": \"arn:aws:iam::590183682394:role/CNS-SNS-Publisher\",",
+            "\"required_permissions\": [",
+            "Use sns_topic_policy_template when configuring your SNS topic policy in the next step."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/event-monitoring-working-with-the-event-monitoring-notification-api.json",
+          "after": "\"required_permissions\": [",
+          "quotes": [
+            "\"sns:Publish\",",
+            "\"sns:GetTopicAttributes\""
+          ]
+        }
+      ]
+    },
+    "sns-regions": {
+      "statement": "The SNS channel supports any AWS commercial region where SNS is available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/event-monitoring.json",
+          "quotes": [
+            "Region support: The SNS channel supports any AWS commercial region where SNS is available."
+          ]
+        }
+      ]
+    },
+    "verify-request": {
+      "statement": "POST /subscriptions/channels/sns:verify takes a required `topic_arn` matching `arn:aws:sns:<region>:<12-digit-account>:<topic-name>` (optional .fifo suffix) and an optional `region`, inferred from the ARN when omitted; the response carries `verified` and `topic_arn`, plus `message_sent` on success or `error` on failure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/event-monitoring-working-with-the-event-monitoring-notification-api.json",
+          "quotes": [
+            "| topic_arn | string | Yes | Full SNS topic ARN. Must match arn:aws:sns:<region>:<12-digit-account>:<topic-name> (optional .fifo suffix). |",
+            "| region | string | No | AWS region of the topic. If omitted, region is inferred from the ARN. |",
+            "\"verified\": true,",
+            "\"message_sent\": \"{\\\"message\\\": \\\"Event Monitoring Message Test\\\"}\"",
+            "\"error\": \"<Error that happened while verification>\""
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/event-monitoring-working-with-the-event-monitoring-notification-api.json",
+          "after": "\"verified\": true,",
+          "quotes": [
+            "\"topic_arn\": \"arn:aws:sns:us-west-2:123456789012:zscaler-em-events\","
+          ]
+        }
+      ]
+    },
+    "verify-read-only": {
+      "statement": "The guide calls verification a read-only check of whether Zscaler can call sns:GetTopicAttributes on the topic, with no test message published, although its success example returns a `message_sent` value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/event-monitoring-working-with-the-event-monitoring-notification-api.json",
+          "quotes": [
+            "Use POST /subscriptions/channels/sns:verify to validate that Zscaler can successfully call sns:GetTopicAttributes on your SNS topic. This is a read-only check; no test message is published to the topic.",
+            "\"message_sent\": \"{\\\"message\\\": \\\"Event Monitoring Message Test\\\"}\""
+          ]
+        }
+      ]
+    },
+    "verify-codes": {
+      "statement": "sns:verify returns 200 when publish access is validated, 400 for a malformed request or ARN, 404 only for a wrong endpoint path (never for a missing topic), 422 when the request is valid but verification failed at AWS (missing permission, missing topic or another AWS error), and 500 for an internal error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-event-monitoring-notification-api-codes.json",
+          "quotes": [
+            "| 200 OK | The Zscaler service successfully validated publish access to the SNS topic.",
+            "| 400 Bad Request | The request is malformed (e.g., topic_arn is missing or the ARN doesn't match the required regex format).",
+            "This code is not used to indicate a missing SNS topic in AWS.",
+            "| 422 Unprocessable Entity | The request is syntactically valid, but verification failed at AWS.",
+            "| 500 Internal Server Error | Internal error in the Event Monitoring & Notification API service (not caused by the request).",
+            "| 404 Not Found | The endpoint URL is incorrect",
+            "For example, the Zscaler role does not have permission to call sns:GetTopicAttributes on the topic, the topic doesn't exist, or AWS returned another verification error."
+          ]
+        }
+      ]
+    },
+    "no-delivery-proof": {
+      "statement": "A captured channel schema, or a successful verification, does not show that every channel is enabled for a tenant or that a notification will be delivered; channel availability is per tenant.",
+      "tier": "B",
+      "derived_from": [
+        "channel-list",
+        "verify-read-only"
+      ],
+      "conditions": "The channel list is described as the channels supported for the tenant, and verification checks topic attributes without publishing."
+    }
+  }
+}

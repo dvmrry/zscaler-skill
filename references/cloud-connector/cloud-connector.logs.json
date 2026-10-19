@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.logs",
+  "title": "Cloud Connector logs: which log types exist and where to read them",
+  "aliases": [
+    "cloud connector log types",
+    "cloud connector log schema",
+    "branch connector logs",
+    "cbc session logs",
+    "cbc dns logs",
+    "cloud connector nss fields",
+    "cloud connector log retention",
+    "cloud connector tunnel logs"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.logs.session-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.logs.event-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.logs.metrics-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.nss-va"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.insights.analytics"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Cloud and Branch Connectors write their own log types, which are kept in the Nanolog and read either in the Admin Console or through an NSS feed. This subject lists them and where each is read."
+    },
+    {
+      "label": "Retention.",
+      "text": "{{nanolog-180}} How the console's Insights logs are filtered and downloaded is in [[cloud-connector.insights.analytics]]."
+    },
+    {
+      "label": "Streamed log types.",
+      "text": "The four log types an NSS feed can carry are in [[cloud-connector.nss-va]]. {{feed-formats}} {{not-zia-firewall}} {{tunnel-console-only}}"
+    },
+    {
+      "label": "DNS records.",
+      "text": "{{dns-response-none}} DNS policy itself is in [[cloud-connector.dns.policies]]."
+    },
+    {
+      "label": "Per type.",
+      "text": "Session aggregation and rule attribution are in [[cloud-connector.logs.session-records]]. Status-change events, including upgrade results, are in [[cloud-connector.logs.event-records]]. CPU, memory, throughput and disk samples are in [[cloud-connector.logs.metrics-records]]."
+    },
+    {
+      "label": "ZIA and ZPA side.",
+      "text": "{{console-monitoring-checks}} {{zia-needs-zia-forwarding}} Which Cloud Connector traffic leaves no ZIA or ZPA record, and where Direct-forwarded sessions are logged, is open {{gap:direct-traffic-logging}}. How to join a connector record to the ZIA or ZPA record of the same session is open {{gap:cross-product-join}}. The ZIA firewall record itself is in [[zia.logs.firewall-records]], and the ZPA side in [[zpa.log-receivers]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which log type the question needs (Session, DNS, Event, Metrics, or the console-only Tunnel logs) before choosing the console or a feed.",
+      "uses": [
+        "cloud-connector.nss-va:log-types",
+        "tunnel-console-only"
+      ]
+    },
+    {
+      "do": "Whether the SIEM parser expects ZIA firewall field names, which Cloud Connector session records do not use.",
+      "uses": [
+        "not-zia-firewall"
+      ]
+    },
+    {
+      "do": "Whether the traffic was forwarded to Internet & SaaS before looking for it in ZIA logs.",
+      "uses": [
+        "zia-needs-zia-forwarding",
+        "direct-traffic-logging"
+      ]
+    }
+  ],
+  "claims": {
+    "nanolog-180": {
+      "statement": "Cloud & Branch Connector logs are stored for 180 days in the Zscaler Nanolog servers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-insights-logs.json",
+          "quotes": [
+            "Logs are stored for 180 days in the Zscaler Nanolog servers."
+          ]
+        }
+      ]
+    },
+    "feed-formats": {
+      "statement": "Each streamed log type has its own NSS feed output format (Session, DNS, Event and Metrics), and a feed includes one or more of its fields. In the Session and DNS formats some string fields that a SIEM may fail to parse have Base64 versions, and turning on Base64 for all supported fields may cost about 20% performance; separately, the service always hex-encodes nonprintable ASCII characters in URLs as %HH.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-session-logs.json",
+          "quotes": [
+            "The Session Nanolog Streaming Service (NSS) feed specifies the data from the Session logs that the NSS sends to the security information and event management (SIEM) system.",
+            "You can configure an NSS feed by including one or more fields.",
+            "A SIEM can have parsing issues whenever a string field has nonprintable or delimiter characters.",
+            "Such fields are encoded using Base64.",
+            "Turning on Base64 encoding for all supported fields may result in approximately a 20% drop in performance.",
+            "When the Zscaler service sends logs to the NSS, it hex encodes all nonprintable ASCII characters that are in URLs.",
+            "is encoded as %HH."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-dns-logs.json",
+          "quotes": [
+            "The DNS Nanolog Streaming Service (NSS) feed specifies the data from the DNS logs that the NSS sends",
+            "Several other fields have the same parsing issue, but URL encoding is not suitable. Such fields are encoded using Base64.",
+            "Turning on Base64 encoding for all supported fields may result in approximately a 20% drop in performance.",
+            "it hex encodes all nonprintable ASCII characters that are in URLs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-event-logs.json",
+          "quotes": [
+            "The Event NSS feed specifies the data from the Event logs that the Nanolog Streaming Service (NSS) sends"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-metrics-logs.json",
+          "quotes": [
+            "The Metrics Nanolog Streaming Service (NSS) feed specifies the data from the Metrics logs that the NSS sends"
+          ]
+        }
+      ]
+    },
+    "not-zia-firewall": {
+      "statement": "The Cloud & Branch Connector Session format is its own field set, not the ZIA firewall format: it names the client source IP `clt_src_ip` and the forwarding rule `rdrrulename`, where the ZIA firewall format uses `csip` and `rdr_rulename`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-session-logs.json",
+          "quotes": [
+            "%s{clt_src_ip} | Client source IPv4 address.",
+            "%s{rdrrulename} | Name of redirect rule that was applied to the transaction"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-firewall-logs.json",
+          "quotes": [
+            "%s{csip} | The client source IP address.",
+            "%s{rdr_rulename} | The name of the redirect/forwarding policy"
+          ]
+        }
+      ]
+    },
+    "tunnel-console-only": {
+      "statement": "Tunnel logs are read in the console's Insights logs; the log types an NSS feed can carry are Session, DNS, Event and Metrics, so no Tunnel feed is listed.",
+      "tier": "B",
+      "conditions": "Rests on the complete log-type sentence of the NSS feeds article set against the three Insights logs pages; no source says that tunnel logs cannot be streamed.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-insights-logs.json",
+          "quotes": [
+            "You can view the following logs pages:",
+            "Tunnel Logs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-nss-feeds.json",
+          "quotes": [
+            "Both Cloud Connector and Branch Connector can generate Session, DNS, Event, and Metrics logs."
+          ]
+        }
+      ]
+    },
+    "console-monitoring-checks": {
+      "statement": "When Cloud Connector traffic cannot be monitored in the Admin Console, the Azure troubleshooting checks for Internet & SaaS are that the Cloud Connector location is registered, tunnel logs show traffic to Internet & SaaS, the Internet & SaaS filter is used and the traffic forwarding method is Internet & SaaS; for Private Access they are that Cloud Connector is registered and the forwarding filter is Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "The Cloud Connector location created in the Zscaler Admin Console is registered in the Zscaler Admin Console.",
+            "In the Zscaler Admin Console, the tunnel logs are showing traffic to Internet & SaaS.",
+            "When you filter traffic in the Zscaler Admin Console, you use the Internet & SaaS filter.",
+            "On the Zscaler Admin Console's Traffic Forwarding Rules page, the traffic forwarding method is Internet & SaaS.",
+            "In the Zscaler Admin Console, the forwarding filter is Private Access."
+          ]
+        }
+      ]
+    },
+    "zia-needs-zia-forwarding": {
+      "statement": "Seeing Cloud Connector traffic on the Internet & SaaS side depends on the traffic forwarding rule's method being Internet & SaaS; traffic forwarded another way is not expected there.",
+      "tier": "B",
+      "derived_from": [
+        "console-monitoring-checks"
+      ],
+      "conditions": "Inferred from the troubleshooting check list, which names the Internet & SaaS forwarding method as a precondition for monitoring; no source states what is logged for other methods."
+    },
+    "dns-response-none": {
+      "statement": "In DNS Insights logs the Response Action is always None, because the Zscaler service applies DNS policy only to requests; a rule shown against a response is labeled None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-dns-insights-logs-columns.json",
+          "quotes": [
+            "The Zscaler service does not apply DNS policies to responses, so this column always shows None.",
+            "The Zscaler service only applies the DNS policy to requests. A rule applied to the response is labeled None, but the response itself is not."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "direct-traffic-logging": {
+      "kind": "semantic",
+      "title": "Where Direct-forwarded and dropped Cloud Connector sessions are logged",
+      "status": "open",
+      "blocks": "finding the log record of a workload session the connector did not send to ZIA or ZPA",
+      "detail": "Unverified legacy statement: \"Traffic with Direct (or equivalent CC forwarding rule = Direct) bypasses Zscaler entirely. CC session logs for this traffic exist in the NSS for Firewall stream only. ZIA Web Insights will show gaps for Direct-forwarded workload traffic\", and \"For Direct-forwarded traffic: no ZIA or ZPA log records exist.\" The session format has a forwarding-method field, but no source states that Direct or dropped sessions produce Session records.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "cross-product-join": {
+      "kind": "semantic",
+      "title": "Joining a Cloud Connector session record to the ZIA or ZPA record of the same session",
+      "status": "open",
+      "blocks": "tracing one workload session across connector, ZIA and ZPA logs",
+      "detail": "Unverified legacy statements: the join is on the location name plus epoch time \"with ±30s tolerance\"; ZPA-forwarded traffic joins only weakly on location and username; and connectors behind cloud NAT \"show their NAT IP in ZIA tunnel logs, but the SDK/console shows the private management IP\", so the group and location rather than the IP are the correlation key. No captured source states a join key between Cloud & Branch Connector records and ZIA or ZPA records.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

@@ -1,0 +1,461 @@
+{
+  "schema_version": 1,
+  "id": "shared.mcp-server.http-deployment",
+  "title": "Running the Zscaler MCP server over HTTP: TLS, Host validation, client authentication, logging and cloud secrets",
+  "aliases": [
+    "ZSCALER_MCP_TLS_CERTFILE",
+    "ZSCALER_MCP_TLS_CA_CERTS",
+    "ZSCALER_MCP_ALLOW_HTTP",
+    "ZSCALER_MCP_ALLOWED_HOSTS",
+    "ZSCALER_MCP_DISABLE_HOST_VALIDATION",
+    "ZSCALER_MCP_TRUST_PLATFORM_AUTH",
+    "ZSCALER_MCP_LOG_TOOL_CALLS",
+    "ZSCALER_SECRET_NAME",
+    "X-Api-Key",
+    "mcp oidc",
+    "oidcproxy",
+    "mcp api key auth",
+    "mcp health check",
+    "ZSCALER_CUSTOMER_ID missing",
+    "mcp aws secrets manager",
+    "logging/setLevel"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.mcp-server"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.mcp-server.delete-confirmation"
+    }
+  ],
+  "prose": [
+    {
+      "heading": "TLS and plaintext"
+    },
+    {
+      "text": "{{tls-env}} {{tls-validation}} {{plaintext-guard}} {{ca-bundle-documented-mtls}} {{no-client-cert-requirement}} Whether Uvicorn then requires client certificates with only a CA bundle set is open {{gap:client-cert-enforcement}}."
+    },
+    {
+      "heading": "Host validation and health checks"
+    },
+    {
+      "text": "{{host-allowlist}} {{wildcard-bind}} {{health-bypass}}"
+    },
+    {
+      "heading": "Who may connect"
+    },
+    {
+      "text": "{{oidc-resource-server}} {{api-key-headers}} {{trust-platform-auth}}"
+    },
+    {
+      "heading": "Credentials and tenant IDs"
+    },
+    {
+      "text": "{{scope-id-errors}} {{aws-secrets-optin}} {{aws-secrets-allowlist}} {{secrets-before-cli}}"
+    },
+    {
+      "heading": "Logging and server identity"
+    },
+    {
+      "text": "{{tool-call-audit}} {{set-level-scope}} {{server-version}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a non-localhost bind, whether TLS certificate and key files are configured or TLS is terminated in front of the server with ZSCALER_MCP_ALLOW_HTTP set.",
+      "uses": [
+        "tls-env",
+        "plaintext-guard"
+      ]
+    },
+    {
+      "do": "For a 0.0.0.0 bind, whether ZSCALER_MCP_ALLOWED_HOSTS lists the hostnames clients use.",
+      "uses": [
+        "host-allowlist",
+        "wildcard-bind"
+      ]
+    },
+    {
+      "do": "Whether ZSCALER_MCP_TRUST_PLATFORM_AUTH is set on a deployment that is reachable without going through a platform that authenticates every caller.",
+      "uses": [
+        "trust-platform-auth"
+      ]
+    },
+    {
+      "do": "When a ZPA tool fails for a missing ZSCALER_CUSTOMER_ID, that it is a tenant ID and not a credential problem.",
+      "uses": [
+        "scope-id-errors"
+      ]
+    }
+  ],
+  "claims": {
+    "tls-env": {
+      "statement": "The streamable-http and SSE transports terminate TLS in process when both `ZSCALER_MCP_TLS_CERTFILE` and `ZSCALER_MCP_TLS_KEYFILE` are set; `ZSCALER_MCP_TLS_KEYFILE_PASSWORD` unlocks an encrypted key and `ZSCALER_MCP_TLS_CA_CERTS` supplies a CA bundle passed to Uvicorn as `ssl_ca_certs`. With TLS configured the server uses the https scheme.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "\"\"\"Build TLS/SSL kwargs for uvicorn from environment variables (v1 parity).",
+            "ZSCALER_MCP_TLS_KEYFILE_PASSWORD  - Password for encrypted key (optional)",
+            "\"\"\"Run an HTTP transport (streamable-http / sse) with the full middleware stack.",
+            "# TLS: when certs are configured, uvicorn terminates HTTPS in-process and the",
+            "certfile = os.getenv(\"ZSCALER_MCP_TLS_CERTFILE\", \"\").strip()",
+            "keyfile = os.getenv(\"ZSCALER_MCP_TLS_KEYFILE\", \"\").strip()",
+            "password = os.getenv(\"ZSCALER_MCP_TLS_KEYFILE_PASSWORD\", \"\").strip()",
+            "ca_certs = os.getenv(\"ZSCALER_MCP_TLS_CA_CERTS\", \"\").strip()",
+            "tls_kwargs[\"ssl_ca_certs\"] = ca_certs",
+            "scheme = \"https\" if tls_kwargs else \"http\""
+          ]
+        }
+      ]
+    },
+    "ca-bundle-documented-mtls": {
+      "statement": "The README describes `ZSCALER_MCP_TLS_CA_CERTS` as the path to a CA certificate bundle for mutual TLS or custom CA chains, and the 0.13.2 release notes as mutual-TLS client validation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "README.md",
+          "quotes": [
+            "| `ZSCALER_MCP_TLS_CA_CERTS` | `\"\"` | Path to CA certificate bundle for mutual TLS or custom CA chains. |"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`ZSCALER_MCP_TLS_CA_CERTS` for mutual-TLS client validation"
+          ],
+          "after": "## 0.13.2 (July 21, 2026)"
+        }
+      ]
+    },
+    "no-client-cert-requirement": {
+      "statement": "The server sets no client-certificate requirement of its own: with a CA bundle it only passes `ssl_ca_certs` to Uvicorn.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "tls_kwargs[\"ssl_ca_certs\"] = ca_certs"
+          ]
+        }
+      ],
+      "conditions": "Absence from a search: the MCP server tree was searched at the pin for ssl_cert_reqs and CERT_REQUIRED and neither occurs; the only client-certificate setting passed is ssl_ca_certs."
+    },
+    "tls-validation": {
+      "statement": "Setting only one of the certificate and key, a missing certificate or key file, or a missing configured CA file raises `SystemExit` when the HTTP runner builds its TLS settings, before Uvicorn is started.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "if bool(certfile) != bool(keyfile):",
+            "tls_kwargs = _tls_kwargs_from_env()",
+            "\"ERROR: Incomplete TLS configuration.\\n\"",
+            "raise SystemExit(f\"ERROR: TLS certificate file not found: {certfile}\")",
+            "raise SystemExit(f\"ERROR: TLS key file not found: {keyfile}\")",
+            "raise SystemExit(f\"ERROR: TLS CA certificate file not found: {ca_certs}\")"
+          ]
+        }
+      ]
+    },
+    "plaintext-guard": {
+      "statement": "Without TLS the server refuses to bind a non-localhost address unless `ZSCALER_MCP_ALLOW_HTTP` is true (meant for TLS terminated by a proxy in front); with TLS configured the guard is satisfied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "if not tls_kwargs and not is_localhost and not allow_http:",
+            "\"ERROR: plaintext HTTP on a non-localhost bind requires TLS certs \"",
+            "\"or set ZSCALER_MCP_ALLOW_HTTP=true to allow plaintext (only if TLS is\","
+          ]
+        }
+      ]
+    },
+    "host-allowlist": {
+      "statement": "`ZSCALER_MCP_ALLOWED_HOSTS` is a comma-separated Host allowlist (exact host:port, host:*, bare host or *); when it is set and `ZSCALER_MCP_DISABLE_HOST_VALIDATION` is not true, requests whose Host header does not match are rejected with HTTP 421.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/hardening.py",
+          "quotes": [
+            "raw = os.getenv(\"ZSCALER_MCP_ALLOWED_HOSTS\", \"\").strip()",
+            "True when ``ZSCALER_MCP_DISABLE_HOST_VALIDATION`` opts out of Host checks.",
+            "Entries may be exact (``example.com:443``), port-wildcarded",
+            "(``example.com:*``), bare host (``example.com``), or the ``*`` catch-all.",
+            "Zero-trust DNS-rebinding protection: only active when",
+            "``ZSCALER_MCP_ALLOWED_HOSTS`` is configured (and not disabled via",
+            "if not _host_matches(host, self.allowed_hosts):",
+            "response = JSONResponse(body, status_code=421)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/hardening.py",
+          "quotes": [
+            "entries = [e.strip() for e in raw.split(\",\") if e.strip()]"
+          ],
+          "after": "def get_allowed_hosts() -> Optional[list[str]]:"
+        }
+      ]
+    },
+    "wildcard-bind": {
+      "statement": "Binding to 0.0.0.0 exits at startup unless `ZSCALER_MCP_ALLOWED_HOSTS` is set or `ZSCALER_MCP_DISABLE_HOST_VALIDATION=true` opts out.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/hardening.py",
+          "quotes": [
+            "\"ERROR: Cannot bind to 0.0.0.0 without host validation configuration.\\n\"",
+            "if host_validation_disabled() or get_allowed_hosts() is not None:",
+            "ZSCALER_MCP_ALLOWED_HOSTS=your-host:*,localhost:*  (recommended)",
+            "ZSCALER_MCP_DISABLE_HOST_VALIDATION=true           (disables protection)"
+          ]
+        }
+      ]
+    },
+    "health-bypass": {
+      "statement": "Host validation skips `/health`, `/healthz` and `/ready`, and the health-check middleware is the outermost layer, answering GET or HEAD on the health path with 200 before authentication, source-IP checks or MCP handling.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/hardening.py",
+          "quotes": [
+            "SKIP_PATHS = frozenset({\"/health\", \"/healthz\", \"/ready\"})"
+          ],
+          "after": "class HostValidationMiddleware:"
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/hardening.py",
+          "quotes": [
+            "\"\"\"Respond 200 OK to ``GET``/``HEAD`` on the health path, bypassing all layers.\"\"\"",
+            "Health check is outermost so probes",
+            "bypass auth / source-IP / MCP entirely."
+          ]
+        }
+      ]
+    },
+    "oidc-resource-server": {
+      "statement": "In OIDC mode the server is an OAuth 2.0 protected resource: it publishes RFC 9728 metadata naming the external IdP and verifies the IdP's bearer tokens, hosts no authorization server and needs no client secret. The mode is `oidc`, with `oidcproxy` and `oauth-proxy` still accepted; clients can no longer self-register and need a client ID issued by the IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/auth.py",
+          "quotes": [
+            "# The server is a **resource server**, not an authorization server. It publishes",
+            "# ``/.well-known/oauth-protected-resource`` naming the IdP as its authorization",
+            "# server, and verifies the bearer tokens the IdP issues.",
+            "_OIDC_MODES = (\"oidc\", \"oidcproxy\", \"oauth-proxy\")",
+            "#   * No client secret is needed here."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "It is now a standard OAuth 2.0 protected resource (RFC 9728)",
+            "Clients can no longer self-register, so they need a client ID issued by the IdP."
+          ],
+          "after": "## 0.15.0 (August 5, 2026)"
+        }
+      ]
+    },
+    "api-key-headers": {
+      "statement": "API-key mode accepts the key as `Authorization: Bearer <key>` or as `X-Api-Key`, compares it in constant time, and identifies the caller by a fingerprint of the key rather than the key itself.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/auth.py",
+          "quotes": [
+            "\"\"\"Validate requests against a pre-shared API key (constant-time compare).",
+            "if hmac.compare_digest(candidate, self._api_key):",
+            "1. ``Authorization: Bearer <api-key>`` — the default everywhere.",
+            "2. ``X-Api-Key: <api-key>`` — for deployments where ``Authorization`` is",
+            "\"\"\"Identify the caller by a domain-separated fingerprint of the key."
+          ]
+        }
+      ]
+    },
+    "trust-platform-auth": {
+      "statement": "`ZSCALER_MCP_TRUST_PLATFORM_AUTH=true` lets the `api-key` and `zscaler` modes accept a request carrying no credential on the strength of a platform that already authenticated the caller, using the container's own credentials; the code says never to set it on an internet-reachable deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/auth.py",
+          "quotes": [
+            "return os.getenv(\"ZSCALER_MCP_TRUST_PLATFORM_AUTH\", \"\").strip().lower() in (",
+            "When trusted, the ``api-key`` and ``zscaler`` providers fall back to the",
+            "container's own credentials for a request that carries none.",
+            "**Never set this on an internet-reachable deployment.**"
+          ]
+        }
+      ]
+    },
+    "scope-id-errors": {
+      "statement": "The client checks the OneAPI credentials first and the tenant-scope ID only for `zpa` (`ZSCALER_CUSTOMER_ID`) and `zcell` (`ZCELL_CUSTOMER_ID`); a missing scope ID gets its own error saying it is a tenant/customer ID, that authentication is unaffected, and that it may not exist on a tenant not entitled to the product.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/client.py",
+          "quotes": [
+            "missing_credentials = _absent(credentials)",
+            "missing_scope = _absent(scope_ids)",
+            "authentication itself is unaffected",
+            "if service == \"zpa\": scope_ids[\"ZSCALER_CUSTOMER_ID\"] = customer_id",
+            "if service == \"zcell\": scope_ids[\"ZCELL_CUSTOMER_ID\"] = zcell_customer_id",
+            "\"environment or .env file (the tenant/customer ID, not an OneAPI \"",
+            "f\"is not entitled to {service}, this value may not exist.\""
+          ]
+        }
+      ]
+    },
+    "aws-secrets-optin": {
+      "statement": "Setting `ZSCALER_SECRET_NAME` makes the server load credentials from AWS Secrets Manager at startup, using the optional `aws` extra (`boto3`); the region comes from `AWS_REGION`, then `AWS_DEFAULT_REGION`, then boto3's own chain, and a secret that cannot be fetched or decoded stops startup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/cloud/aws_secrets.py",
+          "quotes": [
+            "Set ``ZSCALER_SECRET_NAME`` to the secret's name or ARN. Presence of that",
+            "AWS_REGION           — region of the secret. Falls back to",
+            "``AWS_DEFAULT_REGION``, then to boto3's own",
+            "Requires the optional ``aws`` extra: ``pip install 'zscaler-mcp[aws]'``.",
+            "No-op unless :func:`is_enabled`. Raises ``SystemExit`` on any fatal error so"
+          ]
+        }
+      ]
+    },
+    "aws-secrets-allowlist": {
+      "statement": "Only keys on the loader's list (OneAPI credentials, MCP client-auth settings, the request-state key ring and the write settings) are published to the environment, overriding existing values; unrecognized keys are named in a warning and ignored, and startup stops unless a client ID and a client secret or private key are present.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/cloud/aws_secrets.py",
+          "quotes": [
+            "# Zscaler OneAPI (what the SDK authenticates with)",
+            "# MCP client authentication (who may connect to this server)",
+            "# SEP-2322 request-state key ring.",
+            "# Write posture, for parity with the GCP loader.",
+            "f\"Required credentials missing after loading '{secret_id}': \"",
+            "Only the keys in :data:`CREDENTIAL_KEYS` are published to the environment.",
+            "Values from the secret **override** anything already in the environment.",
+            "\"Ignoring %d unrecognised key(s) in secret '%s': %s. \"",
+            "_REQUIRED_KEYS = (\"ZSCALER_CLIENT_ID\", \"ZSCALER_CLIENT_SECRET\")",
+            "_SECRET_EQUIVALENTS = {\"ZSCALER_CLIENT_SECRET\": (\"ZSCALER_PRIVATE_KEY\",)}"
+          ]
+        }
+      ]
+    },
+    "secrets-before-cli": {
+      "statement": "The cloud loaders (AWS and GCP) run before the command line is parsed, so a secret can supply variables the CLI reads for its defaults, such as `ZSCALER_MCP_WRITE_ENABLED`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/cloud/__init__.py",
+          "quotes": [
+            "(``ZSCALER_MCP_WRITE_ENABLED``, ``ZSCALER_MCP_AUTH_API_KEY``, …)",
+            "``main()`` has to call :func:`load_secrets` *before* ``parse_args()``, because",
+            "_PROVIDERS = (aws_secrets, gcp_secrets)"
+          ]
+        }
+      ]
+    },
+    "tool-call-audit": {
+      "statement": "Tool-call audit logging is opt-in with `ZSCALER_MCP_LOG_TOOL_CALLS=true`; the `[TOOL CALL]` line lists the fields the caller set (unpacked from the input model), with names containing secret, password, token or key redacted, and a non-empty JMESPath query is logged on its own `[QUERY]` line with row counts before and after filtering.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/audit.py",
+          "quotes": [
+            "audit_logger.info(\"[TOOL CALL] %s | args: %s\", tool_name, safe_args)",
+            "Audit logging is emitted only when ``ZSCALER_MCP_LOG_TOOL_CALLS=true``.",
+            "collected.update(value.model_dump(exclude_unset=True, exclude_none=True))",
+            "if lk in _SENSITIVE_PARAMS or any(s in lk for s in (\"secret\", \"password\", \"token\", \"key\")):"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/registry/fastmcp_bridge.py",
+          "quotes": [
+            "if query and is_tool_call_logging_enabled():",
+            "\"[QUERY]     %s | %r | %s -> %s rows\", spec.name, query, before, after"
+          ]
+        }
+      ]
+    },
+    "set-level-scope": {
+      "statement": "MCP `logging/setLevel` is served to `2025-06-18` and `2025-11-25` clients but is absent on `2026-07-28`, whose clients are expected to use OpenTelemetry; it changes only the `zscaler_mcp` logger tree, because dependency logging at debug prints credential-bearing headers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "``logging/setLevel`` is part of the ``2025-06-18`` and ``2025-11-25`` base",
+            "**It is deliberately a no-op on ``2026-07-28``.**",
+            "revision are expected to use OpenTelemetry",
+            "The level applies to the ``zscaler_mcp`` logger tree only.",
+            "logging, which at ``debug`` prints credential-bearing headers"
+          ]
+        }
+      ]
+    },
+    "server-version": {
+      "statement": "The server passes its package version to MCP initialization, so clients see the release number in `serverInfo`; 0.15.0 fixed an empty value there.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "`_meta` serverInfo, which is what a client displays.",
+            "version=__version__,"
+          ],
+          "after": "# Not derived from the package: omitting it reports an empty string as our"
+        },
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "**Fixed the server version reported to clients.** `serverInfo` returned an empty value instead of the release number"
+          ],
+          "after": "## 0.15.0 (August 5, 2026)"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "client-cert-enforcement": {
+      "kind": "semantic",
+      "title": "Whether ZSCALER_MCP_TLS_CA_CERTS makes the server require client certificates",
+      "status": "open",
+      "detail": "Unverified legacy statement: ZSCALER_MCP_TLS_CA_CERTS gives mutual-TLS client validation. The server passes only ssl_ca_certs to Uvicorn (claim no-client-cert-requirement); whether Uvicorn with only a CA bundle requires client certificates, merely verifies ones that are offered, or ignores them is Uvicorn behavior, and Uvicorn is not a registered source.",
+      "blocks": "relying on the CA bundle as client authentication",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ]
+    }
+  }
+}

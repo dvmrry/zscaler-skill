@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "id": "shared.cloud-architecture.service-edges",
+  "title": "Service Edges: the data plane, its form factors, and how traffic reaches one",
+  "aliases": [
+    "service edge",
+    "public service edge",
+    "data plane",
+    "policy follows the user",
+    "geolocation nearest service edge",
+    "service edge form factors",
+    "zen"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.what-it-is"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.public-service-edges.what-it-is"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.what-it-is"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "shared.subclouds"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.multi-cluster"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Service Edges are where traffic is inspected and policy is enforced. {{zia-pse-definition}}"
+    },
+    {
+      "label": "Reaching one.",
+      "text": "{{forward-anywhere-or-nearest}} {{policy-follows-user}} How the nearest edge is chosen is open {{gap:selection-algorithm}}. Restricting the eligible edges is what a subcloud does: [[shared.subclouds]]."
+    },
+    {
+      "label": "What happens on the edge.",
+      "text": "{{traffic-stays-on-edge}} {{user-mode-tcp}} {{no-disk}} Logs leave the edge for the Nanolog: [[shared.cloud-architecture.logging-path]]."
+    },
+    {
+      "label": "Availability.",
+      "text": "{{active-active}} A data center can serve one VIP from several clusters: [[zia.virtual-service-edge.load-balancing:mcls-is-public-se-only]], with detail in [[shared.multi-cluster]]."
+    },
+    {
+      "heading": "Form factors"
+    },
+    {
+      "table": {
+        "columns": [
+          "Form factor",
+          "Who runs it",
+          "Subject"
+        ],
+        "rows": [
+          [
+            "ZIA Public Service Edge",
+            "Zscaler",
+            "this subject, and [[zpa.private-service-edges.what-it-is:no-inspection]] for the contrast with Private Access"
+          ],
+          [
+            "ZIA Private Service Edge",
+            "Zscaler-managed, in the organization's data center",
+            "[[zia.private-service-edge.what-it-is:dedicated-managed-by-zscaler]]"
+          ],
+          [
+            "ZIA Virtual Service Edge",
+            "VM on the organization's infrastructure",
+            "[[zia.virtual-service-edge]]"
+          ],
+          [
+            "ZPA Public Service Edge",
+            "Zscaler",
+            "[[zpa.public-service-edges.what-it-is:operator-role]]"
+          ],
+          [
+            "ZPA Private Service Edge",
+            "Zscaler-managed, hosted by the organization",
+            "[[zpa.private-service-edges.what-it-is:single-tenant-broker]]"
+          ]
+        ]
+      }
+    },
+    {
+      "text": "IPSec termination on a Virtual Service Edge is a cluster setting: [[zia.virtual-service-edge.clusters:ipsec-local-termination]]; the reference architecture says the opposite: [[shared.ipsec:vse-termination]]. The older names for each edge (ZEN, broker, PSEN) are in [[shared.terminology.service-edge-names]]."
+    },
+    {
+      "label": "Private Access edges.",
+      "text": "[[zpa.troubleshooting.access-path:edges-enforce-policy]] They also build the Microtunnels: [[shared.cloud-architecture.tunnels]]."
+    },
+    {
+      "label": "Identity at the edge.",
+      "text": "Authentication itself is in [[zia.authentication]]. The order in which an edge settles a user's identity is open {{gap:auth-timeline}}, and so is how it treats workload traffic that carries no user {{gap:workload-identity}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a moved or traveling user, expect a different Public Service Edge with the same policy; for a region requirement, check the subcloud and the PAC variables.",
+      "uses": [
+        "policy-follows-user",
+        "forward-anywhere-or-nearest",
+        "shared.pac-files.variables:subcloud-vars"
+      ]
+    },
+    {
+      "do": "For which edge served a ZIA transaction, read the log's edge fields rather than inferring from geography.",
+      "uses": [
+        "selection-algorithm"
+      ]
+    }
+  ],
+  "claims": {
+    "zia-pse-definition": {
+      "statement": "Public Service Edges for Internet & SaaS are full-featured, inline internet security gateways that inspect all internet traffic bidirectionally for malware and enforce security and compliance policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-architecture.json",
+          "quotes": [
+            "Public Service Edges for Internet & SaaS are full-featured, inline internet security gateways that inspect all internet traffic bidirectionally for malware, and enforce security and compliance policies."
+          ]
+        }
+      ]
+    },
+    "forward-anywhere-or-nearest": {
+      "statement": "An organization can forward its traffic to any Public Service Edge in the world, or use Zscaler's Geolocalization IP resolution to direct users' traffic to the nearest one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-architecture.json",
+          "quotes": [
+            "An organization can forward its traffic to any Public Service Edge in the world or use the advanced Geolocalization IP resolution capability of Zscaler to direct its users' traffic to the nearest Public Service Edge."
+          ]
+        }
+      ]
+    },
+    "policy-follows-user": {
+      "statement": "When a user moves to a different location, the policy follows the user: the Public Service Edge downloads the appropriate policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-architecture.json",
+          "quotes": [
+            "When the user moves to a different location, the policy follows the user, with the Public Service Edge downloading the appropriate policy."
+          ]
+        }
+      ]
+    },
+    "traffic-stays-on-edge": {
+      "statement": "Customer traffic is not passed to any other component within the Zscaler infrastructure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-architecture.json",
+          "quotes": [
+            "Customer traffic is not passed to any other component within the Zscaler infrastructure."
+          ]
+        }
+      ]
+    },
+    "user-mode-tcp": {
+      "statement": "The TCP stack on the Public Service Edge runs in user mode and is crafted for multitenancy and data security.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-architecture.json",
+          "quotes": [
+            "The TCP stack on the Public Service Edge runs in user mode, and is specially crafted to ensure multitenancy and data security."
+          ]
+        }
+      ]
+    },
+    "no-disk": {
+      "statement": "Public Service Edges never store any data to disk.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-architecture.json",
+          "quotes": [
+            "Public Service Edges never store any data to disk."
+          ]
+        }
+      ]
+    },
+    "active-active": {
+      "statement": "Public Service Edges are always deployed in active-active load balancing mode worldwide, and the Central Authority monitors their health to ensure availability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-architecture.json",
+          "quotes": [
+            "Public Service Edges are always deployed in active-active load balancing mode all over the world, and the CA monitors the health of Public Service Edges to ensure availability."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "selection-algorithm": {
+      "kind": "semantic",
+      "title": "How the nearest Public Service Edge is chosen",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Zscaler's 'advanced geo-IP resolution' routes traffic to the nearest edge; the algorithm itself isn't customer-documented.\" The architecture article names Geolocalization IP resolution and the subclouds article says the service uses geolocation technology; neither gives the signals, the re-evaluation timing or the failover timing. Client-side re-selection settings are in zcc.forwarding-profiles.internet-actions:dynamic-zia-se.",
+      "blocks": "explaining why a user's traffic landed on a distant Public Service Edge",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "former_ids": [
+        "shared-17"
+      ]
+    },
+    "auth-timeline": {
+      "kind": "semantic",
+      "title": "Order and precedence of authentication events at the Service Edge",
+      "status": "open",
+      "former_ids": [
+        "shared-18"
+      ],
+      "detail": "Open after the ledger's own sweep (frequency values, Surrogate IP fields and step-up timing are covered by zia.authentication.frequency, zia.authentication.surrogate-ip and zia.authentication.step-up): what starts the Surrogate IP idle clock (last activity or first authentication); which source wins when a request has several usable identities (Client Connector tunnel, Surrogate IP mapping, SAML cookie); and whether authentication state survives a Client Connector network-type change mid-session.",
+      "blocks": "explaining an unexpected re-authentication or a transaction judged as the wrong user",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "workload-identity": {
+      "kind": "semantic",
+      "title": "How a Service Edge treats Cloud Connector workload traffic with no user identity",
+      "status": "open",
+      "former_ids": [
+        "shared-21"
+      ],
+      "detail": "Workload groups scope ZIA rules to cloud workloads (zia.workload-groups), but no source says how the edge's authentication handles workload traffic from a Cloud Connector location with authentication enabled (skip, block or another mechanism), whether Surrogate IP binds workloads sharing a Cloud Connector address, what the authentication frequency means for long-lived workload sessions, or what the user identity fields of the ZIA web and firewall records hold for such traffic. The ledger's assumption that Cloud Connector session records use the ZIA firewall field set is wrong: they are a separate format (cloud-connector.logs:not-zia-firewall).",
+      "blocks": "explaining why a rule did or did not match workload traffic",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

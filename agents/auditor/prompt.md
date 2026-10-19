@@ -66,7 +66,7 @@ A good `/z-auditor` invocation includes a **scope**. The scope can be:
 | Field | Example |
 |---|---|
 | **Directory** | `references/zia/logs/`, `references/shared/`, `references/zpa/` |
-| **File** | `references/shared/siem-log-mapping.md` |
+| **File** | `node scripts/kb.mjs resolve shared.siem-mapping` |
 | **Whole repo** | `.` or empty |
 | **Topic across paths** | `splunk` (audit anything Splunk-related) |
 | **Recent changes** | `recent` (last N files modified per `git log --name-only`) |

@@ -1,0 +1,327 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.overview.gateway-failover",
+  "title": "Cloud Connector tunnels to Service Edges: primary, secondary, tertiary, fail-close and fail-open",
+  "aliases": [
+    "cloud connector fail open",
+    "cloud connector fail close",
+    "cloud connector failover",
+    "cloud connector secondary gateway",
+    "cloud connector tertiary gateway",
+    "cloud connector cannot reach zia",
+    "cloud connector data plane",
+    "cloud connector zpa enrollment"
+  ],
+  "binds": [
+    "ztw/forwarding-gateways#failClosed"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.load-balancing"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.forwarding.predefined-rules"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.forwarding.methods"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Each Cloud Connector keeps its own tunnels to Zscaler Service Edges; the cloud load balancer in front of it is a different layer ([[cloud-connector.overview.load-balancing]]). {{data-plane}}"
+    },
+    {
+      "label": "Which Service Edge.",
+      "text": "{{geolocation-default}} The default rule that sends internet-bound traffic to Internet & SaaS is described in [[cloud-connector.forwarding.predefined-rules]]."
+    },
+    {
+      "label": "Primary, secondary, tertiary.",
+      "steps": [
+        {
+          "text": "{{primary-active}}"
+        },
+        {
+          "text": "{{secondary-failover}} {{failover-30s}}"
+        },
+        {
+          "text": "{{tertiary}} Whether the tertiary attempt can be turned off or chosen is open {{gap:tertiary-control}}."
+        }
+      ]
+    },
+    {
+      "text": "What becomes of sessions already on the secondary when the primary returns is not stated {{gap:sessions-on-failback}}."
+    },
+    {
+      "label": "When no Cloud Connector reaches a Service Edge.",
+      "text": "{{fail-close-default}} {{fail-open-option}} The two clauses of the fail-open description are hard to reconcile, and where the toggle lives is not named {{gap:fail-open-egress}}."
+    },
+    {
+      "text": "{{gateway-fail-closed-field}} {{fail-closed-is-the-toggle}}"
+    },
+    {
+      "label": "Private Access.",
+      "text": "{{zpa-enrolled}} {{zpa-nearest}} That the Cloud Connector and the App Connector never connect directly is not stated {{gap:no-direct-path}}."
+    },
+    {
+      "text": "The console's Inactive status reflects a lost management plane while the data plane keeps forwarding: [[cloud-connector.insights.connector-status:inactive-meaning]]. Control plane health checks are among the Event log triggers: [[cloud-connector.logs.event-records:when-generated]]. The direction and ports of the control channel are not stated {{gap:control-plane}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether any Cloud Connector in the group could reach an Internet & SaaS Service Edge; only when none could does the fail-close or fail-open setting decide the outcome.",
+      "uses": [
+        "fail-close-default",
+        "fail-open-option"
+      ]
+    },
+    {
+      "do": "The gateway the forwarding rule uses, and its `failClosed` value.",
+      "uses": [
+        "gateway-fail-closed-field",
+        "fail-closed-is-the-toggle"
+      ]
+    },
+    {
+      "do": "Whether an outage lasted less than the roughly 30 seconds the failover to the secondary tunnel takes.",
+      "uses": [
+        "failover-30s"
+      ]
+    },
+    {
+      "do": "For Private Access traffic, whether the Cloud Connector is enrolled with Private Access and an App Connector serves the application.",
+      "uses": [
+        "zpa-enrolled"
+      ]
+    }
+  ],
+  "claims": {
+    "data-plane": {
+      "statement": "The data plane processes and forwards workload traffic to Internet & SaaS and Private Access Service Edges, and is made of outbound connections from the service interface of each Cloud Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "The data plane is used to process and forward workload traffic to Internet & SaaS Public Service Edges or Private Service Edges and Private Access Public Service Edges or Private Service Edges.",
+            "The data plane is composed of outbound connections from the service interface of each Cloud Connector."
+          ]
+        }
+      ]
+    },
+    "geolocation-default": {
+      "statement": "The Internet & SaaS and Private Access Service Edges are selected using geolocation; traffic forwarding rules can instead use specific Public Service Edges, Virtual Service Edges, or sub-clouds for given Cloud Connector groups and locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "the Internet & SaaS Public Service Edges or Private Service Edges and Private Access Public Service Edges or Private Service Edges are selected using geolocation.",
+            "It is possible to configure traffic forwarding rules to utilize specific Public Service Edges, Virtual Service Edges, or sub-clouds for various Cloud Connector groups and locations."
+          ]
+        }
+      ]
+    },
+    "primary-active": {
+      "statement": "Workload traffic handled by rules with the Internet & SaaS forwarding method uses the primary gateway as the active tunnel to the Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "Workload traffic that is processed by traffic forwarding rules configured with the Internet & SaaS forwarding method uses the primary gateway as the active tunnel to the Internet & SaaS Public Service Edges or Private Service Edges"
+          ]
+        }
+      ]
+    },
+    "secondary-failover": {
+      "statement": "On a failed connection, Cloud Connector marks the secondary gateway as the active tunnel and forwards workload traffic through it; when the primary is healthy again it is marked active and new sessions go through the primary tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "In the event of a failed connection, Cloud Connector marks the secondary gateway as the active tunnel and forwards workload traffic via the secondary gateway",
+            "When the primary gateway is healthy again, it is marked as active and Cloud Connector forwards new sessions to the Internet & SaaS Public Service Edges or Private Service Edges and Private Access Public Service Edges or Private Service Edges via the primary gateway tunnel."
+          ]
+        }
+      ]
+    },
+    "failover-30s": {
+      "statement": "Cloud Connector monitors its gateway connections, and if the active tunnel fails it fails over to the secondary tunnel in approximately 30 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "Cloud Connector monitors the gateway connections to ensure the data path exists",
+            "the Cloud Connector will fail over to the secondary tunnel in approximately 30 seconds."
+          ]
+        }
+      ]
+    },
+    "tertiary": {
+      "statement": "By default, Cloud Connector automatically tries a tertiary Service Edge if the primary and secondary have failed; it is not limited to the two Service Edges selected for tunneling.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "By default, Cloud Connector automatically tries to connect to a tertiary Internet & SaaS Public Service Edge",
+            "if the primary and secondary have failed.",
+            "Cloud Connector is not limited to just the two Internet & SaaS Public Service Edges or Private Service Edges and Private Access Public Service Edges or Private Service Edges that are selected for tunneling."
+          ]
+        }
+      ]
+    },
+    "fail-close-default": {
+      "statement": "The default gateway configuration fails closed: internet-bound workload traffic is dropped if none of the Cloud Connectors in the same group can establish connectivity to any Internet & SaaS Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "The default gateway configuration will fail-close, meaning that internet-bound traffic from workloads is dropped if none of the Cloud Connectors in the same group are able to establish connectivity to any of the Internet & SaaS Service Edges."
+          ]
+        }
+      ]
+    },
+    "fail-open-option": {
+      "statement": "Customers can change this to fail-open, which lets workloads accessing the internet continue to do so; the same sentence says the fail-open option means egressing traffic flows through Zscaler for inspection and policy control.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "Customers can change this configuration to fail-open, allowing workloads that are accessing the internet to continue doing so. The fail-open option means the egressing traffic is flowing through Zscaler for inspection and policy control."
+          ]
+        }
+      ]
+    },
+    "gateway-fail-closed-field": {
+      "statement": "The API's forwarding gateway object (`/gateways`) has a `failClosed` boolean: true means traffic is dropped when both the primary and secondary proxies defined in the gateway are unreachable, false means it is allowed.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-gateways#failClosed"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1gateways/post/requestBody/content/application~1json/schema/properties/failClosed",
+          "expect": {
+            "type": "boolean",
+            "description": "A true value indicates that traffic must be dropped when both primary and secondary proxies defined in the gateway are unreachable. A false value indicates that traffic must be allowed."
+          }
+        }
+      ]
+    },
+    "fail-closed-is-the-toggle": {
+      "statement": "The fail-close or fail-open choice the high-availability article describes may be this per-gateway `failClosed` setting, which would make it a property of the forwarding gateway a rule uses rather than a tenant-wide switch.",
+      "tier": "B",
+      "derived_from": [
+        "fail-close-default",
+        "fail-open-option",
+        "gateway-fail-closed-field"
+      ],
+      "conditions": "Inference: the help article names no setting, and the API description speaks of the gateway's primary and secondary proxies rather than of all Cloud Connectors in a group. Confirm in a tenant before relying on it."
+    },
+    "zpa-enrolled": {
+      "statement": "Cloud Connectors enrolled with Private Access automatically establish a secure connection to an optimal Private Access Public or Private Service Edge; workloads reaching private applications are tunneled there, and the data path continues through the App Connectors configured for the application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "Cloud Connectors that are enrolled with Private Access automatically establish a secure connection to an optimal Private Access Public Service Edge or Private Service Edge in the ZTE.",
+            "This secure connection allows for the workloads accessing private applications to be securely tunneled to the Private Access Public Service Edge or Private Service Edge",
+            "allows the data path to be connected through App Connectors configured for the accessed application."
+          ]
+        }
+      ]
+    },
+    "zpa-nearest": {
+      "statement": "Like Zscaler Client Connector, Cloud Connector tries to resolve the most optimal or nearest Private Access Public Service Edge or Private Service Edge for private application access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "Cloud Connector, similar to Zscaler Client Connector, attempts to resolve the most optimal or nearest Private Access Public Service Edge or Private Service Edge for private application access."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "fail-open-egress": {
+      "kind": "semantic",
+      "title": "Where fail-open traffic goes, and where the fail-open toggle lives",
+      "status": "open",
+      "former_ids": [
+        "cloud-connector-08"
+      ],
+      "detail": "Fail-open applies only when no Cloud Connector in the group reaches any Internet & SaaS Service Edge, yet the article says fail-open egress \"is flowing through Zscaler for inspection and policy control\". Whether fail-open traffic goes direct to the internet uninspected or through some retained Zscaler path is not resolved; neither reading should be stated as fact. The article also does not name where the setting is changed (the gateway `failClosed` member is the likely place). The ledger entry's third question, the health-probe port, is in cloud-connector.overview.load-balancing:probe-port.",
+      "blocks": "telling an operator whether workloads stay inspected during a full Service Edge outage",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "tertiary-control": {
+      "kind": "semantic",
+      "title": "Whether the tertiary Service Edge attempt is configurable",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Tertiary gateway is automatic, not user-configured. A tenant that wants full control over failover sequencing has only primary/secondary configurable.\" The source says the tertiary attempt happens \"by default\", which leaves open whether it can be disabled.",
+      "blocks": "answers about which Service Edges a Cloud Connector can end up using",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "sessions-on-failback": {
+      "kind": "semantic",
+      "title": "What happens to sessions on the secondary when the primary recovers",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Existing sessions on secondary continue until they terminate naturally. No forced migration.\" The source states only that new sessions go through the primary again.",
+      "blocks": "explaining long-lived connections after a failback",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "control-plane": {
+      "kind": "semantic",
+      "title": "Direction and ports of the Cloud Connector control channel",
+      "status": "open",
+      "detail": "Unverified legacy statement: the control plane is \"Cloud Connector's bidirectional management channel to the Zero Trust Exchange for config, heartbeat, policy updates\", both planes are outbound-only, and \"No inbound connection is ever made to a Cloud Connector from Zscaler's side.\" Other captures establish that a management plane exists and is monitored (cloud-connector.insights.connector-status:inactive-meaning; control plane health checks raise Event logs, cloud-connector.logs.event-records:when-generated), but none states its direction, ports or whether anything is ever inbound.",
+      "blocks": "firewall and security-group design for the Cloud Connector management interface",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "no-direct-path": {
+      "kind": "semantic",
+      "title": "Whether workloads and App Connectors ever connect directly",
+      "status": "open",
+      "detail": "Unverified legacy statement: on the Private Access path (Workload, Cloud Connector, ZPA Service Edge, App Connector, application), Cloud Connectors and App Connectors \"never talk directly\". The high-availability article describes the path through the Service Edge but does not say a direct connection is impossible.",
+      "blocks": "security reviews of the workload-to-private-app path",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

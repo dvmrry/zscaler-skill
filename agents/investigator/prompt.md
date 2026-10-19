@@ -12,8 +12,8 @@ sources:
   - "agents/investigator/grounding/index.md"
   - "agents/investigator/methodology.md"
   - "agents/siem-emission-discipline.md"
-  - "references/shared/siem-log-mapping.md"
-  - "references/shared/splunk-queries.md"
+  - "kb:shared.siem-mapping"
+  - "kb:shared.splunk"
   - "agents/tenant-schema-derivation.md"
   - "docs/data-contract/knowledge.md"
 dependencies:
@@ -149,7 +149,7 @@ A `kb:<id>` entry is a knowledge-graph subject: load it with `node scripts/kb.mj
 
 | Framing mentions... | Load via file-read tool |
 |---|---|
-| SIPA, Source IP Anchoring | `references/shared/source-ip-anchoring.md` |
+| SIPA, Source IP Anchoring | `node scripts/kb.mjs resolve shared.source-ip-anchoring` |
 | App Connector, connector health, connector flap, connector status, connector assignment | `kb:zpa.app-connectors` and `kb:zpa.server-groups` |
 | App Connector Metrics, AliveTargetCount, TargetCount | `node scripts/kb.mjs resolve zpa/app-connector-metrics-log` (fields), `zpa.logs.app-connector-metrics` |
 | ZPA reachability, private app unreachable, app missing, application not found | `kb:zpa.app-segments`, `kb:zpa.server-groups`, and `kb:zpa.policy` |
@@ -159,7 +159,7 @@ A `kb:<id>` entry is a knowledge-graph subject: load it with `node scripts/kb.mj
 | ZIA URL filtering, URL category, allow / block rule | `kb:zia.url-filtering` |
 | SSL inspection, TLS inspection, inspection bypass | `kb:zia.ssl-inspection` and `kb:zia.ssl-inspection.pipeline` |
 | ZCC, Zscaler Client Connector, Z-Tunnel, forwarding profile | start at `references/zcc/index.md` |
-| Service Edge, ZEN, broker, Public Service Edge | `references/shared/cloud-architecture.md` and `references/shared/terminology.md` |
+| Service Edge, ZEN, broker, Public Service Edge | `node scripts/kb.mjs resolve shared.cloud-architecture` and `node scripts/kb.mjs resolve shared.terminology` |
 | Private Service Edge, PSE, PSEN | `kb:zia.private-service-edge` (Virtual Service Edge: `kb:zia.virtual-service-edge`) |
 | Cloud Connector, Branch Connector | `references/cloud-connector/index.md` |
 | ZDX probe, deeptrace, Cloud Path | start at `references/zdx/index.md` |
@@ -174,7 +174,7 @@ Product defaults (ZIA allow-by-default vs ZPA deny-by-default) and architectural
 
 - **User-pointed path takes priority.** If the framing contains a path or slug (e.g., `_data/cases/test-foo/`, `2026-04-30-ci-silent-failures`), that directory is the operative artifact — read its `journal.md` (if any) and `evidence/*` first. The user is telling you where the work lives; respect the pointer instead of creating a sibling. This directory is also the save target for Step 6.
 - **Current case's `evidence/` directory** — if `_data/cases/<operative-slug>/evidence/` exists and has files, read them before asking the user what to investigate. The user may have placed CI logs, API dumps, or screenshots there that already carry the answer. The same applies to evidence files attached to the current chat (paste-ins, file uploads).
-- **Tenant config (IaC and live)** — `node scripts/kb.mjs resolve <type-id | text>` reports which tiers the company overlay offers. When `overlay.json` declares `iac`, the overlay's IaC files are the source for URL filtering rules, access policies, segments, connector groups; when it declares `live`, read-only `zscalerctl` answers what IaC cannot or checks drift. The overlay lives at `$ZSCALER_KB_OVERLAY` or `<runtime-data mount>/overlay/`. In Step 2, enumerate the overlay's IaC first, then load only the harness-approved entry points selected from that enumeration — do not load the whole IaC tree. The cloud is inferable from the tenant's API base URL (`zsapi.zscaler.net` ⇒ `zs1`, `zsapi.zscalerthree.net` ⇒ `zs3`, etc. — see [`../shared/cloud-architecture.md`](../../references/shared/cloud-architecture.md) if unfamiliar). Do not paper over a missing product: if the overlay's IaC has no ZPA coverage for `zs2`, report that no ZPA IaC was found and continue from references/evidence (or a drafted read-only `zscalerctl` command) instead of inferring tenant ZPA state.
+- **Tenant config (IaC and live)** — `node scripts/kb.mjs resolve <type-id | text>` reports which tiers the company overlay offers. When `overlay.json` declares `iac`, the overlay's IaC files are the source for URL filtering rules, access policies, segments, connector groups; when it declares `live`, read-only `zscalerctl` answers what IaC cannot or checks drift. The overlay lives at `$ZSCALER_KB_OVERLAY` or `<runtime-data mount>/overlay/`. In Step 2, enumerate the overlay's IaC first, then load only the harness-approved entry points selected from that enumeration — do not load the whole IaC tree. The cloud is inferable from the tenant's API base URL (`zsapi.zscaler.net` ⇒ `zs1`, `zsapi.zscalerthree.net` ⇒ `zs3`, etc. — see [`shared.cloud-architecture`](kb:shared.cloud-architecture) if unfamiliar). Do not paper over a missing product: if the overlay's IaC has no ZPA coverage for `zs2`, report that no ZPA IaC was found and continue from references/evidence (or a drafted read-only `zscalerctl` command) instead of inferring tenant ZPA state.
 - **Script outputs** — `_data/schemas/` holds dumped output from skill scripts (issue-watch, find-asymmetries, hygiene digests). Relevant if the framing involves a recent skill-script run.
 
 **Do not browse sibling case directories.** Unless the user explicitly points at a specific case directory, do not `ls _data/cases/`, do not read any other case's `journal.md`, and do not surface "this looks similar to a prior case" to the user. Cross-pollinating findings between investigations contaminates evidence and produces false confidence; the discipline for safely re-using prior journals isn't refined enough yet. Stay scoped to the operative directory the user named (or a fresh slug if none was named).
@@ -184,7 +184,7 @@ block must list every file read in this step (one path per line). Example:
 
 ```
 Grounding files loaded:
-  - references/shared/source-ip-anchoring.md
+  - `shared.source-ip-anchoring`
   - `kb:zpa.app-connectors`
   - `kb:zpa.logs.user-activity`
   - overlay IaC for zia/url-filtering-rules
@@ -316,8 +316,8 @@ the next evidence source.
 
 Two related pattern catalogs stay on-demand — load only when actually emitting:
 
-- [`references/shared/siem-log-mapping.md`](../../references/shared/siem-log-mapping.md) — Zscaler log-type → SIEM landing-pattern catalog.
-- [`references/shared/splunk-queries.md`](../../references/shared/splunk-queries.md) — Splunk SPL pattern catalog.
+- [`shared.siem-mapping`](kb:shared.siem-mapping) — Zscaler log-type → SIEM landing-pattern catalog.
+- [`shared.splunk`](kb:shared.splunk) — Splunk SPL pattern catalog.
 
 ## Escalation
 
@@ -370,8 +370,8 @@ Cross-cutting discipline docs and methodology supplements are listed as `depende
 - [`investigator/harness.md`](./harness.md) — checkpoint and phase contract
 - [`investigator/diagnostics/template.md`](./diagnostics/template.md) — authoring template for verified diagnostics
 - [`siem-emission-discipline.md`](../siem-emission-discipline.md) — agent execution modes, public/private boundary
-- [`siem-log-mapping.md`](../../references/shared/siem-log-mapping.md) — Zscaler log type catalog
-- [`splunk-queries.md`](../../references/shared/splunk-queries.md) — Splunk SPL pattern catalog
+- [`shared.siem-mapping`](kb:shared.siem-mapping) — Zscaler log type catalog
+- [`shared.splunk`](kb:shared.splunk) — Splunk SPL pattern catalog
 - [`tenant-schema-derivation.md`](../tenant-schema-derivation.md) — canonical vs. tenant schemas, derivation recipes
 - [`auditor/prompt.md`](../auditor/prompt.md) — `/z-auditor` playbook (checklist-driven sibling)
 - [`soc/prompt.md`](../soc/prompt.md) — `/z-soc` playbook (security-posture sibling)

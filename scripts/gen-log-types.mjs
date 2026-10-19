@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// gen-log-types.mjs — generate log types from captured help articles: ZIA NSS feeds and ZPA LSS log types.
+// gen-log-types.mjs — generate log types from captured help articles: ZIA NSS feeds, ZPA LSS log types and
+// Cloud & Branch Connector NSS feeds.
 //
 // Zscaler publishes each NSS feed format as a help article ("NSS Feed Output Format: Web Logs") whose
 // tables list Field, Description, Example and Insights Logs, one table per field category under its own
@@ -233,6 +234,65 @@ for (const [feed, meta] of Object.entries(FEEDS)) {
   };
   write(target, out, Object.keys(fields).length, skipped);
 }
+// Cloud & Branch Connector NSS feeds (API and SDK scope `ztw`): one "NSS Feed Output Format" article per feed,
+// tables of Field (or "Field in Logs"), Description and Example under category headings. The metrics article
+// holds three record kinds, each under its own top-level heading (VM, Instance, Resource) with the same
+// category headings below it, so each kind is its own type. An Events row can carry two tokens
+// (`%s{attr1_name}, %s{attr1_val}`); each token becomes a field.
+const ZTW = {
+  "session-log": { src: "cbc-nss-feed-output-format-session-logs.json", aliases: ["cloud connector session log", "branch connector session log", "cbc session logs"] },
+  "dns-log": { src: "cbc-nss-feed-output-format-dns-logs.json", aliases: ["cloud connector dns log", "branch connector dns log", "cbc dns logs"] },
+  "event-log": { src: "cbc-nss-feed-output-format-event-logs.json", aliases: ["cloud connector event log", "branch connector event log", "cbc event logs"] },
+  "metrics-vm-log": { src: "cbc-nss-feed-output-format-metrics-logs.json", section: "VM", aliases: ["cloud connector vm metrics log", "cbc vm metrics"] },
+  "metrics-instance-log": { src: "cbc-nss-feed-output-format-metrics-logs.json", section: "Instance", aliases: ["cloud connector instance metrics log", "cbc instance metrics"] },
+  "metrics-resource-log": { src: "cbc-nss-feed-output-format-metrics-logs.json", section: "Resource", aliases: ["cloud connector resource metrics log", "cbc resource metrics"] },
+};
+const ZTW_SECTIONS = new Set(["VM", "Instance", "Resource"]);
+
+for (const [name, meta] of Object.entries(ZTW)) {
+  const doc = JSON.parse(fs.readFileSync(path.join(ROOT, "vendor/zscaler-help", meta.src), "utf8"));
+  const text = captureText(doc.blocks);
+  const fields = {};
+  const skipped = [];
+  let section = null;
+  let heading = null;
+  for (const b of doc.blocks) {
+    if (b.heading !== undefined) {
+      if (ZTW_SECTIONS.has(b.heading)) section = b.heading;
+      heading = b.heading;
+      continue;
+    }
+    if (!b.table || (meta.section && section !== meta.section)) continue;
+    const [header, ...body] = b.table;
+    for (const row of body) {
+      const cells = Object.fromEntries(header.map((h, i) => [h.trim(), row[i] ?? ""]));
+      const tokens = [...(cells.Field ?? cells["Field in Logs"] ?? "").matchAll(/%(\d*)([a-z]*)\{([^}]+)\}/g)]; // one DNS row is written `%{...}`, without a type letter
+      if (!tokens.length) { skipped.push(cells.Field ?? cells["Field in Logs"]); continue; }
+      const quote = quoteFor(row, text);
+      for (const m of tokens) {
+        if (fields[m[3]]) { skipped.push(m[0]); continue; }
+        fields[m[3]] = {
+          type: TYPES[m[2]] || "string",
+          description: `${cells.Description.trim()}${cells.Example?.trim() ? ` (example: ${cells.Example.trim()})` : ""} [${heading}]`,
+          ...(quote ? { evidence: [{ source: "zscaler-help", path: meta.src, quotes: [quote] }] } : {}),
+        };
+      }
+    }
+  }
+  const target = path.join(ROOT, "references/cloud-connector/types", `${name}.json`);
+  const prev = fs.existsSync(target) ? JSON.parse(fs.readFileSync(target, "utf8")) : {};
+  write(target, {
+    schema_version: 1,
+    id: `ztw/${name}`,
+    kind: "log",
+    product: "ztw",
+    title: prev.title || `Cloud & Branch Connector ${doc.title.replace(/^NSS Feed Output Format: /, "").replace(/ Logs$/, "")}${meta.section ? ` (${meta.section})` : ""} log (NSS feed)`,
+    aliases: prev.aliases || meta.aliases,
+    evidence: [{ source: "zscaler-help", path: meta.src, quotes: [text.split("\n")[0].slice(0, 120).replace(/\s+\S*$/, "")] }],
+    fields,
+  }, Object.keys(fields).length, skipped);
+}
+
 if (check) {
   if (stale) { console.error("run node scripts/gen-log-types.mjs"); process.exit(1); }
   console.log("log types are current");

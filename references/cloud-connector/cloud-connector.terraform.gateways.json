@@ -1,0 +1,371 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.terraform.gateways",
+  "title": "ZTC forwarding and DNS gateways in Terraform and the Go SDK: subclouds, manual proxies, and the two DNS gateway resources",
+  "aliases": [
+    "ztc_forwarding_gateway subcloud",
+    "subcloud_primary",
+    "ztc manual_primary",
+    "ztc_dns_gateway vs ztc_dns_forwarding_gateway",
+    "dns_forwarding_gateway package",
+    "dnsGatewayType",
+    "ztc dns gateway type"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.subclouds"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.provider-behavior"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.gateway-failover"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api.gateways-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Gateways are where traffic and DNS forwarding rules send traffic. Their arguments and enum values are generated (`node scripts/kb.mjs surface ztc_forwarding_gateway`, `ztc_dns_gateway`, `ztc_dns_forwarding_gateway`); this subject holds what the provider and SDK do with them and where their sources disagree."
+    },
+    {
+      "heading": "Forwarding gateways"
+    },
+    {
+      "label": "Proxy types.",
+      "text": "{{manual-override-meaning}} How gateways fail over is in [[cloud-connector.overview.gateway-failover]]."
+    },
+    {
+      "label": "Subclouds.",
+      "text": "{{provider-wires-subclouds}} The SDK's own comment calls the fields not applicable to Cloud and Branch Connector {{divergence:subcloud-applicability}}, and whether the service honors them is open {{gap:subcloud-backend}}. Subclouds in general are in [[shared.subclouds]]. A `fail_closed = false` cannot be sent on update: [[shared.sdk-go.zero-value-writes]]."
+    },
+    {
+      "heading": "DNS gateways"
+    },
+    {
+      "label": "Two resources, two packages, one endpoint.",
+      "text": "{{two-resources-two-packages}} {{structs-differ}} {{forwarding-resource-sends-no-type}} {{forwarding-resource-omits-type-keys}} {{contract-dns-gateway-shape}} What the API does with a create that carries no type is open {{gap:dns-gateway-type-semantics}}. The extra response value the `dns_forwarding_gateway` functions declare is always nil: [[cloud-connector.api.gateways-wire]]."
+    },
+    {
+      "label": "Server choices.",
+      "text": "{{console-one-choice-per-slot}} {{no-plan-time-conflict-check}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which DNS gateway resource manages the object; ztc_dns_gateway sends dns_gateway_type, ztc_dns_forwarding_gateway sends no type at all.",
+      "uses": [
+        "two-resources-two-packages",
+        "forwarding-resource-sends-no-type"
+      ]
+    },
+    {
+      "do": "Before relying on subcloud_primary or subcloud_secondary, read the gateway back from the API and confirm the subcloud stuck and is used for DC proxy selection.",
+      "uses": [
+        "provider-wires-subclouds",
+        "subcloud-backend"
+      ]
+    }
+  ],
+  "claims": {
+    "manual-override-meaning": {
+      "statement": "For a forwarding gateway's primary and secondary proxy types, the provider schema describes AUTO as an automatic proxy, DC as a manual proxy through a selected data center, and MANUAL_OVERRIDE as forwarding through a specified IP address or domain; `manual_primary` and `manual_secondary` hold the data center, IP address or domain name, depending on the type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_forwarding_gateway.go",
+          "after": "\"primary_type\": {",
+          "quotes": [
+            "Type of the primary proxy, such as automatic proxy (AUTO), manual proxy (DC) that forwards traffic through a selected data center (DC), or override (MANUAL_OVERRIDE) that forwards traffic through a specified IP address or domain."
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_forwarding_gateway.go",
+          "after": "\"manual_primary\": {",
+          "quotes": [
+            "Depending on the proxy forwarding type specified (AUTODC), this field includes a preconfigured data center, or a specified IP address or domain name."
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_forwarding_gateway.go",
+          "after": "\"secondary_type\": {",
+          "quotes": [
+            "Type of the secondary proxy, such as automatic proxy (AUTO), manual proxy (DC) that forwards traffic through a selected data center (DC), or override (MANUAL_OVERRIDE) that forwards traffic through a specified IP address or domain."
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_forwarding_gateway.go",
+          "after": "\"manual_secondary\": {",
+          "quotes": [
+            "Specifies the secondary proxy through which traffic must be forwarded",
+            "Depending on the proxy forwarding type specified (AUTODC), this field includes a preconfigured data center, or a specified IP address or domain name."
+          ]
+        }
+      ]
+    },
+    "provider-wires-subclouds": {
+      "statement": "The forwarding gateway resource declares `subcloud_primary` and `subcloud_secondary` as single ID-and-name blocks for a manual (DC) proxy when the organization has subclouds, sends them in the request (`SubCloudPrimary`, `SubCloudSecondary`) and reads them back into state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_forwarding_gateway.go",
+          "quotes": [
+            "\"subcloud_primary\": setIdNameSchemaCustom(1, \"If a manual (DC) primary proxy is used and if the organization has subclouds associated, you can specify a subcloud using this field for the specified DC\"),",
+            "SubCloudPrimary: expandCommonIDNameExternalID(d, \"subcloud_primary\"),",
+            "SubCloudSecondary: expandCommonIDNameExternalID(d, \"subcloud_secondary\"),",
+            "if err := d.Set(\"subcloud_primary\", flattenCommonIDNameExternalID(resp.SubCloudPrimary)); err != nil {",
+            "\"subcloud_secondary\": setIdNameSchemaCustom(1, \"If a manual (DC) secondary proxy is used and if the organization has subclouds associated, you can specify a subcloud using this field for the specified DC\"),",
+            "if err := d.Set(\"subcloud_secondary\", flattenCommonIDNameExternalID(resp.SubCloudSecondary)); err != nil {"
+          ]
+        }
+      ]
+    },
+    "two-resources-two-packages": {
+      "statement": "`ztc_dns_gateway` is implemented on the SDK's `dns_gateway` package and `ztc_dns_forwarding_gateway` on the `forwarding_gateways/dns_forwarding_gateway` package; both packages send their requests to /ztw/api/v1/dnsGateways.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_dns_gateway.go",
+          "quotes": [
+            "dnsgateway \"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/dns_gateway\"",
+            "resp, err := dnsgateway.Create(ctx, service, &req)"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_dns_forwarding_gateway.go",
+          "quotes": [
+            "resp, _, err := dns_forwarding_gateway.Create(ctx, service, &req)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/dns_gateway/dns_gateway.go",
+          "quotes": [
+            "dnsGatewayEndpoint = \"/ztw/api/v1/dnsGateways\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/forwarding_gateways/dns_forwarding_gateway/dns_forwarding_gateway.go",
+          "quotes": [
+            "dnsGatewayEndpoint = \"/ztw/api/v1/dnsGateways\""
+          ]
+        }
+      ]
+    },
+    "structs-differ": {
+      "statement": "The two SDK structs differ: both carry `dnsGatewayType`, but only the `dns_forwarding_gateway` struct also has a `type` field, whose comment (copied onto most of its fields) says the supported types are ZIA and ECSELF.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/forwarding_gateways/dns_forwarding_gateway/dns_forwarding_gateway.go",
+          "quotes": [
+            "// Type of the gateway. Supported types are ZIA and ECSELF (Log and Control gateway). Type string `json:\"type,omitempty\"`",
+            "DNSGatewayType string `json:\"dnsGatewayType,omitempty\"`",
+            "// Type of the gateway. Supported types are ZIA and ECSELF (Log and Control gateway). FailureBehavior string `json:\"failureBehavior,omitempty\"`",
+            "// Type of the gateway. Supported types are ZIA and ECSELF (Log and Control gateway). PrimaryIP string `json:\"primaryIp,omitempty\"`",
+            "// Type of the gateway. Supported types are ZIA and ECSELF (Log and Control gateway). ECDNSGatewayOptionsSecondary string `json:\"ecDnsGatewayOptionsSecondary,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/dns_gateway/dns_gateway.go",
+          "quotes": [
+            "type DNSGateway struct { ID int `json:\"id,omitempty\"` Name string `json:\"name,omitempty\"` DNSGatewayType string `json:\"dnsGatewayType,omitempty\"`",
+            "LastModifiedBy *common.CommonIDNameExternalID `json:\"lastModifiedBy,omitempty\"` }"
+          ]
+        }
+      ]
+    },
+    "forwarding-resource-sends-no-type": {
+      "statement": "The `ztc_dns_forwarding_gateway` request builder sets only the ID, name, failure behavior, primary and secondary IPs and the two Edge Connector DNS options; it sets neither `Type` nor `DNSGatewayType`. The `ztc_dns_gateway` builder sets `DNSGatewayType` from `dns_gateway_type`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_dns_forwarding_gateway.go",
+          "quotes": [
+            "result := dns_forwarding_gateway.DNSGateway{ ID: id, Name: d.Get(\"name\").(string), FailureBehavior: d.Get(\"failure_behavior\").(string), PrimaryIP: d.Get(\"primary_ip\").(string), SecondaryIP: d.Get(\"secondary_ip\").(string),",
+            "ECDNSGatewayOptionsPrimary: d.Get(\"ec_dns_gateway_options_primary\").(string), ECDNSGatewayOptionsSecondary: d.Get(\"ec_dns_gateway_options_secondary\").(string), } return result"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_dns_gateway.go",
+          "quotes": [
+            "DNSGatewayType: d.Get(\"dns_gateway_type\").(string),"
+          ]
+        }
+      ]
+    },
+    "forwarding-resource-omits-type-keys": {
+      "statement": "So a DNS gateway created or updated through `ztc_dns_forwarding_gateway` is sent with no `type` and no `dnsGatewayType` key, because both fields are empty and tagged `omitempty`.",
+      "tier": "B",
+      "derived_from": [
+        "forwarding-resource-sends-no-type",
+        "structs-differ",
+        "shared.sdk-go.zero-value-writes:omitempty-drops-zero-values"
+      ],
+      "conditions": "Follows from Go's encoding/json omitempty handling of empty strings; not run against the API."
+    },
+    "console-one-choice-per-slot": {
+      "statement": "In the console each of the Primary DNS Server and Secondary DNS Server settings is one drop-down choice: a custom DNS server (an IPv4 address) or a LAN primary or secondary DNS server reference.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-dns-gateway.json",
+          "quotes": [
+            "Primary DNS Server: From the drop-down menu, select a primary DNS server:",
+            "Secondary DNS Server: From the drop-down menu, select a secondary DNS server:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-dns-gateway.json",
+          "after": "Primary DNS Server: From the drop-down menu, select a primary DNS server:",
+          "quotes": [
+            "Custom DNS Server: Enter an IP address of your choice. Zscaler only supports IPv4 addresses.",
+            "LAN Primary DNS Server: Select the local area network (LAN) primary DNS server",
+            "LAN Secondary DNS Server: Select the LAN secondary DNS server"
+          ]
+        }
+      ]
+    },
+    "no-plan-time-conflict-check": {
+      "statement": "Neither DNS gateway resource checks at plan time that a slot is given only one of a custom IP (`primary_ip`, `secondary_ip`) and an Edge Connector DNS option (`ec_dns_gateway_options_primary`, `ec_dns_gateway_options_secondary`); a configuration setting both is sent to the API as written.",
+      "tier": "B",
+      "derived_from": [
+        "console-one-choice-per-slot"
+      ],
+      "conditions": "Absence: both resource files were searched at the pin for ConflictsWith, ExactlyOneOf and CustomizeDiff; none found. The legacy doc called the two modes mutually exclusive; no source says how the API treats both being set.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_dns_gateway.go",
+          "quotes": [
+            "Description: \"IP address of the primary custom DNS server\","
+          ]
+        }
+      ]
+    },
+    "contract-dns-gateway-shape": {
+      "statement": "In the API contract the DNS gateway create body has no `type` member and no required members, and its `dnsGatewayType` takes `OFW_PDNS_REDIR_GW` or `EC_DNS_GW`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1dnsGateways/post/requestBody/content/application~1json/schema",
+          "expect_absent": [
+            "required"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1dnsGateways/post/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "type"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1dnsGateways/post/requestBody/content/application~1json/schema/properties/dnsGatewayType",
+          "expect": {
+            "enum": [
+              "OFW_PDNS_REDIR_GW",
+              "EC_DNS_GW"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "subcloud-applicability": {
+      "summary": "The SDK's forwarding gateway struct calls the subcloud fields not applicable to Cloud and Branch Connector; the ZTC provider schema documents them for DC proxies and sends them, and the API contract carries them without an applicability note.",
+      "positions": [
+        {
+          "says": "SubCloudPrimary and SubCloudSecondary are not applicable to Cloud & Branch Connector.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/ztw/services/forwarding_gateways/zia_forwarding_gateway/zia_forwarding_gateway.go",
+            "quotes": [
+              "// Not applicable to Cloud & Branch Connector. SubCloudPrimary *common.CommonIDNameExternalID `json:\"subcloudPrimary,omitempty\"`"
+            ]
+          }
+        },
+        {
+          "says": "With a manual (DC) proxy and subclouds associated with the organization, a subcloud can be specified for the selected data center.",
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "docs/resources/ztc_forwarding_gateway.md",
+            "quotes": [
+              "If a manual (DC) primary proxy is used and if the organization has subclouds associated, you can specify a subcloud using this field for the specified data center."
+            ]
+          }
+        },
+        {
+          "says": "The forwarding gateway create body carries subcloudPrimary and subcloudSecondary as entity references, with no note that they do not apply.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1gateways/post/requestBody/content/application~1json/schema/properties/subcloudPrimary",
+            "expect": {
+              "description": "An immutable reference to an entity, which consists of ID, name, etc."
+            }
+          }
+        }
+      ],
+      "impact": "An operator cannot tell from the sources whether setting a subcloud on a Cloud Connector gateway changes DC proxy selection or is ignored."
+    }
+  },
+  "gaps": {
+    "subcloud-backend": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether Cloud and Branch Connector honors subclouds on a DC-proxy forwarding gateway",
+      "former_ids": [
+        "cloud-connector-15"
+      ],
+      "blocks": "Whether subcloud_primary and subcloud_secondary steer DC proxy selection for Cloud Connector traffic.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: \"the TF provider treats them as functional for DC-type proxies.\" The provider sends and reads the fields; the SDK comment says they do not apply. Resolves by setting a subcloud on a Cloud Connector forwarding gateway with a DC proxy and observing whether the service stores it and uses it for proxy selection."
+    },
+    "dns-gateway-type-semantics": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What the DNS gateway API does with a create that omits dnsGatewayType",
+      "former_ids": [
+        "cloud-connector-14"
+      ],
+      "blocks": "Whether ztc_dns_gateway and ztc_dns_forwarding_gateway create the same kind of object, and whether either is canonical.",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ],
+      "detail": "Unverified legacy statement: \"Whether the API distinguishes the two by dnsGatewayType is not confirmed from available sources.\" Which SDK package each resource uses is settled by the provider code, and the contract settles the shape: no type member, nothing required, dnsGatewayType one of OFW_PDNS_REDIR_GW or EC_DNS_GW (also cloud-connector.forwarding.log-and-control:dns-gateway-no-type). Still open: which type the API assigns when ztc_dns_forwarding_gateway sends none, and whether that differs from EC_DNS_GW as sent by ztc_dns_gateway."
+    }
+  }
+}

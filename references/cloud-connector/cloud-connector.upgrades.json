@@ -1,0 +1,359 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.upgrades",
+  "title": "Cloud & Branch Connector software upgrades: weekly window, stagger and release channels",
+  "aliases": [
+    "cloud connector upgrade window",
+    "cloud connector upgrade schedule",
+    "branch connector upgrade",
+    "sunday midnight upgrade",
+    "release channel stable latest beta",
+    "upgrade manager cloud connector",
+    "scheduleupgrade",
+    "cloud connector upgrade now"
+  ],
+  "binds": [
+    "ztw/ec-groups"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.upgrades.os-images"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.upgrades.monitoring"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.upgrades.zsroot-rotation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.upgrades"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Connector software upgrades itself on a weekly schedule set per group; OS images are a separate path. This subject covers the software schedule and the controls over it."
+    },
+    {
+      "label": "Cadence.",
+      "text": "{{deploy-latest}} {{weekly-auto}} {{default-window}} Which clock local time means is open {{gap:local-time-basis}}."
+    },
+    {
+      "label": "Within a group.",
+      "text": "{{two-hour-staggered}} Groups exist in part so a group can be upgraded while keeping redundancy: [[cloud-connector.overview.groups:group-purpose]]. How many connectors restart at once, and what that leaves a small group, is open {{gap:stagger-depth}}. What happens after a failed upgrade is open {{gap:failed-upgrade-retry}}."
+    },
+    {
+      "label": "Release channels.",
+      "text": "{{release-channels}}"
+    },
+    {
+      "label": "Changing the schedule.",
+      "text": "{{group-actions}} {{schedule-api}} {{release-channel-api}} {{vm-status-api}} The two API references list different upgrade operations [[cloud-connector.api.ec-groups-wire:upgrade-operations]]. Whether any operation starts an upgrade immediately is open {{gap:upgrade-now}}. {{mcp-no-ecgroup}}"
+    },
+    {
+      "label": "Related.",
+      "text": "OS images, which this schedule does not replace, are in [[cloud-connector.upgrades.os-images]]. Watching an upgrade is in [[cloud-connector.upgrades.monitoring]]. ZPA App Connectors upgrade by a separate mechanism with a 4-hour window: [[zpa.app-connectors.upgrades:four-hour-window]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The group's Upgrade Window before reading an alert near the window as an outage.",
+      "uses": [
+        "default-window",
+        "group-actions"
+      ]
+    },
+    {
+      "do": "Which release channel the group's connectors are on before comparing their versions.",
+      "uses": [
+        "release-channels"
+      ]
+    },
+    {
+      "do": "Whether the group has enough connectors to keep serving while the staggered upgrade restarts members.",
+      "uses": [
+        "two-hour-staggered",
+        "stagger-depth"
+      ]
+    }
+  ],
+  "claims": {
+    "deploy-latest": {
+      "statement": "When Cloud or Branch Connectors are deployed, their software is upgraded to the latest version; an upgrade patch can include OS upgrades and Zscaler software upgrades.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-managing-cloud-branch-connector-upgrades.json",
+          "quotes": [
+            "When Cloud or Branch Connectors are deployed, the software is upgraded to the latest version.",
+            "The upgrade patch can include OS upgrades and Zscaler software upgrades."
+          ]
+        }
+      ]
+    },
+    "weekly-auto": {
+      "statement": "Cloud and Branch Connectors check for new software versions every week and, if one is available, upgrade automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-managing-cloud-branch-connector-upgrades.json",
+          "quotes": [
+            "Cloud and Branch Connectors check for new software versions every week, and if one is available, they upgrade automatically."
+          ]
+        }
+      ]
+    },
+    "default-window": {
+      "statement": "By default the upgrade window starts every Sunday at midnight, local time of the deployed connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-managing-cloud-branch-connector-upgrades.json",
+          "quotes": [
+            "By default, the upgrade window starts every Sunday at midnight (local time of deployed Cloud or Branch Connector)."
+          ]
+        }
+      ]
+    },
+    "two-hour-staggered": {
+      "statement": "All connectors in a Cloud Connector group or Branch Connector group are updated within a two-hour window, and their upgrades are staggered to prevent service impact.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-managing-cloud-branch-connector-upgrades.json",
+          "quotes": [
+            "are updated within a two-hour window.",
+            "are staggered to prevent service impact."
+          ]
+        }
+      ]
+    },
+    "release-channels": {
+      "statement": "The cloud provisioning template selects a release channel (Stable, Latest or Beta), which determines the version a deployed Cloud Connector runs: Stable is widely adopted and proven, Latest is the most recent production release, and Beta gives early access and might contain bugs and instability. Channels are managed on the Upgrade Manager tab of the Groups page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-managing-cloud-branch-connector-upgrades.json",
+          "quotes": [
+            "In the cloud provisioning template, you can select Stable, Latest, or Beta as your release channel, which determines the version your deployed Cloud Connector runs on.",
+            "The Stable release channel is a version that has been widely adopted and proven in real environments.",
+            "The Latest release channel is a version that allows you to stay up to date with the most recent production release",
+            "The Beta release channel is a version that allows early access to new features and improvements.",
+            "This channel might contain bugs and instability.",
+            "You can manage your Cloud Connector release channels on the Upgrade Manager tab of the Groups page."
+          ]
+        }
+      ]
+    },
+    "group-actions": {
+      "statement": "On the Cloud Connector Groups overview, selected groups or connectors can be given an upgrade schedule (a day and time for periodic software updates) or a new release channel, and each group shows its Upgrade Window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-cloud-connector-groups.json",
+          "quotes": [
+            "Schedule Upgrade: Designate a day and time for periodic software updates.",
+            "Upgrade Release Channel: Update the release channel by selecting Stable, Beta, or Latest.",
+            "Upgrade Window: The window of time scheduled for performing the Cloud Connector upgrades."
+          ]
+        }
+      ]
+    },
+    "schedule-api": {
+      "statement": "The API's Update Schedule Upgrade Time operation sets a day of week, start time and end time for lists of group IDs and VM IDs.",
+      "tier": "A",
+      "binds": [
+        "ztw/ec-groups"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecgroup~1scheduleupgrade/put",
+          "expect": {
+            "description": "Update Schedule Upgrade Time"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecgroup~1scheduleupgrade/put/requestBody/content/application~1json/schema/properties",
+          "expect": {
+            "dayOfWeek": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "startTime": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "endTime": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "vmGroupIds": {
+              "items": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "vmIds": {
+              "items": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "type": "array"
+            }
+          }
+        }
+      ]
+    },
+    "release-channel-api": {
+      "statement": "The help's group API reference has a bulk operation that updates the release channel of Cloud Connector VMs, taking STABLE, LATEST or BETA for lists of group IDs and VM IDs.",
+      "tier": "A",
+      "binds": [
+        "ztw/ec-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/paths/~1ecgroup~1releaseChannel/put",
+          "expect": {
+            "description": "Updates the release channels for Cloud Connector VMs in bulk."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/components/schemas/EcVmReleaseChannelReq/properties/releaseChannel",
+          "expect": {
+            "enum": [
+              "STABLE",
+              "LATEST",
+              "BETA"
+            ]
+          }
+        }
+      ]
+    },
+    "vm-status-api": {
+      "statement": "The same reference has a bulk operation that enables or disables Cloud Connector VMs (ENABLE or DISABLE), returning the VMs that failed.",
+      "tier": "A",
+      "binds": [
+        "ztw/ec-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/paths/~1ecgroup~1vmStatus/put",
+          "expect": {
+            "description": "Updates the status of Cloud Connector virtual machines (VMs) in bulk."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/components/schemas/EcVmStatusUpgradeReq/properties/status",
+          "expect": {
+            "enum": [
+              "ENABLE",
+              "DISABLE"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/components/schemas/EcVmStatusSummary/properties/failedVms",
+          "expect": {
+            "description": "An object for storing the results of Cloud Connector VM status updates."
+          }
+        }
+      ]
+    },
+    "mcp-no-ecgroup": {
+      "statement": "The Zscaler MCP server's ZTW toolset has 19 tools, none of which reads or changes Cloud Connector groups or their upgrades.",
+      "tier": "B",
+      "conditions": "Read from the ZTW row of the generated toolset inventory at the pin: its members cover IP groups, discovery settings, admins, roles, network services and public cloud accounts and information; the row is longer than one quote can hold, so its completeness rests on that reading.",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "docs/guides/toolsets.md",
+          "after": "### ZTW — Workload Segmentation",
+          "quotes": [
+            "| `ztw` | 19 |",
+            "`ztw_list_public_cloud_info`, `ztw_list_roles` |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "local-time-basis": {
+      "kind": "semantic",
+      "title": "Which time zone sets a connector's local upgrade time",
+      "status": "open",
+      "blocks": "predicting when a group's default upgrade window opens",
+      "detail": "Unverified legacy statement: \"Local time means the timezone of the cloud region where the VM runs, not the operator's timezone, not UTC unless the region happens to be UTC.\" The help says only \"local time of deployed Cloud or Branch Connector\".",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "stagger-depth": {
+      "kind": "semantic",
+      "title": "How many connectors in a group upgrade at once",
+      "status": "open",
+      "blocks": "judging whether a small group keeps serving through its upgrade window",
+      "detail": "Unverified legacy statements: \"Active connections are served by the remaining CCs while one CC restarts\" and \"a group with exactly 2 CCs has no redundancy margin during the upgrade of the first CC\". The help states the stagger and the two-hour window but not how many members are down at once or any minimum of healthy members. The deployment recommendation of at least two connectors per availability zone across two zones is in [[doc:references/cloud-connector/overview.md#load-balancing-and-health-checks]].",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "failed-upgrade-retry": {
+      "kind": "semantic",
+      "title": "What happens after a connector upgrade fails",
+      "status": "open",
+      "blocks": "deciding whether a failed connector upgrade needs action before the next window",
+      "detail": "Unverified legacy statement: \"Failed upgrades retry at the next weekly window; they don't block the rest of the group\", and whether manual intervention is possible before then is not captured. No captured Cloud & Branch Connector source states retry behavior; the ZPA App Connector retry rule is a different product.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "upgrade-now": {
+      "kind": "semantic",
+      "title": "Whether any operation upgrades a connector immediately",
+      "status": "open",
+      "blocks": "patching one connector outside its window",
+      "detail": "Unverified legacy statement: the group API \"exposes no immediate per-VM upgrade now operation\", and the scheduling operation is not an immediate trigger. The captured API reference has an Update Vm Upgrade Status operation on a single VM whose body is a statusId and a timestamp, with no description of what it does.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecgroup~1{ecgroupId}~1vm~1{vmId}~1ustatus/put",
+          "expect": {
+            "description": "Update Vm Upgrade Status"
+          }
+        }
+      ]
+    }
+  }
+}

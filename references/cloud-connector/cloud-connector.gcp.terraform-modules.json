@@ -1,0 +1,440 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.gcp.terraform-modules",
+  "title": "Zscaler's GCP Terraform package for Cloud Connector: image, NICs, Pub/Sub Editor, FIPS and zsec defects",
+  "aliases": [
+    "terraform-gcp-cloud-connector-modules",
+    "gcp cloud connector terraform",
+    "gcp cloud connector marketplace image",
+    "zs-cc-ga-2-08132026",
+    "mpi-zscalercloudconnector-publ",
+    "grant_pubsub_editor",
+    "roles/pubsub.editor cloud connector",
+    "fips_enabled gcp",
+    "zsec gcp",
+    "cloud function zip checksum",
+    "upload_cloud_function_zip",
+    "base_cc_ilb user data json"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp.mig-autoscaling"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp.workload-discovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure.terraform-modules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler's GCP Terraform package (direct modules, example roots and the zsec helper) is the documented way to deploy Cloud Connector on GCP. Its layers carry different defaults and some defects; none of them is a Cloud Connector service behavior unless a claim says so."
+    },
+    {
+      "label": "Image.",
+      "text": "{{image-table}} {{example-image-default}}"
+    },
+    {
+      "label": "Interfaces and user data.",
+      "text": "{{instance-template}} {{user-data-metadata}}"
+    },
+    {
+      "heading": "Pub/Sub Editor grant"
+    },
+    {
+      "text": "{{pubsub-editor-default}} {{pubsub-editor-byo}} {{zsec-wds-prompt}} {{wrapper-pubsub-defaults}} Workload discovery is the feature that needs the role: [[cloud-connector.gcp.workload-discovery:pubsub-editor-required]]."
+    },
+    {
+      "heading": "FIPS"
+    },
+    {
+      "text": "{{fips-examples}} {{zsec-fips}} {{direct-module-no-fips}}"
+    },
+    {
+      "label": "Invalid JSON in two ILB roots.",
+      "text": "{{ilb-userdata-defect-code}} {{ilb-userdata-invalid}} What the Cloud Connector VM does with that payload is not established {{gap:invalid-userdata-outcome}}."
+    },
+    {
+      "heading": "Cloud Function ZIP handling in zsec"
+    },
+    {
+      "text": "{{zsec-zip-checksum}} {{existing-object-branch}} {{zsec-quoted-condition}} {{zsec-zip-flow-reentered}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether grant_pubsub_editor is set as intended for the root in use, since most example roots default it to true and the grant is project-wide.",
+      "uses": [
+        "pubsub-editor-default",
+        "pubsub-editor-byo",
+        "wrapper-pubsub-defaults",
+        "zsec-wds-prompt"
+      ]
+    },
+    {
+      "do": "Whether the rendered user data is valid JSON before deploying base_cc_ilb or cc_ilb with Secret Manager credentials.",
+      "uses": [
+        "ilb-userdata-defect-code",
+        "ilb-userdata-invalid"
+      ]
+    },
+    {
+      "do": "Which ZIP object the Cloud Functions were built from after an ASG zsec run that chose an existing bucket object.",
+      "uses": [
+        "zsec-quoted-condition",
+        "zsec-zip-flow-reentered",
+        "existing-object-branch"
+      ]
+    }
+  ],
+  "claims": {
+    "image-table": {
+      "statement": "The CCVM module README lists image zs-cc-ga-2-08132026 in project mpi-zscalercloudconnector-publ with release date 8/28/2026, marking it and zs-cc-ga-03092026 with `*` as the minimum required for Auto Scaling, and marks images zs-cc-ga-02022025 and zs-cc-ga-10292023 (`**`) as deprecated as of April 15, 2026.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-gcp/README.md",
+          "quotes": [
+            "| *zs-cc-ga-2-08132026 | mpi-zscalercloudconnector-publ | 8/28/2026 |",
+            "| *zs-cc-ga-03092026 | mpi-zscalercloudconnector-publ | 3/9/2026 |",
+            "| **zs-cc-ga-02022025 | mpi-zscalercloudconnector-publ | 2/13/2025 |",
+            "| **zs-cc-ga-10292023 | mpi-zscalercloudconnector-publ | 11/14/2023 |",
+            "*This release in the minimum required for Auto Scaling support",
+            "**Support for deploying these images are deprecated as of April 15, 2026"
+          ]
+        }
+      ]
+    },
+    "example-image-default": {
+      "statement": "The example roots look up the image in project mpi-zscalercloudconnector-publ unless `custom_image_name` is set, with `marketplace_image` defaulting to zs-cc-ga-2-08132026 and described as Zscaler recommending the latest image for new instances.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/base_1cc/variables.tf",
+          "quotes": [
+            "description = \"Available marketplace image name to deploy. Zscaler recommends always deploying new instances with the latest image\" default = \"zs-cc-ga-2-08132026\""
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/base_cc_ilb/main.tf",
+          "quotes": [
+            "count = var.custom_image_name != \"\" ? 0 : 1 project = \"mpi-zscalercloudconnector-publ\" name = var.marketplace_image"
+          ]
+        }
+      ]
+    },
+    "instance-template": {
+      "statement": "The CCVM module's instance template enables IP forwarding and lists the service subnetwork as the first network interface and the management subnetwork as the second.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-gcp/main.tf",
+          "quotes": [
+            "can_ip_forward = true",
+            "network_interface { subnetwork = var.vpc_subnetwork_ccvm_service } network_interface { subnetwork = var.vpc_subnetwork_ccvm_mgmt }"
+          ]
+        }
+      ]
+    },
+    "user-data-metadata": {
+      "statement": "The module passes the user data to the VM as the `ZSCALER` metadata key, and the example roots build it as JSON with `cc_url`, `http_probe_port`, `fips_enabled` and `gcp_service_account`, plus `secret_name` for Secret Manager or the `hcp_vault_*` keys for HashiCorp Vault.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-gcp/main.tf",
+          "quotes": [
+            "ZSCALER = var.user_data"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/base_1cc/main.tf",
+          "quotes": [
+            "\"cc_url\": \"${var.cc_vm_prov_url}\", \"secret_name\": \"${var.secret_name}\", \"http_probe_port\": ${var.http_probe_port}, \"fips_enabled\": \"${var.fips_enabled}\", \"gcp_service_account\": \"${module.iam_service_account.service_account}\"",
+            "\"hcp_vault_addr\": \"${var.hcp_vault_address}\""
+          ]
+        }
+      ]
+    },
+    "pubsub-editor-default": {
+      "statement": "In the IAM service-account module, `grant_pubsub_editor` defaults to true and is described as granting roles/pubsub.editor to the CCVM service account at project scope.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-iam-service-account-gcp/variables.tf",
+          "quotes": [
+            "variable \"grant_pubsub_editor\" { type = bool default = true description = \"If true, grant roles/pubsub.editor to the CCVM SA at project scope\" }"
+          ]
+        }
+      ]
+    },
+    "pubsub-editor-byo": {
+      "statement": "When enabled, the module creates the project IAM binding for roles/pubsub.editor on either the service account it creates or a caller-supplied (bring-your-own) one, so supplying an existing account does not avoid the grant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-iam-service-account-gcp/main.tf",
+          "quotes": [
+            "count = var.grant_pubsub_editor && var.byo_ccvm_service_account == \"\" ? 1 : 0 project = var.project role = \"roles/pubsub.editor\"",
+            "# When caller brings their own SA (full email) resource \"google_project_iam_member\" \"ccvm_editor_byo_sa\" { count = var.grant_pubsub_editor && var.byo_ccvm_service_account != \"\" ? 1 : 0 project = var.project role = \"roles/pubsub.editor\""
+          ]
+        }
+      ]
+    },
+    "zsec-wds-prompt": {
+      "statement": "The `zsec` helper asks whether to enable Workload Discovery Service integration, warning that it grants roles/pubsub.editor project-wide to the VM service account; its default answer is no, which exports `TF_VAR_grant_pubsub_editor=false`, and yes exports true.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/zsec",
+          "quotes": [
+            "workload_discovery_default=\"no\"",
+            "Enable Workload Discovery Service (WDS) integration? This grants roles/pubsub.editor project-wide to the CC VM Service Account. Only enable if WDS is required.",
+            "echo \"export TF_VAR_grant_pubsub_editor=true\" >> .zsecrc",
+            "echo \"export TF_VAR_grant_pubsub_editor=false\" >> .zsecrc"
+          ]
+        }
+      ]
+    },
+    "wrapper-pubsub-defaults": {
+      "statement": "The example roots default `grant_pubsub_editor` to true in `base_1cc`, `base_1cc_zpa`, `base_cc_asg`, `base_cc_asg_zpa`, `base_cc_ilb`, `base_cc_ilb_zpa` and `cc_ilb`, and to false only in `cc_asg`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/base_1cc/variables.tf",
+          "quotes": [
+            "variable \"grant_pubsub_editor\" { type = bool default = true"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/base_1cc_zpa/variables.tf",
+          "quotes": [
+            "variable \"grant_pubsub_editor\" { type = bool default = true"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/base_cc_asg/variables.tf",
+          "quotes": [
+            "variable \"grant_pubsub_editor\" { type = bool default = true"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/base_cc_asg_zpa/variables.tf",
+          "quotes": [
+            "variable \"grant_pubsub_editor\" { type = bool default = true"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/base_cc_ilb/variables.tf",
+          "quotes": [
+            "variable \"grant_pubsub_editor\" { type = bool default = true"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/base_cc_ilb_zpa/variables.tf",
+          "quotes": [
+            "variable \"grant_pubsub_editor\" { type = bool default = true"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/cc_ilb/variables.tf",
+          "quotes": [
+            "variable \"grant_pubsub_editor\" { type = bool default = true"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/cc_asg/variables.tf",
+          "quotes": [
+            "variable \"grant_pubsub_editor\" { type = bool default = false"
+          ]
+        }
+      ]
+    },
+    "fips-examples": {
+      "statement": "All eight Cloud Connector example roots (`base_1cc`, `base_1cc_zpa`, `base_cc_asg`, `base_cc_asg_zpa`, `base_cc_ilb`, `base_cc_ilb_zpa`, `cc_asg`, `cc_ilb`) declare `fips_enabled` and write it into both the Secret Manager and HCP Vault forms of the JSON user data.",
+      "tier": "B",
+      "conditions": "Search of each example root's variables.tf and main.tf at the pinned commit for fips_enabled; two roots are quoted.",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/base_1cc/main.tf",
+          "quotes": [
+            "\"fips_enabled\": \"${var.fips_enabled}\", \"hcp_vault_addr\""
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/base_cc_asg/main.tf",
+          "quotes": [
+            "\"fips_enabled\": \"${var.fips_enabled}\", \"hcp_vault_addr\""
+          ]
+        }
+      ]
+    },
+    "zsec-fips": {
+      "statement": "The `zsec` helper asks whether to enable FIPS mode and exports `TF_VAR_fips_enabled` as 'True' or 'False'.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/zsec",
+          "quotes": [
+            "Enable FIPS mode for this Cloud Connector deployment? (yes/no):",
+            "echo \"export TF_VAR_fips_enabled='True'\" >> .zsecrc",
+            "echo \"export TF_VAR_fips_enabled='False'\" >> .zsecrc"
+          ]
+        }
+      ]
+    },
+    "direct-module-no-fips": {
+      "statement": "The direct CCVM module takes generic `user_data` and has no `fips_enabled` input, so FIPS coverage is a property of the example roots and helper, not of the module.",
+      "tier": "B",
+      "conditions": "Search of the CCVM module's variables.tf at the pin for fips; only the user_data input is quoted.",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-gcp/variables.tf",
+          "quotes": [
+            "variable \"user_data\" { type = string description = \"Cloud Init data\" }"
+          ]
+        }
+      ]
+    },
+    "ilb-userdata-defect-code": {
+      "statement": "In `base_cc_ilb` and `cc_ilb`, the default (Secret Manager) user data puts `\"gcp_service_account\": ...` with no trailing comma directly before `\"fips_enabled\": ...,`, which itself ends with a comma before the closing brace.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/base_cc_ilb/main.tf",
+          "quotes": [
+            "# Populate potential local map with default GCP Secret Manager",
+            "\"secret_name\": \"${var.secret_name}\"",
+            "\"gcp_service_account\": \"${module.iam_service_account.service_account}\" \"fips_enabled\": \"${var.fips_enabled}\", } USERDATA"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/cc_ilb/main.tf",
+          "quotes": [
+            "# Populate potential local map with default GCP Secret Manager",
+            "\"secret_name\": \"${var.secret_name}\"",
+            "\"gcp_service_account\": \"${module.iam_service_account.service_account}\" \"fips_enabled\": \"${var.fips_enabled}\", } USERDATA"
+          ]
+        }
+      ]
+    },
+    "ilb-userdata-invalid": {
+      "statement": "With the default `hcp_vault_enabled = false`, those two roots therefore render user data that is not valid JSON (a missing comma and a trailing comma), and `terraform validate` does not parse heredoc content, so it does not catch it. This is an example defect, not a service FIPS or JSON behavior.",
+      "tier": "B",
+      "conditions": "JSON grammar applied to the quoted heredoc; Terraform's treatment of heredocs as opaque strings is not quoted from a registered source.",
+      "derived_from": [
+        "ilb-userdata-defect-code"
+      ]
+    },
+    "zsec-zip-checksum": {
+      "statement": "When `zsec` downloads a missing Cloud Function ZIP, it fetches the selected URL's .sha256 companion, compares it with a local SHA-256 and deletes the ZIP and exits on mismatch; if no checksum file is published it only warns that integrity cannot be verified and continues.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/zsec",
+          "quotes": [
+            "CHECKSUM_URL=\"${URL}.sha256\"",
+            "if [[ \"$expected_sha256\" == \"$actual_sha256\" ]]; then",
+            "SHA256 checksum MISMATCH — aborting to prevent supply-chain compromise.${RESET}\" rm -f \"$dtype/function_zip/${zip_name}\" exit 1",
+            "**Warning** SHA256 checksum file not published at remote. Integrity cannot be verified."
+          ]
+        }
+      ]
+    },
+    "existing-object-branch": {
+      "statement": "When `upload_cloud_function_zip` is false, the Cloud Function module skips the upload and looks up an existing bucket object named by `cloud_function_source_object_name`, from which the functions are built.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-cloud-function-gcp/main.tf",
+          "quotes": [
+            "# Or reference an existing storage object (implying that both the bucket AND object zip file exists already) data \"google_storage_bucket_object\" \"existing_cloud_function_zip_object\" { count = var.upload_cloud_function_zip ? 0 : 1 name = var.cloud_function_source_object_name"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-cloud-function-gcp/main.tf",
+          "after": "resource \"google_cloudfunctions2_function\" \"resource_sync_function\" {",
+          "quotes": [
+            "object = try(data.google_storage_bucket_object.existing_cloud_function_zip_object[0].name, google_storage_bucket_object.upload_cloud_function_zip_object[0].name)"
+          ]
+        }
+      ]
+    },
+    "zsec-quoted-condition": {
+      "statement": "In `zsec`, choosing an existing bucket object sets `upload_function_zip=false` and exports the object name, but the ZIP download loop's condition quotes the whole expression `\"$upload_function_zip == true\"`, and the loop then writes the downloaded or selected ZIP's name and path to `cloud_function_source_object_name`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/zsec",
+          "quotes": [
+            "echo \"export TF_VAR_cloud_function_source_object_name=$zip_manual_input\" >> .zsecrc echo \"${GREEN}You entered $zip_manual_input${RESET}\" upload_function_zip=false",
+            "while [[ \"$dtype\" == *\"asg\"* && \"$oper\" == \"up\" && \"$upload_function_zip == true\" ]]; do"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/zsec",
+          "after": "while [[ \"$dtype\" == *\"asg\"* && \"$oper\" == \"up\" && \"$upload_function_zip == true\" ]]; do",
+          "quotes": [
+            "echo \"export TF_VAR_cloud_function_source_object_name=$zip_name\" >> .zsecrc"
+          ]
+        }
+      ]
+    },
+    "zsec-zip-flow-reentered": {
+      "statement": "Because a quoted non-empty string is always true in a bash `[[ ]]` test, an ASG `zsec up` run enters the ZIP flow even after the operator chose an existing bucket object, and can replace the chosen object name with a local or downloaded ZIP's name while the upload flag stays false, so the module may look up a wrong or nonexistent object. This is a helper defect, not Cloud Connector runtime behavior.",
+      "tier": "B",
+      "conditions": "Bash test semantics applied to the quoted condition; not run.",
+      "derived_from": [
+        "zsec-quoted-condition",
+        "existing-object-branch"
+      ]
+    }
+  },
+  "gaps": {
+    "invalid-userdata-outcome": {
+      "kind": "semantic",
+      "title": "Cloud Connector VM outcome with invalid JSON user data",
+      "status": "open",
+      "detail": "The base_cc_ilb and cc_ilb roots render invalid JSON user data by default; whether the Cloud Connector bootstrap rejects it, tolerates it, or fails to register is not established by a source read.",
+      "blocks": "diagnosing ILB example deployments whose connectors do not register",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -113,6 +113,9 @@
     {
       "label": "Configured elsewhere.",
       "text": "Privacy collection is the User Privacy object, [[zcc.web-privacy]]; which users get Private Access and ZDX is service entitlement, [[zcc.entitlements]]; the acceptable use prompt is [[zcc.acceptable-use]]. What a forwarding profile does per network type is in [[zcc.forwarding-profiles]]."
+    },
+    {
+      "text": "{{custom-pac-url}} {{dr-pac-block}} The disaster recovery options themselves are in [[zcc.app-profiles.failover]]."
     }
   ],
   "claims": {
@@ -182,6 +185,60 @@
           "expect": {
             "description": "Deletes a policy or app profile for the company by platform (iOS, Android, Windows, macOS, and Linux)."
           }
+        }
+      ]
+    },
+    "custom-pac-url": {
+      "statement": "On the Windows, macOS and Linux app profiles, a Custom PAC URL is entered when Client Connector should forward internet traffic to the Zscaler service with exceptions for certain types of traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "Enter a valid PAC URL in the Custom PAC URL field if you want Zscaler Client Connector to forward internet traffic to the Zscaler service and want to specify exceptions for certain types of traffic."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add macOS Policy window appears.",
+          "quotes": [
+            "Enter a valid PAC URL in the Custom PAC URL field if you want Zscaler Client Connector to forward all internet traffic to the Zscaler service and want to specify exceptions for certain types of traffic."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Linux Policy window appears.",
+          "quotes": [
+            "Enter a valid PAC URL in the Custom PAC URL field if you want Zscaler Client Connector to forward all internet traffic to the Zscaler service and want to specify exceptions for certain types of traffic."
+          ]
+        }
+      ]
+    },
+    "dr-pac-block": {
+      "statement": "In the custom PAC file of the Windows app profile's Internet & SaaS disaster recovery options (Policy Based Access, Web only and All Ports), DIRECT allows a destination and BLOCK, or any return value other than DIRECT, blocks it; Zscaler's sample files set var drop = \"BLOCK\" and allow listed hosts matched with localHostOrDomainIs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "Policy Based Access (Web only): You can either block or allow access to specific URLs using a custom PAC file.",
+            "var drop = \"BLOCK\"; /* Return DIRECT to Allow access */ if ((localHostOrDomainIs(host, \"google.com\"))",
+            "Return BLOCK (or any other return statement other than DIRECT) to block destination access."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "3. Policy Based Access (All Ports): You can either block or allow access",
+          "quotes": [
+            "Return BLOCK (or any other return statement other than DIRECT) to block destination access."
+          ]
         }
       ]
     }

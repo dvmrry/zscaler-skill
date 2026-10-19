@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "id": "shared.pac-files.coverage",
+  "title": "What PAC forwarding leaves uncovered: non-web applications, mobile users and private-application destinations",
+  "aliases": [
+    "pac non-browser clients",
+    "pac curl python docker",
+    "pac mobile users",
+    "pac ios android",
+    "pac ipv6",
+    "pac and zpa",
+    "pac browser access bypass",
+    "pac road warriors"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.traffic-forwarding.pac"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.pac-files"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.zcc"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A PAC file only steers applications that read it, so its coverage is decided on the client. What PAC forwarding cannot do inside the service (no Bandwidth Control or Firewall, no sublocations without XFF) is in [[zia.traffic-forwarding.pac:limitations]]."
+    },
+    {
+      "label": "Where the vendor places PAC files.",
+      "text": "{{web-only}} {{per-user-coverage}}"
+    },
+    {
+      "label": "Applications that do not read PAC files.",
+      "text": "{{not-all-apps}} Which common clients and runtimes honor a PAC file, and what Zscaler recommends for them, is open {{gap:non-browser-clients}}. QUIC, which a TCP-only path does not carry, is [[zia.saas-apps.quic-conferencing:tunnel1-udp-leaves]], and PAC forwarding beyond HTTP and HTTPS is open in [[zia.traffic-forwarding.pac:non-web-traffic]]."
+    },
+    {
+      "label": "Mobile users.",
+      "text": "{{mobile-zcc-preferred}} {{android-always-on}} Per-network proxy settings on iOS and Android are open {{gap:mobile-os-pac}}. What Client Connector does on a captive portal is [[zcc.forwarding-profiles.fail-open:situations]]."
+    },
+    {
+      "label": "IPv6.",
+      "text": "Forwarding IPv6 through a PAC file needs the host-name variables: [[shared.pac-files.variables:gateway-host]]. The rest of PAC and IPv6 handling is open {{gap:ipv6}}."
+    },
+    {
+      "label": "Private applications.",
+      "text": "How a PAC file should treat Private Access application segments and Browser Access hostnames is open {{gap:private-app-destinations}}. The segment model is [[zpa.app-segments]] and Browser Access is [[zpa.browser-access]]; Source IP Anchoring, which forwards selected traffic from ZIA to ZPA on purpose, is in [[shared.source-ip-anchoring]]."
+    },
+    {
+      "label": "Client Connector modes.",
+      "text": "Client Connector has four Internet & SaaS actions, of which Tunnel with Local Proxy installs a PAC file: [[zcc.forwarding-profiles.internet-actions:four-actions]], [[zcc.forwarding-profiles.internet-actions:local-proxy-mode]]."
+    },
+    {
+      "label": "An existing proxy.",
+      "text": "Chaining an on-premises proxy to the service, which the vendor treats as transitional, is [[zia.traffic-forwarding.proxy-chaining]]; the service sending traffic on to a customer proxy is a Forwarding Control action: [[zia.forwarding-control.methods]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the application in question reads the system or browser PAC file at all; if not, the traffic does not reach the service through PAC forwarding.",
+      "uses": [
+        "not-all-apps",
+        "non-browser-clients"
+      ]
+    },
+    {
+      "do": "For mobile users, whether Client Connector can be deployed instead of a PAC file.",
+      "uses": [
+        "mobile-zcc-preferred"
+      ]
+    }
+  ],
+  "claims": {
+    "web-only": {
+      "statement": "The reference architecture calls PAC files an older technology, designed before most stations were mobile and when computer systems generally had a single network interface, and recommends them only where traffic is all web-based and no other forwarding option (Client Connector, GRE, IPSec or a dedicated proxy port) is feasible for the device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "PAC files as an older technology come with several limitations. This is a tool designed before most stations were mobile and when computer systems generally only had a single network interface.",
+            "So, Zscaler can only recommend the use of PAC files where the traffic is all web-based, and no other forwarding option (Zscaler Client Connector, GRE, IPSec, or dedicated proxy port) is feasible for the device."
+          ]
+        }
+      ]
+    },
+    "per-user-coverage": {
+      "statement": "Because the browser itself fetches the PAC file and forwards accordingly, traffic reaches the service on any network, and Zscaler recommends a PAC file for each user in addition to a GRE or IPSec tunnel to cover users outside the corporate network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-pac-file.json",
+          "quotes": [
+            "Because it is the browser itself that is configured to retrieve the PAC file and forward traffic accordingly, traffic is forwarded to the Zscaler service, regardless of the user’s network.",
+            "In addition to the GRE or IPSec VPN tunnel, Zscaler recommends that you install a PAC file for each user to ensure coverage outside the corporate network."
+          ]
+        }
+      ]
+    },
+    "not-all-apps": {
+      "statement": "Not all applications support PAC files; for native non-web applications that reach internet hosts, the reference architecture says to check PAC support with the application's vendor.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Not all applications support PAC files. If you are using native non-web applications that access internet hosts, you",
+            "should check with your vendor on support for PAC files."
+          ]
+        }
+      ]
+    },
+    "mobile-zcc-preferred": {
+      "statement": "Zscaler offers Client Connector or PAC files to connect mobile users and recommends Client Connector, with PAC files a last resort when Client Connector cannot be installed; Client Connector is included in the subscription and is required for other services such as ZPA and ZDX.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Your mobile users can install Zscaler Client Connector to get them connected when they are off site.",
+            "PAC files can be used as a last resort if Zscaler Client Connector can’t be installed.",
+            "Zscaler offers two solutions to connect mobile users to the ZIA Service Edge: Zscaler Client Connector or PAC files.",
+            "Zscaler recommends Zscaler Client Connector over PAC files. This software package is included in your Zscaler subscription, and is required for other Zscaler services such as ZPA and ZDX."
+          ]
+        }
+      ]
+    },
+    "android-always-on": {
+      "statement": "Zscaler's Google Workspace deployment of Client Connector on Android sets it as the always-on VPN app.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-google-workspace-android.json",
+          "quotes": [
+            "Use as the always-on VPN app: ON"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "non-browser-clients": {
+      "kind": "semantic",
+      "former_ids": [
+        "shared-26"
+      ],
+      "title": "Non-browser HTTP clients and PAC files",
+      "status": "open",
+      "detail": "Unverified legacy statement: curl, Python urllib and requests, the Node.js default agent, apt, yum, dnf, the Docker daemon and Kubernetes pods have no native PAC support and take only a proxy URL or proxy environment variables; Java HttpURLConnection and .NET HttpClient read the system PAC URL on some platforms; so PAC-only environments leak workload traffic around the service unless it is given an explicit proxy or Cloud Connector. The vendor says only to check PAC support with each application's vendor; whether Zscaler recommends explicit proxy settings or Cloud Connector for such clients, and how to pin them to a subcloud, is not documented.",
+      "blocks": "deciding how scripts, build agents and containers reach the service in a PAC-forwarded environment",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "ipv6": {
+      "kind": "semantic",
+      "former_ids": [
+        "shared-27"
+      ],
+      "title": "PAC files and IPv6",
+      "status": "partial",
+      "detail": "Settled: forwarding IPv6 through a PAC file requires the host-name variables and IPv6 enabled for the organization and locations (shared.pac-files.variables:gateway-host). Open, unverified legacy statements: whether ${GATEWAY} and ${SECONDARY_GATEWAY} ever resolve to IPv6 addresses, whether Public Service Edges accept IPv6 on the PAC-returned ports, the recommended pattern for bypassing private IPv6 ranges (the legacy doc used a test for a colon in the host), and which browsers support isInNetEx.",
+      "blocks": "PAC design for dual-stack and IPv6-only clients",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "private-app-destinations": {
+      "kind": "semantic",
+      "title": "Private Access and Browser Access destinations in a PAC file",
+      "status": "open",
+      "detail": "Unverified legacy statements: with Client Connector in Tunnel mode it intercepts Private Access application segment FQDNs at the network layer, but in PAC mode the PAC file must return DIRECT for them or browsers send that traffic to ZIA, where it fails or matches unexpected policy; Browser Access hostnames should also be DIRECT, since the Browser Access ingress is the proxy for them; and the bypass list must be kept in step with the segment configuration. No captured source states any of this.",
+      "blocks": "PAC files for tenants that run Internet Access and Private Access together",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "mobile-os-pac": {
+      "kind": "semantic",
+      "title": "PAC files on iOS and Android",
+      "status": "open",
+      "detail": "Unverified legacy statements: iOS and Android set proxy auto-configuration per Wi-Fi network, cellular connections do not inherit it, many apps (including apps using URLSession with the default configuration) do not honor it, tenant-wide distribution needs an MDM Wi-Fi profile, an Android always-on VPN intercepts traffic regardless of PAC awareness, and while Client Connector is disabled for a captive portal PAC-mode browser traffic also bypasses the service. No captured source states these.",
+      "blocks": "estimating coverage of PAC-only mobile and BYOD devices",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    }
+  }
+}

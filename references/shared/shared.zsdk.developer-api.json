@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "id": "shared.zsdk.developer-api",
+  "title": "The ZSDK developer API: classes, tunnels, lifecycle and notifications",
+  "aliases": [
+    "startZeroTrustTunnel",
+    "startPreLoginTunnel",
+    "ZscalerSDK",
+    "ZscalerConfiguration",
+    "ZscalerProxyInfo",
+    "ZscalerSDKException",
+    "ZscalerError",
+    "zsdk prelogin tunnel",
+    "zsdk zero trust tunnel",
+    "zsdk notifications",
+    "zsdk suspend resume",
+    "ZSCALERSDK_TUNNEL_AUTHENTICATION_REQUIRED",
+    "ZscalerSDKTunnelResourceBlocked",
+    "failIfDeviceCompromised"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.error-codes"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.architecture"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{classes}} {{initialization}}"
+    },
+    {
+      "heading": "Tunnels"
+    },
+    {
+      "text": "{{tunnel-types}} {{tunnel-upgrade}} {{tunnel-status}}"
+    },
+    {
+      "heading": "Configuration and lifecycle"
+    },
+    {
+      "text": "{{configuration-properties}} {{suspend-resume}} {{maintenance}}"
+    },
+    {
+      "heading": "Notifications"
+    },
+    {
+      "text": "{{notifications-state}} {{notifications-action}}"
+    },
+    {
+      "heading": "Vendor best practices"
+    },
+    {
+      "text": "{{best-practices}} Error codes raised through `ZscalerError` and `ZscalerSDKException` are listed in [[shared.zsdk.error-codes]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which tunnel the app started (Prelogin or Zero Trust) and the matching certificate lifetime, from the status call.",
+      "uses": [
+        "tunnel-types",
+        "tunnel-status"
+      ]
+    },
+    {
+      "do": "Whether the app handles the authentication-required notification by calling the Zero Trust start method with a fresh access token.",
+      "uses": [
+        "notifications-action"
+      ]
+    },
+    {
+      "do": "Whether the app calls suspend and resume at the platform-specific points.",
+      "uses": [
+        "suspend-resume"
+      ]
+    }
+  ],
+  "claims": {
+    "classes": {
+      "statement": "The ZSDK developer reference documents the classes ZscalerSDK (the primary class for ZSDK methods and properties), ZscalerConfiguration (the configurable properties), ZscalerProxyInfo (proxy details) and ZscalerError on iOS or ZscalerSDKException on Android (errors).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-developer-reference.json",
+          "quotes": [
+            "ZscalerSDK is the primary class for calling ZSDK key methods and properties.",
+            "ZscalerConfiguration is a configuration object with the following configurable ZSDK properties:",
+            "You can call on the following proxy configuration details from the ZscalerProxyInfo class:",
+            "ZscalerError for iOS and ZscalerSDKException for Android represent the following errors that can occur in ZSDK:"
+          ]
+        }
+      ]
+    },
+    "initialization": {
+      "statement": "On Android, `init` establishes the connection between the application and ZSDK and is required before calling other methods; iOS uses `sharedInstance()` to return the shared instance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-developer-reference.json",
+          "quotes": [
+            "| init(application: Application, zscalerSDKConfiguration: ZscalerSDKConfiguration) | Android | Initializes to establish a connection between the application and ZSDK. This is required before calling other methods. |",
+            "| sharedInstance() | iOS | Returns the shared instance of ZSDK. |"
+          ]
+        }
+      ]
+    },
+    "tunnel-types": {
+      "statement": "`startPreLoginTunnel` takes the app key and device UDID and starts a Prelogin tunnel, for which Zscaler issues a client certificate valid for 180 days; `startZeroTrustTunnel` also takes an access token and starts a Zero Trust tunnel, whose client certificate is valid for 7 days. `stopTunnel()` terminates any active tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-developer-reference.json",
+          "quotes": [
+            "| startPreLoginTunnel(appKey: String, deviceUdid: String) | Starts a Prelogin tunnel. Zscaler issues a client certificate that is valid for 180 days. |",
+            "| startZeroTrustTunnel(appKey: String, deviceUdid: String, accessToken: String) | Starts a Zero Trust tunnel. Zscaler issues a client certificate that is valid for 7 days.",
+            "| stopTunnel() | Terminates any active tunnels from use. |"
+          ]
+        }
+      ]
+    },
+    "tunnel-upgrade": {
+      "statement": "From ZSDK version 2.0, `startZeroTrustTunnel()` can be called while a Prelogin tunnel is running, and ZSDK upgrades the existing tunnel connection to Zero Trust.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-developer-reference.json",
+          "quotes": [
+            "If you use ZSDK version 2.0 or later, the startZeroTrustTunnel() operation can be called even if a Prelogin tunnel is running. ZSDK upgrades the existing tunnel connection to Zero Trust."
+          ]
+        }
+      ]
+    },
+    "tunnel-status": {
+      "statement": "`status()` returns a ZscalerSDKTunnelStatus with tunnelConnectionState (ON, OFF or CONNECTING) and tunnelType (0 Prelogin, 1 Zero Trust, -1 Unknown).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-developer-reference.json",
+          "quotes": [
+            "| status() | Returns the current ZSDK status as ZscalerSDKTunnelStatus object that comprises:tunnelConnectionState: The string status of the tunnel connection (ON, OFF, CONNECTING).tunnelType: The integer type of tunnel.0: Prelogin1: Zero Trust-1: Unknown |"
+          ]
+        }
+      ]
+    },
+    "configuration-properties": {
+      "statement": "ZscalerConfiguration properties include failIfDeviceCompromised, which prevents the mTLS tunnels on jailbroken or rooted devices, blockZPAConnectionsOnTunnelFailure, which blocks ZPA connections when any tunnel fails, useProxyAuthentication, and on iOS automatic configuration of URL sessions and WebViews.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-developer-reference.json",
+          "quotes": [
+            "| failIfDeviceCompromised | Boolean | All | If enabled, ZSDK prevents Mutual Transport Layer Security tunnels on jailbroken or rooted devices. |",
+            "| blockZPAConnectionsOnTunnelFailure | Boolean | All | If enabled, ZSDK blocks ZPA connections when any tunnels fail. |",
+            "| useProxyAuthentication | Boolean | All | If enabled, ZSDK allows proxy authentication. |",
+            "| shouldAutomaticallyConfigureRequests | Boolean | iOS | If enabled, ZSDK auto-configures URL sessions. |",
+            "| shouldAutomaticallyConfigureWebviews | Boolean | iOS | If enabled, ZSDK auto-configures WebViews. |"
+          ]
+        }
+      ]
+    },
+    "suspend-resume": {
+      "statement": "`suspend()` suspends ZSDK and stops active tunnels: on iOS it is called before app suspension, on Android when the app enters the background with no network operation pending or in progress. `resume()` is called when the app returns to the foreground (on Android, when it is ready to resume network operations).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-developer-reference.json",
+          "quotes": [
+            "Suspends ZSDK and stops active tunnels.For iOS, call this method before app suspension.For Android, call this method when the app enters the background and no network operation is pending or in progress.",
+            "Resumes ZSDK operations.For iOS, call this method when the app enters the foreground.For Android, call this method when the app is ready to resume network operations (i.e., when the app comes to the foreground)."
+          ]
+        }
+      ]
+    },
+    "maintenance": {
+      "statement": "`exportLogs` exports logs as a ZIP file, `clearLogs()` clears them, and `resetProxyPortAndRequireSessionRecreation()` resets the proxy port when setup fails, after which all HTTPS sessions and WebView requests must be recreated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-developer-reference.json",
+          "quotes": [
+            "| exportLogs(destination: File Path) | Exports logs in a ZIP file to a specified location. |",
+            "| clearLogs() | Clears all logs. |",
+            "| resetProxyPortAndRequireSessionRecreation() | Resets proxy port when setup fails. Requires recreation of all HTTPS (e.g., URL sessions) and WebView requests. |"
+          ]
+        }
+      ]
+    },
+    "notifications-state": {
+      "statement": "ZSDK reports tunnel state through notifications (Android enum, iOS NSNotification): `ZSCALERSDK_TUNNEL_CONNECTED` / `ZscalerSDKTunnelConnected` when the tunnel is ready and the app can send HTTPS and WebView traffic through it; `ZSCALERSDK_TUNNEL_DISCONNECTED` / `ZscalerSDKTunnelDisconnected` when it has stopped; `ZSCALERSDK_TUNNEL_RECONNECTING` / `ZscalerSDKTunnelReconnecting` when connecting to the Public Service Edge had an issue and ZSDK keeps trying.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-developer-reference.json",
+          "quotes": [
+            "ZscalerSDKNotificationEnum.ZSCALERSDK_TUNNEL_CONNECTED | NSNotification.ZscalerSDKTunnelConnected | The tunnel is in a connected state and ready for use for outbound network requests. Your application can send HTTPS and WebView traffic via the tunnel now.",
+            "ZscalerSDKNotificationEnum.ZSCALERSDK_TUNNEL_DISCONNECTED | NSNotification.ZscalerSDKTunnelDisconnected | Describes that the tunnel has stopped operations.",
+            "ZscalerSDKNotificationEnum.ZSCALERSDK_TUNNEL_RECONNECTING | NSNotification.ZscalerSDKTunnelReconnecting | There was an issue establishing a connection to the ZSDK Public Service Edge. ZSDK continues to connect and sends a Tunnel Connected notification if the connection is successfully established."
+          ]
+        }
+      ]
+    },
+    "notifications-action": {
+      "statement": "Three notifications call for action: `ZSCALERSDK_TUNNEL_AUTHENTICATION_REQUIRED` / `ZscalerSDKTunnelAuthenticationRequired` means the client certificate and proof of authentication or authorization have expired, resolved by calling `startZeroTrustTunnel()` with a new valid access token; `ZSCALERSDK_TUNNEL_RESOURCE_BLOCKED` / `ZscalerSDKTunnelResourceBlocked` means access is blocked by the access policy, resolved by making sure the application segment is configured; `ZSCALERSDK_PROXY_START_FAILED` / `ZscalerSDKProxyStartFailed` means proxy initialization failed, resolved by calling `resetProxyPortAndRequireSessionRecreation()`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-developer-reference.json",
+          "quotes": [
+            "ZscalerSDKNotificationEnum.ZSCALERSDK_TUNNEL_AUTHENTICATION_REQUIRED | NSNotification.ZscalerSDKTunnelAuthenticationRequired | Either the client certificate and proof of authentication or authorization have expired.",
+            "Call the startZeroTrustTunnel() method to add a new, valid access token to re-authenticate the session.",
+            "ZscalerSDKNotificationEnum.ZSCALERSDK_TUNNEL_RESOURCE_BLOCKED | NSNotification.ZscalerSDKTunnelResourceBlocked | Access to the application is blocked as per the associated access policy. | Ensure the application segment is configured in the ZSDK Admin Portal.",
+            "ZscalerSDKNotificationEnum.ZSCALERSDK_PROXY_START_FAILED | NSNotification.ZscalerSDKProxyStartFailed | Proxy initialization has failed. | Call resetProxyPortAndRequireSessionRecreation() to retry the setup."
+          ]
+        }
+      ]
+    },
+    "best-practices": {
+      "statement": "Zscaler recommends using the shared instance of the SDK class, setting ZscalerConfiguration before starting any tunnel, handling errors through ZscalerError or ZscalerSDKException and their codes, completing network operations before suspension, subscribing to tunnel-state notifications (BroadcastReceiver on Android, NSNotification on iOS), and exporting and clearing logs as needed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-best-practices.json",
+          "quotes": [
+            "Always use the shared instance of the ZscalerZSDK class for consistency across your applications.",
+            "Use ZscalerConfiguration prior to starting any tunnels.",
+            "Implement proper error handling using ZscalerError for iOS or ZscalerSDKException for Android, and their associated error codes.",
+            "Ensure network operations are complete before suspension.",
+            "Subscribe to ZscalerSDK notifications to monitor changes in the tunnel state by using platform-specific notification settings (e.g., BroadcastReceiver for Android, NSNotification for iOS).",
+            "Export and clear logs as needed for debugging and maintenance."
+          ]
+        }
+      ]
+    }
+  }
+}

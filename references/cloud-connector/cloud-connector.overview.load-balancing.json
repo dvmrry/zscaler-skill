@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.overview.load-balancing",
+  "title": "How cloud load balancers spread traffic across Cloud Connectors and take unhealthy ones out",
+  "aliases": [
+    "cchealth",
+    "cloud connector health probe",
+    "cloud connector health check interval",
+    "gateway load balancer health check",
+    "cloud connector sessions failed during unhealthy",
+    "cloud connector active active",
+    "cloud connector availability zones"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.gateway-failover"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.groups"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Cloud Connectors sit behind the cloud provider's own load balancer, which decides per Cloud Connector whether it receives new traffic. {{native-lb-probes}}"
+    },
+    {
+      "label": "The probe.",
+      "text": "{{cchealth-path}} {{health-codes}} {{probe-checks-forwarding}} The reference Terraform modules probe the path `/?cchealth`: [[cloud-connector.aws.gwlb:health-check]], [[cloud-connector.azure.load-balancing:ilb-probe]]. The probe port range outside those modules, and whether it can change after deployment, is open {{gap:probe-port}}."
+    },
+    {
+      "label": "Intervals.",
+      "text": "{{probe-intervals}} {{change-via-support}}"
+    },
+    {
+      "label": "Scaling and sessions.",
+      "text": "{{all-active}} {{unhealthy-sessions}}"
+    },
+    {
+      "label": "Availability zones.",
+      "text": "{{az-recommendation}} {{gwlb-cross-zone}}"
+    },
+    {
+      "text": "The console's Active or Inactive status is a different signal from this load-balancer health: [[cloud-connector.insights.connector-status:status-not-lb-health]]."
+    },
+    {
+      "text": "What happens on the Zscaler side of each Cloud Connector, its tunnels to the Service Edges, is separate: [[cloud-connector.overview.gateway-failover]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the load balancer marked the Cloud Connector unhealthy (a 503 or no answer on the health port) at the time sessions failed.",
+      "uses": [
+        "health-codes",
+        "unhealthy-sessions"
+      ]
+    },
+    {
+      "do": "Whether the failed sessions were already established on that Cloud Connector, which can fail until the flow ages out, rather than new sessions.",
+      "uses": [
+        "unhealthy-sessions"
+      ]
+    },
+    {
+      "do": "Whether the deployment's health-check interval was changed from the template default (15 seconds Azure, 30 seconds AWS GWLB).",
+      "uses": [
+        "probe-intervals",
+        "change-via-support"
+      ]
+    },
+    {
+      "do": "Whether each availability zone holds at least two Cloud Connectors and, on AWS, GWLB cross-zone load balancing is enabled.",
+      "uses": [
+        "az-recommendation",
+        "gwlb-cross-zone"
+      ]
+    }
+  ],
+  "claims": {
+    "native-lb-probes": {
+      "statement": "Zscaler integrates with each cloud provider's native load-balancing service; the load balancers send HTTP health probes on a port selected during deployment to determine the health of each Cloud Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "The Zscaler service integrates with the native load-balancing services offered by respective cloud providers.",
+            "The load balancers conduct HTTP health probes on a defined port selected during deployment to determine the health of each Cloud Connector."
+          ]
+        }
+      ]
+    },
+    "cchealth-path": {
+      "statement": "Cloud Connector listens on the configured port for HTTP health probes on a path the help capture renders as `?cchealth`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "Cloud Connector listens to the configured port for HTTP health probes on the ?cchealth path from the load balancers."
+          ]
+        }
+      ]
+    },
+    "health-codes": {
+      "statement": "A healthy Cloud Connector answers the probe with HTTP 200; an unhealthy one answers 503 or does not answer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "A healthy Cloud Connector has a 200 HTTP response code, and an unhealthy Cloud Connector has a 503 HTTP response code or no response."
+          ]
+        }
+      ]
+    },
+    "probe-checks-forwarding": {
+      "statement": "The health probe is meant to show that the VM is functional and can forward workload traffic to the Internet & SaaS and Private Access Service Edges, not only that the VM is up.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "Health probes ensure that the Cloud Connector VM is functional and can successfully forward workload traffic to Internet & SaaS (ZIA) Public Service Edges or Private Service Edges and Private Access (ZPA) Public Service Edges or Private Service Edges."
+          ]
+        }
+      ]
+    },
+    "probe-intervals": {
+      "statement": "Zscaler deployment templates use a recommended default health-check interval: 15 seconds on the Azure Load Balancer and 30 seconds on the AWS Gateway Load Balancer. The defaults are meant to take unhealthy Cloud Connectors out of rotation efficiently.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "Zscaler deployment templates use a recommended default configuration for health check intervals.",
+            "The Microsoft Azure Load Balancer defaults to 15 seconds, and Amazon Web Services (AWS) Gateway Load Balancer defaults to 30 seconds.",
+            "The default settings are optimized to take unhealthy Cloud Connectors out of the rotation efficiently"
+          ]
+        }
+      ]
+    },
+    "change-via-support": {
+      "statement": "The default deployment templates are configurable, but Zscaler says to contact Zscaler Support before changing any settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "While the default deployment templates are configurable, contact Zscaler Support before changing any settings to ensure an optimal configuration is made."
+          ]
+        }
+      ]
+    },
+    "all-active": {
+      "statement": "Cloud Connectors scale horizontally and are all active: adding Cloud Connectors to a group supports higher throughput per egress location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "Cloud Connectors scale horizontally and are all active, enabling organizations to add more Cloud Connectors into a group to support higher throughput per egress location."
+          ]
+        }
+      ]
+    },
+    "unhealthy-sessions": {
+      "statement": "New sessions should go to healthy Cloud Connectors, but existing connections through a Cloud Connector that becomes unhealthy might temporarily fail until the flow ages or times out and the load balancer sends the session through a healthy one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "New sessions should be sent to healthy Cloud Connectors.",
+            "In some cases, such as existing connections flowing through a Cloud Connector that becomes unhealthy, the sessions might temporarily fail until the flow ages or times out and the load balancer begins to send the session through a healthy Cloud Connector."
+          ]
+        }
+      ]
+    },
+    "az-recommendation": {
+      "statement": "Zscaler recommends at least two Cloud Connectors per availability zone, across at least two availability zones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "Zscaler recommends deploying at least two Cloud Connectors per availability zone and across at least two availability zones."
+          ]
+        }
+      ]
+    },
+    "gwlb-cross-zone": {
+      "statement": "Zscaler also recommends enabling AWS Gateway Load Balancer cross-zone load balancing for all production deployments, so GWLB endpoints in several availability zones can use Cloud Connectors in all zones rather than only their own.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "Zscaler also recommends enabling AWS Gateway Load Balancer (GWLB) cross-zone load balancing for all production deployments.",
+            "This setting ensures that GWLB VPC endpoints deployed across multiple availability zones can use Cloud Connector in all availability zones instead of only its own."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "probe-port": {
+      "kind": "semantic",
+      "title": "Health-probe port range outside the reference modules",
+      "status": "partial",
+      "detail": "The help says only that the port is selected during deployment. The legacy reference guessed the captured `?cchealth` was an extraction artifact for `/cchealth`; the AWS and Azure reference modules use the path `/?cchealth`, and the Azure module's probe port defaults to 50000 (80 or 1024-65535). Whether other deployment methods use other ports, and whether the port can change after deployment, is not stated. Part of ledger entry cloud-connector-08 (whose fail-open questions sit in cloud-connector.overview.gateway-failover:fail-open-egress).",
+      "blocks": "configuring a custom load balancer or firewall rule for the health probe",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

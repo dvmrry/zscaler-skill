@@ -1,0 +1,315 @@
+{
+  "schema_version": 1,
+  "id": "shared.source-ip-anchoring",
+  "title": "Source IP Anchoring across ZIA and Private Access: path, pieces and interactions",
+  "aliases": [
+    "source ip anchoring",
+    "sipa",
+    "sipa not working",
+    "wrong egress ip with sipa",
+    "app connector egress ip",
+    "sipa troubleshooting",
+    "zia service edge client type"
+  ],
+  "binds": [
+    "zia/forwarding-rules",
+    "zia/zpa-gateways"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.forwarding-control.sipa"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.sipa-direct"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.source-ip-anchoring.egress-options"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.saas-apps.conditional-access"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.policy.criteria"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.app-segments.settings"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.app-connectors.selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.m365.sipa-setup"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Source IP Anchoring is configured in both ZIA and Private Access, and the two sides have to agree. {{traffic-path}} {{also-for-pa-traffic}}"
+    },
+    {
+      "heading": "The pieces"
+    },
+    {
+      "items": [
+        {
+          "label": "Both sides, step by step.",
+          "text": "Segment settings, client forwarding and access rules, the ZIA forwarding rule and the Z-Tunnel 1.0 option are in [[zia.forwarding-control.sipa]]."
+        },
+        {
+          "label": "Gateway.",
+          "text": "The Private Access gateway object the ZIA rule forwards to: [[zia.forwarding-control.zpa-gateway]]."
+        },
+        {
+          "label": "DNS.",
+          "text": "The ZPA resolver rules, their order, and why client DNS must reach Zscaler: [[zia.dns-control.predefined-rules]]."
+        },
+        {
+          "label": "Rule scope.",
+          "text": "User conditions on the forwarding rule need an Advanced Firewall subscription [[zia.forwarding-control.rules:subscription]]."
+        },
+        {
+          "label": "Subscriptions.",
+          "text": "The help says no Private Access license is needed [[zia.forwarding-control.sipa:licensing]], while the reference architecture says this model needs both ZIA and ZPA subscriptions {{divergence:subscriptions}}."
+        }
+      ]
+    },
+    {
+      "text": "Why domain-based and IP-based segments take different rule shapes is open {{gap:rule-shape-rationale}}. Zscaler says not to add SAML or SCIM user criteria to the access rule when the ZIA side scopes users [[zia.forwarding-control.sipa:no-user-criteria]]; what goes wrong if you do is open {{gap:user-criteria-mechanism}}."
+    },
+    {
+      "label": "Microsoft 365.",
+      "text": "The Conditional Access use case and its login-only scope are in [[zia.saas-apps.conditional-access]], and its setup in [[shared.m365.sipa-setup]]. That setup page and the general page give different client forwarding actions for the same kind of segment [[shared.m365.sipa-setup:client-forwarding-rules]]."
+    },
+    {
+      "label": "ZIA disaster recovery.",
+      "text": "The Private Access rules change for the duration of the event: [[zia.forwarding-control.sipa-direct]]."
+    },
+    {
+      "heading": "What changes on an anchored segment"
+    },
+    {
+      "items": [
+        {
+          "label": "Country criteria.",
+          "text": "Private Access takes the country of anchored traffic from the ZIA Public Service Edge's address [[zpa.policy.criteria:country-last-nat-ip]]."
+        },
+        {
+          "label": "SSL Inspection.",
+          "text": "The ZPA Application Segment criterion lists only anchored segments [[zia.ssl-inspection.criteria:zpa-segments-sipa-only]]."
+        },
+        {
+          "label": "DNS Control.",
+          "text": "Resolve by ZPA applies only to anchored segments [[zia.dns-control.actions:resolve-by-zpa-scope]]."
+        },
+        {
+          "label": "Multimatch.",
+          "text": "Not supported for anchored applications [[zpa.app-segments.multimatch-requirements:sipa-health-reporting]] [[zpa.app-segments.multimatch-requirements:double-encryption-sipa-disable]]."
+        },
+        {
+          "label": "Double Encryption and ZIA inspection.",
+          "text": "Neither can be combined with the Source IP Anchor option [[zpa.app-segments.settings:double-encryption-exclusions]] [[zpa.app-segments.settings:sipa-inspect-zia-exclusive]]; Browser Access is open [[zpa.app-segments.settings:sipa-browser-access]]."
+        },
+        {
+          "label": "Virtual Service Edges.",
+          "text": "Source IP Anchoring is not supported there [[zia.virtual-service-edge.limits:no-sipa]]."
+        }
+      ]
+    },
+    {
+      "label": "Protocols.",
+      "text": "RTSP and most ICMP are out [[zia.forwarding-control.sipa:protocol-limits]]. {{traceroute-zdx}}"
+    },
+    {
+      "label": "Related but different.",
+      "text": "A fixed egress address without App Connectors comes from Dedicated IP: [[shared.source-ip-anchoring.egress-options]]. Surrogate IP maps a private address to a user and does not change the egress address: [[zia.authentication.surrogate-ip]]."
+    },
+    {
+      "label": "Open.",
+      "text": "What happens when every connector behind the gateway is down is open [[zia.forwarding-control.sipa:unhealthy-connectors]]. Whether anchoring can loop when the destination is itself an anchored segment is open {{gap:forwarding-loop}}, and so is whether the usual connector selection [[zpa.app-connectors.selection]] applies to anchored flows {{gap:connector-selection}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "On the Private Access segment: Source IP Anchor on, and Use Client Forwarding Policy under Bypass.",
+      "uses": [
+        "zia.forwarding-control.sipa:segment-settings"
+      ]
+    },
+    {
+      "do": "Client forwarding rules match the segment kind: Only Forward Allowed Applications for IP-based; Bypass ZPA for other client types and Forward to ZPA for ZIA Service Edge for domain-based.",
+      "uses": [
+        "zia.forwarding-control.sipa:client-forwarding-policy",
+        "shared.m365.sipa-setup:client-forwarding-rules"
+      ]
+    },
+    {
+      "do": "The access policy allows the ZIA Service Edge client type, with no SAML or SCIM user criteria when ZIA scopes users.",
+      "uses": [
+        "zia.forwarding-control.sipa:access-policy",
+        "zia.forwarding-control.sipa:no-user-criteria"
+      ]
+    },
+    {
+      "do": "The ZIA forwarding rule uses the ZPA method, names the anchored segments and a gateway they share.",
+      "uses": [
+        "zia.forwarding-control.zpa-gateway:rule-needs-common-gateway",
+        "zia.forwarding-control.methods:console-methods"
+      ]
+    },
+    {
+      "do": "Both ZPA resolver DNS rules are enabled, Road Warrior above Locations, and client DNS reaches Zscaler.",
+      "uses": [
+        "zia.dns-control.predefined-rules:enable-each",
+        "zia.dns-control.predefined-rules:road-warrior-above-locations",
+        "zia.dns-control.predefined-rules:dns-must-reach-zscaler"
+      ]
+    },
+    {
+      "do": "For Z-Tunnel 1.0 users, Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors is on.",
+      "uses": [
+        "zia.forwarding-control.sipa:ztunnel1-option"
+      ]
+    },
+    {
+      "do": "If ZIA is in disaster recovery, the Source IP Anchoring Direct rules are in place, and reverted afterwards.",
+      "uses": [
+        "zia.forwarding-control.sipa-direct:switch-rules",
+        "zia.forwarding-control.sipa-direct:revert-rules"
+      ]
+    },
+    {
+      "do": "For a path or reachability test, use ICMP echo only and ZDX for the path, not traceroute.",
+      "uses": [
+        "zia.forwarding-control.sipa:protocol-limits",
+        "traceroute-zdx"
+      ]
+    }
+  ],
+  "claims": {
+    "traffic-path": {
+      "statement": "An anchored request goes from the client to a ZIA Public Service Edge, through the ZIA threat and data protection engines, and then, by a forwarding rule with the ZPA method, through the Private Access gateway to an App Connector; the destination sees the App Connector's address.",
+      "tier": "B",
+      "derived_from": [
+        "zia.forwarding-control.sipa:inspected-first",
+        "zia.forwarding-control.methods:console-methods",
+        "zia.forwarding-control.sipa:purpose"
+      ],
+      "conditions": "Assembled from three pages; no single vendor page draws the whole path. Which other ZIA modules act before forwarding is open in zia.forwarding-control:pipeline-position."
+    },
+    "also-for-pa-traffic": {
+      "statement": "The technology behind Source IP Anchoring is also used for data protection and threat scanning of Private Access traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-source-ip-anchoring.json",
+          "quotes": [
+            "The technology used for Source IP Anchoring is also leveraged for the following additional use cases for Private Access traffic:",
+            "Data protection",
+            "Threat scanning"
+          ]
+        }
+      ]
+    },
+    "traceroute-zdx": {
+      "statement": "Because Source IP Anchoring does not support ICMP traceroute, the help says to use Digital Experience (ZDX) to trace the path of the traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-source-ip-anchoring.json",
+          "quotes": [
+            "The ICMP protocol traceroute functionality is not supported. Therefore, you must use Digital Experience (ZDX) to trace the path of your traffic flow."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "rule-shape-rationale": {
+      "kind": "semantic",
+      "title": "Why domain-based and IP-based segments take different rule shapes",
+      "status": "open",
+      "about": [
+        "zia/forwarding-rules"
+      ],
+      "detail": "Unverified legacy statement: \"A segment is one or the other, not both\" and \"The asymmetry exists because for domain-based apps, ZCC clients should go direct (not through ZPA), while ZIA-Service-Edge-initiated traffic (which is what SIPA produces) should be forwarded to ZPA. IP-based apps have simpler routing because ZCC's DNS hijack doesn't apply to raw IPs.\" The help gives the rule shapes and says to create separate rules, but not the reason or whether one segment can hold both kinds. Resolve with a vendor explanation or a lab test with a mixed segment.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "explaining what Client Connector users see for an anchored segment and handling a segment with both domains and addresses"
+    },
+    "user-criteria-mechanism": {
+      "kind": "semantic",
+      "title": "Why user criteria on the anchored segment's access rule break anchoring",
+      "status": "open",
+      "about": [
+        "zia/forwarding-rules"
+      ],
+      "detail": "Unverified legacy statement: \"ZPA sees the ZIA Service Edge as the client identity, not the original user\" and \"ZIA forwards correctly, then ZPA denies access because the SAML attributes that would identify the user aren't present in the ZIA-Service-Edge-originated request.\" The help gives only the instruction not to add user-based SAML/SCIM criteria. Resolve with a lab test that adds a SAML criterion and reads the Private Access user activity log.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "diagnosing anchored traffic denied on the Private Access side"
+    },
+    "forwarding-loop": {
+      "kind": "semantic",
+      "title": "Whether anchored forwarding can loop",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"if a SIPA-forwarded request's destination is itself behind another SIPA-forwarded segment, does ZIA detect the loop? Not documented.\"",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "predicting the result of overlapping anchored segments"
+    },
+    "connector-selection": {
+      "kind": "semantic",
+      "title": "How an App Connector is chosen for an anchored flow",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"with multiple App Connectors in the target group, how does ZPA choose which one handles a given SIPA flow? Typical ZPA nearest-Connector selection, presumably — not confirmed for SIPA specifically.\" The selection pages describe user sessions from Client Connector; with anchoring the client is a ZIA Public Service Edge, and which connector's address the destination sees depends on the choice.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "predicting which egress address a destination sees when the server group has several connectors"
+    }
+  },
+  "divergences": {
+    "subscriptions": {
+      "summary": "Whether Source IP Anchoring needs a Private Access (ZPA) subscription.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-source-ip-anchoring.json",
+            "quotes": [
+              "You don't need a Private Access license to access the Source IP Anchoring feature. However, a Source IP Anchoring subscription is required."
+            ]
+          },
+          "says": "No Private Access license is needed; a Source IP Anchoring subscription is."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+            "quotes": [
+              "This model requires you to have both ZIA and ZPA subscriptions."
+            ]
+          },
+          "says": "The Source IP Anchoring model requires both ZIA and ZPA subscriptions."
+        }
+      ],
+      "impact": "A licensing answer taken from the reference architecture adds a ZPA subscription the help says is not required; the help article is the more specific and is backed by the setup steps for using Private Access solely for anchoring. Confirm with the account team."
+    }
+  }
+}

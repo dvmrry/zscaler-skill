@@ -1,0 +1,282 @@
+{
+  "schema_version": 1,
+  "id": "shared.multi-cluster",
+  "title": "Multi-Cluster Load Sharing: several Public Service Edge clusters behind one VIP",
+  "aliases": [
+    "multi-cluster load sharing",
+    "mcls",
+    "shared vip",
+    "cenr",
+    "config.zscaler.com cenr",
+    "which cluster handled my traffic",
+    "new cluster added to data center"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.multi-cluster.egress-addresses"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.load-balancing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.cluster-architecture"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.traffic-forwarding.gre"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A Zscaler data center can run more than one Public Service Edge cluster behind the same tunnel and PAC addresses. {{definition}} {{any-node}} Zscaler states the purpose as adding capacity without customers moving their tunnels [[zia.virtual-service-edge.load-balancing:mcls-is-public-se-only]]."
+    },
+    {
+      "label": "Example.",
+      "text": "{{example}}"
+    },
+    {
+      "label": "Where the clusters are listed.",
+      "text": "{{cenr}} The cloud name comes from the admin login host [[shared.cloud-architecture.cloud-names:name-from-admin-url]]. {{rollout}} Whether tenants are told when a cluster joins their data center is open {{gap:cluster-change-notice}}."
+    },
+    {
+      "label": "Seeing which edge handled traffic.",
+      "text": "{{datacenter-in-logs}}"
+    },
+    {
+      "label": "Private Service Edges.",
+      "text": "{{pse-outside}}"
+    },
+    {
+      "label": "Policy, logging and continuity.",
+      "text": "How policy reaches whichever edge serves a user is in [[shared.cloud-architecture.service-edges:policy-follows-user]] and [[shared.cloud-architecture.central-authority]], and Safe mode and the Business Continuity Cloud in [[shared.cloud-architecture.failure-domains]]. Every edge exports its logs the same way: [[shared.cloud-architecture.logging-path:edge-log-export]]. Subclouds, which restrict the Service Edges that serve a tenant, are [[shared.subclouds]]."
+    },
+    {
+      "label": "Open.",
+      "text": "Whether one flow stays on one service node is open {{gap:flow-stickiness}}, and so is whether moving to a node in another cluster re-prompts authentication {{gap:auth-state}}. What happens when one cluster or node behind a VIP fails is open {{gap:unhealthy-cluster}}, as is how long clients take to notice a whole VIP failing {{gap:vip-failure-detection}}. Pinning a tenant or tunnel to one cluster is open {{gap:cluster-pinning}}; Z-Tunnel 2.0 under load sharing {{gap:ztunnel2}} and the government and preview clouds {{gap:other-clouds}} are open too."
+    }
+  ],
+  "checks": [
+    {
+      "do": "List the clusters, VIPs and network address blocks of the data centers in use from config.zscaler.com/<cloud name>/cenr, taking the cloud name from the admin login host.",
+      "uses": [
+        "cenr",
+        "example",
+        "shared.cloud-architecture.cloud-names:name-from-admin-url"
+      ]
+    },
+    {
+      "do": "To tell which edge handled a transaction, read the data center fields of the web log; do not expect a cluster or node identifier.",
+      "uses": [
+        "datacenter-in-logs"
+      ]
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "Multi-Cluster Load Sharing lets several Internet & SaaS Public Service Edge clusters in different network address blocks participate in a VIP address from any network address block in a data center. Ingress traffic enters a given VIP and reaches the end destination through any instance of the Service Edge clusters from any of the network address blocks listed for the data center.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-multi-cluster-load-sharing.json",
+          "quotes": [
+            "The Multi-Cluster Load Sharing feature allows multiple Public Service Edge for Internet & SaaS (ZIA) clusters in different network address blocks to participate in a Virtual IP (VIP) address from any network address block in a data center.",
+            "The ingress traffic will enter a given VIP address and access the end destination via any instance of the Service Edge clusters from any of the network address blocks listed for the data center (DC)."
+          ]
+        }
+      ]
+    },
+    "any-node": {
+      "statement": "All traffic is distributed across every participating cluster's load balancer instances, and those load balancers can forward traffic to any service node in any participating cluster.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-multi-cluster-load-sharing.json",
+          "quotes": [
+            "All the traffic is distributed across every participating cluster load balancer (LB) instance, and they can forward traffic to any service node in any participating cluster."
+          ]
+        }
+      ]
+    },
+    "example": {
+      "statement": "In Zscaler's example, ZSC Cluster 1 is in 165.225.80.0/23 and ZSC Cluster 3 in 147.161.166.0/23, and both serve the GRE VIP 165.225.80.36; the table shows Cluster 3 sharing all three of Cluster 1's VIP addresses (GRE 165.225.80.36, VPN 165.225.80.37, PAC 165.225.81.247).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-multi-cluster-load-sharing.json",
+          "quotes": [
+            "ZSC Cluster 1 resides in the 165.225.80.0/23 network address block, and ZSC Cluster 3 in the 147.161.166.0/23 network address block. Both these clusters can serve the GRE VIP address 165.225.80.36",
+            "| ZSC Cluster 1 | 165.225.80.36 | GRE | 165.225.80.0/23 |",
+            "| 165.225.80.37 | VPN | 165.225.80.0/23 |  |",
+            "| 165.225.81.247 | PAC | 165.225.80.0/23 |  |",
+            "| ZSC Cluster 3 (Shared VIP addresses with Cluster 1) | 165.225.80.36 | GRE | 147.161.166.0/23 |",
+            "| 165.225.80.37 | VPN | 147.161.166.0/23 |  |",
+            "| 165.225.81.247 | PAC | 147.161.166.0/23 |  |"
+          ]
+        }
+      ]
+    },
+    "cenr": {
+      "statement": "The complete data center list for a cloud is at config.zscaler.com/<Zscaler Cloud Name>/cenr; for an organization on zscalertwo.net it is config.zscaler.com/zscalertwo.net/cenr.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-multi-cluster-load-sharing.json",
+          "quotes": [
+            "To view the complete list of data center information, go to config.zscaler.com/<Zscaler Cloud Name>/cenr.",
+            "In this case, you should go to config.zscaler.com/zscalertwo.net/cenr."
+          ]
+        }
+      ]
+    },
+    "rollout": {
+      "statement": "The feature's rollout follows the monthly infrastructure upgrade schedule under the Zscaler Service Continuity Customer Notification Protocol.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-multi-cluster-load-sharing.json",
+          "quotes": [
+            "This feature rollout follows the monthly infrastructure upgrade schedule as per the Zscaler service Continuity Customer Notification Protocol."
+          ]
+        }
+      ]
+    },
+    "datacenter-in-logs": {
+      "statement": "The NSS web log names the data center that handled a transaction (datacenter, datacentercity, datacentercountry); its field table has no cluster or service node field.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{datacenter} | The name of the data center | CA Client Node DC | Data Center |",
+            "| %s{datacentercity} | The city where the data center is located |",
+            "| %s{datacentercountry} | The country where the data center is located |"
+          ]
+        }
+      ],
+      "conditions": "The absence rests on a search of the web feed field table (and the zia/web-log type built from it) for cluster, node and edge fields; only the data center fields were found. Firewall and DNS feeds were not checked for this claim."
+    },
+    "pse-outside": {
+      "statement": "A Private Service Edge cluster is not described as taking part in Multi-Cluster Load Sharing: the vendor describes the feature for Public Service Edge clusters only, and a Private Service Edge cluster takes its traffic on its own VIP, held by an active-passive load balancer pair.",
+      "tier": "B",
+      "derived_from": [
+        "zia.virtual-service-edge.load-balancing:mcls-is-public-se-only",
+        "zia.private-service-edge.cluster-architecture:carp-lb-pair",
+        "zia.private-service-edge.cluster-architecture:traffic-to-vip"
+      ],
+      "conditions": "Inference from the absence of Private Service Edges in the Multi-Cluster Load Sharing page and the single-cluster design on the Private Service Edge pages; no page says Private Service Edges are excluded."
+    }
+  },
+  "gaps": {
+    "flow-stickiness": {
+      "kind": "semantic",
+      "former_ids": [
+        "shared-07"
+      ],
+      "title": "Whether a flow stays on one service node under load sharing",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The vendor documentation does not address whether MCLS LB provides session-level stickiness within a VIP that would keep all packets of a single TCP flow on the same service node\" and \"Individual HTTP(S) transactions within the tunnel may be distributed across service nodes in different clusters.\" The help says only that load balancers can forward traffic to any service node in any participating cluster. It matters for DLP large-object scanning and file reassembly.",
+      "resolves_with": [
+        "operator-experience",
+        "support-ticket"
+      ],
+      "blocks": "saying whether a large upload or a tunnel's transactions can be split across nodes in different clusters"
+    },
+    "auth-state": {
+      "kind": "semantic",
+      "former_ids": [
+        "shared-08"
+      ],
+      "title": "Whether moving to a node in another cluster re-prompts authentication",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"A user who authenticated at one service node and is subsequently served by a node in a different cluster in the pool is re-authenticated by virtue of the CA issuing policy in response to the new service node's request. Whether this represents a fully transparent handoff (no re-prompt to the user) or a re-auth event depends on the auth method (IP surrogacy, cookie, Kerberos, SAML).\" No source describes authentication state across clusters.",
+      "resolves_with": [
+        "operator-experience",
+        "support-ticket"
+      ],
+      "blocks": "explaining unexpected authentication prompts at a data center with several clusters"
+    },
+    "vip-failure-detection": {
+      "kind": "semantic",
+      "former_ids": [
+        "shared-09"
+      ],
+      "title": "How long clients take to detect a whole data center VIP failing",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Specific timeout windows for VIP-level detection by ZCC or GRE/IPSec tunnel endpoints are not documented in the vendor MCLS or architecture sources.\" The legacy doc also said static GRE or IPSec tunnels need router-side failover to a secondary VIP and that a Zscaler-hosted PAC returns another endpoint on its next evaluation; router failover timing is in zia.traffic-forwarding.gre-failover and Client Connector behavior in zcc.forwarding-profiles.fail-open, but neither ties detection time to a VIP failure.",
+      "resolves_with": [
+        "operator-experience",
+        "support-ticket"
+      ],
+      "blocks": "stating a failover time for a whole data center outage"
+    },
+    "ztunnel2": {
+      "kind": "semantic",
+      "former_ids": [
+        "shared-10"
+      ],
+      "title": "Z-Tunnel 2.0 under Multi-Cluster Load Sharing",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Z-Tunnel 2.0 specific behavior under MCLS is not separately documented. The table implies IPSec tunnels participate similarly to GRE tunnels. Verify if Z-Tunnel 2.0 session semantics (stateful TLS multiplexing) interact differently with the cross-cluster forwarding path.\" The help's example lists GRE, VPN and PAC VIPs only.",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ],
+      "blocks": "saying whether Client Connector tunnels behave like GRE tunnels at a shared VIP"
+    },
+    "other-clouds": {
+      "kind": "semantic",
+      "former_ids": [
+        "shared-11"
+      ],
+      "title": "Load sharing in the government and preview clouds",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Cloud names zscalergov and zspreview are valid cloud domains ... Whether these clouds operate an equivalent MCLS model or have different cluster topologies is not documented in the available vendor sources.\"",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "applying the shared-VIP model to tenants on those clouds"
+    },
+    "unhealthy-cluster": {
+      "kind": "semantic",
+      "title": "What happens when one cluster or node behind a shared VIP fails",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"If one cluster in an MCLS pool becomes unhealthy, the CA's health monitoring removes it from the active pool. Traffic continues to flow through the remaining healthy clusters behind the same VIP\" and, for a node, \"The cluster's LB actively monitors service node health and removes unhealthy nodes from rotation. Sub-minute impact.\" The architecture page says only that Public Service Edges run active-active and the Central Authority monitors their health; the node-removal wording is from the Private Service Edge pages.",
+      "resolves_with": [
+        "support-ticket",
+        "operator-experience"
+      ],
+      "blocks": "predicting client impact when part of a data center fails"
+    },
+    "cluster-pinning": {
+      "kind": "semantic",
+      "title": "Pinning a tenant or tunnel to one cluster",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"There is no documented mechanism to pin a tenant or a GRE tunnel to a specific cluster within an MCLS pool. The subcloud mechanism can restrict which DCs serve a tenant, but within a DC the cluster selection is at the LB's discretion.\" No source was found either way.",
+      "resolves_with": [
+        "support-ticket"
+      ],
+      "blocks": "answering requests to keep a site's traffic on one cluster or address block"
+    },
+    "cluster-change-notice": {
+      "kind": "semantic",
+      "title": "Whether tenants are told when a cluster joins their data center",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"It is not per-organization opt-in, and tenants receive no direct notification when a new cluster joins the VIP pool behind their assigned data centers.\" The help names the Service Continuity Customer Notification Protocol but not what it announces. Resolve by reading that protocol.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "planning allowlist updates around new address blocks"
+    }
+  }
+}

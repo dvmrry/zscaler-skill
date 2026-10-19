@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "id": "shared.pac-files.kerberos",
+  "title": "The Kerberos PAC file: host-name variables, port 8800 and required bypasses",
+  "aliases": [
+    "kerberos pac",
+    "kerberos.pac",
+    "port 8800",
+    "kdc proxy bypass",
+    "kerberos realm bypass",
+    "kerberos pac with ipsec tunnel"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.pac-files.variables"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.pac-files"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Kerberos authentication changes what the PAC file must contain and when a PAC file is needed at all. The Kerberos method itself, with its DNS and firewall requirements, is [[zia.authentication.methods]]."
+    },
+    {
+      "label": "PAC files even behind tunnels.",
+      "text": "{{browsers-need-pac}} {{use-kerberos-pac}}"
+    },
+    {
+      "label": "What the Kerberos file does.",
+      "text": "{{fqdn-variables}} {{port-8800}} The host-name variables in general are [[shared.pac-files.variables:gateway-host]]; the subcloud forms are [[shared.pac-files.variables:subcloud-vars]]."
+    },
+    {
+      "label": "Required bypasses.",
+      "text": "{{kdc-proxy-bypass}} {{realm-bypass}}"
+    },
+    {
+      "label": "Kerberos-enabled locations.",
+      "text": "{{location-ports}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Kerberos users' browsers have a PAC file configured, including at locations with an IPSec or VPN tunnel.",
+      "uses": [
+        "browsers-need-pac"
+      ]
+    },
+    {
+      "do": "Whether the file returns the host-name variables on port 8800 and bypasses the realm and any KDC proxy before that return.",
+      "uses": [
+        "fqdn-variables",
+        "port-8800",
+        "kdc-proxy-bypass",
+        "realm-bypass"
+      ]
+    }
+  ],
+  "claims": {
+    "browsers-need-pac": {
+      "statement": "All users who authenticate with Kerberos must configure their browsers to forward through PAC files, even when their location has an IPSec or VPN tunnel to the service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-default-zscaler-kerberos-pac-file.json",
+          "quotes": [
+            "All users who leverage Kerberos for authentication must configure their browsers to use PAC files to forward their traffic to the Zscaler service, even if their location has established an IPSec or VPN tunnel to forward traffic to the service."
+          ]
+        }
+      ]
+    },
+    "use-kerberos-pac": {
+      "statement": "Zscaler provides a default Kerberos PAC file and strongly recommends using it, or a copy of it with the needed arguments and exceptions added.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-default-zscaler-kerberos-pac-file.json",
+          "quotes": [
+            "Zscaler provides a default Kerberos PAC file.",
+            "Zscaler strongly recommends that you either use the Zscaler Kerberos PAC file or copy and paste it to a new PAC file and then add any necessary arguments and exceptions."
+          ]
+        }
+      ]
+    },
+    "fqdn-variables": {
+      "statement": "Kerberos requires the Public Service Edges to be addressed by FQDN, so the Kerberos PAC file uses ${GATEWAY_HOST} and ${SECONDARY_GATEWAY_HOST}, which the service replaces with the domain names of the primary and secondary Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-default-zscaler-kerberos-pac-file.json",
+          "quotes": [
+            "Kerberos requires that the Public Service Edges for Internet & SaaS (ZIA) be addressed as Fully Qualified Domain Names (FQDNs).",
+            "the Kerberos PAC file contains the variables ${GATEWAY_HOST} and ${SECONDARY_GATEWAY_HOST}, which the service substitutes with the domain names of the primary and secondary Public Service Edges."
+          ]
+        }
+      ]
+    },
+    "port-8800": {
+      "statement": "The Kerberos PAC file forwards web traffic to port 8800, and Public Service Edges challenge all traffic received on port 8800 for a Negotiate (Kerberos) ticket for the service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-default-zscaler-kerberos-pac-file.json",
+          "quotes": [
+            "It forwards web traffic to port 8800 of the Public Service Edge. The Public Service Edges challenge all traffic that they receive on port 8800 for a Negotiate Authentication (Kerberos) ticket for the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "kdc-proxy-bypass": {
+      "statement": "Where a KDC proxy (with Microsoft DirectAccess) serves road warriors, its traffic is also sent to the Public Service Edge and authentication fails, so a new PAC file must bypass the KDC proxy host with a DIRECT return.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-default-zscaler-kerberos-pac-file.json",
+          "quotes": [
+            "If your organization has a KDC proxy (with Microsoft DirectAccess) deployed for road warrior access, the KDC proxy traffic is also sent to the Public Service Edge, resulting in authentication failure.",
+            "Therefore, you must create a new PAC file that includes a line to bypass the KDC proxy:",
+            "if shExpMatch(host,\"kdcproxy.domain.com\") return \"DIRECT\";"
+          ]
+        }
+      ]
+    },
+    "realm-bypass": {
+      "statement": "Traffic destined within the realm must not be forwarded to the service, so the Public Service Edge challenges no realm traffic; a new PAC file must bypass the organization's realm.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-default-zscaler-kerberos-pac-file.json",
+          "quotes": [
+            "Traffic destined within the realm must not be forwarded to the Zscaler service, so the Public Service Edge does not challenge any traffic within the realm. Create a new PAC file that includes a line to bypass your organization's realm."
+          ]
+        }
+      ]
+    },
+    "location-ports": {
+      "statement": "At a location with Kerberos enabled, traffic can be forwarded to the proxy ports 80, 443, 9400 and 9443 or to the location's dedicated port, and the service challenges all explicitly forwarded proxy traffic from that location for a Kerberos ticket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-default-zscaler-kerberos-pac-file.json",
+          "quotes": [
+            "If the location has Kerberos enabled, then traffic can be forwarded to the proxy ports (80, 443, 9400, 9443) or to the dedicated port associated with that location. The service automatically challenges all explicitly forwarded proxy traffic from that location for a Kerberos ticket for the Zscaler domain."
+          ]
+        }
+      ]
+    }
+  }
+}

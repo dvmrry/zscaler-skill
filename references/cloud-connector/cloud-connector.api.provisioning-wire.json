@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.api.provisioning-wire",
+  "title": "Cloud Connector provisioning URLs on the wire: what the template sets, VM size and cloud provider fields",
+  "aliases": [
+    "ztw provUrl",
+    "provisioning url api",
+    "cloud provisioning template api",
+    "ztc_provisioning_url",
+    "cloud connector vm size api",
+    "formFactor"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.provisioning"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.instance-sizing"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.groups"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A cloud provisioning URL carries what a new Cloud Connector VM needs to enroll: the cloud provider, location and group settings, and the VM size. The provisioning URL paths and SDK methods are generated; this subject maps the console template to the API fields."
+    },
+    {
+      "heading": "What the template is"
+    },
+    {
+      "text": "{{url-prerequisite}} {{same-url-per-vpc}} The autoscaling and non-autoscaling templates must match the deployment, [[cloud-connector.overview.groups:template-match]], and autoscaling is enabled only through Zscaler Support, [[cloud-connector.azure.vmss:support-gated]]."
+    },
+    {
+      "heading": "VM size"
+    },
+    {
+      "text": "{{template-vm-size}} {{contract-form-factor}} {{clients-form-factor}} {{vm-size-is-form-factor}} How the size pairs with an EC2 instance type is in [[cloud-connector.aws.instance-sizing]]."
+    },
+    {
+      "heading": "Cloud provider"
+    },
+    {
+      "text": "The contract's cloud provider list omits GCP, which the console template and the Terraform provider offer {{divergence:cloud-provider-type}}."
+    },
+    {
+      "heading": "Clients"
+    },
+    {
+      "text": "{{python-crud-1-9-13}} The Go provisioning URL functions use the generic (ZIA-routed) client methods, which fail in the provider's legacy mode: [[cloud-connector.sdk-go.service-defects:legacy-ztw-only-client-fails-generic-calls]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the provisioning URL a deployment uses carries the VM size (form factor) the deployment expects, since the size is set in the template, not in the cloud template alone.",
+      "uses": [
+        "template-vm-size",
+        "vm-size-is-form-factor"
+      ]
+    },
+    {
+      "do": "For a GCP provisioning URL written through the raw API, whether the API accepts a cloud provider value the contract does not list.",
+      "uses": [
+        "cloud-provider-type"
+      ]
+    }
+  ],
+  "claims": {
+    "url-prerequisite": {
+      "statement": "The cloud provisioning URL is a prerequisite for deploying Cloud Connector as a VM in AWS, Azure and GCP, and is obtained by configuring a provisioning template; the same URL can be used multiple times.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-cloud-provisioning-templates.json",
+          "quotes": [
+            "The cloud provisioning URL is a prerequisite for deploying the Cloud Connector as a virtual machine (VM) in Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP). To obtain a provisioning URL, you must configure the provisioning template.",
+            "Use the same provisioning URL multiple times based on your requirements."
+          ]
+        }
+      ]
+    },
+    "same-url-per-vpc": {
+      "statement": "Cloud Connector VMs deployed in a single VPC must use the same provisioning URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-cloud-provisioning-templates.json",
+          "quotes": [
+            "You must use the same provisioning URL for the Cloud Connector VMs deployed in a single Virtual Private Cloud (VPC)."
+          ]
+        }
+      ]
+    },
+    "template-vm-size": {
+      "statement": "In the template's group settings the VM size depends on the cloud: AWS offers Small, Medium or Large, with Small set by default when autoscaling is enabled; Azure and GCP are set to Small by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-cloud-provisioning-template.json",
+          "quotes": [
+            "VM Size: Depending on your selected cloud provider, you can configure your Cloud Connector VM size.",
+            "Amazon Web Services: Select from Small, Medium, or Large. Small is set by default when autoscaling is enabled.",
+            "Azure: Small is set by default.",
+            "GCP: Small is set by default."
+          ]
+        }
+      ]
+    },
+    "contract-form-factor": {
+      "statement": "The contract's provisioning URL content (`provUrlData`) has a `formFactor` field with the values `SMALL`, `MEDIUM` and `LARGE`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1provUrl/post/requestBody/content/application~1json/schema/properties/provUrlData/properties/formFactor",
+          "expect": {
+            "description": "Form factor of Cloud & Branch Connector provisioning URL.",
+            "enum": [
+              "SMALL",
+              "MEDIUM",
+              "LARGE"
+            ],
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "clients-form-factor": {
+      "statement": "The Go SDK's provisioning URL data model (`ProvUrlData`) carries `FormFactor` as a string, and the ZTC provider's `form_factor` accepts `SMALL`, `MEDIUM` or `LARGE`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/provisioning/provisioning_url/provisioning_url.go",
+          "quotes": [
+            "FormFactor         string                            `json:\"formFactor,omitempty\"`"
+          ],
+          "after": "type ProvUrlData struct {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_provisioning_url.go",
+          "quotes": [
+            "\"form_factor\": { Type: schema.TypeString, Optional: true, Computed: true, ValidateFunc: validation.StringInSlice([]string{ \"SMALL\", \"MEDIUM\", \"LARGE\", }, false), },"
+          ]
+        }
+      ]
+    },
+    "vm-size-is-form-factor": {
+      "statement": "So the console's VM Size is carried in the API as the provisioning URL's `formFactor`, not in a field named for VM size.",
+      "tier": "B",
+      "derived_from": [
+        "template-vm-size",
+        "contract-form-factor",
+        "clients-form-factor"
+      ],
+      "conditions": "The legacy API reference describes a VM's formFactor as its size; that the console's VM Size label is this field rests on the matching names and that description, not on a source naming the console label.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/components/schemas/EcVM/properties/formFactor",
+          "expect": {
+            "description": "The form factor size of the VM. The supported values are <code>SAMLL</code>, <code>MEDIUM</code>, or <code>LARGE</code>.",
+            "enum": [
+              "SMALL",
+              "MEDIUM",
+              "LARGE"
+            ]
+          }
+        }
+      ]
+    },
+    "python-crud-1-9-13": {
+      "statement": "The Python SDK added create, read, update and delete functions for the ZTW provisioning URL in release 1.9.13 (PR #450).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "after": "## 1.9.13 (January 22, 2026)",
+          "quotes": [
+            "[PR #450](https://github.com/zscaler/zscaler-sdk-python/pull/450) - Added new CRUD functioins for ZTW `provisioning_url` resource api."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "cloud-provider-type": {
+      "summary": "Whether a provisioning URL's cloud provider can be GCP.",
+      "positions": [
+        {
+          "says": "The contract's `cloudProviderType` lists only `AWS` and `AZURE`.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1provUrl/post/requestBody/content/application~1json/schema/properties/provUrlData/properties/cloudProviderType",
+            "expect": {
+              "enum": [
+                "AWS",
+                "AZURE"
+              ]
+            }
+          }
+        },
+        {
+          "says": "The ZTC provider's `cloud_provider_type` accepts `AWS`, `AZURE` and `GCP`.",
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "ztc/resource_ztc_provisioning_url.go",
+            "quotes": [
+              "\"cloud_provider_type\": { Type: schema.TypeString, Optional: true, Computed: true, ValidateFunc: validation.StringInSlice([]string{ \"AWS\", \"AZURE\", \"GCP\", }, false), },"
+            ]
+          }
+        },
+        {
+          "says": "The console template offers Amazon Web Services, Azure or Google Cloud as the cloud provider.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-configuring-cloud-provisioning-template.json",
+            "quotes": [
+              "On the Cloud Provider tab, select Amazon Web Services, Azure, or Google Cloud as the cloud provider for which you want to deploy the Cloud Connector."
+            ]
+          }
+        }
+      ],
+      "impact": "The contract's enum looks out of date for GCP; GCP provisioning URLs exist in the console and the provider. Code that validates against the contract enum would reject a GCP template."
+    }
+  }
+}

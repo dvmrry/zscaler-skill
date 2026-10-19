@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "id": "shared.cloud-architecture.logging-path",
+  "title": "Where Zscaler logs go: Log Routers, Nanolog clusters, NSS and LSS",
+  "aliases": [
+    "nanolog",
+    "nanolog cluster",
+    "log routers",
+    "where are zia logs stored",
+    "log path",
+    "nss vs lss"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.nss-feed-format"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.architecture"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Internet & SaaS and Private Access log through different systems. {{edge-log-export}}"
+    },
+    {
+      "label": "The Nanolog.",
+      "text": "{{nanolog-role}} {{nanolog-topology}} {{nanolog-volume}}"
+    },
+    {
+      "label": "Streaming out of ZIA.",
+      "text": "{{nss}} Both NSS forms read the same Nanolog store: [[zia.logs.nss-feed-format:one-store]]."
+    },
+    {
+      "label": "Private Access.",
+      "text": "[[zpa.public-service-edges.what-it-is:log-routing]] [[zpa.log-receivers.architecture:not-nss]] {{lss-no-persistent-storage}}"
+    },
+    {
+      "text": "What a Nanolog outage does to logging and to streams is open: [[shared.cloud-architecture.failure-domains]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For ZIA web or firewall logs, trace Service Edge to Log Router to the tenant's regional Nanolog to NSS; for ZPA, Service Edge to log router to LSS to a log receiver.",
+      "uses": [
+        "edge-log-export",
+        "nss",
+        "zpa.public-service-edges.what-it-is:log-routing"
+      ]
+    }
+  ],
+  "claims": {
+    "edge-log-export": {
+      "statement": "Log data generated for every transaction on a ZIA Public Service Edge is compressed, tokenized and exported over TLS to Log Routers, which direct each organization's logs to the Nanolog cluster hosted in the appropriate geographical region.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-architecture.json",
+          "quotes": [
+            "Log data generated for every transaction is compressed, tokenized, and exported over secure TLS connections to Log Routers that direct the logs to the Nanolog cluster, hosted in the appropriate geographical region, for each organization.",
+            "Log Routers, which ensure logs for each organization are stored in the appropriate Nanolog cluster."
+          ]
+        }
+      ]
+    },
+    "nanolog-role": {
+      "statement": "Nanolog clusters store transaction logs and provide reports. Every second a Nanolog cluster receives logs from all over the world, correlates them to a specific customer organization and writes them to disk for high-speed retrieval for reporting and analytics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-architecture.json",
+          "quotes": [
+            "Nanolog clusters store transaction logs and provide reports.",
+            "Every second, a Nanolog cluster receives logs from all over the world, correlates them to a specific customer organization, and writes them to disk for high-speed retrieval of reporting and analytics."
+          ]
+        }
+      ]
+    },
+    "nanolog-topology": {
+      "statement": "Each Nanolog cluster has one active server and two passive standbys; the active Nanolog replicates data to the other two immediately, so any can become active with no data loss, and each server is hosted in a separate location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-architecture.json",
+          "quotes": [
+            "Each cluster consists of one active server and two servers in passive standby mode.",
+            "The active Nanolog immediately replicates data to the other two servers, so any of them can become active at any time, with no data loss.",
+            "Each Nanolog server is hosted in a separate location to ensure fault tolerance."
+          ]
+        }
+      ]
+    },
+    "nanolog-volume": {
+      "statement": "A Nanolog cluster processes up to 1.2+ billion logs per day.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-architecture.json",
+          "quotes": [
+            "A Nanolog cluster processes up to 1.2+ billion logs per day."
+          ]
+        }
+      ]
+    },
+    "nss": {
+      "statement": "The Nanolog Streaming Service (NSS) uses a virtual appliance to stream web and firewall traffic logs in real time from the Zscaler Nanolog to the customer's SIEM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-architecture.json",
+          "quotes": [
+            "Zscaler offers a Nanolog Streaming Service (NSS), which uses a virtual appliance to stream web and firewall traffic logs in real time from the Zscaler Nanolog to the customer",
+            "security information and event management (SIEM) system."
+          ]
+        }
+      ]
+    },
+    "lss-no-persistent-storage": {
+      "statement": "Private Access does not store information on any persistent media (disk) unless the organization configures it to, and the information can be obfuscated according to the organization's preferences.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "the service does not store any information on any type of persistent media (i.e., disk) unless it is configured to do so by your organization.",
+            "The information can also be obfuscated based on your organization's preferences."
+          ]
+        }
+      ]
+    }
+  }
+}

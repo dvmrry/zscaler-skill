@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "id": "shared.terminology.product-names",
+  "title": "Product names and SDK or API names with a source: Internet & SaaS, Private Access, Zscaler App, Zero Trust Browser, ZBI, ZGuard, ecgroup, deep trace, ZTC",
+  "aliases": [
+    "internet & saas",
+    "internet and saas",
+    "private access",
+    "zscaler app",
+    "z-app",
+    "zscaler isolation",
+    "cloud browser isolation",
+    "zero trust browser",
+    "product rename",
+    "zguard",
+    "client.zbi",
+    "ecgroup",
+    "deeptrace",
+    "deep trace",
+    "ztc",
+    "zero trust cloud"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.terminology"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Names that a captured source shows directly. Others are listed in [[shared.terminology]] with their status."
+    },
+    {
+      "label": "The two services.",
+      "text": "{{service-names}}"
+    },
+    {
+      "label": "Client Connector.",
+      "text": "{{zscaler-app}} {{zscaler-app-alias}}"
+    },
+    {
+      "label": "Browser isolation.",
+      "text": "{{zero-trust-browser}} Its behavior is in [[doc:references/zbi/overview.md]]."
+    },
+    {
+      "label": "SDK and API names.",
+      "text": "{{zguard-alias}} {{zbi-is-business-insights}} {{ecgroup}} {{zdx-deep-trace}} {{ztc-expansion}}"
+    }
+  ],
+  "claims": {
+    "service-names": {
+      "statement": "Current help pages name ZIA Internet & SaaS and ZPA Private Access, for example \"Public Service Edges for Internet & SaaS (ZIA)\" and \"Private Access (ZPA)\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-subclouds.json",
+          "quotes": [
+            "A subcloud is a subset of Public Service Edges for Internet & SaaS (ZIA)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "Private Access (ZPA) was built from the ground up to provide secure remote access."
+          ]
+        }
+      ]
+    },
+    "zscaler-app": {
+      "statement": "The NSS web log lists the Client Connector forwarding method value as \"Zscaler Client Connector (Zscaler App)\", with Zscaler App in parentheses.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#trafficredirectmethod"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "Zscaler Client Connector (Zscaler App)"
+          ]
+        }
+      ]
+    },
+    "zero-trust-browser": {
+      "statement": "Zero Trust Browser was formerly Zscaler Isolation; the NSS web log's field descriptions call it \"Zero Trust Browser (formerly Isolation)\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-zero-trust-browser.json",
+          "quotes": [
+            "Zero Trust Browser (formerly Zscaler Isolation) is a secure platform"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "Applicable to the web traffic processed via Zero Trust Browser (formerly Isolation)."
+          ]
+        }
+      ]
+    },
+    "zscaler-app-alias": {
+      "statement": "Zscaler App is therefore a name for Zscaler Client Connector in Zscaler's own log vocabulary.",
+      "tier": "B",
+      "derived_from": [
+        "zscaler-app"
+      ],
+      "conditions": "Reads the parenthetical as an alternate name; unlike the Zero Trust Browser rows, the log format does not say formerly."
+    },
+    "zguard-alias": {
+      "statement": "In the Python SDK, `client.zguard` is a deprecated alias for the `aiguard` property.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "Deprecated alias for the :obj:`aiguard` property."
+          ],
+          "after": "def zguard(self):"
+        }
+      ]
+    },
+    "zbi-is-business-insights": {
+      "statement": "In the Python SDK, the `zbi` service client is Zscaler Business Insights, not browser isolation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zbi/zbi_service.py",
+          "quotes": [
+            "Zscaler Business Insights (ZBI) service client."
+          ]
+        }
+      ]
+    },
+    "ecgroup": {
+      "statement": "In the Cloud & Branch Connector API, /ecgroup lists Cloud & Branch Connector groups, under the tag Cloud & Branch Connector Groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecgroup/get",
+          "expect": {
+            "description": "Lists Cloud & Branch Connector groups.",
+            "tags": [
+              "Cloud & Branch Connector Groups"
+            ]
+          }
+        }
+      ]
+    },
+    "zdx-deep-trace": {
+      "statement": "The ZDX API calls its on-demand per-device trace a deep trace: POST /v1/devices/{id}/deeptraces starts one on a device, limited to one active session per device and 15 active sessions across all devices, counting sessions started from the UI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces/post",
+          "expect": {
+            "description": "Start deep trace on a device. Limited to 1 active session on a device at any time. Overall 15 active sessions at any point of time across all devices - includes sessions initiated from UI."
+          }
+        }
+      ]
+    },
+    "ztc-expansion": {
+      "statement": "The Terraform provider ZTC is the provider for Zscaler Zero Trust Cloud resources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "README.md",
+          "quotes": [
+            "The ZTC provider is a Terraform plugin that allows for the full lifecycle management of Zscaler Zero Trust Cloud resources."
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.source-ip-groups.rule-use",
+  "title": "Which Cloud Connector rules take source IP groups, and how the source criterion behaves",
+  "aliases": [
+    "srcIpGroups",
+    "src_ip_groups ztc",
+    "source_ip_group_exclusion",
+    "sourceIpGroupExclusion cloud connector",
+    "srcIpv6Groups",
+    "src_ips vs src_ip_groups",
+    "log and control rule source ip group"
+  ],
+  "binds": [
+    "ztw/forwarding-rules#srcIpGroups",
+    "ztw/forwarding-rules#srcIps",
+    "ztw/forwarding-rules#sourceIpGroupExclusion",
+    "ztw/forwarding-rules#srcIpv6Groups",
+    "ztw/traffic-dns-rules#srcIpGroups"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.source-ip-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.delete-detach"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.workload-groups.rule-scoping"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding.criteria"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Forwarding rules.",
+      "text": "The forwarding rule criteria for source IP groups and inline source addresses are in [[cloud-connector.forwarding.criteria:source-ip]], and the App Connector looping advice is [[cloud-connector.forwarding.criteria:app-connector-looping]]. How groups, inline addresses and workload groups combine as sources is not stated {{gap:match-logic}}, nor how criteria combine in general: [[cloud-connector.forwarding.criteria:combination-logic]]."
+    },
+    {
+      "label": "DNS rules.",
+      "text": "DNS rules carry their own source IP group field: [[cloud-connector.terraform.delete-detach:dns-rules-reference-ip-groups]]."
+    },
+    {
+      "label": "Log and control rules.",
+      "text": "{{log-rule-help-source}} {{log-rule-contract-groups}} The two disagree {{divergence:log-rule-source-groups}}. {{log-rule-sdk-no-groups}} The console form for these rules is in [[cloud-connector.forwarding.log-and-control:rule-fields]]."
+    },
+    {
+      "label": "Exclusion.",
+      "text": "{{exclusion-sdk-not-applicable}} {{exclusion-not-in-forwarding-contract}} {{exclusion-in-dns-contract}} {{exclusion-terraform-sends}} What the API does with the flag on a forwarding rule is unknown {{gap:exclusion-applicability}}."
+    },
+    {
+      "label": "IPv6 group fields.",
+      "text": "{{ipv6-forwarding-not-applicable}} {{ipv6-dns-described}} What an IPv6 group is remains open: [[cloud-connector.source-ip-groups:ipv6-entries]]."
+    },
+    {
+      "label": "Source address seen by the rule.",
+      "text": "Whether a source group matches the workload address when traffic was translated before reaching Cloud Connector is not documented {{gap:pre-nat-source}}. Local rules can translate source addresses themselves: [[cloud-connector.forwarding.methods:local-nat]]."
+    },
+    {
+      "label": "Changes and deletes.",
+      "text": "{{save-and-activate}} A change takes effect only after activation: [[cloud-connector.api.activation-wire:activation-pushes-to-ca]]. Activation from Terraform is in [[cloud-connector.terraform.activation:two-ways]]. Deleting a group through Terraform detaches it from forwarding rules only: [[cloud-connector.terraform.delete-detach:ip-group-references-in-dns-rules-not-detached]]. Whether the API refuses to delete a group that rules still reference is open: [[cloud-connector.terraform.delete-detach:in-use-enforcement]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which rule type the policy needs: forwarding and DNS rules take source IP groups; log and control rules cannot be given them through the SDK or Terraform.",
+      "uses": [
+        "cloud-connector.forwarding.criteria:source-ip",
+        "log-rule-sdk-no-groups",
+        "log-rule-source-groups"
+      ]
+    },
+    {
+      "do": "Before relying on `source_ip_group_exclusion` on a forwarding rule, read the rule back from the API and test whether exclusion is applied.",
+      "uses": [
+        "exclusion-not-in-forwarding-contract",
+        "exclusion-applicability"
+      ]
+    },
+    {
+      "do": "For a ZPA, Direct, Drop or Local rule with source criteria, whether the App Connector's own addresses are excluded.",
+      "uses": [
+        "cloud-connector.forwarding.criteria:app-connector-looping"
+      ]
+    },
+    {
+      "do": "Whether the change was activated after saving.",
+      "uses": [
+        "save-and-activate"
+      ]
+    }
+  ],
+  "claims": {
+    "log-rule-sdk-no-groups": {
+      "statement": "The Go SDK's log and control rule struct has no source IP group field: its members are ID, name, description, order, rank, state, type, forward method, default flag, locations, proxy gateway, last-modified fields and Cloud Connector groups.",
+      "tier": "B",
+      "conditions": "Absence read from the whole ECTrafficLogRules struct at the pin; the quotes anchor its first and last members.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/traffic_log_rules/traffic_log_rules.go",
+          "quotes": [
+            "type ECTrafficLogRules struct {",
+            "ECGroups []common.IDNameExtensions `json:\"ecGroups,omitempty\"` }"
+          ]
+        }
+      ]
+    },
+    "exclusion-sdk-not-applicable": {
+      "statement": "The Go SDK's forwarding rule struct carries `SourceIpGroupExclusion` with the comment 'Not applicable to Cloud & Branch Connector.'",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#sourceIpGroupExclusion"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "quotes": [
+            "// Not applicable to Cloud & Branch Connector. SourceIpGroupExclusion bool `json:\"sourceIpGroupExclusion,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "exclusion-not-in-forwarding-contract": {
+      "statement": "The API contract's forwarding rule create body has no `sourceIpGroupExclusion` member.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecRdr/post/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "sourceIpGroupExclusion"
+          ]
+        }
+      ]
+    },
+    "exclusion-in-dns-contract": {
+      "statement": "The contract's DNS rule body does carry `sourceIpGroupExclusion`, described as whether source IP addresses and groups are included or excluded.",
+      "tier": "A",
+      "binds": [
+        "ztw/traffic-dns-rules#srcIpGroups"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecDns/post/requestBody/content/application~1json/schema/properties/sourceIpGroupExclusion",
+          "expect": {
+            "description": "Specifies whether source IP addresses and groups are included or excluded.",
+            "type": "boolean"
+          }
+        }
+      ]
+    },
+    "exclusion-terraform-sends": {
+      "statement": "The ZTC provider's `ztc_traffic_forwarding_rule` exposes an optional boolean `source_ip_group_exclusion` ('Source IP groups that must be excluded from the rule application') and copies it into the SDK request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "quotes": [
+            "\"source_ip_group_exclusion\": { Type: schema.TypeBool, Optional: true, Description: \"Source IP groups that must be excluded from the rule application\", },",
+            "SourceIpGroupExclusion: d.Get(\"source_ip_group_exclusion\").(bool),"
+          ]
+        }
+      ]
+    },
+    "ipv6-forwarding-not-applicable": {
+      "statement": "The contract describes the forwarding rule's `srcIpv6Groups` as not applicable to Cloud & Branch Connector.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#srcIpv6Groups"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecRdr/post/requestBody/content/application~1json/schema/properties/srcIpv6Groups",
+          "expect": {
+            "description": "Not applicable to Cloud & Branch Connector.",
+            "type": "array"
+          }
+        }
+      ]
+    },
+    "ipv6-dns-described": {
+      "statement": "The contract's DNS rule body describes its `srcIpv6Groups` as the source IPv6 addresses to which the rule applies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecDns/post/requestBody/content/application~1json/schema/properties/srcIpv6Groups",
+          "expect": {
+            "description": "The source IPv6 addresses to which the rule applies.",
+            "type": "array"
+          }
+        }
+      ]
+    },
+    "save-and-activate": {
+      "statement": "The help's forwarding rule procedures end with saving the rule and activating the change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "To configure rules to forward specific traffic through the Internet & SaaS gateway",
+          "quotes": [
+            "Click Save and activate the change."
+          ]
+        }
+      ]
+    },
+    "log-rule-help-source": {
+      "statement": "The help's Log and Control forwarding rule form offers only Location/Sublocation and Cloud & Branch Connector Groups in its Source section.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-log-and-control-forwarding-rule.json",
+          "quotes": [
+            "In the Source section, configure one of the following rule attributes:",
+            "Location/Sublocation: Click Select All to apply the rule to all locations, or select up to 8 locations.",
+            "Cloud & Branch Connector Groups: Click Select All to apply the rule to all groups, or select specific groups to apply the rule."
+          ]
+        }
+      ]
+    },
+    "log-rule-contract-groups": {
+      "statement": "The contract's log and control rule create body, described as traffic forwarding rule details, carries `srcIpGroups`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1self/post/requestBody/content/application~1json/schema/properties/srcIpGroups",
+          "expect": {
+            "description": "The source IP groups to which the rule applies.",
+            "type": "array"
+          }
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "log-rule-source-groups": {
+      "summary": "The help's log and control rule form has no source IP group criterion; the contract documents the log and control rule body with the forwarding rule schema, which carries `srcIpGroups`.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-configuring-log-and-control-forwarding-rule.json",
+            "quotes": [
+              "In the Source section, configure one of the following rule attributes:"
+            ]
+          },
+          "says": "A log and control rule's source is a location or sublocation, or a Cloud & Branch Connector group; there is no source IP group criterion."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1ecRules~1self/post/requestBody/content/application~1json/schema/properties/srcIpGroups",
+            "expect": {
+              "description": "The source IP groups to which the rule applies.",
+              "type": "array"
+            }
+          },
+          "says": "The log and control rule body carries source IP groups."
+        }
+      ],
+      "impact": "Whether the API honors `srcIpGroups` on a log and control rule is unconfirmed; the contract may reuse the forwarding schema without the field applying. The Go SDK, and the ZTC provider built on it, cannot send the field at all."
+    }
+  },
+  "gaps": {
+    "match-logic": {
+      "kind": "semantic",
+      "title": "How source IP groups, inline source addresses and other criteria combine",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'the packet's source IP is checked against every entry in every referenced group (OR logic within and across groups) ... All criteria in a rule are ANDed together'; 'The rule matches if either the inline src_ips or any referenced src_ip_groups entry matches'; 'all source criteria [groups, src_ips, src_workload_groups] are OR-aggregated before being ANDed with non-source criteria.' The Cloud & Branch Connector help lists the criteria without stating how they combine.",
+      "blocks": "Predicting whether a rule with both source groups and inline addresses, or with workload groups, matches a flow.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "exclusion-applicability": {
+      "kind": "semantic",
+      "former_ids": [
+        "cloud-connector-05"
+      ],
+      "title": "What the API does with sourceIpGroupExclusion on a Cloud Connector forwarding rule",
+      "status": "open",
+      "detail": "The Go SDK marks the flag not applicable to Cloud & Branch Connector and the contract's forwarding rule body lacks it, yet the provider exposes and sends it (a true value only, since the SDK field is omitempty). The DNS rule contract does carry it. Whether the backend applies, rejects or ignores it on an ecRdr rule is not recoverable from source.",
+      "blocks": "Writing a forwarding rule meant to exclude a set of source addresses.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "pre-nat-source": {
+      "kind": "semantic",
+      "title": "Source address seen by source IP group matching after upstream NAT",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'The source IP presented to the forwarding rule engine is the workload's pre-NAT IP as seen by the CC data plane. If traffic has already been SNATed before reaching Cloud Connector (e.g., by a cloud-provider NAT gateway upstream of the CC path), the source IP group matching will see the NAT pool address, not the originating workload IP.' No captured source describes which address the rule engine matches.",
+      "blocks": "Explaining a source-group rule that does not match traffic routed through a NAT before Cloud Connector.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

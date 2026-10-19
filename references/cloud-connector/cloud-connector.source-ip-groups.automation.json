@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.source-ip-groups.automation",
+  "title": "Managing source IP groups with the ZTC Terraform provider and the Go SDK",
+  "aliases": [
+    "ztc_ip_source_groups import",
+    "zia_ip_source_groups in ztc rule",
+    "ipsourcegroups GetByName",
+    "ztc_ip_source_groups docs example wrong",
+    "source ip group terraform creator_context"
+  ],
+  "binds": [
+    "ztw/ip-source-groups"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.source-ip-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.delete-detach"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.provider-behavior"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdk-go.lookups"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Lookups by name.",
+      "text": "The Go SDK's name lookup for source IP groups lists every group and matches case-insensitively: [[cloud-connector.sdk-go.lookups:same-pattern-elsewhere]]. {{case-collision}} {{import-by-id-or-name}}"
+    },
+    {
+      "label": "What the resource keeps in state.",
+      "text": "{{resource-read-fields}} Its `description` argument shares the provider multi-line handling: [[cloud-connector.terraform.provider-behavior:multiline-helpers-on-nine-resources]]."
+    },
+    {
+      "label": "Provider documentation.",
+      "text": "{{doc-example-wrong-type}} {{doc-arguments-wrong}}"
+    },
+    {
+      "label": "Groups made in ZIA.",
+      "text": "{{zia-data-source-example}} {{zia-ids-accepted}}"
+    },
+    {
+      "label": "Known defects.",
+      "text": "The SDK update for source IP groups shares the unchecked-assertion pattern: [[cloud-connector.sdk-go.service-defects:ztw-update-deref-same-pattern]]. Deletes detach the group from forwarding rules only: [[cloud-connector.terraform.delete-detach:ip-group-delete-follows-detach]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether two groups share a name that differs only in case before importing or looking a group up by name.",
+      "uses": [
+        "cloud-connector.sdk-go.lookups:same-pattern-elsewhere",
+        "case-collision"
+      ]
+    },
+    {
+      "do": "Use the data source, not the resource, when origin or editability is needed in Terraform.",
+      "uses": [
+        "resource-read-fields"
+      ]
+    },
+    {
+      "do": "Write `ztc_ip_source_groups` with `name` and `ip_addresses`, not the provider page's example type or argument list.",
+      "uses": [
+        "doc-example-wrong-type",
+        "doc-arguments-wrong"
+      ]
+    }
+  ],
+  "claims": {
+    "case-collision": {
+      "statement": "If two groups have names that differ only in case, a name lookup returns whichever the listing gives first, which may not be the intended one.",
+      "tier": "B",
+      "conditions": "Follows from the list-then-case-insensitive-match lookup, which also covers IP groups; whether the API allows such names was not checked.",
+      "derived_from": [
+        "cloud-connector.sdk-go.lookups:same-pattern-elsewhere"
+      ]
+    },
+    "import-by-id-or-name": {
+      "statement": "`ztc_ip_source_groups` imports by numeric ID, or, when the import ID is not numeric, by name through `GetByName`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_source_groups.go",
+          "quotes": [
+            "idInt, parseIDErr := strconv.ParseInt(id, 10, 64) if parseIDErr == nil { _ = d.Set(\"group_id\", idInt) } else { resp, err := ipsourcegroups.GetByName(ctx, service, id)"
+          ]
+        }
+      ]
+    },
+    "resource-read-fields": {
+      "statement": "The `ztc_ip_source_groups` resource read copies only the ID, name, addresses and description into state; the data source also sets `creator_context` and `is_non_editable`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_source_groups.go",
+          "quotes": [
+            "d.SetId(fmt.Sprintf(\"%d\", resp.ID)) _ = d.Set(\"group_id\", resp.ID) _ = d.Set(\"name\", resp.Name) _ = d.Set(\"ip_addresses\", resp.IPAddresses) _ = d.Set(\"description\", resp.Description) return nil"
+          ],
+          "after": "func resourceIPSourceGroupsGroupsRead("
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/data_source_ztc_ip_source_groups.go",
+          "quotes": [
+            "_ = d.Set(\"creator_context\", resp.CreatorContext) _ = d.Set(\"is_non_editable\", resp.IsNonEditable)"
+          ]
+        }
+      ]
+    },
+    "doc-example-wrong-type": {
+      "statement": "The provider's documentation page for `ztc_ip_source_groups` shows its create example as `resource \"zia_ip_source_groups\"`, the ZIA provider's resource type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/resources/ztc_ip_source_groups.md",
+          "quotes": [
+            "resource \"zia_ip_source_groups\" \"this\" {"
+          ]
+        }
+      ]
+    },
+    "doc-arguments-wrong": {
+      "statement": "The same page's Argument Reference lists `name` as optional ('The name of the IP source group to be exported') and `id`, data-source wording, while the resource schema requires `name` and `ip_addresses`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/resources/ztc_ip_source_groups.md",
+          "quotes": [
+            "* `name` - (Optional) The name of the IP source group to be exported.",
+            "* `id` - (Optional) The ID of the IP source group resource."
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_source_groups.go",
+          "quotes": [
+            "\"name\": { Type: schema.TypeString, Required: true,",
+            "\"ip_addresses\": { Type: schema.TypeSet, Elem: &schema.Schema{Type: schema.TypeString}, Required: true, },"
+          ]
+        }
+      ]
+    },
+    "zia-data-source-example": {
+      "statement": "The provider's `basic_forward_method_zia.tf` example looks up a source IP group with the ZIA provider's `zia_ip_source_groups` data source and passes its ID to `src_ip_groups` of a `ztc_traffic_forwarding_rule`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "examples/ztc_traffic_forwarding_rule/basic_forward_method_zia.tf",
+          "quotes": [
+            "data \"zia_ip_source_groups\" \"this\" {",
+            "src_ip_groups { id = [data.zia_ip_source_groups.this.id] }"
+          ]
+        }
+      ]
+    },
+    "zia-ids-accepted": {
+      "statement": "The example implies that the ID of a source IP group read through ZIA is a valid source IP group reference on a Cloud Connector forwarding rule.",
+      "tier": "B",
+      "conditions": "Inferred from the provider example and from the help placing the page under Internet Access resources; no source states that ZIA and Cloud Connector share the group objects.",
+      "derived_from": [
+        "zia-data-source-example",
+        "cloud-connector.source-ip-groups:help-page-ipv4-tab"
+      ]
+    }
+  }
+}

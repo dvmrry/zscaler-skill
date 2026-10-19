@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "id": "shared.oneapi.write-practices",
+  "title": "Writing through OneAPI: fetch before update, activation, edit locks",
+  "aliases": [
+    "oneapi best practices",
+    "EDIT_LOCK_NOT_AVAILABLE",
+    "409 edit lock",
+    "fetch before update",
+    "activate after change oneapi",
+    "ecAdminActivateStatus activate",
+    "change did not take effect",
+    "do not edit in ui while script runs"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.api.activation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation-methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.response-codes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The OneAPI guide's best practices are mostly about writes. {{fetch-before-update}} {{utf8}}"
+    },
+    {
+      "label": "Activation.",
+      "text": "{{activation-zia-cbc}} How ZIA changes become live, and that ending a session can activate them, is in [[zia.api.activation]]. {{cbc-activate-put}} The guide and the contract disagree on the method {{divergence:cbc-activate-method}}. {{activation-named-for-two}} Client Connector web policies have their own activate call ([[zcc.api.web-policy-wire:activate]]), and whether a ZPA write is live at once is open ([[zpa.api.activation:write-takes-effect]]). Whether ZDX, ZIdentity and Business Insights writes are live at once is open {{gap:other-products-no-activation}}."
+    },
+    {
+      "label": "Edit locks and races.",
+      "text": "{{avoid-ui-edits}} {{edit-lock-409}} A tenant's single change lock and activation queue, and what that means for concurrent runs, are in [[zia.terraform.activation-methods:one-apply-per-tenant]] and [[zia.terraform.activation-methods:activation-queues]]."
+    },
+    {
+      "label": "Token lifetime.",
+      "text": "{{token-lifetime}}"
+    },
+    {
+      "label": "Caching.",
+      "text": "The Client Connector cache-busting argument is in [[zcc.api.conventions:dummy-argument]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a ZIA or Cloud & Branch Connector change that did not take effect, whether it was activated, or whether the session it was made in ended (which activates on ZIA).",
+      "uses": [
+        "activation-zia-cbc",
+        "zia.terraform.activation-methods:session-end-autoactivation"
+      ]
+    },
+    {
+      "do": "For a 409 EDIT_LOCK_NOT_AVAILABLE, whether an admin was editing in the UI or another script was writing to the same tenant at the time; the vendor's recovery is a wait of a few seconds and a retry.",
+      "uses": [
+        "edit-lock-409",
+        "avoid-ui-edits"
+      ]
+    },
+    {
+      "do": "Before an update that replaces a resource, whether the script read the current values with a GET first.",
+      "uses": [
+        "fetch-before-update"
+      ]
+    }
+  ],
+  "claims": {
+    "fetch-before-update": {
+      "statement": "Before updating a resource, send a GET and then the PUT or POST, because the update replaces the entire resource with the new values; this avoids overwriting changes by accident or missing updates made between the GET and the write.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "Always fetch before update: When updating a resource, always send a GET request before a PUT/POST request.",
+            "By using this practice, you avoid overwriting changes accidentally or potentially missing updates between GET and PUT/POST calls.",
+            "before you update the entire resource with new values. After the update, the next GET request for that resource returns the new values."
+          ]
+        }
+      ]
+    },
+    "utf8": {
+      "statement": "All endpoints should be called with UTF-8 encoding.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "Always use UTF-8 encoding: When making API calls, use UTF-8 encoding for all endpoints"
+          ]
+        }
+      ]
+    },
+    "activation-zia-cbc": {
+      "statement": "For ZIA and Cloud & Branch Connector, configuration changes must be explicitly activated, through /status/activate and /ecAdminActivateStatus/activate respectively. A change cannot be reverted and a queued activation cannot be cancelled; the guide recommends grouping several changes and activating once.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "Activation might be required: For ZIA and Cloud & Branch Connector APIs, configuration changes must be explicitly activated with a POST to /status/activate or /ecAdminActivateStatus/activate, respectively.",
+            "However, you cannot revert a change and you cannot cancel any queued activations.",
+            "If you are making multiple configuration changes, Zscaler recommends grouping the changes and activating once."
+          ]
+        }
+      ]
+    },
+    "cbc-activate-put": {
+      "statement": "The Cloud & Branch Connector contract defines `/ecAdminActivateStatus/activate` as a PUT operation that activates configuration changes, beside a `forcedActivate` route.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecAdminActivateStatus~1activate/put",
+          "expect": {
+            "operationId": "Ec Activate Z Resource Activate",
+            "description": "Activates configuration changes."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecAdminActivateStatus~1activate",
+          "expect_absent": [
+            "post"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/activation/activation.go",
+          "quotes": [
+            "ecAdminActivateEndpoint       = \"/ztw/api/v1/ecAdminActivateStatus/activate\"",
+            "ecAdminForceActivateEndpoint  = \"/ztw/api/v1/ecAdminActivateStatus/forcedActivate\""
+          ]
+        }
+      ]
+    },
+    "activation-named-for-two": {
+      "statement": "The OneAPI guide names an activation step only for ZIA and Cloud & Branch Connector.",
+      "tier": "B",
+      "derived_from": [
+        "activation-zia-cbc"
+      ],
+      "conditions": "Read of the guide's best-practice list and examples; the guide does not say that the other products need no activation."
+    },
+    "avoid-ui-edits": {
+      "statement": "To avoid race conditions, settings should not be changed manually in the admin console while scripts are running, because the service might lock a configuration while a user is editing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "Avoid race conditions: To avoid race conditions, do not manually change configuration settings via the Zscaler Admin Portal (or Zscaler Console) UIs while your scripts are running, as they might conflict. The Zscaler service might lock a configuration while a user is editing."
+          ]
+        }
+      ]
+    },
+    "edit-lock-409": {
+      "statement": "When several admins edit at once only one change succeeds and the others may receive 409 `EDIT_LOCK_NOT_AVAILABLE`; the vendor recommends waiting a few seconds and retrying.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "When multiple admins are editing concurrently, only one admin's change succeeds, while the remaining users might receive a 409 error (EDIT_LOCK_NOT_AVAILABLE). If you encounter a race condition and a 409 error code is returned, Zscaler recommends adding a wait cycle of a few seconds and retrying to recover."
+          ]
+        }
+      ]
+    },
+    "token-lifetime": {
+      "statement": "The access token lifetime is set per API client in Authentication Service, and the guide advises adjusting it to balance convenience and security.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "Adjust the token lifetime: Adjust the access token lifetime in Authentication Service in order to balance convenience and security."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "You can also define the access token lifetime and manage role and permissions association for the API clients."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "cbc-activate-method": {
+      "summary": "Which HTTP method activates Cloud & Branch Connector changes: the OneAPI guide says a POST to /ecAdminActivateStatus/activate, while the contract defines only a PUT on that path and the legacy guide also says PUT.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "automate-zscaler/getting-started.json",
+            "quotes": [
+              "configuration changes must be explicitly activated with a POST to /status/activate or /ecAdminActivateStatus/activate, respectively."
+            ]
+          },
+          "says": "A POST activates Cloud & Branch Connector changes."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1ecAdminActivateStatus~1activate",
+            "expect_absent": [
+              "post"
+            ]
+          },
+          "says": "The path has a PUT operation and no POST."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-getting-started-cloud-branch-connector-api.json",
+            "quotes": [
+              "After modifying any configurations, you must activate the changes by sending a PUT request to /ecAdminActivateStatus/activate."
+            ]
+          },
+          "says": "The legacy guide activates with a PUT."
+        }
+      ],
+      "impact": "A hand-built client that follows the guide's POST may be refused on Cloud & Branch Connector and leave the changes inactive."
+    }
+  },
+  "gaps": {
+    "other-products-no-activation": {
+      "kind": "semantic",
+      "title": "Whether writes to ZDX, ZIdentity and Business Insights are live without activation",
+      "status": "open",
+      "detail": "Unverified legacy statement: ZPA, ZDX, ZIdentity, ZCC and Business Insights have no activation gate, so config changes apply immediately on the underlying write. The ZCC part does not hold for web policies, which have an explicit activate call (zcc.api.web-policy-wire:activate), and the ZPA part is the open gap zpa.api.activation:write-takes-effect. For ZDX, the audit log report's filters include an ACTIVATION category and ACTIVATE and FORCED_ACTIVATE action types, which may mean ZDX has an activation step or may be a shared audit vocabulary. No source states that ZDX, ZIdentity or Business Insights writes are live at once.",
+      "blocks": "telling an operator a write to these products is already live",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/actionTypes/items",
+          "expect": {
+            "enum": [
+              "SIGN_IN",
+              "SIGN_OUT",
+              "CREATE",
+              "UPDATE",
+              "DELETE",
+              "PATCH",
+              "AUDIT_OPERATION",
+              "ACTIVATE",
+              "FORCED_ACTIVATE",
+              "IMPORT",
+              "REPORT",
+              "DOWNLOAD",
+              "POLICY_SYNC"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

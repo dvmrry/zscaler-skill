@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.workload-discovery.account-groups",
+  "title": "AWS account groups: which Cloud Connector groups receive an account's tags",
+  "aliases": [
+    "aws account group",
+    "ztc_account_groups",
+    "cloudConnectorGroups account group",
+    "tags from multiple aws accounts",
+    "cloud connector not getting tags from spoke account",
+    "zero trust gateway aws tags"
+  ],
+  "binds": [
+    "ztw/account-groups",
+    "ztw/account-groups#cloudConnectorGroups",
+    "ztw/account-groups#publicCloudAccounts"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.workload-discovery.aws-accounts"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.workload-discovery.permission-status"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} {{ztg-requires-groups}}"
+    },
+    {
+      "label": "Binding.",
+      "text": "{{group-binds-cc-groups}} {{account-joins-group}} What a Cloud Connector group in no account group receives is not stated {{gap:unbound-cc-group}}."
+    },
+    {
+      "label": "Mixed status.",
+      "text": "{{group-shows-permission}} {{mixed-states}} Which accounts actually yield tags follows from their status: [[cloud-connector.workload-discovery.permission-status:denied-no-tags]]."
+    },
+    {
+      "label": "Limit.",
+      "text": "{{max-128}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the Cloud Connector group that carries the workload traffic is selected on an account group that holds the workload's AWS account.",
+      "uses": [
+        "group-binds-cc-groups",
+        "unbound-cc-group"
+      ]
+    },
+    {
+      "do": "Whether each account in the group shows Allowed rather than Pending or Denied.",
+      "uses": [
+        "group-shows-permission",
+        "cloud-connector.workload-discovery.permission-status:denied-no-tags"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "AWS account groups make Cloud Connector aware of other accounts it can get workload tags from, so a Cloud Connector is not tied to the account where it is deployed; a group can link all accounts to a single Cloud Connector group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-amazon-web-services-account-groups.json",
+          "quotes": [
+            "Amazon Web Services (AWS) account groups enable Zscaler Cloud Connector to be aware of other accounts it can get the workload tags from. Therefore, the Cloud Connector is not tied to the account where it is deployed.",
+            "Enable Cloud Connector to learn workload tags from multiple accounts.",
+            "Simplify deployment with a centralized model that links all accounts to a single Cloud Connector group."
+          ]
+        }
+      ]
+    },
+    "ztg-requires-groups": {
+      "statement": "Using AWS tags with Zero Trust Gateways requires AWS account groups, which associate the accounts in a group with a Zero Trust Gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-amazon-web-services-account-groups.json",
+          "quotes": [
+            "To use AWS tags with Zero Trust Gateways, you must configure AWS groups as described below. This is required to associate one or more AWS accounts in a group with a Zero Trust Gateway, which serves as the security enforcement point for workloads."
+          ]
+        }
+      ]
+    },
+    "group-binds-cc-groups": {
+      "statement": "An account group is associated with one or more Cloud Connector groups, selected when the group is added and changeable on its details page, where they are described as the Cloud Connector groups the tag information is sent to.",
+      "tier": "A",
+      "binds": [
+        "ztw/account-groups#cloudConnectorGroups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-amazon-web-services-account-group.json",
+          "quotes": [
+            "Cloud Connector Group: From the drop-down menu, select the Cloud Connector group(s) to associate with the account group."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-amazon-web-services-account-group-details.json",
+          "quotes": [
+            "From the drop-down menu, select the Cloud Connector groups where tag information is sent."
+          ]
+        }
+      ]
+    },
+    "account-joins-group": {
+      "statement": "An account joins a group either through the optional Account Group field when the account is added, or by being selected from the account table when the group is added.",
+      "tier": "A",
+      "binds": [
+        "ztw/account-groups#publicCloudAccounts"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-amazon-web-services-account.json",
+          "quotes": [
+            "Account Group: (Optional) Select an AWS account group to add the account to."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-amazon-web-services-account-group.json",
+          "quotes": [
+            "From the table, select the AWS accounts to associate with the group."
+          ]
+        }
+      ]
+    },
+    "group-shows-permission": {
+      "statement": "The group's details page lists each member account with its own permission status: Allowed, Denied or Pending.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-amazon-web-services-account-group-details.json",
+          "quotes": [
+            "View a list of accounts in the group. For each account, you can view:",
+            "Permission: The permission status of the account:",
+            "Allowed: The IAM role was correctly deployed, and the service can discover tags.",
+            "Denied: The service cannot assume the role that you provided.",
+            "Pending: The account was added to the Zscaler service, but it is waiting for the role to be deployed."
+          ]
+        }
+      ]
+    },
+    "max-128": {
+      "statement": "An organization can create at most 128 AWS account groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1accountGroups/post",
+          "expect": {
+            "description": "Creates an AWS account group. You can create a maximum of 128 groups in each organization. To learn more, see <a href=\"https://help.zscaler.com/cloud-branch-connector/adding-amazon-web-services-account-group\" target=\"_blank\">Adding an Amazon Web Services Account Group</a>."
+          }
+        }
+      ]
+    },
+    "mixed-states": {
+      "statement": "One group can therefore hold accounts in different permission states at the same time.",
+      "tier": "B",
+      "conditions": "Follows from the status being listed per member account; the help does not say so in words.",
+      "derived_from": [
+        "group-shows-permission"
+      ]
+    }
+  },
+  "gaps": {
+    "unbound-cc-group": {
+      "kind": "semantic",
+      "title": "Tag visibility of a Cloud Connector group that is in no account group",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'A CC group that is not associated with any Account Group has no workload tag visibility, even if individual AWS accounts are onboarded. ... Tag data is discovered and stored but never delivered to the Cloud Connector group handling traffic. Policy evaluation falls back to network primitives. No error surfaced.' The help says account groups let a Cloud Connector learn tags from accounts other than its own; it does not say whether a Cloud Connector receives tags for its own account without any group, or whether anything is surfaced when none arrive.",
+      "blocks": "Explaining a tag-based rule that never matches on a Cloud Connector group with no account group.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

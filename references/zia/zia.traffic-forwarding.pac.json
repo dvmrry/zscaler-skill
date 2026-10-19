@@ -59,7 +59,7 @@
     },
     {
       "label": "Automation.",
-      "text": "{{terraform-resource}} Creating a file may or may not deploy it {{divergence:create-vs-deploy}}, and the resulting state is open {{gap:pac-create-resulting-state}}. The Go response model and the Python and Automate shapes differ on `externalId` for the last-modifying admin {{go-lastmodifiedby-nullable}}; whether tenants populate it is open {{gap:pac-externalid-populated}}. The PAC file source is in [[doc:references/shared/pac-files.md]]."
+      "text": "{{terraform-resource}} Creating a file may or may not deploy it {{divergence:create-vs-deploy}}, and the resulting state is open {{gap:pac-create-resulting-state}}. The Go response model and the Python and Automate shapes differ on `externalId` for the last-modifying admin {{go-lastmodifiedby-nullable}}; whether tenants populate it is open {{gap:pac-externalid-populated}}. The PAC file source is in [[shared.pac-files]]."
     },
     {
       "text": "Whether a location is required for PAC traffic is not stated (gap `location-not-required`); what the sources say about unknown sources is in [[zia.locations.model]]."
@@ -372,9 +372,12 @@
     },
     "client-cache": {
       "kind": "semantic",
+      "former_ids": [
+        "shared-24"
+      ],
       "title": "When clients pick up a changed PAC file",
       "status": "open",
-      "detail": "Unverified legacy statement: PAC file changes take effect on the client's next PAC fetch cycle; browsers cache PAC files and the cache TTL varies by OS and browser. No captured source states it; a lab test would settle it.",
+      "detail": "Unverified legacy statement: PAC file changes take effect on the client's next PAC fetch cycle; browsers cache PAC files and the cache TTL varies by OS and browser, and a change takes minutes to about an hour to reach all users. Also open: the Cache-Control and Expires headers the Zscaler PAC servers send, whether a rollback reaches clients holding a cached newer version only after expiry, and any console action that forces a re-fetch. Settled for Client Connector's app profile PAC: it refreshes every 15 minutes and Update Policy syncs it at once (shared.pac-files.hosting:subcloud-propagation). A lab test (an HTTP HEAD on a hosted PAC URL) would settle the rest.",
       "resolves_with": [
         "lab-test"
       ]
@@ -390,20 +393,28 @@
     },
     "auth-challenge-behavior": {
       "kind": "semantic",
+      "former_ids": [
+        "shared-25"
+      ],
       "title": "Client behavior when a PAC-forwarded location enforces authentication",
       "status": "open",
-      "detail": "Unverified legacy statement: With Enforce Authentication on, browsers get a 407; Kerberos and NTLM work transparently in IE and Edge on domain-joined Windows, Chrome and Firefox on non-domain-joined machines prompt interactively, and non-browser applications fail silently or loop on 407; deploying Client Connector removes the problem. No captured source states it; operator experience or a tenant observation would settle it.",
+      "detail": "Unverified legacy statement: With Enforce Authentication on, browsers get a 407; Kerberos and NTLM work transparently in IE and Edge on domain-joined Windows, Chrome and Firefox on non-domain-joined machines prompt interactively, and non-browser applications fail silently or loop on 407; deploying Client Connector removes the problem. Also open: whether a cookieless client gets a 407 or a SAML 302, how the session cookie is scoped across PAC-proxied requests, why users report more re-authentication in PAC mode than over Z-Tunnel, and what happens to a Kerberos-eligible user whose PAC file returns port 80 rather than 8800 (the Kerberos PAC file and port 8800 are in shared.pac-files.kerberos). No captured source states it; operator experience or a tenant observation would settle it.",
       "resolves_with": [
-        "operator-experience"
+        "operator-experience",
+        "lab-test"
       ]
     },
     "delivery-methods": {
       "kind": "semantic",
+      "former_ids": [
+        "shared-23"
+      ],
       "title": "PAC delivery by WPAD, MDM and manual settings",
       "status": "open",
-      "detail": "Unverified legacy statement: The PAC file can be delivered by WPAD (a DNS record), by MDM profile or by manual proxy settings, and Chrome honors Internet Explorer settings on Windows. No captured source states it; operator experience or a tenant observation would settle it.",
+      "detail": "Unverified legacy statement: The PAC file can be delivered by WPAD (a DNS record), by MDM profile or by manual proxy settings, and Chrome honors Internet Explorer settings on Windows. Also open: whether a Zscaler-hosted PAC can be served as wpad.dat or with the application/x-ns-proxy-autoconfig MIME type, whether DHCP option 252 can deliver the hosted URL, and whether a customer wpad host redirecting (HTTP 302) to the hosted URL keeps variable substitution. No captured source states it; operator experience or a tenant observation would settle it.",
       "resolves_with": [
-        "operator-experience"
+        "operator-experience",
+        "lab-test"
       ]
     },
     "location-not-required": {

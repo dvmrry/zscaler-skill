@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "id": "shared.log-correlation.zia-feeds",
+  "title": "Correlating ZIA web, firewall and DNS records for one user or event",
+  "aliases": [
+    "zia shared log fields",
+    "join web and firewall logs",
+    "correlate dns and web logs",
+    "zia correlation keys",
+    "cip vs csip",
+    "epochtime join key",
+    "dns block then web block"
+  ],
+  "binds": [
+    "zia/web-log#epochtime",
+    "zia/firewall-log#epochtime",
+    "zia/dns-log#epochtime",
+    "zia/web-log#login",
+    "zia/firewall-log#login",
+    "zia/dns-log#login"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.logs.web-records"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.logs.firewall-records"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.logs.dns-record-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.log-correlation.zcc-in-zia"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.log-correlation.zia-zpa-join"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.firewall.traffic-path"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers matching records for one user or event across the three ZIA NSS feeds: web, firewall and DNS."
+    },
+    {
+      "label": "Fields the three feeds share.",
+      "text": "{{common-fields}} {{client-ip-names}} The per-feed field lists are in [[zia/web-log]], [[zia/firewall-log]] and [[zia/dns-log]]."
+    },
+    {
+      "label": "Which time field to join on.",
+      "text": "{{epochtime-join}} How the time zone behaves across several feeds or regions is open: [[zia.logs.nss-feed-format:multi-feed-timezone]]."
+    },
+    {
+      "label": "Record identity.",
+      "text": "Each feed's recordid identifies one log record and has no Insights column: [[zia.logs.web-records:per-transaction]], [[zia.logs.dns-record-fields:nss-only-fields]]. Whether the same identifier is unique across data centers is open: [[shared.log-correlation.zia-zpa-join:cross-dc-sessions]]."
+    },
+    {
+      "label": "Firewall aggregates.",
+      "text": "A firewall record can stand for several sessions and carries the addresses of the last one: [[zia.logs.firewall-records:last-session]], [[zia.logs.firewall-records:undercount]]."
+    },
+    {
+      "label": "One request, two feeds.",
+      "text": "Web traffic is evaluated by the firewall module before the web module: [[zia.firewall.traffic-path:firewall-first]]. So a firewall block shows as blocked in both feeds and a web-policy block shows as allowed in the firewall feed: [[zia.firewall.traffic-path:firewall-block-both-logs]], [[zia.firewall.traffic-path:web-block-firewall-allowed]]. The same guide later says the firewall logs show a web-blocked transaction as blocked: [[zia.firewall.traffic-path:web-block-firewall-log-conflict]]."
+    },
+    {
+      "label": "DNS then web.",
+      "text": "A DNS request and a later web request for the same name are separate records with no link field; what the DNS feed records for a blocked request is in [[zia.logs.dns-outcome]], and the timing and category relationship between the two records is open {{gap:dns-then-web}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Match records across the web, firewall and DNS feeds on login and epochtime, not on the time string, and use cip for web and DNS but csip for firewall.",
+      "uses": [
+        "common-fields",
+        "client-ip-names",
+        "epochtime-join"
+      ]
+    },
+    {
+      "do": "For a reported denial, search web and firewall records for the host and user in the window and see which feed records Blocked; a firewall-module block shows in both feeds, a web-module block only in the web feed.",
+      "uses": [
+        "zia.firewall.traffic-path:firewall-block-both-logs",
+        "zia.firewall.traffic-path:web-block-firewall-allowed",
+        "zia.firewall.traffic-path:web-block-firewall-log-conflict"
+      ]
+    },
+    {
+      "do": "For a suspected DNS-driven block, find DNS records whose req is the domain and whose reqaction or resaction blocked, then web records for the same login and host shortly after, and compare urlcat with the DNS categories.",
+      "uses": [
+        "zia.logs.dns-outcome:reqaction-examples",
+        "zia.logs.dns-outcome:action-enum-open",
+        "dns-then-web"
+      ]
+    },
+    {
+      "do": "Before counting distinct client addresses from firewall records, check whether the records are aggregated.",
+      "uses": [
+        "zia.logs.firewall-records:agg-flag",
+        "zia.logs.firewall-records:undercount"
+      ]
+    }
+  ],
+  "claims": {
+    "common-fields": {
+      "statement": "The web, firewall and DNS NSS field tables each list time, epochtime, login, dept, location, datacenter, datacentercity, devicehostname, deviceowner, deviceostype, recordid and eedone; login is the user's login name in email address format in each.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#login",
+        "zia/firewall-log#login",
+        "zia/dns-log#login"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{time} | The time and date of the transaction. This excludes the time zone. | Mon Oct",
+            "| %d{epochtime} | The epoch time of the transaction | 1578128400",
+            "| %s{login} | The user's login name in email address format | jdoe@safemarch.com | User",
+            "| %s{dept} | The department of the user | Sales | Department",
+            "| %s{location} | The gateway location or sub-location of the source. To learn more, see",
+            "| %s{datacenter} | The name of the data center | CA Client Node DC | Data Center",
+            "| %s{datacentercity} | The city where the data center is located | Sa",
+            "| %s{devicehostname} | The hostname of the device | THINKPADSMITH | Device Hostname",
+            "| %s{deviceowner} | The owner of the device | jsmith | Device Owner",
+            "| %s{deviceostype} | The OS type of the device | iOSAndroid OSWindows OSMAC OSOther OS",
+            "| %d{recordid} | The unique record identifier for each log |  | This field is specific to",
+            "| %s{eedone} | Indicates if the characters specified in the Feed Escape Character field"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-firewall-logs.json",
+          "quotes": [
+            "| %s{time} | The time and date of the transaction. This excludes the time zone. | Mon Oct",
+            "| %d{epochtime} | The epoch time of the transaction | 1578128400",
+            "| %s{login} | The user's login name in email address format | jdoe@safemarch.com | User",
+            "| %s{dept} | The department of the user | Sales | Department",
+            "| %s{location} | The name of the location from which the session was initiated",
+            "| %s{datacenter} | The name of the data center | CA Client Node DC | Data Center",
+            "| %s{datacentercity} | The city where the data center is located | Sa",
+            "| %s{devicehostname} | The hostname of the device | THINKPADSMITH | Device Hostname",
+            "| %s{deviceowner} | The owner of the device | jsmith | Device Owner",
+            "| %s{deviceostype} | The OS type of the device | iOSAndroid OSWindows OSmacOSOther OS",
+            "| %d{recordid} | The record ID |  | This field is specific to NSS",
+            "| %s{eedone} | Indicates if the characters specified in the Feed Escape Character field"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-dns-logs.json",
+          "quotes": [
+            "| %s{time} | The time and date of the transaction. This excludes the time zone. | Mon Oct",
+            "| %d{epochtime} | The epoch time of the transaction | 1578128400",
+            "| %s{login} | The login name in email address format | jdoe@safemarch.com | User",
+            "| %s{dept} | The department | Sales | Department",
+            "| %s{location} | The gateway location or sublocation of the source | Headquarters",
+            "| %s{datacenter} | The name of the data center | CA Client Node DC | Data Center",
+            "| %s{datacentercity} | The city where the data center is located | Sa",
+            "| %s{devicehostname} | The hostname of the device | THINKPADSMITH | Device Hostname",
+            "| %s{deviceowner} | The owner of the device | jsmith | Device Owner",
+            "| %s{deviceostype} | The OS type of the device | Windows OS | Device OS Type",
+            "| %d{recordid} | The unique record identifier for each log |  | This field is specific to",
+            "| %s{eedone} | Indicates if the characters specified in the Feed Escape Character field"
+          ]
+        }
+      ]
+    },
+    "client-ip-names": {
+      "statement": "The client address is cip in the web and DNS feeds: the user's IP address, internal when it is visible (for example through a GRE tunnel or XFF); otherwise the web feed describes it as the same as cintip and the DNS feed as the client's internet (NATed public) address. The firewall feed has csip, the client source IP address, and tsip, the client's tunnel IP address, each holding the last session's value for an aggregate, plus cdfqdn, the client destination FQDN such as the HTTP host header.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#cip",
+        "zia/dns-log#cip",
+        "zia/firewall-log#csip",
+        "zia/firewall-log#tsip",
+        "zia/firewall-log#cdfqdn"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{cip} | The IP address of the user. It can be the internal IP address if it's visible (e.g., traffic sent through a GRE tunnel or an internal IP address indicated using XFF). Otherwise, it is the same as %s{cintip}."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-dns-logs.json",
+          "quotes": [
+            "| %s{cip} | The IP address of the user. This can be the internal IP address if it is visible (e.g., traffic sent through a GRE tunnel or an internal IP address indicated using XFF). Otherwise, it's the client's internet (NATed Public) IP address."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-firewall-logs.json",
+          "quotes": [
+            "| %s{csip} | The client source IP address. For aggregated sessions, this is the client source IP address of the last session in the aggregate.",
+            "| %s{tsip} | The tunnel IP address of the client (source). For aggregated sessions, this is the client's tunnel IP address corresponding to the last session in the aggregate.",
+            "| %s{cdfqdn} | The client destination FDQN (e.g., the HTTP host header) | www.example.com"
+          ]
+        }
+      ]
+    },
+    "epochtime-join": {
+      "statement": "Because time carries no time zone and tz is whatever zone each feed was configured with, time strings from feeds set to different zones do not line up; epochtime, the epoch time of the transaction, does not depend on the feed's zone setting and is the field to join feeds on.",
+      "tier": "B",
+      "derived_from": [
+        "zia.logs.nss-feed-format:tz-config",
+        "zia.logs.web-records:per-transaction",
+        "common-fields"
+      ],
+      "conditions": "Takes epoch time as zone-independent by definition; the field tables do not state its unit or zone, and how time zones behave across several feeds is open (zia.logs.nss-feed-format:multi-feed-timezone)."
+    }
+  },
+  "gaps": {
+    "dns-then-web": {
+      "kind": "semantic",
+      "title": "How a DNS block relates in time and category to a later web block",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"A subsequent web request to the same hostname also blocks (Zscaler returns a synthetic DNS response and then blocks the web connection)\"; \"The DNS block will typically precede the web block by 0–2 seconds\"; the web record's urlcat matches the DNS-blocked category. No registered source states what response a blocked DNS request receives, whether a web request follows at all, the delay between the two records, or how domcat relates to urlcat.",
+      "blocks": "Attributing a web block to an earlier DNS block for the same user and name",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

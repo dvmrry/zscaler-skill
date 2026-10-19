@@ -8,7 +8,7 @@ confidence: high
 source-tier: code
 sources:
   - "scripts/agent_patterns.py"
-  - "references/shared/oneapi.md"
+  - "kb:shared.oneapi"
   - "references/_meta/runbooks.md"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/constants.py"
@@ -235,5 +235,5 @@ result = interpret_error(
 - Module source: `scripts/agent_patterns.py` (canonical implementation)
 - Tenant-observation boundary: [`tooling.md`](tooling.md)
 - Human-readable runbooks: [`runbooks.md`](runbooks.md)
-- Auth framework reference: [`../shared/oneapi.md`](../shared/oneapi.md)
+- Auth framework reference: [`shared.oneapi`](kb:shared.oneapi)
 - Verification protocol (when adding new patterns): [`verification-protocol.md`](verification-protocol.md)

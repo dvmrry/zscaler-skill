@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "id": "shared.ipsec",
+  "title": "IPSec tunnels to Zscaler: where each question is answered",
+  "aliases": [
+    "ipsec tunnel",
+    "ipsec tunnels",
+    "ipsec vpn to zscaler",
+    "ipsec redundancy",
+    "ipsec virtual service edge",
+    "when to use ipsec"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.ipsec"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.ipsec.device-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.vpn-credentials"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.gre"
+    }
+  ],
+  "prose": [
+    {
+      "text": "IPSec is the encrypted site tunnel to a ZIA Public or Private Service Edge. The answers live in a few subjects, and the vendor's reference architecture adds requirements the help articles state more softly."
+    },
+    {
+      "steps": [
+        {
+          "label": "Is IPSec the right method?",
+          "text": "{{when-to-choose}} The help article's version, with the GRE comparison, is [[zia.traffic-forwarding.ipsec:when-ipsec]] and [[zia.traffic-forwarding.methods]]."
+        },
+        {
+          "label": "How much can one tunnel carry?",
+          "text": "Per-tunnel throughput and how to scale past it: [[zia.traffic-forwarding.ipsec:bandwidth-limit]]."
+        },
+        {
+          "label": "How many tunnels, to where?",
+          "text": "{{required-redundancy}} The help article words the same design as a recommendation: [[zia.traffic-forwarding.ipsec:two-tunnels]]."
+        },
+        {
+          "label": "Which credential identifies the site?",
+          "text": "The two authentication types, FQDN and IP, each with a pre-shared key: [[zia.traffic-forwarding.vpn-credentials:xauth-legacy]]. {{credential-types}} Credential limits and immutability are in [[zia.traffic-forwarding.vpn-credentials]]."
+        },
+        {
+          "label": "What does the device negotiate?",
+          "text": "Recommended ciphers, PFS, NAT-T and DPD, and where the two vendor sources disagree: [[shared.ipsec.device-settings]]. Supported parameter ranges, MTU and IPv6 selectors: [[zia.traffic-forwarding.ipsec]]."
+        }
+      ]
+    },
+    {
+      "label": "Addressing inside the tunnel.",
+      "text": "{{no-nat-inside}} How Surrogate IP maps users to addresses is [[zia.authentication.surrogate-ip]]."
+    },
+    {
+      "label": "Virtual Service Edges.",
+      "text": "Whether a ZIA Virtual Service Edge terminates IPSec depends on which vendor document is read {{divergence:vse-termination}}. The cluster setting itself is [[zia.virtual-service-edge.clusters:ipsec-local-termination]]; GRE to a Virtual Service Edge is covered from [[shared.gre]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the site has primary and secondary tunnels to two data centers from every egress point and every ISP.",
+      "uses": [
+        "required-redundancy"
+      ]
+    },
+    {
+      "do": "Whether the IPSec peer is a Virtual Service Edge, and if so whether IPSec Local Termination is enabled on its cluster.",
+      "uses": [
+        "vse-termination",
+        "zia.virtual-service-edge.clusters:ipsec-local-termination"
+      ]
+    }
+  ],
+  "claims": {
+    "when-to-choose": {
+      "statement": "The reference architecture recommends IPSec when it is mandated by policy or regulation, when the internet gateway does not support GRE tunnels, or when the gateway does not have a static IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Zscaler recommends using IPSec when:",
+            "It is mandated by policy or regulation.",
+            "Your internet gateway does not support GRE tunnels.",
+            "Your internet gateway does not have a static IP address."
+          ]
+        }
+      ]
+    },
+    "required-redundancy": {
+      "statement": "The reference architecture says Zscaler requires redundant IPSec tunnels to two different data centers, one active and one in standby, and requires primary and secondary tunnels from each internet egress point and, where a location has several ISPs, from each ISP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "As with GRE, Zscaler requires that you configure redundant tunnels to two different data centers. One tunnel will operate in active mode, and another in standby mode.",
+            "Zscaler requires that you build primary and secondary IPSec tunnels from each internet egress point.",
+            "Additionally if you have multiple ISPs at a single location, primary and secondary tunnels must be built from each ISP."
+          ]
+        }
+      ]
+    },
+    "credential-types": {
+      "statement": "In the reference architecture the FQDN credential has a user ID field while the IP credential simply uses the peer's public IP address, and both take a pre-shared key of up to 255 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "FQDN has a user ID field, whereas IP simply uses the public IP address of the peer.",
+            "FQDN and IP use a pre-shared key (up to 255 characters)."
+          ]
+        }
+      ]
+    },
+    "no-nat-inside": {
+      "statement": "The reference architecture notes that with IPSec the site connects to its own network from a remote location, so station addresses need no translation, and that ensuring NAT is not in use allows more granular policy and enables Surrogate IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "In general with IPSec VPNs, you are connecting to your own network from a remote location, so there is no need to translate the IP addresses of stations.",
+            "Ensuring that NAT is not in use allows for more granularity with policy and enables the use of Surrogate IP"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "vse-termination": {
+      "summary": "Whether a ZIA Virtual Service Edge can terminate IPSec.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+            "quotes": [
+              "The ZIA Virtual Service Edge does not support termination of IPSec connections.",
+              "you need to build tunnels using GRE or the Zscaler Client Connector software"
+            ]
+          },
+          "says": "The reference architecture says a Virtual Service Edge does not terminate IPSec, so tunnels to it must be GRE or Client Connector."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "adding-virtual-service-edge-clusters-internet-saas.json",
+            "quotes": [
+              "Enable this option to terminate IPSec traffic from the client at selected Virtual Service Edge instances for the Virtual Service Edge cluster."
+            ]
+          },
+          "says": "The Virtual Service Edge cluster article documents an IPSec Local Termination option that terminates client IPSec traffic at selected instances of the cluster."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-virtual-service-edge-clusters-internet-saas.json",
+            "quotes": [
+              "Virtual Service Edges support IPv6 traffic if it's only forwarded via IPSec or GRE tunnels."
+            ]
+          },
+          "says": "The cluster configuration article treats IPSec as a way traffic reaches a Virtual Service Edge."
+        }
+      ],
+      "impact": "Read alone, the reference architecture rules out IPSec to a Virtual Service Edge; the cluster articles describe a setting that enables it, so a design built on the older statement may avoid an option the console offers."
+    }
+  }
+}

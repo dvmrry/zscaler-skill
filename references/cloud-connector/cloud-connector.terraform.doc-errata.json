@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.terraform.doc-errata",
+  "title": "Where the ZTC provider documentation is wrong or incomplete, and the location template checks it does not mention",
+  "aliases": [
+    "ztc_ip_destination_groups ip_addresses",
+    "ztc_ip_source_groups zia example",
+    "ztc_workload_groups documentation",
+    "ztc location template bandwidth units",
+    "ztc location template aup timeout",
+    "ztc_edge_connector_group dns_ip panic"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.coverage"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.forwarding-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.bandwidth"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The generated argument lists (`node scripts/kb.mjs surface <resource>`) come from the provider code, not its documentation pages. Where a page disagrees with the code, the code is what Terraform runs."
+    },
+    {
+      "label": "Argument names and examples.",
+      "text": "{{ip-destination-addresses-name}} {{ip-source-example-zia}} {{workload-groups-no-doc-page}} The forwarding rule page's advice to look workload groups up through the ZIA provider is in [[cloud-connector.terraform.forwarding-rules]]."
+    },
+    {
+      "label": "Location template.",
+      "text": "{{template-apply-checks}} The bandwidth unit is given three ways {{divergence:template-bandwidth-unit}}, and which is right is open {{gap:bandwidth-unit}}. ZIA's own location bandwidth fields are in [[zia.locations.bandwidth]]."
+    },
+    {
+      "label": "Fixed in 0.2.0.",
+      "text": "{{edge-connector-group-fix-0-2-0}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a location template that fails on apply, whether it combines caution with authentication or AUP, enables AUP with a zero timeout, or enforces bandwidth with both limits at 0.",
+      "uses": [
+        "template-apply-checks"
+      ]
+    },
+    {
+      "do": "Which unit the configured up_bandwidth and dn_bandwidth were meant in, and what the console shows after apply.",
+      "uses": [
+        "template-bandwidth-unit",
+        "bandwidth-unit"
+      ]
+    }
+  ],
+  "claims": {
+    "ip-destination-addresses-name": {
+      "statement": "The `ztc_ip_destination_groups` attribute reference names the address list `ip_addresses`, but the resource schema's argument (and the page's own examples) is `addresses`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/resources/ztc_ip_destination_groups.md",
+          "quotes": [
+            "* `ip_addresses` - (List of String) IP addresses or domain names included in the group.",
+            "addresses = [\"acme.com\", \"acme1.com\"]"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_destination_groups.go",
+          "quotes": [
+            "\"addresses\": {",
+            "Addresses: SetToStringList(d, \"addresses\"),"
+          ]
+        }
+      ]
+    },
+    "ip-source-example-zia": {
+      "statement": "The `ztc_ip_source_groups` page's example declares a `zia_ip_source_groups` resource, a different provider's type; the ZTC resource is `ztc_ip_source_groups`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/resources/ztc_ip_source_groups.md",
+          "quotes": [
+            "resource \"zia_ip_source_groups\" \"this\" {"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/provider.go",
+          "quotes": [
+            "\"ztc_ip_source_groups\": resourceIPSourceGroups(),"
+          ]
+        }
+      ]
+    },
+    "workload-groups-no-doc-page": {
+      "statement": "The `ztc_workload_groups` data source is registered in the provider but has no documentation page: the provider's data-source pages cover the other 19 data sources.",
+      "tier": "B",
+      "conditions": "Listing of docs/data-sources at the pin: 19 pages, none for ztc_workload_groups.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/provider.go",
+          "quotes": [
+            "\"ztc_workload_groups\": dataSourceWorkloadGroup(),"
+          ]
+        }
+      ]
+    },
+    "template-apply-checks": {
+      "statement": "On create and update, before calling the API, the location template resource rejects caution combined with authentication or with AUP, AUP enabled with an AUP timeout of 0 days, and bandwidth control enforced with both upload and download limits 0. These are apply-time errors, not plan-time ones, and a 0 AUP timeout is not accepted as \"no timeout\" when AUP is on.",
+      "tier": "A",
+      "conditions": "Corrects the legacy doc's \"aup_timeout_in_days: 0 = no timeout\".",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_location_template.go",
+          "quotes": [
+            "return fmt.Errorf(\"authentication required must be disabled, when enabling caution\")",
+            "return fmt.Errorf(\"enabling AUP and Caution together is not allowed\")",
+            "if template.LocationTemplateDetails.AupEnabled && template.LocationTemplateDetails.AupTimeoutInDays == 0 { return fmt.Errorf(\"AUP timeout in days is required, when AUP is enabled\")",
+            "return fmt.Errorf(\"upload and download bandwidth is mandatory when enforce bandwidth setting is on\")",
+            "log.Printf(\"[INFO] Creating cloud connector location template\\n%+v\\n\", req) if err := checkLocationTemplateDependencies(req); err != nil {",
+            "log.Printf(\"[INFO] Updating location template ID: %v\\n\", id) req := expandLocationTemplate(d) if err := checkLocationTemplateDependencies(req); err != nil {"
+          ]
+        }
+      ]
+    },
+    "edge-connector-group-fix-0-2-0": {
+      "statement": "Provider release 0.2.0 fixed a `ztc_edge_connector_group` panic involving the attribute type of `ec_instances.0.dns_ip`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "CHANGELOG.md",
+          "after": "## 0.2.0 (June 29, 2026)",
+          "quotes": [
+            "Fixed `ztc_edge_connector_group` panic with attribute type `ec_instances.0.dns_ip`"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "template-bandwidth-unit": {
+      "summary": "The location template's upload and download bandwidth are documented in Kbps by the provider page, in bytes by the provider schema, and in Mbps by the API contract and the Python SDK.",
+      "positions": [
+        {
+          "says": "up_bandwidth and dn_bandwidth are in Kbps.",
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "docs/resources/ztc_location_template.md",
+            "quotes": [
+              "`up_bandwidth` - (Number) Upload bandwidth in Kbps. The value 0 implies no Bandwidth Control enforcement."
+            ]
+          }
+        },
+        {
+          "says": "Both are bandwidth in bytes (both descriptions say upload).",
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "ztc/resource_ztc_location_template.go",
+            "after": "\"up_bandwidth\": {",
+            "quotes": [
+              "Description: \"Upload bandwidth in bytes. The value 0 implies no Bandwidth Control enforcement.\","
+            ]
+          }
+        },
+        {
+          "says": "upBandwidth is the maximum upload bandwidth in Mbps.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1locationTemplate/post/requestBody/content/application~1json/schema/properties/template/properties/upBandwidth",
+            "expect": {
+              "description": "If you enabled enforceBandwidthControl, specify the maximum bandwidth for upload (Mbps)."
+            }
+          }
+        },
+        {
+          "says": "The Python SDK documents up_bandwidth and dn_bandwidth in Mbps.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/ztw/location_template.py",
+            "after": "def add_location_template(",
+            "quotes": [
+              "``up_bandwidth`` (int): Upload bandwidth in Mbps, if bandwidth control is enabled."
+            ]
+          }
+        }
+      ],
+      "impact": "A value chosen from one source may be off by a factor of 1,000 or more from what the service applies."
+    }
+  },
+  "gaps": {
+    "bandwidth-unit": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Which unit the ZTC location template bandwidth fields use",
+      "blocks": "Setting up_bandwidth and dn_bandwidth to the intended limit.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: \"up_bandwidth: Upload limit in Kbps; 0 = no limit\". Resolves by applying a known value and reading the limit the console shows for locations created from the template. Two of the four sources (the API contract and the Python SDK) say Mbps."
+    }
+  }
+}

@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "id": "shared.oneapi.response-codes",
+  "title": "OneAPI status codes, ZIA maintenance read-only mode, and 403 and 409 causes",
+  "aliases": [
+    "oneapi status codes",
+    "STATE_READONLY",
+    "x-zscaler-mode read-only",
+    "403 during maintenance",
+    "409 edit conflict oneapi",
+    "415 unsupported media type zia",
+    "oneapi error codes"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.write-practices"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.conventions"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.legacy-api.zia-errors-and-limits"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{common-codes}} {{product-specific-codes}}"
+    },
+    {
+      "label": "Maintenance read-only mode.",
+      "text": "{{read-only-mode}} {{read-only-distinguishable}}"
+    },
+    {
+      "label": "ZIA.",
+      "text": "{{zia-403-causes}} {{zia-409}} {{zia-415}}"
+    },
+    {
+      "label": "Cloud & Branch Connector.",
+      "text": "{{cbc-403-409}}"
+    },
+    {
+      "label": "Other products.",
+      "text": "Client Connector's codes are in [[zcc.api.conventions:status-codes]]. The Analytics API's codes, including errors returned under HTTP 200, are in [[shared.analytics.graphql-errors-and-limits]]. The legacy ZIA codes are in [[shared.legacy-api.zia-errors-and-limits]]."
+    },
+    {
+      "text": "Whether the Cloud & Branch Connector maintenance 403 carries the same header and code is not shown {{gap:cbc-readonly-body}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a 403 from ZIA, whether the response carries x-zscaler-mode: read-only or the STATE_READONLY code (maintenance) or neither (role, SKU or permission).",
+      "uses": [
+        "read-only-mode",
+        "read-only-distinguishable",
+        "zia-403-causes"
+      ]
+    },
+    {
+      "do": "For a 409 from ZIA or Cloud & Branch Connector, whether another admin or script was saving at the same time.",
+      "uses": [
+        "zia-409",
+        "cbc-403-409"
+      ]
+    }
+  ],
+  "claims": {
+    "common-codes": {
+      "statement": "OneAPI returns 401 for an invalid, expired or missing authorization token, 403 when the API client lacks access to the resource, 404 for a resource not found, 408 when the client took too long to send the request, 413 when the request exceeds the maximum size, 429 when the client exceeded the rate limit or quota, 500 for an internal server error, 503 when the resource is temporarily unavailable and 504 when the server took too long to respond.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes.json",
+          "quotes": [
+            "| 401 | The authorization token is invalid, expired, or missing. |",
+            "| 403 | The API client does not have access to the requested resource. |",
+            "| 404 | The requested API resource could not be found. |",
+            "| 408 | The client took too long to send a complete request. |",
+            "| 413 | The HTTP request exceeds the maximum allowable size. |",
+            "| 429 | The API client exceeded the rate limit or quota.",
+            "| 500 | An internal server error occurred while processing the request. |",
+            "| 503 | The requested resource is temporarily unavailable. |",
+            "| 504 | The server took too long to respond to the request. |"
+          ]
+        }
+      ]
+    },
+    "product-specific-codes": {
+      "statement": "The APIs of specific Zscaler services may also use status codes exclusive to that service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes.json",
+          "quotes": [
+            "In addition, the APIs for specific Zscaler services might use a set of status codes that is exclusive to that service."
+          ]
+        }
+      ]
+    },
+    "read-only-mode": {
+      "statement": "When a ZIA call fails because of an upgrade or scheduled maintenance of the API service, it returns 403 with the header `x-zscaler-mode: read-only` and a body whose code is `STATE_READONLY`; during that period the API service supports only read operations via GET.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "If the API call fails due to an upgrade or scheduled maintenance of the API service, a 403 error code is returned, as shown in the following sample response. The API service supports only read operations via GET requests during this period.",
+            "x-zscaler-mode: read-only",
+            "\"code\": \"STATE_READONLY\","
+          ]
+        }
+      ]
+    },
+    "read-only-distinguishable": {
+      "statement": "A maintenance 403 can therefore be told apart from a permission 403 by the `x-zscaler-mode: read-only` header or the `STATE_READONLY` code; a 403 without them points to the role, SKU or access causes.",
+      "tier": "B",
+      "derived_from": [
+        "read-only-mode",
+        "zia-403-causes"
+      ],
+      "conditions": "Inference from the sample response; no source says every maintenance 403 carries the header or that no other 403 does."
+    },
+    "zia-403-causes": {
+      "statement": "ZIA returns 403 when the user's role has no access permissions or functional scope, when a required SKU subscription is missing, or when POST, PUT or DELETE operations are made while the admin portal is in maintenance mode during a scheduled upgrade.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-zia.json",
+          "quotes": [
+            "User's role has no access permissions or functional scope",
+            "A required SKU subscription is missing",
+            "API operations that use POST, PUT, or DELETE methods are performed when the ZIA Admin Portal was in maintenance mode during a scheduled upgrade",
+            "| 403 | This code is returned due to one of the following reasons:"
+          ]
+        }
+      ]
+    },
+    "zia-409": {
+      "statement": "ZIA returns 409 when a possible edit conflict occurred, for example another admin saving a change at the same time; the OneAPI page says the API client then retries automatically after a short time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-zia.json",
+          "quotes": [
+            "Request could not be processed because possible edit conflict occurred. Another admin might be saving a configuration change at the same time.",
+            "In this scenario, the API client automatically retries after a short time period.",
+            "| 409 | Request could not be processed because possible edit conflict occurred."
+          ]
+        }
+      ]
+    },
+    "zia-415": {
+      "statement": "ZIA returns 415 when the request does not carry `Content-Type: application/json`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-zia.json",
+          "quotes": [
+            "| 415 | Unsupported media type. This error is returned if you don't include application/json as the Content-Type in the request header (for example, Content-Type: application/json). |"
+          ]
+        }
+      ]
+    },
+    "cbc-403-409": {
+      "statement": "Cloud & Branch Connector returns 403 when the API key was disabled by the service provider, the role lacks permission or functional scope, or a POST, PUT or DELETE was made during maintenance mode, and 409 on a possible edit conflict with another admin saving at the same time; its 429 includes a Retry-After value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-cloud-branch-connector.json",
+          "quotes": [
+            "The API key was disabled by your service provider.",
+            "User's role has no access permissions or functional scope",
+            "API operations that use POST, PUT, or DELETE methods were performed when the Cloud & Branch Connector Admin Portal was in maintenance mode during a scheduled upgrade.",
+            "Request could not be processed because a possible edit conflict occurred. Another admin might be saving configuration changes at the same time.",
+            "| 429 Too Many Requests | The API client exceeded the rate limit or quota. The response includes a Retry-After value. |",
+            "| 403 Forbidden | This code is returned for one of the following reasons:",
+            "| 409 Conflict | Request could not be processed"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "cbc-readonly-body": {
+      "kind": "semantic",
+      "title": "Body and header of a Cloud & Branch Connector maintenance 403",
+      "status": "open",
+      "detail": "Unverified legacy statement: during Zscaler-side maintenance the 403 carries x-zscaler-mode: read-only and STATE_READONLY, and both are reliable discriminators. The sample is shown only for ZIA; the Cloud & Branch Connector table names maintenance-mode writes as a 403 cause without a sample.",
+      "blocks": "telling a Cloud & Branch Connector maintenance refusal from a permissions error",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

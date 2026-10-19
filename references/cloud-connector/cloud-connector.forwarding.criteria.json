@@ -1,0 +1,373 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.forwarding.criteria",
+  "title": "Cloud Connector forwarding rule criteria: scope, services, sources, destinations, FQDNs",
+  "aliases": [
+    "cloud connector forwarding criteria",
+    "cloud connector wildcard fqdn",
+    "cloud connector fqdn rule not matching",
+    "source workload groups",
+    "destination workload groups",
+    "application service groups",
+    "cloud connector dns required for fqdn",
+    "app connector looping"
+  ],
+  "binds": [
+    "ztw/forwarding-rules#locations",
+    "ztw/forwarding-rules#ecGroups",
+    "ztw/forwarding-rules#nwServices",
+    "ztw/forwarding-rules#nwServiceGroups",
+    "ztw/forwarding-rules#appServiceGroups",
+    "ztw/forwarding-rules#srcIpGroups",
+    "ztw/forwarding-rules#srcIps",
+    "ztw/forwarding-rules#srcWorkloadGroups",
+    "ztw/forwarding-rules#destIpGroups",
+    "ztw/forwarding-rules#destAddresses"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.workload-groups"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.dns"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The rule form groups its criteria into General, Services, Applications, Source and Destination; which sections appear depends on the forwarding method. How criteria combine within and across fields is not stated {{gap:combination-logic}}."
+    },
+    {
+      "label": "General.",
+      "text": "{{location-or-groups}} {{groups-32}}"
+    },
+    {
+      "label": "Services and applications.",
+      "text": "{{services}} {{app-service-groups}} Whether Zscaler updates the endpoints behind these groups under existing rules is not stated {{gap:app-service-group-updates}}."
+    },
+    {
+      "label": "Source.",
+      "text": "{{source-ip}} {{source-workload-scope}} Both workload-group criteria need workload discovery, and destination workload groups apply only to the Local method: [[zia.workload-groups.rule-scoping:cloud-connector-source-dest]]. {{app-connector-looping}} Workload groups themselves: [[zia.workload-groups]]."
+    },
+    {
+      "label": "Destination.",
+      "text": "{{dest-ipv4-groups}} {{fqdn-entries}} {{wildcard-syntax}} {{fqdn-limit}} {{zpa-destinations}}"
+    },
+    {
+      "label": "DNS for FQDN matching.",
+      "text": "{{dns-required}} The DNS features that receive those queries: [[cloud-connector.dns]]."
+    },
+    {
+      "text": "Criteria named in the legacy reference but absent from the captured form are listed in {{gap:legacy-criteria}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a rule with wildcard domains or FQDNs that should match UDP or non-web traffic, whether the workloads' DNS queries route through the Cloud Connector.",
+      "uses": [
+        "dns-required",
+        "zia.workload-groups.rule-scoping:cloud-connector-source-dest"
+      ]
+    },
+    {
+      "do": "Whether the wildcard entries are valid (`*.example.com`, not `*abc.example.com` or `abs.*.example.com`), since invalid entries never match.",
+      "uses": [
+        "wildcard-syntax"
+      ]
+    },
+    {
+      "do": "For workload-group criteria, whether workload discovery is enabled for the tenant, and for destination workload groups whether the rule's method is Local.",
+      "uses": [
+        "zia.workload-groups.rule-scoping:cloud-connector-source-dest"
+      ]
+    },
+    {
+      "do": "For ZPA-method rules, whether App Connector source addresses are excluded to prevent looping.",
+      "uses": [
+        "app-connector-looping"
+      ]
+    }
+  ],
+  "claims": {
+    "location-or-groups": {
+      "statement": "A rule can name up to 8 locations or sublocations; with none it applies to all locations. On the ZIA-method form, a rule uses either Location/Sublocation or Cloud & Branch Connector Groups, not both.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#locations"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "quotes": [
+            "Location/Sublocation: Select up to 8 locations or sublocations. If you do not select a location, the rule applies to all locations. You can choose either Location/Sublocation or Cloud & Branch Connector Groups, but not both."
+          ]
+        }
+      ]
+    },
+    "groups-32": {
+      "statement": "A rule can name up to 32 Cloud or Branch Connector groups; with none it applies to all groups.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#ecGroups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Internet & SaaS",
+          "quotes": [
+            "Cloud & Branch Connector Groups: Select up to 32 Cloud Connector or Branch Connector groups to apply this rule to. If you do not select a group, the rule applies to all Cloud Connector or Branch Connector groups."
+          ]
+        }
+      ]
+    },
+    "services": {
+      "statement": "Any number of network services and predefined or custom network service groups can be selected; with none selected the rule applies to all.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#nwServices",
+        "ztw/forwarding-rules#nwServiceGroups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Internet & SaaS",
+          "quotes": [
+            "Network Services: Select any number of network services. If you do not select a network service, the rule applies to all network services.",
+            "Network Services Group: Select any number of predefined or custom network services groups. If you do not select one, the rule applies to all network service groups."
+          ]
+        }
+      ]
+    },
+    "app-service-groups": {
+      "statement": "Application Service Groups are predefined groups the Zscaler service provides; the form lists Office365, Zoom, Webex, RingCentral, LogMeIn, BlueJeans, Amazon Web Services, Azure, GCP, Zscaler Cloud Endpoints and Talk_Desk.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#appServiceGroups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Internet & SaaS",
+          "quotes": [
+            "Application service groups allow you to configure traffic forwarding rules based on the predefined application service groups that the Zscaler service provides.",
+            "- Office365 - Zoom - Webex - RingCentral - LogMeIn - BlueJeans - Amazon Web Services - Azure - GCP - Zscaler Cloud Endpoints - Talk_Desk - See image."
+          ]
+        }
+      ]
+    },
+    "source-ip": {
+      "statement": "Source IP Groups can be any number of source IP address groups or App Connector source IP addresses (none selected applies to all); Source IP Addresses take an individual address, a subnet, or a range.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#srcIpGroups",
+        "ztw/forwarding-rules#srcIps"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Internet & SaaS",
+          "quotes": [
+            "Source IP Groups: Select any number of source IP address groups or App Connector source IP addresses. If a source IP address group is not selected, the rule applies to all source IP address groups.",
+            "An individual IP address (e.g., 192.0.2.1)",
+            "A subnet (e.g., 192.0.2.0/24)",
+            "An IP address range (e.g., 192.0.2.1-192.0.2.5)"
+          ]
+        }
+      ]
+    },
+    "app-connector-looping": {
+      "statement": "In the Private Access, Direct, Drop and Local procedures, the form advises preventing App Connector looping by excluding the IP addresses the App Connector uses to open connections, or including the IP addresses of all non-App Connector devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Private Access",
+          "quotes": [
+            "To prevent App Connector looping, exclude IP addresses that your App Connector device uses to open connections or include IP addresses of all non-App Connector devices."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Direct",
+          "quotes": [
+            "To prevent App Connector looping, exclude IP addresses that your App Connector device uses to open connections or include IP addresses of all non-App Connector devices."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Drop",
+          "quotes": [
+            "To prevent App Connector looping, exclude IP addresses that your App Connector device uses to open connections or include IP addresses of all non-App Connector devices."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Local",
+          "quotes": [
+            "To prevent App Connector looping, exclude IP addresses that your App Connector device uses to open connections or include IP addresses of all non-App Connector devices."
+          ]
+        }
+      ]
+    },
+    "dest-ipv4-groups": {
+      "statement": "Any number of destination IPv4 groups can be selected; with none selected the rule applies to all destination IP address groups.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#destIpGroups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Internet & SaaS",
+          "quotes": [
+            "Destination IPv4 Groups: Select any number of destination IPv4 groups. If you do not select a destination IPv4 group, the rule applies to all destination IP address groups."
+          ]
+        }
+      ]
+    },
+    "fqdn-entries": {
+      "statement": "The IP Address Or WildCard FQDN field takes individual IPs, subnets, ranges, wildcard domains and FQDNs; the Connector cannot distinguish between multi-homed servers, the same destination IP host with more than one FQDN.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#destAddresses"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Internet & SaaS",
+          "quotes": [
+            "If the domain has multiple destination IP addresses or if its IP addresses might change, enter IP addresses, wildcard domains, and/or FQDNs. For IP addresses, you can enter individual IP addresses, subnets, or address ranges.",
+            "Your Cloud or Branch Connector does not allow you to distinguish between multi-home servers, which are the same destination IP hosts with more than one FQDN."
+          ]
+        }
+      ]
+    },
+    "wildcard-syntax": {
+      "statement": "A wildcard domain is written with a leading asterisk, such as `*.example.com`; `*abc.example.com` and `abs.*.example.com` are invalid, and invalid items cannot be matched.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Internet & SaaS",
+          "quotes": [
+            "An example is *.example.com. Examples of invalid wildcard domains are *abc.example.com and abs.*.example.com. The Zscaler service cannot match invalid items."
+          ]
+        }
+      ]
+    },
+    "fqdn-limit": {
+      "statement": "Wildcard domains and FQDNs are limited to 16K per organization and 8,000 per rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Internet & SaaS",
+          "quotes": [
+            "Wildcard domains and FQDNs are limited to 16K per organization and 8,000 per rule."
+          ]
+        }
+      ]
+    },
+    "dns-required": {
+      "statement": "Rules with wildcard domains or FQDNs need the workloads' DNS queries routed through the Cloud or Branch Connector; for HTTP/HTTPS traffic DNS is not required, but UDP and non-web traffic require it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "quotes": [
+            "To use traffic forwarding rules that use wildcard domains and/or FQDNs, design your network where workloads, servers, and endpoints are deployed to route DNS queries through the Cloud Connector or Branch Connector.",
+            "If you are forwarding HTTP/HTTPS traffic, DNS is not required for wildcard domain and FQDN traffic. However, UDP and non-web traffic requires DNS to function."
+          ]
+        }
+      ]
+    },
+    "zpa-destinations": {
+      "statement": "For Private Access destinations, Apply to All App Segments covers all existing and future segments; otherwise any number of application segments and segment groups can be chosen, and with none chosen the rule applies to no segments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Private Access",
+          "quotes": [
+            "Apply to All App Segments: Enable this setting to apply the traffic forwarding rule to all existing and future App Segments that are created.",
+            "There is no limit to how many you can select. If you do not select any segments, the rule is not applied to any segments.",
+            "Segment Groups: Select the segment groups to which to apply the traffic forwarding rule.",
+            "If you do not select any groups, the rule is not applied to any groups."
+          ]
+        }
+      ]
+    },
+    "source-workload-scope": {
+      "statement": "On the rule form, source workload groups can be referenced as a source for the Local, Direct, Internet & SaaS and Private Access methods, and apply only to Cloud Connector traffic forwarding policies.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#srcWorkloadGroups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Internet & SaaS",
+          "quotes": [
+            "They can be referenced as a source object for the Local, Direct, Internet & SaaS, and Private Access criteria.",
+            "Source workload groups are only applicable to Cloud Connector traffic forwarding policies."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "combination-logic": {
+      "kind": "semantic",
+      "title": "How forwarding rule criteria combine",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"All criteria ANDed together within a single rule. Multiple items within one criterion field OR together.\" The Cloud & Branch Connector help does not state the combination.",
+      "blocks": "deciding whether a flow matches a rule with several criteria",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "app-service-group-updates": {
+      "kind": "semantic",
+      "title": "Whether rules pick up endpoint changes in Zscaler-maintained application service groups",
+      "status": "open",
+      "detail": "Unverified legacy statement: when Zscaler adds endpoints to a predefined group such as Office365, rules matching that group pick them up automatically. The help says only that the groups are provided by Zscaler.",
+      "blocks": "explaining a rule that starts matching new destinations without a change",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "legacy-criteria": {
+      "kind": "semantic",
+      "title": "Criteria named by the legacy reference but not on the captured form",
+      "status": "open",
+      "detail": "Unverified legacy statement: rules also take Applications, Application Groups (custom groupings of applications), and Custom Domain Groups. The captured form shows none of these; the Go SDK and API carry `nwApplications` and `nwApplicationGroups`, and nothing names custom domain groups. The Application Service Groups list was also described as including \"and others\", while the form lists eleven.",
+      "blocks": "listing the full set of criteria a rule can use",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

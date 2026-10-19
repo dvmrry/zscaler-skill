@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "id": "shared.siem-mapping",
+  "title": "Zscaler log types and where they land in a SIEM",
+  "aliases": [
+    "siem log mapping",
+    "zscaler sourcetype",
+    "zscalernss-web",
+    "zscalernss-fw",
+    "which index has zscaler logs",
+    "sentinel zscaler table",
+    "chronicle zscaler log type",
+    "elastic zscaler index",
+    "sumo logic zscaler source category",
+    "log type catalog"
+  ],
+  "binds": [
+    "zia/web-log",
+    "zia/firewall-log",
+    "zia/dns-log"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.log-export"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.delivery-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api.cloud-nss-feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.log-types"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler defines the log types and their fields; where the records land in a SIEM, and under what names, is the tenant's own configuration. This catalog covers the first half and says what vendor sources state about the second."
+    },
+    {
+      "heading": "Log types, fields and meaning"
+    },
+    {
+      "table": {
+        "columns": [
+          "Log type",
+          "Path",
+          "Fields",
+          "Reading the records"
+        ],
+        "rows": [
+          [
+            "ZIA Web",
+            "NSS feed [[shared.nss.feeds]]",
+            "[[zia/web-log]]",
+            "[[zia.logs.web-records]], [[zia.logs.web-rule-attribution]]"
+          ],
+          [
+            "ZIA Firewall",
+            "NSS feed [[shared.nss.feeds]]",
+            "[[zia/firewall-log]]",
+            "[[zia.logs.firewall-records]]"
+          ],
+          [
+            "ZIA DNS",
+            "NSS feed [[shared.nss.feeds]]",
+            "[[zia/dns-log]]",
+            "[[zia.logs.dns-record-fields]]"
+          ],
+          [
+            "ZIA Tunnel and the other ZIA feed types",
+            "NSS feed [[shared.nss.feeds]]",
+            "Not captured {{gap:uncaptured-feed-fields}}",
+            ""
+          ],
+          [
+            "ZIA SaaS Security",
+            "NSS feed [[zia.casb.insights-logs]]",
+            "Open in [[zia.casb.insights-logs]]",
+            "[[zia.casb.insights-logs]]"
+          ],
+          [
+            "ZIA admin audit",
+            "Admin audit feed [[zia.audit-logs.streaming]]",
+            "Open in [[zia.audit-logs.streaming]]",
+            "[[zia.audit-logs.what-is-recorded]]"
+          ],
+          [
+            "ZIA NSS alerts",
+            "Alert feed [[shared.nss.feeds]]",
+            "",
+            ""
+          ],
+          [
+            "ZPA User Activity",
+            "Log receiver [[zpa.log-receivers]]",
+            "[[zpa/user-activity-log]]",
+            "[[zpa.logs.user-activity]]"
+          ],
+          [
+            "ZPA User Status",
+            "Log receiver [[zpa.log-receivers]]",
+            "[[zpa/user-status-log]]",
+            "[[zpa.logs.user-status]]"
+          ],
+          [
+            "ZPA App Connector Status",
+            "Log receiver [[zpa.log-receivers]]",
+            "[[zpa/app-connector-status-log]]",
+            "[[zpa.logs.control-session-status]]"
+          ],
+          [
+            "ZPA App Connector Metrics",
+            "Log receiver [[zpa.log-receivers]]",
+            "[[zpa/app-connector-metrics-log]]",
+            "[[zpa.logs.app-connector-metrics]]"
+          ],
+          [
+            "ZPA Browser Access",
+            "Log receiver [[zpa.log-receivers]]",
+            "[[zpa/browser-access-log]]",
+            "[[zpa.logs.browser-access]]"
+          ],
+          [
+            "ZPA Microsegmentation Flow",
+            "Log receiver [[zpa.log-receivers]]",
+            "[[zpa/microsegmentation-flow-log]]",
+            "[[zpa.logs.microsegmentation-flow]]"
+          ],
+          [
+            "ZPA Audit",
+            "Log receiver [[zpa.audit-logs.streaming]]",
+            "[[zpa/audit-log]]",
+            "[[zpa.audit-logs.what-is-recorded]]"
+          ],
+          [
+            "ZPA Private Service Edge status and metrics",
+            "Log receiver [[zpa.log-receivers]]",
+            "[[zpa/private-service-edge-status-log]], [[zpa/private-service-edge-metrics-log]]",
+            "[[zpa.logs.control-session-status]], [[zpa.logs.service-edge-metrics]]"
+          ],
+          [
+            "ZPA Private Cloud Controller status and metrics",
+            "Log receiver [[zpa.log-receivers]]",
+            "[[zpa/private-cloud-controller-status-log]], [[zpa/private-cloud-controller-metrics-log]]",
+            "[[zpa.logs.control-session-status]], [[zpa.logs.service-edge-metrics]]"
+          ],
+          [
+            "Client Connector",
+            "None; device files [[zcc.logging.collection]]",
+            "",
+            "[[zcc.logs.client-log]]"
+          ],
+          [
+            "ZDX",
+            "ZDX API [[shared.log-export.zdx]]",
+            "",
+            ""
+          ]
+        ]
+      }
+    },
+    {
+      "text": "The full list of ZPA log types and their codes is [[zpa.log-receivers.log-types]]. Whether one receiver carries one log type or several is not settled {{gap:receiver-log-types}}."
+    },
+    {
+      "heading": "What vendor sources say about SIEMs"
+    },
+    {
+      "text": "{{cloud-siem-guides}} {{vm-siem-guides}} The Cloud NSS feed names its SIEM type, with OAuth fields for Azure Sentinel: [[zia.api.cloud-nss-feeds:oauth-fields]]."
+    },
+    {
+      "label": "Splunk.",
+      "text": "{{splunk-example}} Name-value output, which Splunk can parse without a fixed order: [[shared.splunk:name-value-pairs]]. Other Splunk names, including add-on defaults and ZPA indexes, are tenant data {{gap:splunk-landing}}."
+    },
+    {
+      "label": "Other SIEMs.",
+      "text": "Table, log-type and index names in Sentinel, Google SecOps, Elastic and Sumo Logic are tenant data {{gap:other-siem-landing}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Ask the operator, or read the SIEM, for the index, sourcetype, table or log type each Zscaler log type lands in before writing a query.",
+      "uses": [
+        "splunk-landing",
+        "other-siem-landing"
+      ]
+    },
+    {
+      "do": "For a Cloud NSS feed, read the feed's output format: a JSON envelope can set the SIEM-side name itself.",
+      "uses": [
+        "splunk-example"
+      ]
+    }
+  ],
+  "claims": {
+    "cloud-siem-guides": {
+      "statement": "Zscaler publishes deployment guides for integrating Cloud NSS with named cloud-based SIEMs, among them Splunk, Microsoft Sentinel, Google SecOps, Elastic, Sumo Logic, IBM QRadar and Amazon S3.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "integrating-cloud-nss-cloud-based-siems.json",
+          "quotes": [
+            "The following guides detail the requirements and steps to integrate Cloud NSS with your SIEM:",
+            "Zscaler and Splunk Deployment Guide",
+            "Zscaler and Microsoft Sentinel Deployment Guide",
+            "Zscaler and Google SecOps Deployment Guide",
+            "Zscaler and Elastic Deployment Guide",
+            "Zscaler and Sumo Logic Deployment Guide",
+            "Zscaler and IBM QRadar Deployment Guide",
+            "Zscaler and Amazon S3 Deployment Guide"
+          ]
+        }
+      ]
+    },
+    "vm-siem-guides": {
+      "statement": "Zscaler publishes deployment guides for integrating VM-based NSS with named SIEMs, among them Splunk, Microsoft Sentinel, Elastic, Sumo Logic, IBM QRadar and LogRhythm.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "integrating-vm-based-nss-siems.json",
+          "quotes": [
+            "The following guides detail the requirements and steps to integrate the VM-based NSS with your SIEM:",
+            "Zscaler and Splunk Deployment Guide",
+            "Zscaler and Microsoft Sentinel Deployment Guide",
+            "Zscaler and Elastic Deployment Guide",
+            "Zscaler and Sumo Logic Deployment Guide",
+            "Zscaler and IBM QRadar Deployment Guide",
+            "Zscaler and LogRhythm Deployment Guide"
+          ]
+        }
+      ]
+    },
+    "splunk-example": {
+      "statement": "The Terraform provider's Cloud NSS feed examples wrap each record in a JSON envelope that names a Splunk sourcetype: the example headed NSS Splunk Feed is a `WEBLOG` feed with siem_type `SPLUNK` and sourcetype `zscalernss-web`, and the example headed NSS Splunk Feed - Google Chronicle is an `FWLOG` feed with siem_type `SPLUNK`, a Google Chronicle connection URL and sourcetype `zscalernss-fw`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_cloud_nss_feed.md",
+          "after": "## Example Usage - NSS Splunk Feed ```hcl",
+          "quotes": [
+            "nss_log_type = \"WEBLOG\"",
+            "siem_type = \"SPLUNK\"",
+            "zscalernss-web"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_cloud_nss_feed.md",
+          "after": "## Example Usage - NSS Splunk Feed - Google Chronicle",
+          "quotes": [
+            "nss_log_type = \"FWLOG\"",
+            "siem_type = \"SPLUNK\"",
+            "us-chronicle.googleapis.com",
+            "zscalernss-fw"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "splunk-landing": {
+      "kind": "data",
+      "title": "Splunk sourcetypes and indexes for each Zscaler log type",
+      "status": "open",
+      "detail": "Unverified legacy statement: Splunk add-on default sourcetypes \"zscalernss-web\", \"zscalernss-fw\", \"zscalernss-dns\" and \"zscalernss-alerts\", with common short forms such as \"nss-web\", \"zscaler-web\", \"zia-web\" (and the -fw, -dns forms), \"nss-tunnel\", \"nss-casb\"; for ZPA \"no TA default; tenant-configured\", with common names such as \"lss-zpa-activity\", \"zpa-user-activity\", \"zscalerlss-zpa\", \"lss-zpa-status\", \"lss-zpa-connector\", \"zpa-browser-access\", \"lss-zpa-audit\". Of these only zscalernss-web and zscalernss-fw appear in a vendor source, as sourcetypes set inside example feed output formats, not as an add-on contract.",
+      "blocks": "writing a Splunk search against a tenant's Zscaler data",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "other-siem-landing": {
+      "kind": "data",
+      "title": "Table, log-type and index names in other SIEMs",
+      "status": "open",
+      "detail": "Unverified legacy statement: Sentinel tables \"ZScalerEvent\" or \"ZscalerWeb_CL\" for ZIA and \"ZPAEvent\" or \"ZscalerZPA_CL\" for ZPA; Chronicle log types \"ZSCALER_WEBPROXY\", \"ZSCALER_FIREWALL\", \"ZSCALER_DNS\", \"ZSCALER_ZPA\" or \"ZPA_USER_ACTIVITY\"; Elastic index patterns \"logs-zscaler.web-*\", \"logs-zscaler.firewall-*\", \"logs-zscaler.dns-*\", \"logs-zscaler.zpa-*\" or \"zscaler-nss-*\"; Sumo Logic source categories \"zscaler/web\", \"zscaler/firewall\", \"zscaler/dns\", \"zscaler/zpa/activity\". No captured vendor source names any of them; the legacy doc itself said they vary by connector, parser or agent version and by tenant.",
+      "blocks": "writing a query in a non-Splunk SIEM against a tenant's Zscaler data",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "uncaptured-feed-fields": {
+      "kind": "semantic",
+      "title": "Field lists for ZIA feed types other than Web, Firewall and DNS",
+      "status": "open",
+      "detail": "Unverified legacy statement: the ZIA Tunnel feed \"carries Z-Tunnel / GRE / IPsec session events: tunnel up/down, peer info, traffic forwarding state\" and its schema is \"not yet documented\". The General Guidelines list output-format articles for Tunnel, SaaS Security Activity, Endpoint DLP, Email DLP, Sandbox Verdict, Authentication, SCIM, 3rd-Party App Governance and Posture Management logs, but only the Web, Firewall and DNS field lists are captured as types; SaaS Security and admin audit fields are open in their own subjects.",
+      "blocks": "naming fields or writing queries for those feeds",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "receiver-log-types": {
+      "kind": "semantic",
+      "title": "Whether one ZPA log receiver carries one log type or several",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Each LSS log type is a separate feed configured in the ZPA admin UI.\" The receiver configuration carries a single sourceLogType (zpa.log-receivers.configuration:config-fields), while the Log Streaming Service page says a log receiver can capture several log types.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "A log receiver can capture several log types."
+          ]
+        }
+      ],
+      "blocks": "deciding whether each ZPA log type lands in its own SIEM input",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    }
+  }
+}

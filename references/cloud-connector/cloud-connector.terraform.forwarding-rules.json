@@ -1,0 +1,430 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.terraform.forwarding-rules",
+  "title": "ZTC traffic forwarding and DNS rules in Terraform: forward methods, ZPA segment IDs, workload groups, WAN selection and labels",
+  "aliases": [
+    "ztc_traffic_forwarding_rule forward_method",
+    "LOCAL_SWITCH",
+    "ztc local forwarding method terraform",
+    "ztc zpa_application_segments id",
+    "zparesources",
+    "ztc src_workload_groups id lookup",
+    "ztc_workload_groups data source",
+    "ztc wan_selection",
+    "ztc traffic forwarding rule labels",
+    "ztc_traffic_forwarding_dns_rule REDIR_ZPA",
+    "ztc_ip_pool_groups one cidr"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.forwarding.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.provider-behavior"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.rule-protection"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.delete-detach"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.workload-groups.rule-scoping"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api.rules-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The rule resources' arguments and validators are generated (`node scripts/kb.mjs surface ztc_traffic_forwarding_rule`); this subject holds where the forwarding-method value set, ID lookups and documented constraints differ between the provider, the SDKs and the API contract. How rules are ordered, protected and detached on delete is in [[cloud-connector.terraform.rule-order]], [[cloud-connector.terraform.rule-protection]] and [[cloud-connector.terraform.delete-detach]]."
+    },
+    {
+      "heading": "Forwarding rules"
+    },
+    {
+      "label": "Forward methods.",
+      "text": "Which forward-method values each source accepts, and which token the console's Local method is sent as, are in [[cloud-connector.forwarding.methods:contract-enums]] and [[cloud-connector.forwarding.methods:local-switch-token]]. Whether the API accepts LOCAL_SWITCH as the Local method is open {{gap:local-switch-wire-value}}."
+    },
+    {
+      "label": "Attributes per method.",
+      "text": "{{method-attribute-guards}}"
+    },
+    {
+      "label": "ZPA application segments.",
+      "text": "{{zpa-segments-sent-by-id}} The key the segments travel under also differs between the SDK and the contract [[cloud-connector.api.rules-wire:zpa-segments-key]]. {{zparesources-two-ids}} {{no-zpa-segment-data-source}} Which of those IDs a rule expects, and whether either equals the ZPA provider's segment ID, is open {{gap:zpa-segment-id-equivalence}}."
+    },
+    {
+      "label": "Workload groups.",
+      "text": "{{workload-groups-data-source}} {{doc-points-to-zia}} {{no-workload-group-resource}} Destination workload groups are not modeled by the provider or the Go SDK: [[cloud-connector.api.rules-wire:workload-groups]]."
+    },
+    {
+      "label": "WAN selection.",
+      "text": "{{provider-sends-wan-selection}} The provider and the API disagree on whether the field is still configurable {{divergence:wan-selection}}."
+    },
+    {
+      "label": "Labels.",
+      "text": "{{no-labels-argument}} {{contract-labels-not-applicable}} Whether labels can be written to forwarding rules is open {{gap:rule-labels}}."
+    },
+    {
+      "heading": "DNS rules"
+    },
+    {
+      "label": "Action constraints.",
+      "text": "{{dns-action-constraints-documented}} {{dns-constraints-not-checked}} The `zpa_ip_group` block is ignored altogether: [[cloud-connector.terraform.provider-behavior]]. {{ip-pool-one-cidr}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which forward_method value the configuration uses; the provider accepts only DIRECT, LOCAL_SWITCH, ZIA, ECZPA and DROP, and other sources list other sets.",
+      "uses": [
+        "cloud-connector.forwarding.methods:local-token",
+        "local-switch-wire-value"
+      ]
+    },
+    {
+      "do": "For ECZPA rules, which ID the zpa_application_segments entries hold, compared with the id and zpaId the ZTW ZPA-resources endpoint returns.",
+      "uses": [
+        "zpa-segments-sent-by-id",
+        "zparesources-two-ids",
+        "zpa-segment-id-equivalence"
+      ]
+    },
+    {
+      "do": "For DNS rules, that dest_ip_groups is not combined with REDIR_ZPA and dns_gateway is used only with REDIR_REQ, since the provider does not check either.",
+      "uses": [
+        "dns-action-constraints-documented",
+        "dns-constraints-not-checked"
+      ]
+    }
+  ],
+  "claims": {
+    "method-attribute-guards": {
+      "statement": "At plan time the forwarding rule resource rejects `zpa_application_segments` and `zpa_application_segment_groups` when `forward_method` is ZIA, DIRECT, LOCAL_SWITCH or DROP, and rejects `dest_addresses`, `dest_countries`, `dest_ip_groups`, `dest_ip_categories`, `proxy_gateway`, `nw_services`, `nw_service_groups` and `app_service_groups` when it is ECZPA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "quotes": [
+            "if forwardMethod == \"ECZPA\" { prohibitedAttrs := []string{ \"dest_addresses\", \"dest_countries\", \"dest_ip_groups\", \"dest_ip_categories\", \"proxy_gateway\", \"nw_services\", \"nw_service_groups\", \"app_service_groups\", }",
+            "if forwardMethod == \"ZIA\" || forwardMethod == \"DIRECT\" || forwardMethod == \"LOCAL_SWITCH\" || forwardMethod == \"DROP\" { prohibitedAttrs := []string{ \"zpa_application_segments\", \"zpa_application_segment_groups\", }",
+            "forwardMethod := d.Get(\"forward_method\").(string)"
+          ]
+        }
+      ]
+    },
+    "zpa-segments-sent-by-id": {
+      "statement": "The provider sends each `zpa_application_segments` entry as a segment reference carrying only `ID`, taken from the configured `id` values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "after": "func expandZPAApplicationSegmentSet(d *schema.ResourceData, key string) []common.ZPAApplicationSegments {",
+          "quotes": [
+            "result = append(result, common.ZPAApplicationSegments{ ID: id.(int), })"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "quotes": [
+            "ZPAApplicationSegments: expandZPAApplicationSegmentSet(d, \"zpa_application_segments\"),"
+          ]
+        }
+      ]
+    },
+    "zparesources-two-ids": {
+      "statement": "The Go SDK's `zparesources` package reads ZPA application segments from /ztw/api/v1/zpaResources/applicationSegments with two functions, `GetZPAApplicationSegments` and `GetByName`, and returns each segment with two identifiers, `id` and `zpaId`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policyresources/zparesources/zparesources.go",
+          "quotes": [
+            "zpaResourcesEndpoint = \"/ztw/api/v1/zpaResources/applicationSegments\"",
+            "// ID of the ZPA application segment. ID int `json:\"id\"`",
+            "ZpaID int `json:\"zpaId,omitempty\"`",
+            "func GetZPAApplicationSegments(ctx context.Context, service *zscaler.Service) ([]ZPAApplicationSegment, error) {",
+            "func GetByName(ctx context.Context, service *zscaler.Service, targetGroup string) (*ZPAApplicationSegment, error) {"
+          ]
+        }
+      ],
+      "conditions": "The two quoted function signatures are every func declaration in zparesources.go at the pin; neither writes."
+    },
+    "no-zpa-segment-data-source": {
+      "statement": "The ZTC provider registers no data source for ZPA application segments or segment groups, so the IDs for `zpa_application_segments` and `zpa_application_segment_groups` come from outside the provider: the ZTW endpoint above, or the ZPA side.",
+      "tier": "B",
+      "conditions": "Absence: the provider's DataSourcesMap at the pin (20 entries) has no ZPA segment data source, and no provider file calls the zparesources package.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/provider.go",
+          "quotes": [
+            "\"ztc_workload_groups\": dataSourceWorkloadGroup(), \"ztc_dns_gateway\": dataSourceDNSGateway(), },"
+          ]
+        }
+      ]
+    },
+    "workload-groups-data-source": {
+      "statement": "The provider registers a `ztc_workload_groups` data source that looks a workload group up by ID (through the full list) or by name, using the Go SDK's ZTW `workload_groups` package.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/provider.go",
+          "quotes": [
+            "\"ztc_workload_groups\": dataSourceWorkloadGroup(),"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/data_source_ztc_workload_groups.go",
+          "quotes": [
+            "allTimeWindows, err := workload_groups.GetAll(ctx, service)",
+            "res, err := workload_groups.GetByName(ctx, service, name)"
+          ]
+        }
+      ]
+    },
+    "doc-points-to-zia": {
+      "statement": "The `ztc_traffic_forwarding_rule` documentation still tells users to look up `src_workload_groups` IDs with the ZIA provider's `zia_workload_groups` data source, saying it returns the same ID because the object is shared between ZIA and ZTC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/resources/ztc_traffic_forwarding_rule.md",
+          "quotes": [
+            "# NOTE: To retrieve the src_workload_groups ID information, you must leverage the ZIA Terraform Provider at the moment,",
+            "# which returns the exact same information ID since the resource is cross-shared between ZIA and ZTC.",
+            "data \"zia_workload_groups\" \"this\" {"
+          ],
+          "after": "# ztc_traffic_forwarding_rule (Resource)"
+        }
+      ]
+    },
+    "no-workload-group-resource": {
+      "statement": "The ZTC provider has no workload group resource, and the Go SDK's ZTW package cannot write workload groups, so they are created and changed outside the ZTC provider (in the console or on the ZIA side).",
+      "tier": "B",
+      "derived_from": [
+        "cloud-connector.sdk-go.coverage:workload-groups-writes-commented"
+      ],
+      "conditions": "Absence: the provider's ResourcesMap at the pin (16 entries) has no workload group resource.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/provider.go",
+          "quotes": [
+            "\"ztc_public_cloud_info\": resourcePublicCloudInfo(), \"ztc_dns_gateway\": resourceDNSGateway(), },"
+          ]
+        }
+      ]
+    },
+    "provider-sends-wan-selection": {
+      "statement": "The forwarding rule resource still accepts `wan_selection` (validated against five SMRULEF_ and _RULE values), describes it as applicable only to a hardware device in gateway mode, and copies it into every create and update request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "quotes": [
+            "Description: \"WAN selection is only applicable when configuring a hardware device deployed in gateway mode.\",",
+            "\"SMRULEF_ZPA_BROKERS_RULE\", \"SMRULEF_APPC_DYNAMIC_SRC_IPGROUP\", \"SMRULEF_EXCL_SRC_IP\", \"BALANCED_RULE\", \"BESTLINK_RULE\",",
+            "WanSelection: d.Get(\"wan_selection\").(string),"
+          ]
+        }
+      ]
+    },
+    "no-labels-argument": {
+      "statement": "The `ztc_traffic_forwarding_rule` resource has no labels argument, so rule labels cannot be managed through the provider.",
+      "tier": "B",
+      "conditions": "Absence: the resource schema at the pin (also in the generated surface) has no labels or rule_label argument. The legacy doc cites upstream issue zscaler/terraform-provider-ztc#46 asking for it; that issue is not a registered source.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "quotes": [
+            "\"src_workload_groups\": setIDsSchemaTypeCustom(nil, \"The list of preconfigured workload groups to which the policy must be applied\"),"
+          ]
+        }
+      ]
+    },
+    "contract-labels-not-applicable": {
+      "statement": "The API contract's create body for forwarding rules carries a `labels` array whose description is \"Not applicable to Cloud & Branch Connector.\"",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecRdr/post/requestBody/content/application~1json/schema/properties/labels",
+          "expect": {
+            "description": "Not applicable to Cloud & Branch Connector.",
+            "type": "array"
+          }
+        }
+      ]
+    },
+    "dns-action-constraints-documented": {
+      "statement": "The `ztc_traffic_forwarding_dns_rule` documentation says `dest_ip_groups` is not supported with the REDIR_ZPA action, `dns_gateway` applies only to REDIR_REQ, and `zpa_ip_group` (an IP pool group) applies only to REDIR_ZPA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/resources/ztc_traffic_forwarding_dns_rule.md",
+          "quotes": [
+            "* `dest_ip_groups` - (List of Object) User-defined destination IP address groups to which the rule is applied. Not supported when action is `REDIR_ZPA`",
+            "* `dns_gateway` - (List of Object) The dns gateway for which the rule is applicable. Applicable only when action is `REDIR_REQ`",
+            "* `zpa_ip_group` - (List of Object) The ip pool group for which the rule is applicable. Applicable only when action is `REDIR_ZPA`"
+          ]
+        }
+      ]
+    },
+    "dns-constraints-not-checked": {
+      "statement": "The DNS rule resource has no plan-time check for those combinations, so a configuration that breaks them is sent to the API as written.",
+      "tier": "B",
+      "derived_from": [
+        "dns-action-constraints-documented"
+      ],
+      "conditions": "Absence: resource_ztc_traffic_forwarding_dns_rule.go at the pin has no CustomizeDiff, ConflictsWith or action-dependent validation.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "quotes": [
+            "CreateContext: resourceTrafficForwardingDNSRuleCreate, ReadContext: resourceTrafficForwardingDNSRuleRead, UpdateContext: resourceTrafficForwardingDNSRuleUpdate, DeleteContext: resourceTrafficForwardingDNSRuleDelete,"
+          ]
+        }
+      ]
+    },
+    "ip-pool-one-cidr": {
+      "statement": "An IP pool group, the REDIR_ZPA target, holds one CIDR subnet: the documentation says only one is allowed and the schema caps `ip_addresses` at one item.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/resources/ztc_ip_pool_groups.md",
+          "quotes": [
+            "Only `ONE` CIDR subnet is allowed i.e `10.0.0.0/24`"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_pool_groups.go",
+          "after": "\"ip_addresses\": {",
+          "quotes": [
+            "MaxItems: 1,"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "docs/resources/ztc_traffic_forwarding_dns_rule.md",
+          "quotes": [
+            "* `zpa_ip_group` - (List of Object) The ip pool group for which the rule is applicable. Applicable only when action is `REDIR_ZPA`"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "wan-selection": {
+      "summary": "The provider and the console help treat WAN selection as a live gateway-mode setting, and the provider sends it; the Go SDK and the API contract call it deprecated and no longer configurable, and the contract's create body does not carry it.",
+      "positions": [
+        {
+          "says": "WAN selection applies when configuring a hardware device in gateway mode; the provider sends it.",
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+            "quotes": [
+              "Description: \"WAN selection is only applicable when configuring a hardware device deployed in gateway mode.\","
+            ]
+          }
+        },
+        {
+          "says": "The console help documents WAN Selection (None by default, Balanced, Best Link) as applicable to hardware devices deployed in gateway mode.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-configuring-traffic-forwarding-rule.json",
+            "after": "To use traffic forwarding rules that use wildcard domains",
+            "quotes": [
+              "WAN Selection: This field is set to None by default.",
+              "WAN selection is only applicable when configuring a hardware device deployed in gateway mode."
+            ]
+          }
+        },
+        {
+          "says": "The parameter was deprecated and is no longer configurable.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+            "quotes": [
+              "// This parameter was deprecated and is no longer configurable."
+            ]
+          }
+        },
+        {
+          "says": "The create body of a forwarding rule has no wanSelection member.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1ecRules~1ecRdr/post/requestBody/content/application~1json/schema/properties",
+            "expect_absent": [
+              "wanSelection"
+            ]
+          }
+        }
+      ],
+      "impact": "Setting wan_selection in Terraform may be ignored or rejected by the API; the sources do not say which."
+    }
+  },
+  "gaps": {
+    "local-switch-wire-value": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether LOCAL_SWITCH is the API value of the console's Local forwarding method",
+      "former_ids": [
+        "cloud-connector-17"
+      ],
+      "blocks": "Whether a Terraform or Python rule with LOCAL_SWITCH creates a Local forwarding rule, and whether the Go SDK and API contract simply omit the value.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "detail": "Unverified legacy statement: \"Whether 'local switch' / 'Local' is a real portal-only or hardware-gateway (Branch Connector) behavior the Go enum simply does not model, or an erroneous notion that propagated through docs, is unresolved.\" The console help documents a Local method for Cloud Connector and Zero Trust Gateways. Resolves by creating a rule with forward_method LOCAL_SWITCH and reading it back, or by a contract revision that lists the value."
+    },
+    "zpa-segment-id-equivalence": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Which ZPA application segment ID a ZTC forwarding rule expects",
+      "blocks": "How to fill zpa_application_segments without hard-coding: from the ZTW id, the ZTW zpaId, or the ZPA provider's segment ID.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: \"Whether these IDs are the same as those returned by the zpa_application_segment data source in the ZPA Terraform provider has not been confirmed from a live cross-provider test.\" The provider sends the configured value as the reference's id; the ZTW ZPA-resources endpoint returns both an id and a zpaId. This is the second half of ledger entry cloud-connector-16 (the first half is cloud-connector.terraform.provider-config:legacy-mode-rule-resources). Resolves by comparing, for one segment, the ZTW id and zpaId with the ZPA segment ID and creating an ECZPA rule with each."
+    },
+    "rule-labels": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether Cloud and Branch Connector forwarding rules accept labels through the API",
+      "former_ids": [
+        "cloud-connector-26"
+      ],
+      "blocks": "Whether rule labels shown in the console can be automated, through the API or a future provider argument.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "detail": "Unverified legacy statement: upstream issue zscaler/terraform-provider-ztc#46 \"reports GUI support for Cloud Connector traffic-forwarding rule labels and requests Terraform rule_label support.\" The contract carries a labels array on forwarding rules but calls it not applicable to Cloud & Branch Connector, and the provider has no argument for it. Resolves by writing labels to a forwarding rule through the API, or a provider release adding the argument."
+    }
+  }
+}

@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "id": "shared.device-posture.trust-levels",
+  "title": "Internet & SaaS device trust levels: how posture becomes a policy criterion",
+  "aliases": [
+    "device trust level",
+    "zia posture profile",
+    "internet & saas posture profile",
+    "high trust medium trust low trust",
+    "trust level unknown",
+    "posture in url filtering"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.device-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.device-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.file-type-control.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.rule-criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.v2-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Internet & SaaS does not refer to a device posture profile directly. It refers to a trust level that an Internet & SaaS posture profile derives from device posture profiles."
+    },
+    {
+      "label": "Building the levels.",
+      "text": "{{level-expressions}} {{expression-logic}} {{personal-versus-corporate}}"
+    },
+    {
+      "label": "Getting it onto a device.",
+      "text": "{{via-app-profile}} The app profile field is in [[zcc.device-posture:zia-posture-profile]], and the device's resulting level is shown on its details page: [[zcc.device-posture:trust-level-shown]]."
+    },
+    {
+      "label": "Using it in policy.",
+      "text": "{{policy-types}} {{criterion-scope}} The same scope is held for Firewall Filtering in [[zia.firewall.criteria:device-trust-scope]] and for SSL/TLS inspection in [[zia.ssl-inspection.criteria:device-trust-scope]], and the rule expressions that hold the criterion are in [[zia.cloud-app-control.rule-criteria:criteria-expression]] and [[zia.file-type-control.criteria:criteria-expression]]."
+    },
+    {
+      "label": "Open.",
+      "text": "When a Client Connector device is given Unknown rather than a level is open {{gap:unknown-assignment}}."
+    },
+    {
+      "text": "The API shape of a v2 posture profile with its three levels is in [[zcc.api.v2-wire:posture-shape]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which Internet & SaaS posture profile the device's app profile applies, and the trust level shown on the device's details page.",
+      "uses": [
+        "via-app-profile",
+        "zcc.device-posture:trust-level-shown"
+      ]
+    },
+    {
+      "do": "Whether the device met the expression of a higher level than expected; the highest matching level is used.",
+      "uses": [
+        "level-expressions",
+        "expression-logic"
+      ]
+    },
+    {
+      "do": "Whether the traffic came through Client Connector: High, Medium and Low apply only to Client Connector traffic, Unknown to all traffic.",
+      "uses": [
+        "criterion-scope"
+      ]
+    }
+  ],
+  "claims": {
+    "level-expressions": {
+      "statement": "An Internet & SaaS posture profile holds an expression for each of High Trust, Medium Trust and Low Trust; Client Connector evaluates the checks of all levels on the device and the highest matching level is used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-internet-saas-posture-profiles.json",
+          "quotes": [
+            "For High Trust, Medium Trust, Low Trust: Choose a trust level. Posture checks for all trust levels are evaluated by Zscaler Client Connector on the device and the highest matching level is used in the Internet & SaaS posture."
+          ]
+        }
+      ]
+    },
+    "expression-logic": {
+      "statement": "A level's expression is built from device posture profiles, with up to 5 selectable; within a group the logic is AND, and between groups it is OR.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-internet-saas-posture-profiles.json",
+          "quotes": [
+            "Select a device posture for the trust level.",
+            "You can select up to 5 device postures.",
+            "Within a group, the logic is AND. Between groups, the logic is OR."
+          ]
+        }
+      ]
+    },
+    "personal-versus-corporate": {
+      "statement": "The vendor describes Internet & SaaS posture profiles as a way to apply different policies to users' personal devices than to their corporate devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-internet-saas-posture-profiles.json",
+          "quotes": [
+            "Posture profiles enable admins to apply different policies to users’ personal devices versus their corporate devices."
+          ]
+        }
+      ]
+    },
+    "via-app-profile": {
+      "statement": "An Internet & SaaS posture profile is added to an app profile, and posture profiles are evaluated on the devices assigned to app profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-internet-saas-posture-profiles.json",
+          "quotes": [
+            "You can create an Internet & SaaS posture profile for a specific trust level and add it to an app profile.",
+            "Posture profiles are evaluated on devices assigned to app profiles."
+          ]
+        }
+      ]
+    },
+    "policy-types": {
+      "statement": "The trust level (High, Medium, Low) given to devices is selected when configuring a Firewall, Firewall Filtering, URL Filtering, File Type Control, SSL Inspection or Cloud App Control policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-internet-saas-posture-profiles.json",
+          "quotes": [
+            "When you add a posture profile, the devices are given a trust level (High, Medium, Low), which is selected when configuring a Firewall, Firewall Filtering, URL Filtering, File Type Control, SSL Inspection, or Cloud App Control policy in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "criterion-scope": {
+      "statement": "In URL Filtering rules the Device Trust Level criterion takes High Trust, Medium Trust, Low Trust or Unknown; the first three are evaluated only for Client Connector traffic, Unknown for all traffic, and selecting no value ignores the criterion. The levels assigned to devices come from the posture configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "after": "Device Trust Level: Select the device trust level values",
+          "quotes": [
+            "(High Trust, Medium Trust, Low Trust, or Unknown)",
+            "While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic.",
+            "Selecting no value ignores the criterion in the policy evaluation.",
+            "The trust levels assigned to the devices are based on your posture configurations in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "unknown-assignment": {
+      "kind": "semantic",
+      "title": "When a Client Connector device gets the Unknown trust level",
+      "status": "open",
+      "detail": "The help says the highest matching level is used and that Unknown applies to all traffic, and the device page can show Unknown. It does not say whether a Client Connector device that matches none of the three expressions, or whose app profile applies no Internet & SaaS posture profile, is Unknown or Low.",
+      "blocks": "predicting which trust-level rule a device that matches no level falls into",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "id": "shared.integrations",
+  "title": "Cross-product hooks: where ZIA, ZPA and Client Connector reach into each other",
+  "aliases": [
+    "cross-product integrations",
+    "cross product dependency",
+    "zia zpa integration",
+    "zcc feeds zpa policy",
+    "rule does not match because of another product",
+    "which product owns this behavior",
+    "risk score in zpa access policy"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.device-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.m365"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.sipa"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.bypass-impact"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.trusted-networks.zcc-relationship"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.entitlements.zpa"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.internet-actions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The products are configured separately, but a field or decision in one often depends on state in another, and a question framed around one product can resolve in another. This subject maps those hooks by direction and points at where each is held."
+    },
+    {
+      "heading": "Internet & SaaS reaching into Private Access"
+    },
+    {
+      "table": {
+        "columns": [
+          "Hook",
+          "Held in"
+        ],
+        "rows": [
+          [
+            "SSL/TLS inspection rules can scope by Private Access application segment",
+            "[[zia.ssl-inspection.criteria:zpa-segments-sipa-only]]; whether URL Filtering and Cloud App Control lack the criterion is open: [[zia.ssl-inspection.criteria:absent-from-url-filtering-and-cac]]"
+          ],
+          [
+            "Forwarding Control sends anchored traffic to an App Connector through a Private Access gateway",
+            "[[zia.forwarding-control.sipa]], [[zia.forwarding-control.zpa-gateway]], [[shared.source-ip-anchoring]]"
+          ],
+          [
+            "Country criteria see the edge's address for anchored traffic",
+            "[[zpa.policy.criteria:country-last-nat-ip]]"
+          ],
+          [
+            "Segment features that exclude anchoring",
+            "[[zpa.app-segments.settings:sipa-inspect-zia-exclusive]], [[zpa.app-segments.settings:double-encryption-exclusions]], [[zpa.app-segments.multimatch-requirements:sipa-health-reporting]]"
+          ],
+          [
+            "Anchoring during Internet & SaaS disaster recovery",
+            "[[zia.forwarding-control.sipa-direct:access-blockers]]"
+          ]
+        ]
+      }
+    },
+    {
+      "heading": "Private Access reaching into Internet & SaaS"
+    },
+    {
+      "table": {
+        "columns": [
+          "Hook",
+          "Held in"
+        ],
+        "rows": [
+          [
+            "A segment can send its traffic to Internet & SaaS for inspection",
+            "[[zpa.app-segments.settings:inspect-zia-purpose]], [[zia.forwarding-control.predefined-rules:inspected-zpa-apps]]; whether it blocks Multimatch is open: [[zpa.app-segments.multimatch-requirements:multimatch-feature-matrix]]"
+          ],
+          [
+            "Access rules can use a user risk score from Internet & SaaS",
+            "{{risk-score-source}} [[zpa.policy.conditions:risk-factor-entry]]; the score levels on the Internet & SaaS side: [[zia.url-filtering.criteria:user-risk-score-levels]]; what a user with no score matches is open {{gap:risk-score-without-history}}"
+          ]
+        ]
+      }
+    },
+    {
+      "heading": "Client Connector feeding Private Access"
+    },
+    {
+      "table": {
+        "columns": [
+          "Hook",
+          "Held in"
+        ],
+        "rows": [
+          [
+            "Trusted network result sent to Private Access",
+            "[[zpa.trusted-networks.zcc-relationship:send-result-setting]]; whether trusted network conditions stop matching when it is off is open: [[zcc.forwarding-profiles.private-access-actions:send-result-effect]]"
+          ],
+          [
+            "Private Access entitlement",
+            "[[zcc.entitlements.zpa:configurations]]; what a user who is not entitled looks like is open: [[zcc.entitlements:not-entitled-signals]]"
+          ],
+          [
+            "Machine tunnel switch",
+            "[[zcc.entitlements.zpa:machine-tunnel-for-all]]"
+          ],
+          [
+            "Device posture",
+            "[[shared.device-posture]]"
+          ]
+        ]
+      }
+    },
+    {
+      "heading": "Client Connector shaping what Internet & SaaS sees"
+    },
+    {
+      "table": {
+        "columns": [
+          "Hook",
+          "Held in"
+        ],
+        "rows": [
+          [
+            "Root certificate install for SSL/TLS inspection",
+            "[[zcc.app-profiles.ssl-certificate:install-option]], [[zcc.ssl-inspection.certificate-install:big-sur]], [[zia.ssl-inspection.certificates:root-must-be-trusted]]"
+          ],
+          [
+            "PAC file the app follows",
+            "[[zcc.forwarding-profiles.internet-actions:pac-url-location]], [[zcc.app-profiles]]"
+          ],
+          [
+            "Internet & SaaS posture profile and trust levels",
+            "[[shared.device-posture.trust-levels]]"
+          ],
+          [
+            "Forwarding action None on a trusted network",
+            "[[zcc.forwarding-profiles.internet-actions:trusted-none-skips-zia]]"
+          ]
+        ]
+      }
+    },
+    {
+      "heading": "Step-up authentication shared by both"
+    },
+    {
+      "text": "URL Filtering's Conditional action: [[zia.url-filtering.actions:conditional-prereqs]] Private Access's Conditional Access action: [[zpa.policy.actions:conditional-access-step-up]], whose name differs between articles: [[zpa.policy.actions:require-approval-name]]. Both are OIDC-only: [[zia.authentication.step-up:oidc-only]], [[zpa.policy.actions:step-up-oidc-only]]. Authentication levels and their validity rules are in [[doc:references/zidentity/step-up-authentication.md]]."
+    },
+    {
+      "heading": "Inside Internet & SaaS: one feature gating another"
+    },
+    {
+      "table": {
+        "columns": [
+          "Hook",
+          "Held in"
+        ],
+        "rows": [
+          [
+            "Content-based features need decryption",
+            "[[zia.ssl-inspection.bypass-impact:dependent-features]], [[zia.ssl-inspection.bypass-impact:evaluate-variant-keeps-domain-checks]]"
+          ],
+          [
+            "AI/ML recategorization changes URL Filtering's input",
+            "[[zia.atp.ai-ml-recategorization:blocking-can-change-without-edit]]"
+          ],
+          [
+            "DLP incidents feeding Workflow Automation",
+            "[[zia.dlp.incident-forwarding:zwa-captures-incidents]]; the ingest path is open: [[zia.dlp.incident-forwarding:zwa-ingest-path]]; scan limits: [[zia.dlp.inspection-limits]]; [[doc:references/zwa/overview.md]]"
+          ],
+          [
+            "Isolate action handing off to Cloud Browser Isolation",
+            "[[zia.url-filtering.actions:isolate-needs-zbi]], [[doc:references/zbi/policy-integration.md]]"
+          ]
+        ]
+      }
+    },
+    {
+      "heading": "Control-plane and platform differences"
+    },
+    {
+      "table": {
+        "columns": [
+          "Difference",
+          "Held in"
+        ],
+        "rows": [
+          [
+            "Activation",
+            "[[zia.api.activation:saved-not-live]]; whether a Private Access write is live without activation is open: [[zpa.api.activation:write-takes-effect]]; [[shared.activation]]"
+          ],
+          [
+            "Business continuity",
+            "[[zia.private-service-edge.business-continuity:z-tunnel-2-unsupported]], [[shared.cloud-architecture]]"
+          ],
+          [
+            "Separate log streams",
+            "[[zia.logs.web-records]], [[zpa.logs.user-activity]], [[shared.log-correlation]]"
+          ],
+          [
+            "Workload forwarding through Cloud Connector",
+            "[[cloud-connector.overview]], [[cloud-connector.forwarding]]"
+          ],
+          [
+            "OneAPI authentication",
+            "[[shared.oneapi]], [[doc:references/zidentity/api-clients.md]]"
+          ],
+          [
+            "Digital Experience entitlement and data",
+            "[[zcc.entitlements.zdx:configurations]], [[doc:references/zdx/overview.md]], [[doc:references/zdx/probes.md]]"
+          ],
+          [
+            "Directory data shared across products",
+            "[[doc:references/zidentity/overview.md]]"
+          ]
+        ]
+      }
+    }
+  ],
+  "checks": [
+    {
+      "do": "For an SSL/TLS rule that does not list or match a Private Access segment: whether Source IP Anchor is enabled on the segment.",
+      "uses": [
+        "zia.ssl-inspection.criteria:zpa-segments-sipa-only"
+      ]
+    },
+    {
+      "do": "For a TRUSTED_NETWORK access condition that never matches: whether Send Trusted Network Result to ZPA is on in the user's active forwarding profile.",
+      "uses": [
+        "zpa.trusted-networks.zcc-relationship:send-result-setting",
+        "zcc.forwarding-profiles.private-access-actions:send-result-effect"
+      ]
+    },
+    {
+      "do": "For a user who reaches no Private Access application: the user's (and device group's) Private Access entitlement before any access rule.",
+      "uses": [
+        "zcc.entitlements.zpa:configurations",
+        "zcc.entitlements.zpa:device-and-user-group",
+        "zcc.entitlements:not-entitled-signals"
+      ]
+    },
+    {
+      "do": "For a risk-score access rule that does not fire for a user: the user's current risk score level, including Unknown.",
+      "uses": [
+        "risk-score-source",
+        "zpa.policy.conditions:risk-factor-entry",
+        "risk-score-without-history",
+        "zia.url-filtering.criteria:user-risk-score-levels"
+      ]
+    },
+    {
+      "do": "For DLP, Sandbox, malware or Cloud App Control misses on HTTPS: whether the traffic matched a Do Not Inspect rule.",
+      "uses": [
+        "zia.ssl-inspection.bypass-impact:check-ssl-first",
+        "zia.ssl-inspection.bypass-impact:dependent-features"
+      ]
+    },
+    {
+      "do": "For certificate errors on one platform only: the Install Zscaler SSL Certificate setting of that platform's app profile, and the macOS version.",
+      "uses": [
+        "zcc.app-profiles.ssl-certificate:install-option",
+        "zcc.ssl-inspection.certificate-install:big-sur"
+      ]
+    },
+    {
+      "do": "For a URL newly blocked with no rule change: whether ATP's AI/ML tools moved it into a Botnet or Phishing category.",
+      "uses": [
+        "zia.atp.ai-ml-recategorization:blocking-can-change-without-edit"
+      ]
+    },
+    {
+      "do": "For a change that took effect in one product and not the other: whether the Internet & SaaS change was activated.",
+      "uses": [
+        "zia.api.activation:saved-not-live",
+        "zpa.api.activation:write-takes-effect"
+      ]
+    }
+  ],
+  "claims": {
+    "risk-score-source": {
+      "statement": "Private Access access policy has a Risk Scores criterion: user risk scores from a risk source, Internet & SaaS being the vendor's example.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-access-policy-20260909.json",
+          "quotes": [
+            "Risk Scores: User risk scores from a risk source (e.g., Internet & SaaS)."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "risk-score-without-history": {
+      "kind": "semantic",
+      "title": "Which risk level a user with no Internet & SaaS risk score matches, and what feeds the score",
+      "status": "partial",
+      "detail": "Unverified legacy statement: \"the user must have enough ZIA activity for a risk score to exist. Users with no ZIA history get a default-low score — the rule never fires for them\", and the score draws on Page Risk, ATP detections and Suspicious Content Protection. Internet & SaaS assigns users a risk score based on their browsing activities, grouped into levels whose default ranges start with Low at 0 to 29 (zia.url-filtering.criteria:user-risk-score-levels). Still open: whether a user without a score matches UNKNOWN or LOW in a Private Access rule (the operand values include both, zpa.policy.conditions:risk-factor-entry), and whether Page Risk, ATP or Suspicious Content Protection contribute.",
+      "blocks": "predicting whether a risk-score rule applies to a user with little Internet & SaaS traffic",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "Users are assigned a risk score based on their browsing activities. A range of risk scores is grouped as a risk score level.",
+            "Low: Level with user risk scores ranging from 0 to 29"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.aws.gwlb",
+  "title": "Cloud Connector behind AWS Gateway Load Balancer: target group, health probe, stickiness, cross-zone",
+  "aliases": [
+    "gwlb target unhealthy cloud connector",
+    "cloud connector health probe port 50000",
+    "cchealth",
+    "gwlb flow stickiness cloud connector",
+    "gwlb cross zone cloud connector",
+    "gwlb rebalance cloud connector",
+    "geneve 6081 cloud connector",
+    "http_probe_port"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.aws.traffic-steering"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.autoscaling"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.security-groups"
+    }
+  ],
+  "prose": [
+    {
+      "text": "With GWLB, Cloud Connectors are targets of a GENEVE target group and receive traffic only while their HTTP health probe answers. The values below are the reference Terraform module's unless a claim cites Help."
+    },
+    {
+      "label": "Targets.",
+      "text": "{{target-group}} {{target-registration}} {{target-help}}"
+    },
+    {
+      "label": "Health probe.",
+      "text": "{{health-check}} {{probe-port}} {{probe-thresholds}} Help gives a different template default for the interval {{divergence:probe-interval-default}}, also stated in [[cloud-connector.overview.load-balancing:probe-intervals]]. The probe port is also opened in the service security group: [[cloud-connector.aws.security-groups]]."
+    },
+    {
+      "label": "Flow handling.",
+      "text": "{{stickiness}} {{rebalance}} {{deregistration-delay}}"
+    },
+    {
+      "label": "Cross-zone.",
+      "text": "{{cross-zone-default}} {{cross-zone-semantics}}"
+    },
+    {
+      "label": "Endpoint service.",
+      "text": "{{endpoint-service}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the target is the right kind: the service interface (device index 0) IP for non-autoscaling deployments, the EC2 instance ID for autoscaling ones.",
+      "uses": [
+        "target-group",
+        "target-help"
+      ]
+    },
+    {
+      "do": "Whether the probe port in the target group equals HTTP_PROBE_PORT in the Cloud Connector user data and is allowed from the VPC CIDR.",
+      "uses": [
+        "health-check",
+        "probe-port",
+        "cloud-connector.aws.provisioning:example-user-data"
+      ]
+    },
+    {
+      "do": "Whether cross-zone load balancing is off while the only healthy Cloud Connectors are in another zone than the workload.",
+      "uses": [
+        "cross-zone-default",
+        "cross-zone-semantics"
+      ]
+    }
+  ],
+  "claims": {
+    "target-group": {
+      "statement": "The reference GWLB module's target group listens on port 6081 with protocol GENEVE, and its target type is instance when `asg_enabled` is true and ip otherwise.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-gwlb-aws/main.tf",
+          "quotes": [
+            "port = 6081 protocol = \"GENEVE\"",
+            "target_type = var.asg_enabled == true ? \"instance\" : \"ip\""
+          ]
+        }
+      ]
+    },
+    "target-registration": {
+      "statement": "Without autoscaling the module registers every Cloud Connector forwarding service interface IP as a target; with autoscaling the ASG module attaches each Auto Scaling group to the target group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-gwlb-aws/main.tf",
+          "quotes": [
+            "# Register all Cloud Connector Forwarding Service Interface IPs as targets to gwlb"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/main.tf",
+          "quotes": [
+            "resource \"aws_autoscaling_attachment\" \"cc_asg_attachment_gwlb\" { count = length(aws_autoscaling_group.cc_asg[*].id) autoscaling_group_name = aws_autoscaling_group.cc_asg[count.index].id lb_target_group_arn = var.target_group_arn"
+          ]
+        }
+      ]
+    },
+    "target-help": {
+      "statement": "Help's check for a GWLB target shown unhealthy: the target IP must be the service interface at device index 0 for non-autoscaling deployments and the EC2 instance ID for autoscaling ones, and the Admin Console dashboard shows the health status and error codes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "The target IP is correct. For non-auto scaling deployments, this is the service interface device index 0. For auto scaling deployments, this is the EC2 instance ID.",
+            "From the Zscaler Admin Console dashboard, check the health status reported and any error codes or messages."
+          ]
+        }
+      ]
+    },
+    "health-check": {
+      "statement": "The target group health check is HTTP to the probe port at path /?cchealth.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-gwlb-aws/main.tf",
+          "quotes": [
+            "port = var.http_probe_port protocol = \"HTTP\" path = \"/?cchealth\""
+          ]
+        }
+      ]
+    },
+    "probe-port": {
+      "statement": "`http_probe_port` is the port Cloud Connector cloud-init opens as the listener for the GWLB HTTP probe; it defaults to 50000 and must be 80 or between 1024 and 65535.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-gwlb-aws/variables.tf",
+          "quotes": [
+            "Port number for Cloud Connector cloud init to enable listener port for HTTP probe from GWLB Target Group",
+            "default = 50000",
+            "Input http_probe_port must be set to a single value of 80 or any number between 1024-65535."
+          ]
+        }
+      ]
+    },
+    "probe-thresholds": {
+      "statement": "The module probes every 10 seconds, marks a target healthy after 2 successful checks and unhealthy after 3 failed ones; its descriptions give ranges of 5 to 300 seconds and 2 to 10 checks but declare no validation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-gwlb-aws/variables.tf",
+          "quotes": [
+            "variable \"health_check_interval\" { type = number description = \"Interval for GWLB target group health check probing, in seconds, of Cloud Connector targets. Minimum 5 and maximum 300 seconds\" default = 10 }",
+            "variable \"healthy_threshold\" { type = number description = \"The number of successful health checks required before an unhealthy target becomes healthy. Minimum 2 and maximum 10\" default = 2 }",
+            "variable \"unhealthy_threshold\" { type = number description = \"The number of unsuccessful health checks required before an healthy target becomes unhealthy. Minimum 2 and maximum 10\" default = 3 }"
+          ]
+        }
+      ]
+    },
+    "stickiness": {
+      "statement": "`flow_stickiness` defaults to 5-tuple and accepts 5-tuple, 3-tuple or 2-tuple; 5-tuple is implemented by disabling target-group stickiness, 3-tuple as source_ip_dest_ip_proto and 2-tuple as source_ip_dest_ip. Help recommends 5-tuple.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-gwlb-aws/variables.tf",
+          "quotes": [
+            "Options are (Default) 5-tuple (src ip/src port/dest ip/dest port/protocol), 3-tuple (src ip/dest ip/protocol), or 2-tuple (src ip/dest ip)",
+            "default = \"5-tuple\""
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-gwlb-aws/main.tf",
+          "quotes": [
+            "enabled = var.flow_stickiness == \"5-tuple\" ? false : true type = var.flow_stickiness == \"2-tuple\" ? \"source_ip_dest_ip\" : \"source_ip_dest_ip_proto\""
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Zscaler recommends selecting 5-tuple for optimal load disbursement"
+          ]
+        }
+      ]
+    },
+    "rebalance": {
+      "statement": "`rebalance_enabled` defaults to true, which sets target failover to rebalance existing flows both on deregistration and when a target turns unhealthy; false sets no_rebalance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-gwlb-aws/variables.tf",
+          "quotes": [
+            "Indicates how the GWLB handles existing flows when a target is deregistered or marked unhealthy. true means rebalance. false means no_rebalance. Default: true"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-gwlb-aws/main.tf",
+          "quotes": [
+            "on_deregistration = var.rebalance_enabled == true ? \"rebalance\" : \"no_rebalance\" on_unhealthy = var.rebalance_enabled == true ? \"rebalance\" : \"no_rebalance\""
+          ]
+        }
+      ]
+    },
+    "deregistration-delay": {
+      "statement": "`deregistration_delay` defaults to 0 seconds, the time before a deregistering target moves from draining to unused (range 0 to 3600).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-gwlb-aws/variables.tf",
+          "quotes": [
+            "variable \"deregistration_delay\" {",
+            "Amount time for Elastic Load Balancing to wait before changing the state of a deregistering target from draining to unused. The range is 0-3600 seconds.\" default = 0"
+          ]
+        }
+      ]
+    },
+    "cross-zone-default": {
+      "statement": "The module leaves GWLB cross-zone load balancing off by default (`cross_zone_lb_enabled` false).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-gwlb-aws/variables.tf",
+          "quotes": [
+            "description = \"Determines whether GWLB cross zone load balancing should be enabled or not\" default = false"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-gwlb-aws/main.tf",
+          "quotes": [
+            "enable_cross_zone_load_balancing = var.cross_zone_lb_enabled"
+          ]
+        }
+      ]
+    },
+    "cross-zone-semantics": {
+      "statement": "With cross-zone load balancing the GWLB spreads requests across Cloud Connectors in all enabled availability zones; without it, only across those in the workload's zone. Cross-zone forwarding incurs additional AWS charges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deployment-templates-zscaler-cloud-connector.json",
+          "quotes": [
+            "With cross-zone load balancing, the Gateway Load Balancer distributes requests evenly across the Cloud Connector instances in all enabled Availability Zones.",
+            "If you disable cross-zone load balancing, the Gateway Load Balancer distributes requests evenly across the Cloud Connector instances in the workload's Availability Zone only.",
+            "Traffic forwarding across Availability Zones is subject to additional AWS charges."
+          ]
+        }
+      ]
+    },
+    "endpoint-service": {
+      "statement": "The endpoint module creates the GWLB endpoint service allowing the current AWS account's root principal when no principals are given, and does not require manual acceptance of endpoint connections by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-gwlbendpoint-aws/main.tf",
+          "quotes": [
+            "allowed_principals = coalescelist(var.allowed_principals, [\"arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.id}:root\"])"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-gwlbendpoint-aws/variables.tf",
+          "quotes": [
+            "Whether to require manual acceptance of any VPC Endpoint registration attempts to the Endpoint Service or not. Default is false"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "probe-interval-default": {
+      "summary": "The default GWLB health-check interval for Cloud Connector targets: Help says Zscaler deployment templates use 30 seconds, the reference Terraform module defaults to 10.",
+      "positions": [
+        {
+          "says": "Zscaler deployment templates use a recommended default health-check interval of 30 seconds on the AWS Gateway Load Balancer.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-understanding-high-availability-and-failover.json",
+            "quotes": [
+              "Zscaler deployment templates use a recommended default configuration for health check intervals. The Microsoft Azure Load Balancer defaults to 15 seconds, and Amazon Web Services (AWS) Gateway Load Balancer defaults to 30 seconds."
+            ]
+          }
+        },
+        {
+          "says": "The reference GWLB module's health_check_interval defaults to 10 seconds.",
+          "evidence": {
+            "source": "tfmod-aws-cloud-connector",
+            "path": "modules/terraform-zscc-gwlb-aws/variables.tf",
+            "quotes": [
+              "Interval for GWLB target group health check probing, in seconds, of Cloud Connector targets. Minimum 5 and maximum 300 seconds\" default = 10"
+            ]
+          }
+        }
+      ],
+      "impact": "An unhealthy target leaves rotation about three times faster with the module default than Help's 30 seconds implies; check the deployed target group rather than assuming either value."
+    }
+  }
+}

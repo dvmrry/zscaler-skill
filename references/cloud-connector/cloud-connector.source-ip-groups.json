@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.source-ip-groups",
+  "title": "Cloud Connector source IP groups: what they are and what is unknown about them",
+  "aliases": [
+    "ip source groups cloud connector",
+    "ipSourceGroups",
+    "ztc_ip_source_groups",
+    "creatorContext",
+    "isNonEditable source group",
+    "source ip group limit"
+  ],
+  "binds": [
+    "ztw/ip-source-groups",
+    "ztw/ip-source-groups#creatorContext",
+    "ztw/ip-source-groups#isNonEditable",
+    "ztw/ip-source-groups#ipAddresses"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.delete-detach"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.workload-groups"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Source IP groups are named sets of addresses that Cloud Connector rules reference by ID. {{purpose}} {{help-page-ipv4-tab}}"
+    },
+    {
+      "label": "Where they are used.",
+      "text": "Which rule types take them, and how, is in [[cloud-connector.source-ip-groups.rule-use]]; managing them with Terraform and the Go SDK is in [[cloud-connector.source-ip-groups.automation]]."
+    },
+    {
+      "label": "Origin and editability.",
+      "text": "{{creator-context-values}} The provider's data source describes EC as the only value {{divergence:creator-context-description}}. {{non-editable-predefined}} Whether the API refuses writes to such groups, and whether ZIA-origin groups can be changed through this API, is not shown {{gap:zia-origin-editability}}."
+    },
+    {
+      "label": "Lite listing.",
+      "text": "{{lite-schema}}"
+    },
+    {
+      "label": "Entries and limits.",
+      "text": "{{entry-formats}} {{name-characters}} How overlapping entries are treated is not stated {{gap:overlapping-entries}}. No source gives a per-group or per-tenant platform limit {{gap:size-and-count-limits}}. Whether a group may hold IPv6 entries is open {{gap:ipv6-entries}}."
+    },
+    {
+      "label": "Changes.",
+      "text": "{{save-and-activate-group}} A change takes effect only after activation: [[cloud-connector.api.activation-wire:activation-pushes-to-ca]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the group was created in ZIA or Cloud & Branch Connector (`creatorContext`) and whether it is predefined (`isNonEditable`) before planning to change it through this API.",
+      "uses": [
+        "creator-context-values",
+        "non-editable-predefined",
+        "zia-origin-editability"
+      ]
+    },
+    {
+      "do": "Read the full listing rather than the lite one when origin or addresses are needed.",
+      "uses": [
+        "lite-schema"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "Grouping source IP addresses makes them usable in policies: one security or forwarding policy can cover a group of workloads by their source addresses, and workloads can be added to or removed from the group without a new security policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-source-ip-groups.json",
+          "quotes": [
+            "Grouping source IP addresses together facilitates their use in policies.",
+            "Configure security and forwarding policies for a group of workloads in a single policy using their source IP addresses.",
+            "Add and remove source workloads from a group without requiring a new security policy."
+          ]
+        }
+      ]
+    },
+    "help-page-ipv4-tab": {
+      "statement": "The Cloud & Branch Connector help places the Source IP Groups page under Internet Access > Resources > IP & FQDN Groups, on the Source IPv4 Groups tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-source-ip-groups.json",
+          "quotes": [
+            "On the Source IP Groups page (Internet Access > Resources > IP & FQDN Groups > Source IPv4 Groups tab), you can do the following:"
+          ]
+        }
+      ]
+    },
+    "creator-context-values": {
+      "statement": "A group's `creatorContext` says whether the IP group or IP pool was created in Cloud & Branch Connector (EC) or in ZIA; the API contract allows the values ZIA and EC.",
+      "tier": "A",
+      "binds": [
+        "ztw/ip-source-groups#creatorContext"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ipSourceGroups/post/requestBody/content/application~1json/schema/properties/creatorContext",
+          "expect": {
+            "description": "Indicates whether the IP group or IP pool is created in Cloud & Branch Connector (<code>EC</code>) or ZIA.",
+            "enum": [
+              "ZIA",
+              "EC"
+            ]
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go",
+          "quotes": [
+            "// Indicates whether the IP group or IP pool is created in Cloud & Branch Connector (EC) or ZIA."
+          ]
+        }
+      ]
+    },
+    "non-editable-predefined": {
+      "statement": "`isNonEditable` marks a view-only group; the Go SDK comment says it applies only to predefined groups, which cannot be modified (the comment calls them destination IP address groups, although it sits on the source group struct).",
+      "tier": "A",
+      "binds": [
+        "ztw/ip-source-groups#isNonEditable"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ipSourceGroups/post/requestBody/content/application~1json/schema/properties/isNonEditable",
+          "expect": {
+            "description": "Indicates if the IP group is view-only (true) or is editable (false).",
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go",
+          "quotes": [
+            "// If set to true, the destination IP address group is non-editable. This field is applicable only to predefined IP address groups, which cannot be modified."
+          ]
+        }
+      ]
+    },
+    "lite-schema": {
+      "statement": "The lite listing returns basic information such as name and ID; the contract types its items as entity references (`EntityReference`), with no `creatorContext` and no `ipAddresses`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ipSourceGroups~1lite/get",
+          "expect": {
+            "description": "Retrieves the list of source IP groups. This request retrieves basic information about the source IP groups, such as name and ID. For extensive details, use the <code>GET /ipSourceGroups</code> request."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ipSourceGroups~1lite/get/responses/default/content/application~1json/schema/items",
+          "expect": {
+            "title": "EntityReference"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ipSourceGroups~1lite/get/responses/default/content/application~1json/schema/items/properties",
+          "expect_absent": [
+            "creatorContext",
+            "ipAddresses"
+          ]
+        }
+      ]
+    },
+    "entry-formats": {
+      "statement": "The help for adding a source IP group takes any number of IP addresses, each as a single address, a range, or an address with a netmask (for example 198.51.100.100, 192.0.2.1-192.0.2.10, 203.0.113.0/24).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-source-ip-groups.json",
+          "quotes": [
+            "IP Addresses: Enter any number of IP addresses in the following formats.",
+            "An IP address (for example, 198.51.100.100)",
+            "A range of IP addresses (for example, 192.0.2.1-192.0.2.10)",
+            "An IP address with a netmask (for example, 203.0.113.0/24)"
+          ]
+        }
+      ]
+    },
+    "name-characters": {
+      "statement": "A group name may contain only alphanumeric characters, underscores, hyphens and periods, and the description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-source-ip-groups.json",
+          "quotes": [
+            "Name: Enter a name for the source IP address group. Only alphanumeric characters, underscores, hyphens, and periods are allowed.",
+            "The description cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "save-and-activate-group": {
+      "statement": "Adding a source IP group in the console ends with saving and activating the change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-source-ip-groups.json",
+          "quotes": [
+            "Click Save and activate the change."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "creator-context-description": {
+      "summary": "The provider's data source describes EC as the only applicable `creator_context` value; the API contract allows ZIA and EC.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "ztc/data_source_ztc_ip_source_groups.go",
+            "quotes": [
+              "Indicates that the IP group or IP pool is created in Cloud & Branch Connector (EC) (only applicable value)."
+            ]
+          },
+          "says": "EC is the only applicable value."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1ipSourceGroups/post/requestBody/content/application~1json/schema/properties/creatorContext",
+            "expect": {
+              "type": "string",
+              "enum": [
+                "ZIA",
+                "EC"
+              ]
+            }
+          },
+          "says": "The value is ZIA or EC."
+        }
+      ],
+      "impact": "A group read through the Terraform data source can carry ZIA despite the attribute's description; filters that assume EC miss ZIA-origin groups."
+    }
+  },
+  "gaps": {
+    "zia-origin-editability": {
+      "kind": "semantic",
+      "former_ids": [
+        "cloud-connector-06"
+      ],
+      "title": "Writes to ZIA-origin and non-editable source groups through the Cloud Connector API",
+      "status": "partial",
+      "detail": "Unverified legacy statements: 'Groups with is_non_editable = true ... cannot be updated or deleted. Attempting to do so returns an API error'; whether groups created in ZIA (creatorContext ZIA) can be modified through the ZTC provider or API, or only in ZIA, is not confirmed. The second half of the old entry, what the lite listing returns, is answered at the contract level by lite-schema (entity references, no creatorContext); the wire response has not been observed.",
+      "blocks": "Planning a change to a source group that ZIA created or Zscaler predefined.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "size-and-count-limits": {
+      "kind": "data",
+      "former_ids": [
+        "cloud-connector-03"
+      ],
+      "title": "Per-group entry limit and per-tenant source IP group count",
+      "status": "partial",
+      "detail": "No captured source states a platform limit on how many addresses one source IP group may hold or how many groups a tenant may define; the console help says only that any number of IP addresses can be entered, and the contract, Go SDK and Terraform schema set no bound. Relevant to capacity planning and to explaining a rejected create.",
+      "blocks": "Capacity planning and explaining a rejected create.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "resolvable_by": [
+        "none"
+      ]
+    },
+    "ipv6-entries": {
+      "kind": "semantic",
+      "former_ids": [
+        "cloud-connector-04"
+      ],
+      "title": "IPv6 entries in a source IP group, and what srcIpv6Groups refers to",
+      "status": "partial",
+      "detail": "Whether a source IP group accepts IPv6 entries is unconfirmed, and so is whether the rules' IPv6 group fields reference the same object type. The help names the page's tab Source IPv4 Groups, and the contract marks the forwarding rule's srcIpv6Groups not applicable to Cloud & Branch Connector while describing the DNS rule's srcIpv6Groups as source IPv6 addresses (see the rule-use subject). No Cloud Connector source names a separate IPv6 group object.",
+      "blocks": "Applying source-address policy to IPv6 workloads.",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ]
+    },
+    "overlapping-entries": {
+      "kind": "semantic",
+      "title": "How overlapping or redundant entries in one group are treated",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Both 192.0.2.1-192.0.2.5 (hyphen range) and 192.0.2.0/24 (CIDR) are accepted in the same group. The API does not prefer one form over the other for matching purposes ... overlapping entries ... do not cause errors; they are redundant, not contradictory.' The help lists the three formats but does not say how overlaps are handled.",
+      "blocks": "Predicting whether a create or update with overlapping entries is accepted.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

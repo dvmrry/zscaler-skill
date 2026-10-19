@@ -1,0 +1,452 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.workload-discovery.aws-accounts",
+  "title": "Onboarding an AWS account for discovery: role, external ID and trust",
+  "aliases": [
+    "aws account external id",
+    "trusted account id",
+    "trusted role zscaler",
+    "generate external id",
+    "cloudformation template workload discovery",
+    "discovery role permissions",
+    "ztc_public_cloud_info external_id",
+    "workloadDiscoverySettings"
+  ],
+  "binds": [
+    "ztw/public-cloud-info",
+    "ztw/public-cloud-info#externalId",
+    "ztw/public-cloud-info#accountDetails"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.workload-discovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.workload-discovery.permission-status"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Adding an AWS account records the Zscaler side of a cross-account role trust; the AWS side is a role the operator deploys. {{account-fields}}"
+    },
+    {
+      "label": "External ID.",
+      "text": "{{external-id-must-be-in-role}} {{external-id-rules}} The help asks for a unique ID per account while the API allows accounts in one organization to share one {{divergence:external-id-uniqueness}}. {{generate-external-id}}"
+    },
+    {
+      "label": "External ID in Terraform.",
+      "text": "{{terraform-external-id-computed}} {{terraform-cannot-choose-external-id}} Whether the API then assigns an ID on its own is not shown {{gap:external-id-on-create}}."
+    },
+    {
+      "label": "The role.",
+      "text": "{{role-via-cloudformation-or-manual}} {{role-permissions}} {{cloudformation-launch-or-download}}"
+    },
+    {
+      "label": "The template by API.",
+      "text": "{{template-url-endpoint}} {{template-url-plain-text}}"
+    },
+    {
+      "label": "Zscaler's side of the trust.",
+      "text": "{{trust-settings-endpoint}} The Go SDK reads that response as a list while the contract describes one object {{divergence:trust-settings-shape}}."
+    },
+    {
+      "label": "Limits and logging.",
+      "text": "{{max-512}} {{cloudwatch-disabled}}"
+    },
+    {
+      "text": "Whether Zscaler can then assume the role, and how that status is read, is in [[cloud-connector.workload-discovery.permission-status]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the role's trust policy names the Trusted Account ID and Trusted Role shown on the account, and the account's current external ID.",
+      "uses": [
+        "account-fields",
+        "external-id-must-be-in-role",
+        "trust-settings-endpoint"
+      ]
+    },
+    {
+      "do": "Whether the external ID was regenerated after the role was deployed, and the role updated to match.",
+      "uses": [
+        "external-id-must-be-in-role"
+      ]
+    },
+    {
+      "do": "Whether the discovery role grants the four required EC2 describe permissions, and the two optional ones where instance profiles or VPC endpoints matter.",
+      "uses": [
+        "role-permissions"
+      ]
+    },
+    {
+      "do": "When the account is managed with Terraform, read the external ID from state after apply rather than setting it in configuration.",
+      "uses": [
+        "terraform-cannot-choose-external-id",
+        "external-id-on-create"
+      ]
+    }
+  ],
+  "claims": {
+    "account-fields": {
+      "statement": "An account records the AWS account ID where workloads are deployed, the name of the AWS trusting role in that account, an external ID, the name of the event bus in the Zscaler account that is the target of events from the operator's account, the Trusted Account ID (the ID of the Zscaler AWS account) and the Trusted Role (the name of the trusted role in the Zscaler AWS account).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-amazon-web-services-account.json",
+          "quotes": [
+            "AWS Account ID: Enter the ID of the account where workloads are deployed.",
+            "AWS Role Name: Enter the name of the AWS trusting role in your account.",
+            "External ID: Enter a unique external ID for each account.",
+            "Event Bus Name: The name of the event bus in the Zscaler account. This event bus is the target of events in your account.",
+            "Trusted Account ID: The ID of the Zscaler AWS account.",
+            "Trusted Role: The name of the trusted role in the Zscaler AWS account."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-amazon-web-services-account-details.json",
+          "quotes": [
+            "Trusted Account ID: The ID of the Zscaler account that is required in the AWS trust policy.",
+            "Trusted Role: The Zscaler role that assumes the role name provided, which is required for the AWS trust policy."
+          ]
+        }
+      ]
+    },
+    "external-id-must-be-in-role": {
+      "statement": "The external ID is the one in the trust relationship of the IAM role that Zscaler uses when fetching tag information. It must be added to the AWS IAM role configuration, and if it is regenerated it must be updated in the AWS account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-amazon-web-services-account.json",
+          "quotes": [
+            "This is the external ID in the trust relationship of the IAM role that calls AWS while fetching the tag information.",
+            "You must add the unique external ID to the AWS IAM role configuration. If this ID is regenerated, update it in your AWS account."
+          ]
+        }
+      ]
+    },
+    "external-id-rules": {
+      "statement": "The API contract states the account's external ID must be unique across organizations (two organizations cannot use the same one), may be shared by multiple accounts within one organization, is 2 to 128 characters long, and may contain letters, numbers and the symbols + = , . @ : / and -.",
+      "tier": "A",
+      "binds": [
+        "ztw/public-cloud-info#externalId"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo/post/requestBody/content/application~1json/schema/properties/externalId",
+          "expect": {
+            "description": "<p>A unique external ID for the AWS account.</p><p><b>Note:</b><ul><li>The ID must be unique across different organizations. Two organizations cannot use the same external ID.</li><li>Multiple accounts can share the same external ID within the same organization.</li><li>The ID must be between 2 and 128 characters long.</li><li>The ID can include letters, numbers, and the following symbols: <code>+</code>, <code>=</code>, <code>,</code>, <code>.</code>, <code>@ </code>,<code>:</code>, <code>/</code>, and <code>-</code>.</li></ul></p>",
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "generate-external-id": {
+      "statement": "The API can create an external ID for an AWS account: the request carries the AWS account ID and role name and the response is the external ID as a string. The Python SDK reads that reply as plain text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo~1generateExternalId/post",
+          "expect": {
+            "description": "Creates an external ID for an AWS account."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo~1generateExternalId/post/requestBody/content/application~1json/schema/properties",
+          "expect": {
+            "awsAccountId": {
+              "description": "The ID of the AWS account where workloads are deployed. The ID is non-null, non-empty, and unique, and contains 12 digits.",
+              "type": "string"
+            },
+            "awsRoleName": {
+              "description": "The AWS trusting role in your account. The name is non-null, non-empty, unique, and 64 characters or fewer in length.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo~1generateExternalId/post/responses/default/content/application~1json/schema",
+          "expect": {
+            "description": "Returns the External ID of the AWS account.",
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/public_cloud_info.py",
+          "quotes": [
+            "# API returns plain text external ID string",
+            "external_id = raw_response.text.strip()"
+          ]
+        }
+      ]
+    },
+    "terraform-external-id-computed": {
+      "statement": "In the ZTC provider's `ztc_public_cloud_info` resource, `external_id` is computed only, both at the top level and inside `account_details`, and the request builder copies the top-level value from state into the request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_public_cloud_info.go",
+          "quotes": [
+            "\"external_id\": { Type: schema.TypeString, Computed: true, Description: \"A unique external ID for the AWS account.\", },",
+            "\"external_id\": { Type: schema.TypeString, Computed: true, Description: \"The unique external ID for the AWS account. If provided, it must match the externalId specified outside of accountDetails.\", },",
+            "ExternalID: d.Get(\"external_id\").(string),",
+            "\"account_details\": { Type: schema.TypeList, Optional: true,"
+          ]
+        }
+      ]
+    },
+    "terraform-cannot-choose-external-id": {
+      "statement": "A Terraform configuration therefore cannot choose the external ID, and the first create sends none: state holds an empty value, and the SDK field is tagged `omitempty`, so it is left out of the body. Later updates send the value read back from the API.",
+      "tier": "B",
+      "conditions": "Follows from the provider code and Go's omitempty semantics; not observed on the wire.",
+      "derived_from": [
+        "terraform-external-id-computed",
+        "shared.sdk-go.zero-value-writes:omitempty-drops-zero-values"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/partner_integrations/public_cloud_info/public_cloud_info.go",
+          "quotes": [
+            "ExternalID string `json:\"externalId,omitempty\"`"
+          ],
+          "after": "type PublicCloudInfo struct {"
+        }
+      ]
+    },
+    "role-via-cloudformation-or-manual": {
+      "statement": "The role can be created either by selecting Launch Cloudformation template in AWS console while adding the AWS account in the Admin Console, or manually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+          "quotes": [
+            "To create a role, you can either select Launch Cloudformation template in AWS console while adding an AWS account in the Zscaler Admin Console or you can create it manually."
+          ]
+        }
+      ]
+    },
+    "role-permissions": {
+      "statement": "Creating the role needs the trusted role, the external ID and these permissions: ec2:DescribeVpcs, ec2:DescribeSubnets, ec2:DescribeInstances and ec2:DescribeNetworkInterfaces, with ec2:DescribeIamInstanceProfileAssociations and ec2:DescribeVpcEndpoints listed as optional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+          "quotes": [
+            "To create a role, you need the following information:",
+            "List of permissions:",
+            "ec2:DescribeVpcs",
+            "ec2:DescribeSubnets",
+            "ec2:DescribeInstances",
+            "ec2:DescribeNetworkInterfaces",
+            "Optional list of permissions:",
+            "ec2:DescribeIamInstanceProfileAssociations",
+            "ec2:DescribeVpcEndpoints",
+            "Trusted role",
+            "External ID"
+          ],
+          "after": "Create a Role"
+        }
+      ]
+    },
+    "cloudformation-launch-or-download": {
+      "statement": "After the account details are saved, the CloudFormation template is either launched in the AWS console, where it appears with values from the Admin Console and must be confirmed and executed, or downloaded to run later when the Zscaler admin cannot execute it in AWS. The account is onboarded once the template has been executed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-amazon-web-services-account.json",
+          "quotes": [
+            "The CloudFormation template is displayed in your AWS account with custom values based on the information you entered in the Zscaler Admin Console. To proceed, you must confirm the information and execute the template.",
+            "Download CloudFormation Template for Later Execution: If the Zscaler admin user does not have permission to execute the CloudFormation template in their AWS account, download the CloudFormation template to deploy at a later date.",
+            "After the CloudFormation template is executed, your account is onboarded into the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "template-url-endpoint": {
+      "statement": "The API returns the CloudFormation template URL; with the optional `awsAccountId` query parameter the URL is customized with account-specific values, otherwise a generic template URL is returned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo~1cloudFormationTemplate/get/parameters/[name=awsAccountId]",
+          "expect": {
+            "description": "(Optional) The AWS account ID to customize the CloudFormation template URL. If an <code>awsAccountId</code> is provided, the URL is customized with account-specific values, or a generic template URL is returned.",
+            "in": "query"
+          }
+        }
+      ]
+    },
+    "template-url-plain-text": {
+      "statement": "Both SDKs read the template URL as text rather than JSON; the Python SDK's comment says the endpoint returns a plain-text URL even though the Content-Type is application/json.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/public_cloud_info.py",
+          "quotes": [
+            "# Get raw response - this endpoint returns plain text URL even though Content-Type is application/json"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/partner_integrations/partner_integrations.go",
+          "quotes": [
+            "err := service.Client.ReadTextResource(ctx, endpoint, &templateURL)"
+          ]
+        }
+      ]
+    },
+    "trust-settings-endpoint": {
+      "statement": "The workload discovery settings read returns the Zscaler side of the trust: the ID of the Zscaler AWS account required in the AWS trust policy and the name of the trusted role in that account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1discoveryService~1workloadDiscoverySettings/get/responses/default/content/application~1json/schema/properties",
+          "expect": {
+            "trustedAccountId": {
+              "description": "The ID of the Zscaler AWS account that is required in the AWS trust policy.",
+              "type": "string"
+            },
+            "trustedRoleName": {
+              "description": "The name of the trusted role in the Zscaler AWS account.",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "max-512": {
+      "statement": "An organization can create at most 512 AWS accounts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo/post",
+          "expect": {
+            "description": "Creates a new AWS account with the provided account and region details. You can create a maximum of 512 accounts in each organization. To learn more, see <a href=\"https://help.zscaler.com/cloud-branch-connector/adding-amazon-web-services-account\" target=\"_blank\">Adding an Amazon Web Services Account</a>."
+          }
+        }
+      ]
+    },
+    "cloudwatch-disabled": {
+      "statement": "The Python SDK documents `cloudWatchGroupArn` in the account details as the CloudWatch log group ARN and says to use \"DISABLED\" to disable it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/public_cloud_info.py",
+          "quotes": [
+            "- cloudWatchGroupArn (str): CloudWatch log group ARN. Use \"DISABLED\" to disable."
+          ],
+          "after": "def add_public_cloud_info(self, **kwargs)"
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "external-id-uniqueness": {
+      "summary": "The help asks for a unique external ID for each account; the API contract allows several accounts in one organization to share one.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-adding-amazon-web-services-account.json",
+            "quotes": [
+              "External ID: Enter a unique external ID for each account."
+            ]
+          },
+          "says": "Each account gets its own external ID."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1publicCloudInfo/post/requestBody/content/application~1json/schema/properties/externalId",
+            "expect": {
+              "description": "<p>A unique external ID for the AWS account.</p><p><b>Note:</b><ul><li>The ID must be unique across different organizations. Two organizations cannot use the same external ID.</li><li>Multiple accounts can share the same external ID within the same organization.</li><li>The ID must be between 2 and 128 characters long.</li><li>The ID can include letters, numbers, and the following symbols: <code>+</code>, <code>=</code>, <code>,</code>, <code>.</code>, <code>@ </code>,<code>:</code>, <code>/</code>, and <code>-</code>.</li></ul></p>",
+              "type": "string"
+            }
+          },
+          "says": "Multiple accounts can share the same external ID within the same organization; it must be unique across organizations."
+        }
+      ],
+      "impact": "Reusing one external ID across an organization's accounts may be accepted by the API although the console guidance is one per account. Whether the console rejects a shared ID is not shown."
+    },
+    "trust-settings-shape": {
+      "summary": "The Go SDK decodes the workload discovery settings into a list; the API contract describes the response as a single object.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/ztw/services/partner_integrations/partner_integrations.go",
+            "quotes": [
+              "func GetWorkloadDiscoverySettings(ctx context.Context, service *zscaler.Service) ([]WorkloadDiscoverySettings, error) { var settings []WorkloadDiscoverySettings"
+            ]
+          },
+          "says": "The response is an array of settings objects."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1discoveryService~1workloadDiscoverySettings/get/responses/default/content/application~1json/schema",
+            "expect": {
+              "title": "WorkloadDiscoverySetting",
+              "type": "object"
+            }
+          },
+          "says": "The response is one object with `trustedAccountId` and `trustedRoleName`."
+        }
+      ],
+      "impact": "If the API answers with an object as documented, decoding it into a Go slice fails and `GetWorkloadDiscoverySettings` returns an error; Python and direct API reads are not affected by this."
+    }
+  },
+  "gaps": {
+    "external-id-on-create": {
+      "kind": "semantic",
+      "title": "Whether the API assigns an external ID when a create sends none",
+      "status": "partial",
+      "detail": "Unverified legacy statement: 'The value lands in the externalId / external_id field, which is Computed in the Terraform schema: Zscaler assigns it, you do not set it.' The provider's create sends no external ID; no source says whether the API then generates one, rejects the create, or leaves the field empty until the generate call is used. At the contract level the create body declares no required members, so `externalId` is not listed as required; whether the server then generates one is the open part.",
+      "blocks": "Knowing which external ID to put in the role's trust policy for an account created by Terraform.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo/post/requestBody/content/application~1json/schema",
+          "expect_absent": [
+            "required"
+          ]
+        }
+      ]
+    }
+  }
+}

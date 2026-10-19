@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.forwarding.log-and-control",
+  "title": "Log and Control Forwarding: how a Connector's logs and control traffic reach the Zscaler cloud",
+  "aliases": [
+    "log and control forwarding",
+    "log and control gateway",
+    "ecRules/self",
+    "ztc_traffic_forwarding_log_rule",
+    "cloud connector enrollment traffic",
+    "cloud connector logs not reaching zscaler",
+    "ECSELF gateway"
+  ],
+  "binds": [
+    "ztw/traffic-log-rules",
+    "ztw/traffic-log-rules#forwardMethod",
+    "ztw/forwarding-gateways#type"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.dns"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.terraform.rule-protection"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.nss-va.log-control-path"
+    }
+  ],
+  "prose": [
+    {
+      "text": "What the policy governs: [[cloud-connector.nss-va.log-control-path:lc-scope]]. {{default-rule}} {{gateways}}"
+    },
+    {
+      "label": "Where it sends.",
+      "text": "This policy carries only the first leg of a log's path to a SIEM; NSS carries the second: [[cloud-connector.nss-va.log-control-path:two-legs]]."
+    },
+    {
+      "label": "Rule fields.",
+      "text": "{{rule-order}} Whether evaluation stops at the first match is open: [[cloud-connector.nss-va.log-control-path:rule-first-match]]. {{rule-fields}} Whether the API enforces the console's name and description limits is open {{gap:limit-enforcement}}."
+    },
+    {
+      "label": "In the API.",
+      "text": "{{tf-forward-method}} {{gateway-type}} {{dns-gateway-no-type}} The Go SDK's dns_forwarding_gateway package nevertheless gives /dnsGateways a `type` whose comment names ECSELF: [[cloud-connector.terraform.gateways:structs-differ]]; whether the API uses it is open: [[cloud-connector.terraform.gateways:dns-gateway-type-semantics]]."
+    },
+    {
+      "text": "What happens to logs when the gateway is unreachable: [[cloud-connector.nss-va.log-control-path:log-upload-starvation]]. Effects on enrollment and policy delivery, and on Connectors no rule covers, are not stated {{gap:channel-failure}}. Names of predefined log rules are not captured: [[cloud-connector.terraform.rule-protection:predefined-log-rule-names]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which Log and Control rule covers the Connector's location or group, and which Log and Control gateway it uses.",
+      "uses": [
+        "rule-fields",
+        "default-rule"
+      ]
+    },
+    {
+      "do": "For logs expected in a SIEM, the NSS configuration rather than this policy.",
+      "uses": [
+        "cloud-connector.nss-va.log-control-path:two-legs"
+      ]
+    }
+  ],
+  "claims": {
+    "default-rule": {
+      "statement": "A default Log and Control Forwarding rule with a default gateway action is created automatically, and it cannot be duplicated or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-log-and-control-forwarding.json",
+          "quotes": [
+            "A default log and control forwarding rule with a default gateway forwarding action is automatically created.",
+            "You cannot duplicate or delete the default log and control forwarding rule."
+          ]
+        }
+      ]
+    },
+    "gateways": {
+      "statement": "The policy configures the primary and secondary gateways used to set up control channels and forward logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-log-and-control-forwarding.json",
+          "quotes": [
+            "Log and control forwarding provides the following benefits and enables you to:",
+            "Configure the primary and secondary gateways used for setting up control channels and forwarding logs."
+          ]
+        }
+      ]
+    },
+    "rule-order": {
+      "statement": "Log and Control rules are evaluated in ascending numerical order; a disabled rule is skipped but keeps its place.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-log-and-control-forwarding-rule.json",
+          "quotes": [
+            "Forwarding rules are evaluated in ascending numerical order (Rule 1 before Rule 2), and the Rule Order reflects this rule's place in the order.",
+            "When you select Disabled, the service skips it and moves to the next rule. However, the rule does not lose its place in the Rule Order."
+          ]
+        }
+      ]
+    },
+    "rule-fields": {
+      "statement": "A rule's name is at most 31 characters; its source is all locations or up to 8, or all or specific Cloud & Branch Connector groups; its action is a Log and Control Gateway; its description is at most 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-log-and-control-forwarding-rule.json",
+          "quotes": [
+            "The maximum length is 31 characters.",
+            "Location/Sublocation: Click Select All to apply the rule to all locations, or select up to 8 locations.",
+            "Cloud & Branch Connector Groups: Click Select All to apply the rule to all groups, or select specific groups to apply the rule.",
+            "From the Gateway drop-down menu, choose an appropriate Log and Control Gateway",
+            "The description cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "tf-forward-method": {
+      "statement": "In Terraform, a log forwarding rule's `forward_method` has the single supported value `ECSELF`, and the rule names its gateway in `proxy_gateway`.",
+      "tier": "A",
+      "binds": [
+        "ztw/traffic-log-rules#forwardMethod"
+      ],
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "docs/resources/ztc_traffic_forwarding_log_rule.md",
+          "quotes": [
+            "* `forward_method` - (String) The type of traffic forwarding method selected from the available options. Supported value: `ECSELF`",
+            "* `proxy_gateway` - (List of Object) The proxy gateway for which the rule is applicable."
+          ]
+        }
+      ]
+    },
+    "gateway-type": {
+      "statement": "The Log and Control gateway is a forwarding gateway on the API's `/gateways` endpoint: its `type` enum is PROXYCHAIN, ZIA and ECSELF, with ECSELF described as the Log and Control gateway.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-gateways#type"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1gateways/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "description": "Information about the forwarding gateway."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1gateways/post/requestBody/content/application~1json/schema/properties/type",
+          "expect": {
+            "enum": [
+              "PROXYCHAIN",
+              "ZIA",
+              "ECSELF"
+            ],
+            "description": "Type of the gateway. Supported types are <code>ZIA</code> and <code>ECSELF</code> (Log and Control gateway)."
+          }
+        }
+      ]
+    },
+    "dns-gateway-no-type": {
+      "statement": "The contract's DNS gateway object (`/dnsGateways`) has no `type` member; it carries `dnsGatewayType` instead, with the values OFW_PDNS_REDIR_GW and EC_DNS_GW.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1dnsGateways/post/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "type"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1dnsGateways/post/requestBody/content/application~1json/schema/properties/dnsGatewayType",
+          "expect": {
+            "enum": [
+              "OFW_PDNS_REDIR_GW",
+              "EC_DNS_GW"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "limit-enforcement": {
+      "kind": "semantic",
+      "title": "Whether the API enforces the console's rule name and description limits",
+      "status": "open",
+      "former_ids": [
+        "cloud-connector-24"
+      ],
+      "detail": "The console limits a Log and Control rule's name to 31 characters and its description to 10,240; the Go SDK models both as plain strings. Whether the API rejects longer values, and whether DNS rule fields carry similar limits, is unconfirmed.",
+      "blocks": "predicting API errors for long names or descriptions",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "channel-failure": {
+      "kind": "semantic",
+      "title": "Effects of a Log and Control path failure on enrollment and policy, and of a Connector no rule covers",
+      "status": "open",
+      "detail": "Unverified legacy statements: DNS Policy outcomes are logged through Log and Control Forwarding, so a block with no cloud event usually means this channel is broken; an outage causes stale policy delivery, and enrollment and policy sync can fail silently while the Connector appears registered; Connectors not covered by a narrow rule use the default rule, and a wrong default gateway silently degrades log delivery. None is stated by a captured source. Log loss itself is in cloud-connector.nss-va.log-control-path:log-upload-starvation.",
+      "blocks": "diagnosing missing logs or stale policy on a Connector",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

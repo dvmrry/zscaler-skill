@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "id": "shared.admin-rbac",
+  "title": "Admin roles across ZIA, ZPA and Authentication Service, and how admins are entitled",
+  "aliases": [
+    "admin rbac",
+    "cross-product admin",
+    "why can this admin do X here but not there",
+    "administrative entitlements",
+    "unified rbac",
+    "zidentity admin federation",
+    "admin vs api client"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zpa"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.admin-users-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.authentication"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Each product keeps its own role model, and Authentication Service (formerly ZIdentity) decides who is an admin of which product. Questions of the form \"why can this admin do X here but not there\" need both halves."
+    },
+    {
+      "label": "Who is an admin.",
+      "text": "{{zia-admins-via-entitlement}} {{entitlement-assigns-service-admins}} {{zpa-roles-in-console}} {{identity-central-role-in-product}} How tenants that do not use Authentication Service provision admins is open {{gap:pre-auth-service-separation}}."
+    },
+    {
+      "label": "Unified RBAC.",
+      "text": "{{unified-rbac}}"
+    },
+    {
+      "heading": "The per-product role models"
+    },
+    {
+      "table": {
+        "columns": [
+          "Product",
+          "Role model",
+          "Where"
+        ],
+        "rows": [
+          [
+            "ZIA",
+            "Admin rank, permissions and functional scope, plus one scope of Organization, Department, Location or Location Group",
+            "[[shared.admin-rbac.zia]]"
+          ],
+          [
+            "ZPA",
+            "Feature permissions (Full or Read Only), no rank, Microtenants instead of scope",
+            "[[shared.admin-rbac.zpa]], [[shared.admin-rbac.zpa:microtenant-as-scope]]"
+          ],
+          [
+            "Authentication Service",
+            "Predefined and custom roles over per-module permissions",
+            "[[doc:references/zidentity/admin-rbac.md#built-in-roles]]"
+          ],
+          [
+            "ZCC",
+            "A local copy of ZIA, ZDX and ZPA admins, refreshed by sync operations",
+            "[[zcc.api.admin-users-wire:sync-operations]]"
+          ]
+        ]
+      }
+    },
+    {
+      "label": "Automation.",
+      "text": "An API client's access comes from the API resources it holds, one per product, not from an admin role: [[shared.oneapi.authentication:one-resource-per-product]]. API clients themselves are covered in [[doc:references/zidentity/api-clients.md]]."
+    },
+    {
+      "label": "Auditing admins.",
+      "text": "What each product records about admin actions, and which session types ZIA distinguishes, is in [[shared.audit-logs]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the admin holds an administrative entitlement for the product at all, since admins see only the services assigned to them.",
+      "uses": [
+        "entitlement-assigns-service-admins",
+        "zia-admins-via-entitlement"
+      ]
+    },
+    {
+      "do": "Within the product, the role and (for ZIA) the scope the entitlement carries.",
+      "uses": [
+        "identity-central-role-in-product",
+        "shared.admin-rbac.zia:scope-limits-rules",
+        "shared.admin-rbac.zpa:feature-list"
+      ]
+    },
+    {
+      "do": "Whether the tenant uses Unified RBAC, in which case roles are managed on a different Role Management page.",
+      "uses": [
+        "unified-rbac"
+      ]
+    },
+    {
+      "do": "For an admin missing from the Client Connector Portal, whether the ZCC admin sync has run.",
+      "uses": [
+        "zcc.api.admin-users-wire:sync-operations",
+        "zcc.api.admin-users-wire:sync-visibility"
+      ]
+    },
+    {
+      "do": "For automation, which API resource (role) the API client holds for each product rather than an admin user's role.",
+      "uses": [
+        "shared.oneapi.authentication:one-resource-per-product"
+      ]
+    }
+  ],
+  "claims": {
+    "zia-admins-via-entitlement": {
+      "statement": "ZIA admins are created in Authentication Service by adding users and giving them an entitlement for the Internet & SaaS service, and the ZIA admin role is chosen when the entitlement is assigned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-administrators.json",
+          "quotes": [
+            "Admins for Internet & SaaS are created with Authentication Service by adding users, and assigning them an entitlement for the Internet & SaaS service.",
+            "Admin roles for Internet & SaaS are chosen when assigning an entitlement."
+          ]
+        }
+      ]
+    },
+    "entitlement-assigns-service-admins": {
+      "statement": "The Administrative Entitlements page lists the subscribed Zscaler services; Authentication Service users or user groups are assigned there as service admins of a service with a role created in the Admin Console, and admins see only their assigned services in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-administrative-entitlements.json",
+          "quotes": [
+            "You can assign Authentication Service users as service admins to these Zscaler services and with a role that is created in the Zscaler Admin Console.",
+            "Admins can view only the assigned services in the Zscaler Admin Console.",
+            "Assign users or user groups with admin roles to your subscribed Zscaler services."
+          ]
+        }
+      ]
+    },
+    "zpa-roles-in-console": {
+      "statement": "For Authentication Service-enabled tenants, ZPA admin roles must be assigned in the Zscaler Admin Console; the help points to About Administrative Entitlements for this.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-administrator-roles.json",
+          "quotes": [
+            "For Authentication Service-enabled tenants, admin roles must be assigned in the Zscaler Admin Console. To learn more, see About Administrative Entitlements."
+          ]
+        }
+      ]
+    },
+    "identity-central-role-in-product": {
+      "statement": "So on an Authentication Service tenant the admin identity and the product assignment are made centrally, while what the admin can do inside a product is still that product's role (and, for ZIA, the scope, which is edited on the ZIA Administrators page).",
+      "tier": "B",
+      "derived_from": [
+        "zia-admins-via-entitlement",
+        "entitlement-assigns-service-admins",
+        "shared.admin-rbac.zia:admins-page-scope-only"
+      ],
+      "conditions": "Combines the entitlement and Administrators-page descriptions; no source states the division of responsibilities in one place."
+    },
+    "unified-rbac": {
+      "statement": "Where an organization uses Unified Role-Based Access Control, a feature in limited availability obtained through the Zscaler Account team, admin roles for ZIA, ZPA and Authentication Service are managed on a different Role Management page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-rbac-captures.json",
+          "quotes": [
+            "If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Internet & SaaS are managed on a different Role Management page.",
+            "Unified RBAC is a feature in limited availability."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-administrator-roles.json",
+          "quotes": [
+            "If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Private Access are managed on a different Role Management page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-zidentity-admin-roles.json",
+          "quotes": [
+            "If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Authentication Service are managed on a different Role Management page.",
+            "To access Unified RBAC, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "pre-auth-service-separation": {
+      "kind": "semantic",
+      "title": "Admin provisioning on tenants without Authentication Service",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"ZIA and ZPA admin systems are NOT synchronized by default. A ZIA Super Admin is NOT automatically a ZPA Administrator; each product requires separate admin provisioning UNLESS ZIdentity is the federated admin source\", with two admin accounts, two auth paths and two audit streams on legacy tenants. The current help describes only the Authentication Service path for ZIA admins and says roles must be assigned in the Admin Console on Authentication Service-enabled tenants; no captured page describes tenants that are not enabled.",
+      "blocks": "explaining an admin who exists in one product and not in another on an older tenant",
+      "resolves_with": [
+        "support-ticket",
+        "operator-experience"
+      ]
+    }
+  }
+}

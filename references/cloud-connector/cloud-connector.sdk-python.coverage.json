@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.sdk-python.coverage",
+  "title": "What the Python SDK's ZTW modules cover beyond the Go SDK, and where they stop",
+  "aliases": [
+    "dest_workload_groups_ids",
+    "destWorkloadGroups python",
+    "ztw python workload groups write",
+    "list_groups ztw",
+    "ztw discovery_service python"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api.rules-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdk-go.coverage"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.workload-groups.rule-scoping"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.workload-discovery.permission-status"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Python SDK's ZTW modules and their endpoints are generated (`node scripts/kb.mjs surface ztw`, the `sdk_python` entries). This subject records the two places where what they send or cover matters for an answer."
+    },
+    {
+      "label": "Destination workload groups.",
+      "text": "{{dest-workload-groups-added-1-9-13}} {{dest-workload-groups-wire-key}} Only the Python SDK sends the field: the API contract and the Go SDK do not carry it [[cloud-connector.api.rules-wire:workload-groups]], and whether the API accepts it is open in [[cloud-connector.api.rules-wire]]. The console criterion it maps to, and its Local-only scope, are in [[zia.workload-groups.rule-scoping]]."
+    },
+    {
+      "label": "Workload groups.",
+      "text": "{{workload-groups-list-only}} Neither SDK nor the ZTC provider writes workload groups: [[cloud-connector.terraform.forwarding-rules]]."
+    },
+    {
+      "label": "Discovery service.",
+      "text": "{{discovery-path-param-names}} Which ID the API actually takes there is open in [[cloud-connector.workload-discovery.permission-status]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Read back a forwarding rule written with dest_workload_groups_ids and confirm destWorkloadGroups was stored, since the API contract does not list it.",
+      "uses": [
+        "dest-workload-groups-wire-key",
+        "cloud-connector.api.rules-wire:local-switch-acceptance"
+      ]
+    }
+  ],
+  "claims": {
+    "dest-workload-groups-added-1-9-13": {
+      "statement": "Release 1.9.13 of the Python SDK added a `dest_workload_groups_ids` attribute to the ZTW forwarding rules module.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "after": "## 1.9.13 (January 22, 2026)",
+          "quotes": [
+            "Added new attribute `dest_workload_groups_ids` to ZTW `forwarding_rules` resource"
+          ]
+        }
+      ]
+    },
+    "dest-workload-groups-wire-key": {
+      "statement": "`add_rule` and `update_rule` pass their keyword arguments through `transform_common_id_fields` with the shared `reformat_params` table, which maps `dest_workload_groups_ids` to the wire key `destWorkloadGroups`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "(\"dest_workload_groups_ids\", \"destWorkloadGroups\"),"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/forwarding_rules.py",
+          "after": "def add_rule(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "transform_common_id_fields(local_reformat_params, body, body)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/forwarding_rules.py",
+          "after": "def update_rule(self, rule_id: str, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "transform_common_id_fields(local_reformat_params, body, body)"
+          ]
+        }
+      ]
+    },
+    "workload-groups-list-only": {
+      "statement": "The Python ZTW workload groups module has one API method, `list_groups`, a GET on the workload groups path; it cannot create, update or delete them.",
+      "tier": "B",
+      "conditions": "Absence: zscaler/ztw/workload_groups.py at the pin defines two methods, __init__ and list_groups; no create, update or delete method exists in the module.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/workload_groups.py",
+          "quotes": [
+            "def __init__(self, request_executor: \"RequestExecutor\") -> None:",
+            "def list_groups(",
+            "http_method = \"get\".upper()"
+          ]
+        }
+      ]
+    },
+    "discovery-path-param-names": {
+      "statement": "Both SDKs call the discovery-permissions PUT, but name its path parameter differently: the Python method takes `account_group_id`, the Go function `awsAccountID`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/discovery_service.py",
+          "quotes": [
+            "def update_discovery_service_permissions(self, account_group_id: int, **kwargs) -> APIResult[DiscoveryServicePermissions]:"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/partner_integrations/partner_integrations.go",
+          "quotes": [
+            "func UpdateDiscoveryPermissions(ctx context.Context, service *zscaler.Service, awsAccountID int, permissions *DiscoveryPermissions) error {"
+          ]
+        }
+      ]
+    }
+  }
+}

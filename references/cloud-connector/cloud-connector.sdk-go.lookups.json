@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.sdk-go.lookups",
+  "title": "How the Go SDK's ZTW packages find objects by name and filter lists",
+  "aliases": [
+    "ztw GetByName",
+    "ztw name lookup case insensitive",
+    "ztw jmespath filter",
+    "ContextWithJMESPath ztw",
+    "GetEcGroupLiteByName",
+    "ztw lite name filter"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.sdk-go.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdk-go.coverage"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZTW list calls go through one paging helper, and name lookups are built on the list calls. How that helper pages and when it stops early is in [[shared.sdk-go.list-pagination]]; this subject covers what it does after paging and how name lookups match."
+    },
+    {
+      "label": "Client-side filter.",
+      "text": "{{read-all-pages-applies-jmespath}}"
+    },
+    {
+      "label": "Name lookups.",
+      "text": "{{name-lookup-lists-then-matches}} {{same-pattern-elsewhere}} {{lite-lookups-send-name}}"
+    },
+    {
+      "label": "Consequences.",
+      "text": "{{jmespath-narrows-name-lookup}} {{case-only-duplicates}} A lookup can also miss an object that a truncated list leaves out: [[shared.sdk-go.list-pagination]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the context passed to a name lookup carries a JMESPath expression, which filters the list the lookup searches.",
+      "uses": [
+        "jmespath-narrows-name-lookup"
+      ]
+    },
+    {
+      "do": "Whether two objects have names that differ only in case before trusting a name lookup's result.",
+      "uses": [
+        "case-only-duplicates"
+      ]
+    }
+  ],
+  "claims": {
+    "read-all-pages-applies-jmespath": {
+      "statement": "After collecting every page, the ZTW `ReadAllPages` helper filters the whole list with a JMESPath expression taken from the context (`ApplyJMESPathFromContext`); a caller sets the expression with `ContextWithJMESPath`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/common/common.go",
+          "after": "func ReadAllPages[T any](ctx context.Context, client *zscaler.Client, endpoint string, list *[]T) error {",
+          "quotes": [
+            "filtered, err := zscaler.ApplyJMESPathFromContext(ctx, *list)",
+            "*list = filtered"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/jmespath.go",
+          "quotes": [
+            "func ContextWithJMESPath(ctx context.Context, expression string) context.Context {"
+          ]
+        }
+      ]
+    },
+    "name-lookup-lists-then-matches": {
+      "statement": "A ZTW name lookup such as the connector group's `GetByName` or the forwarding rule's `GetRulesByName` lists the whole collection through `ReadAllPages` and returns the first item whose name matches with `strings.EqualFold`, a case-insensitive comparison.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/ecgroup/ecgroup.go",
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, ecGroupName string) (*EcGroup, error) {",
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, ecGroupEndpoint, &ecGroup)",
+            "if strings.EqualFold(ec.Name, ecGroupName) { return &ec, nil }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "after": "func GetRulesByName(ctx context.Context, service *zscaler.Service, ruleName string) (*ForwardingRules, error) {",
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, forwardingRulesEndpoint, &rules)",
+            "if strings.EqualFold(rule.Name, ruleName) {"
+          ]
+        }
+      ]
+    },
+    "same-pattern-elsewhere": {
+      "statement": "The other ZTW name lookups (gateways, locations, location templates, account groups, public cloud info, supported regions, DNS and log rules, IP and network service groups, provisioning URLs, workload groups) follow the same list-then-case-insensitive-match pattern; the admin role lookup reads one unpaged list instead, and the ZPA-resources lookup sends a `search` parameter and pages itself.",
+      "tier": "B",
+      "derived_from": [
+        "name-lookup-lists-then-matches"
+      ],
+      "conditions": "Search of every ByName function under zscaler/ztw/services at the pin.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/adminuserrolemgmt/adminroles/adminroles.go",
+          "quotes": [
+            "if strings.EqualFold(adminRole.Name, adminRoleName) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policyresources/zparesources/zparesources.go",
+          "quotes": [
+            "endpointWithSearch := fmt.Sprintf(\"%s?search=%s&%s\", zpaResourcesEndpoint, url.QueryEscape(targetGroup),"
+          ]
+        }
+      ]
+    },
+    "lite-lookups-send-name": {
+      "statement": "The connector group lite and location lite name lookups (`GetEcGroupLiteByName`, `GetLocationLiteByName`) add the name as a `name` query parameter on the lite endpoint, then still check the results with the same case-insensitive match.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/ecgroup/ecgroup.go",
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, fmt.Sprintf(\"%s?name=%s\", ecGroupLiteEndpoint, url.QueryEscape(ecGroupLiteName)), &ecgroupLite)",
+            "if strings.EqualFold(ecgroupLite.Name, ecGroupLiteName) {",
+            "func GetEcGroupLiteByName(ctx context.Context, service *zscaler.Service, ecGroupLiteName string) (*EcGroup, error) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/locationmanagement/locationlite/locationlite.go",
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, fmt.Sprintf(\"%s?name=%s\", locationLiteEndpoint, url.QueryEscape(locationLiteName)), &locationsLite)",
+            "func GetLocationLiteByName(ctx context.Context, service *zscaler.Service, locationLiteName string) (*LocationLite, error) {",
+            "if strings.EqualFold(locationLite.Name, locationLiteName) {"
+          ]
+        }
+      ]
+    },
+    "jmespath-narrows-name-lookup": {
+      "statement": "Because the filter runs inside `ReadAllPages`, a JMESPath expression on the context also narrows the list a name lookup searches, so a lookup made with such a context can report an existing object as not found.",
+      "tier": "B",
+      "derived_from": [
+        "read-all-pages-applies-jmespath",
+        "name-lookup-lists-then-matches"
+      ],
+      "conditions": "Chain of evidence from the helper and lookup code; not run."
+    },
+    "case-only-duplicates": {
+      "statement": "When two objects' names differ only in case, a name lookup returns whichever the list returns first, which may not be the one the caller meant.",
+      "tier": "B",
+      "derived_from": [
+        "name-lookup-lists-then-matches"
+      ],
+      "conditions": "Whether the ZTW API allows names that differ only in case is not shown by any source."
+    }
+  }
+}

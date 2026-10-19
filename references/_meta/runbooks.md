@@ -9,7 +9,7 @@ verified-against:
 confidence: high
 source-tier: mixed
 sources:
-  - "references/shared/oneapi.md"
+  - "kb:shared.oneapi"
   - "references/_meta/verification-protocol.md"
   - "vendor/zscaler-sdk-python/zscaler/utils.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/legacy.py"
@@ -83,7 +83,7 @@ Even on a commercial cloud, OneAPI requires a ZIdentity API client to be created
 
 **Multi-product scripts touching ZDX:** ZDX works over OneAPI like the other products; its dedicated legacy SHA256 flow remains available as a fallback for non-ZIdentity / gov tenants — implement it where ZIdentity isn't configured.
 
-See [`../shared/oneapi.md § Authentication mechanisms`](../shared/oneapi.md) for the full per-mechanism details, including the obfuscation algorithm for ZIA legacy and the SHA256 flow for ZDX legacy.
+See [`shared.oneapi`](kb:shared.oneapi) for the full per-mechanism details, including the obfuscation algorithm for ZIA legacy and the SHA256 flow for ZDX legacy.
 
 ---
 
@@ -186,7 +186,7 @@ Start
 Start
 ├─ Is the change committed via API/Terraform but not yet activated?
 │  └─ YES → ZIA changes are saved-but-not-live until activation.
-│           See references/shared/activation.md.
+│           See `shared.activation`.
 │           Run: client.zia.activation.activate()  or  POST /zia/api/v1/status/activate
 │  └─ NO (you ran activate already) → continue ↓
 │
@@ -236,7 +236,7 @@ Start
 │  └─ PUT /ztw/api/v1/ecAdminActivateStatus/forcedActivate exists, but captured static
 │           sources do not say it clears a lock or bypasses validation. Confirm the intended
 │           use with Zscaler; do not substitute it for coordination on a 409.
-│           See references/cloud-connector/api.md § Activation.
+│           See `cloud-connector.api.activation-wire`.
 │
 └─ Activation just slow → typical complete time is 1-3 minutes. Don't poll faster than every 30s.
 ```
@@ -401,7 +401,7 @@ Reversibility differs sharply by product. Pick the right pattern for the product
 | Product | Reversibility model | Rollback window | Pattern |
 |---|---|---|---|
 | **ZIA** | **Staged via activation gate** (changes are saved-but-not-live until activation) | Until explicit activation or the API/admin session ends (timeout 5–20 minutes, default 5) | Make changes, snapshot, and **revert before either activation boundary** if needed. The pending window is bounded. |
-| **ZTW (Cloud Connector)** | Staged (ZIA-style activation gate, plus a separate `forcedActivate` operation) | Until normal or forced activation | Same as ZIA for staged changes. Captured static sources do not define validation-bypass or recovery semantics for `forcedActivate`; confirm intent before use — see [`.../cloud-connector/api.md § Activation`](../cloud-connector/api.md). |
+| **ZTW (Cloud Connector)** | Staged (ZIA-style activation gate, plus a separate `forcedActivate` operation) | Until normal or forced activation | Same as ZIA for staged changes. Captured static sources do not define validation-bypass or recovery semantics for `forcedActivate`; confirm intent before use — see [`cloud-connector.api`](kb:cloud-connector.api). |
 | **ZPA** | **Propagate on write** (no activation gate; changes are live immediately) | None — change is live as soon as the API returns 200 | **Snapshot-before-change**, manual revert. Atomic operations only safe at the per-resource level. |
 | **ZCC** | Propagate on write (web policy / forwarding profile changes apply on next ZCC agent check-in, but the API write is immediate) | None for the API; agent re-pulls on next check-in (Forwarding Profile / Trusted Network changes) or logout/restart (App Profile / Web Policy changes) | Snapshot-before-change. Plan for grace window before agents notice. |
 | **Zero Trust Browser / Cloud Browser Isolation** | Propagate on write | None | Snapshot-before-change. Do not confuse the product's ZBI abbreviation with Python `client.zbi`, which is Business Insights. |
@@ -501,8 +501,8 @@ Some changes can't be rolled back even with the patterns above:
 
 ## Cross-links
 
-- Authentication mechanisms (full reference, not runbook): [`../shared/oneapi.md § Authentication mechanisms`](../shared/oneapi.md)
+- Authentication mechanisms (full reference, not runbook): [`shared.oneapi`](kb:shared.oneapi)
 - Read/write asymmetries (referenced from TS-6): [`zia.api`](kb:zia.api), [`zpa.api`](kb:zpa.api)
-- Activation gate: [`../shared/activation.md`](../shared/activation.md)
+- Activation gate: [`shared.activation`](kb:shared.activation)
 - Verification protocol (when adding new runbooks here): [`verification-protocol.md`](verification-protocol.md)
 - Tier model (where this doc fits — meta level alongside the protocol): [`layering-model.md`](layering-model.md)

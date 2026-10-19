@@ -1,0 +1,318 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.aws.interfaces",
+  "title": "Cloud Connector on AWS: network interfaces, device indexes, source/destination check",
+  "aliases": [
+    "cloud connector eni",
+    "cloud connector service interface device index",
+    "cloud connector management interface aws",
+    "source dest check cloud connector",
+    "cloud connector how many network interfaces",
+    "ZS6.1.25.0 device index",
+    "cc next hop forwarding interface"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.aws"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.instance-sizing"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.traffic-steering"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.gwlb"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Each Cloud Connector instance has a management interface and one or more service interfaces; workload routes and load-balancer targets point at the service side."
+    },
+    {
+      "label": "How many.",
+      "text": "{{interface-count}} {{module-size-gating}}"
+    },
+    {
+      "label": "Which index is which.",
+      "text": "{{device-index-history}} {{module-index-0}} {{module-index-1}} {{asg-launch-template}} Which interface carries the load-balancer role on the deprecated medium and large sizes is ambiguous in the module {{gap:lb-interface-role}}."
+    },
+    {
+      "label": "Forwarding requires the check off.",
+      "text": "{{source-dest-check}} {{module-source-dest}}"
+    },
+    {
+      "label": "Subnets.",
+      "text": "{{mgmt-same-subnet}} Routing workload traffic to the service interface is in [[cloud-connector.aws.traffic-steering]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which device index is the service interface on this instance: index 0 on AMIs released after October 19, 2023, index 1 on older non-autoscaling deployments.",
+      "uses": [
+        "device-index-history"
+      ]
+    },
+    {
+      "do": "Whether source/destination check is disabled on the service interfaces.",
+      "uses": [
+        "source-dest-check",
+        "module-source-dest"
+      ]
+    },
+    {
+      "do": "Whether the instance has the interface count its size requires.",
+      "uses": [
+        "interface-count",
+        "module-size-gating"
+      ]
+    }
+  ],
+  "claims": {
+    "interface-count": {
+      "statement": "Small VMs deploy with two network interfaces, Medium VMs with 5, and Large VMs with 6.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Small VM: Requires one of the following Elastic Compute Cloud (EC2) instances: m5n.large, c5a.large, m6i.large (recommended), or c6i.large. These VMs deploy with two network interfaces.",
+            "Medium VM (deprecated): Requires one of the following EC2 instances: m5n.4xlarge, m6i.4xlarge (recommended), or c6i.4xlarge. These VMs deploy with 5 network interfaces.",
+            "Large VM (deprecated): Requires one of the following EC2 instances: m5n.4xlarge, m6i.4xlarge (recommended), or c6i.4xlarge. These VMs deploy with 6 network interfaces."
+          ]
+        }
+      ]
+    },
+    "module-size-gating": {
+      "statement": "The reference CCVM module always creates interfaces at device indexes 0 and 1, creates indexes 2, 3 and 4 whenever `cc_instance_size` is not small, and creates index 5 only when it is large.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "after": "resource \"aws_network_interface\" \"cc_vm_nic_index_0\" {",
+          "quotes": [
+            "count = local.valid_cc_create ? var.cc_count : 0"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "quotes": [
+            "device_index = 0 network_interface_id = aws_network_interface.cc_vm_nic_index_0[count.index].id"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "after": "resource \"aws_network_interface\" \"cc_vm_nic_index_1\" {",
+          "quotes": [
+            "count = local.valid_cc_create ? var.cc_count : 0",
+            "device_index = 1"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "after": "resource \"aws_network_interface\" \"cc_vm_nic_index_2\" {",
+          "quotes": [
+            "count = local.valid_cc_create && var.cc_instance_size != \"small\" ? var.cc_count : 0",
+            "device_index = 2"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "after": "resource \"aws_network_interface\" \"cc_vm_nic_index_3\" {",
+          "quotes": [
+            "count = local.valid_cc_create && var.cc_instance_size != \"small\" ? var.cc_count : 0",
+            "device_index = 3"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "after": "resource \"aws_network_interface\" \"cc_vm_nic_index_4\" {",
+          "quotes": [
+            "count = local.valid_cc_create && var.cc_instance_size != \"small\" ? var.cc_count : 0",
+            "device_index = 4"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "after": "resource \"aws_network_interface\" \"cc_vm_nic_index_5\" {",
+          "quotes": [
+            "count = local.valid_cc_create && var.cc_instance_size == \"large\" ? var.cc_count : 0",
+            "device_index = 5"
+          ]
+        }
+      ]
+    },
+    "device-index-history": {
+      "statement": "For non-autoscaling deployments made before AMI version ZS6.1.25.0 the service interface is device index 1; Cloud Connector AMIs released after October 19, 2023 have the service interface at device index 0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "For non-auto scaling deployments that were deployed before AWS AMI version ZS6.1.25.0, the service interface is device index 1. Cloud Connector AMIs released after October 19, 2023 have the service interface as device index 0."
+          ]
+        }
+      ]
+    },
+    "module-index-0": {
+      "statement": "In the CCVM module, device index 0 is the \"cc next hop forwarding interface\" in the service subnet with the service security group, and its primary IP is the address used for the GWLB target group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "quotes": [
+            "# This primary IP Address of this interface will be used for GWLB Target Group",
+            "description = \"cc next hop forwarding interface\" subnet_id = element(var.service_subnet_id, count.index)",
+            "device_index = 0 network_interface_id = aws_network_interface.cc_vm_nic_index_0[count.index].id"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "after": "resource \"aws_network_interface\" \"cc_vm_nic_index_0\" {",
+          "quotes": [
+            "security_groups = [element(var.service_security_group_id, count.index)]"
+          ]
+        }
+      ]
+    },
+    "module-index-1": {
+      "statement": "In the CCVM module, device index 1 is the \"cc management interface\" in the management subnet, carrying the management security group plus any additional management groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "quotes": [
+            "description = \"cc management interface\" subnet_id = element(var.mgmt_subnet_id, count.index)",
+            "security_groups = concat([element(var.mgmt_security_group_id, count.index)], var.additional_mgmt_security_group_ids)",
+            "instance = aws_instance.cc_vm[count.index].id device_index = 1"
+          ]
+        }
+      ]
+    },
+    "asg-launch-template": {
+      "statement": "The autoscaling module's launch template defines the same two interfaces, the forwarding interface at device index 0 and the management interface at index 1, both without a public IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/main.tf",
+          "quotes": [
+            "description = \"cc next hop forwarding interface\" device_index = 0",
+            "description = \"cc management interface\" device_index = 1",
+            "security_groups = [element(var.service_security_group_id, count.index)] associate_public_ip_address = false",
+            "security_groups = concat([element(var.mgmt_security_group_id, 0)], var.additional_mgmt_security_group_ids) associate_public_ip_address = false"
+          ]
+        }
+      ]
+    },
+    "source-dest-check": {
+      "statement": "Help says source/destination checks must be disabled to avoid connectivity disruptions and unreachable destinations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "To avoid connectivity disruptions and/or unreachable destinations, source/destination checks must be disabled in the AWS Management Console."
+          ]
+        }
+      ]
+    },
+    "module-source-dest": {
+      "statement": "The CCVM module sets `source_dest_check` to false on every service interface (indexes 0, 2, 3, 4 and 5) and to true on the management interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "after": "resource \"aws_network_interface\" \"cc_vm_nic_index_0\" {",
+          "quotes": [
+            "source_dest_check = false"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "after": "resource \"aws_network_interface\" \"cc_vm_nic_index_1\" {",
+          "quotes": [
+            "source_dest_check = true"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "after": "resource \"aws_network_interface\" \"cc_vm_nic_index_2\" {",
+          "quotes": [
+            "source_dest_check = false"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "after": "resource \"aws_network_interface\" \"cc_vm_nic_index_3\" {",
+          "quotes": [
+            "source_dest_check = false"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "after": "resource \"aws_network_interface\" \"cc_vm_nic_index_4\" {",
+          "quotes": [
+            "source_dest_check = false"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "after": "resource \"aws_network_interface\" \"cc_vm_nic_index_5\" {",
+          "quotes": [
+            "source_dest_check = false"
+          ]
+        }
+      ]
+    },
+    "mgmt-same-subnet": {
+      "statement": "Help says Cloud Connector appliances have a dedicated management interface installed, by default, in the same subnet as the service interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Cloud Connector appliances have a dedicated management interface installed, by default, in the same subnet as the Service Interface."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "lb-interface-role": {
+      "kind": "semantic",
+      "title": "Which interface is the load-balancer interface on medium and large Cloud Connectors",
+      "status": "open",
+      "detail": "The CCVM module's comment on device index 0 says that interface \"becomes the Load Balancer VIP interface for medium and large CC instances\", while the resource descriptions call index 4 \"cc lb interface\" on medium and index 5 \"cc lb interface\" on large. Unverified legacy statement: index 4 is the dedicated LB interface on medium and index 5 on large. Medium and large are deprecated sizes. Resolve from a vendor source that states the AMI's interface roles.",
+      "blocks": "troubleshooting load-balancer reachability on a medium or large instance",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

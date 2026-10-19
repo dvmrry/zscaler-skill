@@ -50,7 +50,7 @@
     },
     {
       "label": "Aggregated sessions.",
-      "text": "{{agg-flag}} {{last-session}} {{undercount}} {{avgduration}} {{srcip-country-agg}} What triggers aggregation and how counters aggregate is open {{gap:aggregate-counters}}. Why allowed aggregates lack a country is open {{gap:srcip-country-aggregate}}."
+      "text": "{{agg-flag}} {{last-session}} {{undercount}} {{avgduration}} {{srcip-country-agg}} {{aggregation-rule}} How the byte and duration counters behave on an aggregate is still open {{gap:aggregate-counters}}. Why allowed aggregates lack a country is open {{gap:srcip-country-aggregate}}."
     },
     {
       "label": "Action and threat.",
@@ -412,14 +412,34 @@
       "gaps": [
         "nwapp-vs-nwsvc"
       ]
+    },
+    "aggregation-rule": {
+      "statement": "With the Standard Firewall subscription allowed sessions are logged in aggregate form and every blocked session gets its own detailed log; detailed logging of all sessions needs Advanced Firewall, while DNS transactions get detailed logs with both. Aggregation is done within a 15-minute window over User, Rule Slot, Network Service, Network Application and IP Category: consecutive sessions with the same values in these fields produce a single log whose remaining fields are taken from the last session in the window.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#aggregate"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-firewall-logs.json",
+          "quotes": [
+            "For the Standard Firewall subscription, allowed sessions are logged in aggregate form, resulting in fewer logs for the allowed transactions. Blocked transactions have detailed logs and produce a log for every blocked session.",
+            "If you want detailed logging for all sessions, including blocked and allowed transactions, you must have Advanced Firewall.",
+            "However, detailed logging for DNS transactions is available with both Standard and Advanced Firewall.",
+            "Logs are aggregated for each of the following fields within a 15-minute time window: User, Rule Slot, Network Service, Network Application, and IP Category.",
+            "For consecutive sessions with the same values across these fields, Zscaler only records a single log, in which the remaining fields are taken from the last session in the 15-minute time window."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
     "aggregate-counters": {
       "kind": "data",
-      "title": "What aggregation triggers and how counters aggregate",
-      "status": "open",
-      "detail": "Unverified legacy statement: the CSV does not say what triggers aggregation (idle timeout, volume, rule) or whether it is configurable, nor how inbytes, outbytes, durationms and avgduration behave on aggregates (sum, maximum or last session), since they carry no last-session wording. A burst of identical sessions from one source would show it.",
+      "title": "How byte and duration counters behave on an aggregated record",
+      "status": "partial",
+      "detail": "Unverified legacy statement: the CSV does not say what triggers aggregation (idle timeout, volume, rule) or whether it is configurable, nor how inbytes, outbytes, durationms and avgduration behave on aggregates (sum, maximum or last session), since they carry no last-session wording. The trigger is now sourced (aggregation-rule: Standard Firewall subscription, allowed sessions, a 15-minute window over five fields). Still open: whether inbytes, outbytes and durationms count only the last session, as 'the remaining fields are taken from the last session' would suggest, or the whole aggregate, given that numsessions and avgduration are aggregate values. A burst of identical allowed sessions from one source on a Standard Firewall tenant would show it.",
       "blocks": "Summing bytes or counting sessions from aggregated records.",
       "former_ids": [
         "log-11"

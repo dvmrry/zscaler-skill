@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "id": "shared.splunk.zpa-validation",
+  "title": "Checking a ZPA answer against LSS logs: segments, connectors, user status and posture",
+  "aliases": [
+    "segment-match-observed",
+    "segment-match-multimatch",
+    "connector-failure-direct-bypass",
+    "connector-throughput-utilization",
+    "connector-top-by-connection-count",
+    "connector-cpu-mem-alert",
+    "user-status-persistent-disconnects",
+    "zcc-version-distribution",
+    "posture-compliance-by-user",
+    "which zpa segment handled this host"
+  ],
+  "binds": [
+    "zpa/user-activity-log#Host",
+    "zpa/user-activity-log#Application",
+    "zpa/user-activity-log#Connector",
+    "zpa/user-status-log#SessionStatus",
+    "zpa/user-status-log#Version",
+    "zpa/user-status-log#PosturesMiss"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.logs.user-activity"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.logs.user-status"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.logs.app-connector-metrics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.matching"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.splunk"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZPA answers about segment matching, connector choice and user sessions can be checked against User Activity, App Connector Metrics and User Status records. Each check below rests on what those logs say and leave open."
+    },
+    {
+      "heading": "Which segment and connector served a host"
+    },
+    {
+      "text": "User Activity names the application, application group and access policy rule for each connection: [[shared.log-correlation.zia-zpa-join:ua-application]]. The destination is Host and the connector is Connector: [[zpa/user-activity-log#Host]], [[zpa.logs.user-activity:connector-name-three-logs]]. How a connection that tried several segments in sequence appears is open: [[zpa.logs.user-activity:multi-segment-lss]]."
+    },
+    {
+      "text": "A request whose port the more specific segment does not list is bypassed by Client Connector, not sent to Private Access: [[zpa.app-segments.matching:port-mismatch-bypass]]. What happens to that traffic next is open: [[zpa.app-segments.matching:post-bypass-outcome]]. Logs show the App Connector ID as zero when no connector could be resolved: [[zpa.app-connectors.selection:connector-id-zero]]."
+    },
+    {
+      "heading": "Connector load and headroom"
+    },
+    {
+      "text": "CPUUtilization is the peak over the past 5 minutes: [[zpa.logs.app-connector-metrics:cpu-peak-window]]. The throughput fields state no interval: [[zpa.logs.app-connector-metrics:throughput-bytes]], and whether they are per-interval deltas is open: [[zpa.logs.app-connector-metrics:interval-and-delta]]. Connection counts and headroom fields: [[zpa.logs.app-connector-metrics:app-connection-counts]], [[zpa.logs.app-connector-metrics:headroom-fields]]."
+    },
+    {
+      "text": "Load is not always split evenly within a group, and a user stays on one connector for a while: [[zpa.app-connectors.selection:uneven-load-expected]], [[zpa.app-connectors.selection:affinity-15-minutes]]. Reading the metrics as overload or exhaustion is open: [[zpa.logs.app-connector-metrics:overload-reading]], [[zpa.logs.app-connector-metrics:exhaustion-effects]], and so are alert thresholds {{gap:alert-thresholds}}."
+    },
+    {
+      "heading": "User sessions, versions and posture"
+    },
+    {
+      "text": "SessionStatus values, and the wording of the DISCONNECTED value: [[zpa.logs.user-status:session-status-values]]. How many records one session produces is open: [[zpa.logs.user-status:record-granularity]], and what a disconnect pattern means is open {{gap:disconnect-pattern}}."
+    },
+    {
+      "text": "Version is the Client Connector version except through a Private Service Edge, where it is the Service Edge's: [[zpa.logs.user-status:version-via-pse]]."
+    },
+    {
+      "text": "PosturesMiss and PosturesHit arrive as a delimited string in the example but as a list in the default JSON template: [[zpa.logs.user-status:list-fields-delimited]], [[zpa.logs.user-status:posture-miss-name]]. What a posture miss implies for access is open: [[zpa.logs.user-status:status-reading-guide]]."
+    },
+    {
+      "text": "Whether User Status and User Activity land in the same receiver or index is open: [[zpa.logs.user-status:receiver-per-type]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "To see which segment handled a host, count User Activity records for Host by Application, AppGroup, Connector and Policy over the window.",
+      "uses": [
+        "shared.log-correlation.zia-zpa-join:ua-application",
+        "shared.log-correlation.zia-zpa-join:segment-name-match",
+        "zpa.logs.user-activity:connector-name-three-logs"
+      ]
+    },
+    {
+      "do": "With Multimatch on, list the Application values per user for the host to see which segments were used.",
+      "uses": [
+        "zpa.app-segments.matching:fix-for-carve-out",
+        "zpa.logs.user-activity:multi-segment-lss"
+      ]
+    },
+    {
+      "do": "If the host never appears in User Activity, suspect a port mismatch bypass and check the segment ports and the device; if it appears, read ConnectionStatus and InternalReason for records that are not Active.",
+      "uses": [
+        "zpa.app-segments.matching:port-mismatch-bypass",
+        "zpa.app-segments.matching:post-bypass-outcome",
+        "zpa.logs.user-activity:status-case"
+      ]
+    },
+    {
+      "do": "For connector load, compare AppConnectionsActive, CPUUtilization and the memory fields across the connectors of one group over the last half hour, allowing for affinity before calling it an imbalance.",
+      "uses": [
+        "zpa.logs.app-connector-metrics:app-connection-counts",
+        "zpa.logs.app-connector-metrics:cpu-peak-window",
+        "zpa.app-connectors.selection:affinity-15-minutes",
+        "zpa.app-connectors.selection:uneven-load-expected",
+        "zpa.logs.app-connector-metrics:overload-reading"
+      ]
+    },
+    {
+      "do": "For throughput per connector, sum the four transmitted and received byte fields per Connector, without treating them as per-interval deltas until that is confirmed.",
+      "uses": [
+        "zpa.logs.app-connector-metrics:throughput-bytes",
+        "zpa.logs.app-connector-metrics:interval-and-delta"
+      ]
+    },
+    {
+      "do": "For connector alerting, take the latest CPUUtilization, SystemMemoryUtilization, ProcessMemoryUtilization and AvailablePorts per Connector and compare with thresholds the operator sets.",
+      "uses": [
+        "zpa.logs.app-connector-metrics:headroom-fields",
+        "zpa.logs.app-connector-metrics:exhaustion-effects",
+        "alert-thresholds"
+      ]
+    },
+    {
+      "do": "For unstable users, count ZPN_STATUS_DISCONNECTED User Status records and distinct SessionID values per Username over several days, with Platform, Version and Hostname.",
+      "uses": [
+        "zpa.logs.user-status:session-status-values",
+        "zpa.logs.user-status:record-granularity",
+        "disconnect-pattern"
+      ]
+    },
+    {
+      "do": "For a Client Connector version census, take each Username's latest User Status record and group by Version, remembering that sessions through a Private Service Edge report its version.",
+      "uses": [
+        "zpa.logs.user-status:version-via-pse"
+      ]
+    },
+    {
+      "do": "For posture compliance, take each Username's latest User Status record and list PosturesMiss and PosturesHit, splitting them first if the feed delivers one delimited string.",
+      "uses": [
+        "zpa.logs.user-status:list-fields-delimited",
+        "zpa.logs.user-status:posture-miss-name",
+        "zpa.logs.user-status:status-reading-guide"
+      ]
+    },
+    {
+      "do": "To set ZIA activity beside Client Connector version, join per-user web record counts to the latest User Status Version on login and Username.",
+      "uses": [
+        "shared.log-correlation.zia-zpa-join:identity-match",
+        "zpa.logs.user-status:version-via-pse"
+      ]
+    }
+  ],
+  "gaps": {
+    "alert-thresholds": {
+      "kind": "semantic",
+      "title": "Alert thresholds for App Connector CPU, memory and ports",
+      "status": "open",
+      "detail": "Unverified legacy statement: alert at CPU above 80 with a warning above 60, system memory above 85 with a warning above 70, and AvailablePorts below 5000 with a warning below 10000; \"Memory > 85 (system): OS-level pressure; potential OOM conditions on the connector VM.\" No registered source gives these thresholds. CPU above 80 as a health concern and the effects of port exhaustion are held in zpa.logs.app-connector-metrics:overload-reading and :exhaustion-effects.",
+      "blocks": "Setting connector health alerts from Metrics logs",
+      "resolves_with": [
+        "operator-experience",
+        "support-ticket"
+      ]
+    },
+    "disconnect-pattern": {
+      "kind": "semantic",
+      "title": "What a pattern of User Status disconnects says about the user",
+      "status": "open",
+      "detail": "Unverified legacy statement: many disconnects across few sessions (a high disconnects to unique SessionID ratio) means the same sessions are cycling, characteristic of network instability, while many unique sessions with moderate disconnects is consistent with normal roaming, since each network change starts a new session. How SessionID behaves across network changes and reconnections is not stated in the captures.",
+      "blocks": "Telling unstable users from roaming users in User Status logs",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    }
+  }
+}

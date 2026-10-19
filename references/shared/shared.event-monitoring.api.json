@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "id": "shared.event-monitoring.api",
+  "title": "The Event Monitoring & Notification API: what it does, access, headers and limits",
+  "aliases": [
+    "event monitoring api",
+    "event monitoring notification api",
+    "x-em-cloud",
+    "x-em-tenant",
+    "event monitoring subscribe role",
+    "zpa connector down notification api",
+    "event subscriptions oneapi"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.event-monitoring.channels"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.authentication"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{capabilities}}"
+    },
+    {
+      "label": "Where it lives.",
+      "text": "{{base-path}} {{operations}}"
+    },
+    {
+      "label": "Access.",
+      "text": "{{prerequisites}} {{zpa-only-today}}"
+    },
+    {
+      "label": "Tenant headers.",
+      "text": "{{tenant-headers}}"
+    },
+    {
+      "label": "Limits and errors.",
+      "text": "{{rate-limit}} {{error-codes}}"
+    },
+    {
+      "label": "Audit.",
+      "text": "{{audit-logging}}"
+    },
+    {
+      "label": "Clients.",
+      "text": "{{no-client-support}} Notification channels, SNS setup and verification are in [[shared.event-monitoring.channels]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant has the service enabled and the API client holds both the Event Monitoring Subscribe role and a role from the monitored product's resource.",
+      "uses": [
+        "prerequisites",
+        "zpa-only-today"
+      ]
+    },
+    {
+      "do": "Whether every subscription call carries x-em-cloud and x-em-tenant for the product tenant being monitored.",
+      "uses": [
+        "tenant-headers"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "The Event Monitoring & Notification API is a shared service for monitoring, alerting and automated response across Zscaler products, including ZIA, ZPA and Data Protection, delivering notifications by email, webhook or Amazon SNS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/event-monitoring.json",
+          "quotes": [
+            "Event Monitoring & Notification API is a shared service that delivers real-time monitoring, alerting, and automated response capabilities across Zscaler products, including Zscaler Internet Access (ZIA), Zscaler Private Access (ZPA), and Data Protection.",
+            "supports multiple notification channels, including email, webhook, and Amazon Simple Notification Service (SNS)."
+          ]
+        }
+      ]
+    },
+    "capabilities": {
+      "statement": "It offers a service catalog of sources, source types and source events navigated through HATEOAS links, and subscriptions to specific events; the catalog is hierarchical, Sources, then Source Types, then Source Events.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/event-monitoring.json",
+          "quotes": [
+            "Service catalog: Browse available sources, source types, and source events using Hypermedia as the Engine of Application State (HATEOAS) links.",
+            "Subscription management: Subscribe to specific events to receive alerts and notifications when matching events occur."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/event-monitoring-working-with-the-event-monitoring-notification-api.json",
+          "quotes": [
+            "The service catalog is hierarchical: Sources → Source Types → Source Events."
+          ]
+        }
+      ]
+    },
+    "base-path": {
+      "statement": "Its OneAPI base URL is `https://api.zsapi.net/event-monitoring`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/event-monitoring.openapi.json",
+          "pointer": "/servers/[description=Event Monitoring & Notification API]",
+          "expect": {
+            "url": "https://api.zsapi.net/event-monitoring"
+          }
+        }
+      ]
+    },
+    "operations": {
+      "statement": "The repository's structural validation of the captured contract counts 15 operations on 12 paths for Event Monitoring, including catalog reads under `/catalog/sources`; the API is not in the generated surface layer, so the operation list is read from the OpenAPI capture.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/openapi-validation-report.md",
+          "quotes": [
+            "| `event-monitoring` | 15 | 12 | 0 | current public route table |",
+            "This report is structural validation for the inline OpenAPI snapshot."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/event-monitoring.openapi.json",
+          "pointer": "/paths/~1catalog~1sources/get",
+          "expect": {
+            "operationId": "Catalog Resource Get All Sources"
+          }
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "The service must be enabled for the tenant by the Zscaler account team, and the API client needs the Event Monitoring Subscribe role (view-only on the catalog, full access to subscriptions) plus a role from the product resource whose notifications it subscribes to.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/event-monitoring-working-with-the-event-monitoring-notification-api.json",
+          "quotes": [
+            "Ensure that you have the Event Monitoring & Notification API service enabled for your tenant. To obtain access to this API service, contact your Zscaler Account team.",
+            "Register the API client application in Authentication Service and assign the Event Monitoring Subscribe role. This role provides view-only access to the service catalog and full access to subscriptions (i.e., create, update, and delete) within the Event Monitoring & Notification API.",
+            "Assign a role from the API product resource for which the notifications are subscribed."
+          ]
+        }
+      ]
+    },
+    "zpa-only-today": {
+      "statement": "The guide says notifications can currently be subscribed for ZPA, so a ZPA product-resource role is required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/event-monitoring-working-with-the-event-monitoring-notification-api.json",
+          "quotes": [
+            "Currently, you can subscribe to notifications for ZPA, so a role from the ZPA product resource must be assigned."
+          ]
+        }
+      ]
+    },
+    "tenant-headers": {
+      "statement": "Every subscription call needs `x-em-cloud` (the product tenant's cloud, for example prod.zpath.net) and `x-em-tenant` (the product tenant ID); monitoring several product tenants takes separate subscriptions with different headers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/event-monitoring-working-with-the-event-monitoring-notification-api.json",
+          "quotes": [
+            "In addition, all subscription API calls require the following headers to identify the product tenant that you want to monitor:",
+            "- x-em-cloud: Cloud identifier for the product tenant (e.g., prod.zpath.net)",
+            "- x-em-tenant: Product tenant identifier for ZIA, ZPA, etc. (e.g., 145254691217866752)",
+            "You can monitor multiple Zscaler services by creating separate subscriptions with different headers (x-em-cloud and x-em-tenant) for each product tenant."
+          ]
+        }
+      ]
+    },
+    "rate-limit": {
+      "statement": "All Event Monitoring endpoints are limited to 1,000 calls per second per tenant; responses carry `x-ratelimit-limit`, `x-ratelimit-remaining` and `x-ratelimit-reset`, documented here as Unix epoch seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-event-monitoring-notification-api-rate-limits.json",
+          "quotes": [
+            "All endpoints within the Event Monitoring & Notification API are subject to a rate limit of 1,000 calls per second, per tenant.",
+            "- x-ratelimit-limit: The rate limit ceiling that is applicable for the current API request.",
+            "- x-ratelimit-remaining: The number of API requests remaining for the current rate limit window.",
+            "- x-ratelimit-reset: The time (in Unix epoch seconds) remaining in the current window, after which the rate limit resets."
+          ]
+        }
+      ]
+    },
+    "error-codes": {
+      "statement": "It returns 400 `BAD_REQUEST` for malformed JSON or missing subscription fields (name, description, scope, channels, enabled), 401 `UNAUTHORIZED`, 403 `FORBIDDEN` for an insufficient role, 404 `NOT_FOUND` for an unknown source key or subscription ID, 429 `RATE_LIMITED` and 500 `INTERNAL_ERROR`, for which Support wants the response's correlation_id.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-event-monitoring-notification-api-codes.json",
+          "quotes": [
+            "| 400 | BAD_REQUEST | Malformed JSON or required fields are missing in the subscription request |",
+            "name, description, scope, channels, and enabled.",
+            "| 401 | UNAUTHORIZED | Missing or invalid bearer token |",
+            "| 403 | FORBIDDEN | Valid token with insufficient scope or role |",
+            "| 404 | NOT_FOUND | Resource does not exist. This error could occur due to incorrect source key, subscription ID, etc. |",
+            "| 429 | RATE_LIMITED | Too many requests | Implement exponential backoff and reduce the request rate. |",
+            "Report to Zscaler Support with the correlation_id information from the response.",
+            "| 500 | INTERNAL_ERROR | Unexpected server error |"
+          ]
+        }
+      ]
+    },
+    "audit-logging": {
+      "statement": "All operations log the tenant ID, trace ID, API client ID, client IP address and the change details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/event-monitoring-working-with-the-event-monitoring-notification-api.json",
+          "quotes": [
+            "Audit logging: All operations log tenant ID, trace ID, API client ID, client IP address, and the change details (i.e., what was created, updated, or deleted)."
+          ]
+        }
+      ]
+    },
+    "no-client-support": {
+      "statement": "None of the pinned Python SDK, Go SDK, MCP server, ZIA provider or ZPA provider references the Event Monitoring paths, so the API is reached only by direct HTTP calls.",
+      "tier": "B",
+      "conditions": "Search of each submodule at its pin for 'event-monitoring' and 'subscriptions/channels' found no file; an absence by search.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/event-monitoring.openapi.json",
+          "pointer": "/info",
+          "expect": {
+            "title": "Event Monitoring & Notification API"
+          }
+        }
+      ]
+    }
+  }
+}

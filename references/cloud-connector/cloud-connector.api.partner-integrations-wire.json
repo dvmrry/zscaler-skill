@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.api.partner-integrations-wire",
+  "title": "Cloud Connector partner integration endpoints: AWS accounts in the contract, Azure and GCP outside it",
+  "aliases": [
+    "ztw partner integrations api",
+    "publicCloudInfo",
+    "publicCloudTenant",
+    "azure account api cloud connector",
+    "gcp workload discovery api",
+    "discoveryService"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.workload-discovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.workload-discovery.aws-accounts"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp.workload-discovery"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Partner integrations register cloud accounts so that workload tags can be used in policy. The AWS account, account group and discovery paths are generated from the contract; this subject records what the API covers per cloud."
+    },
+    {
+      "heading": "AWS"
+    },
+    {
+      "text": "The AWS account, account group and discovery-service calls are in the contract and the generated surface: [[cloud-connector.workload-discovery:api-surface-generated]]. The trust settings they read and the Go SDK's decoding defect are in [[cloud-connector.workload-discovery.aws-accounts:trust-settings-endpoint]] and [[cloud-connector.workload-discovery.aws-accounts:trust-settings-shape]], and the CloudFormation template URL in [[cloud-connector.workload-discovery.aws-accounts:template-url-endpoint]]."
+    },
+    {
+      "heading": "Azure"
+    },
+    {
+      "text": "{{help-partner-scope}} {{azure-partner-integration}} {{azure-tag-discovery-la}}"
+    },
+    {
+      "text": "The captured contract has no Azure account path {{divergence:azure-accounts-api}}."
+    },
+    {
+      "heading": "GCP"
+    },
+    {
+      "text": "GCP has a console-onboarded workload discovery service: [[cloud-connector.gcp.workload-discovery:service]]. {{gcp-no-contract-path}} Whether Azure and GCP account management has a public REST family, and which paths it uses, is open {{gap:azure-gcp-rest-family}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For automation of Azure or GCP partner integration, whether the paths come from a current vendor reference, since the captured contract and the SDKs cover only AWS accounts.",
+      "uses": [
+        "azure-accounts-api",
+        "azure-gcp-rest-family"
+      ]
+    }
+  ],
+  "claims": {
+    "help-partner-scope": {
+      "statement": "The API overview says the Partner Integrations resources retrieve AWS accounts, AWS account groups, Microsoft Azure accounts and supported regions, and create, update and delete AWS accounts, AWS account groups and Azure accounts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-zscaler-cloud-branch-connector-api.json",
+          "quotes": [
+            "Partner Integrations API resources allow you to retrieve Amazon Web Services (AWS) accounts, AWS account group information, Microsoft Azure accounts, and supported regions. These resources also allow you to create, update, and delete AWS accounts, AWS account groups, and Azure accounts."
+          ]
+        }
+      ]
+    },
+    "azure-partner-integration": {
+      "statement": "Azure partner integrations let user-defined tags and resource attributes be used in policy: the organization provides a service principal (configured as an Azure account) with access to a set of subscriptions in one tenant, and Zscaler discovers workloads and their metadata and associates a Cloud Connector with that information to enforce policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-microsoft-azure-accounts.json",
+          "quotes": [
+            "Microsoft Azure partner integrations enable you to use user-defined tags and resource attributes in Zscaler security policies.",
+            "Zscaler configuration requires a service account called an Azure account, which maps to service principal credentials that have access to a set of subscriptions in the same tenant.",
+            "Configure permissions for Zscaler to discover workloads and associated metadata from a set of Azure subscriptions.",
+            "Associate a Cloud Connector with the workload information to enforce Zscaler security policies."
+          ]
+        }
+      ]
+    },
+    "azure-tag-discovery-la": {
+      "statement": "Tag discovery services for Azure are in Limited Availability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-microsoft-azure-accounts.json",
+          "quotes": [
+            "Tag discovery services for Azure are in Limited Availability (LA)."
+          ]
+        }
+      ]
+    },
+    "gcp-no-contract-path": {
+      "statement": "The captured contract has no GCP account or GCP discovery path; its workload discovery settings describe the trust in terms of a Zscaler AWS account.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1discoveryService~1workloadDiscoverySettings/get/responses/default/content/application~1json/schema/properties/trustedAccountId",
+          "expect": {
+            "description": "The ID of the Zscaler AWS account that is required in the AWS trust policy."
+          }
+        }
+      ],
+      "conditions": "Absence by search: no path in the contract contains gcp or google (case-insensitive) at the pin."
+    }
+  },
+  "divergences": {
+    "azure-accounts-api": {
+      "summary": "Whether the API manages Azure accounts.",
+      "positions": [
+        {
+          "says": "The API overview says Partner Integrations create, update, delete and retrieve Azure accounts.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-understanding-zscaler-cloud-branch-connector-api.json",
+            "quotes": [
+              "These resources also allow you to create, update, and delete AWS accounts, AWS account groups, and Azure accounts."
+            ]
+          }
+        },
+        {
+          "says": "The captured contract has no `/publicCloudTenant` path, which the earlier reference text named for Azure accounts; its account paths are the AWS `/publicCloudInfo` family.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths",
+            "expect_absent": [
+              "/publicCloudTenant",
+              "/publicCloudTenant/{id}"
+            ]
+          }
+        }
+      ],
+      "impact": "Azure account automation cannot be built from the contract or the generated surface; the paths would have to come from a vendor reference not captured here."
+    }
+  },
+  "gaps": {
+    "azure-gcp-rest-family": {
+      "kind": "data",
+      "title": "The REST paths for Azure and GCP partner integration",
+      "status": "open",
+      "former_ids": [
+        "cloud-connector-18"
+      ],
+      "detail": "Unverified legacy statement: the Azure account-management family uses `/publicCloudTenant` (CRUD, `ccGroups`, `count`, `supportedRegions`) and `/discoveryService/azure/...` (subscription sync, tenant permission, regional resource groups, storage accounts and topic sync), and no public GCP discovery REST family exists. The release-summary capture that carried the Azure list now holds only its introduction, and neither the contract nor the SDKs have these paths. The ledger entry's other items (admin user and role paths, Go OneAPI support) are answered by the generated surface and cloud-connector.api.authentication.",
+      "blocks": "automating Azure or GCP partner integration through the API",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

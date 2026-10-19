@@ -1,0 +1,284 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.aws.security-groups",
+  "title": "Cloud Connector on AWS: firewall requirements and the reference security groups",
+  "aliases": [
+    "cloud connector security group aws",
+    "cloud connector outbound ports aws",
+    "cloud connector 12002 support",
+    "167.103.95.222",
+    "cloud connector geneve security group",
+    "cloud connector to cloud connector communication",
+    "mgmt_ssh_enabled",
+    "all_ports_egress_enabled"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.aws"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.interfaces"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.gwlb"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The management interface and the service interfaces each get their own security group in the reference module. Help states the product requirement; the module states one concrete rule set."
+    },
+    {
+      "label": "Product requirement.",
+      "text": "{{outbound-only}} {{tcp-udp-443}} {{cc-to-cc}}"
+    },
+    {
+      "label": "Management security group (module).",
+      "text": "{{mgmt-ssh}} {{mgmt-egress}} {{mgmt-support}}"
+    },
+    {
+      "label": "Service security group (module).",
+      "text": "{{service-ingress}} {{service-intra-vpc}} {{service-geneve}} {{service-egress}} {{service-all-egress}}"
+    },
+    {
+      "label": "CloudFormation.",
+      "text": "The CloudFormation templates create the TCP/12002 support rule by default: [[cloud-connector.aws.cloudformation]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether security groups and network ACLs allow outbound TCP and UDP 443 from the Cloud Connector, using the cloud's config.zscaler.com page for destinations.",
+      "uses": [
+        "outbound-only",
+        "tcp-udp-443"
+      ]
+    },
+    {
+      "do": "Whether Cloud Connectors in the same group can reach each other on their service interfaces.",
+      "uses": [
+        "cc-to-cc",
+        "service-intra-vpc"
+      ]
+    },
+    {
+      "do": "For GWLB, whether UDP 6081 and the health probe port are allowed from the VPC CIDR on the service group.",
+      "uses": [
+        "service-geneve",
+        "service-ingress"
+      ]
+    },
+    {
+      "do": "Whether direct or bypassed non-HTTPS traffic fails because the all-ports egress rule was disabled.",
+      "uses": [
+        "service-all-egress"
+      ]
+    }
+  ],
+  "claims": {
+    "outbound-only": {
+      "statement": "The Cloud Connector instance needs only outbound connections to the Zscaler cloud and no inbound connections from it; the account's outbound requirements are at config.zscaler.com under the cloud name and cloud-branch-connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "The Cloud Connector instance requires only outbound connections to the Zscaler cloud and does not require any inbound connections to your network from the Zscaler cloud.",
+            "To view the outbound access requirements for your specific account, go to the following URL: https://config.zscaler.com/<Zscaler Cloud Name>/cloud-branch-connector."
+          ]
+        }
+      ]
+    },
+    "tcp-udp-443": {
+      "statement": "Help's checks for an inactive Cloud Connector or an unestablished tunnel include that no security group or network ACL blocks TCP/UDP 443, outbound to the Internet & SaaS cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "The security group or network ACL is not blocking the Cloud Connector TCP/UDP 443.",
+            "The security group is not blocking outbound TCP/UDP 443 access to Internet & SaaS cloud.",
+            "The network ACL does not block outbound TCP/UDP 443 access to the Internet & SaaS cloud."
+          ]
+        }
+      ]
+    },
+    "cc-to-cc": {
+      "statement": "Cloud Connectors in a group or cluster communicate with each other over their service interfaces, for example to synchronize FQDN and wildcard FQDN information, so no firewall or security group may block traffic between them across the VPC and its availability zones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "All Cloud Connectors communicate with each other within a given connector group or cluster via their service interface(s) to share information such as fully qualified domain name (FQDN)/wildcard FQDN synchronization.",
+            "No firewall or security groups are blocking network communications between Cloud Connectors within a given VPC/VNet and their availability zones."
+          ]
+        }
+      ]
+    },
+    "mgmt-ssh": {
+      "statement": "The reference security group module allows SSH (TCP 22) from the VPC CIDR to the management interface when `mgmt_ssh_enabled` is true, its default; without it the only access is SSM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-sg-aws/main.tf",
+          "quotes": [
+            "#Recommended ingress connectivity. If var.mgmt_ssh_enabled is set to false, the only way to access this VM would be SSM",
+            "cidr_ipv4 = data.aws_vpc.selected.cidr_block from_port = 22 ip_protocol = \"tcp\" to_port = 22"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-sg-aws/variables.tf",
+          "quotes": [
+            "Default is true which creates an ingress rule permitting SSH traffic from the local VPC to the CC management interface."
+          ]
+        }
+      ]
+    },
+    "mgmt-egress": {
+      "statement": "The management group's egress rules are TCP 443 and UDP 123 to 0.0.0.0/0 (required), all TCP ports to 167.103.95.222/32 for the Zscaler repo server (required), and UDP 53 to 0.0.0.0/0 (recommended).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-sg-aws/main.tf",
+          "quotes": [
+            "description = \"Required: CC outbound TCP 443\" security_group_id = aws_security_group.cc_mgmt_sg[count.index].id cidr_ipv4 = \"0.0.0.0/0\" from_port = 443 ip_protocol = \"tcp\"",
+            "description = \"Required: CC Mgmt outbound NTP\" security_group_id = aws_security_group.cc_mgmt_sg[count.index].id cidr_ipv4 = \"0.0.0.0/0\" from_port = 123 ip_protocol = \"udp\"",
+            "description = \"Required: CC Mgmt outbound Zscaler Repo Server\" security_group_id = aws_security_group.cc_mgmt_sg[count.index].id cidr_ipv4 = \"167.103.95.222/32\" from_port = 0 ip_protocol = \"tcp\" to_port = 65535",
+            "description = \"Recommended: CC Mgmt outbound DNS\" security_group_id = aws_security_group.cc_mgmt_sg[count.index].id cidr_ipv4 = \"0.0.0.0/0\" from_port = 53 ip_protocol = \"udp\""
+          ]
+        }
+      ]
+    },
+    "mgmt-support": {
+      "statement": "When `support_access_enabled` is true (default), the management group allows TCP 12002 to `zssupport_server`, which defaults to 199.168.148.101/32 for commercial clouds and is the resolution of remotesupport.<cloud>.net.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-sg-aws/main.tf",
+          "quotes": [
+            "count = var.byo_security_group == false && var.support_access_enabled == true ? var.sg_count : 0 description = \"Recommended: CC Mgmt outbound Zscaler Remote Support TCP/12002\""
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-sg-aws/variables.tf",
+          "quotes": [
+            "enable a specific outbound rule for Cloud Connector to be able to establish connectivity for Zscaler support access. Default is true",
+            "variable \"zssupport_server\" {",
+            "IP resolution of remotesupport.<zscaler_customer_cloud>.net\" default = \"199.168.148.101/32\" #for commercial clouds"
+          ]
+        }
+      ]
+    },
+    "service-ingress": {
+      "statement": "The service group allows, from the VPC CIDR, TCP on the HTTP probe port for health probes and TCP 443 for internal VPC cluster communication, both marked required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-sg-aws/main.tf",
+          "quotes": [
+            "description = \"Required: CC Service TCP health probe\" security_group_id = aws_security_group.cc_service_sg[count.index].id cidr_ipv4 = data.aws_vpc.selected.cidr_block from_port = var.http_probe_port",
+            "description = \"Required: CC inbound internal VPC cluster TCP 443 communication\" security_group_id = aws_security_group.cc_service_sg[count.index].id cidr_ipv4 = data.aws_vpc.selected.cidr_block from_port = 443"
+          ]
+        }
+      ]
+    },
+    "service-intra-vpc": {
+      "statement": "The service group also allows all protocols from the VPC CIDR so service interfaces can communicate freely; the rule is labelled optional, but its count condition is the same as the service security group's own (`byo_security_group` false), with no `gwlb_enabled` term.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-sg-aws/main.tf",
+          "after": "resource \"aws_vpc_security_group_ingress_rule\" \"ingress_cc_service_all\" {",
+          "quotes": [
+            "count = var.byo_security_group == false ? var.sg_count : 0 description = \"Optional: Permit All Intra-VPC Traffic / Ensure CC Service Interfaces are able to communicate with each other freely\"",
+            "ip_protocol = \"-1\""
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-sg-aws/variables.tf",
+          "quotes": [
+            "variable \"gwlb_enabled\" {"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-sg-aws/main.tf",
+          "quotes": [
+            "count = var.byo_security_group == false ? var.sg_count : 0 name = var.sg_count > 1 ? \"${var.name_prefix}-cc-${count.index + 1}-svc-sg-${var.resource_tag}\""
+          ]
+        }
+      ]
+    },
+    "service-geneve": {
+      "statement": "When `gwlb_enabled` is true (default), the service group allows UDP 6081 GENEVE traffic in from and out to the VPC CIDR.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-sg-aws/main.tf",
+          "quotes": [
+            "count = var.byo_security_group == false && var.gwlb_enabled ? var.sg_count : 0 description = \"Required: CC GENEVE encapsulation traffic to CC Service from GWLB\" security_group_id = aws_security_group.cc_service_sg[count.index].id cidr_ipv4 = data.aws_vpc.selected.cidr_block from_port = 6081 ip_protocol = \"udp\"",
+            "description = \"Required: CC GENEVE encapsulation traffic to GWLB from CC Service\""
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-sg-aws/variables.tf",
+          "quotes": [
+            "Default is true which creates ingress/egress rules only for GENEVE traffic."
+          ]
+        }
+      ]
+    },
+    "service-egress": {
+      "statement": "The service group's egress rules are TCP 443, UDP 443 and UDP 123 to 0.0.0.0/0 (required) and UDP 53 to 0.0.0.0/0 (recommended).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-sg-aws/main.tf",
+          "quotes": [
+            "description = \"Required: CC outbound TCP 443\" security_group_id = aws_security_group.cc_service_sg[count.index].id cidr_ipv4 = \"0.0.0.0/0\" from_port = 443 ip_protocol = \"tcp\"",
+            "description = \"Required: CC Service outbound UDP 443\" security_group_id = aws_security_group.cc_service_sg[count.index].id cidr_ipv4 = \"0.0.0.0/0\" from_port = 443 ip_protocol = \"udp\"",
+            "description = \"Required: CC Service outbound NTP\" security_group_id = aws_security_group.cc_service_sg[count.index].id cidr_ipv4 = \"0.0.0.0/0\" from_port = 123 ip_protocol = \"udp\"",
+            "description = \"Recommended: CC Service outbound DNS\" security_group_id = aws_security_group.cc_service_sg[count.index].id cidr_ipv4 = \"0.0.0.0/0\" from_port = 53 ip_protocol = \"udp\""
+          ]
+        }
+      ]
+    },
+    "service-all-egress": {
+      "statement": "When `all_ports_egress_enabled` is true (default), the service group allows all protocols out to 0.0.0.0/0; the module says this is only required for direct or bypassed non-HTTPS traffic through Cloud Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-sg-aws/main.tf",
+          "quotes": [
+            "#Default recommended egress connectivity. *Only required if sending direct/bypass non-https traffic through Cloud Connector",
+            "count = var.byo_security_group == false && var.all_ports_egress_enabled ? var.sg_count : 0 description = \"Optional: CC outbound all ports and protocols\" security_group_id = aws_security_group.cc_service_sg[count.index].id cidr_ipv4 = \"0.0.0.0/0\" ip_protocol = \"-1\""
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-sg-aws/variables.tf",
+          "quotes": [
+            "variable \"all_ports_egress_enabled\" { type = bool default = true"
+          ]
+        }
+      ]
+    }
+  }
+}

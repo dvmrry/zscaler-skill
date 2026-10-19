@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "id": "shared.cloud-architecture.tunnels",
+  "title": "Z-Tunnel and Microtunnel: the two tunnel layers of Private Access",
+  "aliases": [
+    "z-tunnel vs m-tunnel",
+    "microtunnel",
+    "m-tunnel",
+    "synthetic ip",
+    "zpa synthetic ip",
+    "zpa dns interception",
+    "mpls label"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.data-path"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.z-tunnel"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.trust-model"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Private Access carries traffic in two layers: a point-to-point Z-Tunnel, and Microtunnels inside it. [[zpa.private-service-edges.data-path:ztunnel-endpoints]]"
+    },
+    {
+      "label": "Z-Tunnel.",
+      "text": "[[zpa.private-service-edges.data-path:ztunnel-mutual-tls]] {{second-ztunnel}} Client Connector's Z-Tunnel 1.0 and 2.0 for Internet & SaaS are a different subject: [[zcc.z-tunnel]]."
+    },
+    {
+      "label": "Microtunnel.",
+      "text": "[[zpa.troubleshooting.access-path:mtunnel-path]] {{edges-manage-mtunnels}} [[zpa.private-service-edges.data-path:mtunnel-stitching]] {{mpls-analogy}} The Public Service Edge that sets an M-Tunnel up is [[zpa.public-service-edges.what-it-is:control-service-edge]]."
+    },
+    {
+      "label": "How the client gets there.",
+      "text": "[[zpa.troubleshooting.no-access:zcc-intercepts-defined-apps]] {{zcc-intercepts}} {{synthetic-ip}} {{client-never-sees-app-ip}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "When an application resolves to an unexpected address on a Private Access client, check whether it is the synthetic IP Client Connector returned rather than the server's address.",
+      "uses": [
+        "synthetic-ip"
+      ]
+    }
+  ],
+  "claims": {
+    "second-ztunnel": {
+      "statement": "An additional Z-Tunnel is created between Zscaler Client Connector and a Public Service Edge, or between an App Connector and a Private Service Edge, to support multi-tenancy: Client Connector establishes a Z-Tunnel with the tenant and a separate one with the partner tenant, and the second works without additional setup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "An additional Z-Tunnel is created between Zscaler Client Connector and a Public Service Edge, or between an App Connector and a Private Service Edge, to support multi-tenancy in Zscaler Client Connector.",
+            "This allows Zscaler Client Connector to establish a Z-Tunnel with the tenant and establish a separate Z-Tunnel with the partner tenant.",
+            "The second Z-Tunnel works without any additional setup or configuration."
+          ]
+        }
+      ]
+    },
+    "edges-manage-mtunnels": {
+      "statement": "Public and Private Service Edges create and manage Microtunnels, including authentication, policy, setup, teardown and data forwarding; M-Tunnels are end-to-end encrypted connections designed to keep all traffic separate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "Creating and managing Microtunnels (M-Tunnels), including authentication, policy, setup, teardown, and data forwarding.",
+            "are end-to-end encrypted connections designed to ensure that all traffic stays separate."
+          ]
+        }
+      ]
+    },
+    "mpls-analogy": {
+      "statement": "The tags created by Client Connector and the App Connector work like the label stack of an MPLS network: as a label-switched path identifies a connection, the tags identify a unique connection for each application request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "the combination of tags created by Zscaler Client Connector and the App Connector function similarly to the label stack in a Multiprotocol Label Switching (MPLS) network.",
+            "Zscaler Client Connector and App Connector tags identify a unique connection for each application request."
+          ]
+        }
+      ]
+    },
+    "zcc-intercepts": {
+      "statement": "An organization can specify whether resources must go through Private Access at all times, only on an untrusted network, or never.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "an organization can specify if resources must go through Private Access at all times, when on an untrusted network only, or never."
+          ]
+        }
+      ]
+    },
+    "synthetic-ip": {
+      "statement": "Client Connector associates permitted internal applications with a set of synthetic IP addresses: when a client application sends a DNS request for a domain protected by Private Access, Client Connector intercepts it and answers with the synthetic IP address associated with that application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "Zscaler Client Connector associates permitted internal applications with a set of synthetic IP addresses.",
+            "Zscaler Client Connector then intercepts the DNS request and delivers a DNS response to the client application that uses the synthetic IP address associated with the internal application."
+          ]
+        }
+      ]
+    },
+    "client-never-sees-app-ip": {
+      "statement": "The client application therefore connects to a synthetic address and is never given the application server's real IP: the DNS answer is synthetic and the M-Tunnel passes no IP identification data along its path.",
+      "tier": "B",
+      "derived_from": [
+        "synthetic-ip",
+        "zpa.private-service-edges.data-path:mtunnel-stitching"
+      ],
+      "conditions": "Combines the DNS interception and M-Tunnel descriptions; no source states it as one sentence."
+    }
+  }
+}

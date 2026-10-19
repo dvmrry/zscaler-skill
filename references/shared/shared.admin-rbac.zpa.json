@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "id": "shared.admin-rbac.zpa",
+  "title": "ZPA admin roles: feature permissions, effective access and propagation delay",
+  "aliases": [
+    "zpa admin role",
+    "private access role permissions",
+    "zpa custom role",
+    "zpa role change delay",
+    "zpa admin scope"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.admin-rbac"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.audit-logs.access"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.admin-permissions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A ZPA role is a set of feature permissions. The two predefined roles are in [[zpa.audit-logs.access:predefined-roles]], and the rule that a custom role cannot exceed its creator's privileges is in [[zpa.audit-logs.access:custom-roles]]."
+    },
+    {
+      "label": "Features.",
+      "text": "{{feature-list}} {{feature-hidden}} {{highest-access}} {{read-only-save-error}}"
+    },
+    {
+      "label": "Propagation.",
+      "text": "{{two-minute-delay}} {{missing-permissions-warning}}"
+    },
+    {
+      "label": "Scope.",
+      "text": "{{microtenant-as-scope}} The Microtenant permission matrix is in [[zpa.microtenants.admin-permissions]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which feature permissions the admin's role enables, and whether any feature is Read Only rather than Full.",
+      "uses": [
+        "feature-list",
+        "highest-access",
+        "read-only-save-error"
+      ]
+    },
+    {
+      "do": "Whether the role was edited in the last two minutes, which can explain an admin still seeing old permissions.",
+      "uses": [
+        "two-minute-delay"
+      ]
+    },
+    {
+      "do": "Whether a warning icon marks missing permissions on the custom role, which then needs to be edited and saved.",
+      "uses": [
+        "missing-permissions-warning"
+      ]
+    },
+    {
+      "do": "Whether the admin works in the Default Microtenant or a Microtenant.",
+      "uses": [
+        "microtenant-as-scope"
+      ]
+    }
+  ],
+  "claims": {
+    "feature-list": {
+      "statement": "A Private Access admin role enables access per feature, chosen from these features: Administration Control, API Key Management, App Connector Management, Authentication, Business Continuity Management, B2B Exchange, Certificate Management, Client Connector Portal, Client Sessions, Cloud Connector Management, Company Information, Configuration, Dashboard, Diagnostics, Log Streaming, Machine Management, Notification Management, Policies, Private Service Edge Management, Privileged Remote Access, Privileged Sessions, Security Management, SCIM Management and VPN (For Legacy Apps). Each grants Full or Read Only access, except Client Connector Portal (Full) and Dashboard (Read Only).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-administrator-roles.json",
+          "quotes": [
+            "Under Access Control, click Enable for the features that this role must have access to.",
+            "Enable to allow admins Full or Read Only access to the following Administration functionality:",
+            "Enable to allow admins Full or Read Only access to API Keys.",
+            "Enable to allow admins Full or Read Only access to the following App Connector Management functionality:",
+            "Enable to allow admins Full or Read Only access to the following Authentication functionality:",
+            "Enable to allow admins Full or Read Only access to Business Continuity Management functionality:",
+            "Enable to allow admins Full or Read Only access to the following B2B Exchange functionality:",
+            "Enable to allow admins Full or Read Only access to Certificates.",
+            "Enable to allow admins Full access to Zscaler Client Connector Portal.",
+            "Enable to allow admins Full or Read Only access to Client Sessions.",
+            "Enable to allow admins Full or Read Only access to the following Cloud Connector Management functionality:",
+            "Enable to allow admins Full or Read Only access to the Company profile.",
+            "Enable to allow admins Full or Read Only access to the following Configuration functionality:",
+            "Enable to allow admins Read Only access to the Dashboard.",
+            "Enable to allow admins Full or Read Only access to the following Diagnostics functionality:",
+            "Enable to allow admins Full or Read Only access to the following Log Streaming functionality:",
+            "Enable to allow admins Full or Read Only access to the following Machine Management functionality:",
+            "Enable to allow Full or Read Only access to the following Notification Management functionality:",
+            "Enable to allow admins Full or Read Only access to the following Policy Management functionality:",
+            "Enable to allow admins Full or Read Only access to the following Private Service Edge Management functionality:",
+            "Enable to allow admins Full or Read Only access to the following Privileged Remote Access functionality:",
+            "Enable to allow admins Full or Read Only access to the following Privileged Sessions functionality:",
+            "Enable to allow admins Full or Read Only access to the following Security Management functionality:",
+            "Enable to allow admins Full or Read Only access to following SCIM Management functionality.",
+            "Enable to allow Full or Read Only access to the following VPN (For Legacy Apps) functionality:"
+          ]
+        }
+      ]
+    },
+    "feature-hidden": {
+      "statement": "If a role does not have access to a feature, that feature's functionality does not appear in the Admin Console for any admin with the role, and a page an admin cannot access is still listed in the navigation menu but cannot be opened.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-administrator-roles.json",
+          "quotes": [
+            "If the role does not have access to a feature, then the functionality for the feature does not appear in the Zscaler Admin Console for any admin assigned to this role.",
+            "If an admin does not have permission to access a page within the Zscaler Admin Console, it is still listed within the left-side navigation menu, but it is not accessible."
+          ]
+        }
+      ]
+    },
+    "highest-access": {
+      "statement": "A user is always granted the highest level of access the role defines: if one feature section gives Full access to policies and another gives Read Only, the user has Full access to policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-administrator-roles.json",
+          "quotes": [
+            "A user is always granted the highest level of access control as defined for their role.",
+            "then Full access is granted to the user for Policies."
+          ]
+        }
+      ]
+    },
+    "read-only-save-error": {
+      "statement": "An admin with Read Only access can still attempt to add or edit, and gets an error message on save.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-administrator-roles.json",
+          "quotes": [
+            "If an admin has Read Only access, they can still attempt to add or edit, but an error message is displayed when they try to save."
+          ]
+        }
+      ]
+    },
+    "two-minute-delay": {
+      "statement": "Updates to the permissions of an existing role can take up to two minutes to take effect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-administrator-roles.json",
+          "quotes": [
+            "It can take up to two minutes for updates to the permissions for existing roles to take effect."
+          ]
+        }
+      ]
+    },
+    "missing-permissions-warning": {
+      "statement": "When a custom role is missing permissions, a warning icon appears next to the permission group (and next to the missing permissions when the group is expanded), and the role must be edited and saved with the new permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-administrator-roles.json",
+          "quotes": [
+            "If the permissions for a custom role are missing, you must edit the custom role and save the new permissions.",
+            "A warning icon appears next to the permission group that indicates when permissions are missing.",
+            "When you expand the group, a warning icon also appears next to the missing permissions."
+          ]
+        }
+      ]
+    },
+    "microtenant-as-scope": {
+      "statement": "A ZPA role carries no admin rank and no organizational scope like ZIA's: the role form has a name, a description and feature access, and what an admin can see and change otherwise depends on whether the admin works in the Default Microtenant or a Microtenant.",
+      "tier": "B",
+      "derived_from": [
+        "zpa.microtenants.admin-permissions:matrix-scope"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-administrator-roles.json",
+          "quotes": [
+            "Name: Enter a name for the role.",
+            "Description: (Optional) Enter a description for the role."
+          ]
+        }
+      ],
+      "conditions": "The Add Role steps list Name, Description and Access Control only, and neither ZPA role article mentions a rank; the reading of Microtenants as ZPA's scope dimension is an inference from the Microtenant permission matrix."
+    }
+  }
+}

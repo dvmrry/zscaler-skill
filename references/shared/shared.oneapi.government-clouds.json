@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "id": "shared.oneapi.government-clouds",
+  "title": "Reaching OneAPI on government (FedRAMP) and non-production clouds",
+  "aliases": [
+    "oneapi fedramp",
+    "cloud=gov",
+    "cloud=govus",
+    "zidentitygov.net",
+    "api.zscalergov.net",
+    "gov cloud legacy only",
+    "zsloginbeta",
+    "api.beta.zsapi.net cloud value"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.oneapi.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.base-urls"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.legacy-api.auth-models"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Government tenants reach OneAPI through separate identity and gateway hosts, and whether a given client can do so depends on its version. {{help-fedramp-hosts}}"
+    },
+    {
+      "label": "Which host.",
+      "text": "{{go-gov-routing}} The Python SDK routes the same values the same way: [[zia.sdk-python.authentication:gov-cloud-routing]]. The help page and the SDKs name different gateway hosts {{divergence:fedramp-gateway-host}}."
+    },
+    {
+      "label": "Other cloud values.",
+      "text": "{{go-other-cloud-hosts}} {{go-beta-host-b}}"
+    },
+    {
+      "label": "Which clients support it.",
+      "text": "The ZIA Terraform provider supports gov and govus from v4.7.25: [[zia.terraform.provider-modes:fedramp-gov-values]]. The ZPA provider supports them from v4.4.6: [[zpa.terraform.provider-config:fedramp-oneapi-4-4-6]]. The ZCC provider documents no OneAPI support for the zscalergov and zscalerten clouds: [[zcc.terraform.provider-config:gov-clouds-unsupported]]. Early Python SDK releases sent government customers to the legacy framework: [[zia.sdk-python.authentication:older-sdk-gov-unsupported]]."
+    },
+    {
+      "label": "Legacy cloud values.",
+      "text": "The uppercase ZPA legacy clouds GOV and GOVUS select legacy config hosts, not OneAPI: [[zpa.api.base-paths:legacy-hosts]]. Whether a client's routing support means a given government tenant is entitled to OneAPI is open {{gap:tenant-entitlement}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a government tenant, which client and version is in use, and whether it routes cloud=gov or cloud=govus through OneAPI or only offers the legacy path.",
+      "uses": [
+        "go-gov-routing",
+        "zia.terraform.provider-modes:fedramp-gov-values",
+        "zpa.terraform.provider-config:fedramp-oneapi-4-4-6",
+        "zcc.terraform.provider-config:gov-clouds-unsupported"
+      ]
+    },
+    {
+      "do": "Which gateway host a hand-built client should call for a FedRAMP tenant, given that the help page and the SDKs disagree.",
+      "uses": [
+        "fedramp-gateway-host"
+      ]
+    },
+    {
+      "do": "Whether the government tenant has Authentication Service API clients at all before choosing OneAPI over its product's legacy API.",
+      "uses": [
+        "tenant-entitlement"
+      ]
+    }
+  ],
+  "claims": {
+    "help-fedramp-hosts": {
+      "statement": "The OneAPI guide gives api.zsapi.net as the host for commercial customers and, for federal agencies, api.zscaler.us at FedRAMP Moderate and api.zscaler.net at FedRAMP High.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "The OneAPI host for commercial customers is api.zsapi.net. For federal agencies, the hosts are listed follows:",
+            "| Moderate | api.zscaler.us |",
+            "| High | api.zscaler.net |"
+          ]
+        }
+      ]
+    },
+    "go-gov-routing": {
+      "statement": "The Go SDK maps the cloud values `gov` and `govus` (case-insensitive) to the token hosts zidentitygov.net and zidentitygov.us and to the API gateways `https://api.zscalergov.net` and `https://api.zscalergov.us`, instead of the commercial zslogin and zsapi hosts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "\"gov\":   \"zidentitygov.net\",",
+            "\"govus\": \"zidentitygov.us\",",
+            "\"gov\":   \"https://api.zscalergov.net\",",
+            "\"govus\": \"https://api.zscalergov.us\",",
+            "return fmt.Sprintf(\"https://%s.%s/oauth2/v1/token\", vanityDomain, govAuthDomain)",
+            "client selects them via the (case-insensitive) \"cloud\" parameter",
+            "provider rather than the commercial zslogin{cloud}.net family.",
+            "gateways and do not follow the commercial api.{cloud}.zsapi.net pattern."
+          ]
+        }
+      ]
+    },
+    "go-other-cloud-hosts": {
+      "statement": "For an empty or PRODUCTION cloud the Go SDK uses `https://<vanity>.zslogin.net/oauth2/v1/token` and `https://api.zsapi.net`; for any other non-government cloud value it builds the token host as zslogin followed by the lowercased cloud name (`https://%s.zslogin%s.net/oauth2/v1/token`) and the gateway as `https://api.%s.zsapi.net`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "if cloud == \"\" || strings.EqualFold(cloud, \"PRODUCTION\") {",
+            "return fmt.Sprintf(\"https://%s.zslogin.net/oauth2/v1/token\", vanityDomain)",
+            "return fmt.Sprintf(\"https://%s.zslogin%s.net/oauth2/v1/token\", vanityDomain, strings.ToLower(cloud))",
+            "baseURL := \"https://api.zsapi.net\"",
+            "baseURL = fmt.Sprintf(\"https://api.%s.zsapi.net\", strings.ToLower(cloud))",
+            "if govAuthDomain, ok := oneAPIGovAuthDomains[strings.ToLower(cloud)]; ok {"
+          ]
+        }
+      ]
+    },
+    "go-beta-host-b": {
+      "statement": "So with the cloud set to beta the Go SDK calls api.beta.zsapi.net, the beta gateway the OneAPI guide documents, and requests tokens from the zsloginbeta.net domain that the Analytics guide's example token URL uses.",
+      "tier": "B",
+      "derived_from": [
+        "go-other-cloud-hosts",
+        "shared.oneapi.base-urls:beta-host"
+      ],
+      "conditions": "Follows from the Go host pattern applied to the value beta; the Analytics guide shows https://acme.zsloginbeta.net/oauth2/v1/token as an example access token URL.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "quotes": [
+            "For example, https://acme.zsloginbeta.net/oauth2/v1/token."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "fedramp-gateway-host": {
+      "summary": "Which gateway host serves OneAPI for FedRAMP tenants: the help page names api.zscaler.us (Moderate) and api.zscaler.net (High), while the Go and Python SDKs send gov and govus traffic to api.zscalergov.net and api.zscalergov.us.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "automate-zscaler/getting-started.json",
+            "quotes": [
+              "| Moderate | api.zscaler.us |",
+              "| High | api.zscaler.net |"
+            ]
+          },
+          "says": "FedRAMP Moderate uses api.zscaler.us and FedRAMP High uses api.zscaler.net."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/oneapiclient.go",
+            "quotes": [
+              "\"gov\":   \"https://api.zscalergov.net\",",
+              "\"govus\": \"https://api.zscalergov.us\","
+            ]
+          },
+          "says": "The gov cloud uses https://api.zscalergov.net and the govus cloud https://api.zscalergov.us."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/constants.py",
+            "quotes": [
+              "\"gov\": \"https://api.zscalergov.net\",",
+              "\"govus\": \"https://api.zscalergov.us\","
+            ]
+          },
+          "says": "The Python SDK uses the same two zscalergov hosts."
+        }
+      ],
+      "impact": "A hand-built client that follows the help page and one built on the SDKs call different hosts for the same tenant; which host a FedRAMP tenant's API clients are served on, and how Moderate and High map to gov and govus, needs confirming before relying on either."
+    }
+  },
+  "gaps": {
+    "tenant-entitlement": {
+      "kind": "data",
+      "title": "Whether a government tenant can use OneAPI",
+      "status": "open",
+      "detail": "Unverified legacy statement: client and provider routing support for gov and govus does not prove that a given government tenant is entitled to OneAPI or has Authentication Service API clients configured; pre-ZIdentity tenants and older clients still need their product's legacy API. No source states which government tenants have OneAPI enabled.",
+      "blocks": "choosing OneAPI over the legacy API for a specific government tenant",
+      "resolvable_by": [
+        "operator"
+      ],
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    }
+  }
+}

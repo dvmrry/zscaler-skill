@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.api.gateways-wire",
+  "title": "Cloud Connector forwarding and DNS gateways on the wire: two DNS gateway models, type and subcloud fields",
+  "aliases": [
+    "ztw dnsGateways",
+    "ztw gateways api",
+    "dns_forwarding_gateway vs dns_gateway",
+    "ztw subcloud gateway",
+    "log and control gateway api"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.gateways"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.dns.gateways"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding.log-and-control"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Forwarding gateways (`/gateways`, including the Log and Control gateway) and DNS gateways (`/dnsGateways`) are separate endpoints whose paths and fields are generated. The Go SDK models DNS gateways twice, and the sources disagree on a few fields."
+    },
+    {
+      "label": "Two DNS gateway models.",
+      "text": "The Go SDK has two packages and the provider two resources for the one DNS gateway endpoint, with different structs: [[cloud-connector.terraform.gateways:two-resources-two-packages]], [[cloud-connector.terraform.gateways:structs-differ]]. {{dns-forwarding-gateway-nil-response}}"
+    },
+    {
+      "label": "The type field.",
+      "text": "The `type` values ZIA and ECSELF belong to the forwarding gateway, and the contract's DNS gateway has no `type`: [[cloud-connector.forwarding.log-and-control:gateway-type]], [[cloud-connector.forwarding.log-and-control:dns-gateway-no-type]]. Whether the DNS gateway API needs either type field is open in [[cloud-connector.terraform.gateways:dns-gateway-type-semantics]]."
+    },
+    {
+      "label": "Resolver options.",
+      "text": "The contract and Terraform accept different resolver option and failure-behavior tokens: [[cloud-connector.dns.gateways:option-tokens]], [[cloud-connector.dns.gateways:contract-failure-values]]."
+    },
+    {
+      "label": "Subclouds.",
+      "text": "The Go SDK calls the forwarding gateway's subcloud fields not applicable while the provider writes them: [[cloud-connector.terraform.gateways:subcloud-applicability]], with the open question in [[cloud-connector.terraform.gateways:subcloud-backend]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Go code reads an HTTP status from the `dns_forwarding_gateway` functions' response value, which is always nil.",
+      "uses": [
+        "dns-forwarding-gateway-nil-response"
+      ]
+    }
+  ],
+  "claims": {
+    "dns-forwarding-gateway-nil-response": {
+      "statement": "The `dns_forwarding_gateway` package's `Get`, `Create` and `Update` declare an `*http.Response` result but always return nil for it, so the extra return value carries no status or headers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/forwarding_gateways/dns_forwarding_gateway/dns_forwarding_gateway.go",
+          "quotes": [
+            "func Get(ctx context.Context, service *zscaler.Service, ecGroupID int) (*DNSGateway, *http.Response, error) {",
+            "return &dnsGW, nil, nil",
+            "func Create(ctx context.Context, service *zscaler.Service, rules *DNSGateway) (*DNSGateway, *http.Response, error) {",
+            "return createdRules, nil, nil",
+            "func Update(ctx context.Context, service *zscaler.Service, ruleID int, rules *DNSGateway) (*DNSGateway, *http.Response, error) {",
+            "return updatedGateways, nil, nil"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.overview.zero-trust-gateways",
+  "title": "Zero Trust Gateways versus Cloud Connectors: who runs what, and where it is available",
+  "aliases": [
+    "zero trust gateway",
+    "ztg",
+    "aws zero trust gateway",
+    "gcp zero trust gateway",
+    "azure zero trust gateway",
+    "is a zero trust gateway a cloud connector",
+    "managed cloud connector"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.regions.zero-trust-gateways"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A Zero Trust Gateway is a separate deployment type from the Cloud Connector VM that the rest of this area describes."
+    },
+    {
+      "items": [
+        {
+          "label": "AWS.",
+          "text": "{{aws-managed}} {{aws-endpoint-registration}}"
+        },
+        {
+          "label": "GCP.",
+          "text": "{{gcp-managed}} It is likewise Limited Availability: [[cloud-connector.gcp-ztg:limited-availability]]. Creating and operating one: [[cloud-connector.gcp-ztg]]."
+        },
+        {
+          "label": "Azure.",
+          "text": "{{no-azure-article}} Whether an Azure Zero Trust Gateway can be created is open {{gap:azure-availability}}."
+        }
+      ]
+    },
+    {
+      "text": "{{no-infrastructure}} {{aws-cannot-disable}} The two clouds' pages share the service description but do not establish the same IAM, endpoint, interception, control or API contract {{gap:aws-gcp-parity}}."
+    },
+    {
+      "text": "Both types appear in the Cloud Connector groups list, distinguished by group type: [[cloud-connector.overview.groups:group-types]]. The Local forwarding method is available to both: [[cloud-connector.forwarding.methods:local-availability]]. Regions where gateways are offered: [[cloud-connector.regions.zero-trust-gateways]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the deployment in question is a customer-deployed Cloud Connector VM or a Zscaler-managed Zero Trust Gateway (group type), before applying VM lifecycle, scaling or health-probe answers.",
+      "uses": [
+        "aws-managed",
+        "gcp-managed",
+        "cloud-connector.overview.groups:group-types"
+      ]
+    },
+    {
+      "do": "Whether Zscaler Support has enabled Zero Trust Gateways for the tenant (Limited Availability).",
+      "uses": [
+        "aws-managed",
+        "cloud-connector.gcp-ztg:limited-availability"
+      ]
+    }
+  ],
+  "claims": {
+    "aws-managed": {
+      "statement": "AWS Zero Trust Gateways are a Zscaler cloud-native service offering in public clouds; they are in Limited Availability and are enabled by contacting Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-amazon-web-services-zero-trust-gateways.json",
+          "quotes": [
+            "Amazon Web Services (AWS) Zero Trust Gateways are a Zscaler cloud native service offering in public clouds.",
+            "AWS gateways are in Limited Availability (LA). To enable this feature, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "gcp-managed": {
+      "statement": "GCP Zero Trust Gateways are a Zscaler cloud-native service offering in public clouds that is supported in GCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-google-cloud-platform-zero-trust-gateways.json",
+          "quotes": [
+            "Google Cloud Platform (GCP) Zero Trust Gateways are a Zscaler cloud native service offering in public clouds that is supported in GCP."
+          ]
+        }
+      ]
+    },
+    "no-infrastructure": {
+      "statement": "Both the AWS and GCP gateway pages describe securing workloads through the Zscaler Zero Trust Cloud as a SaaS offering without managing security infrastructure, removing the need to deploy NAT gateways, security infrastructure, load balancers and VMs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-amazon-web-services-zero-trust-gateways.json",
+          "quotes": [
+            "Secure workloads communicating with the internet and private destinations using the Zscaler Zero Trust Cloud as a SaaS offering, without needing to manage any security infrastructure.",
+            "Simplify operations by removing the need to deploy NAT gateways, security infrastructure, load balancers, and virtual machines (VMs)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-google-cloud-platform-zero-trust-gateways.json",
+          "quotes": [
+            "Secure workloads communicating with the internet and private destinations using the Zscaler Zero Trust Cloud as a SaaS offering, without needing to manage any security infrastructure.",
+            "Simplify operations by removing the need to deploy NAT gateways, security infrastructure, load balancers, and VMs."
+          ]
+        }
+      ]
+    },
+    "aws-cannot-disable": {
+      "statement": "An AWS gateway's operational status is Enabled or Disabled, but AWS gateways cannot be disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-amazon-web-services-zero-trust-gateways.json",
+          "quotes": [
+            "Operational Status: The operational status of the AWS gateway (i.e., Enabled or Disabled)",
+            "You cannot disable AWS gateways"
+          ]
+        }
+      ]
+    },
+    "no-azure-article": {
+      "statement": "The captured Cloud & Branch Connector help has Zero Trust Gateway articles for AWS and GCP and none for Azure, and the supported-regions article lists only AWS and GCP regions.",
+      "tier": "B",
+      "derived_from": [
+        "aws-managed",
+        "gcp-managed",
+        "cloud-connector.regions.zero-trust-gateways:scope"
+      ],
+      "conditions": "Absence in the captured help set (vendor/zscaler-help cbc-* captures as of 2026-10-18), not a vendor statement that Azure is unsupported."
+    },
+    "aws-endpoint-registration": {
+      "statement": "After an AWS Zero Trust Gateway is added, traffic is routed to it by creating a VPC endpoint of type \"Endpoint services that use NLBs and GWLBs\" from the gateway's Endpoint Service Name, in a chosen VPC and availability zone, and then pointing route-table entries at that Gateway Load Balancer endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-registering-endpoint-amazon-web-services.json",
+          "quotes": [
+            "After you add an AWS Zero Trust Gateway, you can use the service address to register the endpoint.",
+            "Type: Select Endpoint services that use NLBs and GWLBs.",
+            "Service name: Paste the Endpoint Service Name from the Zscaler Admin Console and click Verify service.",
+            "In the Network settings section, under VPC, from the Select a VPC drop-down menu, select the VPC where you want to deploy the endpoint.",
+            "select the Availability Zone where you want to deploy the endpoint",
+            "After deploying the endpoint, you must route traffic through it. Traffic passes through the Zero Trust Gateway.",
+            "Target: From the drop-down menu, select Gateway Load Balancer Endpoint."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "azure-availability": {
+      "kind": "semantic",
+      "title": "Azure Zero Trust Gateway deployment availability",
+      "status": "open",
+      "former_ids": [
+        "cloud-connector-29"
+      ],
+      "detail": "Zscaler's product page positions Zero Trust Gateway for multi-cloud workload traffic and names Azure ExpressRoute among private-connectivity examples, but it does not say in which clouds a gateway can currently be created, its release stage, or entitlement. No first-party per-cloud availability matrix or Azure gateway article is captured.",
+      "blocks": "saying whether an Azure tenant can use a Zero Trust Gateway instead of Cloud Connector VMs",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "aws-gcp-parity": {
+      "kind": "semantic",
+      "title": "Whether AWS and GCP Zero Trust Gateways share one operating contract",
+      "status": "open",
+      "detail": "Both pages describe a Zscaler-managed cloud-native service with the same benefits list, but the GCP page adds constraints (no DNS interception, Network Security Integration limits) and the AWS page lists endpoint-service columns; identical IAM, endpoint, interception, operational-control and API semantics across the two clouds are not established.",
+      "blocks": "reusing an AWS gateway answer for a GCP gateway or the reverse",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

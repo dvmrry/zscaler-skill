@@ -49,6 +49,9 @@
     {
       "label": "Order inside the firewall module.",
       "text": "Evaluation order among the firewall policies is open {{gap:module-internal-order}}. The web side is covered in [[zia.url-filtering]] and [[zia.ssl-inspection.pipeline]], and Cloud App Control in [[zia.cloud-app-control.precedence]]."
+    },
+    {
+      "text": "{{inbound-web-module-only}}"
     }
   ],
   "checks": [
@@ -205,6 +208,20 @@
           "path": "configuring-source-ip-anchoring.json",
           "quotes": [
             "you must enable the Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors option"
+          ]
+        }
+      ]
+    },
+    "inbound-web-module-only": {
+      "statement": "Inbound web traffic (HTTP or HTTPS on ports 80/443 from the internet in response to GET or POST requests) is sent to the web module for policy evaluation, and is allowed into the organization if it violates no Web policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-policy-enforcement.json",
+          "quotes": [
+            "When the Public Service Edge receives inbound web traffic (HTTP or HTTPS traffic for ports 80/443) from the internet in response to HTTP GET or POST requests, it sends the traffic to its web module for policy evaluation.",
+            "If the traffic does not violate any Web policies, it allows the traffic into your organization."
           ]
         }
       ]

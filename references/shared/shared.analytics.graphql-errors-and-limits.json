@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "id": "shared.analytics.graphql-errors-and-limits",
+  "title": "Analytics GraphQL errors and rate limits: errors under HTTP 200, status codes, 1,000 calls a second",
+  "aliases": [
+    "zins errors array",
+    "graphql 200 with errors",
+    "zins rate limit",
+    "analytics api 1000 per second",
+    "zins 403 insights reader",
+    "zins user-agent format",
+    "zdx graphql rate limit tier"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.analytics.graphql"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.response-codes"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.rate-limits"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Errors under 200.",
+      "text": "{{errors-under-200}} {{error-shape}}"
+    },
+    {
+      "label": "Status codes.",
+      "text": "{{status-401}} {{status-403}} {{status-400}} {{status-500}}"
+    },
+    {
+      "label": "Troubleshooting.",
+      "text": "{{troubleshooting}}"
+    },
+    {
+      "label": "Rate limits.",
+      "text": "{{analytics-rate-limit}} The earlier question about Z-Insights limits is closed {{gap:rate-limits}}. {{zdx-graphql-limits}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Read the errors array of every response, including HTTP 200 ones, and isolate the failing domain query.",
+      "uses": [
+        "errors-under-200",
+        "troubleshooting"
+      ]
+    },
+    {
+      "do": "For 401 versus 403, whether the token is invalid (audience, issuer, environment or tenant) or valid but lacks the Zscaler Insights Reader role.",
+      "uses": [
+        "status-401",
+        "status-403"
+      ]
+    },
+    {
+      "do": "For a 400, whether the User-Agent header follows PartnerName/AppName/Version (Device; OS Version) Region=COUNTRY.",
+      "uses": [
+        "status-400"
+      ]
+    }
+  ],
+  "claims": {
+    "errors-under-200": {
+      "statement": "A request can return HTTP 200 while one or more of its GraphQL queries failed; the errors are in the `errors` array of the response body. Causes include an upstream service failure for one data domain, a malformed query, invalid parameters such as `start_time`, `end_time` or `limit`, or requesting domains or fields the API client's role does not permit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-analytics.json",
+          "quotes": [
+            "| 200 OK | The request was successfully received by OneAPI, but one or more GraphQL queries within the request failed. The error information is available in the errors array in the response body.",
+            "Service failure: There was a failure in an upstream service that handles a specific data domain query.",
+            "Query error: Malformed GraphQL query, invalid parameters (e.g., start_time, end_time, or limit), or requesting data domains or fields that are not permitted by the API client's role."
+          ]
+        }
+      ]
+    },
+    "error-shape": {
+      "statement": "Each error carries `message`, `locations`, `path` and `extensions` with a `code`, an `http_status` and a `classification`; the example shows a `FORBIDDEN` 403 for one query under `data` that still holds an empty result.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-analytics.json",
+          "quotes": [
+            "Errors are reported in the response body in the errors array. When a query fails, the HTTP response code can still be 200 OK. This is generally caused by failures in the service.",
+            "\"message\": \"Data fetching Failed: Forbidden to use API\",",
+            "\"locations\": [",
+            "\"path\": [",
+            "\"code\": \"FORBIDDEN\",",
+            "\"http_status\": 403,",
+            "\"classification\": \"INTERNAL_ERROR\"",
+            "\"extensions\": {",
+            "\"data\": {",
+            "\"entries\": []"
+          ]
+        }
+      ]
+    },
+    "status-401": {
+      "statement": "401 means missing or invalid credentials: no Authorization header, an expired, revoked or wrongly generated token, wrong audience or issuer claims, a token from another environment or tenant, or missing roles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-analytics.json",
+          "quotes": [
+            "Missing Authorization header: The Authorization header was not included in the request.",
+            "Invalid token: The OAuth 2.0 access token is expired, revoked, or incorrectly generated.",
+            "Token validation issues: Common issues include an incorrect audience or issuer claims specified during token generation.",
+            "an access token from a different environment or tenant was used.",
+            "Missing or incorrect roles: The API client might not be assigned appropriate roles for the API call being made.",
+            "| 401 Unauthorized | The request lacks valid authentication credentials"
+          ]
+        }
+      ]
+    },
+    "status-403": {
+      "statement": "403 means the request is authenticated but the API client lacks the role for the data domain or function, or a platform security policy blocks access; the troubleshooting step is to verify that the API client has the Zscaler Insights Reader role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-analytics.json",
+          "quotes": [
+            "Insufficient role: The API client is not assigned the role required to query the specific data domain or function.",
+            "Policy restriction: A security policy on the Zscaler platform might be blocking access.",
+            "Check API client role: Verify that the API client has the Zscaler Insights Reader role assigned.",
+            "| 403 Forbidden | The request is correctly authenticated"
+          ]
+        }
+      ]
+    },
+    "status-400": {
+      "statement": "400 means malformed syntax: GraphQL syntax errors or invalid JSON variables, or a required header such as User-Agent in the wrong format, which must be `PartnerName/AppName/Version (Device; OS Version) Region=COUNTRY`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-analytics.json",
+          "quotes": [
+            "Malformed GraphQL: There are syntax errors in the GraphQL query (e.g., missing braces, incorrect field names, or invalid JSON variables).",
+            "Invalid header format: Required headers such as User-Agent are incorrectly formatted.",
+            "Ensure that the User-Agent header adheres to the required format: PartnerName/AppName/Version (Device; OS Version) Region=COUNTRY.",
+            "| 400 Bad Request | The request could not be understood by the server due to malformed syntax."
+          ]
+        }
+      ]
+    },
+    "status-500": {
+      "statement": "500 is an internal server error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-analytics.json",
+          "quotes": [
+            "| 500 Internal Server Error | An internal server error occurred while processing the request. | N/A | N/A |"
+          ]
+        }
+      ]
+    },
+    "troubleshooting": {
+      "statement": "When a multi-domain query fails, isolate the individual queries; when every query fails, a successful introspection (where supported) confirms that authentication and connectivity work.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-analytics.json",
+          "quotes": [
+            "Single query isolation: If a multi-domain query fails, isolate the individual queries to determine which specific domain or function is causing the error.",
+            "Introspection check: If you receive errors for all queries, try using GraphQL schema introspection in your API client application, if supported.",
+            "A successful introspection confirms that authentication and connectivity to the endpoint are working correctly."
+          ]
+        }
+      ]
+    },
+    "analytics-rate-limit": {
+      "statement": "All Analytics API endpoints are limited to 1,000 calls per second per tenant, and responses carry `x-ratelimit-limit`, `x-ratelimit-remaining` and `x-ratelimit-reset` (seconds remaining in the window).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-analytics.json",
+          "quotes": [
+            "All endpoints within the Analytics API are subject to a rate limit of 1,000 calls per second, per tenant.",
+            "- x-ratelimit-limit: The rate limit ceiling that is applicable for the current API request.",
+            "- x-ratelimit-remaining: The number of API requests remaining for the current rate limit window.",
+            "- x-ratelimit-reset: The time (in seconds) remaining in the current window after which the rate limit resets."
+          ]
+        }
+      ]
+    },
+    "zdx-graphql-limits": {
+      "statement": "The ZDX GraphQL API within Analytics is limited by license tier, from 5 per second, 30 per minute, 1,000 per hour and 10,000 per day at tier 1 (5,000 licenses) to 12 per second, 450 per minute, 22,500 per hour and 150,000 per day at tier 5 (more than 100,000).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-analytics-zdx-graphql-api-rate-limits.json",
+          "quotes": [
+            "Rate limits for the ZDX GraphQL API are based on the license tier level.",
+            "| 1 | 5,000 | 5 | 30 | 1,000 | 10,000 |",
+            "| 5 | More than 100,000 | 12 | 450 | 22,500 | 150,000 |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "rate-limits": {
+      "kind": "semantic",
+      "former_ids": [
+        "shared-29"
+      ],
+      "title": "Z-Insights GraphQL rate limits and headers",
+      "status": "resolved",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "The Analytics rate-limit page gives 1,000 calls per second per tenant and the x-ratelimit-* headers (claim analytics-rate-limit)."
+    }
+  }
+}

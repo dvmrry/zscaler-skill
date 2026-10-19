@@ -221,8 +221,8 @@ Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.json`; `vendor/zscale
 |---|---|
 | [`zpa.app-segments`](kb:zpa.app-segments) | ZPA app-segments are the user→app primitive; ZMS AppZones are the workload→workload primitive. Different abstractions; both are policy targets. |
 | [`zpa.policy`](kb:zpa.policy) | ZPA's policy precedence rules don't apply to ZMS — ZMS enforcement is local OS firewall, not ZPA cloud policy. |
-| [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md) | ZMS as a ZPA add-on belongs here — should be added as a cross-product hook (currently absent). |
-| [`../cloud-connector/forwarding.md`](../cloud-connector/forwarding.md) | Cloud Connector handles **north-south workload traffic** (workload → internet via Zscaler). ZMS handles **east-west workload traffic** (workload → workload). Operators conflating the two is a routing-question hazard. |
+| [`shared.integrations`](kb:shared.integrations) | ZMS as a ZPA add-on belongs here — should be added as a cross-product hook (currently absent). |
+| [`cloud-connector.forwarding`](kb:cloud-connector.forwarding) | Cloud Connector handles **north-south workload traffic** (workload → internet via Zscaler). ZMS handles **east-west workload traffic** (workload → workload). Operators conflating the two is a routing-question hazard. |
 
 ## Open questions
 
@@ -242,5 +242,5 @@ Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.json`; `vendor/zscale
 - Skill index: [`./index.md`](./index.md)
 - Portfolio map (where ZMS sits): [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
 - ZPA app-segments (the north-south analog): [`zpa.app-segments`](kb:zpa.app-segments)
-- Cloud Connector (workload north-south traffic — distinct from ZMS east-west): [`../cloud-connector/overview.md`](../cloud-connector/overview.md)
-- Cross-product integrations (where ZMS↔ZPA hook should live): [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)
+- Cloud Connector (workload north-south traffic — distinct from ZMS east-west): [`cloud-connector.overview`](kb:cloud-connector.overview)
+- Cross-product integrations (where ZMS↔ZPA hook should live): [`shared.integrations`](kb:shared.integrations)

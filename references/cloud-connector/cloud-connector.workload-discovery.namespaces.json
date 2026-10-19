@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.workload-discovery.namespaces",
+  "title": "Namespaces and the zs:namespace VPC tag: overlapping IPs in workload discovery",
+  "aliases": [
+    "zs:namespace",
+    "duplicate ip workload discovery",
+    "No of Duplicates IP",
+    "overlapping cidr tags cloud connector",
+    "default namespace",
+    "tag-based policy wrong workload overlapping ip"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.workload-discovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.workload-scopes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{mapping-decentralized}} {{namespace-definition}}"
+    },
+    {
+      "label": "Assigning a namespace.",
+      "text": "{{vpc-tag}} {{discovery-assigns}} {{default-namespace}}"
+    },
+    {
+      "label": "Duplicates.",
+      "text": "{{duplicate-ip-one-shown}} Which of the duplicates is kept is not stated {{gap:which-duplicate-kept}}. {{untagged-overlap}} {{shared-namespace-overlap}}"
+    },
+    {
+      "label": "The documented example.",
+      "text": "{{example-mapping}} {{example-inconsistent}}"
+    },
+    {
+      "label": "Where the tag must sit.",
+      "text": "The sources describe only the VPC tag; the effect of the same tag on an instance or other resource is unknown {{gap:non-vpc-tag}}. Namespace sublocation scopes, which group traffic by namespace for policy, are in [[zia.locations.workload-scopes]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether No of Duplicates IP is non-zero in the account's region view.",
+      "uses": [
+        "duplicate-ip-one-shown"
+      ]
+    },
+    {
+      "do": "Whether every VPC whose CIDRs overlap another's carries a `zs:namespace` tag, with different values for VPCs that overlap.",
+      "uses": [
+        "vpc-tag",
+        "untagged-overlap",
+        "shared-namespace-overlap"
+      ]
+    },
+    {
+      "do": "Whether the VPC holds the GWLB endpoint the traffic uses, since discovery assigns that endpoint to the VPC's namespace.",
+      "uses": [
+        "discovery-assigns"
+      ]
+    }
+  ],
+  "claims": {
+    "mapping-decentralized": {
+      "statement": "The Zscaler service maps user-defined tags and cloud-provider attributes to the workload IP address, and the mapping is decentralized at the Cloud Connector level. With no overlapping CIDR blocks, Cloud Connector maps an IP address to a set of tags; with overlapping blocks the maps are divided into subsets in which every CIDR block is unique to the namespace.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-namespaces-amazon-web-services-and-microsoft-azure-accounts.json",
+          "quotes": [
+            "The Zscaler service creates a mapping between the user-defined tags or cloud-provider-generated attributes and the workload IP address. This mapping is decentralized at the Zscaler Cloud Connector level.",
+            "With no overlapping Classless Inter-Domain Routing (CIDR) blocks, Cloud Connector maps the IP address to a set of tags. When there are overlapping CIDR blocks, divide the set of maps into a subset. In a subset, every CIDR block is unique to the namespace."
+          ]
+        }
+      ]
+    },
+    "namespace-definition": {
+      "statement": "In AWS a namespace is a set of VPC endpoints; the VPCs in a namespace should not have overlapping IP addresses, and the namespace is an additional data point to tell identical source IP addresses apart when egress traffic reaches Cloud Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-namespaces-amazon-web-services-and-microsoft-azure-accounts.json",
+          "quotes": [
+            "A namespace is a set of VPC endpoints in Amazon Web Services (AWS) or a set of virtual networks (VNets) in Microsoft Azure. The VPCs or VNets in a namespace should not have overlapping IP addresses.",
+            "A namespace is used as an additional data point to differentiate between identical source IP addresses when the egress traffic reaches Cloud Connector."
+          ]
+        }
+      ]
+    },
+    "vpc-tag": {
+      "statement": "To group VPCs or accounts in a namespace, each VPC gets the same namespace VPC tag: key `zs:namespace`, value a string the operator chooses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-namespaces-amazon-web-services-and-microsoft-azure-accounts.json",
+          "quotes": [
+            "If you want to group VPCs and/or accounts in a namespace, you must assign the same namespace VPC tag for each VPC. The namespace tag key is named zs:namespace and has a value of <namespace_value>, where <namespace_value> is a string you choose."
+          ]
+        }
+      ]
+    },
+    "discovery-assigns": {
+      "statement": "The discovery service finds the `zs:namespace` tag through standard tag discovery and assigns all workloads in that VPC to the namespace; it also discovers any Gateway Load Balancer endpoints in that VPC and assigns them to the namespace, building a table of endpoint to namespace. No configuration in the Admin Console is needed for this.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+          "quotes": [
+            "Zscaler offers a zero-touch configuration solution where the security admin does not need to add a configuration in the Zscaler Admin Console. During deployment in AWS, add a tag to the VPC.",
+            "The workload discovery service discovers the zs:namespace tag through the standard tag-discovery process and assigns all of the workloads in that VPC to that namespace.",
+            "The workload discovery service also discovers any Gateway Load Balancer (GWLB) endpoints in that VPC and assigns the endpoint to the namespace. Then, the workload discovery service builds a table. In this table, the discovered endpoint is assigned the namespace."
+          ]
+        }
+      ]
+    },
+    "default-namespace": {
+      "statement": "Without a detected user-defined namespace, all workloads belong to the default namespace; the configuration help adds that workloads are created in the default namespace if no GWLB exists or no namespace is defined, unless the VPC carries `zs:namespace`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-namespaces-amazon-web-services-and-microsoft-azure-accounts.json",
+          "quotes": [
+            "By default, if the user-defined namespace is not detected, all workloads are part of the default namespace."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+          "quotes": [
+            "If no GWLB exists or no namespace is defined, workloads are created in the default namespace unless the tag zs:namespace is set on the VPC."
+          ]
+        }
+      ]
+    },
+    "duplicate-ip-one-shown": {
+      "statement": "When Zscaler detects a duplicate IP address, only one is shown and all others are disregarded; the region view's No of Duplicates IP counts them, and the help says to resolve duplicates in a region with namespaces.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+          "quotes": [
+            "If Zscaler detects a duplicate IP address, only one IP address is shown and all others are disregarded. You can see the number of duplicate IP addresses in the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-amazon-web-services-account-details.json",
+          "quotes": [
+            "No of Duplicates IP: The number of duplicate IP addresses in the region. If you have any duplicate IP addresses in a region, use namespaces to resolve them."
+          ]
+        }
+      ]
+    },
+    "untagged-overlap": {
+      "statement": "Two overlapping VPCs that both lack the tag fall into the default namespace together, so the shared address appears twice in one namespace and all but one entry is disregarded. If only one of them is tagged, the two sit in different namespaces.",
+      "tier": "B",
+      "conditions": "Combines the default-namespace, namespace definition and duplicate handling statements; the help does not walk these cases.",
+      "derived_from": [
+        "default-namespace",
+        "duplicate-ip-one-shown",
+        "namespace-definition"
+      ]
+    },
+    "shared-namespace-overlap": {
+      "statement": "Giving two overlapping VPCs the same namespace value puts duplicate addresses inside one namespace, which the namespace definition rules out, so the duplicates are not resolved.",
+      "tier": "B",
+      "conditions": "Follows from the definition that VPCs in one namespace should not overlap; the outcome is not described by a source.",
+      "derived_from": [
+        "namespace-definition",
+        "duplicate-ip-one-shown"
+      ]
+    },
+    "example-mapping": {
+      "statement": "In the documented example two overlapping VPCs in different accounts are tagged `zs:namespace=project-green` and `zs:namespace=project-blue`; discovery maps VPC endpoints to namespaces, and the same IP address 172.31.0.1 gets a separate tag list per namespace, indexed by address plus namespace.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-namespaces-amazon-web-services-and-microsoft-azure-accounts.json",
+          "quotes": [
+            "They tag the Acct_1 VPC with zs:namespace=project-green. The AWS admin tags the Acct_2 VPC with zs:namespace=project-blue.",
+            "| 172.31.0.1 | vpce-111 | 172.31.0.1+project-green | Tag-A, Tag-B |",
+            "| 172.31.0.1 | vpce-444 | 172.31.0.1+project-blue | Tag-C, Tag-D |"
+          ]
+        }
+      ]
+    },
+    "example-inconsistent": {
+      "statement": "The example's two tables disagree: the endpoint table puts vpce-111 in project-blue and vpce-444 in project-green, while the address table indexes vpce-111's entry under project-green and vpce-444's under project-blue.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-namespaces-amazon-web-services-and-microsoft-azure-accounts.json",
+          "quotes": [
+            "| vpce-111 | project-blue |",
+            "| vpce-444 | project-green |",
+            "| 172.31.0.1 | vpce-111 | 172.31.0.1+project-green | Tag-A, Tag-B |",
+            "| 172.31.0.1 | vpce-444 | 172.31.0.1+project-blue | Tag-C, Tag-D |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "which-duplicate-kept": {
+      "kind": "semantic",
+      "title": "Which entry is kept when a duplicate IP is disregarded",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Missing tag on one of two overlapping VPCs: Zscaler cannot distinguish the duplicate IPs. The No of Duplicates IP counter increases; policy applied to those IPs becomes nondeterministic.' The help says only one duplicate is shown and the others are disregarded; it does not say which one is kept or whether the choice is stable.",
+      "blocks": "Predicting which workload's tags a policy sees for a duplicated address.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "non-vpc-tag": {
+      "kind": "semantic",
+      "title": "Effect of zs:namespace on resources other than the VPC",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Tag applied to instance rather than VPC: the discovery service reads VPC-level tags for namespace assignment. Instance-level zs:namespace tags have no effect on namespace resolution.' The help describes the tag on the VPC only and does not say what the tag does on an instance, subnet or ENI.",
+      "blocks": "Diagnosing a namespace that does not take effect when the tag was placed below the VPC.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

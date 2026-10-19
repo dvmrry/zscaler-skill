@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "id": "shared.cloud-architecture.central-authority",
+  "title": "The Central Authority: what it holds, and how ZIA and ZPA cluster it differently",
+  "aliases": [
+    "central authority",
+    "CA",
+    "zscaler control plane",
+    "ca failover",
+    "active passive central authority",
+    "zpa central authority"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.failure-domains"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "shared.cloud-architecture.service-edges"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Both services call their Central Authority (CA) the control-plane brain, but they build it differently, so an answer about CA failover has to name the product."
+    },
+    {
+      "label": "Internet & SaaS (ZIA).",
+      "text": "{{zia-ca-role}} {{zia-ca-active-passive}}"
+    },
+    {
+      "label": "Private Access (ZPA).",
+      "text": "{{zpa-ca-active-active}} [[zpa.troubleshooting.access-path:ca-distributes]] {{zpa-ca-components}}"
+    },
+    {
+      "label": "The difference.",
+      "text": "{{different-models}}"
+    },
+    {
+      "label": "How policy reaches the edges (ZIA).",
+      "text": "{{policy-download}} {{policy-cache-purge}} {{heartbeat}} What an edge does when it cannot reach the CA is in [[shared.cloud-architecture.failure-domains]]."
+    },
+    {
+      "label": "What it does not carry.",
+      "text": "{{ca-not-data-plane}} Threat and URL feeds reach the edges through the CA: [[shared.cloud-architecture.support-systems:feed-path]]."
+    },
+    {
+      "label": "Open.",
+      "text": "Whether a CA is shared by all tenants of a cloud or partitioned per tenant is open {{gap:ca-tenancy}}, and so is whether admin API traffic terminates at the CA {{gap:api-entry-point}}. What a CA failover does to traffic is in [[shared.cloud-architecture.failure-domains]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Name the product before describing a CA failover: ZIA promotes a standby, ZPA has no standby.",
+      "uses": [
+        "different-models"
+      ]
+    },
+    {
+      "do": "Do not attribute a traffic outage to the CA alone; customer traffic stays on the Service Edge.",
+      "uses": [
+        "ca-not-data-plane"
+      ]
+    },
+    {
+      "do": "For a ZIA policy change that a user does not see yet, check whether the user has made a new request since the change; edges pull the new policy on the next request.",
+      "uses": [
+        "policy-cache-purge",
+        "heartbeat"
+      ]
+    }
+  ],
+  "claims": {
+    "zia-ca-role": {
+      "statement": "The Internet & SaaS Central Authority is the brain and nervous system of a Zscaler cloud: it monitors the cloud and provides a central location for software and database updates, policy and configuration settings, and threat intelligence.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-architecture.json",
+          "quotes": [
+            "The Internet & SaaS Central Authority (CA) is the brain and nervous system of a Zscaler cloud.",
+            "It monitors the cloud and provides a central location for software and database updates, policy and configuration settings, and threat intelligence."
+          ]
+        }
+      ]
+    },
+    "zia-ca-active-passive": {
+      "statement": "The ZIA CA consists of one active server and two servers in passive standby. The active CA replicates data to both standbys in real time, so any of them can become active at any time, and each server is hosted in a separate location for fault tolerance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-architecture.json",
+          "quotes": [
+            "The CA consists of one active server and two servers in passive standby mode.",
+            "The active CA replicates data in real time to the two standby CAs, so any of them can become active at any time.",
+            "Each server is hosted in a separate location to ensure fault tolerance."
+          ]
+        }
+      ]
+    },
+    "zpa-ca-active-active": {
+      "statement": "The Private Access Central Authority is the brain and nervous system of the Zero Trust Exchange: a geographically distributed system of in-sync nodes that all actively service requests.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "The Private Access Central Authority (CA) is the brain and nervous system of the Zero Trust Exchange (ZTE).",
+            "It is a geographically distributed system of in-sync nodes that all actively service requests."
+          ]
+        }
+      ]
+    },
+    "zpa-ca-components": {
+      "statement": "Each component of the Private Access system is aware of the health of the entire Zero Trust Exchange. The Private Access CA includes user interfaces connected via APIs to configuration components, and distributed dispatchers that track real-time application states.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "Each component of the system is aware of the health of the entire ZTE",
+            "It includes user interfaces connected via APIs to configuration components, as well as distributed dispatchers that track real-time application states."
+          ],
+          "after": "The Private Access CA monitors the ZTE"
+        }
+      ]
+    },
+    "different-models": {
+      "statement": "The two Central Authorities use different availability models: ZIA runs one active server with two passive standbys that can take over, while every ZPA CA node actively services requests. A ZIA CA failover is a standby promotion; ZPA has no standby to promote.",
+      "tier": "B",
+      "derived_from": [
+        "zia-ca-active-passive",
+        "zpa-ca-active-active"
+      ],
+      "conditions": "Follows from the two architecture articles read side by side; neither article compares them."
+    },
+    "ca-not-data-plane": {
+      "statement": "The ZIA CA holds control-plane state and does not carry customer traffic: the architecture article says customer traffic is not passed from the Public Service Edge to any other component.",
+      "tier": "B",
+      "derived_from": [
+        "shared.cloud-architecture.service-edges:traffic-stays-on-edge",
+        "zia-ca-role"
+      ],
+      "conditions": "The article states that customer traffic stays on the Public Service Edge and lists the CA's functions; it does not say in so many words that the CA carries no traffic."
+    },
+    "policy-download": {
+      "statement": "The ZIA CA hosts all customer policy and configuration settings and is redundant and backed up in multiple Zscaler data centers. Public Service Edges keep a persistent connection to the CA to download policy: when a new user connects to an edge, a policy request goes to the CA, which calculates the policies that apply to that user and sends them to the edge as a highly compressed bitmap.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-public-service-edges-internet-saas.json",
+          "quotes": [
+            "The Zscaler Central Authority (CA) hosts all customer policy and configuration settings.",
+            "the CA is redundant and backed up in multiple different Zscaler data centers.",
+            "Public Service Edges establish a persistent connection to the CA in order to download all policy configurations.",
+            "When a new user connects to a Public Service Edge, a policy request is sent to the CA through this connection.",
+            "The CA then calculates the policies that apply to that user and sends the policy to the Public Service Edge as a highly compressed bitmap."
+          ]
+        }
+      ]
+    },
+    "policy-cache-purge": {
+      "statement": "A downloaded policy is cached until a policy change is made in the Admin Console; then all of the organization's cached policies are purged, and the Public Service Edge requests the new policy when the user next makes a request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-public-service-edges-internet-saas.json",
+          "quotes": [
+            "After it's downloaded, your policy is cached until a policy change is made in the Zscaler Admin Console.",
+            "When this happens, all of your organization's cached policies are purged and the Public Service Edge requests the new policy when the user next makes a request."
+          ]
+        }
+      ]
+    },
+    "heartbeat": {
+      "statement": "The Zscaler cloud heartbeats every second, so all nodes learn of a policy change; any Public Service Edge can pull the changed policy when it sees a new request from the organization, so users get the new policy when they next connect, wherever they are.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-public-service-edges-internet-saas.json",
+          "quotes": [
+            "heartbeats” every second, all nodes are informed when there is a policy change.",
+            "Any Public Service Edge can then pull the change in policy when it sees a new request from your organization.",
+            "For your users, this means that no matter where they are, they use the new policy when they next connect to the"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ca-tenancy": {
+      "kind": "semantic",
+      "title": "Whether a Central Authority is shared per cloud or partitioned per tenant",
+      "status": "open",
+      "detail": "Legacy open question: the ZIA article describes the CA as a property of a cloud, while the ZPA article says policy is distributed across all components of the CA, which the legacy doc read as per-tenant partitioning within shared CA infrastructure. No captured source states how tenants map onto CA instances.",
+      "blocks": "blast-radius answers for a CA incident: whether it touches every tenant of a cloud or only some",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "api-entry-point": {
+      "kind": "semantic",
+      "title": "Whether admin API traffic terminates at the Central Authority",
+      "status": "open",
+      "detail": "Unverified legacy statement: the CA \"accepts admin API traffic (config writes, activation calls)\". The ZPA article says the CA includes user interfaces connected via APIs to configuration components; no captured source says where ZIA admin API calls terminate.",
+      "blocks": "reasoning about whether a CA failover affects admin API or Terraform runs",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

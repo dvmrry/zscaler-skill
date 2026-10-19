@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.api.client-coverage",
+  "title": "Which clients cover which parts of the Cloud Connector API: Python v1 and v2, Go, Terraform",
+  "aliases": [
+    "ztw sdk coverage",
+    "cloud connector python sdk v2",
+    "zscaler-sdk-python 2.0 ztw",
+    "ztc_ip_pool_groups ipGroups",
+    "ip pools api cloud connector",
+    "cloud connector automation options"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdk-go.coverage"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdk-python.coverage"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Cloud & Branch Connector is automated through the Python SDK's `ztw` package, the Go SDK's `ztw` services and the ZTC Terraform provider. Each one's modules, functions and resources are generated; this subject records the coverage differences an agent needs when choosing between them."
+    },
+    {
+      "label": "Python SDK line.",
+      "text": "{{python-v2-excludes-ztw}}"
+    },
+    {
+      "label": "IP pools.",
+      "text": "{{ip-pools-are-ip-groups}} {{python-ip-groups-partial}}"
+    },
+    {
+      "label": "Workload groups.",
+      "text": "No client writes workload groups: the Go SDK's writes are commented out, [[cloud-connector.sdk-go.coverage:workload-groups-writes-commented]], the Python module only lists them, [[cloud-connector.sdk-python.coverage:workload-groups-list-only]], and the provider has only a data source, [[cloud-connector.terraform.forwarding-rules:no-workload-group-resource]]."
+    },
+    {
+      "label": "Go gaps.",
+      "text": "The Go SDK's commented-out activation CLI and other functions it leaves out are in [[cloud-connector.sdk-go.coverage:activation-cli-commented]] and [[cloud-connector.sdk-go.coverage]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Python project that automates Cloud Connector is pinned to the v1.x line, since the v2.x beta does not include ZTW.",
+      "uses": [
+        "python-v2-excludes-ztw"
+      ]
+    }
+  ],
+  "claims": {
+    "python-v2-excludes-ztw": {
+      "statement": "The Python SDK's v2.x beta (`2.0.0bN`), announced in release 1.9.23, covers ZIA, ZDX and ZIdentity only; ZPA, ZCC, ZTW, ZTB and ZWA remain on v1.x, which stays the recommended GA release.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "after": "## 1.9.23 (April 27, 2026)",
+          "quotes": [
+            "is now available as a pre-release (`2.0.0bN`) on PyPI.",
+            "**Limited product coverage in the beta:** ZIA, ZDX, ZIdentity. ZPA, ZCC, ZTW, ZTB, and ZWA remain on v1.x for now.",
+            "**v1.x remains the recommended GA release** and continues to receive bug fixes and security patches."
+          ]
+        }
+      ]
+    },
+    "ip-pools-are-ip-groups": {
+      "statement": "The `/ipGroups` endpoints manage IP pools, which the ZTC provider exposes as `ztc_ip_pool_groups` through the Go SDK's `policyresources/ipgroups` package.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "- Added `GET /ipGroups` Retrieves the list of IP pools.",
+            "- Added `POST /ipGroups` Adds a new custom IP pool."
+          ],
+          "after": "## 1.0.3 (April, 28 2025) - BREAKING CHANGES"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_pool_groups.go",
+          "quotes": [
+            "github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policyresources/ipgroups"
+          ]
+        }
+      ]
+    },
+    "python-ip-groups-partial": {
+      "statement": "The Python SDK's `ip_groups` module lists, creates and deletes IP pools but has no get-by-ID or update method: its methods are `list_ip_groups`, `list_ip_groups_lite`, `add_ip_group` and `delete_ip_group`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/ip_groups.py",
+          "quotes": [
+            "def __init__(self, request_executor: \"RequestExecutor\") -> None:",
+            "def list_ip_groups(",
+            "def list_ip_groups_lite(",
+            "def add_ip_group(self, **kwargs) -> APIResult[dict]:",
+            "def delete_ip_group(self, group_id: int) -> APIResult[dict]:"
+          ]
+        }
+      ],
+      "conditions": "The five def lines quoted are every method the module defines at the pin."
+    }
+  }
+}

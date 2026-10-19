@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.api.conventions",
+  "title": "Conventions of the Cloud Connector API capture: base path, default responses, paging and decoding",
+  "aliases": [
+    "ztw api base url",
+    "ztw default response",
+    "zcloudconnector default response as success",
+    "cloud connector api conventions",
+    "/ztw/api/v1"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.request-handling"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The captured Cloud & Branch Connector contract is a reconstruction of the vendor's published reference, and some of its structure is an artifact of that capture. This subject records the conventions an agent needs before reading a path or a response schema from it."
+    },
+    {
+      "label": "Base path.",
+      "text": "{{oneapi-base-path}} The hosts and sign-in for each path are in [[cloud-connector.api.authentication]]."
+    },
+    {
+      "label": "Success responses.",
+      "text": "{{default-response-as-success}} {{default-as-success-marker}} Which status code those operations return on success, and whether the default schema is a success body at all, is open {{gap:default-response-semantics}}."
+    },
+    {
+      "label": "Paging.",
+      "text": "The Go SDK's list helper for ZTW requests 1000 items a page and stops at the first shorter page: [[shared.sdk-go.list-pagination:ztw-stops-on-page-shorter-than-1000]], with the truncation risk in [[shared.sdk-go.list-pagination:ztw-capped-page-truncates]]."
+    },
+    {
+      "label": "Decoding.",
+      "text": "The Go SDK decodes a ZTW create response into its typed object only when the Content-Type is exactly JSON: [[shared.sdk-go.request-handling:ztw-create-requires-exact-content-type]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before treating a status code from the captured ZTW contract as the operation's success code, whether that operation's response is the reconstructed default response.",
+      "uses": [
+        "default-response-as-success",
+        "default-as-success-marker",
+        "default-response-semantics"
+      ]
+    }
+  ],
+  "claims": {
+    "oneapi-base-path": {
+      "statement": "The captured contract's server is `https://api.zsapi.net/ztw/api/v1`, so its paths (such as `/ecRules/ecRdr`) sit under `/ztw/api/v1` on api.zsapi.net.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/servers/[url=https:~1~1api.zsapi.net~1ztw~1api~1v1]",
+          "expect": {
+            "url": "https://api.zsapi.net/ztw/api/v1"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecRdr/post",
+          "expect": {
+            "servers": [
+              {
+                "url": "https://api.zsapi.net/ztw/api/v1"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "default-response-as-success": {
+      "statement": "The structural validation report of the OpenAPI snapshot counts 165 Cloud & Branch Connector operations on 96 paths and flags 124 of them with the issue `default_response_as_success`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/openapi-validation-report.md",
+          "quotes": [
+            "| `zcloudconnector` | 165 | 96 | 124 | current public route table |",
+            "- `default_response_as_success`: 124"
+          ]
+        }
+      ]
+    },
+    "default-as-success-marker": {
+      "statement": "In the contract those operations carry `x-zscaler-default-as-success` and a `default` response, with no 200 or 204 response; the activate operation is one of them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecAdminActivateStatus~1activate/put",
+          "expect": {
+            "x-zscaler-default-as-success": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecAdminActivateStatus~1activate/put/responses",
+          "expect_absent": [
+            "200",
+            "204"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "default-response-semantics": {
+      "kind": "semantic",
+      "title": "Success status and body of the ZTW operations whose contract has only a default response",
+      "status": "open",
+      "former_ids": [
+        "cloud-connector-25"
+      ],
+      "detail": "The contract keeps method, path and field metadata for these operations, but a reconstructed default response does not show which 2xx status the API returns on success, or whether the embedded schema is the success body rather than a catch-all envelope.",
+      "blocks": "asserting a success status code or response body for most ZTW operations from the contract alone",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

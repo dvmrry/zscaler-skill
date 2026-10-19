@@ -1,0 +1,353 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.azure",
+  "title": "Cloud Connector on Azure: deployment methods, prerequisites and provisioning",
+  "aliases": [
+    "azure cloud connector",
+    "cloud connector azure deployment",
+    "deploy cloud connector azure",
+    "azure marketplace cloud connector",
+    "zscaler cloud connector application",
+    "cloud connector china azure",
+    "azure routing intent cloud connector",
+    "azure key vault cloud connector",
+    "azure managed identity cloud connector",
+    "cloud connector provisioning url azure",
+    "AZURE_VAULT_URL",
+    "AZURE_MANAGED_IDENTITY_CLIENT_ID"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure.network"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure.load-balancing"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure.vmss"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure.terraform-modules"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.groups"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Cloud Connector runs in Azure as customer-deployed VMs, from the Azure Marketplace or from Zscaler's Terraform package. This subject covers which method fits, what has to exist first, and how a VM learns which tenant to register with; groups and load balancing in general are in [[cloud-connector.overview.groups]] and [[cloud-connector.overview.load-balancing]]."
+    },
+    {
+      "label": "Deployment rules.",
+      "text": "The template-type rule is [[cloud-connector.overview.groups:template-match]]. {{template-match}} {{routing-intent}}"
+    },
+    {
+      "label": "Two methods.",
+      "text": "{{two-methods}} Marketplace availability outside China, and the China requirement, are in [[cloud-connector.regions.deployment:azure-marketplace-regions]]. {{vmss-naming}} VMSS specifics are in [[cloud-connector.azure.vmss]]; the Terraform package is in [[cloud-connector.azure.terraform-modules]]."
+    },
+    {
+      "heading": "Prerequisites"
+    },
+    {
+      "text": "{{managed-identities}} {{custom-role-minimum}} {{no-system-identity}} {{missing-from-console-checks}} How the missing permission fails at boot is not described {{gap:identity-bootstrap-failure}}. {{key-vault-secrets}} Address-space minimums and the outbound-only firewall model are in [[cloud-connector.azure.network]]."
+    },
+    {
+      "heading": "Provisioning URL handoff"
+    },
+    {
+      "text": "{{provisioning-url}} {{azure-template-defaults}} The default VM size is in [[cloud-connector.regions.deployment:vm-size]]. {{marketplace-prov-url}} {{module-user-data}} {{module-passes-user-data}} Whether connectors added later by a scale set still register after the provisioning URL changes is not documented {{gap:stale-provisioning-url}}."
+    },
+    {
+      "label": "After deployment.",
+      "text": "{{post-deploy-route}} The route, load balancer and NSG details are in [[cloud-connector.azure.network]] and [[cloud-connector.azure.load-balancing]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the deployment mixes a VMSS and a non-VMSS deployment in one VNet, or pairs an autoscaling deployment with a non-autoscaling template.",
+      "uses": [
+        "template-match",
+        "cloud-connector.overview.groups:template-match"
+      ]
+    },
+    {
+      "do": "Whether the target virtual WAN hub uses Routing Intent and Routing Policies, which Help calls incompatible with Cloud Connector.",
+      "uses": [
+        "routing-intent"
+      ]
+    },
+    {
+      "do": "Whether the Cloud Connector managed identity has Network Contributor (or at least Microsoft.Network/networkInterfaces/read) and Key Vault secret access, and no system-assigned identity.",
+      "uses": [
+        "managed-identities",
+        "custom-role-minimum",
+        "no-system-identity",
+        "missing-from-console-checks",
+        "identity-bootstrap-failure"
+      ]
+    },
+    {
+      "do": "Whether the user data on a connector that did not register carries the current provisioning URL, Key Vault URL and managed-identity client ID.",
+      "uses": [
+        "module-user-data",
+        "provisioning-url",
+        "stale-provisioning-url"
+      ]
+    }
+  ],
+  "claims": {
+    "template-match": {
+      "statement": "Help says not to run VMSS and non-VMSS deployments within the same VNet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "Additionally, do not run both Virtual Machine Scale Sets (VMSS) and non-VMSS deployments within the same virtual network (VNet)."
+          ]
+        }
+      ]
+    },
+    "routing-intent": {
+      "statement": "The Azure Routing Intent and Routing Policies feature for secured virtual WAN hubs is incompatible with Cloud Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "The Azure Routing Intent and Routing Policies feature for secured virtual Wide Area Network (WAN) hubs is incompatible with Cloud Connector."
+          ]
+        }
+      ]
+    },
+    "two-methods": {
+      "statement": "Cloud Connector is deployed in Azure either from the Zscaler Cloud Connector Application in the Azure Marketplace, which is for static deployments, or with Terraform, which supports more functions and is required for VMSS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "Zscaler Cloud Connector Application in the Azure Marketplace: This method is available for static deployment of Cloud Connector.",
+            "Terraform: This method provides support for a richer set of functions, including the option to deploy using VMSS.",
+            "Terraform (Required for VMSS and deployment in China)"
+          ]
+        }
+      ]
+    },
+    "vmss-naming": {
+      "statement": "VMSS is the feature's name in the Azure Marketplace and the Terraform templates; the Cloud Provisioning Template calls the same feature Auto Scaling.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "VMSS is the name of the feature in the Azure Marketplace and the Terraform templates. Auto Scaling is the name of the same feature in the Cloud Provisioning template."
+          ]
+        }
+      ]
+    },
+    "managed-identities": {
+      "statement": "User-assigned managed identities are required: the Cloud Connector identity performs Azure operations such as network interface discovery and metric publishing, and a second, Function App identity exists only for VMSS; a deployment without VMSS needs only the Cloud Connector identity and the Network Contributor role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "User-assigned managed identities are required for deploying Cloud Connector.",
+            "Cloud Connector: Managed identity associated with Cloud Connectors to perform Azure operations such as network interface discovery and metric publishing.",
+            "Function App (VMSS only): Managed identity associated with an Azure Function app.",
+            "Deployments without VMSS require only the Cloud Connector managed identity and the Network Contributor role."
+          ]
+        }
+      ]
+    },
+    "custom-role-minimum": {
+      "statement": "The Terraform package's prerequisites give the Cloud Connector managed identity Network Contributor at subscription or resource-group scope, or with a custom role at minimum Microsoft.Network/networkInterfaces/read, and Get and List secret permissions on the Key Vault holding the Cloud Connector credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "README.md",
+          "quotes": [
+            "User-created Azure Managed Identity. Role Assignment: Network Contributor (If using a Custom Role, the minimum requirement is: Microsoft. Network/networkInterfaces/read) Scope: Subscription or Resource Group (where Cloud Connector VMs will be deployed)",
+            "- Secret Permissions: Get, List"
+          ]
+        }
+      ]
+    },
+    "no-system-identity": {
+      "statement": "Cloud Connector must not be assigned an Azure system managed identity, because that identity overrides the deployment requirements.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "Ensure that Cloud Connector is not assigned an Azure System Managed Identity because that identity overrides the deployment requirements."
+          ]
+        }
+      ]
+    },
+    "key-vault-secrets": {
+      "statement": "The Cloud Connector credentials live in an Azure Key Vault as three secrets: api-key, holding the value from the API Key Management page, and username and password, holding the Zscaler Admin Console username and password; Cloud Connector uses the API key to authenticate and register the VM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "api-key: For the name of your secret, enter api-key. For the corresponding value, enter the value from the API Key Management page on the Zscaler Admin Console.",
+            "password: For the name of your secret, enter password. For the corresponding value, enter your Zscaler Admin Console password.",
+            "username: For the name of your secret, enter username. For the corresponding value, enter your Zscaler Admin Console username.",
+            "Cloud Connector uses the API key to authenticate and register the VM with the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "provisioning-url": {
+      "statement": "Saving a Cloud Connector provisioning template in the Admin Console creates a cloud provisioning URL, which is used to deploy Cloud Connector VMs in AWS, Azure and GCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-cloud-provisioning-template.json",
+          "quotes": [
+            "This URL is used for deploying Cloud Connector as a virtual machine (VM) in Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP).",
+            "4. Click Save. A cloud provisioning URL is created."
+          ]
+        }
+      ]
+    },
+    "azure-template-defaults": {
+      "statement": "In a provisioning template, location creation and Cloud Connector group creation are automatic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-cloud-provisioning-template.json",
+          "quotes": [
+            "Location Creation: This field is set to Automatic.",
+            "Cloud Connector Group Creation: This field is set to Automatic."
+          ]
+        }
+      ]
+    },
+    "marketplace-prov-url": {
+      "statement": "The Marketplace deployment takes the provisioning template URL, the Key Vault holding the Zscaler credentials, and a user-assigned managed identity with access to that vault and the Network Contributor role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "Provisioning Template URL: Paste your Cloud Connector provisioning template URL.",
+            "Zscaler Cloud Credentials Key Vault: Select the key vault where your Zscaler cloud credentials are stored.",
+            "User assigned managed identity: Click Add to add the user-managed identity with access to the key vault and network contributor role."
+          ]
+        }
+      ]
+    },
+    "module-user-data": {
+      "statement": "The `base_cc_vmss` example root builds the VM user data as a `[ZSCALER]` block with `CC_URL` (the provisioning URL), `AZURE_VAULT_URL`, `HTTP_PROBE_PORT`, `AZURE_MANAGED_IDENTITY_CLIENT_ID`, `GLB_VIP` when a public IP is present, and `FIPS_ENABLED`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_cc_vmss/main.tf",
+          "quotes": [
+            "GLB_VIP = local.public_ip_ip != \"\" ? \"GLB_VIP=${local.public_ip_ip}\" : \"\"",
+            "[ZSCALER] CC_URL=${var.cc_vm_prov_url} AZURE_VAULT_URL=${var.azure_vault_url} HTTP_PROBE_PORT=${var.http_probe_port} AZURE_MANAGED_IDENTITY_CLIENT_ID=${module.cc_identity.managed_identity_client_id} ${local.GLB_VIP} FIPS_ENABLED=${var.fips_enabled}"
+          ]
+        }
+      ]
+    },
+    "module-passes-user-data": {
+      "statement": "The VM module passes that user data to Azure base64-encoded as both `custom_data` and `user_data`; the VMSS module passes it as `user_data_base64` and as the OS profile's `custom_data`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-azure/main.tf",
+          "quotes": [
+            "custom_data = base64encode(var.user_data) user_data = base64encode(var.user_data)"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/main.tf",
+          "quotes": [
+            "user_data_base64 = base64encode(var.user_data)",
+            "os_profile { custom_data = base64encode(var.user_data)"
+          ]
+        }
+      ]
+    },
+    "post-deploy-route": {
+      "statement": "After a deployment from the Azure Portal, a routing table and a workload subnet must be created to redirect traffic to the load balancer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "After you complete your deployment from the Azure Portal, you must create a routing table and a workload subnet to redirect traffic to your load balancer."
+          ]
+        }
+      ]
+    },
+    "missing-from-console-checks": {
+      "statement": "For a deployed Cloud Connector that does not appear in the Admin Console, Help's checks include user data and Key Vault entries (api-key, username, password, provisioning URL format), Get and List on the Key Vault for the user-managed identity, and the identity's privilege to enumerate network interfaces: Network Contributor or Microsoft.Network/networkInterfaces/read, with a scope that includes the appliance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "| Deployed Cloud Connector is not displayed in the Zscaler Admin Console | Check whether user data is missing or is provided in an incorrect format.",
+            "Verify the API Key (api-key).Verify login credentials (username, password).Verify that the provisioning URL is in the correct format and there are no spaces.",
+            "Check whether Cloud Connector has sufficient privileges to the Azure Key Vault. Ensure that the Get and List roles are assigned to that the User Managed Identity that the Cloud Connector is using.",
+            "Check whether Cloud Connector has sufficient privileges to enumerate network interfaces. Ensure that the Network Contributor role or Microsoft.Network/networkInterfaces/read permission is assigned to the User Managed Identity that the Cloud Connector is using.",
+            "Also ensure that the Managed Identity has a sufficient scope that includes the Cloud Connector appliance."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "identity-bootstrap-failure": {
+      "kind": "semantic",
+      "title": "Boot-time failure mode of missing NIC-read permission",
+      "status": "open",
+      "detail": "Help lists missing NIC-enumeration privilege (Network Contributor or Microsoft.Network/networkInterfaces/read) as a check for a Cloud Connector missing from the Admin Console (claim missing-from-console-checks). Unverified legacy statement: the failure happens at bootstrap, when the Cloud Connector tries to discover its own NIC configuration at startup. No source describes the boot-time behavior itself.",
+      "blocks": "diagnosing a connector that never registers after an otherwise successful deployment",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "stale-provisioning-url": {
+      "kind": "semantic",
+      "title": "Scale-out after the provisioning URL is regenerated",
+      "status": "open",
+      "detail": "Unverified legacy statement (marked inference in the legacy doc): if the provisioning URL is regenerated in the Admin Console (key rotation, template recreation) and the Terraform state is not refreshed, VMSS scale-out produces connectors that fail to register. The VMSS module bakes the URL into the scale set's user data and the Function App settings, but no source describes the outcome.",
+      "blocks": "explaining scale-out connectors that do not register",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

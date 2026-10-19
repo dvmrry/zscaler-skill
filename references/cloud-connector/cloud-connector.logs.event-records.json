@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.logs.event-records",
+  "title": "Cloud Connector event logs: state changes for health, tunnels, gateways and upgrades",
+  "aliases": [
+    "cloud connector event log",
+    "branch connector event log",
+    "zia_tunnel event",
+    "zia_gateway event",
+    "inst_health_check degraded",
+    "upgrade_end fail",
+    "cloud connector status change alert"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.insights.alerting"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.upgrades.monitoring"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Event logs are the connector's record of its own state changes. They are the streamed signal for tunnel, gateway, health-check and upgrade transitions."
+    },
+    {
+      "label": "When one is written.",
+      "text": "{{when-generated}} {{attributes}}"
+    },
+    {
+      "label": "Event types.",
+      "text": "{{event-combinations}} The names in that list and the example values of the event-name field are spelled differently {{divergence:event-name-spellings}}."
+    },
+    {
+      "label": "Reading specific events.",
+      "text": "{{gateway-switch}} {{instance-degraded}} {{upgrade-events}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which spelling of the event name the SIEM actually receives, from a sample record, before writing a filter on it.",
+      "uses": [
+        "event-name-spellings"
+      ]
+    },
+    {
+      "do": "Whether an upgrade alert keys on UPGRADE_END with severity Error, which carries the Fail status.",
+      "uses": [
+        "upgrade-events"
+      ]
+    }
+  ],
+  "claims": {
+    "when-generated": {
+      "statement": "A Cloud or Branch Connector generates an Event log when a status change occurs for a connector health check, Zscaler data center reachability, a data plane health check, a software upgrade, a control plane health check, or a tunnel to Zscaler data centers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-event-logs.json",
+          "quotes": [
+            "Zscaler Cloud Connector or Branch Connector generates the Event logs when a status change occurs for a Cloud Connector or Branch Connector health check, Zscaler data center reachability, a data plane health check, a software upgrade, a control plane health check, or a tunnel to Zscaler data centers."
+          ]
+        }
+      ]
+    },
+    "attributes": {
+      "statement": "Each Event log carries date and time, metadata and nine event-specific attributes (four attribute type and value pairs and an error code), whose values depend on the event type and severity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-event-logs.json",
+          "quotes": [
+            "Each Event log has date and time, metadata, and event-specific attributes in it. The event-specific attributes depend on the type and severity of the event.",
+            "There are 9 event-specific attributes in each Event log:",
+            "Attribute 1 Type: The data type for the first event attribute.",
+            "Attribute 1 Value: The value for the first event attribute.",
+            "Attribute 2 Type: The data type for the second event attribute.",
+            "Attribute 2 Value: The value for the second event attribute.",
+            "Attribute 3 Type: The data type for the third event attribute.",
+            "Attribute 3 Value: The value for the third event attribute.",
+            "Attribute 4 Type: The data type for the fourth event attribute.",
+            "Attribute 4 Value: The value for the fourth event attribute.",
+            "Error Code: The error code associated with an event if an error code is available."
+          ]
+        }
+      ]
+    },
+    "event-combinations": {
+      "statement": "The article's list of all possible Event Type/Severity combinations is ZIA_TUNNEL Info and Error; ZIA_GATEWAY Warn (twice), Error and Info; SVC_HEALTH_CHECK Info and Error; INST_HEALTH_CHECK Warn and Info; CONTROL_PLANE Info and Error; DATA_PLANE Info and Error; UPGRADE_START Info; and UPGRADE_END Info and Error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-event-logs.json",
+          "quotes": [
+            "The following list shows all the possible Event Type/Severity combinations that can occur:",
+            "ZIA_TUNNEL/Info",
+            "ZIA_TUNNEL/Error",
+            "ZIA_GATEWAY/Error",
+            "ZIA_GATEWAY/Info",
+            "SVC_HEALTH_CHECK/Info",
+            "SVC_HEALTH_CHECK/Error",
+            "INST_HEALTH_CHECK/Warn",
+            "INST_HEALTH_CHECK/Info",
+            "CONTROL_PLANE/Info",
+            "CONTROL_PLANE/Error",
+            "DATA_PLANE/Info",
+            "DATA_PLANE/Error",
+            "UPGRADE_START/Info",
+            "UPGRADE_END/Info",
+            "UPGRADE_END/Error"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-event-logs.json",
+          "after": "ZIA_TUNNEL/Error",
+          "quotes": [
+            "ZIA_GATEWAY/Warn"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-event-logs.json",
+          "quotes": [
+            "ZIA_GATEWAY/Warn"
+          ],
+          "after": "Attribute 2 Value: Primary"
+        }
+      ]
+    },
+    "gateway-switch": {
+      "statement": "ZIA_GATEWAY Warn events record a switch between the primary and secondary gateway (previous state Secondary and current Primary, or the reverse), with the gateway name; ZIA_GATEWAY Error records a change from Active to Inactive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-event-logs.json",
+          "quotes": [
+            "ZIA_GATEWAY/Warn",
+            "Severity: Warn",
+            "Attribute 1 Value: Secondary",
+            "Attribute 2 Value: Primary",
+            "Attribute 3 Type: Gateway Name"
+          ],
+          "after": "ZIA_TUNNEL/Error"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-event-logs.json",
+          "quotes": [
+            "Attribute 1 Value: Primary",
+            "Attribute 2 Value: Secondary"
+          ],
+          "after": "Attribute 2 Value: Primary"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-event-logs.json",
+          "quotes": [
+            "Severity: Error",
+            "Attribute 1 Value: Active",
+            "Attribute 2 Value: Inactive",
+            "Attribute 3 Type: Gateway Name"
+          ],
+          "after": "ZIA_GATEWAY/Error"
+        }
+      ]
+    },
+    "instance-degraded": {
+      "statement": "INST_HEALTH_CHECK Warn records a change from Active to Degraded with the number of active instances and the total instances; INST_HEALTH_CHECK Info records the return from Degraded to Active.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-event-logs.json",
+          "quotes": [
+            "Attribute 1 Value: Active",
+            "Attribute 2 Value: Degraded",
+            "Attribute 3 Type: Number of active instances",
+            "Attribute 4 Type: Total instances"
+          ],
+          "after": "INST_HEALTH_CHECK/Warn"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-event-logs.json",
+          "quotes": [
+            "Attribute 1 Value: Degraded",
+            "Attribute 2 Value: Active"
+          ],
+          "after": "INST_HEALTH_CHECK/Info"
+        }
+      ]
+    },
+    "upgrade-events": {
+      "statement": "UPGRADE_START (Info) carries the current version, the new version and the package name; UPGRADE_END carries the current version, an upgrade status of Success for Info and Fail for Error, and the package name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-event-logs.json",
+          "after": "UPGRADE_START/Info",
+          "quotes": [
+            "Attribute 1 Type: Current Version",
+            "Attribute 2 Type: New Version",
+            "Attribute 3 Type: Package Name"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-event-logs.json",
+          "after": "UPGRADE_END/Info",
+          "quotes": [
+            "Attribute 1 Type: Current Version",
+            "Attribute 2 Type: Upgrade Status",
+            "Attribute 2 Value: Success for Info, Fail for Error",
+            "Attribute 3 Type: Package Name"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "event-name-spellings": {
+      "summary": "The event names in the Event Type/Severity list differ from the example values given for the event-name field in the same article.",
+      "positions": [
+        {
+          "says": "The combination list names the events ZIA_TUNNEL, ZIA_GATEWAY, SVC_HEALTH_CHECK, INST_HEALTH_CHECK, CONTROL_PLANE, DATA_PLANE, UPGRADE_START and UPGRADE_END.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-nss-feed-output-format-event-logs.json",
+            "quotes": [
+              "Event Name: SVC_HEALTH_CHECK",
+              "Event Name: CONTROL_PLANE",
+              "Event Name: UPGRADE_START"
+            ],
+            "after": "The following list shows all the possible Event Type/Severity combinations that can occur:"
+          }
+        },
+        {
+          "says": "The field table gives the event-name examples as VM_HEALTH, ZIA_TUNNEL, ZIA_GW, SVC_HEALTH_CHK, INST_HEALTH_CHK, CTL_PLANE, DATA_PLANE, UPGRADE_ST and UPGRADE_END (rendered run together), including a VM_HEALTH value the list does not have.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-nss-feed-output-format-event-logs.json",
+            "quotes": [
+              "%s{event_name} | Event type | VM_HEALTHZIA_TUNNELZIA_GWSVC_HEALTH_CHKINST_HEALTH_CHKCTL_PLANEDATA_PLANEUPGRADE_STUPGRADE_END"
+            ]
+          }
+        }
+      ],
+      "impact": "A SIEM filter or alert written against one spelling may never match the records the feed sends."
+    }
+  }
+}

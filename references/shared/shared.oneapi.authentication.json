@@ -1,0 +1,357 @@
+{
+  "schema_version": 1,
+  "id": "shared.oneapi.authentication",
+  "title": "How a client gets and uses a OneAPI access token",
+  "aliases": [
+    "oneapi oauth",
+    "zslogin token endpoint",
+    "audience https://api.zscaler.com",
+    "client_assertion jwt",
+    "private key jwt oneapi",
+    "jwks url api client",
+    "oneapi 401 audience",
+    "token lifetime expires_in"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.government-clouds"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.auth-lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.authentication"
+    }
+  ],
+  "prose": [
+    {
+      "text": "OneAPI calls carry a bearer token issued by Authentication Service (ZIdentity). {{client-credentials-flow}}"
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{auth-service-subscription}} {{one-resource-per-product}}"
+    },
+    {
+      "label": "Token request.",
+      "text": "{{token-endpoint}} {{audience-required}} {{secret-in-basic-or-body}} {{failure-400}} What happens when the audience is left out is open {{gap:missing-audience}}."
+    },
+    {
+      "label": "Client authentication methods.",
+      "text": "{{client-auth-methods}} {{method-fit}}"
+    },
+    {
+      "label": "Private key JWT.",
+      "text": "{{jwt-assertion-request}} {{jwt-signing-example}}"
+    },
+    {
+      "label": "Token lifetime.",
+      "text": "{{expires-in-configured}} {{secret-shown-once}}"
+    },
+    {
+      "label": "Using the token.",
+      "text": "{{bearer-header}} {{token-validation}} {{audience-401-cause}}"
+    },
+    {
+      "label": "Clients.",
+      "text": "The Python SDK always sends the audience: [[zia.sdk-python.authentication:oauth-audience]]. How the Go SDK renews tokens is in [[shared.sdk-go.auth-lifecycle]]. Government-cloud token endpoints are in [[shared.oneapi.government-clouds]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the token request carries audience=https://api.zscaler.com and goes to the tenant's own vanity domain.",
+      "uses": [
+        "audience-required",
+        "token-endpoint"
+      ]
+    },
+    {
+      "do": "For a 401 on an API call after a successful token request, whether the token's audience or issuer claim is wrong, or the token comes from another environment or tenant.",
+      "uses": [
+        "audience-401-cause",
+        "missing-audience"
+      ]
+    },
+    {
+      "do": "Read expires_in from the token response rather than assuming a lifetime, since the lifetime is configured per API client.",
+      "uses": [
+        "expires-in-configured"
+      ]
+    }
+  ],
+  "claims": {
+    "client-credentials-flow": {
+      "statement": "OneAPI uses the OAuth 2.0 Client Credentials flow, with Authentication Service, Zscaler's unified identity platform, as the authorization server: a client exchanges its credentials at the token endpoint for an access token, with no user authentication involved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "OneAPI uses the Client Credentials OAuth flow, in which client applications can exchange their credentials with the authorization server for an access token",
+            "without any user authentication involved in the process",
+            "Zscaler's unified identity platform, Authentication Service, serves as the authorization server for OneAPI",
+            "OneAPI supports the OAuth 2.0 Client Credentials flow, with multiple methods for client validation."
+          ]
+        }
+      ]
+    },
+    "auth-service-subscription": {
+      "statement": "Before using OneAPI, the organization needs a subscription to Authentication Service, and the client applications must be registered in Authentication Service with the necessary scope.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "Make sure that your organization has a subscription to Authentication Service.",
+            "Register the client applications in the Authentication Service with the necessary scope and configure them appropriately."
+          ]
+        }
+      ]
+    },
+    "one-resource-per-product": {
+      "statement": "API resources pair a Zscaler service with an RBAC role. An API client can be assigned one resource per product, which defines what it can do (read, write or restricted access), and can hold resources of several different products.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "Zscaler API resources are groupings of endpoints that represent a combination of a Zscaler service (e.g. ZIA, ZPA, ZDX, etc.) and an associated RBAC Role",
+            "API Clients can be assigned one resource per product, which defines what that client can do (i.e., read, write, or restricted access). However, API clients can be assigned multiple resources which belong to different products."
+          ]
+        }
+      ]
+    },
+    "token-endpoint": {
+      "statement": "The client sends a POST to Authentication Service's token endpoint `https://<vanity-domain>.zslogin.net/oauth2/v1/token`, where the vanity domain is the one assigned to the organization (for example acme.zslogin.net).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "you must configure the client application to send a POST request along with the required parameters to Authentication Service's token endpoint: https://<vanity-domain>.zslogin.net/oauth2/v1/token, where <vanity-domain> refers to the domain assigned to your organization."
+          ]
+        }
+      ]
+    },
+    "audience-required": {
+      "statement": "The token request must include an `audience` parameter with the value `https://api.zscaler.com`, for both the client-secret and the client-assertion methods.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "after": "Creating an Authentication Request Using Client Secret",
+          "quotes": [
+            "The authorization request must include an audience parameter that is configured with the value https://api.zscaler.com."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "after": "To build a client assertion:",
+          "quotes": [
+            "The authorization request must include an audience parameter that is configured with the value https://api.zscaler.com."
+          ]
+        }
+      ]
+    },
+    "secret-in-basic-or-body": {
+      "statement": "With a client secret, the credentials go either as HTTP Basic authentication (`clientID:ClientSecret`) or as `client_id` and `client_secret` parameters in the request payload.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "you must send the client credentials through Basic authentication in the format clientID:ClientSecret or through request payload as client_id and client_secret parameters"
+          ]
+        }
+      ]
+    },
+    "failure-400": {
+      "statement": "An unsuccessful POST to the token endpoint returns a 400 error code, for the client-secret and the client-assertion methods alike.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "If an unsuccessful POST request is made to the token endpoint, the response code returns a 400 error code.",
+            "If an unsuccessful POST request is made to the token endpoint, a 400 error code is returned in the response."
+          ]
+        }
+      ]
+    },
+    "client-auth-methods": {
+      "statement": "Authentication Service accepts a client secret, which needs manual rotation, or a private key JWT assertion. The assertion is validated either with public keys fetched from a JWKS URL the client hosts, which lets the client rotate keys with no change in Authentication Service, or with public keys or X.509 certificates uploaded to Authentication Service, where rotation needs a manual update.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "Client Secret - A client secret generated in Authentication Service is used for authentication. This authentication method requires manual key rotation in Authentication Service.",
+            "Private Key JWT - A JSON Web Token (JWT) assertion generated by the client and signed by the client's private key is used for authentication.",
+            "Client JWKS URL: The client assertion signature is validated using the public keys fetched from a URL hosted by the client.",
+            "This method allows the client to rotate the public keys without requiring any manual updates in Authentication Service",
+            "Certificates/Public Keys: The client assertion signature is validated using the public keys or X.509 certificates directly uploaded to the Authentication Service. In this method, key rotation requires manual updates in Authentication Service."
+          ]
+        }
+      ]
+    },
+    "method-fit": {
+      "statement": "The guide calls a client secret best for testing, lab environments and proofs of concept, a JWKS URL best for production automation, and uploaded certificates or public keys best for environments with strict compliance or regulatory requirements.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "Using a client secret is best for testing and lab environments or proof of concept projects.",
+            "Using a JWKS URL is best for production automation where security and scalability are critical",
+            "Using certificates and public keys are best for environments with strict compliance or regulatory requirements"
+          ]
+        }
+      ]
+    },
+    "jwt-assertion-request": {
+      "statement": "With a private key JWT, the token request sends the signed JWT as `client_assertion` with `client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer`, together with `client_id`, `grant_type=client_credentials` and the audience.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "The resulting JWT is sent as the client_assertion in your token request.",
+            "grant_type=client_credentials",
+            "&client_id=<Client ID>",
+            "&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+            "&audience=https://api.zscaler.com"
+          ]
+        }
+      ]
+    },
+    "jwt-signing-example": {
+      "statement": "The guide's example of what signing a JWT typically looks like uses an RS256 header, `iss` and `sub` set to the client ID, `aud` set to `https://api.zscaler.com`, and an `exp` ten minutes ahead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "Here's what signing a JWT typically looks like, independent of language:",
+            "header    = base64url_encode({ \"alg\": \"RS256\", \"typ\": \"JWT\" })",
+            "\"iss\": client_id,",
+            "\"sub\": client_id,",
+            "\"aud\": \"https://api.zscaler.com\",",
+            "\"exp\": now() + 600  // expires in 10 minutes"
+          ]
+        }
+      ]
+    },
+    "expires-in-configured": {
+      "statement": "The token response carries `access_token`, `token_type` Bearer and `expires_in`; `expires_in` is the token expiration time configured for the API client in Authentication Service (3600 in the examples).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "The expires_in is the authentication token expiration time as configured for API clients within Authentication Service.",
+            "\"token_type\": \"Bearer\",",
+            "\"expires_in\": 3600",
+            "The access_token is used in your API calls."
+          ],
+          "after": "If authentication is successful, Authentication Service will return a token response:"
+        }
+      ]
+    },
+    "secret-shown-once": {
+      "statement": "A client secret can be seen in Authentication Service only when it is first created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "The client secret is only accessible in Authentication Service when the secret is created for the first time."
+          ]
+        }
+      ]
+    },
+    "bearer-header": {
+      "statement": "Every API call must present the access token in the Authorization header with the Bearer scheme.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "When making API calls, the client must pass the authorization token (i.e., bearer token) in each request for authentication.",
+            "The client must present the access token in the request Authorization header using the Bearer authentication scheme."
+          ]
+        }
+      ]
+    },
+    "token-validation": {
+      "statement": "On each request the Zscaler service extracts the JWT from the Authorization header, validates its signature and then verifies its claims before allowing access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "The Zscaler service extracts the JWT from the request's authorization header, validates the JWT signature using the client's public key or X.509 certificate, and then verifies the JWT claims.",
+            "When an API request is received, the Zscaler service validates the access token and accepts the request if authorization is successful.",
+            "After successful validation, the client is allowed to access the requested API resources."
+          ]
+        }
+      ]
+    },
+    "audience-401-cause": {
+      "statement": "The Analytics API's error guide lists an incorrect audience or issuer claim at token generation, an expired or revoked token, and a token from a different environment (beta or production) or tenant among the causes of a 401, and says to verify the audience is https://api.zscaler.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-analytics.json",
+          "quotes": [
+            "Token validation issues: Common issues include an incorrect audience or issuer claims specified during token generation.",
+            "an access token from a different environment or tenant was used.",
+            "Validate audience or issuer claim: Verify that the audience value is set to https://api.zscaler.com",
+            "| 401 Unauthorized | The request lacks valid authentication credentials",
+            "Invalid token: The OAuth 2.0 access token is expired, revoked, or incorrectly generated.",
+            "For example, when using multiple environments (beta, production) or multiple tenants"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "missing-audience": {
+      "kind": "semantic",
+      "title": "What the token endpoint does when the audience is omitted",
+      "status": "partial",
+      "detail": "Unverified legacy statement: a token request without audience=https://api.zscaler.com succeeds at exchange, but the issued token is rejected at the OneAPI gateway with 401. The rejection half is supported: the AI Guard codes list 401 for a token that fails audience validation, and the Analytics codes list an incorrect audience claim as a 401 cause. Still open: whether the token endpoint rejects a request without the audience (400) or issues a token that only fails later.",
+      "blocks": "telling a caller whether a missing audience fails at the token request or at the first API call",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-aiguard-api-codes.json",
+          "quotes": [
+            "| 401 | Unauthorized | The bearer token is missing or expired, has an invalid signature, or fails issuer or audience validation."
+          ]
+        }
+      ]
+    }
+  }
+}

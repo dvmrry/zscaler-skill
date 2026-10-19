@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "id": "shared.log-correlation",
+  "title": "Correlating ZIA, ZPA and Client Connector logs",
+  "aliases": [
+    "log correlation",
+    "cross-product log correlation",
+    "correlate zscaler logs",
+    "multi-product incident logs",
+    "which log has this event",
+    "validate config with logs"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.log-correlation.streams"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.log-correlation.zia-feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.log-correlation.zcc-in-zia"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.log-correlation.zia-zpa-join"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.splunk"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Following one user or one request across ZIA, ZPA and Client Connector means knowing where each product's logs are, which fields line up, and which field meanings are still open."
+    },
+    {
+      "steps": [
+        {
+          "label": "Where are the logs, and how far back?",
+          "text": "ZIA's Nanolog and NSS, ZPA's LSS, and Client Connector's device-side logs: [[shared.log-correlation.streams]]."
+        },
+        {
+          "label": "Same user or event across the ZIA feeds?",
+          "text": "Fields shared by web, firewall and DNS records, and which time field to join on: [[shared.log-correlation.zia-feeds]]."
+        },
+        {
+          "label": "Was it Client Connector traffic?",
+          "text": "Forwarding method, tunnel version, device fields and bypass flags in ZIA records: [[shared.log-correlation.zcc-in-zia]]."
+        },
+        {
+          "label": "Same request in ZIA and ZPA?",
+          "text": "No shared key exists; user, device, application segment and time fields, and what is open about each: [[shared.log-correlation.zia-zpa-join]]."
+        },
+        {
+          "label": "Writing the query.",
+          "text": "Field naming in the SIEM and the validation searches: [[shared.splunk]]."
+        }
+      ]
+    },
+    {
+      "label": "Field meanings that are still open.",
+      "items": [
+        {
+          "text": "Web action values and which subsystem fills action: [[zia.logs.web-rule-attribution:action-values-precedence]]."
+        },
+        {
+          "text": "Firewall aggregation triggers and counters, and action precedence across firewall, IPS and DNAT: [[zia.logs.firewall-records:aggregate-counters]], [[zia.logs.firewall-records:action-precedence]]."
+        },
+        {
+          "text": "DNS reqaction and resaction value sets, and the sentinel values of res: [[zia.logs.dns-outcome:action-enum-open]], [[zia.logs.dns-outcome:res-sentinels-open]]."
+        },
+        {
+          "text": "Web reason, URL category, riskscore and byte-counter semantics: [[zia.logs.web-field-semantics]]."
+        },
+        {
+          "text": "NSS field presence by output format, VM-side conversion, and time zones across feeds: [[zia.logs.nss-feed-format:format-field-presence]], [[zia.logs.nss-feed-format:vm-conversion-omits]], [[zia.logs.nss-feed-format:multi-feed-timezone]]."
+        },
+        {
+          "text": "User Activity Active records on long connections and byte-counter resets: [[zpa.logs.user-activity:active-cadence]], [[zpa.logs.user-activity:byte-counter-reset]]."
+        },
+        {
+          "text": "User Status records per session: [[zpa.logs.user-status:record-granularity]]."
+        },
+        {
+          "text": "Microsegmentation enforcement reason, action and disposition combinations: [[zpa.logs.microsegmentation-flow:enforcement-triple]]."
+        }
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before filtering on a field whose value looks self-explanatory, check its open questions in the list above.",
+      "uses": [
+        "zia.logs.web-rule-attribution:action-values-precedence",
+        "zia.logs.firewall-records:aggregate-counters",
+        "zia.logs.dns-outcome:res-sentinels-open",
+        "zpa.logs.user-activity:active-cadence"
+      ]
+    }
+  ]
+}

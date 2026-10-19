@@ -1,0 +1,329 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.gcp",
+  "title": "Cloud Connector on GCP: deployment, service accounts and network shape",
+  "aliases": [
+    "gcp cloud connector",
+    "google cloud cloud connector",
+    "cloud connector gcp deployment",
+    "deploy cloud connector gcp",
+    "cloud connector gcp service accounts",
+    "cloud connector gcp vpc",
+    "cloud connector gcp route",
+    "cloud connector gcp regions",
+    "gcp deployment templates cloud connector"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp.mig-autoscaling"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp.terraform-modules"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp.workload-discovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp-ztg"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This is the customer-deployed Cloud Connector VM path on GCP, distinct from the Zscaler-managed GCP Zero Trust Gateway in [[cloud-connector.gcp-ztg]]. It covers the deployment method, the identities involved and the network shape; autoscaling, the Terraform package and workload discovery have their own subjects."
+    },
+    {
+      "label": "Deployment contract.",
+      "text": "Deployment uses Terraform: [[cloud-connector.regions.deployment:gcp-terraform]], from the Terraform repositories in [[cloud-connector.aws:iac-paths]]. The template-type rule is [[cloud-connector.overview.groups:template-match]]. {{gcp-provisioning-template}} The Marketplace image and its versions are in [[cloud-connector.gcp.terraform-modules]]."
+    },
+    {
+      "label": "Regions.",
+      "text": "Supported regions for the GCP VM, and the uncaptured 2026 release note about the Marketplace image, are open in [[cloud-connector.regions.deployment:standard-cc-regions]]."
+    },
+    {
+      "heading": "Service accounts"
+    },
+    {
+      "items": [
+        {
+          "label": "Deployment.",
+          "text": "{{deployment-sa}}"
+        },
+        {
+          "label": "Cloud Connector VM.",
+          "text": "{{vm-sa}} {{vm-sa-creation}}"
+        },
+        {
+          "label": "Cloud Run functions.",
+          "text": "{{function-sa}}"
+        }
+      ]
+    },
+    {
+      "text": "{{required-apis}} {{credential-storage}}"
+    },
+    {
+      "heading": "Network shape"
+    },
+    {
+      "text": "{{two-vpcs}} {{workload-route}} {{post-deploy-policies}}"
+    },
+    {
+      "label": "Templates.",
+      "text": "{{template-families}} {{template-resources}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the deployment matches the template type: an autoscaling deployment with an autoscaling template, a static one with a non-autoscaling template.",
+      "uses": [
+        "cloud-connector.overview.groups:template-match"
+      ]
+    },
+    {
+      "do": "Which of the three service accounts holds which roles, and whether the credentials are read from Secret Manager or HashiCorp Vault.",
+      "uses": [
+        "deployment-sa",
+        "vm-sa",
+        "function-sa",
+        "credential-storage"
+      ]
+    },
+    {
+      "do": "Whether the workload route is a 0.0.0.0/0 static route to the internal load balancer forwarding rule, scoped to the workload network tag.",
+      "uses": [
+        "workload-route"
+      ]
+    },
+    {
+      "do": "Which region the deployment targets, since no source lists the supported regions for standard Cloud Connector on GCP.",
+      "uses": [
+        "cloud-connector.regions.deployment:standard-cc-regions"
+      ]
+    }
+  ],
+  "claims": {
+    "gcp-provisioning-template": {
+      "statement": "The GCP provisioning template selects GCP as cloud provider, creates Cloud Connector groups automatically, and yields the cloud provisioning URL used for deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-google-cloud-platform.json",
+          "quotes": [
+            "Cloud Provider: Select GCP.",
+            "Cloud Connector Group Creation: This field is set to Automatic.",
+            "copy the cloud provisioning URL. Store the cloud provisioning URL in a secure location."
+          ]
+        }
+      ]
+    },
+    "deployment-sa": {
+      "statement": "The deployment service account runs Terraform and needs Compute Instance Admin (v1), Compute Network Admin, Compute Security Admin, Service Account Admin, Service Account User, Secret Manager Admin, Project IAM Admin, optionally DNS Administrator, and for autoscaling Cloud Functions Admin, Cloud Scheduler Admin and Storage Admin.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+          "quotes": [
+            "This service account allows Terraform to run during deployment. It needs the following roles: - Compute Instance Admin (v1) - Compute Network Admin - Compute Security Admin - Service Account Admin - Service Account User - Secret Manager Admin - Project IAM Admin - DNS Administrator (optional)",
+            "- Cloud Functions Admin (Autoscaling only) - Cloud Scheduler Admin (Autoscaling only) - Storage Admin (Autoscaling only)"
+          ]
+        }
+      ]
+    },
+    "vm-sa": {
+      "statement": "The Cloud Connector VM service account lets connectors read their secret credentials: it needs Secret Manager Secret Accessor (Secret Manager) or Service Account Token Creator with compute.instanceGroups.list, compute.instances.get and service-account read and signJwt permissions (HashiCorp Vault), and Monitoring Metric Writer, which the deployment guide marks autoscaling only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+          "after": "- Cloud Connector VM Service Account",
+          "quotes": [
+            "This service account allows Cloud Connectors to access secret credentials. It needs the following roles: - Monitoring Metric Writer",
+            "- Secret Manager Secret Accessor (for GCP Secret Manager) - Service Account Token Creator (for HashiCorp Vault) with the following permissions assigned to it:",
+            "- compute.instanceGroups.list - compute.instances.get - iam.serviceAccounts.get - iam.serviceAccountKeys.get, - iam.serviceAccounts.signJwt"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-google-cloud-platform.json",
+          "quotes": [
+            "(Autoscaling only): Click Add Another Role and select Monitoring Metric Writer."
+          ]
+        }
+      ]
+    },
+    "vm-sa-creation": {
+      "statement": "Each Cloud Connector VM needs a service account assigned, which Terraform can create during deployment or the operator can create beforehand.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-google-cloud-platform.json",
+          "quotes": [
+            "Each Cloud Connector VM needs a service account assigned to it. You can let Terraform create the service account during deployment, or manually create the service account before deployment."
+          ]
+        }
+      ]
+    },
+    "function-sa": {
+      "statement": "In autoscaling deployments a separate service account runs the Health Monitor and Resource Sync Cloud Run functions to read metrics and terminate and replace VMs; it needs Compute Instance Admin (v1) (or a custom role, which the Terraform modules create by default), Monitoring Viewer, Logs Writer, Cloud Run Invoker, and Secret Manager Secret Accessor or Service Account Token Creator.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+          "quotes": [
+            "This service account allows the Cloud Run Functions (Health Monitor and Resource Sync) to make API calls to perform operations such as reading metrics, terminating VMs, and replacing VMs. It needs the following roles: - Compute Instance Admin (v1) - Monitoring Viewer - Logs Writer - Cloud Run Invoker"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-google-cloud-platform.json",
+          "quotes": [
+            "By default, Terraform modules create a custom IAM role with the listed permissions.",
+            "Click Add Another Role and add the following roles: Monitoring Viewer, Logs Writer, Cloud Run Invoker."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+          "after": "- Cloud Function Service Account",
+          "quotes": [
+            "- Secret Manager Secret Accessor (for GCP Secret Manager) - Service Account Token Creator (for HashiCorp Vault)"
+          ]
+        }
+      ]
+    },
+    "required-apis": {
+      "statement": "Before running Terraform, enable the Compute Engine, Cloud DNS, Cloud Resource Manager, IAM and Secret Manager APIs, and for autoscaling also the Cloud Functions, Cloud Scheduler, Cloud Monitoring, Cloud Logging and Cloud Build APIs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-google-cloud-platform.json",
+          "quotes": [
+            "Before you run the Terraform deployment scripts, enable the following Google Cloud APIs: - Compute Engine API - Cloud DNS API - Cloud Resource Manager API - Identity and Access Management (IAM) API - Secret Manager API",
+            "- Autoscaling deployments only: - Cloud Functions API - Cloud Scheduler API - Cloud Monitoring API - Cloud Logging API - Cloud Build API"
+          ]
+        }
+      ]
+    },
+    "credential-storage": {
+      "statement": "The deployment credentials (username, password and api_key) are stored either in GCP Secret Manager, as one JSON secret with those three keys, or in HashiCorp Vault.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-google-cloud-platform.json",
+          "quotes": [
+            "Use one of the following methods to manage and retrieve your secret credentials. - GCP Secret Manager - Hashicorp Vault",
+            "Under Secret value, enter your secret values using the format shown below:",
+            "username: Enter username for the name of your secret key.",
+            "password: Enter password for the name of your secret key.",
+            "api_key: Enter api_key for the name of your secret key.",
+            "Ensure that you manually enter the following JSON example so that it is formatted correctly before deployment."
+          ]
+        }
+      ]
+    },
+    "two-vpcs": {
+      "statement": "The security stack goes in a dedicated GCP project or the workload project; because GCP requires a separate VPC for each interface of a multi-interface instance, a Cloud Connector deployment needs two VPCs, one for management and one for service and security, and workload VPCs need custom routes to the load balancer in front of the connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+          "quotes": [
+            "The security stack is deployed in either a dedicated GCP project or within the same project as the workloads, based on your organizational architecture.",
+            "GCP has an architectural limitation where instances with multiple network interfaces require separate virtual private cloud (VPC) networks for each interface. Cloud Connector deployments therefore require the creation of two distinct VPCs: one for management and one for service and security operations.",
+            "you must configure custom routes in the workload VPCs to direct appropriate traffic to the load balancer in front of the Cloud Connectors."
+          ]
+        }
+      ]
+    },
+    "workload-route": {
+      "statement": "After deployment, the workload instance gets a network tag and a static IPv4 route for 0.0.0.0/0 is created in the workload's VPC with next hop a forwarding rule of an internal TCP/UDP load balancer, with the network tag attached to the route.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-google-cloud-platform.json",
+          "quotes": [
+            "Paste the Cloud Connector workload instance under Network Tags.",
+            "Network: Select the VPC where the workload is located",
+            "Route type: From the drop-down menu, select Static route.",
+            "Destination IPv4 range: Enter 0.0.0.0/0.",
+            "Next hop: From the drop-down menu, select Specify a forwarding rule of internal TCP/UDP load balancer.",
+            "Attach the network tag to the string of the Cloud Shell."
+          ]
+        }
+      ]
+    },
+    "post-deploy-policies": {
+      "statement": "Once deployment is verified, Traffic Forwarding, Log and Control Forwarding, and DNS Control policies can be configured for the GCP connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-google-cloud-platform.json",
+          "quotes": [
+            "After verifying deployment, you can configure the following policies: - Traffic Forwarding - Log and Control Forwarding - DNS Control"
+          ]
+        }
+      ]
+    },
+    "template-families": {
+      "statement": "Help's GCP templates are Basic (`base_1cc`, `base_1cc_zpa`), Internal Load Balancer (`base_cc_ilb`, `base_cc_ilb_zpa`, `cc_ilb`) and MIG Autoscaling with Internal Load Balancer (`base_cc_asg`, `base_cc_asg_zpa`, `cc_asg`), each with starter, Private Access or custom variants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deployment-templates-zscaler-cloud-connector.json",
+          "after": "# GCP Deployment Templates",
+          "quotes": [
+            "Use the Starter Deployment Template (base_1cc) to deploy your Cloud Connector in a new VPC network.",
+            "Use the Starter Deployment Template with Private Access (base_1cc_zpa)",
+            "Use the Starter Deployment Template with Internal Load Balancer (base_cc_ilb)",
+            "Use the Starter Deployment Template with Load Balancer and Private Access (base_cc_ilb_zpa)",
+            "Use the Custom Deployment Template with Load Balancer (cc_ilb)",
+            "Use the Starter Deployment Template with Autoscaling and Internal Load Balancer (base_cc_asg)",
+            "Use the Deployment Template with Autoscaling, Internal Load Balancer, and Private Access (base_cc_asg_zpa)",
+            "Use the Custom Deployment Template with Autoscaling and Internal Load Balancer (cc_asg)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deployment-templates-zscaler-cloud-connector.json",
+          "quotes": [
+            "- Deployment Templates with Managed Instance Group (MIG) Autoscaling"
+          ]
+        }
+      ]
+    },
+    "template-resources": {
+      "statement": "The GCP templates create a Cloud Connector instance template and a user-managed VM service account with access to Secret Manager or HashiCorp Vault depending on the chosen method.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deployment-templates-zscaler-cloud-connector.json",
+          "after": "# GCP Deployment Templates",
+          "quotes": [
+            "- Cloud Connector instance template",
+            "- User-managed service account attached to Cloud Connector VM with IAM access to either GCP Secret Manager or HashiCorp Vault, depending on the authentication method you chose"
+          ]
+        }
+      ]
+    }
+  }
+}

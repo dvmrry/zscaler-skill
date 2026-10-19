@@ -197,8 +197,8 @@ For depth on any single product, descend into its `references/<product>/` direct
 
 - Single-page portfolio index: [`../portfolio-map.md`](../portfolio-map.md)
 - Routing for any question: [`../../../SKILL.md`](../../../SKILL.md)
-- Cross-product integration catalog: [`../../shared/cross-product-integrations.md`](../../shared/cross-product-integrations.md)
-- Cloud architecture detail: [`../../shared/cloud-architecture.md`](../../shared/cloud-architecture.md)
+- Cross-product integration catalog: [`shared.integrations`](kb:shared.integrations)
+- Cloud architecture detail: [`shared.cloud-architecture`](kb:shared.cloud-architecture)
 - Other primers in this directory:
   - [`./networking-basics.md`](./networking-basics.md)
   - [`./proxy-vs-gateway-vs-tunnel.md`](./proxy-vs-gateway-vs-tunnel.md)

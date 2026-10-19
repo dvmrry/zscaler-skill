@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.sdwan.device-modes",
+  "title": "Zero Trust SD-WAN devices: gateway and one-arm modes, zero touch provisioning",
+  "aliases": [
+    "zero trust sd-wan device",
+    "branch connector gateway mode",
+    "one-arm mode branch connector",
+    "non-gateway mode",
+    "zero touch provisioning branch",
+    "branch configuration template staged ready to deploy",
+    "zsroot"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.sdwan"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.upgrades.zsroot-rotation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{hardware-runs-bc}} {{two-modes}}"
+    },
+    {
+      "label": "Gateway mode.",
+      "text": "{{gateway-mode}} Whether the device runs dynamic routing protocols in this mode is not stated {{gap:routing-protocols}}."
+    },
+    {
+      "label": "One-arm mode.",
+      "text": "{{one-arm-mode}}"
+    },
+    {
+      "label": "Zero touch provisioning.",
+      "text": "{{ztp}} {{deploy-steps}} {{gateway-edit}}"
+    },
+    {
+      "label": "Device account.",
+      "text": "{{zsroot}} The account on virtual devices and Zscaler's rotation recommendation: [[cloud-connector.upgrades.zsroot-rotation:zsroot-account]]."
+    },
+    {
+      "label": "Models.",
+      "text": "The captured pages do not list device models or throughput {{gap:device-models}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which mode the device was deployed in, since gateway mode is what WAN selection and the predefined forwarding rules require.",
+      "uses": [
+        "two-modes",
+        "gateway-mode"
+      ]
+    },
+    {
+      "do": "For a device stuck before operation, the configuration template's status and the device's LED state.",
+      "uses": [
+        "ztp",
+        "deploy-steps"
+      ]
+    },
+    {
+      "do": "Whether the zsroot password has been rotated from its initial value.",
+      "uses": [
+        "zsroot"
+      ]
+    }
+  ],
+  "claims": {
+    "hardware-runs-bc": {
+      "statement": "Zero Trust SD-WAN Devices are hardware devices that use Zero Trust Branch Connectivity; the device is deployed as a Branch Connector virtual machine.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zero-trust-branch-devices.json",
+          "quotes": [
+            "Zero Trust Software-Defined Wide Area Network (SD-WAN) Devices are hardware devices that use Zero Trust Branch Connectivity to simplify traffic forwarding to Zscaler services. The Zero Trust SD-WAN Device is deployed as a Zscaler Branch Connector virtual machine (VM)."
+          ]
+        }
+      ]
+    },
+    "two-modes": {
+      "statement": "A Zero Trust SD-WAN Device is deployed in one of two modes: gateway or non-gateway (one-arm).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zero-trust-branch-devices.json",
+          "quotes": [
+            "You can deploy Zero Trust SD-WAN Devices in one of two modes: gateway or non-gateway (one-arm)."
+          ]
+        }
+      ]
+    },
+    "gateway-mode": {
+      "statement": "In gateway mode the device gives access to the rest of the private network, cloud applications and the internet over one or more ISP connections; it can dynamically determine the best quality link, forward specific traffic toward it, and function as a local router so local devices communicate without an external router. It can also sit inside the LAN while an existing device connects to the internet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zero-trust-branch-devices.json",
+          "quotes": [
+            "In gateway mode, the Zero Trust SD-WAN Device enables direct, secure access from your private network to other geographically distributed parts of your private network, cloud applications, and the internet over one or more internet service provider (ISP) connections.",
+            "It can also dynamically determine the best quality link, forward specific traffic toward that link, and function as a local router. Local devices can communicate without an external router.",
+            "You can also deploy the hardware device in gateway mode inside your local area network (LAN) while an existing device connects you to the internet through the wide area network (WAN)."
+          ]
+        }
+      ]
+    },
+    "one-arm-mode": {
+      "statement": "In non-gateway (one-arm) mode the device does not connect directly to the ISP; it sits in the organization's internal network and requires an external router.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zero-trust-branch-devices.json",
+          "quotes": [
+            "In non-gateway (one-arm) mode, the Zero Trust SD-WAN Device does not connect directly to the internet service provider (ISP). Instead, the Zero Trust SD-WAN Device deploys in the internal network of the organization",
+            "Non-gateway (one-arm) mode requires an external router."
+          ]
+        }
+      ]
+    },
+    "ztp": {
+      "statement": "Devices receive their deployment configuration from Branch Configuration Templates staged in the Admin Console before the device is powered on; changing the template status from Staged to Ready to Deploy lets the ZTE adopt it, and once powered up with network connectivity the device connects to the Zscaler cloud, authenticates and is given its configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zero-trust-branch-devices.json",
+          "quotes": [
+            "Zero Trust SD-WAN Devices are installed in your organization's on-premises locations and are loaded with the required deployment configurations using Branch Configuration Templates.",
+            "You can stage the device configuration in the Zscaler Admin Console before a device is powered on and connected to the on-premises location.",
+            "When your organization is ready for the ZTE to adopt the device, you’ll change the template status from Staged to Ready to Deploy.",
+            "After an on-site technician powers up the device and provides it with network connectivity, the device software connects to the Zscaler cloud and authenticates itself. After the authentication is successful, the device is provided with its deployment configuration."
+          ]
+        }
+      ]
+    },
+    "deploy-steps": {
+      "statement": "Deployment ties a Branch Configuration Template to the device's serial number; an LED shows provisioning progress (solid red initializing, blinking red pending, blinking green in progress, solid green all services running), and the template's status becomes Deployed when deployment completes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "Configure a Branch Configuration Template with the serial number of the Zero Trust SD-WAN Device.",
+            "| Solid red | Initializing | Not operational (control and data tunnels are down) |",
+            "| Blinking red | ZTP is pending | N/A |",
+            "| Blinking green | ZTP is in progress | N/A |",
+            "| Solid green | All services are running | Normal operation (control and data tunnels are up) |",
+            "After deployment is complete, the status of the configuration template is Deployed."
+          ]
+        }
+      ]
+    },
+    "gateway-edit": {
+      "statement": "A device deployed in gateway mode can have its configuration edited after deployment from the Branch Configuration Template page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "If your Zero Trust SD-WAN Device is deployed in gateway mode, you can edit its configuration after deployment by clicking the edit icon on the Branch Configuration Template page."
+          ]
+        }
+      ]
+    },
+    "zsroot": {
+      "statement": "Hardware Zero Trust SD-WAN devices also contain the zsroot service account, a privileged user; on these devices the password is changed by logging in through the console or management interface as zsroot and running passwd zsroot.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zero-trust-sd-wan-devices.json",
+          "quotes": [
+            "Zscaler Zero Trust SD-WAN devices contain a Zscaler Service Account called zsroot. This account is a privileged user",
+            "Log in to the device through the console or management interface as user zsroot.",
+            "passwd zsroot"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "routing-protocols": {
+      "kind": "semantic",
+      "title": "Whether a gateway-mode device runs dynamic routing protocols",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Branch Connector does not run routing protocols (BGP, OSPF, IS-IS). It does not participate in WAN route advertisement. It does not replace a branch router for LAN-to-LAN routing.' This is partly contradicted: the device help says a gateway-mode device can function as a local router so local devices communicate without an external router. Whether it speaks BGP or OSPF is not stated.",
+      "blocks": "Placing a gateway-mode device in a routed branch network.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "device-models": {
+      "kind": "data",
+      "title": "Zero Trust SD-WAN device models and throughput",
+      "status": "open",
+      "detail": "Unverified legacy statement: Zscaler references plug-and-play devices but the captured pages do not enumerate hardware models, throughput specs or form factors. The Understanding and Deploying Zero Trust SD-WAN Devices pages do not list them either.",
+      "blocks": "Sizing a branch site.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "none"
+      ]
+    }
+  }
+}

@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "id": "shared.ipsec.device-settings",
+  "title": "IPSec device settings Zscaler recommends: ciphers, PFS, NAT-T and DPD",
+  "aliases": [
+    "ipsec cipher",
+    "ipsec ciphers",
+    "ike phase 1 phase 2 settings",
+    "ipsec null encryption",
+    "perfect forward secrecy",
+    "pfs",
+    "nat-t",
+    "nat traversal",
+    "dead peer detection",
+    "dpd",
+    "pre-shared key length"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.ipsec"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.ipsec"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Two vendor documents describe the device side of an IPSec tunnel: the help article on IPSec VPNs and the traffic forwarding reference architecture. They agree on most recommendations and disagree on two mechanics."
+    },
+    {
+      "label": "IKE version and keys.",
+      "text": "{{ikev2}} {{ike-phases}} The help article's IKEv1 restriction for new tenants is [[zia.traffic-forwarding.ipsec:ike-versions]]. {{long-psk}}"
+    },
+    {
+      "label": "Ciphers.",
+      "text": "{{integrity}} {{confidentiality}} {{null-rationale}} {{help-phase2-cipher}} The full supported parameter table is [[zia.traffic-forwarding.ipsec:ikev2-parameters]]."
+    },
+    {
+      "label": "Perfect Forward Secrecy.",
+      "text": "{{pfs-disable}}"
+    },
+    {
+      "label": "NAT-T.",
+      "text": "{{nat-t}} The UDP source port the encapsulation uses differs between the two documents {{divergence:nat-t-source-port}}; the help article's account is [[zia.traffic-forwarding.ipsec:nat-traversal]]."
+    },
+    {
+      "label": "Dead Peer Detection.",
+      "text": "{{dpd}} Whether traffic in the tunnel counts as proof that the peer is alive differs between the two documents {{divergence:dpd-traffic-liveness}}; the help article's intervals and retries are [[zia.traffic-forwarding.ipsec:dpd]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the device runs IKEv2 with the recommended Phase 1 integrity and confidentiality, NULL (or AES-GCM with the subscription) in Phase 2, and PFS disabled.",
+      "uses": [
+        "ikev2",
+        "integrity",
+        "confidentiality",
+        "help-phase2-cipher",
+        "pfs-disable"
+      ]
+    },
+    {
+      "do": "Whether DPD is enabled with periodic checks, since the help article does not treat tunnel traffic as liveness.",
+      "uses": [
+        "dpd",
+        "dpd-traffic-liveness",
+        "zia.traffic-forwarding.ipsec:dpd"
+      ]
+    }
+  ],
+  "claims": {
+    "ikev2": {
+      "statement": "The reference architecture recommends IKEv2 wherever possible, because it performs better and fixes vulnerabilities found in IKEv1.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Zscaler recommends using IKEv2 wherever possible. IKEv2 has better performance and fixes vulnerabilities that have been found in IKEv1."
+          ]
+        }
+      ]
+    },
+    "ike-phases": {
+      "statement": "IKE sets up an IPSec connection in two phases: Phase 1 authenticates the peers and sets up a secure channel for the Phase 2 messages, and Phase 2 negotiates parameters and sets up the security associations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Phase 1 – Authenticate peers and set up a secure channel for exchange of Phase 2 messages.",
+            "Phase 2 – Negotiate parameters and set up security associations (SA)."
+          ]
+        }
+      ]
+    },
+    "long-psk": {
+      "statement": "Authentication is not negotiated between the peers; Zscaler recommends pre-shared keys with long keys, configured in the Admin Portal and manageable through an uploaded CSV.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Authentication is the one parameter that is not negotiated between peers.",
+            "Zscaler recommends using pre-shared keys (PSK) with long keys. These are configured in the ZIA Admin Portal and can be managed via an uploaded CSV."
+          ]
+        }
+      ]
+    },
+    "integrity": {
+      "statement": "The reference architecture's integrity recommendation: IKEv2 Phase 1 SHA-256 or SHA-1 and Phase 2 MD5; IKEv1 Phase 1 SHA-1 and Phase 2 MD5.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "after": "The following table outlines Zscaler’s recommendation for integrity settings:",
+          "quotes": [
+            "Integrity Phase 1 Phase 2",
+            "IKEv2 SHA-256 or SHA-1 MD5",
+            "IKEv1 SHA-1 MD5"
+          ]
+        }
+      ]
+    },
+    "confidentiality": {
+      "statement": "The reference architecture's confidentiality recommendation: IKEv2 Phase 1 AES-256 and Phase 2 NULL; IKEv1 Phase 1 AES-128 and Phase 2 NULL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "after": "The table below outlines Zscaler’s recommended settings for Phase 1 and Phase 2.",
+          "quotes": [
+            "Confidentiality Phase 1 Phase 2",
+            "IKEv2 AES-256 NULL",
+            "IKEv1 AES-128 NULL"
+          ]
+        }
+      ]
+    },
+    "null-rationale": {
+      "statement": "The stated reason for NULL in Phase 2 is that IPSec is used as a forwarding tunnel rather than for data security: the traffic leaves for the internet the same way it entered the tunnel, and almost all of it is already TLS-encrypted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "we’re using IPSec as a forwarding tunnel and not for data security.",
+            "all the traffic you are placing in this IPSec tunnel eventually goes out to the internet the same way it entered the tunnel.",
+            "almost all of this traffic is already encrypted with TLS/SSL.",
+            "For this reason, Zscaler recommends you set confidentiality to NULL in Phase 2."
+          ]
+        }
+      ]
+    },
+    "help-phase2-cipher": {
+      "statement": "The IPSec help article recommends AES-GCM-based Phase 2 ciphers for organizations that have purchased the separate subscription, and NULL encryption for those that have not.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-ipsec-vpns.json",
+          "quotes": [
+            "For Phase 2, Zscaler recommends using AES-GCM-based ciphers if you have purchased a separate subscription. If you do not have a separate subscription, Zscaler recommends using NULL encryption."
+          ]
+        }
+      ]
+    },
+    "pfs-disable": {
+      "statement": "PFS renews the Phase 2 SA keys after an amount of traffic or time; both documents recommend disabling it for Phase 2, the reference architecture because with NULL encryption there is no reason to refresh the key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "This is a mechanism where the SA keys negotiated in Phase 2 are automatically renewed. This renewal takes place after an amount of traffic or time has passed.",
+            "Zscaler recommends disabling PFS as we are using NULL encryption, so there is no reason to refresh the key."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-ipsec-vpns.json",
+          "quotes": [
+            "Zscaler recommends disabling Perfect Forward Secrecy (PFS) for Phase 2."
+          ]
+        }
+      ]
+    },
+    "nat-t": {
+      "statement": "Zscaler supports IPSec from an endpoint behind a NAT device (NAT-T): when enabled, the peers detect a NAT during Phase 1, verify both support NAT-T, and wrap the packet in a new IP header with protocol UDP, a UDP header and a NAT-T header. The reference architecture recommends enabling NAT-T.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Zscaler supports IPSec when the originating endpoint is placed behind a NAT device, called NAT Transversal or NAT-T.",
+            "When enabled, peers detect if a NAT is present in the path during Phase 1 negotiations. They then verify that both peers support NAT-T.",
+            "The first is a new IP header. This retains the same tunnel destination but changes the protocol to the User Datagram Protocol (UDP).",
+            "Finally, a NAT-T header is inserted behind the UDP header.",
+            "Zscaler recommends enabling NAT-T."
+          ]
+        }
+      ]
+    },
+    "dpd": {
+      "statement": "Dead Peer Detection checks periodically for peer responses with a HELLO message instead of waiting for the SA to expire, and Zscaler recommends enabling it so downtime from a lost connection is minimal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Instead of waiting for the SA to expire, the systems instead check periodically for station responses using a HELLO message.",
+            "Zscaler recommends enabling DPD on your connections so that any downtime due to a lost connection is minimal."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "nat-t-source-port": {
+      "summary": "The UDP source port of NAT-T encapsulated IPSec packets.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+            "quotes": [
+              "The UDP header sets its source port as 500, and retains the IPSec peer’s destination port."
+            ]
+          },
+          "says": "The reference architecture says the UDP header's source port is 500."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-ipsec-vpns.json",
+            "quotes": [
+              "In the UDP header, the source port is set to 4500 and the destination port is that of the IPSec peer."
+            ]
+          },
+          "says": "The IPSec help article says the source port is 4500."
+        }
+      ],
+      "impact": "A firewall in front of the device opened for the wrong UDP port blocks NAT-T encapsulated traffic, so a tunnel can negotiate and then pass nothing."
+    },
+    "dpd-traffic-liveness": {
+      "summary": "Whether ongoing tunnel traffic stands in for DPD liveness checks: the reference architecture describes DPD in general terms as on-demand, the help article states Zscaler's own requirement.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+            "quotes": [
+              "Instead, DPD is used only when a peer needs to send traffic after the tunnel has been inactive for some time.",
+              "Traffic passing in a bidirectional manner is enough to prove the station is available."
+            ]
+          },
+          "says": "The reference architecture, describing how DPD reduces overhead for VPN concentrators in general, says DPD is used only after the tunnel has been idle and that bidirectional traffic is enough to prove the peer is available; it does not tell admins to configure on-demand DPD."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-ipsec-vpns.json",
+            "quotes": [
+              "Zscaler does not consider the ongoing flow of traffic between two peers as proof of the liveliness of a peer.",
+              "Zscaler expects the peers to do explicit periodic liveliness checks"
+            ]
+          },
+          "says": "The IPSec help article says Zscaler does not treat ongoing traffic as proof of liveness and expects explicit periodic checks."
+        }
+      ],
+      "impact": "Read as a description of Zscaler's behavior, the reference architecture suggests tunnel traffic keeps a connection alive; the help article says Zscaler does not treat traffic as liveness, expects periodic checks, and cleans up a connection whose DPD gets no response."
+    }
+  }
+}

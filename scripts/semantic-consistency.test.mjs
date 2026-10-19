@@ -25,7 +25,8 @@ test("root and runtime routers retain current SDK accessors", () => {
   const skill = read("SKILL.md");
   const prompt = read("agents/zscaler/prompt.md");
   const runbooks = read("references/_meta/runbooks.md");
-  const terminology = read("references/shared/terminology.md");
+  // references/shared/terminology.md is now the shared.terminology subjects in the knowledge graph.
+  const terminology = ["shared.terminology", "shared.terminology.product-names"].map((id) => read(`references/shared/${id}.json`)).join("\n");
 
   for (const accessor of [
     "client.ztw",
@@ -50,8 +51,7 @@ test("root and runtime routers retain current SDK accessors", () => {
   assert.match(runbooks, /Python `client\.aiguard` exposes configuration reads and writes/);
   assert.doesNotMatch(terminology, /SDK module is `zbi`/);
   assert.doesNotMatch(terminology, /Business Insights.*No API surface/);
-  assert.match(terminology, /Business Insights.*Python `client\.zbi`/);
-  assert.match(terminology, /Zscaler Cellular.*read-only MCP layer/);
+  assert.match(terminology, /the `zbi` service client is Zscaler Business Insights/);
 
   for (const directory of [
     "ai-security/",

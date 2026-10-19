@@ -22,7 +22,7 @@
   ],
   "prose": [
     {
-      "text": "A ZIA write is not live until it is activated {{saved-not-live}}, and the activation call is separate from the write, although ending a session can activate on its own [[zia.terraform.activation-methods:session-end-autoactivation]]. The Terraform side of this is in [[zia.terraform.activation]], and the product-level lifecycle across ZIA and Cloud and Branch Connector is in [[doc:references/shared/activation.md]]."
+      "text": "A ZIA write is not live until it is activated {{saved-not-live}}, and the activation call is separate from the write, although ending a session can activate on its own [[zia.terraform.activation-methods:session-end-autoactivation]]. The Terraform side of this is in [[zia.terraform.activation]], and the product-level lifecycle across ZIA and Cloud and Branch Connector is in [[shared.activation]]."
     },
     {
       "label": "Saved, not live.",
@@ -31,6 +31,9 @@
     {
       "label": "The calls.",
       "text": "{{sdk-activation-endpoints}} {{oneapi-sample-activate}} Which path the legacy guide names is in dispute {{divergence:activate-path-differs}}. The Python call names are in [[zia.sdk-python.client-errors-and-accessors:activation-accessor]]."
+    },
+    {
+      "text": "Whether a pending End User Subscription Agreement blocks activation is open {{gap:eusa-precondition}}."
     }
   ],
   "checks": [
@@ -176,6 +179,19 @@
         }
       ],
       "impact": "A client that follows the PDF literally and POSTs to /status would not call the endpoint the SDK uses; use the activate path."
+    }
+  },
+  "gaps": {
+    "eusa-precondition": {
+      "kind": "semantic",
+      "title": "Whether EUSA acceptance gates activation",
+      "status": "open",
+      "detail": "Unverified legacy statement: the EUSA status endpoints \"enforce a click-through user agreement that must be accepted before certain config changes are activatable\" and are \"a precondition for activation in some tenants\". The Activation API tag carries GET /eusaStatus/latest and PUT /eusaStatus/{eusaStatusId}, and acceptedStatus false means an 'agreement pending' state, but no source ties EUSA acceptance to activation succeeding.",
+      "blocks": "diagnosing an activation that fails on a tenant with a pending EUSA",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
     }
   }
 }

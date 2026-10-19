@@ -226,7 +226,7 @@ Source: `vendor/zscaler-help/configuring-smart-browser-isolation-policy.json`; `
 | ZPA timeout family | ZPA Isolation session duration | "Minimum across all timeout policies" — can be surprisingly short if any ZPA timeout rule is tight |
 | ZPA maintenance window | Isolation availability | Temporary unavailability during maintenance — operator-visible |
 
-All of these surface in [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md).
+All of these surface in [`shared.integrations`](kb:shared.integrations).
 
 ## Edge cases
 
@@ -255,4 +255,4 @@ Source: `vendor/zscaler-help/configuring-smart-browser-isolation-policy.json`; `
 - ZIA Malware Protection and ATP (prerequisites for Smart Isolation) — [`zia.atp`](kb:zia.atp)
 - ZPA policy precedence (Isolation Policy's place in family order) — [`zpa.policy`](kb:zpa.policy)
 - SSL Inspection (prerequisite for HTTPS isolation) — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
-- Cross-product integration catalog — [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)
+- Cross-product integration catalog — [`shared.integrations`](kb:shared.integrations)

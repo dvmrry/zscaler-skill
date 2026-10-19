@@ -65,7 +65,7 @@ Field-level reference for ZIA log streams. Derived directly from Zscaler's publi
 | Firewall logs — L4 flows, firewall rule hits, IPS detections, NAT | [`zia.logs.firewall-records`](kb:zia.logs.firewall-records) | draft |
 | DNS logs — resolution events, request/response rules, DNS gateway state | [`zia.logs.dns-record-fields`](kb:zia.logs.dns-record-fields) | draft |
 
-For SPL patterns scoped to Zscaler questions, see [`../shared/splunk-queries.md`](../shared/splunk-queries.md). For *when* to query logs at all, see [`../shared/log-correlation.md`](../shared/log-correlation.md).
+For SPL patterns scoped to Zscaler questions, see [`shared.splunk`](kb:shared.splunk). For *when* to query logs at all, see [`shared.log-correlation`](kb:shared.log-correlation).
 
 The July 17 release added **Select All** and **Hide Deleted** to the Users,
 Departments, and Locations filters on the Web, Firewall, DNS, Tunnel, SaaS
@@ -99,4 +99,4 @@ Field-and-endpoint-level catalogs derived from Zscaler SDKs and Postman collecti
 
 ## When the question spans multiple topics
 
-Start at [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md) for the cross-feature mental model, then descend into the specific topic file.
+Start at [`shared.policy-evaluation`](kb:shared.policy-evaluation) for the cross-feature mental model, then descend into the specific topic file.

@@ -192,7 +192,7 @@ API clients use `client_credentials` exclusively. If a caller attempts to use `a
 A client scoped to `zia.*` calling ZPA APIs will get 403 from OneAPI. The token exchange to ZIdentity succeeds (the token is valid), but the scope check fails at the OneAPI gateway. Symptom: successful `POST /oauth2/v1/token`, then immediate 403 on the first API call. Fix: add the required ZPA scope to the API client in the admin portal.
 
 **3. `audience` parameter missing from token request (raw-HTTP callers only).**
-Tokens issued without `audience=https://api.zscaler.com` succeed at exchange but fail at OneAPI with 401. This is a subtle misconfiguration that looks like an authentication failure but is actually a token-content issue. **This can only happen to a hand-rolled raw-HTTP caller** — both SDKs hardcode the audience on every token exchange (vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:298; vendor/zscaler-sdk-go/zscaler/oneapiclient.go:255), so SDK, Terraform, and MCP users never hit this. (Tier A — `references/shared/oneapi.md § The audience parameter is REQUIRED`.)
+Tokens issued without `audience=https://api.zscaler.com` succeed at exchange but fail at OneAPI with 401. This is a subtle misconfiguration that looks like an authentication failure but is actually a token-content issue. **This can only happen to a hand-rolled raw-HTTP caller** — both SDKs hardcode the audience on every token exchange (vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:298; vendor/zscaler-sdk-go/zscaler/oneapiclient.go:255), so SDK, Terraform, and MCP users never hit this. (Tier A — ``shared.oneapi` § The audience parameter is REQUIRED`.)
 
 **4. Disabled client + cached token.**
 Disabling a client in the portal doesn't immediately invalidate outstanding tokens. There's a window (up to the token TTL) where a disabled client's in-flight token still works. For urgent revocation, use the Revoke Access Tokens flow. *(The specific 30–60 minute survival window is inferred from standard OAuth 2.0 bearer-token TTL behavior, not confirmed against a captured Zscaler page — see Open questions, revocation/disable timing.)*
@@ -229,7 +229,7 @@ The SDKs handle the OAuth 2.0 flow internally — callers don't have to implemen
 
 ## Cross-links
 
-- **OneAPI gateway, base URLs, rate limits, error model, Postman collection** — [`../shared/oneapi.md`](../shared/oneapi.md). Start there for any cross-product API question; this doc covers the API Client object model only.
+- **OneAPI gateway, base URLs, rate limits, error model, Postman collection** — [`shared.oneapi`](kb:shared.oneapi). Start there for any cross-product API question; this doc covers the API Client object model only.
 - ZIdentity overview — [`./overview.md`](./overview.md)
 - ZIdentity API surface (`client.zid.*` in SDK) — [`./api.md`](./api.md)
 - ZIA API authentication section (where legacy vs OneAPI paths are compared) — [`zia.api`](kb:zia.api)

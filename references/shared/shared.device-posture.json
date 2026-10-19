@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "id": "shared.device-posture",
+  "title": "Device posture across products: Client Connector evaluates, Private Access and Internet & SaaS consume",
+  "aliases": [
+    "device posture",
+    "posture profile",
+    "why did posture access break",
+    "posture failing today passed yesterday",
+    "posture and trusted network",
+    "posture evaluation frequency",
+    "machine tunnel posture failing",
+    "posture cross product"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.device-posture.trust-levels"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zcc.device-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.device-posture.check-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.device-posture.platform-support"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.device-posture.failure-modes"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.posture-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.posture-profiles.evaluation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.posture-profiles.policy-operand"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-tunnels.posture"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.policy.conditions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.trusted-networks"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A posture question usually crosses three products: Client Connector runs the checks, and Private Access rules and Internet & SaaS trust levels act on the result. This subject walks that split and points at where each part is held."
+    },
+    {
+      "steps": [
+        {
+          "label": "Where is the profile defined, and who uses it?",
+          "text": "One definition serves both products: [[zpa.posture-profiles.object-model:zcc-defined]] It is evaluated on the device: [[zcc.device-posture:evaluated-on-device]]"
+        },
+        {
+          "label": "Which checks exist on which platform?",
+          "text": "Pass conditions and version floors are in [[zcc.device-posture.check-types]], and the per-platform lists in [[zcc.device-posture.platform-support]]. A type the selected platform does not support cannot be added to the profile: [[zcc.device-posture.check-types:platform-selection]] Ownership Variable and Unauthorized Modification are Android and iOS checks, not Windows ones: [[zcc.device-posture.check-types:ownership-variable]], [[zcc.device-posture.check-types:unauthorized-modification]], [[zcc.device-posture.platform-support:windows-types]]."
+        },
+        {
+          "label": "When is it evaluated?",
+          "text": "Schedule, frequency setting and trigger events: [[zpa.posture-profiles.evaluation:cadence]], [[zpa.posture-profiles.evaluation:frequency-setting]], [[zpa.posture-profiles.evaluation:triggers]]. {{immediate-only-five}} What a shorter frequency costs on the device is open {{gap:frequency-cost}}."
+        },
+        {
+          "label": "What happens to a session already open?",
+          "text": "Existing connections are not affected by a posture update: [[zpa.posture-profiles.evaluation:cadence]] Whether a Private Access reauthentication timeout bounds how stale the result can be is open: [[zpa.posture-profiles.evaluation:reauth-bounds-staleness]]."
+        },
+        {
+          "label": "Does it apply before login, or to a partner tenant?",
+          "text": "The pre-login machine tunnel evaluates only the types listed for it: [[zpa.machine-tunnels.posture:windows-types]], [[zpa.machine-tunnels.posture:macos-types]]. What the machine tunnel does with a profile's other types is open {{gap:machine-tunnel-unlisted-types}}, and so is why they are excluded: [[zpa.posture-profiles.evaluation:user-context-types]]. Partner tenant tunnels are covered only when the profile says so: [[zcc.device-posture.check-types:partner-tenant]]"
+        }
+      ]
+    },
+    {
+      "heading": "Private Access"
+    },
+    {
+      "text": "An access rule names the profile by its posture UDID and asks for VERIFIED or VERIFICATION FAILED: [[zpa.posture-profiles.policy-operand]]. Posture condition sets in one rule are joined by AND, and profiles inside one set by OR unless toggled: [[zpa.policy.conditions:and-within-some-criteria]] Rules are evaluated in order and the first match wins: [[zpa.policy.access-rule-order:segment-group-allow-shadows-deny]] {{posture-and-trusted-network}} Timeout rules can tier sessions by posture too: [[zpa.policy.timeout-rules:posture-tiering-example]]"
+    },
+    {
+      "heading": "Internet & SaaS"
+    },
+    {
+      "text": "Internet & SaaS policy uses posture through device trust levels, which are rule criteria in several policies: [[shared.device-posture.trust-levels]]."
+    },
+    {
+      "heading": "When it fails"
+    },
+    {
+      "text": "A check that failed, could not run, or has not been refreshed are separated in [[zcc.device-posture.failure-modes]]. Whether a missing CrowdStrike ZTA score fails the check is open: [[zcc.device-posture.failure-modes:zta-score-absent]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a device that passed yesterday and fails today: whether the type re-evaluates immediately or waits for the frequency or a trigger event (new network, Wi-Fi change, reboot), and when it last ran.",
+      "uses": [
+        "immediate-only-five",
+        "zpa.posture-profiles.evaluation:triggers",
+        "zpa.posture-profiles.evaluation:frequency-setting"
+      ]
+    },
+    {
+      "do": "Whether the posture change moved the user to a different access rule in order, rather than failing one rule; put the strictest posture rule above the laxer ones.",
+      "uses": [
+        "zpa.policy.access-rule-order:segment-group-allow-shadows-deny",
+        "posture-and-trusted-network"
+      ]
+    },
+    {
+      "do": "For a session that survived a posture failure: whether the connection predates the failure, since existing connections keep the earlier result.",
+      "uses": [
+        "zpa.posture-profiles.evaluation:cadence",
+        "zpa.posture-profiles.evaluation:reauth-bounds-staleness"
+      ]
+    },
+    {
+      "do": "For a pre-login machine tunnel failing posture: whether Apply to Windows or macOS Machine Tunnel is selected, and whether every type in the profile is on that platform's machine tunnel list.",
+      "uses": [
+        "zpa.machine-tunnels.posture:apply-toggles",
+        "zpa.machine-tunnels.posture:windows-types",
+        "zpa.machine-tunnels.posture:macos-types",
+        "machine-tunnel-unlisted-types"
+      ]
+    },
+    {
+      "do": "For a rule that combines posture with a trusted network: whether both conditions hold for the user, and whether an on-premises rule without posture sits above it.",
+      "uses": [
+        "posture-and-trusted-network"
+      ]
+    }
+  ],
+  "claims": {
+    "immediate-only-five": {
+      "statement": "Only Process Check, Detect Carbon Black, Detect CrowdStrike, Detect SentinelOne and Detect Microsoft Defender are re-evaluated as soon as the posture changes on the device; any other type, Full Disk Encryption for example, keeps its last result until the configured frequency or a trigger event runs the evaluation again.",
+      "tier": "B",
+      "derived_from": [
+        "zpa.posture-profiles.evaluation:immediate-checks",
+        "zpa.posture-profiles.evaluation:frequency-setting",
+        "zpa.posture-profiles.evaluation:triggers"
+      ],
+      "conditions": "Reads the help's list of immediately evaluated checks as complete; the help gives it as 'the following posture checks' and names no others."
+    },
+    "posture-and-trusted-network": {
+      "statement": "A Private Access rule that carries both a posture condition and a trusted network condition matches only when both hold. A rule meant to admit on-premises devices without posture must not carry the posture condition and must be ordered above the rule that checks posture.",
+      "tier": "B",
+      "derived_from": [
+        "zpa.policy.conditions:criteria-and",
+        "zpa.policy.access-rule-order:segment-group-allow-shadows-deny"
+      ],
+      "conditions": "Combines the AND between a rule's criteria with first-match rule order; not tested on a tenant."
+    }
+  },
+  "gaps": {
+    "frequency-cost": {
+      "kind": "semantic",
+      "title": "What a shorter posture evaluation frequency costs on the device",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The frequency slider goes down to 2 minutes but costs battery + API calls. Zscaler's 15-minute default is the right trade-off for most tenants ... expect client-side resource cost.\" The help gives the 2 to 15 minute range (zpa.posture-profiles.evaluation:frequency-setting) and nothing about cost.",
+      "blocks": "advising on a frequency below 15 minutes",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "machine-tunnel-unlisted-types": {
+      "kind": "semantic",
+      "title": "What the machine tunnel does with a profile's types that are not on its list",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Designing a posture profile that relies on these [Process Check, Detect Defender, Ownership Variable] for pre-login enforcement silently evaluates as 'pass'.\" The help lists the types that apply to each machine tunnel (zpa.machine-tunnels.posture) and says an unselected type is evaluated only for the Private Access and Internet & SaaS tunnels; it does not say what a pre-login rule sees for a profile that holds an unlisted type. Test with a machine tunnel rule on a profile that holds Process Check.",
+      "blocks": "telling whether a pre-login posture rule enforces all of a profile's types",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

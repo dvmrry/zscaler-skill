@@ -1,0 +1,281 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.aws.autoscaling.health",
+  "title": "Cloud Connector autoscaling health: custom health metric, the Zscaler Lambda, grace period",
+  "aliases": [
+    "cloud_connector_aggr_health",
+    "MISSING_DATAPOINTS_UNHEALTHY",
+    "cloud connector asg instance terminated unhealthy",
+    "cloud connector lambda aws autoscaling",
+    "HC_UNHEALTHY_THRESHOLD",
+    "cloud connector asg reboot terminated",
+    "health_check_grace_period cloud connector"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.aws.autoscaling"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.autoscaling.lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.iam"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Autoscaling replaces Cloud Connectors it judges unhealthy, and the judgement combines EC2 status checks with a Zscaler health metric evaluated by a Zscaler Lambda."
+    },
+    {
+      "label": "Two health signals.",
+      "text": "{{ec2-status-checks}} {{custom-health-metric}} {{module-health-check-type}}"
+    },
+    {
+      "label": "How unhealthy is decided.",
+      "text": "{{sliding-window}} {{module-health-env}} {{missing-datapoints}}"
+    },
+    {
+      "label": "The Lambda.",
+      "text": "{{lambda-triggers}} {{lambda-runtime}} {{lambda-cleanup}} Its permissions are in [[cloud-connector.aws.iam]]."
+    },
+    {
+      "label": "Grace period.",
+      "text": "{{grace-period}} {{module-grace}}"
+    },
+    {
+      "label": "Manual actions.",
+      "text": "{{console-actions}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the terminated instance stopped publishing cloud_connector_aggr_health, since missing data points count as unhealthy by default.",
+      "uses": [
+        "custom-health-metric",
+        "missing-datapoints"
+      ]
+    },
+    {
+      "do": "Whether the health metric was 0 for 5 consecutive minutes or 7 of the last 10.",
+      "uses": [
+        "sliding-window",
+        "module-health-env"
+      ]
+    },
+    {
+      "do": "Whether someone stopped or rebooted the instance from the EC2 console.",
+      "uses": [
+        "console-actions"
+      ]
+    },
+    {
+      "do": "Whether the Lambda's CloudWatch log group shows the run, within the default three-day retention.",
+      "uses": [
+        "lambda-runtime"
+      ]
+    }
+  ],
+  "claims": {
+    "ec2-status-checks": {
+      "statement": "Autoscaling runs EC2 status checks on InService VMs at one-minute intervals; any failed check makes the status Impaired.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "Autoscaling performs these status checks at one-minute intervals. If all checks pass, the overall status of the VM is OK. If one or more checks fail, the overall status is Impaired.",
+            "Autoscaling uses health checks to determine the status of a VM in the InService state."
+          ]
+        }
+      ]
+    },
+    "custom-health-metric": {
+      "statement": "Each Cloud Connector posts a custom health metric every minute to the Zscaler custom namespace in CloudWatch, 0 for unhealthy and 100 for healthy, shown in logs and reports as cloud_connector_aggr_health.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "Each Cloud Connector posts an individual custom health metric at one-minute intervals to the Zscaler/Cloud Connectors custom namespace in CloudWatch. The custom metric value is 0 for an unhealthy VM or 100 for a healthy VM.",
+            "In logs and reports, the custom health metric is displayed as cloud_connector_aggr_health."
+          ]
+        }
+      ]
+    },
+    "module-health-check-type": {
+      "statement": "The reference ASG module's `health_check_type` defaults to EC2 and accepts EC2 or ELB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/variables.tf",
+          "quotes": [
+            "description = \"EC2 or ELB. Controls how health checking is done\" default = \"EC2\"",
+            "var.health_check_type == \"EC2\" || var.health_check_type == \"ELB\""
+          ]
+        }
+      ]
+    },
+    "sliding-window": {
+      "statement": "The Lambda evaluates the health metric over a sliding window of 10 consecutive minutes by default and marks a VM unhealthy when it is unhealthy for 5 consecutive minutes or for 7 of the 10.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "The size of the sliding window. The default value is 10 consecutive minutes.",
+            "The default value for defining a VM as unhealthy is 5 consecutive minutes.",
+            "The default value is 7 unhealthy counts in 10 consecutive minutes.",
+            "If either the 5- or 7-minute threshold is crossed, the VM is determined to be unhealthy.",
+            "The Lambda function evaluates recent health data using sliding window logic with the following configurable environment variables:"
+          ]
+        }
+      ]
+    },
+    "module-health-env": {
+      "statement": "The reference Lambda module hardcodes HC_DATA_POINTS 10, HC_UNHEALTHY_THRESHOLD 7, HC_UNHEALTHY_CONTIGUOUS_DP 5 and MISSING_DATAPOINTS_UNHEALTHY true in the function environment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-lambda-aws/main.tf",
+          "quotes": [
+            "HC_DATA_POINTS = \"10\" # most recent datapoints to evaulate",
+            "HC_UNHEALTHY_THRESHOLD = \"7\" # unhealthy datapoints threshold",
+            "HC_UNHEALTHY_CONTIGUOUS_DP = \"5\" # continuous unhealthy datapoint counts",
+            "MISSING_DATAPOINTS_UNHEALTHY = true # treat missing datapoints as unhealthy"
+          ]
+        }
+      ]
+    },
+    "missing-datapoints": {
+      "statement": "A VM that publishes no health metrics is treated as unhealthy by default; changing MISSING_DATAPOINTS_UNHEALTHY in the Lambda's environment makes the Lambda ignore missing data points.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "If the VM does not publish health metrics, Lambda treats missing data points as unhealthy by default. If you want Lambda to ignore missing data points, change the value of the MISSING_DATAPOINTS_UNHEALTHY environment variable in the Lambda console"
+          ]
+        }
+      ]
+    },
+    "lambda-triggers": {
+      "statement": "EventBridge triggers the Lambda every minute to check VM health, on EC2 instance termination events and on lifecycle termination events; the module implements these as a rate(1 minute) schedule, an EC2 Instance-terminate Lifecycle Action rule for the group names, and an EC2 state-change rule for terminated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "Periodic execution: Triggered every minute to check VM health.",
+            "EC2 instance termination events: Triggered asynchronously after a VM termination event completes.",
+            "EC2 lifecycle termination events: Triggered asynchronously after a lifecycle termination event completes."
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-lambda-aws/main.tf",
+          "quotes": [
+            "schedule_expression = \"rate(1 minute)\"",
+            "\"detail-type\": [\"EC2 Instance-terminate Lifecycle Action\"]",
+            "\"detail-type\": [\"EC2 Instance State-change Notification\"], \"detail\": { \"state\": [\"terminated\"] }"
+          ]
+        }
+      ]
+    },
+    "lambda-runtime": {
+      "statement": "Each Lambda run lasts at most three minutes (the module sets timeout 180 seconds and 256 MB), and it logs to a CloudWatch log group whose retention defaults to three days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "it runs for a maximum of three minutes and then terminates automatically.",
+            "By default, CloudWatch retains the logs for three days."
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-lambda-aws/main.tf",
+          "quotes": [
+            "timeout = 180 # executes for max 180 seconds memory_size = 256"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-lambda-aws/variables.tf",
+          "quotes": [
+            "2922, 3288, 3653, and 0\" default = 3"
+          ]
+        }
+      ]
+    },
+    "lambda-cleanup": {
+      "statement": "After a termination the Lambda calls the Admin Console REST API to remove the VM from its Cloud Connector group, cleans up the VM's Internet & SaaS and Private Access resources, completes the lifecycle action, and manages termination of warm-pool VMs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "After a termination event, Lambda initiates a REST API call to the Zscaler Admin Console so the terminated VM can be removed from the Cloud Connector group.",
+            "Cleans up the Zscaler cloud resources associated with the VM when the VM is terminated. This includes resources allocated to Internet & SaaS (ZIA) and Private Access (ZPA).",
+            "Ensures smooth termination of autoscaling lifecycle events after cleaning up the cloud resources.",
+            "Manages the termination of VMs in a warm pool."
+          ]
+        }
+      ]
+    },
+    "grace-period": {
+      "statement": "A new Cloud Connector gets a grace period, 900 seconds by default, after entering service before its health is checked; if it is not healthy when the period ends, autoscaling removes it from the Admin Console by API and terminates it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "By default, the grace period is 900 seconds (15 minutes).",
+            "If the VM is healthy after the grace period ends, it remains in service. Otherwise, autoscaling makes an API call to remove the VM from the Zscaler Admin Console and it is then terminated."
+          ]
+        }
+      ]
+    },
+    "module-grace": {
+      "statement": "The reference ASG module's `health_check_grace_period` defaults to 900 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/variables.tf",
+          "quotes": [
+            "variable \"health_check_grace_period\" {",
+            "to keep a new instance in service before terminating it if it's found to be unhealthy.\" default = 900"
+          ]
+        }
+      ]
+    },
+    "console-actions": {
+      "statement": "A VM terminated manually from the EC2 console is replaced, and stopping or rebooting an ASG member from the EC2 console could cause it to be terminated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "If someone manually terminates a VM that is part of an autoscaling group from the Amazon EC2 Console, the VM is likewise replaced.",
+            "stopping or rebooting a VM that is part of an ASG from the Amazon E2 Console could cause the VM to be terminated."
+          ]
+        }
+      ]
+    }
+  }
+}

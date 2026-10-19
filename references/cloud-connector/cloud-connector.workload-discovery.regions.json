@@ -1,0 +1,313 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.workload-discovery.regions",
+  "title": "Workload discovery regions, per-region status, and turning data collection off",
+  "aliases": [
+    "workload discovery region not discovered",
+    "discovery service status",
+    "starting discovery status",
+    "regionStatus",
+    "supportedRegions workload discovery",
+    "disable data collection aws account",
+    "changeState publicCloudInfo"
+  ],
+  "binds": [
+    "ztw/public-cloud-info#regionStatus",
+    "ztw/public-cloud-info#supportedRegions"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.workload-discovery.aws-accounts"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.workload-discovery.namespaces"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.regions"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Selecting regions.",
+      "text": "{{select-regions}} {{help-region-list}} The API lists the regions discovery supports: [[cloud-connector.regions:wds-endpoint]], with each entry's fields in [[cloud-connector.regions:wds-cloud-types]]; whether that set matches the Zero Trust Gateway and Cloud Connector lists is open: [[cloud-connector.regions:region-set-parity]]. {{regions-by-id}} {{update-carries-regions}}"
+    },
+    {
+      "label": "Per-region status.",
+      "text": "{{status-strings}} {{region-status-boolean}} How the console's strings relate to the boolean is unresolved {{gap:region-status-representation}}. {{private-ip-count}} The duplicate IP counter is covered with namespaces: [[cloud-connector.workload-discovery.namespaces:duplicate-ip-one-shown]]."
+    },
+    {
+      "label": "Turning data collection off.",
+      "text": "{{data-collection-toggle}} {{change-state-api}} What happens to tags already delivered while collection is off is not stated {{gap:disabled-tag-retention}}."
+    },
+    {
+      "label": "Toggling from the SDKs.",
+      "text": "The Go function for this call fails on every call: [[cloud-connector.sdk-go.service-defects:public-cloud-change-state-nil-payload]]. {{python-change-state-body}} {{python-enable-not-query}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether every region that holds the workloads is selected on the account.",
+      "uses": [
+        "select-regions",
+        "update-carries-regions"
+      ]
+    },
+    {
+      "do": "The Discovery Service Status of the region on the account details page, and whether data collection was disabled for the account.",
+      "uses": [
+        "status-strings",
+        "data-collection-toggle"
+      ]
+    },
+    {
+      "do": "When toggling data collection by API, send `enable` as a query parameter directly rather than through the Go or Python helper.",
+      "uses": [
+        "change-state-api",
+        "python-enable-not-query",
+        "cloud-connector.sdk-go.service-defects:public-cloud-change-state-nil-payload"
+      ]
+    }
+  ],
+  "claims": {
+    "select-regions": {
+      "statement": "Regions where workloads are deployed are selected when the account is added; if a region where workloads run is not selected, the discovery service does not discover those workloads and tag-based security policies are not applied to them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-amazon-web-services-account.json",
+          "quotes": [
+            "In the Region section, select one or more regions where your workloads are deployed.",
+            "If you do not select one or more regions where you have workloads deployed, the Zscaler discovery service does not discover the workloads, and tag-based security policies are not applied to the workloads."
+          ]
+        }
+      ]
+    },
+    "regions-by-id": {
+      "statement": "Clients select regions by ID: the Terraform resource's `supported_regions` is a set of IDs, and the Python SDK takes `supported_region_ids` and sends them as `supportedRegions`.",
+      "tier": "A",
+      "binds": [
+        "ztw/public-cloud-info#supportedRegions"
+      ],
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_public_cloud_info.go",
+          "quotes": [
+            "\"supported_regions\": setIDsSchemaTypeCustom(nil, \"Regions supported by Zscaler’s Tag Discovery Service.\"),"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/public_cloud_info.py",
+          "quotes": [
+            "supported_region_ids (list): List of IDs for supported region objects."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "(\"supported_region_ids\", \"supportedRegions\"),"
+          ]
+        }
+      ]
+    },
+    "update-carries-regions": {
+      "statement": "The account update request carries `supportedRegions`, as the create request does.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo~1{id}/put/requestBody/content/application~1json/schema/properties/supportedRegions",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo/post/requestBody/content/application~1json/schema/properties/supportedRegions",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ]
+    },
+    "status-strings": {
+      "statement": "The account details page shows a Discovery Service Status per region; the most commonly displayed values are Success (running as expected), Disabled (re-enable data collection from the AWS Accounts page), Error (the service has discovered an issue) and Starting Discovery (data collection has not been started).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-amazon-web-services-account-details.json",
+          "quotes": [
+            "Discovery Service Status: The status of the discovery service. The following statuses are the most commonly displayed:",
+            "Success: The service is running as expected.",
+            "Disabled: The service is disabled. To re-enable data collection, go to the AWS Accounts page.",
+            "Error: The service has discovered an issue.",
+            "Starting Discovery: Data collection has not been started."
+          ]
+        }
+      ]
+    },
+    "region-status-boolean": {
+      "statement": "In the API contract and the Go SDK, each entry of the account's `regionStatus` has a boolean `status` described as the operational status of the region.",
+      "tier": "A",
+      "binds": [
+        "ztw/public-cloud-info#regionStatus"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo~1{id}/get/responses/default/content/application~1json/schema/properties/regionStatus/items/properties/status",
+          "expect": {
+            "description": "Indicates the operational status of the region.",
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/common/common.go",
+          "quotes": [
+            "// Indicates the operational status of the region. Status bool `json:\"status,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "private-ip-count": {
+      "statement": "No of Private IP Addresses counts the workloads the discovery service found, one per IP address, so a workload with several IP addresses is shown as several workloads.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-amazon-web-services-account-details.json",
+          "quotes": [
+            "No of Private IP Addresses: The number of workloads that the tag discovery service has discovered. Each IP address represents a workload. If a workload has multiple IP addresses within it, it is shown as multiple workloads."
+          ]
+        }
+      ]
+    },
+    "data-collection-toggle": {
+      "statement": "An account's menu offers Disable Data Collection, which stops the tag discovery process, and Enable Data Collection, which starts it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-amazon-web-services-accounts.json",
+          "quotes": [
+            "Disable Data Collection: Zscaler stops the tag discovery process.",
+            "Enable Data Collection: Zscaler begins the tag discovery process."
+          ]
+        }
+      ]
+    },
+    "change-state-api": {
+      "statement": "The API enables or disables an AWS account in all regions with a PUT on the account's change-state path, taking a boolean `enable` query parameter (true enables, false disables).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo~1{id}~1changeState/put",
+          "expect": {
+            "description": "Enables or disables a specific AWS account in all regions based on the provided ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo~1{id}~1changeState/put/parameters/[name=enable]",
+          "expect": {
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    },
+    "python-change-state-body": {
+      "statement": "The Python SDK's `change_state_public_cloud_info` documents `query_params.enable`, but it copies its keyword arguments into the request body and builds the request without query parameters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/public_cloud_info.py",
+          "quotes": [
+            "``[query_params.enable]`` {bool}: Set true to enable the AWS account, and false to disable it.",
+            "body = {} body.update(kwargs) request, error = self._request_executor.create_request(http_method, api_url, body, {}, {})"
+          ],
+          "after": "def change_state_public_cloud_info(self, cloud_id: int, **kwargs)"
+        }
+      ]
+    },
+    "python-enable-not-query": {
+      "statement": "A Python call that passes `query_params={\"enable\": ...}` therefore sends it inside the JSON body, not as the `enable` query parameter the API reads.",
+      "tier": "B",
+      "conditions": "Follows from the method's code; the request executor's body handling was not traced further and the call was not observed on the wire.",
+      "derived_from": [
+        "python-change-state-body",
+        "change-state-api"
+      ]
+    },
+    "help-region-list": {
+      "statement": "The account details help says the supported AWS regions include us-east-1, us-east-2, us-west-1, us-west-2, eu-central-1, eu-west-1, eu-west-2, ap-southeast-1, ap-south-1 and ap-southeast-2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-amazon-web-services-account-details.json",
+          "quotes": [
+            "Supported regions for AWS include:",
+            "| us-east-1 | N. Virginia |",
+            "| us-east-2 | Ohio |",
+            "| us-west-1 | N. California |",
+            "| us-west-2 | Oregon |",
+            "| eu-central-1 | Frankfurt |",
+            "| eu-west-1 | Ireland |",
+            "| eu-west-2 | London |",
+            "| ap-southeast-1 | Singapore |",
+            "| ap-south-1 | Mumbai |",
+            "| ap-southeast-2 | Sydney |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "region-status-representation": {
+      "kind": "semantic",
+      "former_ids": [
+        "cloud-connector-01"
+      ],
+      "title": "How the console's region status strings map to the boolean API status",
+      "status": "open",
+      "detail": "The account details help shows Success, Disabled, Error and Starting Discovery as the most common region statuses, while the API contract and Go SDK type `regionStatus[].status` as a boolean. Whether the API returns a richer value than documented, or the console derives the strings from the boolean plus other fields, is not shown, so a region row read through the API cannot be mapped to a console status.",
+      "blocks": "Reporting a region's discovery status from API or SDK reads.",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ]
+    },
+    "disabled-tag-retention": {
+      "kind": "semantic",
+      "title": "Tags already delivered after data collection is disabled",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Disabling stops tag discovery; policy that referenced discovered tags loses its workload-identity binding for that account until re-enabled.' The help says only that disabling stops the tag discovery process; whether Cloud Connectors keep or drop the tag mappings they already hold is not stated.",
+      "blocks": "Predicting tag-based policy matches while an account's data collection is disabled.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

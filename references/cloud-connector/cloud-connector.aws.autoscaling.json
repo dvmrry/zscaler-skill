@@ -1,0 +1,418 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.aws.autoscaling",
+  "title": "Cloud Connector Auto Scaling groups on AWS: scaling metric, policy, capacity limits",
+  "aliases": [
+    "cloud connector asg",
+    "cloud connector autoscaling aws",
+    "smedge_cpu_utilization",
+    "Zscaler/CloudConnectors namespace",
+    "cloud connector not scaling out",
+    "cloud connector asg max size 16",
+    "zonal_asg_enabled",
+    "target_cpu_util_value"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.aws"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.autoscaling.health"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.autoscaling.lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.gwlb"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Cloud Connector autoscaling is an AWS Auto Scaling group of small Cloud Connectors behind a GWLB, scaled on a CPU metric the Cloud Connectors publish themselves. Health checks are in [[cloud-connector.aws.autoscaling.health]]; warm pools and lifecycle hooks in [[cloud-connector.aws.autoscaling.lifecycle]]."
+    },
+    {
+      "label": "What it is.",
+      "text": "{{what-it-does}} {{small-only}} Enabling it needs a Support-enabled provisioning template and the Lambda package in S3: [[cloud-connector.aws.cloudformation]]."
+    },
+    {
+      "label": "Topology.",
+      "text": "{{topology}} {{zonal-default}} The CloudFormation template defaults the other way, to one group per zone: [[cloud-connector.aws.cloudformation]]."
+    },
+    {
+      "label": "The metric.",
+      "text": "{{custom-cpu-metric}} {{metric-name}} What load the metric reflects beyond CPU is not documented {{gap:cpu-metric-meaning}}. Help and the module spell the namespace differently {{divergence:metric-namespace}}."
+    },
+    {
+      "label": "The policy.",
+      "text": "{{module-policy}} {{target-80}} {{alarm-timing}} {{cooldown-tolerance}}"
+    },
+    {
+      "label": "Capacity limits.",
+      "text": "{{capacity-bounds}} {{module-min-max}} {{wrapper-max-10}} GCP Help calls 16 the Cloud Connector group limit, [[cloud-connector.gcp.mig-autoscaling:help-group-size]]; whether that binds AWS groups and how it is enforced is open {{gap:group-size-limit}}, with the enforcement question shared by [[cloud-connector.gcp.mig-autoscaling:group-limit-enforcement]]. {{module-misc-defaults}}"
+    },
+    {
+      "label": "Seeing it in the Admin Console.",
+      "text": "{{console-mapping}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the group is at its maximum size, in which case scale-out stops and traffic can be delayed or dropped.",
+      "uses": [
+        "capacity-bounds",
+        "module-min-max"
+      ]
+    },
+    {
+      "do": "Whether the scaling policy uses smedge_cpu_utilization from the Zscaler namespace rather than EC2 CPUUtilization, and its target value.",
+      "uses": [
+        "module-policy",
+        "custom-cpu-metric",
+        "metric-namespace"
+      ]
+    },
+    {
+      "do": "Whether aggregate CPU stayed above target for three minutes (scale-out) or below for fifteen (scale-in), allowing for the five-minute cooldown.",
+      "uses": [
+        "alarm-timing",
+        "cooldown-tolerance"
+      ]
+    },
+    {
+      "do": "Whether the Cloud Connector group shows Auto Scaling true in the Admin Console and its VMs match the group's instance IDs.",
+      "uses": [
+        "console-mapping"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-does": {
+      "statement": "An AWS autoscaling deployment adds Cloud Connector VMs to an Auto Scaling group to meet current load and removes them when load decreases, within a configured desired capacity, minimum and maximum; settings can be changed in the EC2 console after deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "dynamically adds Cloud Connector virtual machines (VMs), which are EC2 instances, to an Autoscaling group to meet the current load, and removes Cloud Connector VMs from the group when the load decreases.",
+            "You define the desired capacity and the minimum and maximum number of VMs in the group.",
+            "After deployment, you can modify the settings in the Amazon EC2 Console."
+          ]
+        }
+      ]
+    },
+    "small-only": {
+      "statement": "Autoscaling supports only the small Cloud Connector size: Help says only small instance types are supported for the autoscaling template, and the reference ASG module creates its launch template only when `cc_instance_size` is small.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deployment-templates-zscaler-cloud-connector.json",
+          "quotes": [
+            "Currently, only small instance types are supported for Cloud Connector."
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/main.tf",
+          "quotes": [
+            "count = local.valid_cc_create && var.cc_instance_size == \"small\" ? 1 : 0"
+          ]
+        }
+      ]
+    },
+    "topology": {
+      "statement": "In the documented topology the workloads and the Auto Scaling group sit in separate subnets of one VPC in a single availability zone, with multiple groups in multiple zones as the higher-redundancy alternative, and a NAT gateway with a dedicated IP in a public subnet for the Cloud Connectors' outbound traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "The workload servers and the autoscaling group are deployed in separate subnets in the VPC. They are deployed into a single regional availability zone to simplify the management of resources.",
+            "Alternatively, you can deploy multiple autoscaling groups in multiple availability zones to provide additional reliability and redundancy.",
+            "A NAT gateway used for outbound traffic from the Cloud Connectors is deployed in a public subnet in the availability zone. The NAT gateway has a dedicated IP address associated with it."
+          ]
+        }
+      ]
+    },
+    "zonal-default": {
+      "statement": "The reference ASG module creates one Auto Scaling group spanning all Cloud Connector subnets by default; `zonal_asg_enabled` true creates one group per subnet and availability zone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/variables.tf",
+          "quotes": [
+            "By default, Terraform will create a single Auto Scaling Group containing multiple subnets/availability zones. Set to true if you would rather create one Auto Scaling Group per subnet/availability zone (var.az_count)\" default = false"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/main.tf",
+          "quotes": [
+            "count = var.zonal_asg_enabled ? length(var.cc_subnet_ids) : 1"
+          ]
+        }
+      ]
+    },
+    "custom-cpu-metric": {
+      "statement": "Each Cloud Connector reports its own CPU utilization to CloudWatch as a custom metric every minute, and autoscaling acts on the aggregate across the group rather than on VM-level metrics, because, per Help, custom metrics provide more detailed and precise information about CPU usage.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "Each Cloud Connector independently reports custom CPU utilization metrics to Amazon CloudWatch at one-minute intervals to advertise the load it is handling.",
+            "AWS autoscaling uses the aggregate CPU utilization of all VMs in the autoscaling group to determine when to trigger scale-out and scale-in events",
+            "Autoscaling uses custom CPU metrics instead of VM-level metrics because custom metrics provide more detailed and precise information about CPU usage."
+          ]
+        }
+      ]
+    },
+    "metric-name": {
+      "statement": "The CPU metric appears in logs and reports as smedge_cpu_utilization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "In logs and reports, the CPU utilization metric is displayed as smedge_cpu_utilization."
+          ]
+        }
+      ]
+    },
+    "module-policy": {
+      "statement": "The reference ASG module attaches a TargetTrackingScaling policy per group on the customized metric smedge_cpu_utilization in namespace Zscaler/CloudConnectors, dimension AutoScalingGroupName, statistic Average, unit Percent, with target `target_cpu_util_value` (default 80).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/main.tf",
+          "quotes": [
+            "policy_type = \"TargetTrackingScaling\"",
+            "namespace = \"Zscaler/CloudConnectors\" metric_name = \"smedge_cpu_utilization\" metric_dimension { name = \"AutoScalingGroupName\"",
+            "statistic = \"Average\" unit = \"Percent\" } target_value = var.target_cpu_util_value"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/variables.tf",
+          "quotes": [
+            "trigger a scale in/out to keep average CPU Utliization percentage across all instances at/under this number\" default = 80"
+          ]
+        }
+      ]
+    },
+    "target-80": {
+      "statement": "The target tracking policy has a default target value of 80% and automatically creates the CloudWatch alarms for scale-out and scale-in.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "The Target Tracking Policy has a default target value of 80%. The policy automatically configures the CloudWatch alarms for scale-out and scale-in events:"
+          ]
+        }
+      ]
+    },
+    "alarm-timing": {
+      "statement": "Scale-out triggers when aggregate CPU is above 80% for 180 seconds; scale-in triggers when it is below 80% for 900 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "Scale-Out: A scale-out event is triggered automatically if the aggregate CPU utilization is more than 80% for 180 seconds (three minutes).",
+            "Scale-In: A scale-in event is triggered automatically if the aggregate CPU utilization is less than 80% for 900 seconds (15 minutes)."
+          ]
+        }
+      ]
+    },
+    "cooldown-tolerance": {
+      "statement": "After a scaling event a cooldown, 300 seconds by default, ignores new metric changes, and error bands around the target keep small fluctuations (such as 80.1% or 79.9% against 80%) from triggering actions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "When a scale-out or scale-in event occurs, autoscaling automatically applies a cooldown period, during which it ignores new metric changes to give the system time to stabilize. By default, the cooldown period is 300 seconds (5 minutes).",
+            "Autoscaling adds error bands around the target level. This margin prevents small fluctuations from triggering scale-out or scale-in actions.",
+            "autoscaling does not act immediately when the metric reaches 80.1% or 79.9%."
+          ]
+        }
+      ]
+    },
+    "capacity-bounds": {
+      "statement": "Desired capacity cannot exceed the maximum or fall below the minimum; once the group is at maximum, scale-out stops and a further spike can delay responses or drop random traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "The desired capacity cannot exceed the maximum size or fall below the minimum size defined for the group.",
+            "Scale-out actions stop. If another spike occurs, traffic responses could be delayed or random traffic could be dropped."
+          ]
+        }
+      ]
+    },
+    "module-min-max": {
+      "statement": "The reference ASG module defaults `min_size` to 2 and `max_size` to 4, validates both between 1 and 16, and its max_size error message calls 16 a hard limit of Cloud Connectors per group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/variables.tf",
+          "quotes": [
+            "variable \"min_size\" { type = number description = \"Minimum number of Cloud Connectors to maintain in Autoscaling group\" default = 2",
+            "Input min_size must be set to a number between 1 and 16.",
+            "variable \"max_size\" { type = number description = \"Maximum number of Cloud Connectors to maintain in Autoscaling group\" default = 4",
+            "Input max_size cannot exceed 16 (hard limit of 16 Cloud Connectors per group).",
+            "var.min_size >= 1 && var.min_size <= 16",
+            "var.max_size >= 1 && var.max_size <= 16"
+          ]
+        }
+      ]
+    },
+    "wrapper-max-10": {
+      "statement": "The three autoscaling examples (base_cc_gwlb_asg, base_cc_gwlb_asg_zpa, cc_gwlb_asg) narrow `max_size` to 1 through 10 and leave `min_size` unvalidated, and the zsec helper accepts 1 to 10 for both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_cc_gwlb_asg/variables.tf",
+          "quotes": [
+            "variable \"min_size\" { type = number description = \"Mininum number of Cloud Connectors to maintain in Autoscaling group\" default = 2 }",
+            "Input max_size must be set to a number between 1 and 10."
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_cc_gwlb_asg_zpa/variables.tf",
+          "quotes": [
+            "variable \"min_size\" { type = number description = \"Mininum number of Cloud Connectors to maintain in Autoscaling group\" default = 2 }",
+            "Input max_size must be set to a number between 1 and 10."
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/cc_gwlb_asg/variables.tf",
+          "quotes": [
+            "variable \"min_size\" { type = number description = \"Mininum number of Cloud Connectors to maintain in Autoscaling group\" default = 2 }",
+            "Input max_size must be set to a number between 1 and 10."
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/zsec",
+          "quotes": [
+            "case $min_size in 1|2|3|4|5|6|7|8|9|10)",
+            "case $max_size in 1|2|3|4|5|6|7|8|9|10)",
+            "Invalid ASG Minimum size: ${min_size}. Enter a number 1-10"
+          ]
+        }
+      ]
+    },
+    "module-misc-defaults": {
+      "statement": "Other ASG module defaults: `instance_warmup` 0, `protect_from_scale_in` false, and the group ignores changes to desired capacity and target groups so Terraform does not reset them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/variables.tf",
+          "quotes": [
+            "Set this value equal to the amount of time that it takes for resource consumption to become stable after an instance reaches the InService state\" default = 0",
+            "variable \"instance_warmup\" {",
+            "variable \"protect_from_scale_in\" {",
+            "see Using instance scale-in protection in the Amazon EC2 Auto Scaling User Guide\" default = false"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/main.tf",
+          "quotes": [
+            "ignore_changes = [load_balancers, desired_capacity, target_group_arns]"
+          ]
+        }
+      ]
+    },
+    "console-mapping": {
+      "statement": "The Auto Scaling group name and instance IDs map to the Cloud Connector group name and VM names in the Admin Console; the Cloud Connector Groups page shows Auto Scaling true for a group mapped to an ASG, and Geo View shows active VMs green and inactive ones orange.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "The autoscaling group name and instance IDs in the Amazon EC2 Console map to the Cloud Connector Group name and VM names in the Zscaler Admin Console.",
+            "The value of the Auto Scaling column is true if the Cloud Connector Group maps to an AWS autoscaling group.",
+            "Active VMs in the group are displayed in green. Inactive VMs in the group are displayed in orange.",
+            "Go to Zero Trust Cloud > Cloud Connector > Cloud Connector Overview and scroll to the Geo View section."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "metric-namespace": {
+      "summary": "The CloudWatch namespace of the Cloud Connector custom metrics: Help writes it with a space, the reference module without.",
+      "positions": [
+        {
+          "says": "Instance metrics with CPU and other usage data from autoscaling VMs are in the Zscaler/Cloud Connectors namespace.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+            "quotes": [
+              "Amazon EC2 instance metrics that collect CPU and other usage data from VMs in autoscaling groups are in the Zscaler/Cloud Connectors namespace."
+            ]
+          }
+        },
+        {
+          "says": "The scaling policy reads, and the instance IAM policy restricts PutMetricData to, the namespace Zscaler/CloudConnectors.",
+          "evidence": {
+            "source": "tfmod-aws-cloud-connector",
+            "path": "modules/terraform-zscc-iam-aws/main.tf",
+            "quotes": [
+              "#Restrict cloudwatch metrics posting only to fixed Zscaler/CloudConnectors namespace"
+            ]
+          }
+        }
+      ],
+      "impact": "A CloudWatch query, alarm or IAM condition written from the Help spelling would not match the namespace the working reference deployment uses; the module's spelling is the one its policy and IAM depend on."
+    }
+  },
+  "gaps": {
+    "group-size-limit": {
+      "kind": "semantic",
+      "title": "Whether the 16-per-group limit applies to AWS groups and how it is enforced",
+      "status": "open",
+      "detail": "GCP autoscaling Help says an instance group's maximum cannot exceed the Cloud Connector group limit of 16 VMs per group (held as cloud-connector.gcp.mig-autoscaling:help-group-size), and the AWS ASG module's validation error calls 16 a hard limit per group, while the AWS examples and zsec stop at 10. No AWS source states the limit, and no source shows how the service enforces it; the enforcement question is shared with cloud-connector.gcp.mig-autoscaling:group-limit-enforcement. Separately, Help says Private Access enrollment fails beyond 100 Cloud Connectors in a group in the same VPC or availability zone. Unverified legacy statement: the 1 to 10 wrapper and helper checks are tooling behavior, not an independent Cloud Connector runtime limit.",
+      "blocks": "sizing an autoscaling group above 10 Cloud Connectors",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "cpu-metric-meaning": {
+      "kind": "semantic",
+      "title": "What smedge_cpu_utilization measures",
+      "status": "open",
+      "detail": "Unverified legacy statement: the custom CPU metric reflects Cloud Connector application load such as tunnel throughput and connection-table pressure rather than raw hypervisor CPU. Help says only that each Cloud Connector reports custom CPU utilization and that it is more detailed and precise than VM-level metrics.",
+      "blocks": "interpreting a high smedge_cpu_utilization value",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

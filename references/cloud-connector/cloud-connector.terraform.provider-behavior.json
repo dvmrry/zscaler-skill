@@ -69,6 +69,15 @@
     {
       "label": "Reorder coordinator synchronization.",
       "text": "{{reorder-done-channel-read-after-unlock}} {{reorder-race-outcomes}} How the coordinator decides what to write, and what it leaves unwritten, is in [[cloud-connector.terraform.rule-order]]; for the open questions on the server side see that subject's gaps."
+    },
+    {
+      "text": "{{public-cloud-log-info-type-dropped}}"
+    },
+    {
+      "text": "{{edge-connector-group-dns-ip-panic-fixed}}"
+    },
+    {
+      "text": "The documentation describes a worker pool that the code never builds {{divergence:parallelism-doc-worker-pool}}."
     }
   ],
   "checks": [
@@ -881,6 +890,41 @@
           "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
         }
       ]
+    },
+    "public-cloud-log-info-type-dropped": {
+      "statement": "The `ztc_public_cloud_info` resource declares `log_info_type` inside `account_details`, but neither its request builder nor its read copies that argument, so a configured value is never sent to the API and is never read back into state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_public_cloud_info.go",
+          "quotes": [
+            "\"account_details\": { Type: schema.TypeList, Optional: true,",
+            "\"log_info_type\": { Type: schema.TypeString, Optional: true, Description: \"The type of log information. Supported types are INFO and ERROR.\", },",
+            "AwsAccountID: item[\"aws_account_id\"].(string), AwsRoleName: item[\"aws_role_name\"].(string), CloudWatchGroupArn: item[\"cloud_watch_group_arn\"].(string), EventBusName: item[\"event_bus_name\"].(string), ExternalID: item[\"external_id\"].(string), TroubleShootingLogging: item[\"trouble_shooting_logging\"].(bool),",
+            "\"aws_account_id\": gp.AwsAccountID, \"aws_role_name\": gp.AwsRoleName, \"cloud_watch_group_arn\": gp.CloudWatchGroupArn, \"event_bus_name\": gp.EventBusName, \"external_id\": gp.ExternalID, \"trouble_shooting_logging\": gp.TroubleShootingLogging, \"trusted_account_id\": gp.TrustedAccountID, \"trusted_role\": gp.TrustedRole, },"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled"
+        }
+      ]
+    },
+    "edge-connector-group-dns-ip-panic-fixed": {
+      "statement": "The provider's 0.2.0 changelog records a fix for a panic of the `ztc_edge_connector_group` data source on the attribute type of `ec_instances.0.dns_ip`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "CHANGELOG.md",
+          "after": "## 0.2.0 (June 29, 2026)",
+          "quotes": [
+            "Fixed `ztc_edge_connector_group` panic with attribute type `ec_instances.0.dns_ip`"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -924,6 +968,39 @@
       ],
       "blocks": "saying whether descriptions with a literal `$` can ever plan clean",
       "detail": "The configured text reaches the API as written, but the diff-suppress function compares the StateFunc output of the old value with a value that may already be normalized, so for a description with `$` the two may never match. Test with a description such as `cost $5`: apply, then plan again and see whether a difference remains."
+    }
+  },
+  "divergences": {
+    "parallelism-doc-worker-pool": {
+      "summary": "The provider documentation says parallelism sizes a worker pool that serializes API calls; the code only sizes a channel that nothing uses.",
+      "positions": [
+        {
+          "says": "The provider creates a worker pool of the configured size to serialize API calls; the default is 1.",
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "docs/index.md",
+            "quotes": [
+              "The provider creates a worker pool of this size to serialize API calls. The default is `1`."
+            ]
+          }
+        },
+        {
+          "says": "providerConfigure only allocates a package-level channel of that capacity; no code sends to or receives from it.",
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "ztc/provider.go",
+            "quotes": [
+              "apiSemaphore = make(chan struct{}, config.parallelism)"
+            ]
+          }
+        }
+      ],
+      "impact": "An operator who lowers parallelism to throttle the provider, as the documentation suggests, gets no throttling.",
+      "resolution": {
+        "by": "cloud-connector.terraform.provider-behavior:parallelism-not-enforced",
+        "rule": "source-rank",
+        "note": "The code is what runs."
+      }
     }
   }
 }

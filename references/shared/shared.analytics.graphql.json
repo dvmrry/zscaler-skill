@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "id": "shared.analytics.graphql",
+  "title": "The Analytics (Z-Insights) GraphQL API: endpoint, access and scope",
+  "aliases": [
+    "zins graphql",
+    "z-insights api",
+    "zinsights",
+    "analytics api graphql",
+    "api.zsapi.net/zins/graphql",
+    "zscaler insights reader",
+    "graphql introspection production",
+    "zdx graphql api"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.analytics.graphql-queries"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.analytics.graphql-errors-and-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.iot.api-surface"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{single-endpoint}}"
+    },
+    {
+      "label": "Endpoints.",
+      "text": "{{endpoints}}"
+    },
+    {
+      "label": "Access.",
+      "text": "{{oneapi-auth}} The token request itself is in [[shared.oneapi.authentication]]. The role an API client needs is [[zia.iot.api-surface:graphql-role]]."
+    },
+    {
+      "label": "Data domains.",
+      "text": "{{domains}} {{sdk-domain-services}} {{zdx-data}} Which ZDX dashboards draw on it is still open {{gap:zdx-linkage}}. Whether it reads the same data as the Business Insights reports is open {{gap:bi-relationship}}."
+    },
+    {
+      "label": "Introspection.",
+      "text": "{{introspection-beta-only}} The earlier question about production introspection is closed {{gap:production-introspection}}."
+    },
+    {
+      "label": "Writing queries and handling errors.",
+      "text": "Query arguments, filters and open schema questions are in [[shared.analytics.graphql-queries]]; status codes, the errors array and rate limits are in [[shared.analytics.graphql-errors-and-limits]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the API client is registered in Authentication Service with a role that grants the data domains queried, such as Zscaler Insights Reader.",
+      "uses": [
+        "zia.iot.api-surface:graphql-role",
+        "oneapi-auth"
+      ]
+    },
+    {
+      "do": "Whether the request goes to the production or the beta endpoint, and whether introspection is expected to work there.",
+      "uses": [
+        "endpoints",
+        "introspection-beta-only"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "The Analytics API gives programmatic access to Zscaler analytics data for custom dashboards, trends and insights on SaaS Security, Shadow IT, IoT Security, Zero Trust Firewall, cybersecurity posture and web traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/zscaler-analytics.json",
+          "quotes": [
+            "With this API, you can build custom dashboards, analyze trends, and extract insights related to Zscaler's SaaS Security, Shadow IT, Internet of Things (IoT) Security, Zero Trust Firewall, cybersecurity posture, and web traffic behavior across your organization."
+          ]
+        }
+      ]
+    },
+    "single-endpoint": {
+      "statement": "It is a GraphQL API reached through the OneAPI gateway, with a single endpoint that takes queries across multiple data domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "quotes": [
+            "Analytics API implements GraphQL-based architecture and can be accessed via the OneAPI gateway.",
+            "As with any GraphQL API, Analytics API has a single endpoint that allows clients to make API queries across multiple data domains, related to Zscaler reporting and analytics."
+          ]
+        }
+      ]
+    },
+    "endpoints": {
+      "statement": "The GraphQL endpoint is `https://api.zsapi.net/zins/graphql` in production and `https://api.beta.zsapi.net/zins/graphql` in beta.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "quotes": [
+            "- Production: https://api.zsapi.net/zins/graphql",
+            "- Beta: https://api.beta.zsapi.net/zins/graphql"
+          ]
+        }
+      ]
+    },
+    "oneapi-auth": {
+      "statement": "It uses OneAPI's OAuth 2.0 Client Credentials flow with Authentication Service as the authorization server; the audience parameter is required in the token request, and the access token is sent with every request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "quotes": [
+            "This API uses the OAuth 2.0 authorization framework supported in OneAPI and uses the Client Credentials OAuth flow.",
+            "The audience parameter is required in the request.",
+            "This access token must be sent in subsequent requests to the Analytics API for authentication.",
+            "It integrates with Authentication Service, Zscaler's unified identity platform, for authorization and role-based access control.",
+            "the authorization server, i.e., Authentication Service",
+            "The client must then send this access token in each request to the API for authentication"
+          ]
+        }
+      ]
+    },
+    "domains": {
+      "statement": "The guide's multi-domain example queries the `WEB_TRAFFIC`, `SAAS_SECURITY`, `IOT` and `ZERO_TRUST_FIREWALL` domains in one request, and its introspection example uses `CYBER_SECURITY`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "quotes": [
+            "The following request has multiple queries spanning across data domains, such as WEB_TRAFFIC, SAAS_SECURITY, IOT, and ZERO_TRUST_FIREWALL, in a single request",
+            "1. Select CYBER_SECURITY."
+          ]
+        }
+      ]
+    },
+    "sdk-domain-services": {
+      "statement": "The Python SDK's Z-Insights service, which posts to `/zins/graphql`, exposes web traffic, SaaS security (CASB), cyber security, zero trust firewall, IoT device visibility and Shadow IT discovery interfaces.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zins/zins_service.py",
+          "quotes": [
+            "from zscaler.zins.cyber_security import CyberSecurityAPI",
+            "from zscaler.zins.firewall import FirewallAPI",
+            "from zscaler.zins.iot import IotAPI",
+            "from zscaler.zins.saas_security import SaasSecurityAPI",
+            "from zscaler.zins.shadow_it import ShadowItAPI",
+            "from zscaler.zins.web_traffic import WebTrafficAPI",
+            "The interface object for the :ref:`Z-Ins Web Traffic API <zins-web_traffic>`.",
+            "The interface object for the :ref:`Z-Ins SaaS Security (CASB) API <zins-saas_security>`.",
+            "The interface object for the :ref:`Z-Ins Cyber Security API <zins-cyber_security>`.",
+            "The interface object for the :ref:`Z-Ins Zero Trust Firewall API <zins-firewall>`.",
+            "The interface object for the :ref:`Z-Ins IoT Device Visibility API <zins-iot>`.",
+            "The interface object for the :ref:`Z-Ins Shadow IT Discovery API <zins-shadow_it>`."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zins/web_traffic.py",
+          "quotes": [
+            "_zins_base_endpoint = \"/zins/graphql\""
+          ]
+        }
+      ]
+    },
+    "zdx-data": {
+      "statement": "The Analytics API also provides ZDX-related data, through a ZDX GraphQL API supported within it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/zscaler-analytics.json",
+          "quotes": [
+            "It also provides access to Zscaler Digital Experience (ZDX)-related data and insights.",
+            "To learn about using the ZDX GraphQL API supported within Analytics API, see Working with the ZDX GraphQL API."
+          ]
+        }
+      ]
+    },
+    "introspection-beta-only": {
+      "statement": "Schema introspection is available only in the Beta cloud environment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/working-with-zscaler-analytics.json",
+          "quotes": [
+            "Introspection is available only in the Beta cloud environment.",
+            "If you are using the Beta cloud environment, you can make use of introspection and build your query using the schema explorer."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zdx-linkage": {
+      "kind": "semantic",
+      "former_ids": [
+        "shared-34"
+      ],
+      "title": "How ZDX trend data relates to the Analytics GraphQL API",
+      "status": "partial",
+      "detail": "The question was whether ZDX trends are reachable only through the /zdx/v1 REST API or also through Z-Insights GraphQL. The Analytics API now documents a ZDX GraphQL API within it (claim zdx-data), so ZDX data is not REST-only. Still open: whether particular ZDX dashboards are backed by it, and whether its ZDX GraphQL endpoint is the /zins/graphql endpoint or a separate one.",
+      "blocks": "telling a caller which API backs a given ZDX dashboard",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "production-introspection": {
+      "kind": "semantic",
+      "former_ids": [
+        "shared-30"
+      ],
+      "title": "Whether introspection works in production",
+      "status": "resolved",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "The Analytics guide states introspection is available only in the Beta cloud environment (claim introspection-beta-only)."
+    },
+    "bi-relationship": {
+      "kind": "semantic",
+      "title": "How the Analytics GraphQL API relates to the Business Insights REST API",
+      "status": "open",
+      "detail": "Unverified legacy statement: the Business Insights REST API (/bi/api/v1) handles saved report configurations and bulk downloads, while the GraphQL API runs live, parameterized, cross-domain queries against the same underlying data warehouse. No source says the two read the same data store.",
+      "blocks": "telling a caller whether a Business Insights report and a GraphQL query should return the same numbers",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,640 @@
+{
+  "schema_version": 1,
+  "id": "shared.audit-logs",
+  "title": "Admin audit logs across Zscaler products: what exists and how to get it",
+  "aliases": [
+    "who changed what",
+    "admin audit trail",
+    "cross-product audit",
+    "audit log api",
+    "did zscaler support change something",
+    "audit log siem"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs.streaming"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Every product keeps its own admin audit trail, with its own access path and retention. No cross-product audit stream is documented {{gap:unified-audit-bus}}, so a change investigation starts by naming the product."
+    },
+    {
+      "heading": "Per product"
+    },
+    {
+      "table": {
+        "columns": [
+          "Product",
+          "Pull",
+          "Stream",
+          "Where"
+        ],
+        "rows": [
+          [
+            "ZIA",
+            "Asynchronous CSV report",
+            "Cloud NSS ADMIN_AUDIT feed",
+            "[[zia.audit-logs]], [[zia.audit-logs.report-api:lifecycle]], [[zia.audit-logs.streaming:cloud-nss-admin-audit]]"
+          ],
+          [
+            "ZPA",
+            "None; console view and CSV download",
+            "LSS zpn_audit_log",
+            "[[zpa.audit-logs]], [[zpa.audit-logs.what-is-recorded:no-pull-api]], [[zpa.audit-logs.streaming:audit-source-type]]"
+          ],
+          [
+            "Cloud & Branch Connector",
+            "Asynchronous CSV report",
+            "Not documented",
+            "{{cbc-audit-report}}"
+          ],
+          [
+            "ZDX",
+            "Asynchronous CSV report",
+            "Not documented",
+            "{{zdx-audit-report}}"
+          ],
+          [
+            "Unified RBAC",
+            "Query API",
+            "Not documented",
+            "{{urbac-audit-query}}"
+          ],
+          [
+            "Authentication Service",
+            "Not documented",
+            "Not documented",
+            "{{zidentity-audit-module}} {{zid-no-audit-api}}"
+          ],
+          [
+            "Zscaler Cellular",
+            "Audit log search",
+            "Not documented",
+            "{{cellular-audit-search}}"
+          ],
+          [
+            "ZCC",
+            "Not documented",
+            "Not documented",
+            "{{zcc-audit-permission-no-api}}"
+          ],
+          [
+            "ZWA",
+            "Customer audit query",
+            "Not documented",
+            "[[doc:references/zwa/audit-logs.md#accessors-and-endpoint]]"
+          ]
+        ]
+      }
+    },
+    {
+      "label": "SDKs.",
+      "text": "{{sdk-coverage}} {{report-status-id}} How the Cloud & Branch Connector and ZDX reports otherwise behave next to ZIA's is open {{gap:report-parity}}, as is what the Unified RBAC audit covers {{gap:urbac-audit-scope}}."
+    },
+    {
+      "label": "Retention.",
+      "text": "ZIA keeps audit logs for up to 6 months: [[zia.audit-logs.what-is-recorded:retention]]. ZPA keeps them for up to 6 months, and the LSS page words it differently: [[zpa.audit-logs.what-is-recorded:retention]]. Retention for the other products is not documented {{gap:other-retention}}."
+    },
+    {
+      "label": "Session source.",
+      "text": "{{auth-type}} When no session exists the field is absent: [[shared.legacy-api.zia-session:session-check]]. What each value grants is not documented {{gap:auth-type-meanings}}. {{auth-type-not-in-report}}"
+    },
+    {
+      "label": "Correlation.",
+      "text": "A ZIA entry's Trace ID ties it to a OneAPI transaction: [[zia.audit-logs.what-is-recorded:trace-id-oneapi]]. Whether the same ID appears in other products' audit records is open {{gap:trace-id-propagation}}, and so is a single audit surface across products {{gap:unified-audit-bus}}. Where a change to an admin's entitlements is audited is open {{gap:entitlement-change-audit}}."
+    },
+    {
+      "label": "Device events.",
+      "text": "{{zdx-device-events}} Admin changes in ZDX are in its audit report instead: {{zdx-audit-report|ref}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which product the change was made in, and that product's audit path from the table.",
+      "uses": [
+        "cbc-audit-report",
+        "zdx-audit-report",
+        "zia.audit-logs.report-api:lifecycle",
+        "zpa.audit-logs.what-is-recorded:no-pull-api"
+      ]
+    },
+    {
+      "do": "For ZIA, the entry's Admin ID, Interface (Admin UI or API) and Trace ID; an OAuth client shows as an internal oauth- admin ID.",
+      "uses": [
+        "zia.audit-logs.what-is-recorded:columns",
+        "zia.audit-logs.what-is-recorded:oauth-admin-id",
+        "zia.audit-logs.what-is-recorded:trace-id-oneapi"
+      ]
+    },
+    {
+      "do": "Whether the change falls inside the retention window, and whether a stream (Cloud NSS for ZIA, LSS for ZPA) kept it longer.",
+      "uses": [
+        "zia.audit-logs.what-is-recorded:retention",
+        "zpa.audit-logs.what-is-recorded:retention",
+        "zia.audit-logs.streaming:cloud-nss-admin-audit"
+      ]
+    },
+    {
+      "do": "Do not join audit records across products on Trace ID until it is shown to propagate.",
+      "uses": [
+        "trace-id-propagation"
+      ]
+    }
+  ],
+  "claims": {
+    "cbc-audit-report": {
+      "statement": "The Cloud & Branch Connector API has an asynchronous audit report: POST /auditlogEntryReport starts a CSV export, GET reports its status, DELETE cancels it, and GET /auditlogEntryReport/download returns the CSV data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post",
+          "expect": {
+            "description": "Start Audit Report Entry Csv Export"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/get",
+          "expect": {
+            "description": "Get Audit Report Entry Csv Export Status"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/delete",
+          "expect": {
+            "description": "Cancel Audit Report Entry Csv Export"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport~1download/get",
+          "expect": {
+            "description": "Get Audit Report Entry Csv Data"
+          }
+        }
+      ]
+    },
+    "zdx-audit-report": {
+      "statement": "The ZDX API has the same report shape under /v1/config/auditlogEntryReport: a POST starts a background CSV report for a time period and filters, a GET fetches its status, a DELETE cancels it and the download returns the CSV. Its action types include ACTIVATE and FORCED_ACTIVATE, and its page and pageSize fields are described as not supported in /auditlogEntryReport.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1auditlogEntryReport/post",
+          "expect": {
+            "description": "Initiates a background task to generate a CSV report of audit logs for a specified time period and filters."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1auditlogEntryReport/get",
+          "expect": {
+            "description": "Fetches the status of a previously initiated audit log CSV report generation task."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1auditlogEntryReport/delete",
+          "expect": {
+            "description": "Cancels a running or pending audit log CSV report generation task."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1auditlogEntryReport~1download/get",
+          "expect": {
+            "description": "Downloads the generated CSV file for a completed audit log report task."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/actionTypes/items",
+          "expect": {
+            "enum": [
+              "SIGN_IN",
+              "SIGN_OUT",
+              "CREATE",
+              "UPDATE",
+              "DELETE",
+              "PATCH",
+              "AUDIT_OPERATION",
+              "ACTIVATE",
+              "FORCED_ACTIVATE",
+              "IMPORT",
+              "REPORT",
+              "DOWNLOAD",
+              "POLICY_SYNC"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/pageSize",
+          "expect": {
+            "description": "Page size for audit log entry. Not supported in /auditlogEntryReport."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/page",
+          "expect": {
+            "description": "Page number for audit log entry. Not supported in /auditlogEntryReport."
+          }
+        }
+      ]
+    },
+    "urbac-audit-query": {
+      "statement": "The Unified RBAC API has an audit log query, POST /v1/auditlog/query, filtering on roleName and actionId; each record carries the action, before and after state, client IP, status, tenant, user and timestamp.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/urbac.openapi.json",
+          "pointer": "/paths/~1v1~1auditlog~1query/post",
+          "expect": {
+            "description": "Query audit logs"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/urbac.openapi.json",
+          "pointer": "/paths/~1v1~1auditlog~1query/post/requestBody/content/application~1json/schema/properties/filters/items/properties/field",
+          "expect": {
+            "description": "allowed fields are roleName and actionId"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/urbac.openapi.json",
+          "pointer": "/paths/~1v1~1auditlog~1query/post/responses/201/content/application~1json/schema/properties/data/items/properties/beforeState",
+          "expect": {
+            "description": "Resource state before the action"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/urbac.openapi.json",
+          "pointer": "/paths/~1v1~1auditlog~1query/post/responses/201/content/application~1json/schema/properties/data/items/properties/afterState",
+          "expect": {
+            "description": "Resource state after the action"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/urbac.openapi.json",
+          "pointer": "/paths/~1v1~1auditlog~1query/post/responses/201/content/application~1json/schema/properties/data/items/properties/action",
+          "expect": {
+            "description": "Action performed"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/urbac.openapi.json",
+          "pointer": "/paths/~1v1~1auditlog~1query/post/responses/201/content/application~1json/schema/properties/data/items/properties/clientIp",
+          "expect": {
+            "description": "Client IP address"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/urbac.openapi.json",
+          "pointer": "/paths/~1v1~1auditlog~1query/post/responses/201/content/application~1json/schema/properties/data/items/properties/status",
+          "expect": {
+            "description": "Status of the action, e.g. SUCCESS"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/urbac.openapi.json",
+          "pointer": "/paths/~1v1~1auditlog~1query/post/responses/201/content/application~1json/schema/properties/data/items/properties/tenantId",
+          "expect": {
+            "description": "Tenant identifier"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/urbac.openapi.json",
+          "pointer": "/paths/~1v1~1auditlog~1query/post/responses/201/content/application~1json/schema/properties/data/items/properties/userId",
+          "expect": {
+            "description": "User identifier"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/urbac.openapi.json",
+          "pointer": "/paths/~1v1~1auditlog~1query/post/responses/201/content/application~1json/schema/properties/data/items/properties/timestamp",
+          "expect": {
+            "description": "Timestamp when the action occurred"
+          }
+        }
+      ]
+    },
+    "zidentity-audit-module": {
+      "statement": "Authentication Service has an Audit Logs permission module whose levels are View Only (view audit logs) and None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-roles-and-permissions.json",
+          "quotes": [
+            "| Authentication Service Modules | Permission | Details |",
+            "| Audit Logs | View Only | View audit logs |",
+            "|  | None | Not allowed to view audit logs |"
+          ]
+        }
+      ]
+    },
+    "zid-no-audit-api": {
+      "statement": "No audit log endpoint is documented for Authentication Service: its API specification has no audit path and neither SDK has an audit client for it.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/auditlogEntryReport",
+            "/auditlogs",
+            "/auditLogs"
+          ]
+        }
+      ],
+      "conditions": "Rests on a search of zid.openapi.json for paths containing 'audit' (none) and of the Go ziam services (api_clients, common, groups, resource_servers, user_entitlement, users) and Python zid modules at the pins."
+    },
+    "zcc-audit-permission-no-api": {
+      "statement": "ZCC admin roles carry an auditLogs permission and the company settings a hideAuditLogs field, but the ZCC API specification has no audit log path.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/admin_roles/admin_roles.go",
+          "quotes": [
+            "AuditLogs                    string `json:\"auditLogs\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/company/company.go",
+          "quotes": [
+            "HideAuditLogs                                   string `json:\"hideAuditLogs\"`"
+          ]
+        }
+      ],
+      "conditions": "The absence rests on a search of zcc.openapi.json for paths containing 'audit' (none). The permission suggests a console audit view that no captured source describes."
+    },
+    "sdk-coverage": {
+      "statement": "Of these report and query APIs the SDKs implement the ZIA audit report (Go adminauditlogs, Python audit_logs), the ZWA customer audit and, in Python only, the Zscaler Cellular audit search; neither SDK has a client for the Cloud & Branch Connector, ZDX or Unified RBAC audit APIs.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/adminauditlogs/adminauditlogs.go",
+          "quotes": [
+            "auditLogEntryReportEndpoint = \"/zia/api/v1/auditlogEntryReport\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zwa/services/customeraudit/customeraudit.go",
+          "quotes": [
+            "customerAuditEndpoint = \"/dlp/v1/customer/audit\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcell/audit_data_handling.py",
+          "quotes": [
+            "/audit/customers/{id}/search"
+          ]
+        }
+      ],
+      "conditions": "Rests on a search of both SDKs at their pins for 'auditlog' and 'audit': matches are the ZIA, ZWA and (Python) Zscaler Cellular audit clients, plus field names in ZCC models and ZIA Cloud NSS, DLP and risk-profile code."
+    },
+    "auth-type": {
+      "statement": "ZIA's authenticated-session read returns an authType (\"Login type\") of ADMIN_LOGIN, SUPPORT_ACCESS_PARTIAL, SUPPORT_ACCESS_FULL, PARTNER_ACCESS, INTEGRATION_PARTNER_ACCESS, DEFAULT_LOGIN, ADMIN_SAML_SSO_LOGIN, SUPPORT_ACCESS_READ_ONLY or MOBILE_APP_TOKEN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1authenticatedSession/get/responses/200/content/application~1json/schema/properties/authType",
+          "expect": {
+            "description": "Login type",
+            "enum": [
+              "ADMIN_LOGIN",
+              "SUPPORT_ACCESS_PARTIAL",
+              "SUPPORT_ACCESS_FULL",
+              "PARTNER_ACCESS",
+              "INTEGRATION_PARTNER_ACCESS",
+              "DEFAULT_LOGIN",
+              "ADMIN_SAML_SSO_LOGIN",
+              "SUPPORT_ACCESS_READ_ONLY",
+              "MOBILE_APP_TOKEN"
+            ]
+          }
+        }
+      ]
+    },
+    "auth-type-not-in-report": {
+      "statement": "The authType describes the caller's own current session; the audit report request has no authType filter, so Zscaler Support sessions cannot be isolated in the report by that field.",
+      "tier": "B",
+      "derived_from": [
+        "auth-type",
+        "zia.audit-logs.report-api:request-filters"
+      ],
+      "conditions": "Whether audit entries made during a Zscaler Support session are marked in the console or CSV is not documented."
+    },
+    "zdx-device-events": {
+      "statement": "The Go SDK describes ZDX per-device events as Zscaler, Hardware, Software and Network event changes for a device, each with prev and curr values, and says the endpoint defaults to the last 2 hours when no time range is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/devices/device_events.go",
+          "quotes": [
+            "If the time range is not specified, the endpoint defaults to the last 2 hours.",
+            "The event metrics include Zscaler, Hardware, Software, and Network event changes.",
+            "Prev        string `json:\"prev,omitempty\"`",
+            "Curr        string `json:\"curr,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "cellular-audit-search": {
+      "statement": "The Zscaler Cellular API has an audit log search, POST /api/v1/audit/customers/{id}/search, described as searching customer audit logs by criteria such as operation type, object type, time ranges and visibility; the Python SDK exposes it as list_audit_customers_search.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1audit~1customers~1{id}~1search/post",
+          "expect": {
+            "description": "Searches customer audit logs using criteria such as operation type, object type, time ranges, and visibility.",
+            "tags": [
+              "Audit Logs"
+            ]
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcell/audit_data_handling.py",
+          "quotes": [
+            "def list_audit_customers_search(self, id: str = None, query_params=None, **kwargs)"
+          ]
+        }
+      ]
+    },
+    "report-status-id": {
+      "statement": "The ZDX report's status GET and cancel DELETE take optional statusId and timestamp query parameters, while the Cloud & Branch Connector report's status GET and cancel DELETE define no parameters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1auditlogEntryReport/get/parameters/[name=statusId]",
+          "expect": {
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1auditlogEntryReport/get/parameters/[name=timestamp]",
+          "expect": {
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1auditlogEntryReport/delete/parameters/[name=statusId]",
+          "expect": {
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/get",
+          "expect_absent": [
+            "parameters"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/delete",
+          "expect_absent": [
+            "parameters"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "trace-id-propagation": {
+      "kind": "semantic",
+      "title": "Whether the OneAPI Trace ID appears in other products' audit records",
+      "status": "open",
+      "former_ids": [
+        "shared-37"
+      ],
+      "detail": "ZIA audit entries carry a Trace ID for transactions made through OneAPI. No source confirms that the same Trace ID is present in ZPA, Authentication Service, ZWA, ZDX, ZCC or Cloud & Branch Connector audit records, so it is an investigation candidate, not a guaranteed cross-product join key.",
+      "blocks": "joining one API client action across products' audit trails",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ]
+    },
+    "unified-audit-bus": {
+      "kind": "semantic",
+      "title": "Whether any surface aggregates admin audit across products",
+      "status": "open",
+      "detail": "Each product exposes its own audit path (ZIA, Cloud & Branch Connector and ZDX reports, ZPA LSS, ZWA, Zscaler Cellular and Unified RBAC queries). No source describes a cross-product audit surface; the Unified RBAC query might cover more than role management (gap urbac-audit-scope).",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "urbac-audit-scope": {
+      "kind": "semantic",
+      "title": "What the Unified RBAC audit log records",
+      "status": "open",
+      "detail": "The query filters only on roleName and actionId and returns before and after state, but the specification does not say whether it covers role management only or admin actions in the products whose roles it manages.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "report-parity": {
+      "kind": "semantic",
+      "title": "How the Cloud & Branch Connector and ZDX audit reports behave",
+      "status": "open",
+      "detail": "Both reports share ZIA's start, status, cancel and download shape. Whether a new report overwrites the previous one, what the CSV contains, which functional scope is needed, and how the Cloud & Branch Connector report identifies a request without a statusId are documented only for ZIA. Unverified legacy statement: Cloud & Branch Connector and ZDX have no admin audit API (contradicted by the specifications).",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "other-retention": {
+      "kind": "semantic",
+      "title": "Audit retention outside ZIA and ZPA",
+      "status": "open",
+      "detail": "No retention period is documented for Cloud & Branch Connector, ZDX, ZWA, Zscaler Cellular, Unified RBAC or Authentication Service audit records. The legacy doc listed ZWA retention as an open question and ZCC and ZTW retention as unknown.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "auth-type-meanings": {
+      "kind": "semantic",
+      "title": "What each ZIA authType value means",
+      "status": "open",
+      "detail": "Unverified legacy statement: ADMIN_LOGIN is a standard admin password login; ADMIN_SAML_SSO_LOGIN an admin via SAML SSO; DEFAULT_LOGIN the initial or default tenant admin; MOBILE_APP_TOKEN a mobile app session token; INTEGRATION_PARTNER_ACCESS a partner integration role (SD-WAN partner API and similar); PARTNER_ACCESS generic partner access; SUPPORT_ACCESS_FULL Zscaler Support full read/write; SUPPORT_ACCESS_PARTIAL Zscaler Support limited write; SUPPORT_ACCESS_READ_ONLY Zscaler Support read-only. The specification lists the values under \"Login type\" with no per-value description.",
+      "blocks": "telling which access a Zscaler Support or partner session had",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "entitlement-change-audit": {
+      "kind": "semantic",
+      "title": "Where changes to administrative entitlements are audited",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Changes to entitlements are presumably captured in ZIdentity's own audit log.\" Authentication Service has an Audit Logs permission module, but no captured source lists what its audit log records or whether entitlement assignments appear there or in the product's own audit log.",
+      "blocks": "answering who gave an admin access to a product",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

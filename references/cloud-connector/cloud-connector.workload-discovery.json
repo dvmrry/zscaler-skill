@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.workload-discovery",
+  "title": "AWS workload discovery for Cloud Connector: what it is and how the pieces fit",
+  "aliases": [
+    "workload discovery service",
+    "aws partner integrations",
+    "tag discovery service",
+    "aws account onboarding cloud connector",
+    "tag-based policy aws workloads",
+    "publicCloudInfo"
+  ],
+  "binds": [
+    "ztw/public-cloud-info"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.workload-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.workload-scopes"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api.partner-integrations-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject walks the AWS integration that lets Cloud Connector policy match workloads by tag and cloud attribute. Each step has its own subject. {{what-it-does}} {{support-enabled}}"
+    },
+    {
+      "label": "Onboarding.",
+      "text": "{{onboarding-order}} The account record, the IAM role and the trust values are in [[cloud-connector.workload-discovery.aws-accounts]]; reading whether Zscaler can assume the role is in [[cloud-connector.workload-discovery.permission-status]]. What the CloudFormation template installs is only partly visible in the sources {{gap:cloudformation-body}}."
+    },
+    {
+      "label": "Which Cloud Connectors receive the tags.",
+      "text": "Account groups tie accounts to Cloud Connector groups: [[cloud-connector.workload-discovery.account-groups]]."
+    },
+    {
+      "label": "How changes arrive.",
+      "text": "Polling, EventBridge and the SNS and SQS delivery to Cloud Connector are in [[cloud-connector.workload-discovery.update-path]]."
+    },
+    {
+      "label": "Regions and status.",
+      "text": "Region selection, the per-region discovery status and turning data collection off are in [[cloud-connector.workload-discovery.regions]]."
+    },
+    {
+      "label": "Overlapping addresses.",
+      "text": "The `zs:namespace` VPC tag and duplicate IP handling are in [[cloud-connector.workload-discovery.namespaces]]."
+    },
+    {
+      "label": "Using the data.",
+      "text": "{{lambda-attributes}} The full attribute list is [[zia.workload-groups.expressions:attribute-list]], and workload groups built from it are in [[zia.workload-groups]]. Cloud Connector forwarding rules take source and destination workload groups only with discovery enabled: [[zia.workload-groups.rule-scoping:cloud-connector-source-dest]]. Sublocation scopes by VPC, account or namespace, which need discovery except for the VPC Endpoint scope, are in [[zia.locations.workload-scopes]]."
+    },
+    {
+      "label": "API and SDKs.",
+      "text": "{{api-surface-generated}} SDK defects on these calls are in [[cloud-connector.sdk-go.service-defects]]."
+    },
+    {
+      "label": "Other clouds.",
+      "text": "Azure and GCP partner integrations are covered in [[cloud-connector.api.partner-integrations-wire]] and [[cloud-connector.gcp.workload-discovery]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Zscaler Support has enabled AWS partner integrations for the tenant before looking for missing accounts or tags.",
+      "uses": [
+        "support-enabled"
+      ]
+    },
+    {
+      "do": "Which onboarding step is missing in the AWS account: the role, the Cloud Connector role's SNS and SQS permissions, the EventBridge rule, or namespace tags.",
+      "uses": [
+        "onboarding-order",
+        "cloudformation-body"
+      ]
+    },
+    {
+      "do": "Whether the account's permission status is Allowed, and whether the account sits in an account group bound to the Cloud Connector group that carries the traffic.",
+      "uses": [
+        "cloud-connector.workload-discovery.permission-status:state-meanings",
+        "cloud-connector.workload-discovery.account-groups:group-binds-cc-groups"
+      ]
+    },
+    {
+      "do": "Read the operation paths, SDK functions and Terraform resources for these calls from the generated surface (`node scripts/kb.mjs surface /publicCloudInfo`) rather than from this subject.",
+      "uses": [
+        "api-surface-generated"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-does": {
+      "statement": "The workload discovery service is a Zscaler-managed service that discovers workloads in an AWS account and fetches their user-defined tags and cloud-provider-generated attributes, which are used in security policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+          "quotes": [
+            "The workload discovery service is a Zscaler-managed service that discovers workloads in your Amazon Web Services (AWS) account.",
+            "The service also fetches associated metadata such as user-defined tags and cloud service provider-generated attributes.",
+            "These user-defined tags and cloud service provider-generated attributes are used in security policies."
+          ]
+        }
+      ]
+    },
+    "support-enabled": {
+      "statement": "AWS partner integrations, which add AWS accounts so the Zscaler service can fetch their metadata and user-defined tags can be used in policies, are enabled by contacting Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-amazon-web-services-accounts.json",
+          "quotes": [
+            "Amazon Web Services (AWS) partner integrations enable you to add AWS accounts by allowing the Zscaler service to fetch metadata from those accounts.",
+            "Adding an AWS account allows you to use user-defined tags in Zscaler security policies.",
+            "To enable this feature, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "onboarding-order": {
+      "statement": "Onboarding starts in the Zscaler Admin Console; once the AWS account appears there, a configuration is created in the AWS account: create a role, update the Cloud Connector role for SQS permissions, configure EventBridge, and configure namespaces and duplicate IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+          "quotes": [
+            "To enable workload discovery services, onboard your AWS account into the Zscaler Admin Console. After your AWS account appears in the Zscaler Admin Console, create a configuration in your AWS account.",
+            "The following changes are required to add a configuration to your AWS account:",
+            "Create a Role",
+            "Update the Cloud Connector Role for SQS Permissions",
+            "Configure Namespace and Duplicate IP Addresses"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+          "quotes": [
+            "Configure EventBridge"
+          ],
+          "after": "sqs:DeleteQueue"
+        }
+      ]
+    },
+    "lambda-attributes": {
+      "statement": "Two discovered attributes reach beyond EC2: GroupId, the security group of the attached ENI, can identify an AWS Lambda function workload, and PlatformDetails also covers AWS Lambda and other services when not used in the context of EC2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-workload-discovery-workloads-amazon-web-services.json",
+          "quotes": [
+            "GroupId: The ID of the security group assigned to the attached Elastic Network Interface (ENI). This attribute can identify the AWS Lambda function workload.",
+            "PlatformDetails: The platform. Zscaler also supports AWS Lambda and other services when not used in the context of Amazon Elastic Compute Cloud (EC2)."
+          ]
+        }
+      ]
+    },
+    "api-surface-generated": {
+      "statement": "The Cloud Connector API documents the AWS account, account group and discovery-service operations under its Partner Integrations tag.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1publicCloudInfo/post",
+          "expect": {
+            "tags": [
+              "Partner Integrations"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1accountGroups/post",
+          "expect": {
+            "tags": [
+              "Partner Integrations"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1discoveryService~1workloadDiscoverySettings/get",
+          "expect": {
+            "tags": [
+              "Partner Integrations"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "cloudformation-body": {
+      "kind": "semantic",
+      "former_ids": [
+        "cloud-connector-02"
+      ],
+      "title": "What the workload discovery CloudFormation template installs",
+      "status": "partial",
+      "detail": "Unverified legacy statement: 'the specific EventBridge event patterns ... and the cross-account bus target ARN format are not enumerated in the captured help text'; 'the policy JSON inside the rendered template is not reproduced'; 'neither the captured text nor the SDK describes the specific SQS permissions or the queue ARN format.' The workload discovery help now lists the role's required and optional EC2 describe permissions, the Cloud Connector role's SNS and SQS permissions, the EventBridge event pattern for a manually built rule and the target bus ARN format (see the aws-accounts and update-path subjects). Still open: whether the CloudFormation template installs exactly those permissions and that rule, and the SQS queue naming, since the template body is reachable only by URL.",
+      "blocks": "Auditing a deployed discovery role or Cloud Connector role against what Zscaler's template grants.",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ]
+    }
+  }
+}

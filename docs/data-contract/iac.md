@@ -68,4 +68,4 @@ The split also keeps your production patterns from leaking back into the public 
 
 ## Cross-link from agents
 
-When an agent reads a `references/cloud-connector/azure-deployment.md` claim like "Zscaler's reference TF deploys CC with two NICs," it should also check `_data/iac/terraform/cloud-connector/` (or wherever your CC IaC lives) to see how *your* deployment is actually configured. The reference doc tells the agent what's possible; `_data/iac/` tells it what's deployed.
+When an agent reads a claim from `cloud-connector.azure` (`node scripts/kb.mjs resolve cloud-connector.azure`) like "Zscaler's reference TF deploys CC with two NICs," it should also check `_data/iac/terraform/cloud-connector/` (or wherever your CC IaC lives) to see how *your* deployment is actually configured. The reference doc tells the agent what's possible; `_data/iac/` tells it what's deployed.

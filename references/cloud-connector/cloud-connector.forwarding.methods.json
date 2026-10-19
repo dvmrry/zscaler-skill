@@ -1,0 +1,505 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.forwarding.methods",
+  "title": "Cloud Connector forwarding methods: ZIA, ZPA, Direct, Drop, Local, and their API tokens",
+  "aliases": [
+    "cloud connector forwarding method",
+    "forwardMethod",
+    "forward_method",
+    "ECZPA",
+    "LOCAL_SWITCH",
+    "ECSELF",
+    "PROXYCHAIN",
+    "ENATDEDIP",
+    "GEOIP",
+    "local forwarding method",
+    "cloud connector east-west",
+    "cloud connector snat dnat",
+    "wan selection"
+  ],
+  "binds": [
+    "ztw/forwarding-rules#forwardMethod",
+    "ztw/forwarding-rules#proxyGateway",
+    "ztw/forwarding-rules#wanSelection",
+    "ztw/forwarding-rules#zpaApplicationSegments"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding.criteria"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.overview.gateway-failover"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.methods"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{console-methods}} Each method is a different path for the matched traffic."
+    },
+    {
+      "items": [
+        {
+          "label": "ZIA.",
+          "text": "{{zia-method}} {{zia-dnat}} Tunnels and failover: [[cloud-connector.overview.gateway-failover]]."
+        },
+        {
+          "label": "ZPA.",
+          "text": "{{zpa-method}} {{zpa-default-gateway}} Private Access policy can name Cloud Connector groups as a criterion: [[zpa.policy.criteria:criteria-list]]; what else a ZPA-forwarded flow needs is open {{gap:zpa-prerequisites}}."
+        },
+        {
+          "label": "Direct.",
+          "text": "{{direct-method}}"
+        },
+        {
+          "label": "Drop.",
+          "text": "{{drop-method}}"
+        },
+        {
+          "label": "Local.",
+          "text": "{{local-availability}} {{local-purpose}} {{local-method}} {{local-nat}}"
+        }
+      ]
+    },
+    {
+      "text": "{{ingress-nat}} Release notes reportedly extend Layer 4 ingress NAT to AWS as well {{gap:nat-cloud-scope}}."
+    },
+    {
+      "label": "Action settings.",
+      "text": "{{proxy-gateway}} {{wan-selection}} The Terraform provider still sends WAN selection although the Go SDK and the contract call it deprecated: [[cloud-connector.terraform.forwarding-rules:wan-selection]]."
+    },
+    {
+      "heading": "API tokens"
+    },
+    {
+      "text": "{{eczpa-token}} {{local-switch-token}} {{console-to-token}}"
+    },
+    {
+      "text": "{{contract-enums}} Terraform and the contract disagree on the token for Local {{divergence:local-token}}; whether LOCAL_SWITCH is the wire value is open in [[cloud-connector.terraform.forwarding-rules:local-switch-wire-value]] and [[cloud-connector.api.rules-wire:local-switch-acceptance]]. What `ENATDEDIP`, `GEOIP` and `PROXYCHAIN` do for a Cloud Connector rule, and which values the endpoint accepts, is open {{gap:method-semantics}}; for ZIA rules the ZIA provider documents the first two: [[zia.forwarding-control.methods:tf-doc-meanings]]."
+    },
+    {
+      "text": "Whether changing a rule's method drops sessions in flight is not stated {{gap:method-change-sessions}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The rule's `forwardMethod` as stored, mapped back to the console label (ECZPA is ZPA; LOCAL_SWITCH or ECSELF may appear for Local).",
+      "uses": [
+        "console-to-token",
+        "local-token"
+      ]
+    },
+    {
+      "do": "For dropped traffic, the Session Logs, where packets discarded by a Drop rule appear.",
+      "uses": [
+        "drop-method"
+      ]
+    },
+    {
+      "do": "For Local, whether the deployment is a Cloud Connector or Zero Trust Gateway rather than a Branch Connector.",
+      "uses": [
+        "local-availability"
+      ]
+    },
+    {
+      "do": "For WAN Selection, whether the rule applies to hardware devices in gateway mode; otherwise the setting has no effect.",
+      "uses": [
+        "wan-selection"
+      ]
+    }
+  ],
+  "claims": {
+    "console-methods": {
+      "statement": "The Traffic Forwarding page shows each rule's forwarding method as one of Direct, ZIA, ZPA, Drop, or Local.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-traffic-forwarding.json",
+          "quotes": [
+            "Forwarding Method: The forwarding method used in the rule (Direct, ZIA, ZPA, Drop, or Local)."
+          ]
+        }
+      ]
+    },
+    "zia-method": {
+      "statement": "The ZIA method forwards internet-bound traffic that matches the rule to Internet & SaaS gateways over a configurable encrypted or unencrypted tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "quotes": [
+            "This method forwards internet-bound traffic that matches an Internet & SaaS rule to Internet & SaaS gateways over a configurable encrypted or unencrypted tunnel."
+          ]
+        }
+      ]
+    },
+    "zia-dnat": {
+      "statement": "A ZIA rule can also carry destination NAT options for AWS, Azure and GCP: DNAT from the internal load balancer's virtual IP to a Zscaler virtual IP solves forwarding problems caused by overlapping IP ranges, with a destination IP and optionally a port.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "quotes": [
+            "Additionally, you can configure destination NAT options for AWS, Azure, and Google Cloud Platform (GCP):",
+            "By using DNAT from the internal load balancer's virtual IP address to a Zscaler virtual IP address, you solve the forwarding issue caused by overlapping IP address ranges. Enter a destination IP address. You also have the option to enter a destination port."
+          ]
+        }
+      ]
+    },
+    "zpa-method": {
+      "statement": "The ZPA method forwards private application traffic that matches the rule to Private Access over an encrypted tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "quotes": [
+            "This method forwards the private application traffic that matches a Private Access rule to Private Access over an encrypted tunnel."
+          ]
+        }
+      ]
+    },
+    "zpa-default-gateway": {
+      "statement": "A forwarding gateway cannot be configured for Private Access; only the default gateway is used, and the rule's Forward to ZPA Gateway field is fixed to Default Gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "quotes": [
+            "You cannot configure a forwarding gateway for Private Access. You can only use the default gateway as the forwarding gateway for Private Access.",
+            "Forward to ZPA Gateway: This field is set to Default Gateway and cannot be configured."
+          ]
+        }
+      ]
+    },
+    "direct-method": {
+      "statement": "The Direct method bypasses Internet & SaaS or Private Access and forwards traffic directly to the destination server using the Zscaler service IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "quotes": [
+            "This method bypasses Internet & SaaS or Private Access and forwards traffic directly to the destination server using the Zscaler service IP address."
+          ]
+        }
+      ]
+    },
+    "drop-method": {
+      "statement": "The Drop method drops all traffic matching the rule: the Cloud or Branch Connector discards the packets, and the discarded packets appear in the Session Logs of the Cloud & Branch Connector Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "quotes": [
+            "This method drops all traffic matching the configured forwarding rule. The Cloud or Branch Connector appliance discards packets matching the Drop rule. The discarded packets appear in the Sessions Logs of the Zscaler Cloud & Branch Connector Admin Portal."
+          ]
+        }
+      ]
+    },
+    "local-availability": {
+      "statement": "The Local forwarding method is available only for Cloud Connector and Zero Trust Gateways, not for Branch Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "quotes": [
+            "You can also use the direct, drop, or local forwarding methods to forward your traffic. The local forwarding method is only available for Cloud Connector and Zero Trust Gateways."
+          ]
+        }
+      ]
+    },
+    "local-purpose": {
+      "statement": "Local supports subnet-to-subnet or VPC-to-VPC communication across AWS, Azure and GCP, permitting ingress traffic to publicly hosted applications, and controls east-west segmentation and macrosegmentation using 5-tuples.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "quotes": [
+            "The local forwarding method facilitates subnet-to-subnet or virtual private cloud (VPC)-to-VPC communication across Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP), allowing you to permit ingress traffic to publicly hosted applications in AWS, Azure, and GCP.",
+            "control traffic for east-west segmentation and macrosegmentation using 5-tuples"
+          ]
+        }
+      ]
+    },
+    "local-method": {
+      "statement": "Local forwards traffic within the public cloud to the intended destination, such as an IP address or tag; the traffic does not leave the public cloud, can go from any IP or tag in a VPC to another in the same or a different VPC, and keeps the original client IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "quotes": [
+            "This method forwards traffic locally in the public cloud to the intended destination, such as an IP address or tag.",
+            "Traffic does not egress out of the public cloud and can be forwarded from any IP address or tag in a VPC to another IP address or tag in the same or a different VPC while preserving the original client IP address."
+          ]
+        }
+      ]
+    },
+    "local-nat": {
+      "statement": "A Local rule can also apply source NAT, translating workload source IPs to the Cloud Connector service IP, and destination NAT and port translation to the virtual IP and fixed single port of the internal load balancer that spreads ingress traffic over the workload servers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "quotes": [
+            "The source NAT (SNAT) translates workload source IP addresses to the Cloud Connector service IP address.",
+            "Facilitate Destination NAT (DNAT) and Destination Port Address Translation (DPAT) to the virtual IP address and to the fixed, single port of the internal load balancer that distributes ingress traffic to the workload servers."
+          ]
+        }
+      ]
+    },
+    "ingress-nat": {
+      "statement": "The Traffic Forwarding overview lists NAT (SNAT and DNAT) for ingress traffic in Azure and GCP, including SNAT to the Cloud Connector service IP to resolve asymmetric routing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-traffic-forwarding.json",
+          "quotes": [
+            "Facilitate NAT (SNAT and DNAT) for ingress traffic in Azure and GCP, including SNAT to the Cloud Connector service IP address, which helps resolve asymmetric routing issues."
+          ]
+        }
+      ]
+    },
+    "proxy-gateway": {
+      "statement": "A rule's action can optionally forward to a proxy gateway; in the Go SDK the `proxyGateway` member applies only to the Proxy Chaining method, and under Proxy Chaining only TCP-based network services are considered for policy match.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#proxyGateway"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "quotes": [
+            "Forward to Proxy Gateway: (Optional) From the drop-down menu, select a proxy gateway"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "quotes": [
+            "// Note: When the forwarding method is Proxy Chaining, only TCP-based network services are considered for policy match .",
+            "// The proxy gateway for which the rule is applicable. This field is applicable only for the Proxy Chaining forwarding method."
+          ]
+        }
+      ]
+    },
+    "wan-selection": {
+      "statement": "WAN Selection is None by default, which follows the Traffic Distribution setting of the branch configuration template; Balanced distributes traffic evenly and Best Link always uses the best-performing WAN link. It applies only to hardware devices deployed in gateway mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "after": "Configuring Forwarding Rules Using Internet & SaaS",
+          "quotes": [
+            "WAN Selection: This field is set to None by default. If None is selected, the wide-area network (WAN) is set to the configuration selected in the Traffic Distribution section of Configuring a Branch Configuration Template.",
+            "To distribute traffic evenly, select Balanced. To always forward the traffic via the best-performing WAN link, select Best Link.",
+            "WAN selection is only applicable when configuring a hardware device deployed in gateway mode."
+          ]
+        }
+      ]
+    },
+    "eczpa-token": {
+      "statement": "The ZPA application segment and segment group members of a forwarding rule apply only to the `ECZPA` forwarding method, which the Go SDK describes as used for Zscaler Cloud Connector; the Terraform documentation's ZPA example uses `forward_method = \"ECZPA\"`.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#zpaApplicationSegments"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "after": "ProxyGateway *common.CommonIDName",
+          "quotes": [
+            "// This field is applicable only for the ECZPA forwarding method (used for Zscaler Cloud Connector)."
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "docs/resources/ztc_traffic_forwarding_rule.md",
+          "quotes": [
+            "## Example Usage - Forward Method \"ECZPA\""
+          ]
+        }
+      ]
+    },
+    "local-switch-token": {
+      "statement": "The Terraform resource accepts `LOCAL_SWITCH` as a `forward_method`, and the Python SDK documents destination workload groups as valid for the `LOCAL_SWITCH` forward method.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "after": "\"forward_method\": {",
+          "quotes": [
+            "\"LOCAL_SWITCH\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/forwarding_rules.py",
+          "after": "def add_rule(self, **kwargs)",
+          "quotes": [
+            "dest_workload_groups_ids (list): IDs for destination workload groups (Valid for LOCAL_SWITCH forward method)."
+          ]
+        }
+      ]
+    },
+    "console-to-token": {
+      "statement": "The console's ZPA method is sent as `ECZPA`, and its Local method as `LOCAL_SWITCH` by Terraform and the Python SDK.",
+      "tier": "B",
+      "derived_from": [
+        "eczpa-token",
+        "local-switch-token",
+        "zia.workload-groups.rule-scoping:cloud-connector-source-dest"
+      ],
+      "conditions": "Inferred, both halves. ZPA to ECZPA rests on the SDK comment that segment members apply only to ECZPA (used for Cloud Connector) and on the Terraform example; the contract's request enum lists both ZPA and ECZPA, so bare ZPA is not ruled out. Local to LOCAL_SWITCH rests on destination workload groups being Local-only in the help and LOCAL_SWITCH-only in the Python SDK; the Go SDK and the contract list ECSELF and no LOCAL_SWITCH. No source states either mapping."
+    },
+    "contract-enums": {
+      "statement": "The API contract lists eight `forwardMethod` values for creating or updating a traffic forwarding rule (INVALID, DIRECT, PROXYCHAIN, ZIA, ZPA, ECZPA, ECSELF, DROP); rules read back may also carry ENATDEDIP and GEOIP. LOCAL_SWITCH is not among the request values.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#forwardMethod"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecRdr/post/requestBody/content/application~1json/schema/properties/forwardMethod",
+          "expect": {
+            "enum": [
+              "INVALID",
+              "DIRECT",
+              "PROXYCHAIN",
+              "ZIA",
+              "ZPA",
+              "ECZPA",
+              "ECSELF",
+              "DROP"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecRdr~1{ruleId}/get/responses/default/content/application~1json/schema/properties/forwardMethod",
+          "expect": {
+            "enum": [
+              "INVALID",
+              "DIRECT",
+              "PROXYCHAIN",
+              "ZIA",
+              "ZPA",
+              "ECZPA",
+              "ECSELF",
+              "DROP",
+              "ENATDEDIP",
+              "GEOIP"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "local-token": {
+      "summary": "Whether `LOCAL_SWITCH`, the token Terraform sends for the console's Local method, is a valid `forwardMethod` on a traffic forwarding rule.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+            "after": "\"forward_method\": {",
+            "quotes": [
+              "\"DIRECT\",",
+              "\"LOCAL_SWITCH\","
+            ]
+          },
+          "says": "Terraform validates `forward_method` against DIRECT, LOCAL_SWITCH, ZIA, ECZPA and DROP, so a Local rule is written as LOCAL_SWITCH; the Python SDK also lists LOCAL_SWITCH."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1ecRules~1ecRdr/post/requestBody/content/application~1json/schema/properties/forwardMethod",
+            "expect": {
+              "enum": [
+                "INVALID",
+                "DIRECT",
+                "PROXYCHAIN",
+                "ZIA",
+                "ZPA",
+                "ECZPA",
+                "ECSELF",
+                "DROP"
+              ]
+            }
+          },
+          "says": "The API contract's request enum has no LOCAL_SWITCH."
+        }
+      ],
+      "impact": "A Local rule written by Terraform sends a value the contract's request enum does not list; the Go SDK's comment also lists no LOCAL_SWITCH (it has ECSELF, mapped to no console label). Which value the backend stores and returns for Local is unconfirmed; the open question is held in cloud-connector.terraform.forwarding-rules:local-switch-wire-value and cloud-connector.api.rules-wire:local-switch-acceptance."
+    }
+  },
+  "gaps": {
+    "method-semantics": {
+      "kind": "semantic",
+      "title": "Meaning of ENATDEDIP, GEOIP and PROXYCHAIN on Cloud Connector rules, and the accepted forwardMethod set",
+      "status": "partial",
+      "former_ids": [
+        "cloud-connector-09"
+      ],
+      "detail": "`ENATDEDIP` and `GEOIP` have no console label in the Cloud & Branch Connector help; they appear only in read responses of the contract and in the Go SDK comment. For `PROXYCHAIN`, only the proxy-gateway action field and the TCP-only service match are sourced; where the proxy gateway sits, authentication and failover are not. Which values the ecRdr endpoint accepts (LOCAL_SWITCH, bare ZPA, PROXYCHAIN) needs a tenant.",
+      "blocks": "reading rules that carry these methods and writing rules with them",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "zpa-prerequisites": {
+      "kind": "semantic",
+      "title": "What a ZPA-method flow needs on the Private Access side",
+      "status": "partial",
+      "detail": "Unverified legacy statement: a ZPA rule requires the Cloud Connector to be ZPA-enrolled, an application segment for the destination, and a ZPA access policy permitting the Cloud Connector's identity; failures usually come from a missing segment, a denying access policy, or the App Connector side being down. The captured help states the rule's destination selectors (application segments, segment groups) but not the access-policy requirement. Partly answered on the Private Access side: access policy rules can take a Cloud Connector Groups criterion (zpa.policy.criteria:criteria-list), so a policy can admit or exclude Cloud Connector traffic by group; whether a rule is required for Cloud Connector traffic is still not stated.",
+      "blocks": "troubleshooting ZPA-method rules that match but fail",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "nat-cloud-scope": {
+      "kind": "semantic",
+      "title": "Clouds covered by Layer 4 ingress SNAT and DNAT",
+      "status": "open",
+      "detail": "Unverified legacy statement: the July 6, 2026 release added SNAT and DNAT for AWS, Azure and GCP and announced Azure Gateway Load Balancer support through Terraform. The release-summary capture holds only its introduction; the Traffic Forwarding overview names Azure and GCP for ingress NAT, while the ZIA-method DNAT option names AWS, Azure and GCP. The SNAT/DNAT request schema and evaluation order are not stated.",
+      "blocks": "whether ingress NAT can be used for an AWS deployment",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "method-change-sessions": {
+      "kind": "semantic",
+      "title": "Effect of changing a rule's forwarding method on sessions in flight",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"changing from ZIA to Direct (or vice versa) mid-session likely terminates in-flight sessions\".",
+      "blocks": "planning rule changes for long-lived connections",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

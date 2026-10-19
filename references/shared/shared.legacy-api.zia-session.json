@@ -1,0 +1,490 @@
+{
+  "schema_version": 1,
+  "id": "shared.legacy-api.zia-session",
+  "title": "ZIA legacy API sessions: API key obfuscation, JSESSIONID and the cloud service API key",
+  "aliases": [
+    "authenticatedSession",
+    "JSESSIONID",
+    "obfuscateApiKey",
+    "zia api key obfuscation",
+    "zia legacy session expired 401",
+    "SESSION_NOT_VALID",
+    "cloud service api key",
+    "zsapi zscaler cloud name api v1",
+    "sandbox api token",
+    "3rd-party app governance api key"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.legacy-api.zia-oauth"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.legacy-api.zia-errors-and-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.activation-and-session"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The legacy ZIA cloud service API authenticates either with OAuth 2.0 through an external identity provider or with an admin login plus an obfuscated API key; this subject covers the second. {{auth-methods}}"
+    },
+    {
+      "label": "Base URL.",
+      "text": "{{base-url}} {{zidentity-tenants}}"
+    },
+    {
+      "label": "Obfuscating the key.",
+      "text": "{{obfuscation-published}} {{python-sdk-obfuscation}} {{timestamp-checks}}"
+    },
+    {
+      "label": "The session.",
+      "text": "{{create-session}} {{session-expiry}} {{bad-credentials-400}} {{session-check}} {{session-end}}"
+    },
+    {
+      "label": "Practices.",
+      "text": "{{session-practices}} {{dedicated-admin}}"
+    },
+    {
+      "label": "Activation.",
+      "text": "{{activation-queued}} {{auto-activation-triggers}} The provider documentation describes the same session-end activation ([[zia.terraform.activation-methods:session-end-autoactivation]]) and the 5 to 20 minute API session timeout ([[zia.terraform.activation-methods:session-timeout-range]]). The OneAPI side of activation is in [[shared.oneapi.write-practices]], and the Python client's logout on exit is in [[zia.sdk-python.activation-and-session]]. Whether accepting the EUSA is a prerequisite for API use is open {{gap:eusa-prerequisite}}."
+    },
+    {
+      "label": "The cloud service API key.",
+      "text": "{{one-key}} {{key-format}} {{key-changes-immediate}} {{key-disabled}} {{subscription-expiry}} Whether sessions opened with the old key survive an edit or regeneration is open {{gap:key-change-sessions}}."
+    },
+    {
+      "label": "Other ZIA APIs.",
+      "text": "{{sandbox-token}} Sandbox submission limits are in [[zia.sandbox.submission:daily-quota]]. {{app-governance}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a 400 on POST /authenticatedSession, whether the timestamp sent is the one used to obfuscate the key and within two hours of Zscaler's clock, and whether the key used is the current one.",
+      "uses": [
+        "timestamp-checks",
+        "bad-credentials-400",
+        "key-changes-immediate"
+      ]
+    },
+    {
+      "do": "For a 401 mid-script, whether the five-minute default session lifetime ran out, and re-authenticate only on that 401.",
+      "uses": [
+        "session-expiry",
+        "session-practices"
+      ]
+    },
+    {
+      "do": "For an Authentication Service-enabled tenant, whether the admin used for legacy API calls is hosted on Authentication Service rather than provisioned through a third-party IdP.",
+      "uses": [
+        "zidentity-tenants"
+      ]
+    }
+  ],
+  "claims": {
+    "auth-methods": {
+      "statement": "The ZIA legacy help page lists OAuth 2.0 (recommended) or Basic authentication combined with an API key for the cloud service API, Basic authentication with an API token for the Sandbox Submission API, and an API key for the 3rd-Party App Governance API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "| Cloud Service API | OAuth 2.0 (recommended)Combination of Basic Authentication and API Key |",
+            "| Sandbox Submission API | Combination of Basic Authentication and API Token |",
+            "| 3rd-Party App Governance API | API Key."
+          ]
+        }
+      ]
+    },
+    "base-url": {
+      "statement": "The legacy cloud service API's host and base path is `zsapi.<Zscaler Cloud Name>/api/v1`, for example zsapi.zscalertwo.net, using the cloud name provisioned for the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "after": "# Using ZIA Admin Credentials and API Key/Token",
+          "quotes": [
+            "The host and basePath for the cloud service API is $zsapi.<Zscaler Cloud Name>/api/v1.",
+            "zsapi.zscalertwo.net"
+          ]
+        }
+      ]
+    },
+    "zidentity-tenants": {
+      "statement": "In Authentication Service-enabled tenants, admins calling the ZIA APIs this way must be hosted on Authentication Service with roles assigned from ZIA; users provisioned through third-party identity providers cannot authenticate to the APIs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "In Authentication Service-enabled tenants, administrators accessing the ZIA APIs must be hosted on Authentication Service with appropriate roles assigned from ZIA. Users provisioned via third-party identity providers (IdPs) cannot authenticate to the APIs."
+          ]
+        }
+      ]
+    },
+    "obfuscation-published": {
+      "statement": "The obfuscation algorithm is published in the vendor's help page, with PHP, PowerShell, Python, Java, JavaScript and shell implementations. It takes the last six digits of the millisecond timestamp, picks key characters at those digits, then right-shifts the six-digit number by one, zero-pads it to six digits and appends the key characters at each digit plus two.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "Obfuscate the API key using one of the following obfuscateApiKey() implementation methods:",
+            "n = str(now)[-6:] r = str(int(n) >> 1).zfill(6)",
+            "for i in range(0, len(str(n)), 1): key += seed[int(str(n)[i])] for j in range(0, len(str(r)), 1): key += seed[int(str(r)[j])+2]",
+            "- PowerShell Implementation:",
+            "- Java Implementation:",
+            "- JavaScript Implementation:",
+            "- Shell Script Implementation:",
+            "- PHP Implementation:",
+            "now = int(time.time() * 1000) n = str(now)[-6:]"
+          ]
+        }
+      ]
+    },
+    "python-sdk-obfuscation": {
+      "statement": "The Python SDK implements it in `obfuscate_api_key`: it takes the last six digits of the millisecond timestamp, right-shifts them by one into a zero-padded six-digit number, appends the key characters at each digit plus two, and returns the timestamp it used together with the key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "def obfuscate_api_key(seed: list):",
+            "now = int(time.time() * 1000)",
+            "n = str(now)[-6:]",
+            "r = str(int(n) >> 1).zfill(6)",
+            "key += seed[int(r[j]) + 2]",
+            "return {\"timestamp\": now, \"key\": key}"
+          ]
+        }
+      ]
+    },
+    "timestamp-checks": {
+      "statement": "The service checks that the `timestamp` sent with POST /authenticatedSession is the one used to obfuscate the key and lies within two hours of Zscaler's measured epoch time; the timestamp is a string holding milliseconds since the Unix epoch.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "It is the same timestamp used to obfuscate the API key using the obfuscateApiKey() method.",
+            "It is within a two-hour range of Zscaler's measured epoch time.",
+            "timestamp: A string that contains a long value that represents the current time in milliseconds since midnight, January 1, 1970 UTC."
+          ]
+        }
+      ]
+    },
+    "create-session": {
+      "statement": "POST /authenticatedSession with `username`, `password`, the obfuscated `apiKey` and `timestamp` creates a session and returns a `JSESSIONID` cookie in the Set-Cookie header, which must be passed on subsequent requests.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "username: A string that contains the email ID of the API admin.",
+            "password: A string that contains the password for the API admin.",
+            "apiKey: A string that contains the obfuscated API key (i.e., the return value of the obfuscateApiKey() method).",
+            "A successful response to /authenticatedSession returns a cookie in the Set-Cookie header, called JSESSIONID, that must be used in subsequent requests.",
+            "timestamp: A string that contains a long value that represents the current time in milliseconds since midnight, January 1, 1970 UTC."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-authentication.json",
+          "pointer": "/spec/definitions/AuthCredentials/properties/apiKey",
+          "expect": {
+            "description": "The obfuscated form of the API key"
+          }
+        }
+      ]
+    },
+    "session-expiry": {
+      "statement": "By default the `JSESSIONID` expires after 5 minutes, or at an explicit logout; a call after expiry returns 401, and the client re-authenticates with a new POST to /authenticatedSession.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "By default, the JSESSIONID expires in 5 minutes, or when you explicitly log out by sending a DELETE request to /authenticatedSession. If API calls are made after the expiration of JSESSIONID, a 401 error is returned.",
+            "To resume making API calls, reauthenticate the API by sending a POST request to /authenticatedSession."
+          ]
+        }
+      ]
+    },
+    "bad-credentials-400": {
+      "statement": "An unsuccessful POST to /authenticatedSession returns 400, for example with code `INVALID_USERNAME_OR_PASSWORD`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "If an unsuccessful POST request is made to /authenticatedSession the response code returns a 400 error, such as:",
+            "{\"code\":\"INVALID_USERNAME_OR_PASSWORD\",\"message\":\"Invalid email or password\"}"
+          ]
+        }
+      ]
+    },
+    "session-check": {
+      "statement": "GET /authenticatedSession checks for a session: when one exists the response carries `authType`, and when `authType` is absent the session has expired or does not exist.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-authentication.json",
+          "pointer": "/spec/paths/~1authenticatedSession/get/responses/200",
+          "expect": {
+            "description": "<p>Successful Operation. When an authenticated session exists, the response contains authType information. If authType is not present, the authenticated session has expired or it does not exist.</p>"
+          }
+        }
+      ]
+    },
+    "session-end": {
+      "statement": "DELETE /authenticatedSession ends the session and returns an activation status object.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-authentication.json",
+          "pointer": "/spec/paths/~1authenticatedSession/delete",
+          "expect": {
+            "description": "<p>Ends an authenticated session.</p>",
+            "responses": {
+              "200": {
+                "description": "Successful Operation",
+                "schema": {
+                  "$ref": "#/definitions/ActivationStatus"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "session-practices": {
+      "statement": "The vendor's practices for legacy sessions: always pass the `JSESSIONID` cookie, create a session only when a call returns 401 (`SESSION_NOT_VALID`), use a dedicated user per script rather than one user in several concurrent scripts, use UTF-8, and prevent caching with a random dummy URL argument.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "Always pass the JSESSIONID cookie with the request.",
+            "Create an authenticated session only if an API call returns a 401 error (SESSION_NOT_VALID)",
+            "Create a dedicated user for each script. Don't use the same user in multiple scripts that are running concurrently.",
+            "Use UTF-8 encoding for all endpoints (e.g., use the encodeUriComponent() function in JavaScript to encode to UTF-8).",
+            "Prevent API call caching by adding a dummy argument with a randomly generated number to all URL request strings."
+          ]
+        }
+      ]
+    },
+    "dedicated-admin": {
+      "statement": "The page recommends a dedicated admin role and user with restricted functional scope for API access, to avoid conflicts between API and admin portal logins.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "it is highly recommended that you create a dedicated admin role and user with restricted functional scope access within the ZIA Admin Portal",
+            "avoids potential conflicts between API and ZIA Admin Portal logins"
+          ]
+        }
+      ]
+    },
+    "activation-queued": {
+      "statement": "After changes the client activates with POST /status/activate; the activation request is queued and does not override simultaneous changes by other admins.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "After modifying any configurations, you must activate the changes by sending a POST request to /status/activate. The API change activation request is queued and does not override any simultaneous changes by other admins."
+          ]
+        }
+      ]
+    },
+    "auto-activation-triggers": {
+      "statement": "The service activates saved changes automatically when the admin is inactive for the duration configured in Advanced Settings or logs out with DELETE /authenticatedSession.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "The Zscaler service automatically activates the saved changes if the admin:",
+            "is inactive for a specific duration as configured in the Advanced Settings",
+            "logs out using DELETE /authenticatedSession"
+          ]
+        }
+      ]
+    },
+    "one-key": {
+      "statement": "After the API subscription is enabled, Zscaler provisions the organization's cloud service API key; an organization can have only one, and the existing key must be deleted before a new one is added.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-managing-cloud-service-api-key.json",
+          "quotes": [
+            "your organization's cloud service API key is initially provisioned by Zscaler, enabled, and displayed within the Cloud Service API Key page along with the base URL.",
+            "Your organization can only have one API key. You must delete the existing key before adding a new one."
+          ]
+        }
+      ]
+    },
+    "key-format": {
+      "statement": "An edited API key must be alphanumeric and exactly 12 characters long, and the vendor's Java implementation of the obfuscation fixes the key size at 12.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-managing-cloud-service-api-key.json",
+          "quotes": [
+            "The new key must be alphanumeric (i.e., A-Z, a-z, 0-9) and exactly 12 characters in length."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "int apiKeySize = 12;"
+          ]
+        }
+      ]
+    },
+    "key-changes-immediate": {
+      "statement": "Editing, regenerating or deleting the key takes effect at once: the old key is invalidated immediately, and none of these actions can be undone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-managing-cloud-service-api-key.json",
+          "quotes": [
+            "After this, the old API key is immediately invalidated.",
+            "After this, a randomized key string is immediately generated and the old string is invalidated.",
+            "After this, the key is immediately removed and invalidated."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-managing-cloud-service-api-key.json",
+          "after": "- Edit the API key.",
+          "quotes": [
+            "This action cannot be undone."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-managing-cloud-service-api-key.json",
+          "after": "- Regenerate the API key.",
+          "quotes": [
+            "This action cannot be undone."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-managing-cloud-service-api-key.json",
+          "after": "- Delete the API key.",
+          "quotes": [
+            "This action cannot be undone."
+          ]
+        }
+      ]
+    },
+    "key-disabled": {
+      "statement": "Zscaler or the service provider can disable the key, for example when the organization exceeds its threshold of API calls or its code violates Zscaler's terms; a disabled key cannot be added, regenerated or deleted, and re-enabling it needs Zscaler Support or the provider.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-managing-cloud-service-api-key.json",
+          "quotes": [
+            "Your cloud service API key can be disabled by Zscaler or your service provider.",
+            "The key might be disabled if your organization exceeds the threshold number of API calls allowed or the code developed for your organization violates Zscaler's terms and conditions.",
+            "If this occurs, the ability to add, regenerate, or delete the key is removed and a Disabled status appears.",
+            "You must contact Zscaler Support or your service provider to re-enable the key."
+          ]
+        }
+      ]
+    },
+    "subscription-expiry": {
+      "statement": "When the API subscription expires the key stays valid but disabled and the POST and PUT actions are lost, until the subscription is renewed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-managing-cloud-service-api-key.json",
+          "quotes": [
+            "If your API subscription expires, you still have access to the Cloud Service API Key page, but you cannot make any modifications (i.e., you lose access to the POST and PUT actions within the API). Also, your existing API key is still valid but disabled.",
+            "The API key is re-enabled after your subscription is renewed."
+          ]
+        }
+      ]
+    },
+    "sandbox-token": {
+      "statement": "The Sandbox Submission API uses API tokens rather than the API key, at the host and base path `csbapi.<Zscaler Cloud Name>/zscsb`; an organization can have up to 5 Sandbox API tokens.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "If you are accessing the Sandbox Submission API, your host and basePath is $csbapi.<Zscaler Cloud Name>/zscsb.",
+            "An organization can have 1 API key for the cloud service API and up to 5 API tokens for the Sandbox Submission API."
+          ]
+        }
+      ]
+    },
+    "app-governance": {
+      "statement": "The 3rd-Party App Governance API uses its own API key, sent as an `X-API-KEY` header to https://api.apptotal.zscaler.com/v1/, and is limited to 25 calls per day on a trial and 1,000 per day with a license.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "The base URL for the 3rd-Party App Governance API is https://api.apptotal.zscaler.com/v1/.",
+            "--header 'X-API-KEY: <Your Provided API Key>'",
+            "- Trial: 25 per day",
+            "- License: 1,000 per day"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "eusa-prerequisite": {
+      "kind": "semantic",
+      "title": "Whether EUSA acceptance gates API use",
+      "status": "open",
+      "detail": "Unverified legacy statement: accepting the End User Subscription Agreement (the /eusaStatus endpoints in the Activation reference) is a one-time prerequisite for some tenants and is not part of the normal activation flow. The reference describes the endpoints but not when acceptance is required.",
+      "blocks": "explaining an API failure on a tenant that has not accepted the EUSA",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "key-change-sessions": {
+      "kind": "semantic",
+      "title": "Whether existing sessions survive an API key edit or regeneration",
+      "status": "open",
+      "detail": "Unverified legacy statement: regenerating the cloud service API key invalidates all sessions using the old key. The key-management page says only that the old key is invalidated immediately; it does not say what happens to JSESSIONID sessions already created with it.",
+      "blocks": "predicting whether running scripts fail at once after a key rotation",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "id": "shared.cloud-architecture.failure-domains",
+  "title": "What happens when a Zscaler component fails: edges, Central Authority, cloud, feeds, logs",
+  "aliases": [
+    "blast radius",
+    "zscaler outage",
+    "what happens when the central authority fails",
+    "service edge down",
+    "nanolog outage",
+    "feed central outage",
+    "cloud unreachable"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.cloud-architecture.central-authority"
+    },
+    {
+      "rel": "depends-on",
+      "to": "shared.cloud-architecture.service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.business-continuity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.fail-open"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The architecture articles describe redundancy for each component; fewer sources say what a failure looks like from the tenant's side. This subject collects what is stated and what is open, per component."
+    },
+    {
+      "label": "One Public Service Edge.",
+      "text": "[[shared.cloud-architecture.service-edges:active-active]] How fast traffic moves to another edge, and who moves it, is open {{gap:edge-failover-timing}}."
+    },
+    {
+      "label": "A Central Authority server or node.",
+      "text": "[[shared.cloud-architecture.central-authority:different-models]] {{safe-mode}} {{safe-mode-default-policy}} Whether a standby promotion triggers Safe mode, and how long Safe mode can last, is open {{gap:ca-outage-traffic-impact}}; the Private Access side of that question is [[zpa.public-service-edges.what-it-is:ca-reconnect-semantics]]."
+    },
+    {
+      "label": "The whole cloud, for a tenant.",
+      "text": "[[zia.private-service-edge.business-continuity:trigger-is-critical-failure]] [[zia.private-service-edge.business-continuity:last-known-good-policy]] On the client, [[zcc.forwarding-profiles.fail-open:situations]] Which of the two acts first when both are configured is open {{gap:bc-vs-fail-open-order}}."
+    },
+    {
+      "label": "Tunnels in business continuity.",
+      "text": "[[zia.private-service-edge.business-continuity:z-tunnel-2-unsupported]] What a Z-Tunnel 2.0 client does at that point is open {{gap:bc-ztunnel2-fallback}}, and so is how many business continuity sites exist and which one a tenant uses {{gap:bc-site-coverage}}."
+    },
+    {
+      "label": "Feed Central.",
+      "text": "[[shared.cloud-architecture.support-systems:feed-path]] What edges do with their feeds while Feed Central is unreachable is open {{gap:feed-central-outage}}."
+    },
+    {
+      "label": "A Nanolog cluster.",
+      "text": "[[shared.cloud-architecture.logging-path:nanolog-topology]] What a cluster outage does to logs in flight and to NSS or LSS streams is open {{gap:nanolog-outage}}; Cloud NSS can replay up to an hour: [[zia.logs.nss-feed-format:cloud-from-nanolog]]."
+    },
+    {
+      "label": "Customer-side failover.",
+      "text": "What happens to a live session when the customer's own failover moves it to another edge is open {{gap:source-ip-change-mid-session}}; tunnel failover design is in [[zia.traffic-forwarding.gre]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Name the component and the product before describing an outage; for a CA, ZIA promotes a standby and ZPA has none.",
+      "uses": [
+        "shared.cloud-architecture.central-authority:different-models"
+      ]
+    },
+    {
+      "do": "For ZIA users who lost access or saw Legal Liability blocks with no authentication prompt during a cloud incident, consider Safe mode on the edge.",
+      "uses": [
+        "safe-mode",
+        "safe-mode-default-policy"
+      ]
+    },
+    {
+      "do": "For a whole-cloud outage, check whether the tenant subscribes to the Business Continuity Cloud and which fail-open settings its forwarding profiles carry.",
+      "uses": [
+        "zia.private-service-edge.business-continuity:limited-availability",
+        "zcc.forwarding-profiles.fail-open:failover-options",
+        "bc-vs-fail-open-order"
+      ]
+    }
+  ],
+  "gaps": {
+    "edge-failover-timing": {
+      "kind": "semantic",
+      "title": "How traffic leaves a failed Public Service Edge, and how fast",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Single Service Edge down: traffic re-routed by the CA's health monitoring to the next-closest active Service Edge. Sub-minute-scale impact.\" The architecture article says edges run active-active and the CA monitors their health; it does not say that the CA re-routes traffic or give a time. Tunnel and client failover settings (GRE and IPSec backup tunnels, Client Connector probing) are separate mechanisms.",
+      "blocks": "outage-impact estimates for a single Public Service Edge failure",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "ca-outage-traffic-impact": {
+      "kind": "semantic",
+      "title": "CA failover and Safe mode duration, beyond what the Safe mode description covers",
+      "status": "open",
+      "detail": "Unverified legacy statements: \"ZIA: one of two passive standbys promotes; traffic unaffected (CA is control plane, not data plane). ZPA: requests load-balance to other active CA nodes; traffic unaffected.\" and \"The platform is built so that data plane (Service Edges) can run on cached state even when control plane (CA) is temporarily unreachable.\" The Public Service Edge article now answers the ZIA edge side (Safe mode: cached policies enforced, a Legal Liability default URL policy for users with no cached policy, no authentication). Still open: whether a standby CA promotion is visible to edges at all (does it trigger Safe mode), how long Safe mode can last, and what new users, configuration changes and logs experience during a long outage. The Private Access side is zpa.public-service-edges.what-it-is:ca-reconnect-semantics.",
+      "blocks": "whether a CA incident explains a traffic outage or only blocks configuration changes",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "bc-vs-fail-open-order": {
+      "kind": "semantic",
+      "title": "Order of Business Continuity Cloud failover and Client Connector fail-open",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"BC Cloud sits between: when both are configured, PAC redirects to BC Cloud before the fail-open decision kicks in. Traffic still inspected, just against cached policy at the BC site.\" No captured source orders the business continuity redirect against the Client Connector fail-open settings.",
+      "blocks": "predicting whether users are inspected by the Business Continuity Cloud or sent direct during a cloud outage",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "bc-ztunnel2-fallback": {
+      "kind": "semantic",
+      "title": "What a Z-Tunnel 2.0 client does in business continuity mode",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"A tenant that has migrated to Z-Tunnel 2.0 falls back to 1.0 during BC operations.\" The sources say only that Z-Tunnel 2.0 is not supported in business continuity mode; whether the client falls back to Z-Tunnel 1.0 (as its setup failure behavior can) is not stated for this case.",
+      "blocks": "outage answers for tenants on Z-Tunnel 2.0",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "bc-site-coverage": {
+      "kind": "data",
+      "title": "Business Continuity Cloud sites and site assignment",
+      "status": "open",
+      "detail": "Legacy open question: how many Business Continuity Cloud sites exist worldwide and how Zscaler decides which one a tenant fails over to. The components article says Client Connector connects to the nearest Business Continuity Cloud by IP address or location; site count and coverage are not published in the captured pages.",
+      "blocks": "latency and data-residency answers during business continuity",
+      "resolves_with": [
+        "support-ticket"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "feed-central-outage": {
+      "kind": "semantic",
+      "title": "Edge behavior while Feed Central is unreachable",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Feed Central failure: classifications go stale across all clouds. Service Edges keep running on last-fetched feeds. Operator-visible only if a new threat campaign launches during the outage.\" The article describes the distribution path only.",
+      "blocks": "assessing a classification miss during a feed outage",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "nanolog-outage": {
+      "kind": "semantic",
+      "title": "Effect of a Nanolog cluster outage on traffic, logs and streams",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Nanolog cluster down: traffic unaffected (Service Edge keeps processing); logs buffer or drop depending on configured behavior. NSS/LSS streams may gap.\" The article describes one active and two standby Nanolog servers with no data loss on takeover, not a whole-cluster outage; no source names a configurable buffer-or-drop behavior.",
+      "blocks": "explaining missing logs or stream gaps",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "source-ip-change-mid-session": {
+      "kind": "semantic",
+      "title": "Session state when a customer-side failover moves a session to another Service Edge",
+      "status": "open",
+      "former_ids": [
+        "shared-20"
+      ],
+      "detail": "When the customer side fails over between egress paths with different GRE source IPs (for example a load balancer in front of two routers with their own tunnels), the next packets of a live session can reach a different Public Service Edge, possibly in another data center. No source says whether a Surrogate IP binding survives the source IP change, whether TCP and policy state carry over to the new edge, or what a long-lived flow (HTTP/2, WebSocket, streaming RPC) sees. Multi-Cluster Load Sharing covers clusters inside one data center only (shared.multi-cluster).",
+      "blocks": "predicting user impact of a customer-side tunnel failover",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  },
+  "claims": {
+    "safe-mode": {
+      "statement": "If a network failure or another event keeps a ZIA Public Service Edge from reaching or downloading configuration from the CA, the edge switches immediately to Safe mode: it enforces all cached policies, logs user access for user and location configurations already in its cache, and tries to reconnect to the CA every second, leaving Safe mode as soon as a healthy connection is restored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-public-service-edges-internet-saas.json",
+          "quotes": [
+            "If there is a network failure or any other event that prevents the Public Service Edge from reaching or downloading the configuration from the CA, the Public Service Edge immediately switches to Safe mode.",
+            "In Safe mode, Public Service Edges enforce all cached policies and log user access for user and location configurations (this information is already available in the cache).",
+            "The node attempts to re-establish a connection to the CA every second. As soon as a healthy connection is restored, the node moves out of Safe mode."
+          ]
+        }
+      ]
+    },
+    "safe-mode-default-policy": {
+      "statement": "In Safe mode full security inspection is still enforced; a request whose user or location policy cannot be downloaded gets a default URL policy that blocks the Legal Liability URL category, and no authentication is requested.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-public-service-edges-internet-saas.json",
+          "quotes": [
+            "While running in Safe mode, full security inspection is enforced.",
+            "When a request is made for which the Zscaler service cannot download the user or location policy, a default URL policy is applied.",
+            "This default policy blocks access to all URLs in the Legal Liability URL Category.",
+            "No authentication is requested when running in this mode."
+          ]
+        }
+      ]
+    }
+  }
+}

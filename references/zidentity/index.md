@@ -50,7 +50,7 @@ Questions that land here: "how do I create API client credentials?", "why is ste
 
 ## When the question spans ZIdentity + another product
 
-- **"Why didn't the Conditional Access prompt appear?"** — ZCC forwarding is required for step-up to work (GRE/IPSec users don't get it). See [`../shared/cross-product-integrations.md § ZIdentity`](../shared/cross-product-integrations.md) and [`./step-up-authentication.md`](./step-up-authentication.md).
+- **"Why didn't the Conditional Access prompt appear?"** — ZCC forwarding is required for step-up to work (GRE/IPSec users don't get it). See [`shared.integrations`](kb:shared.integrations) and [`./step-up-authentication.md`](./step-up-authentication.md).
 - **"API call failed with 401"** — check OneAPI token expiry; tokens are OAuth 2.0 and have limited lifetimes. [`./api-clients.md`](./api-clients.md).
 - **"Users aren't syncing from our IdP"** — SAML JIT requires a login event to create the user; SCIM pushes in advance. Different lifecycle. [`./overview.md`](./overview.md).
 - **"How do I decide between OIDC and SAML for our IdP?"** — OIDC supports step-up auth; SAML does not. If you need Conditional Access or Require Approval actions anywhere in ZIA/ZPA policy, you need an OIDC IdP integration.

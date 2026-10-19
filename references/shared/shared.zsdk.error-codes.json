@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "id": "shared.zsdk.error-codes",
+  "title": "ZSDK error codes: SDK errors 9001-9505 and ZSDK API errors 2001-2999",
+  "aliases": [
+    "zsdk error code",
+    "zsdk error 9504",
+    "zsdk error 9505",
+    "tunnelUpgradeFailed",
+    "connectionTerminatedWhileUpgrading",
+    "sdkNotInitialized",
+    "zsdkIdentifierIsNotPublished",
+    "hmacSecretFailed",
+    "tokenExpired",
+    "noZpaService",
+    "zsdk api errors"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.developer-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.configuration"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The vendor publishes two tables: errors raised in the app by the SDK, and errors returned by the ZSDK API. Several API codes carry more than one error name."
+    },
+    {
+      "heading": "SDK errors"
+    },
+    {
+      "table": {
+        "columns": [
+          "Codes",
+          "What they mean"
+        ],
+        "rows": [
+          [
+            "9001-9002",
+            "{{sdk-general}}"
+          ],
+          [
+            "9101-9103",
+            "{{sdk-network}}"
+          ],
+          [
+            "9301-9310",
+            "{{sdk-init-proxy}}"
+          ],
+          [
+            "9401-9403",
+            "{{sdk-server}}"
+          ],
+          [
+            "9501-9505",
+            "{{sdk-tunnel}}"
+          ]
+        ]
+      }
+    },
+    {
+      "heading": "ZSDK API errors"
+    },
+    {
+      "table": {
+        "columns": [
+          "Codes",
+          "What they mean"
+        ],
+        "rows": [
+          [
+            "2001, 2005, 2028",
+            "{{api-certificates}}"
+          ],
+          [
+            "2003, 2004, 2023, 2024",
+            "{{api-private-access}}"
+          ],
+          [
+            "2006-2016, 2022",
+            "{{api-tokens-keys}}"
+          ],
+          [
+            "2026, 2027",
+            "{{api-app-identity}}"
+          ],
+          [
+            "2999",
+            "{{api-unexpected}}"
+          ]
+        ]
+      }
+    }
+  ],
+  "checks": [
+    {
+      "do": "For 9504 or 9505, whether the failure happened while upgrading a Prelogin tunnel to Zero Trust, and whether the Prelogin tunnel is still up.",
+      "uses": [
+        "sdk-tunnel"
+      ]
+    },
+    {
+      "do": "For 2027, whether the app key is published and not revoked.",
+      "uses": [
+        "api-app-identity",
+        "shared.zsdk.configuration:key-lifecycle"
+      ]
+    }
+  ],
+  "claims": {
+    "sdk-general": {
+      "statement": "9001 `unknown` is an unknown error (try again, then contact Support); 9002 `invalidParameter` means an invalid input parameter was given while starting the tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-zsdk-error-codes.json",
+          "quotes": [
+            "| 9001 | unknown | An unknown error occurred. | Try again. If the problem persists, contact Zscaler Support. |",
+            "| 9002 | invalidParameter | The input parameter is invalid. | Provide valid and correct parameters while starting the tunnel. |"
+          ]
+        }
+      ]
+    },
+    "sdk-network": {
+      "statement": "9101 `noNetwork` means the network was unavailable when starting the tunnel; 9102 `timeOut` means the request timed out; 9103 `dnsFailure` means a DNS issue while connecting the tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-zsdk-error-codes.json",
+          "quotes": [
+            "| 9101 | noNetwork | Your network is unavailable when attempting to start the tunnel. |",
+            "| 9102 | timeOut | The request timed out. |",
+            "| 9103 | dnsFailure | There is an issue with the DNS while connecting the tunnel. |"
+          ]
+        }
+      ]
+    },
+    "sdk-init-proxy": {
+      "statement": "9301 `permissionDenied`: the ZSDK permission is not granted to the user. 9302 `sdkNotInitialized`: ZSDK was called before initialization; on Android call `ZscalerSDK.init()` before `startTunnel` or any other API. 9303 `sdkSecureInitFailed`: initialized with an issue. 9304 `invalidProxyPort`, 9305 `proxyConnectFailed`, 9309 `proxyAuthFailed`: proxy port invalid, proxy connection failed, proxy authorization failed. 9306 `setWebViewProxyFailed` and 9307 `clearWebViewProxyFailed`: setting or clearing the WebView proxy failed; update Android WebView. 9308 `startTunnelPendingInSDK`: a `startTunnel` call is pending; wait for it. 9310 `proxyAuthNotSupportedInAutomaticConfig`: proxy authorization is not supported in Automatic Configuration mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-zsdk-error-codes.json",
+          "quotes": [
+            "| 9301 | permissionDenied | The ZSDK permission is not granted to the user. |",
+            "| 9302 | sdkNotInitialized | ZSDK is not initialized when it is called upon during application creation. | Call the ZscalerSDK.init() method first before calling startTunnel or any other APIs in Android. |",
+            "| 9303 | sdkSecureInitFailed | ZSDK is initialized, but there was an issue. |",
+            "| 9304 | invalidProxyPort | The proxy port is invalid. |",
+            "| 9305 | proxyConnectFailed | Connection to proxy server failed. |",
+            "| 9306 | setWebViewProxyFailed | The set proxy in WebView failed. | Ensure the Android WebView is updated with the latest version of the affected device. |",
+            "| 9307 | clearWebViewProxyFailed | The clear proxy in WebView failed. | Ensure the Android WebView is updated with the latest version of the affected device. |",
+            "| 9308 | startTunnelPendingInSDK | There is a pending startTunnel call. | Wait for the startTunnel call to finish and then try again. |",
+            "| 9309 | proxyAuthFailed | Proxy authorization failed. |",
+            "| 9310 | proxyAuthNotSupportedInAutomaticConfig | Proxy authorization is not supported in Automatic Configuration mode. | No action required. |"
+          ]
+        }
+      ]
+    },
+    "sdk-server": {
+      "statement": "9401 `dataParsingError`: data parsing failed at the server; 9402 `invalidToken`: an invalid token was sent to the server, so provide a valid one; 9403 `badRequest`: the server received a bad request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-zsdk-error-codes.json",
+          "quotes": [
+            "| 9401 | dataParsingError | Data parsing failed at the server end. |",
+            "| 9402 | invalidToken | An invalid token was sent as a request to the server. | Provide a valid token when you send a request to the server. |",
+            "| 9403 | badRequest | The server encountered a bad request. |"
+          ]
+        }
+      ]
+    },
+    "sdk-tunnel": {
+      "statement": "9501 `tunnelError`: error starting the tunnel. 9502 `tunnelAlreadyRunning`: no action required. 9503 `tunnelAuthenticationFailed`: authentication failed because of a configuration error. 9504 `connectionTerminatedWhileUpgrading`: the connection was terminated during the upgrade to the Zero Trust tunnel, and the existing Prelogin tunnel is invalid and stopped. 9505 `tunnelUpgradeFailed`: the upgrade to the Zero Trust tunnel failed and the Prelogin tunnel remains active.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-zsdk-error-codes.json",
+          "quotes": [
+            "| 9501 | tunnelError | An error was encountered when starting the tunnel. |",
+            "| 9502 | tunnelAlreadyRunning | The tunnel is already in a running state. | No action required. |",
+            "| 9503 | tunnelAuthenticationFailed | Authentication failed due to a configuration error. |",
+            "| 9504 | connectionTerminatedWhileUpgrading | Connection was terminated during upgrade to the Zero Trust tunnel. The existing Prelogin tunnel is invalid and stopped. |",
+            "| 9505 | tunnelUpgradeFailed | The upgrade to the Zero Trust tunnel failed. The Prelogin tunnel remains active. |"
+          ]
+        }
+      ]
+    },
+    "api-certificates": {
+      "statement": "Certificate errors: code 2001 covers six names, `csrSignFailure` (signing the CSR failed), `invalidSigningCertificate`, `failedToRetrieveSigningCertificate` (check and validate the signing certificate), `failedToAddCustomExtensions`, `zsdkFailedCryptoServiceRequest` (ZSDK's upstream failed) and `invalidResourceArgument` (an invalid request); 2005 `revokeCertFailed` is a failure to revoke a certificate; 2028 covers `publicKeyTooShort` and `invalidClientCSR`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-zsdk-error-codes.json",
+          "quotes": [
+            "| 2001 | csrSignFailure | There was a failure to sign the certificate signing request (CSR). |",
+            "| 2001 | invalidSigningCertificate | The signing certificate is invalid. |",
+            "| 2001 | failedToRetrieveSigningCertificate | The signing certificate is not retrievable. | Check and validate the signing certificate. |",
+            "| 2001 | failedToAddCustomExtensions | The signed certificate's custom extensions were not added. |",
+            "| 2001 | zsdkFailedCryptoServiceRequest | ZSDK's upstream failed. |",
+            "| 2001 | invalidResourceArgument | An invalid request was sent. |",
+            "| 2005 | revokeCertFailed | There was a failure to revoke certification. |",
+            "| 2028 | publicKeyTooShort | The public key is too short. |",
+            "| 2028 | invalidClientCSR | The CSR is invalid. |"
+          ]
+        }
+      ]
+    },
+    "api-private-access": {
+      "statement": "Private Access (ZPA) errors: 2003 `noZpaService` means no Private Access service is registered (register for it); 2004 `multipleZpaService` means several are registered; 2023 `hmacSecretFailed` is a failure to fetch the HMAC secret from Private Access; 2024 `hmacValidationFailed` is a failure to validate the HMAC payload.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-zsdk-error-codes.json",
+          "quotes": [
+            "| 2003 | noZpaService | There is no registered Private Access (ZPA) service. | Register for Private Access service. |",
+            "| 2004 | multipleZpaService | There are multiple, registered Private Access services. |",
+            "| 2023 | hmacSecretFailed | There was a failure to fetch the Hash-based Message Authentication Code (HMAC) secret from Private Access. |",
+            "| 2024 | hmacValidationFailed | There was a failure to validate HMAC payload. |"
+          ]
+        }
+      ]
+    },
+    "api-tokens-keys": {
+      "statement": "Token and key errors: 2006 `tokenConfigNotFound` (no token configuration for the tenant), 2007 `jwkParseFailed`, 2008 `customerKeyNotPresent`, 2009 `customerKeyParseFailed`, 2010 `unsupportedKeyType`, 2011 `failedSignatureValidation`, 2012 `tokenExpired` (the access token expired), 2013 `tokenValidationFailed` (check the access token's fields), 2015 `missingCertificateIdOAuth2Client` (certificate_id missing from the OAuth2 client), 2016 `missingPrivateKeyOAuth2Client`, and 2022 `unsupportedCustomerTokenType` (the JSON Web Token is unsupported).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-zsdk-error-codes.json",
+          "quotes": [
+            "| 2006 | tokenConfigNotFound | Unable to find token configuration for the tenant. |",
+            "| 2007 | jwkParseFailed | There was a failure to parse the JSON Web Key. |",
+            "| 2008 | customerKeyNotPresent | The customer key is not present. |",
+            "| 2009 | customerKeyParseFailed | There was a failure to parse the customer key. |",
+            "| 2010 | unsupportedKeyType | The key type is unsupported. |",
+            "| 2011 | failedSignatureValidation | Signature validation failed. |",
+            "| 2012 | tokenExpired | The access token expired. |",
+            "| 2013 | tokenValidationFailed | The access token validation failed. | Try again. If the problem persists, check the access token's fields. |",
+            "| 2015 | missingCertificateIdOAuth2Client | The certificate_id is missing from the OAuth2 client. |",
+            "| 2016 | missingPrivateKeyOAuth2Client | The private key is missing from the OAuth2 client. |",
+            "| 2022 | unsupportedCustomerTokenType | The JSON Web Token is unsupported. |"
+          ]
+        }
+      ]
+    },
+    "api-app-identity": {
+      "statement": "App identity errors: 2026 `missingMandatoryParams` (mandatory parameters missing); 2027 covers `zsdkIdentifierDoesNotExist` (the app's ZSDK ID does not exist; create and publish an app), `zsdkIdentifierIsNotPublished` (publish the app), `zsdkIdentifierIsAlreadyRevoked` (the app is revoked) and `zsdkIdentifierDoesNotHaveHMACSecret` (the app failed to fetch the HMAC secret from Private Access).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-zsdk-error-codes.json",
+          "quotes": [
+            "| 2026 | missingMandatoryParams | Some or all mandatory parameters are missing. |",
+            "| 2027 | zsdkIdentifierDoesNotExist | The app's ZSDK ID does not exist. | Create a new app and publish it in order to use the ZSDK ID. |",
+            "| 2027 | zsdkIdentifierIsNotPublished | The app is not published. | Publish the app. |",
+            "| 2027 | zsdkIdentifierIsAlreadyRevoked | The app is revoked. |",
+            "| 2027 | zsdkIdentifierDoesNotHaveHMACSecret | The app failed to fetch the HMAC secret from Private Access. |"
+          ]
+        }
+      ]
+    },
+    "api-unexpected": {
+      "statement": "2999 covers `unexpectedError`, `zsdkIdentifierFailedToRetrieveConfigs` (ZSDK failed to retrieve the configuration) and `csrfViolation` (a Cross-Site Request Forgery violation).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-zsdk-error-codes.json",
+          "quotes": [
+            "| 2999 | unexpectedError | There is an unexpected error. |",
+            "| 2999 | zsdkIdentifierFailedToRetrieveConfigs | ZSDK failed to retrieve the configuration. |",
+            "| 2999 | csrfViolation | The Cross-Site Request Forgery (CSRF) violates security policies. |"
+          ]
+        }
+      ]
+    }
+  }
+}

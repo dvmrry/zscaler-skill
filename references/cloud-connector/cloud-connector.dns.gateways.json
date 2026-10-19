@@ -1,0 +1,329 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.dns.gateways",
+  "title": "Cloud & Branch Connector DNS gateways: resolvers, failure behavior, predefined gateways",
+  "aliases": [
+    "cloud connector dns gateway",
+    "dnsGateways",
+    "ztc_dns_gateway",
+    "failureBehavior",
+    "FAIL_RET_ERR",
+    "FAIL_ALLOW_IGNORE_DNAT",
+    "LAN CTR",
+    "WAN CTR",
+    "dns gateway servfail"
+  ],
+  "binds": [
+    "ztw/dns-gateways",
+    "ztw/dns-gateways#failureBehavior",
+    "ztw/dns-gateways#ecDnsGatewayOptionsPrimary",
+    "ztw/dns-gateways#ecDnsGatewayOptionsSecondary",
+    "ztw/dns-gateways#dnsGatewayType",
+    "ztw/dns-gateways#primaryIp",
+    "ztw/dns-gateways#secondaryIp"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.dns.policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A DNS gateway is the redirect target a DNS policy rule can send queries to: [[zia.dns-control:cbc-gateways-differ]]. {{benefits}}"
+    },
+    {
+      "label": "Resolvers.",
+      "text": "{{server-choices}} {{wan-override}} {{limit-255}}"
+    },
+    {
+      "label": "When the resolver is unreachable.",
+      "text": "{{failure-behavior}} {{contract-failure-values}} Whether the secondary resolver is tried before the failure behavior applies is open {{gap:failover-default-ipv6}}."
+    },
+    {
+      "label": "Predefined and default gateways.",
+      "text": "{{predefined}} {{default-undeletable}}"
+    },
+    {
+      "label": "Resolver tokens in the API.",
+      "text": "{{contract-option-tokens}} Terraform accepts a different set for the same two members {{divergence:option-tokens}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The gateway's failure behavior: Return error response (clients see SERVFAIL) or Forward to Original DNS Server (the query goes to the IP the client originally asked).",
+      "uses": [
+        "failure-behavior"
+      ]
+    },
+    {
+      "do": "Whether the configured custom resolver addresses are IPv4, the only kind the console accepts.",
+      "uses": [
+        "server-choices"
+      ]
+    },
+    {
+      "do": "For a Terraform-managed gateway using LAN or WAN resolver slots, whether the tokens are ones the API contract lists for that slot.",
+      "uses": [
+        "option-tokens"
+      ]
+    }
+  ],
+  "claims": {
+    "benefits": {
+      "statement": "DNS gateways are meant to keep DNS highly available through primary and secondary DNS services and to meet requirements such as using a Protective DNS service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-dns-gateways.json",
+          "quotes": [
+            "Ensure the high availability of the DNS service used by your organization by configuring primary and secondary DNS services.",
+            "Ensure compliance with regulatory and contractual requirements like employing Protective DNS service."
+          ]
+        }
+      ]
+    },
+    "server-choices": {
+      "statement": "The primary and secondary DNS server are each chosen as a Custom DNS Server (an IP address, IPv4 only), the LAN Primary DNS Server, or the LAN Secondary DNS Server; the LAN choices reference DNS servers in the gateway-mode Branch Connector Configuration Template.",
+      "tier": "A",
+      "binds": [
+        "ztw/dns-gateways#primaryIp",
+        "ztw/dns-gateways#secondaryIp"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-dns-gateway.json",
+          "after": "Primary DNS Server: From the drop-down menu, select a primary DNS server:",
+          "quotes": [
+            "Custom DNS Server: Enter an IP address of your choice. Zscaler only supports IPv4 addresses.",
+            "LAN Primary DNS Server: Select the local area network (LAN) primary DNS server to reference the primary LAN DNS server configured in gateway mode of the Branch Connector Configuration Template.",
+            "LAN Secondary DNS Server: Select the LAN secondary DNS server"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-dns-gateway.json",
+          "after": "Secondary DNS Server: From the drop-down menu, select a secondary DNS server:",
+          "quotes": [
+            "Custom DNS Server: Enter an IP address of your choice. Zscaler only supports IPv4 addresses.",
+            "LAN Primary DNS Server: Select the LAN primary DNS server to reference the secondary LAN DNS server",
+            "LAN Secondary DNS Server: Select the LAN secondary DNS server to reference the secondary LAN DNS server"
+          ]
+        }
+      ]
+    },
+    "wan-override": {
+      "statement": "In gateway mode, if the template dictates a WAN override the gateway uses WAN DNS resolvers; for non-gateway hardware devices the LAN DNS servers default to those configured in the forwarding interface section.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-dns-gateway.json",
+          "after": "Primary DNS Server: From the drop-down menu, select a primary DNS server:",
+          "quotes": [
+            "In gateway mode of the Branch Connector Configuration Template, if the template dictates a WAN override, it uses WAN DNS resolvers. For non-gateway hardware devices, the LAN DNS servers default to the primary and secondary DNS servers configured in the forwarding interface section."
+          ]
+        }
+      ]
+    },
+    "limit-255": {
+      "statement": "Up to 255 DNS gateways can be created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-dns-gateway.json",
+          "quotes": [
+            "You can create up to 255 DNS gateways."
+          ]
+        }
+      ]
+    },
+    "failure-behavior": {
+      "statement": "If the DNS server is unreachable, the gateway either returns an error response (the help says SERVFAIL is returned) or forwards to the original DNS server, sending the DNS packet to the original destination IP.",
+      "tier": "A",
+      "binds": [
+        "ztw/dns-gateways#failureBehavior"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-dns-gateway.json",
+          "quotes": [
+            "Failure Behavior: Choose what happens if the DNS server is unreachable:",
+            "Return error response: The DNS gateway returns the message smedge will return SERVFAIL.",
+            "Forward to Original DNS Server: The DNS packet is sent to the original destination IP."
+          ]
+        }
+      ]
+    },
+    "contract-failure-values": {
+      "statement": "The API contract lists three `failureBehavior` values, FAIL_RET_ERR, FAIL_ALLOW_IGNORE_DNAT and FAIL_FORWARD_TO_ZTR, while the Terraform resource accepts only the first two.",
+      "tier": "A",
+      "binds": [
+        "ztw/dns-gateways#failureBehavior"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1dnsGateways/post/requestBody/content/application~1json/schema/properties/failureBehavior",
+          "expect": {
+            "enum": [
+              "FAIL_RET_ERR",
+              "FAIL_ALLOW_IGNORE_DNAT",
+              "FAIL_FORWARD_TO_ZTR"
+            ]
+          }
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_dns_gateway.go",
+          "after": "\"failure_behavior\": {",
+          "quotes": [
+            "\"FAIL_RET_ERR\",",
+            "\"FAIL_ALLOW_IGNORE_DNAT\",",
+            "}, false),"
+          ]
+        }
+      ]
+    },
+    "predefined": {
+      "statement": "Zscaler predefines two gateways, disabled by default and not editable: LAN CTR (LAN Customer Trusted Resolver, from the LAN section of the branch configuration template) and WAN CTR (manually configured or DHCP-received servers from its WAN section); they apply only to hardware devices in gateway mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-dns-gateways.json",
+          "quotes": [
+            "View a list of predefined gateways created by Zscaler. They are disabled by default, but you can enable them:",
+            "LAN CTR: The LAN Customer Trusted Resolver (CTR) has DNS servers configured in the LAN section of the branch configuration template.",
+            "WAN CTR: The WAN CTR has DNS servers, which are either manually configured or received by DHCP protocol, configured in the WAN section of the branch configuration template.",
+            "Predefined gateways are only applicable to hardware devices deployed in gateway mode.",
+            "You cannot edit predefined DNS gateways."
+          ]
+        }
+      ]
+    },
+    "default-undeletable": {
+      "statement": "The default DNS gateway cannot be deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-dns-gateways.json",
+          "quotes": [
+            "You cannot delete the default DNS gateway."
+          ]
+        }
+      ]
+    },
+    "contract-option-tokens": {
+      "statement": "In the API contract the primary resolver option takes LAN_PRI_DNS_AS_PRI, LAN_SEC_DNS_AS_PRI or WAN_PRI_DNS_AS_PRI, and the secondary takes LAN_PRI_DNS_AS_SEC, LAN_SEC_DNS_AS_SEC or WAN_SEC_DNS_AS_SEC.",
+      "tier": "A",
+      "binds": [
+        "ztw/dns-gateways#ecDnsGatewayOptionsPrimary",
+        "ztw/dns-gateways#ecDnsGatewayOptionsSecondary"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1dnsGateways/post/requestBody/content/application~1json/schema/properties/ecDnsGatewayOptionsPrimary",
+          "expect": {
+            "enum": [
+              "LAN_PRI_DNS_AS_PRI",
+              "LAN_SEC_DNS_AS_PRI",
+              "WAN_PRI_DNS_AS_PRI"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1dnsGateways/post/requestBody/content/application~1json/schema/properties/ecDnsGatewayOptionsSecondary",
+          "expect": {
+            "enum": [
+              "LAN_PRI_DNS_AS_SEC",
+              "LAN_SEC_DNS_AS_SEC",
+              "WAN_SEC_DNS_AS_SEC"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "option-tokens": {
+      "summary": "Which tokens the primary and secondary resolver options accept.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1dnsGateways/post/requestBody/content/application~1json/schema/properties/ecDnsGatewayOptionsPrimary",
+            "expect": {
+              "enum": [
+                "LAN_PRI_DNS_AS_PRI",
+                "LAN_SEC_DNS_AS_PRI",
+                "WAN_PRI_DNS_AS_PRI"
+              ]
+            }
+          },
+          "says": "The contract gives each slot its own three tokens: the primary takes LAN_SEC_DNS_AS_PRI for the LAN secondary server, and *_AS_SEC tokens belong to the secondary slot only."
+        },
+        {
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "ztc/resource_ztc_dns_gateway.go",
+            "after": "\"ec_dns_gateway_options_primary\": {",
+            "quotes": [
+              "\"LAN_PRI_DNS_AS_PRI\",",
+              "\"LAN_SEC_DNS_AS_SEC\",",
+              "\"WAN_PRI_DNS_AS_PRI\",",
+              "\"WAN_SEC_DNS_AS_SEC\","
+            ]
+          },
+          "says": "Terraform validates the primary option against LAN_PRI_DNS_AS_PRI, LAN_SEC_DNS_AS_SEC, WAN_PRI_DNS_AS_PRI and WAN_SEC_DNS_AS_SEC."
+        },
+        {
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "ztc/resource_ztc_dns_gateway.go",
+            "after": "\"ec_dns_gateway_options_secondary\": {",
+            "quotes": [
+              "\"LAN_PRI_DNS_AS_PRI\",",
+              "\"LAN_SEC_DNS_AS_SEC\",",
+              "\"WAN_PRI_DNS_AS_PRI\",",
+              "\"WAN_SEC_DNS_AS_SEC\","
+            ]
+          },
+          "says": "Terraform validates the secondary option against the same four tokens."
+        }
+      ],
+      "impact": "Terraform cannot express the console's LAN Secondary choice for the primary slot (LAN_SEC_DNS_AS_PRI) or LAN Primary for the secondary slot (LAN_PRI_DNS_AS_SEC), and it accepts secondary-slot tokens for the primary and the reverse, which the contract does not list."
+    }
+  },
+  "gaps": {
+    "failover-default-ipv6": {
+      "kind": "semantic",
+      "title": "Secondary-resolver try order, default gateway configuration, IPv6 on referenced resolvers, and FAIL_FORWARD_TO_ZTR",
+      "status": "open",
+      "former_ids": [
+        "cloud-connector-13"
+      ],
+      "detail": "Unresolved: whether the secondary resolver is tried before the failure behavior applies (the gateway object carries `primaryIp`, `secondaryIp` and `failureBehavior` but no try order); what the non-deletable default gateway resolves to and whether it can be modified; whether LAN or WAN referenced resolver slots can hold IPv6 (the IPv4-only statement is scoped to Custom DNS Server entries); what the contract-only FAIL_FORWARD_TO_ZTR does; and how the predefined LAN CTR and WAN CTR gateways map to the resolver tokens. The `ZPA Resolver` DNS rule from the same ledger entry is in cloud-connector.dns.policies:zpa-resolver.",
+      "blocks": "predicting client-visible DNS failures and configuring IPv6 resolvers",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

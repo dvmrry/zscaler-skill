@@ -1,0 +1,675 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.gcp.mig-autoscaling",
+  "title": "Cloud Connector on GCP: MIG autoscaling, Health Monitor and Resource Sync",
+  "aliases": [
+    "gcp mig cloud connector",
+    "managed instance group cloud connector",
+    "cloud connector autoscaling gcp",
+    "min_replicas",
+    "max_replicas",
+    "target_cpu_util_value",
+    "smedge_cpu_utilization gcp",
+    "cloud_connector_aggr_health gcp",
+    "health monitor cloud run function",
+    "resource sync cloud run function",
+    "resource sync cadence",
+    "resource_sync_entry",
+    "16 cloud connectors per group",
+    "terraform-zscc-cloud-function-gcp"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp.terraform-modules"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure.vmss"
+    }
+  ],
+  "prose": [
+    {
+      "text": "On GCP, Cloud Connector autoscaling is a zonal Managed Instance Group per zone, scaled on a custom CPU metric, plus two Cloud Run functions that replace unhealthy connectors and reconcile the Admin Console with the groups. Help and the pinned Terraform module state different defaults for several of these values; the module's values are what a deployment made from it runs with."
+    },
+    {
+      "label": "What the instance group does.",
+      "text": "{{mig-behavior}} {{zonal-migs}} {{module-one-mig-per-zone}} {{no-mig-autohealing}}"
+    },
+    {
+      "heading": "Scaling policy"
+    },
+    {
+      "text": "{{help-scaling-policy}} {{help-cooldown}} {{module-autoscaler}}"
+    },
+    {
+      "label": "Group size.",
+      "text": "{{help-group-size}} {{module-replicas}} {{wrapper-replicas}} {{zsec-replicas}} The defaults differ across these layers {{divergence:replica-defaults}}. Whether the service itself enforces 16 connectors per group was not tested {{gap:group-limit-enforcement}}. {{zsec-cc-count}}"
+    },
+    {
+      "heading": "Health Monitor"
+    },
+    {
+      "text": "{{help-health-metric}} {{help-health-thresholds}} {{help-termination}} {{module-health-thresholds}} {{example-health-defaults}} The two sets of thresholds disagree {{divergence:health-thresholds}}. {{module-health-scheduler}}"
+    },
+    {
+      "heading": "Resource Sync"
+    },
+    {
+      "text": "{{help-resource-sync}} {{module-resource-sync}} {{module-sync-limits}} The cadence differs {{divergence:resource-sync-cadence}}, and which implementation Help describes is open {{gap:resource-sync-default}}. {{resource-sync-code-external}} A delete race in Resource Sync and its fix are not in any registered source {{gap:resource-sync-race}}."
+    },
+    {
+      "label": "Function packaging.",
+      "text": "{{function-zip}} {{functions-via-api}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which minimum, maximum, target and cooldown the deployed autoscaler on each zonal MIG actually has, in the instance group details, rather than any documented default.",
+      "uses": [
+        "module-autoscaler",
+        "module-replicas",
+        "replica-defaults",
+        "help-group-size"
+      ]
+    },
+    {
+      "do": "Which Health Monitor thresholds the deployed function runs with, from its environment variables.",
+      "uses": [
+        "module-health-thresholds",
+        "health-thresholds"
+      ]
+    },
+    {
+      "do": "Which schedule the Resource Sync Cloud Scheduler job uses before reasoning about how long an orphaned VM record stays in the Admin Console.",
+      "uses": [
+        "module-resource-sync",
+        "resource-sync-cadence",
+        "resource-sync-default"
+      ]
+    },
+    {
+      "do": "Whether a VM disappeared because it was stopped or rebooted from the Google Cloud console, which can terminate a MIG member.",
+      "uses": [
+        "mig-behavior"
+      ]
+    }
+  ],
+  "claims": {
+    "mig-behavior": {
+      "statement": "A MIG with autoscaling adds Cloud Connector VMs as load increases and removes them as it decreases, replaces unhealthy VMs and VMs terminated manually from the Google Cloud console; stopping or rebooting a member from the console could cause it to be terminated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+          "quotes": [
+            "dynamically adds Cloud Connector virtual machines (VMs) to an instance group to meet the current load when it increases, and it removes Cloud Connector VMs from the instance group when the load decreases.",
+            "They remove unhealthy VMs from the instance group and replace them with healthy ones.",
+            "If someone manually terminates a VM that is part of an instance group from the Google Cloud console, the instance group replaces the VM.",
+            "stopping or rebooting a VM that is part of an instance group from the Google Cloud console could cause the VM to be terminated."
+          ]
+        }
+      ]
+    },
+    "zonal-migs": {
+      "statement": "Zonal MIGs with autoscaling are deployed in each configured region or zone, and a Cloud NAT gateway is deployed in each region for the connectors' outbound access, with dedicated external IPs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+          "quotes": [
+            "Zonal MIGs with autoscaling are deployed in each configured region or zone, ensuring high availability and automatic failover across zones.",
+            "A Cloud NAT gateway is deployed in each region for the Cloud Connectors. This arrangement provides managed, scalable outbound internet access and allocates dedicated external IPs for each gateway."
+          ]
+        }
+      ]
+    },
+    "module-one-mig-per-zone": {
+      "statement": "The CCVM module creates one instance template and one zonal instance group manager per zone, and when autoscaling is enabled one autoscaler per instance group, so replica limits apply to each zonal group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-gcp/main.tf",
+          "quotes": [
+            "# Create Zonal Managed Instance Groups per number of zones defined",
+            "resource \"google_compute_instance_group_manager\" \"cc_instance_group_manager\" { count = length(var.zones)",
+            "count = var.autoscaling_enabled ? length(google_compute_instance_group_manager.cc_instance_group_manager[*].instance_group) : 0"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/zsec",
+          "quotes": [
+            "Enter the maximum number of Cloud Connectors to maintain per each Autoscale Instance Group"
+          ]
+        }
+      ]
+    },
+    "no-mig-autohealing": {
+      "statement": "The CCVM module README says connector health is monitored through the internal network load balancer and that Zscaler does not currently support GCP-specific MIG features such as instance-based autohealing with this module.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-gcp/README.md",
+          "quotes": [
+            "The Cloud Connector health is managed and monitored via the Internal Network Load Balancer (ILB). Zscaler does not currently support utilizing GCP specific features of Managed Instance Groups like Instance based Autohealing with this deployment module."
+          ]
+        }
+      ]
+    },
+    "help-scaling-policy": {
+      "statement": "Each connector posts its data-plane CPU utilization to Cloud Monitoring every minute as `smedge_cpu_utilization`, and the MIG autoscaler uses the aggregate across the group against a target that defaults to 80% over two to three minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+          "quotes": [
+            "Each Cloud Connector independently posts data plane CPU utilization metrics at one-minute intervals to GCP Cloud Monitoring as a user-defined metric.",
+            "In logs and reports, the CPU utilization metric is displayed as smedge_cpu_utilization.",
+            "By default, the target value is 80% aggregate CPU utilization across all VMs in the instance group over a period of two to three minutes."
+          ]
+        }
+      ]
+    },
+    "help-cooldown": {
+      "statement": "The autoscaler's initialization (cooldown) period defaults to 900 seconds; scale-in decisions use data from all VMs including those still initializing, while scale-out ignores VMs in the cooldown period.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+          "quotes": [
+            "By default, the initialization period is 900 seconds (15 minutes).",
+            "For scale-in events, autoscaling takes into account utilization data from all VMs, even those that are still in the cooldown period.",
+            "For scale-out events, autoscaling ignores utilization data from VMs that are still in the cooldown period."
+          ]
+        }
+      ]
+    },
+    "module-autoscaler": {
+      "statement": "The module's autoscaler scales on the GAUGE metric `custom.googleapis.com/smedge_cpu_utilization` with `target_cpu_util_value` (default 80) and `cooldown_period` (default 900 seconds).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-gcp/main.tf",
+          "quotes": [
+            "cooldown_period = var.cooldown_period metric { name = \"custom.googleapis.com/smedge_cpu_utilization\" target = var.target_cpu_util_value type = \"GAUGE\""
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-gcp/variables.tf",
+          "quotes": [
+            "description = \"The target custom CPU utilization value for the autoscaling policy\" default = 80",
+            "during which the collected usage would not be reliable\" default = 900"
+          ]
+        }
+      ]
+    },
+    "help-group-size": {
+      "statement": "Help gives a default instance-group maximum of 10 VMs and minimum of one, and says the maximum cannot exceed the Cloud Connector group limit of 16 VMs per group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+          "quotes": [
+            "By default, the maximum size of an instance group is 10 VMs and the minimum size is one VM. (The maximum cannot exceed the Cloud Connector group limit of 16 VMs per group.)"
+          ]
+        }
+      ]
+    },
+    "module-replicas": {
+      "statement": "The direct CCVM module defaults `min_replicas` to 2 and `max_replicas` to 4 and validates both to 1-16, the maximum's message calling 16 a hard limit of Cloud Connectors per group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-gcp/variables.tf",
+          "quotes": [
+            "description = \"The minimum number of replicas for the autoscaling policy\" default = 2",
+            "var.min_replicas >= 1 && var.min_replicas <= 16",
+            "description = \"The maximum number of replicas for the autoscaling policy\" default = 4",
+            "var.max_replicas >= 1 && var.max_replicas <= 16",
+            "error_message = \"Input max_replicas cannot exceed 16 (hard limit of 16 Cloud Connectors per group).\""
+          ]
+        }
+      ]
+    },
+    "wrapper-replicas": {
+      "statement": "The autoscaling example roots `base_cc_asg`, `base_cc_asg_zpa` and `cc_asg` default `max_replicas` to 4 with validation 1-10, and `min_replicas` to 1 with no validation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/base_cc_asg/variables.tf",
+          "quotes": [
+            "default = 4 validation { condition = var.max_replicas >= 1 && var.max_replicas <= 10",
+            "variable \"min_replicas\" { type = number description = \"The minimum number of replicas for the autoscaling policy\" default = 1 }"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/base_cc_asg_zpa/variables.tf",
+          "quotes": [
+            "default = 4 validation { condition = var.max_replicas >= 1 && var.max_replicas <= 10",
+            "variable \"min_replicas\" { type = number description = \"The minimum number of replicas for the autoscaling policy\" default = 1 }"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/cc_asg/variables.tf",
+          "quotes": [
+            "default = 4 validation { condition = var.max_replicas >= 1 && var.max_replicas <= 10",
+            "variable \"min_replicas\" { type = number description = \"The minimum number of replicas for the autoscaling policy\" default = 1 }"
+          ]
+        }
+      ]
+    },
+    "zsec-replicas": {
+      "statement": "The `zsec` helper prompts for the minimum and maximum per autoscale instance group with defaults 2 and 4, accepting only 1-10 for each and a maximum no lower than the minimum.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/zsec",
+          "quotes": [
+            "min_replicas_default=2",
+            "Invalid ASG Minimum size: ${min_replicas}. Enter a number 1-10",
+            "max_replicas_default=4",
+            "Max size must be greater than or equal to ${min_replicas}",
+            "Invalid ASG Maximum size: ${max_replicas}. Enter a number 1-10"
+          ]
+        }
+      ]
+    },
+    "zsec-cc-count": {
+      "statement": "For the non-autoscaling load-balanced types, `zsec` accepts 1-10 Cloud Connectors per zone but its rejection message says the value must be between 1 and 20.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/zsec",
+          "quotes": [
+            "if ((cc_count >= 1 && cc_count <= 10)); then",
+            "invalid cc_count value. Must be a number between 1 and 20"
+          ]
+        }
+      ]
+    },
+    "help-health-metric": {
+      "statement": "Each connector publishes a VM-level health metric, `cloud_connector_aggr_health`, every minute as 0 (unhealthy) or 100 (healthy), and the Health Monitor function consumes it every minute and starts termination of VMs it finds unhealthy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+          "quotes": [
+            "Each Cloud Connector publishes a VM-level custom metric at one-minute intervals. This metric value is either 0 for an unhealthy VM or 100 for a healthy VM.",
+            "The Health Monitor function consumes the health metric at one-minute intervals and initiates the termination of a VM that it determines is unhealthy.",
+            "In logs and reports, the health metric is displayed as cloud_connector_aggr_health."
+          ]
+        }
+      ]
+    },
+    "help-health-thresholds": {
+      "statement": "Help's configurable Health Monitor defaults are a 10-minute sliding window, 5 consecutive unhealthy minutes, a flapping tolerance of 7 unhealthy counts in 10 minutes, and for missing metrics a warning log at two minutes, a critical log at 5 minutes and termination at 10 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+          "quotes": [
+            "The size of the sliding window. The default is 10 consecutive minutes.",
+            "The default value for defining a VM as unhealthy is 5 consecutive minutes.",
+            "The default value is 7 unhealthy counts in 10 consecutive minutes.",
+            "If the VM does not report metrics for two minutes, the function generates a warning log.",
+            "If the VM does not report metrics for 5 minutes, the function generates a critical log.",
+            "If the VM does not report metrics for 10 minutes, the function generates a termination log and starts the process of deleting the VM."
+          ]
+        }
+      ]
+    },
+    "help-termination": {
+      "statement": "Unhealthy VMs are terminated in iterations of up to 16 VMs by default, and a terminated VM is replaced immediately.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+          "quotes": [
+            "Unhealthy VMs are terminated in iterations. By default, in a single iteration, 16 VMs can be terminated. After a VM is terminated, it is replaced immediately."
+          ]
+        }
+      ]
+    },
+    "module-health-thresholds": {
+      "statement": "The Cloud Function module passes Health Monitor thresholds as environment variables with defaults of 2, 5 and 12 minutes for the missing-metric warning, critical and termination thresholds, a 15-minute evaluation window, 10 unhealthy metrics in the window and 8 consecutive unhealthy metrics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-cloud-function-gcp/variables.tf",
+          "quotes": [
+            "description = \"Missing metrics warning threshold (minutes)\" type = number default = 2",
+            "description = \"Missing metrics critical threshold (minutes)\" type = number default = 5",
+            "description = \"Missing metrics termination threshold (minutes)\" type = number default = 12",
+            "description = \"How many data points (minutes) function should look back for health reference calculations\" type = number default = 15",
+            "description = \"Total unhealthy metrics in eval window defined in metrics_eval_window_min (chronic issues)\" type = number default = 10",
+            "description = \"Consecutive unhealthy metrics threshold (sustained issues)\" type = number default = 8"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-cloud-function-gcp/main.tf",
+          "quotes": [
+            "MISSING_METRICS_TERMINATION_THRESHOLD_MIN = tostring(var.missing_metrics_termination_threshold_min)"
+          ],
+          "after": "entry_point = \"health_monitor_entry\""
+        }
+      ]
+    },
+    "module-health-scheduler": {
+      "statement": "When `enable_scheduler` is true (the default), the module creates a Cloud Scheduler job that POSTs to the Health Monitor function every minute (`* * * * *`, UTC) with an OIDC token for the function service account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-cloud-function-gcp/main.tf",
+          "quotes": [
+            "description = \"Triggers health monitoring every minute\" schedule = \"* * * * *\" time_zone = \"UTC\"",
+            "http_method = \"POST\" uri = google_cloudfunctions2_function.health_monitor_function.service_config[0].uri oidc_token {"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-cloud-function-gcp/variables.tf",
+          "quotes": [
+            "variable \"enable_scheduler\" { description = \"Whether to create Cloud Scheduler jobs\" type = bool default = true"
+          ]
+        }
+      ]
+    },
+    "help-resource-sync": {
+      "statement": "The Resource Sync function keeps the VMs registered in the Admin Console matched to each Cloud Connector instance group's membership: a connector in the console that belongs to no instance group is deleted through an API call. Help says it runs every 10 minutes by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+          "quotes": [
+            "Resource Sync: This function ensures that the VMs registered in the Zscaler Admin Console match the membership of each Cloud Connector instance group.",
+            "If the function discovers a Cloud Connector in the Zscaler Admin Console that is not part of any instance group, it issues an API call to the Zscaler Admin Console to delete the VM.",
+            "This function runs every 10 minutes by default."
+          ]
+        }
+      ]
+    },
+    "module-resource-sync": {
+      "statement": "The pinned module's Resource Sync Cloud Scheduler job runs every 30 minutes (`*/30 * * * *`, UTC), and its README describes the function as removing dangling VM resources from the Zscaler portal every 30 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-cloud-function-gcp/main.tf",
+          "quotes": [
+            "description = \"Triggers resource sync every 30 minutes\" schedule = \"*/30 * * * *\" time_zone = \"UTC\""
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-cloud-function-gcp/README.md",
+          "quotes": [
+            "A `resource-sync-function` runs periodically (every 30 minutes) to reconcile the list of virtual machine instances between your GCP project and the Zscaler Cloud Connector Portal. It automatically removes any \"dangling\" VM resources from the Zscaler portal that no longer exist in GCP"
+          ]
+        }
+      ]
+    },
+    "module-sync-limits": {
+      "statement": "The module caps Resource Sync at `sync_max_deletions_per_run` (default 16) deletions per run, with dry-run off by default and `sync_excluded_instances`, a list (empty by default) of GCP instance IDs never to delete from Zscaler.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-cloud-function-gcp/variables.tf",
+          "quotes": [
+            "variable \"sync_max_deletions_per_run\" { description = \"Maximum Cloud Connector VMs that can be deleted per sync run\" type = number default = 16",
+            "description = \"Whether to run sync in dry-run mode\" type = bool default = false",
+            "variable \"sync_excluded_instances\" { description = \"GCP instance IDs to never delete from Zscaler\" type = list(string) default = [] }"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-cloud-function-gcp/main.tf",
+          "after": "resource \"google_cloudfunctions2_function\" \"resource_sync_function\" {",
+          "quotes": [
+            "SYNC_EXCLUDED_INSTANCES = jsonencode(var.sync_excluded_instances)"
+          ]
+        }
+      ]
+    },
+    "resource-sync-code-external": {
+      "statement": "The Terraform module deploys Resource Sync with entry point `resource_sync_entry` from a ZIP object in Cloud Storage; the function body is not in the Terraform source.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-cloud-function-gcp/main.tf",
+          "quotes": [
+            "entry_point = \"resource_sync_entry\" source { storage_source {"
+          ]
+        }
+      ]
+    },
+    "function-zip": {
+      "statement": "Each Cloud Function is packaged as a ZIP in Cloud Storage, uploaded to a bucket created during deployment or to an existing one, and the functions read their code from that bucket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+          "quotes": [
+            "Each Cloud Function is packaged in a ZIP file and deployed via Google Cloud Storage. The ZIP file is uploaded either to a newly created storage bucket during deployment or to an existing bucket specified in the deployment configuration.",
+            "The Cloud Functions retrieve their code from this bucket during initialization."
+          ]
+        }
+      ]
+    },
+    "functions-via-api": {
+      "statement": "The functions talk to the Cloud Connector API endpoint over HTTPS and do not interact with individual connector VMs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+          "quotes": [
+            "The Resource Sync Cloud Run function uses RESTful APIs to communicate with the Cloud Connector API endpoint securely over HTTPS. The functions do not directly interact with individual Cloud Connector VMs; instead, they orchestrate via the Admin API."
+          ]
+        }
+      ]
+    },
+    "example-health-defaults": {
+      "statement": "The autoscaling example roots (`base_cc_asg`, `base_cc_asg_zpa`, `cc_asg`) declare the same six Health Monitor defaults as the module and pass them through.",
+      "tier": "B",
+      "conditions": "Search of the three example roots' variables.tf at the pin for the six threshold variables, all declaring 2, 5, 12, 15, 10 and 8; base_cc_asg's termination default and pass-through are quoted.",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/base_cc_asg/variables.tf",
+          "quotes": [
+            "description = \"Missing metrics termination threshold (minutes)\" type = number default = 12"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/base_cc_asg/main.tf",
+          "quotes": [
+            "missing_metrics_termination_threshold_min = var.missing_metrics_termination_threshold_min"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "replica-defaults": {
+      "summary": "The default minimum and maximum size of a Cloud Connector instance group.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+            "quotes": [
+              "By default, the maximum size of an instance group is 10 VMs and the minimum size is one VM."
+            ]
+          },
+          "says": "Help: minimum 1, maximum 10."
+        },
+        {
+          "evidence": {
+            "source": "tfmod-gcp-cloud-connector",
+            "path": "modules/terraform-zscc-ccvm-gcp/variables.tf",
+            "quotes": [
+              "description = \"The minimum number of replicas for the autoscaling policy\" default = 2",
+              "description = \"The maximum number of replicas for the autoscaling policy\" default = 4",
+              "var.max_replicas >= 1 && var.max_replicas <= 16"
+            ]
+          },
+          "says": "Direct module source: minimum 2, maximum 4 (validated 1-16)."
+        },
+        {
+          "evidence": {
+            "source": "tfmod-gcp-cloud-connector",
+            "path": "modules/terraform-zscc-ccvm-gcp/README.md",
+            "quotes": [
+              "| <a name=\"input_min_replicas\"></a> [min\\_replicas](#input\\_min\\_replicas) | The minimum number of replicas for the autoscaling policy | `number` | `1` | no |"
+            ]
+          },
+          "says": "Direct module's generated README: minimum 1."
+        },
+        {
+          "evidence": {
+            "source": "tfmod-gcp-cloud-connector",
+            "path": "examples/base_cc_asg/variables.tf",
+            "quotes": [
+              "variable \"min_replicas\" { type = number description = \"The minimum number of replicas for the autoscaling policy\" default = 1 }",
+              "default = 4 validation { condition = var.max_replicas >= 1 && var.max_replicas <= 10"
+            ]
+          },
+          "says": "Autoscaling example roots: minimum 1, maximum 4 (maximum validated 1-10)."
+        }
+      ],
+      "impact": "The size a deployment actually has depends on which layer set it; reasoning from Help (1 to 10) misstates a module or example deployment, and the README misstates the module's own minimum.",
+      "resolution": {
+        "by": "module-replicas",
+        "rule": "source-rank",
+        "note": "For the direct module the variable declaration is authoritative over its generated README. Help and the example roots describe other layers and are not superseded; the deployed autoscaler settles a specific deployment."
+      }
+    },
+    "health-thresholds": {
+      "summary": "The Health Monitor's default thresholds: Help versus the pinned Cloud Function module and examples.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+            "quotes": [
+              "The size of the sliding window. The default is 10 consecutive minutes.",
+              "The default value for defining a VM as unhealthy is 5 consecutive minutes.",
+              "The default value is 7 unhealthy counts in 10 consecutive minutes.",
+              "If the VM does not report metrics for 10 minutes, the function generates a termination log and starts the process of deleting the VM."
+            ]
+          },
+          "says": "Help: 10-minute window, 5 consecutive unhealthy minutes, 7 unhealthy in 10, termination after 10 minutes without metrics."
+        },
+        {
+          "evidence": {
+            "source": "tfmod-gcp-cloud-connector",
+            "path": "modules/terraform-zscc-cloud-function-gcp/variables.tf",
+            "quotes": [
+              "description = \"Missing metrics termination threshold (minutes)\" type = number default = 12",
+              "description = \"How many data points (minutes) function should look back for health reference calculations\" type = number default = 15",
+              "description = \"Total unhealthy metrics in eval window defined in metrics_eval_window_min (chronic issues)\" type = number default = 10",
+              "description = \"Consecutive unhealthy metrics threshold (sustained issues)\" type = number default = 8"
+            ]
+          },
+          "says": "Module: 15-minute window, 8 consecutive unhealthy, 10 unhealthy in the window, termination after 12 minutes without metrics."
+        }
+      ],
+      "impact": "A connector deployed from the module is replaced later than Help's numbers suggest; troubleshooting slow replacement from Help would look for a fault that is the configured default."
+    },
+    "resource-sync-cadence": {
+      "summary": "How often Resource Sync runs by default on GCP.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json",
+            "quotes": [
+              "This function runs every 10 minutes by default."
+            ]
+          },
+          "says": "Help: every 10 minutes by default."
+        },
+        {
+          "evidence": {
+            "source": "tfmod-gcp-cloud-connector",
+            "path": "modules/terraform-zscc-cloud-function-gcp/main.tf",
+            "quotes": [
+              "schedule = \"*/30 * * * *\""
+            ]
+          },
+          "says": "Pinned module: every 30 minutes, cron */30 * * * * in UTC."
+        }
+      ],
+      "impact": "For a deployment made from the pinned module, an orphaned console VM record can persist up to 30 minutes; the Help figure does not describe that deployment, and neither value proves the other wrong globally."
+    }
+  },
+  "gaps": {
+    "group-limit-enforcement": {
+      "kind": "semantic",
+      "title": "Service-side enforcement of 16 Cloud Connectors per group",
+      "status": "open",
+      "detail": "Help calls 16 VMs the Cloud Connector group limit and the module validators call it a hard limit, but no source shows how the API or a live tenant enforces it (rejection, silent cap, or registration failure). The narrower 1-10 checks in the example roots and zsec are tooling, not a service limit.",
+      "blocks": "sizing a group near 16 connectors and explaining a 17th that does not register",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
+    "resource-sync-default": {
+      "kind": "semantic",
+      "former_ids": [
+        "cloud-connector-28"
+      ],
+      "title": "Which implementation Help's 10-minute Resource Sync default describes",
+      "status": "open",
+      "detail": "Help says Resource Sync runs every 10 minutes by default; the pinned public module configures every 30 minutes. Static source does not establish whether Help describes a different managed or default template, or whether one source is stale.",
+      "blocks": "stating the Resource Sync cadence for a deployment not made from the pinned module",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "resource-sync-race": {
+      "kind": "semantic",
+      "title": "Resource Sync delete race and its fix",
+      "status": "open",
+      "detail": "Unverified legacy statement: the module's 30-minute cadence came from a change meant to reduce the probability of a time-of-check to time-of-use delete race, upstream calls it a statistical mitigation, and the real fix needs a minimum-age gate in the private resource_sync_entry implementation. The source was an upstream pull-request note that is not a registered source, and the function body is not in the Terraform source.",
+      "blocks": "assessing whether Resource Sync can delete a connector that is still booting",
+      "resolves_with": [
+        "code-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

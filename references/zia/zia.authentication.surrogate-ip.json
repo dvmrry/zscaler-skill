@@ -61,6 +61,12 @@
     {
       "label": "Client Connector.",
       "text": "{{windows-app-flag}}"
+    },
+    {
+      "text": "{{fixed-site-recommendation}}"
+    },
+    {
+      "text": "The reference architecture states a lower churn threshold than the help {{divergence:churn-threshold}}."
     }
   ],
   "checks": [
@@ -378,6 +384,20 @@
           "after": "CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {"
         }
       ]
+    },
+    "fixed-site-recommendation": {
+      "statement": "The ZIA traffic forwarding reference architecture recommends enabling Surrogate IP for all fixed site locations and for all transparent forwarding types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Zscaler recommends enabling Surrogate IP for all fixed site locations.",
+            "Zscaler recommends enabling Surrogate IP for all transparent forwarding"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -401,6 +421,34 @@
         "lab-test"
       ],
       "blocks": "explaining Client Connector traffic attribution"
+    }
+  },
+  "divergences": {
+    "churn-threshold": {
+      "summary": "How much user churn on one IP disables Surrogate IP for 5 minutes: the reference architecture says different users within one minute, the help says the mapping changing more than 3 times a minute.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+            "quotes": [
+              "If ZIA sees different users log in and send traffic from the same IP address within one minute, Surrogate IP is disabled for 5 minutes."
+            ]
+          },
+          "says": "Different users logging in from the same IP within one minute disables Surrogate IP for 5 minutes."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-surrogate-ip.json",
+            "quotes": [
+              "If the mapping changes more than 3 times a minute"
+            ]
+          },
+          "says": "The mapping must change more than 3 times a minute (3 different users from the same private IP within a minute) before mapping stops for 5 minutes."
+        }
+      ],
+      "impact": "Reading the reference architecture, two users sharing an IP within a minute would already push unauthenticated traffic to location policy; by the help, it takes three. The help article is the more specific source."
     }
   }
 }

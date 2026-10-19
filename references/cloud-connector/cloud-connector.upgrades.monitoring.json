@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.upgrades.monitoring",
+  "title": "Watching Cloud Connector upgrades: VM record fields, upgrade metrics and upgrade events",
+  "aliases": [
+    "upgradeStatus",
+    "upgradeDayOfWeek",
+    "vmUpgradeMetrics",
+    "cloud connector upgrade status",
+    "cloud connector upgrade failed",
+    "lastUpgradeTime"
+  ],
+  "binds": [
+    "ztw/ec-groups#ecVMs"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.upgrades"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.insights.connector-status"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.logs.event-records"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Upgrade progress can be read three ways: from each VM's record, from fleet-wide upgrade metrics, and from the upgrade events a connector streams."
+    },
+    {
+      "label": "Per VM.",
+      "text": "{{vm-upgrade-fields}} What the integer upgrade status means is open, with the VM status flags, in [[cloud-connector.insights.connector-status:vm-status-codes]]."
+    },
+    {
+      "label": "Across the fleet.",
+      "text": "{{upgrade-metrics}}"
+    },
+    {
+      "label": "As events.",
+      "text": "The start and end of each upgrade, with Success or Fail, are streamed as event logs: [[cloud-connector.logs.event-records:upgrade-events]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether any VMs are counted as failed or blocked in the upgrade metrics after a window.",
+      "uses": [
+        "upgrade-metrics"
+      ]
+    },
+    {
+      "do": "Whether an UPGRADE_END event with severity Error arrived for the connector, which names the failure where the integer status does not.",
+      "uses": [
+        "cloud-connector.logs.event-records:upgrade-events"
+      ]
+    }
+  ],
+  "claims": {
+    "vm-upgrade-fields": {
+      "statement": "A VM record carries `lastUpgradeTime`, `upgradeStartTime`, `upgradeEndTime`, `upgradeDayOfWeek` (documented as Sunday by default) and `upgradeStatus`, an int32 described only as the scheduled upgrade status, with no enum.",
+      "tier": "A",
+      "binds": [
+        "ztw/ec-groups#ecVMs"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/components/schemas/EcVM/properties/upgradeStatus",
+          "expect": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The scheduled upgrade status of the VM."
+          },
+          "expect_absent": [
+            "enum"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/components/schemas/EcVM/properties/upgradeDayOfWeek",
+          "expect": {
+            "description": "The scheduled upgrade day of the week. By default, this is Sunday."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/components/schemas/EcVM/properties",
+          "expect": {
+            "lastUpgradeTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The date and time when the VM was last upgraded."
+            },
+            "upgradeStartTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The start time of the VM upgrade."
+            },
+            "upgradeEndTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The end time of the VM upgrade."
+            }
+          }
+        }
+      ]
+    },
+    "upgrade-metrics": {
+      "statement": "A group API read returns Cloud Connector release-channel and scheduled-upgrade metrics: counts of VMs per release channel and per upgrade state (blocked, bootstrapping, failed, scheduled, up to date), filterable by platform, release channel, location, group name and upgrade status (SCHEDULED, NO_PENDING_UPGRADE, FAILED_OTHER, BOOTSTRAPPING, BLOCKED).",
+      "tier": "A",
+      "binds": [
+        "ztw/ec-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/paths/~1ecgroup~1vmUpgradeMetrics/get",
+          "expect": {
+            "description": "Retrieves the Cloud Connector VMs release channel and scheduled upgrade metrics."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/paths/~1ecgroup~1vmUpgradeMetrics/get/parameters/[name=upgradeStatus]/schema/items",
+          "expect": {
+            "enum": [
+              "SCHEDULED",
+              "NO_PENDING_UPGRADE",
+              "FAILED_OTHER",
+              "BOOTSTRAPPING",
+              "BLOCKED"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/paths/~1ecgroup~1vmUpgradeMetrics/get/parameters/[name=platform]/schema/items",
+          "expect": {
+            "enum": [
+              "AWS",
+              "AZURE",
+              "GCP"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/paths/~1ecgroup~1vmUpgradeMetrics/get/parameters/[name=releaseChannel]/schema/items",
+          "expect": {
+            "enum": [
+              "STABLE",
+              "LATEST",
+              "BETA"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/paths/~1ecgroup~1vmUpgradeMetrics/get/parameters/[name=locationId]",
+          "expect": {
+            "description": "The location ID of the Cloud Connector group."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/paths/~1ecgroup~1vmUpgradeMetrics/get/parameters/[name=name]",
+          "expect": {
+            "description": "Name of Cloud Connector group."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/components/schemas/ReleaseChannel/properties",
+          "expect": {
+            "beta": {
+              "type": "integer",
+              "description": "The total number of VMs with beta release channel.",
+              "format": "int32"
+            },
+            "latest": {
+              "type": "integer",
+              "description": "The total number of VMs with latest release channel.",
+              "format": "int32"
+            },
+            "stable": {
+              "type": "integer",
+              "description": "The total number of VMs with stable release channel.",
+              "format": "int32"
+            }
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/components/schemas/UpgradeStatus/properties",
+          "expect": {
+            "blocked": {
+              "type": "integer",
+              "description": "The total number of VMs with blocked upgrade status.",
+              "format": "int32"
+            },
+            "bootStrapping": {
+              "type": "integer",
+              "description": "The total number of VMs with bootstarping upgrade status.",
+              "format": "int32"
+            },
+            "failed": {
+              "type": "integer",
+              "description": "The total number of VMs with failed upgrade status.",
+              "format": "int32"
+            },
+            "scheduled": {
+              "type": "integer",
+              "description": "The total number of VMs with scheduled upgrade status.",
+              "format": "int32"
+            },
+            "upToDate": {
+              "type": "integer",
+              "description": "The total number of VMs with up to date upgrade status.",
+              "format": "int32"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

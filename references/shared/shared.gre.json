@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "id": "shared.gre",
+  "title": "GRE tunnels to Zscaler: where each question is answered",
+  "aliases": [
+    "gre tunnel",
+    "gre tunnels",
+    "gre to zscaler",
+    "gre deployment",
+    "gre mtu mss",
+    "gre failover",
+    "gre and z-tunnel 2.0"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.gre"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.gre-failover"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.methods"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.traffic-forwarding.mixed-deployments"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.ipsec"
+    }
+  ],
+  "prose": [
+    {
+      "text": "GRE is the unencrypted site tunnel from a router to ZIA Public Service Edges. Its behavior is held in the ZIA traffic forwarding subjects; this subject routes the questions."
+    },
+    {
+      "steps": [
+        {
+          "label": "Is GRE the right method?",
+          "text": "Router support, a static egress IP and the comparison with IPSec, PAC files and Client Connector: [[zia.traffic-forwarding.methods]] and [[zia.traffic-forwarding.gre:static-ip-required]]. The vendor's recommended combination of methods is [[zia.traffic-forwarding.methods:recommended-combination]]."
+        },
+        {
+          "label": "Where is it built from?",
+          "text": "An internal router behind the firewall (preferred), the border router with NAT disabled, or explicit proxy mode to the Global Public Service Edges where there is no default route: [[zia.traffic-forwarding.gre:internal-router]], [[zia.traffic-forwarding.gre:border-router]], [[zia.traffic-forwarding.gre:explicit-via-global-edges]]."
+        },
+        {
+          "label": "How much does a tunnel carry?",
+          "text": "The 1 Gbps and 250 Mbps limits, the NAT reason and scaling with more source IPs: [[zia.traffic-forwarding.gre:bandwidth-limit]], [[zia.traffic-forwarding.gre:scale-out]]."
+        },
+        {
+          "label": "What MTU and MSS?",
+          "text": "The 1,476-byte MTU and 1,436-byte MSS for a 1,500-byte WAN: [[zia.traffic-forwarding.gre:mtu-mss]]."
+        },
+        {
+          "label": "How is failure detected and failed over?",
+          "text": "Keepalives, Layer 7 health checks to the vpntest URL, and the fast and conservative failover profiles: [[zia.traffic-forwarding.gre-failover]]."
+        },
+        {
+          "label": "How is the tunnel provisioned?",
+          "text": "Static IP, VIP selection, the excluded premium data centers and the API: [[zia.traffic-forwarding.gre:provisioning]], [[zia.traffic-forwarding.gre:vip-selection]], [[zia.traffic-forwarding.gre:api-surface]]."
+        }
+      ]
+    },
+    {
+      "label": "Client Connector behind GRE.",
+      "text": "Zscaler says not to route Z-Tunnel 2.0 through GRE: [[zcc.z-tunnel.deployment:gre-guidance]]. Why several egress IPs break Z-Tunnel 2.0 setup is [[zia.traffic-forwarding.mixed-deployments:gre-ztunnel2-egress]]; the Z-Tunnel side is [[shared.z-tunnel]]."
+    },
+    {
+      "label": "Users and addresses.",
+      "text": "How GRE inner addresses map to sublocations is [[zia.locations.ip-scoping]], and user identity on tunnel traffic comes from Surrogate IP: [[zia.authentication.surrogate-ip]]. How the firewall sees tunnel traffic is [[zia.firewall.traffic-path]]."
+    }
+  ]
+}

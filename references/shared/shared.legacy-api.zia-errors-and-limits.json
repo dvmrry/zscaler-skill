@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "id": "shared.legacy-api.zia-errors-and-limits",
+  "title": "ZIA legacy API status codes and per-endpoint rate limits",
+  "aliases": [
+    "zia legacy status codes",
+    "zia legacy 403 causes",
+    "zia api rate limit summary",
+    "status activate rate limit",
+    "authenticatedSession rate limit",
+    "configAudit rate limit",
+    "Rate Limit (1/SECOND) exceeded"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api.rate-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.response-codes"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.legacy-api.zia-session"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{status-codes}} {{four-403-causes}} {{legacy-409}}"
+    },
+    {
+      "label": "Default limits.",
+      "text": "The default weights and the rate-limit headers are in [[zia.api.rate-limits]]. {{legacy-429-body}}"
+    },
+    {
+      "label": "Per-endpoint exceptions.",
+      "text": "{{summary-subject-to-change}} {{session-endpoint-limits}} {{activate-endpoint-limit}} The provider documentation gives the same activation budget: [[zia.terraform.activation-methods:activation-endpoint-budget]]. {{endpoint-exceptions}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a 403 from the legacy API, which of the four causes applies: disabled API key, role scope, missing SKU, or a write during maintenance.",
+      "uses": [
+        "four-403-causes"
+      ]
+    },
+    {
+      "do": "For a 429 on activation, whether the script activates more than 10 times a minute or 40 times an hour.",
+      "uses": [
+        "activate-endpoint-limit"
+      ]
+    },
+    {
+      "do": "For an endpoint not in the default weights, its own row in the rate limit summary.",
+      "uses": [
+        "endpoint-exceptions",
+        "summary-subject-to-change"
+      ]
+    }
+  ],
+  "claims": {
+    "status-codes": {
+      "statement": "The legacy ZIA API returns 200 and 204 on success, 400 for an invalid request, 401 when the session is not authenticated or timed out, 403, 404 when the resource does not exist, 405 for an unsupported method, 409 for an edit conflict, 415 without an application/json Content-Type, 429 over the rate limit or quota (with a Retry-After value), 500 for an unexpected error and 503 when the service is temporarily unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-response-codes-and-error-messages.json",
+          "quotes": [
+            "| 204 | Successful. No content returned. |",
+            "| 400 | Invalid or bad request |",
+            "| 401 | Session is not authenticated or timed out |",
+            "| 404 | Resource does not exist |",
+            "| 405 | Method not allowed.",
+            "This error is returned if you don't include application/json as the Content-Type in the request header",
+            "| 429 | Exceeded the rate limit or quota. The response includes a Retry-After value. |",
+            "| 500 | Unexpected error |",
+            "| 503 | Service is temporarily unavailable |",
+            "| 200 | Successful |",
+            "| 403 | This code is returned due to one of the following reasons:",
+            "| 409 | Request could not be processed because of possible edit conflict occurred.",
+            "| 415 | Unsupported media type."
+          ]
+        }
+      ]
+    },
+    "four-403-causes": {
+      "statement": "A legacy 403 has one of four causes: the API key was disabled by the service provider, the user's role lacks access permissions or functional scope, a required SKU subscription is missing, or a POST, PUT or DELETE was made while the admin portal was in maintenance mode during a scheduled upgrade.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-response-codes-and-error-messages.json",
+          "quotes": [
+            "| 403 | This code is returned due to one of the following reasons:",
+            "The API key was disabled by your service provider",
+            "User's role has no access permissions or functional scope",
+            "A required SKU subscription is missing",
+            "API operations that use POST, PUT, or DELETE methods are performed when the ZIA Admin Portal is in maintenance mode during a scheduled upgrade"
+          ]
+        }
+      ]
+    },
+    "legacy-409": {
+      "statement": "A legacy 409 means a possible edit conflict, for example another admin saving at the same time, and the client is expected to retry after a short time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-response-codes-and-error-messages.json",
+          "quotes": [
+            "Another admin might be saving a configuration change at the same time.",
+            "In this scenario, the client is expected to retry after a short time period.",
+            "| 409 | Request could not be processed because of possible edit conflict occurred."
+          ]
+        }
+      ]
+    },
+    "legacy-429-body": {
+      "statement": "An exceeded limit returns 429 with the retry interval in the response body, for example `{ \"message\": \"Rate Limit (1/SECOND) exceeded\", \"Retry-After\": \"0 seconds\" }`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-understanding-rate-limiting.json",
+          "quotes": [
+            "When the rate limit is exceeded, a 429 HTTP error message is returned with a Retry-After response in the Body.",
+            "{ \"message\": \"Rate Limit (1/SECOND) exceeded\", \"Retry-After\": \"0 seconds\" }"
+          ]
+        }
+      ]
+    },
+    "summary-subject-to-change": {
+      "statement": "The vendor's rate limit summary lists each ZIA resource URI's limit per method and says the limits are subject to change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-rate-limit-summary.json",
+          "quotes": [
+            "The following table summarizes the Zscaler Internet Access (ZIA) API resources and their rate limits for each method.",
+            "Rate limits are subject to change."
+          ]
+        }
+      ]
+    },
+    "session-endpoint-limits": {
+      "statement": "`/authenticatedSession` allows 2 per second and 1,000 per hour for GET, POST and DELETE, and `/status` 2 per second and 1,000 per hour for GET.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-rate-limit-summary.json",
+          "quotes": [
+            "| /authenticatedSession | 2/sec and 1000/hr | 2/sec and 1000/hr | - | 2/sec and 1000/hr |",
+            "| /status | 2/sec and 1000/hr | - | - | - |"
+          ]
+        }
+      ]
+    },
+    "activate-endpoint-limit": {
+      "statement": "`/status/activate` allows POST at 10 per minute and 40 per hour.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-rate-limit-summary.json",
+          "quotes": [
+            "| Resource URI | GET (read) | POST (create) | PUT (replace) | DELETE |",
+            "| /status/activate | - | 10/min and 40/hr | - | - |"
+          ]
+        }
+      ]
+    },
+    "endpoint-exceptions": {
+      "statement": "Every endpoint has a weight with a default rate limit, but some endpoints have exceptions, for example `/configAudit` GET at 1 per hour and 8 per day, `/cloudApplications/bulkUpdate` PUT at 1 per minute and up to 4 per hour, `/auditlogEntryReport` POST at 10 per minute and 40 per hour, and the App Governance `/app_view/{appViewId}/apps` GET at 25 per day on a trial or 1,000 per day with a license.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-understanding-rate-limiting.json",
+          "quotes": [
+            "Every endpoint has a weight, and every weight has a default rate limit, but some endpoints have exceptions."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-rate-limit-summary.json",
+          "quotes": [
+            "| Resource URI | GET (read) | POST (create) | PUT (replace) | DELETE |",
+            "| /configAudit | 1/hour and 8/day | - | - | - |",
+            "| /cloudApplications/bulkUpdate | - | - | 1/min and up to 4/hr | - |",
+            "| /auditlogEntryReport | 2/sec and 1000/hr | 10/min and 40/hr | - | 2/sec and 1000/hr |",
+            "| /app_view/{appViewId}/apps | 25/day (Trial) or 1,000/day (License) | - | - | - |"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,315 @@
+{
+  "schema_version": 1,
+  "id": "shared.legacy-api.auth-models",
+  "title": "Legacy (pre-OneAPI) authentication by product",
+  "aliases": [
+    "legacy api authentication",
+    "pre-zidentity api auth",
+    "zdx legacy oauth token key_secret sha256",
+    "zdx 15 minute timestamp",
+    "workflow automation api key token",
+    "cloud branch connector legacy auth",
+    "legacy vs oneapi auth",
+    "when do I need the legacy api"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.government-clouds"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.authentication"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Each product's legacy API has its own credentials and token or session model. Whether a tenant is on the legacy path is a property of the tenant and the client, not of the product: [[zia.sdk-python.authentication:legacy-framework]]."
+    },
+    {
+      "label": "ZIA.",
+      "text": "The admin-plus-API-key session is in [[shared.legacy-api.zia-session]] and the external-IdP OAuth path in [[shared.legacy-api.zia-oauth]]."
+    },
+    {
+      "label": "ZPA.",
+      "text": "Signing in to the legacy ZPA API and its hosts are in [[zpa.api.authentication]] and [[zpa.api.base-paths:legacy-hosts]]. Whether the legacy ZPA portal allows several API keys per tenant is open {{gap:zpa-multiple-keys}}."
+    },
+    {
+      "label": "Client Connector.",
+      "text": "The legacy login is [[zcc.api.authentication:legacy-login-request]], and its token travels in a header, not a cookie: [[zcc.api.authentication:legacy-auth-token-header]]."
+    },
+    {
+      "label": "Cloud & Branch Connector.",
+      "text": "{{cbc-prereqs}} {{cbc-session}} The session follows the same obfuscated-key login as legacy ZIA ([[shared.legacy-api.zia-session:create-session]]). {{cbc-activate-put}}"
+    },
+    {
+      "label": "ZDX.",
+      "text": "{{zdx-prereqs}} {{zdx-legacy-token}} {{zdx-signed-secret}} {{zdx-jwks-validate}} The two ZDX hosts and paths are discussed in [[doc:references/zdx/api.md]]."
+    },
+    {
+      "label": "Workflow Automation.",
+      "text": "{{wa-token}} {{wa-key-expiry}} {{wa-errors}}"
+    },
+    {
+      "label": "Migration.",
+      "text": "Python SDK v2 drops the legacy clients: [[zia.sdk-python.authentication:v2-oneapi-only]]. Whether legacy credentials keep working after a tenant moves to ZIdentity is open {{gap:legacy-oneapi-coexistence}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which path the tenant and the client use (OneAPI through Authentication Service, or the product's legacy API), before choosing credentials.",
+      "uses": [
+        "zia.sdk-python.authentication:legacy-framework",
+        "legacy-oneapi-coexistence"
+      ]
+    },
+    {
+      "do": "For a ZDX legacy token request refused for its timestamp, whether the key_secret is SHA256 of secret:timestamp and the timestamp is within 15 minutes.",
+      "uses": [
+        "zdx-signed-secret"
+      ]
+    },
+    {
+      "do": "For a Cloud & Branch Connector legacy 401, whether the session sat idle for 30 minutes.",
+      "uses": [
+        "cbc-session"
+      ]
+    }
+  ],
+  "claims": {
+    "cbc-prereqs": {
+      "statement": "The legacy Cloud & Branch Connector API must be enabled for the organization by Zscaler Support, and needs an admin role with API Key Management permission and an API key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-cloud-branch-connector-api.json",
+          "quotes": [
+            "You must enable the API for your organization. To enable the API, contact Zscaler Support or submit a Zscaler Support ticket.",
+            "You must have your Admin Role configured with API Key Management permission in the Zscaler Cloud & Branch Connector Admin Portal.",
+            "You must add an API key."
+          ]
+        }
+      ]
+    },
+    "cbc-session": {
+      "statement": "A POST to /auth with an obfuscated API key, the admin's username and password, and a millisecond timestamp returns a `JSESSIONID` cookie, which by default expires 30 minutes after the session's last activity or at a DELETE to /auth; a later call returns 401.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-cloud-branch-connector-api.json",
+          "quotes": [
+            "To authenticate, send a POST request to the /auth endpoint with the following request body name-value pairs:",
+            "- apiKey: Obfuscated API key value.",
+            "- username: Username of the admin user that is provisioned.",
+            "A successful response to /auth returns a cookie in the Set-Cookie header, called JSESSIONID, that must be used in subsequent requests.",
+            "By default, the JSESSIONID expires within 30 minutes from the last activity or request on that session, or when you explicitly log out by sending a DELETE request to /auth.",
+            "If API calls are made after the expiry of JSESSIONID, a 401 Unauthorized error is returned.",
+            "- password: Password of the admin user.",
+            "- timestamp: Long value that represents the current time in milliseconds since midnight, January 1, 1970 UTC."
+          ]
+        }
+      ]
+    },
+    "cbc-activate-put": {
+      "statement": "Legacy Cloud & Branch Connector changes are activated with a PUT to /ecAdminActivateStatus/activate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-cloud-branch-connector-api.json",
+          "quotes": [
+            "After modifying any configurations, you must activate the changes by sending a PUT request to /ecAdminActivateStatus/activate."
+          ]
+        }
+      ]
+    },
+    "zdx-prereqs": {
+      "statement": "The legacy ZDX API needs an API key (key ID and key secret) and the ZDX Advanced Plan; a bearer token lasts 3,600 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zdx-api.json",
+          "quotes": [
+            "Be a ZDX Advanced Plan User.",
+            "The API key includes an API Key ID and API Key Secret that are required to access the ZDX API and to create a bearer access token.",
+            "Upon successful authentication, a bearer token will last 3,600 seconds or 60 minutes."
+          ]
+        }
+      ]
+    },
+    "zdx-legacy-token": {
+      "statement": "The legacy ZDX reference posts `key_id` and `key_secret` to /oauth/token on the production server `https://api.zdxcloud.net/v1` and returns a token valid for 3600 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-authentication-zdx.json",
+          "pointer": "/spec/servers/[description=production]",
+          "expect": {
+            "url": "https://api.zdxcloud.net/v1"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-authentication-zdx.json",
+          "pointer": "/spec/paths/~1oauth~1token/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "required": [
+              "key_id",
+              "key_secret"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-authentication-zdx.json",
+          "pointer": "/spec/paths/~1oauth~1token/post/responses/200",
+          "expect": {
+            "description": "Successful Operation. The response contains the token and the token type. The token is valid for 3600 seconds."
+          }
+        }
+      ]
+    },
+    "zdx-signed-secret": {
+      "statement": "The OneAPI ZDX contract's /v1/oauth/token takes `key_secret` as SHA256 of the secret key and timestamp (`SHA256('secret key:timestamp')`) and a `timestamp` in epoch seconds, and requests sent after 15 minutes are invalid.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1oauth~1token/post/requestBody/content/application~1json/schema/properties",
+          "expect": {
+            "key_secret": {
+              "description": "The secret key. This must be SHA256 for secret key and timestamp. For example, SHA256('secret key:timestamp').",
+              "type": "string"
+            },
+            "timestamp": {
+              "description": "The time stamp in epoch seconds. Requests sent after 15 mins are invalid.",
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    },
+    "zdx-jwks-validate": {
+      "statement": "The ZDX auth reference also has GET /oauth/jwks, returning the public keys that verify the JWT tokens, and GET /oauth/validate, which checks whether the token is valid.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1oauth~1jwks/get",
+          "expect": {
+            "description": "Returns a JSON Web Key Set (JWKS) that contains the public keys that can be used to verify the JWT tokens."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1oauth~1validate/get",
+          "expect": {
+            "description": "Checks if the JWT token is valid."
+          }
+        }
+      ]
+    },
+    "wa-token": {
+      "statement": "Workflow Automation's API is enabled with its subscription; a POST of `key_id` and `key_secret` to /v1/auth/api-key/token on `https://api.us1.zsworkflow.net` returns 201 with a bearer token and its `expires_in` (43200 in the example), and a call after the token expires returns 401.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-workflow-automation-api.json",
+          "quotes": [
+            "The API management is automatically enabled if you have a subscription to Workflow Automation.",
+            "The base URL for the API is https://api.us1.zsworkflow.net.",
+            "{ \"expires_in\":43200, \"token_type\":\"Bearer\",",
+            "If API calls are made after the expiry of the authorization token, a 401 error is returned."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-authentication-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1v1~1auth~1api-key~1token/post/responses/201",
+          "expect": {
+            "description": "Successful operation. A new authorization token is created."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-authentication-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSDLPGetSessionTokenRequest/properties",
+          "expect": {
+            "key_id": {
+              "type": "string",
+              "description": "The key ID."
+            },
+            "key_secret": {
+              "type": "string",
+              "description": "The key secret."
+            }
+          }
+        }
+      ]
+    },
+    "wa-key-expiry": {
+      "statement": "A Workflow Automation API key expires only when its Expire after option is enabled, and its key secret is visible only when the key is first created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-workflow-automation-api.json",
+          "quotes": [
+            "The API key is only valid for a set number of days if the Expire after time option is enabled in the Workflow Automation Admin Portal. If not, the authentication key does not expire.",
+            "The key secret is only accessible within the Workflow Automation Admin Portal when the API key is created for the first time."
+          ]
+        }
+      ]
+    },
+    "wa-errors": {
+      "statement": "A failed Workflow Automation token request returns 401 when the API key is expired or disabled and 500 when the request is corrupt.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-workflow-automation-api.json",
+          "quotes": [
+            "the response code returns a 401 error if the API key is expired or disabled and a 500 error if the request is corrupt."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "legacy-oneapi-coexistence": {
+      "kind": "semantic",
+      "title": "Whether legacy credentials keep working after a tenant migrates to ZIdentity",
+      "status": "open",
+      "detail": "Unverified legacy statement: migration to ZIdentity is opt-in and some tenants stay on legacy auth indefinitely; after a tenant migrates, its legacy keys keep working in parallel for a transition period, so legacy and OneAPI can coexist on one tenant and a script on stale legacy credentials can still succeed. No captured source states the migration terms or how long legacy credentials remain valid.",
+      "blocks": "telling an operator whether a migrated tenant's legacy API keys are still live",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ]
+    },
+    "zpa-multiple-keys": {
+      "kind": "semantic",
+      "title": "Whether a ZPA tenant can hold several legacy API keys",
+      "status": "open",
+      "detail": "Unverified legacy statement: legacy ZPA API keys are managed in the ZPA portal and a tenant can have multiple keys (unlike ZIA's single cloud service API key). The captured ZPA getting-started page says only that admins with full API Key Management access create keys; no captured page states a count.",
+      "blocks": "planning one key per script on a legacy ZPA tenant",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

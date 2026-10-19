@@ -1,0 +1,310 @@
+{
+  "schema_version": 1,
+  "id": "shared.policy-evaluation",
+  "title": "How ZIA and ZPA evaluate policy, side by side",
+  "aliases": [
+    "policy evaluation",
+    "zia vs zpa policy",
+    "default allow vs default block",
+    "first match",
+    "rule precedence across products",
+    "why was this allowed",
+    "why was this blocked",
+    "policy evaluation order"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.enforcement-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.traffic-path"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.precedence"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.evaluation-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.matching"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The two services share first-match rule lists but differ in what happens when nothing matches, where evaluation runs, and how many policies one request meets. {{default-contrast}}"
+    },
+    {
+      "table": {
+        "columns": [
+          "Dimension",
+          "ZIA (internet and SaaS traffic)",
+          "ZPA (private applications)"
+        ],
+        "rows": [
+          [
+            "Nothing blocks or matches",
+            "{{allow-unless-violated}}",
+            "[[zpa.policy.evaluation-order:default-access-block]]"
+          ],
+          [
+            "Where it runs",
+            "{{edge-modules}}",
+            "{{where-zpa-runs}}"
+          ],
+          [
+            "Order inside a rule list",
+            "[[zia.url-filtering.rule-order:first-match]]",
+            "[[zpa.policy.evaluation-order:first-match-most-specific-segment]]"
+          ],
+          [
+            "Decryption",
+            "[[zia.ssl-inspection.pipeline:ssl-decision-between]]",
+            "[[zpa.private-service-edges.what-it-is:no-inspection]]"
+          ]
+        ]
+      }
+    },
+    {
+      "heading": "ZIA: modules, then policies in a fixed order"
+    },
+    {
+      "steps": [
+        {
+          "label": "Firewall, then web.",
+          "text": "[[zia.firewall.traffic-path:firewall-first]] [[zia.firewall.traffic-path:nonweb-firewall-only]] [[zia.firewall.traffic-path:firewall-beats-web-allow]]"
+        },
+        {
+          "label": "Web policies in order, first violation stops.",
+          "text": "[[zia.atp.enforcement-order:first-violation-blocks]] The GET, POST and response orders are in [[zia.atp.enforcement-order]]; how they apply to streaming and multiplexed HTTP is open {{gap:modern-http}}."
+        },
+        {
+          "label": "HTTPS evaluates twice.",
+          "text": "A domain-only pass before the SSL decision and a full pass after decryption: [[zia.ssl-inspection.pipeline:url-filtering-twice]]. {{cac-first-on-domain-pass}}"
+        },
+        {
+          "label": "Cloud App Control before URL Filtering.",
+          "text": "[[zia.cloud-app-control.precedence:cac-allow-skips-url-filtering]] [[zia.cloud-app-control.precedence:cascading-allow-path]] [[zia.cloud-app-control.precedence:cac-block-final]]"
+        }
+      ]
+    },
+    {
+      "heading": "ZPA: segment first, then rules"
+    },
+    {
+      "steps": [
+        {
+          "label": "Segment.",
+          "text": "The most specific segment wins and carves the host out of wider ones: [[zpa.app-segments.matching:carve-out-ip]], with the port-mismatch case in [[zpa.app-segments.matching:port-mismatch-bypass]]."
+        },
+        {
+          "label": "Forwarding before access.",
+          "text": "[[zpa.policy.evaluation-order:client-forwarding-before-access]] [[zpa.policy.evaluation-order:bypass-skips-access]]"
+        },
+        {
+          "label": "Rules.",
+          "text": "[[zpa.policy.evaluation-order:segment-then-rules]] Defaults for the other policy types are in [[zpa.policy.evaluation-order]], and their order relative to access policy is open there: [[zpa.policy.evaluation-order:remaining-type-order]]."
+        }
+      ]
+    },
+    {
+      "text": "Using NameID as a SAML attribute in access and timeout rules is not supported: [[zpa.policy.criteria:nameid-unsupported]]."
+    },
+    {
+      "heading": "What the products share"
+    },
+    {
+      "text": "{{first-match-both}} {{specificity-both}}"
+    },
+    {
+      "label": "Disabled rules.",
+      "text": "[[zia.url-filtering.rule-order:disabled-holds-slot]] {{zpa-rule-status}} Whether a disabled ZPA rule is skipped in place or removed from evaluation is open {{gap:zpa-disabled-rule}}."
+    },
+    {
+      "heading": "Where they meet"
+    },
+    {
+      "text": "Inspect Traffic with ZIA and Source IP Anchor are separate segment settings that cannot both be on: [[zpa.app-segments.settings:inspect-zia-purpose]] [[zpa.app-segments.settings:sipa-inspect-zia-exclusive]] For anchored traffic, ZPA takes the country from the ZIA Public Service Edge's address: [[zpa.policy.criteria:country-last-nat-ip]]."
+    },
+    {
+      "text": "Client Connector decides per network type where traffic goes for each service: [[zcc.forwarding-profiles:purpose]]. Whether both services see the same user identity and device posture for one device is open {{gap:consistent-identity}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Name the product first: an unmatched ZIA request is allowed unless a policy blocks it, an unmatched ZPA access request is blocked.",
+      "uses": [
+        "default-contrast"
+      ]
+    },
+    {
+      "do": "For ZIA, walk firewall, then the web policies in order for the request type, and for HTTPS both passes; stop at the first violation.",
+      "uses": [
+        "zia.firewall.traffic-path:firewall-first",
+        "zia.atp.enforcement-order:first-violation-blocks",
+        "zia.ssl-inspection.pipeline:url-filtering-twice"
+      ]
+    },
+    {
+      "do": "For ZPA, find the most specific segment and its ports, then the client forwarding rule, then the first matching access rule.",
+      "uses": [
+        "zpa.app-segments.matching:port-mismatch-bypass",
+        "zpa.policy.evaluation-order:client-forwarding-before-access",
+        "zpa.policy.evaluation-order:first-match-most-specific-segment"
+      ]
+    },
+    {
+      "do": "A disabled ZIA rule keeps its slot; do not assume the same of a disabled ZPA rule.",
+      "uses": [
+        "zia.url-filtering.rule-order:disabled-holds-slot",
+        "zpa-disabled-rule"
+      ]
+    }
+  ],
+  "claims": {
+    "edge-modules": {
+      "statement": "ZIA Public Service Edges use Single Scan Multi-Action (SSMA) to inspect traffic; policy enforcement takes place in the edge's web and Firewall modules, and after SSMA inspection completes the edge executes policies with a specific precedence.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-policy-enforcement.json",
+          "quotes": [
+            "SSMA technology handles the traffic inspection. The policy enforcement takes place in the Public Service Edge's web and Firewall modules.",
+            "After the SSMA inspection process is complete, the Public Service Edge executes policies with specific precedence."
+          ]
+        }
+      ]
+    },
+    "allow-unless-violated": {
+      "statement": "Outbound web traffic that violates no Firewall and no Web policy is allowed to the internet, and outbound non-web traffic that violates no Firewall policy is allowed to the internet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-policy-enforcement.json",
+          "quotes": [
+            "When the Public Service Edge receives outbound web traffic from your organization to the internet, it sends the traffic to its Firewall module for policy evaluation.",
+            "If the traffic does not violate any Firewall policies, it sends the traffic to the web module for policy evaluation.",
+            "If the traffic does not violate any Web policies, it allows the traffic to the internet.",
+            "When the Public Service Edge receives outbound non-web traffic going to ports other than 80/443 (or other HTTP or HTTPS ports), it sends the traffic directly to the Firewall module for policy evaluation.",
+            "If the traffic does not violate any Firewall policies, it allows the traffic to the internet."
+          ]
+        }
+      ]
+    },
+    "default-contrast": {
+      "statement": "The defaults are opposite: ZIA allows a request that no policy blocks, while ZPA blocks access when no access rule matches or none is defined.",
+      "tier": "B",
+      "derived_from": [
+        "allow-unless-violated",
+        "zpa.policy.evaluation-order:default-access-block"
+      ],
+      "conditions": "ZIA's side is the module flow (traffic is allowed unless a policy is violated); individual ZIA policies have their own default rules, which can block."
+    },
+    "where-zpa-runs": {
+      "statement": "ZPA evaluation spans the client and the Service Edge: Client Connector applies segment ports and the client forwarding decision before traffic reaches the cloud, and Public or Private Service Edges enforce user policies.",
+      "tier": "B",
+      "derived_from": [
+        "zpa.app-segments.matching:port-mismatch-bypass",
+        "zpa.policy.evaluation-order:client-forwarding-before-access",
+        "zpa.troubleshooting.access-path:edges-enforce-policy"
+      ],
+      "conditions": "Assembled from the segment, forwarding and Service Edge descriptions; no source lays out where each step runs."
+    },
+    "cac-first-on-domain-pass": {
+      "statement": "The domain-only pass lists Cloud App Control before URL Filtering, so a Cloud App Control allow on the domain is expected to skip URL Filtering in that pass too, unless cascading is enabled.",
+      "tier": "B",
+      "derived_from": [
+        "zia.ssl-inspection.pipeline:first-pass-subset",
+        "zia.cloud-app-control.precedence:cac-allow-skips-url-filtering"
+      ],
+      "conditions": "Assumes the listed order of the domain-pass subset is its enforcement order and that the allow-skip rule applies to that pass; the article states neither for the CONNECT/SNI pass."
+    },
+    "first-match-both": {
+      "statement": "Both products stop at the first matching rule within a rule list: ZIA URL Filtering at the first rule whose criteria match, ZPA at the first matching rule for the most specific segment.",
+      "tier": "B",
+      "derived_from": [
+        "zia.url-filtering.rule-order:first-match",
+        "zpa.policy.evaluation-order:first-match-most-specific-segment"
+      ],
+      "conditions": "Shown for ZIA URL Filtering and ZPA policy; other ZIA policy types are documented on their own subjects."
+    },
+    "specificity-both": {
+      "statement": "In both products specificity is resolved before rule order: in ZIA the more specific custom category entry decides a URL's category whatever the rule order; in ZPA the rule for a more specific FQDN (specific.web.com) wins over an earlier rule for a wildcard of its parent domain (*.web.com), while a wildcard and the bare name of the same domain (*.specific.web.com and specific.web.com) rank top-down.",
+      "tier": "B",
+      "derived_from": [
+        "zia.url-categories.membership:specific-entry-wins",
+        "zpa.policy.evaluation-order:specific-segment-beats-rule-order",
+        "zpa.policy.evaluation-order:equal-fqdn-top-down"
+      ],
+      "conditions": "Parallel drawn across two separately documented mechanisms; whether the wildcard covers the bare name at all is open (zpa.policy.evaluation-order:wildcard-matches-bare-domain, was zpa-08)."
+    },
+    "zpa-rule-status": {
+      "statement": "A ZPA access policy rule has a Rule Status toggle that enables or disables it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "Rule Status: Enable or disable the rule using the toggle."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zpa-disabled-rule": {
+      "kind": "semantic",
+      "title": "How a disabled ZPA policy rule is treated in evaluation",
+      "status": "open",
+      "former_ids": [
+        "shared-06"
+      ],
+      "detail": "ZIA documents that a disabled URL Filtering rule keeps its place and is skipped. The ZPA access policy pages show a Rule Status toggle but do not say whether a disabled rule is skipped in place or removed from the evaluation list.",
+      "blocks": "reasoning about rule order when a ZPA tenant has disabled rules",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "consistent-identity": {
+      "kind": "semantic",
+      "title": "Whether ZIA and ZPA see the same identity and posture for one device",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Zscaler Client Connector is in both paths. For endpoints with the Client Connector installed, a single forwarding profile decides ZIA vs ZPA vs direct vs bypass per destination. Both products see user identity (via Surrogate IP or Client Connector) and device posture consistently.\" The forwarding profile covers both services; no source says identity and posture evaluation agree between them.",
+      "blocks": "explaining why one service allows a user the other blocks",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "modern-http": {
+      "kind": "semantic",
+      "title": "How the web module re-evaluates long-lived and multiplexed HTTP",
+      "status": "open",
+      "former_ids": [
+        "shared-19"
+      ],
+      "detail": "The GET, POST and response orders (zia.atp.enforcement-order) assume one request and one response. QUIC handling, the HTTP/2 inspection toggle and the Copilot-only WebSocket DLP scope are covered by zia.saas-apps.quic-conferencing, zia.ssl-inspection and zia.dlp. Still open: whether HTTP/2 streams are evaluated one by one or once per connection; whether URL Filtering, Cloud App Control, Sandbox or Malware Protection apply to WebSocket traffic of any application after the upgrade; how gRPC and other streaming RPC, Server-Sent Events and chunked transfer encoding are inspected.",
+      "blocks": "predicting what the web module sees for streaming and multiplexed traffic",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

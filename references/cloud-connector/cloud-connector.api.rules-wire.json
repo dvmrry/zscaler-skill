@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.api.rules-wire",
+  "title": "Cloud Connector rule endpoints on the wire: which forwarding and DNS rule fields each client sends",
+  "aliases": [
+    "ecRules ecRdr",
+    "ecRules ecDns",
+    "ztw forwarding rule api fields",
+    "destWorkloadGroups",
+    "srcWorkloadGroups",
+    "ztw dns rule action enum",
+    "REDIR_RES",
+    "zpaAppSegments"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.source-ip-groups.rule-use"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.provider-behavior"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.forwarding-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.dns.policies"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Traffic forwarding rules (`/ecRules/ecRdr`), DNS rules (`/ecRules/ecDns`) and log and control rules (`/ecRules/self`) share one rule shape, but the contract, the two SDKs and the Terraform provider each model a different subset of it. Paths and field lists are generated; this subject records where the clients disagree with the contract."
+    },
+    {
+      "heading": "Enumerated fields"
+    },
+    {
+      "text": "{{go-enums-are-comments}} The forwarding method values each source lists, and which token the console's Local method uses, are in [[cloud-connector.forwarding.methods:contract-enums]] and [[cloud-connector.forwarding.methods:local-token]], with the open question of which values the API accepts in [[cloud-connector.forwarding.methods:method-semantics]]. The rule `type` field is separate from the method: [[cloud-connector.forwarding.rule-order:type-ec-rdr]]."
+    },
+    {
+      "heading": "Forwarding rule fields"
+    },
+    {
+      "text": "Workload group criteria are sent by some clients and absent from the contract {{divergence:workload-groups}}. Whether destination workload groups are accepted, and only on Local rules, is open {{gap:local-switch-acceptance}}; whether `LOCAL_SWITCH` is the Local method's API value is open in [[cloud-connector.terraform.forwarding-rules:local-switch-wire-value]]."
+    },
+    {
+      "text": "The contract and the Go SDK name the ZPA application segment list differently on a write {{divergence:zpa-segments-key}}."
+    },
+    {
+      "text": "The source IP group exclusion flag is covered in [[cloud-connector.source-ip-groups.rule-use:exclusion-not-in-forwarding-contract]] and [[cloud-connector.source-ip-groups.rule-use:exclusion-terraform-sends]], with the open question in [[cloud-connector.source-ip-groups.rule-use:exclusion-applicability]]. {{ipv6-groups-not-applicable}}"
+    },
+    {
+      "heading": "DNS rule fields"
+    },
+    {
+      "text": "The DNS rule actions differ between the contract (eleven) and Terraform (four): [[cloud-connector.dns.policies:contract-actions]], [[cloud-connector.dns.policies:tf-subset]]; whether one of them is the help's overwrite-DNS-response action is open in [[cloud-connector.dns.policies:response-overwrite]]."
+    },
+    {
+      "text": "{{dns-rule-zpa-ip-group}} The ZTC provider accepts that block but never sends it: [[cloud-connector.terraform.provider-behavior:dns-rule-zpa-ip-group-dropped]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a rule criterion a client sets (workload groups, ZPA segments) is one the contract lists for the write, before trusting that the API applied it.",
+      "uses": [
+        "workload-groups",
+        "zpa-segments-key"
+      ]
+    }
+  ],
+  "claims": {
+    "go-enums-are-comments": {
+      "statement": "In the Go SDK the forwarding rule's `Type` and `ForwardMethod` and the DNS rule's `Action` are plain strings. The supported values of `Type` and `ForwardMethod` appear only in doc comments; the `Action` comment lists no values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "quotes": [
+            "// Supported Values: \"FIREWALL\", \"DNS\", \"DNAT\", \"SNAT\", \"FORWARDING\", \"INTRUSION_PREVENTION\", \"EC_DNS\", \"EC_RDR\", \"EC_SELF\", \"DNS_RESPONSE\" Type string `json:\"type,omitempty\"`",
+            "// Supported Values: \"INVALID\", \"DIRECT\", \"PROXYCHAIN\", \"ZIA\", \"ZPA\", \"ECZPA\", \"ECSELF\", \"DROP\", \"ENATDEDIP\", \"GEOIP\" ForwardMethod string `json:\"forwardMethod,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/traffic_dns_rules/traffic_dns_rules.go",
+          "quotes": [
+            "// The rule action selected from the available options Action string `json:\"action,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "dns-rule-zpa-ip-group": {
+      "statement": "The contract's DNS rule body has a `zpaIpGroup` reference, which the forwarding rule body does not have; the forwarding rule body takes ZPA application segments instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecDns/post/requestBody/content/application~1json/schema/properties/zpaIpGroup",
+          "expect": {
+            "description": "An immutable reference to an entity, which consists of ID, name, etc."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecRdr/post/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "zpaIpGroup"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecRdr/post/requestBody/content/application~1json/schema/properties/zpaAppSegments",
+          "expect": {
+            "description": "The ZPA application segments to which the rule applies."
+          }
+        }
+      ]
+    },
+    "ipv6-groups-not-applicable": {
+      "statement": "The contract's forwarding rule create body describes both `srcIpv6Groups` and `destIpv6Groups` as not applicable to Cloud & Branch Connector, while the Go SDK's forwarding rule still carries both fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecRdr/post/requestBody/content/application~1json/schema/properties/destIpv6Groups",
+          "expect": {
+            "description": "Not applicable to Cloud & Branch Connector."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecRdr/post/requestBody/content/application~1json/schema/properties/srcIpv6Groups",
+          "expect": {
+            "description": "Not applicable to Cloud & Branch Connector."
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "quotes": [
+            "SrcIpv6Groups []common.IDNameExtensions `json:\"srcIpv6Groups,omitempty\"`",
+            "DestIpv6Groups []common.IDNameExtensions `json:\"destIpv6Groups,omitempty\"`"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "workload-groups": {
+      "summary": "Which sources carry source and destination workload groups on a traffic forwarding rule.",
+      "positions": [
+        {
+          "says": "The contract's create and update bodies for a forwarding rule have neither `srcWorkloadGroups` nor `destWorkloadGroups`.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1ecRules~1ecRdr/post/requestBody/content/application~1json/schema/properties",
+            "expect_absent": [
+              "srcWorkloadGroups",
+              "destWorkloadGroups"
+            ]
+          }
+        },
+        {
+          "says": "The Go SDK's forwarding rule has `srcWorkloadGroups` only.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+            "quotes": [
+              "// The list of preconfigured workload groups to which the policy must be applied. SrcWorkloadGroups []common.IDNameExtensions `json:\"srcWorkloadGroups,omitempty\"`"
+            ]
+          }
+        },
+        {
+          "says": "The Python SDK maps `src_workload_groups_ids` and `dest_workload_groups_ids` to `srcWorkloadGroups` and `destWorkloadGroups` in the request body, and documents the destination list as valid for the `LOCAL_SWITCH` forward method.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/utils.py",
+            "quotes": [
+              "(\"src_workload_groups_ids\", \"srcWorkloadGroups\"), (\"dest_workload_groups_ids\", \"destWorkloadGroups\"),"
+            ]
+          }
+        },
+        {
+          "says": "The Python accessor's docstring ties destination workload groups to `LOCAL_SWITCH`.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/ztw/forwarding_rules.py",
+            "after": "def add_rule(self, **kwargs) -> APIResult[dict]:",
+            "quotes": [
+              "dest_workload_groups_ids (list): IDs for destination workload groups (Valid for LOCAL_SWITCH forward method)."
+            ]
+          }
+        },
+        {
+          "says": "The ZTC provider sends `src_workload_groups` as the SDK's `SrcWorkloadGroups`; the Go model it uses has no destination field.",
+          "evidence": {
+            "source": "tf-ztc",
+            "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+            "quotes": [
+              "SrcWorkloadGroups:           expandIDNameExtensionsSet(d, \"src_workload_groups\"),"
+            ]
+          }
+        },
+        {
+          "says": "The console offers source workload groups on rules of several methods and destination workload groups only for the Local method.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-configuring-traffic-forwarding-rule.json",
+            "after": "Configuring Forwarding Rules Using Local",
+            "quotes": [
+              "Destination workload groups can only be applied to Cloud Connector traffic forwarding policies and are only applicable to the Local traffic forwarding method."
+            ]
+          }
+        }
+      ],
+      "impact": "The console and the Python SDK show that destination workload groups exist, but the contract documents neither list and the Go SDK and Terraform cannot send a destination list; a destination-workload-group rule can be written only through the Python SDK or a raw call, and no source shows the API's handling of either key."
+    },
+    "zpa-segments-key": {
+      "summary": "Under which keys a forwarding rule write carries ZPA application segments and segment groups.",
+      "positions": [
+        {
+          "says": "The contract's create and update bodies carry `zpaAppSegments` and neither `zpaApplicationSegments` nor `zpaApplicationSegmentGroups`; those two appear only in the rule as read back.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1ecRules~1ecRdr~1{ruleId}/put/requestBody/content/application~1json/schema/properties",
+            "expect_absent": [
+              "zpaApplicationSegments",
+              "zpaApplicationSegmentGroups"
+            ]
+          }
+        },
+        {
+          "says": "The contract's rule listing returns `zpaApplicationSegments`.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1ecRules~1ecRdr/get/responses/default/content/application~1json/schema/items/properties/zpaApplicationSegments",
+            "expect": {
+              "description": "The ZPA application segments to which the rule applies."
+            }
+          }
+        },
+        {
+          "says": "The Go SDK, which the ZTC provider uses, writes the segments as `zpaApplicationSegments`, a field it documents as applicable only to the ECZPA method.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+            "quotes": [
+              "ZPAApplicationSegments []common.ZPAApplicationSegments `json:\"zpaApplicationSegments,omitempty\"`"
+            ]
+          }
+        },
+        {
+          "says": "The Go SDK also writes segment groups as `zpaApplicationSegmentGroups`.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+            "quotes": [
+              "ZPAApplicationSegmentGroups []common.ZPAApplicationSegmentGroups `json:\"zpaApplicationSegmentGroups,omitempty\"`"
+            ]
+          }
+        },
+        {
+          "says": "The Python SDK documents `zpa_app_segments` for rule writes and maps it to `zpaAppSegments`, the contract's key; it also maps `zpa_application_segments` and `zpa_application_segment_groups` to the read-back keys.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/utils.py",
+            "quotes": [
+              "(\"zpa_app_segments\", \"zpaAppSegments\"), (\"zpa_application_segments\", \"zpaApplicationSegments\"), (\"zpa_application_segment_groups\", \"zpaApplicationSegmentGroups\"),"
+            ]
+          }
+        },
+        {
+          "says": "The Python accessor's docstring names `zpa_app_segments` as the rule's ZPA application segments.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/ztw/forwarding_rules.py",
+            "after": "def add_rule(self, **kwargs) -> APIResult[dict]:",
+            "quotes": [
+              "zpa_app_segments (list[dict]): **ZPA Application Segments applicable to the rule.**"
+            ]
+          }
+        }
+      ],
+      "impact": "A Python caller using the documented `zpa_app_segments` sends the contract's key; a Go or Terraform write sends `zpaApplicationSegments` and `zpaApplicationSegmentGroups`, which the contract lists only in responses. Either the contract's request schema is incomplete or those writes use keys the API does not read on write; no source shows which, so an ECZPA rule written through Go or Terraform should be read back to confirm its segments."
+    }
+  },
+  "gaps": {
+    "local-switch-acceptance": {
+      "kind": "semantic",
+      "title": "Whether the API accepts destination workload groups on a forwarding rule, and only on Local rules",
+      "status": "open",
+      "former_ids": [
+        "cloud-connector-23"
+      ],
+      "detail": "Unverified legacy statement: the destination workload groups criterion is a real API field that serializes as `destWorkloadGroups`, valid only on Local (`LOCAL_SWITCH`) rules. The contract lists neither `LOCAL_SWITCH` among the forward methods nor `destWorkloadGroups` among the rule fields; Terraform and the Python SDK send `LOCAL_SWITCH`, and only the Python SDK sends destination workload groups. Whether the API accepts them, and rejects or ignores destination workload groups on rules of other methods, is not shown.",
+      "blocks": "building Local forwarding rules with destination workload groups through the API",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

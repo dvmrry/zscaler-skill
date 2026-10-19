@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "id": "shared.source-ip-anchoring.egress-options",
+  "title": "A fixed egress address: Source IP Anchoring, Dedicated IP or BYOIP",
+  "aliases": [
+    "dedicated ip",
+    "enatdedip",
+    "dedicated ip gateway",
+    "static egress ip",
+    "customer-attributable egress ip",
+    "sipa vs dedicated ip",
+    "dedicated ip failover"
+  ],
+  "binds": [
+    "zia/forwarding-rules"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.source-ip-anchoring"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.byoip"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.multi-cluster.egress-addresses"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Several Zscaler options replace the shared Zscaler egress address with one tied to the organization. {{ip-requirements}} {{three-methods}} Dedicated IP, a Forwarding Control method, is a further option the reference architecture does not list there. {{anchor-vs-dedicated}} The BYOIP case is [[zia.forwarding-control.byoip:not-sipa]]."
+    },
+    {
+      "label": "Source IP Anchoring.",
+      "text": "The address is the App Connector's [[zia.forwarding-control.sipa:purpose]], and the feature needs its own subscription [[zia.forwarding-control.sipa:licensing]]; the sources disagree on whether Private Access is also needed [[shared.source-ip-anchoring:subscriptions]]. {{anchor-selectively}}"
+    },
+    {
+      "label": "Zscaler addresses or Service Edges.",
+      "text": "Registering Zscaler ranges with the vendor is in [[shared.multi-cluster.egress-addresses:vendor-ranges]]; Virtual Service Edges are in [[zia.virtual-service-edge.clusters]] and Private Service Edges in [[zia.private-service-edge]]."
+    },
+    {
+      "label": "Dedicated IP.",
+      "text": "{{dedicated-ip-enable}} {{dedicated-egress}} How the default gateway picks a data center: [[zia.forwarding-control.methods:dedicated-ip-gateway]]. {{dedicated-failover}} {{subcloud-independent}} The addresses can be customer-owned: [[zia.forwarding-control.byoip]]. What an unlicensed tenant sees when it uses the method is open {{gap:unlicensed-dedicated-ip}}."
+    },
+    {
+      "label": "In Terraform.",
+      "text": "The method values and their required fields are in [[zia.forwarding-control.methods]], and the ZPA method's apply-time delay in [[zia.forwarding-control.terraform]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "If the destination must see an address the organization controls on its own network, use Source IP Anchoring; if an address dedicated to the organization at a Zscaler data center is enough, Dedicated IP.",
+      "uses": [
+        "anchor-vs-dedicated"
+      ]
+    },
+    {
+      "do": "For Dedicated IP, list which data centers hold the organization's dedicated addresses and the gateway's primary and secondary data centers: traffic can egress from a different data center than the one that serviced it.",
+      "uses": [
+        "dedicated-egress",
+        "dedicated-failover"
+      ]
+    }
+  ],
+  "claims": {
+    "ip-requirements": {
+      "statement": "Some applications and vendors accept traffic only from a preset list of source IP addresses and drop traffic from any other address, and some restrict access geographically by IP, so traffic is denied when Zscaler has no Public Service Edge in the address range in question.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "some applications and vendors that require the source IP address for traffic comes from a preset list of IP addresses. Any traffic from a non-registered IP address is automatically dropped.",
+            "There can also be geographic restrictions based on IP address. If Zscaler does not have a ZIA Public Service Edge in the IP address range in question, the traffic is denied."
+          ]
+        }
+      ]
+    },
+    "three-methods": {
+      "statement": "The reference architecture names three forwarding methods that meet such requirements, each needing additional work and subscriptions: registering Zscaler IP addresses with the vendor; Source IP Anchoring, where an App Connector in a public cloud (AWS, Azure, GCP) or the on-premises data center becomes the source address; and a ZIA Virtual or Private Service Edge in the organization's data center, managed by Zscaler, which allows NAT as traffic leaves the Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Zscaler supports three methods for traffic forwarding that can comply with this requirement:",
+            "Use Zscaler IP addresses as source with your vendor",
+            "By using ZPA App Connectors in a public cloud such as Amazon AWS, Microsoft Azure, Google GCP, or your on-premises data center, your traffic is routed through that App Connector which then becomes the source IP address for the traffic.",
+            "A virtual or physical device is deployed in your data center and managed by Zscaler. This extends the Zscaler cloud into your local environment and allows you to use NAT as traffic leaves the ZIA Service Edge.",
+            "Each of these methods requires additional work and subscriptions."
+          ]
+        }
+      ]
+    },
+    "anchor-selectively": {
+      "statement": "Zscaler recommends sending only the applications, URLs or IP addresses that need a set source address through anchoring and forwarding the rest directly from the Service Edge; forwarding all traffic to a public cloud can become cost-prohibitive in bandwidth and App Connector VMs, and for all traffic from static addresses Zscaler recommends Virtual or Private Service Edges at campus locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Zscaler recommends only forwarding traffic that requires a set source IP address to be sent to the cloud via policy. You select those applications, URLs, or IP addresses that need to see a static source IP address.",
+            "Traffic that does not require a set source IP address can continue to be forwarded by the ZIA Service Edge directly as normal.",
+            "Forwarding all your traffic to a public cloud can quickly become cost prohibitive in terms of bandwidth and the number of App Connector VMs required.",
+            "If you need all your traffic sourced from static IP addresses, Zscaler recommends deploying ZIA Virtual Service Edges or ZIA Private Service Edges at your campus locations."
+          ]
+        }
+      ]
+    },
+    "dedicated-ip-enable": {
+      "statement": "The Dedicated IP feature is enabled for a tenant through the Zscaler Account team. Gateway objects forward traffic through a dedicated IP address provisioned to the organization, and Forwarding policies use them for traffic that matches a rule's criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dedicated-ip.json",
+          "quotes": [
+            "To enable the Dedicated IP feature for your Internet & SaaS (ZIA) tenant, contact your Zscaler Account team.",
+            "You can create gateway objects to forward traffic through a dedicated IP address provisioned to the organization. These gateways are used in Zscaler Forwarding policies to forward traffic that matches the criteria in the Forwarding rule."
+          ]
+        }
+      ]
+    },
+    "dedicated-egress": {
+      "statement": "With the default gateway, the egress source address is the dedicated IP address assigned to the tenant at the data center. Traffic can be serviced at one data center and egress from another: a tenant with dedicated addresses only in San Jose is serviced in Los Angeles but egresses from San Jose, without forwarding to San Jose explicitly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dedicated-ip.json",
+          "quotes": [
+            "The egress source IP address for the tenant's traffic is the dedicated IP address assigned to the tenant at the San Jose data center.",
+            "The traffic is serviced at the Los Angeles data center, but it egresses from the San Jose data center, the geographically nearest data center, for which the dedicated IP addresses are assigned for the organization.",
+            "The user does not need to explicitly forward the traffic to the San Jose data center."
+          ]
+        }
+      ]
+    },
+    "dedicated-failover": {
+      "statement": "A dedicated IP gateway has a primary and a secondary data center; with Auto, the secondary is chosen by proximity to the Public Service Edge servicing the traffic. When that Public Service Edge cannot reach the NAT instance in the primary data center, failover to the secondary happens automatically; manual failover to a backup data center is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dedicated-ip.json",
+          "quotes": [
+            "Configure two data centers, primary and secondary, for a gateway object to support failover to the secondary data center when the dedicated IP addresses in the primary data center are unreachable.",
+            "Secondary DC: The location of the secondary data center for the gateway.",
+            "If you have selected Auto, the Zscaler service automatically selects a data center based on geographical proximity to the Public Service Edge servicing the traffic.",
+            "cannot reach the NAT instance in the primary data center, failover from the primary to the secondary data center occurs automatically. Manual failover to a backup data center is not supported."
+          ]
+        }
+      ]
+    },
+    "subcloud-independent": {
+      "statement": "Excluding a subcloud does not affect data center selection for dedicated IP addresses: subclouds manage the data centers that service ingress traffic, and dedicated IPs are used on the egress path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dedicated-ip.json",
+          "quotes": [
+            "Excluding a subcloud does not affect data center selection for dedicated IP addresses, as subclouds are used to manage the data centers that service ingress traffic for the Zscaler service and the dedicated IPs are used on the egress path from the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "anchor-vs-dedicated": {
+      "statement": "Dedicated IP puts the organization's address on the egress at a Zscaler data center, an address dedicated to the tenant there, whereas Source IP Anchoring egresses from the organization's own App Connector.",
+      "tier": "B",
+      "derived_from": [
+        "zia.forwarding-control.byoip:not-sipa",
+        "zia.forwarding-control.sipa:purpose",
+        "dedicated-egress"
+      ],
+      "conditions": "Comparison assembled from the Source IP Anchoring and Dedicated IP pages; it adds where the Dedicated IP egress happens to the BYOIP-versus-anchoring contrast in zia.forwarding-control.byoip:not-sipa. No vendor page compares the two methods."
+    }
+  },
+  "gaps": {
+    "unlicensed-dedicated-ip": {
+      "kind": "semantic",
+      "title": "What an unlicensed tenant sees when forwarding with Dedicated IP",
+      "status": "open",
+      "about": [
+        "zia/forwarding-rules"
+      ],
+      "detail": "Unverified legacy statement: \"Dedicated IP is a separate ZIA SKU. The API returns INVALID_INPUT_ARGUMENT: 'Dedicated IP Gateway is required when forwarding method is Dedicated IP' if the tenant is unlicensed — the maintainer's framing is 'this is a licensing issue, not a Terraform issue.'\" The error text and the maintainer comment are in no registered source. Resolve by capturing the upstream provider issue or a lab call from an unlicensed tenant.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "blocks": "telling a licensing failure from a configuration error on an ENATDEDIP rule"
+    }
+  }
+}

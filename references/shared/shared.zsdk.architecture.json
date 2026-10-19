@@ -1,0 +1,284 @@
+{
+  "schema_version": 1,
+  "id": "shared.zsdk.architecture",
+  "title": "ZSDK architecture: Service Edges, App Connectors and the mobile client",
+  "aliases": [
+    "zsdk public service edge",
+    "zsdk private service edge",
+    "zsdk app connector",
+    "zsdk microtunnel",
+    "zsdk mtls",
+    "zsdk components",
+    "zsdk how it works"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{components}} {{multi-tenant}}"
+    },
+    {
+      "label": "Service Edges.",
+      "text": "{{public-service-edges}} {{private-service-edges}}"
+    },
+    {
+      "label": "The mobile client.",
+      "text": "{{mobile-client}}"
+    },
+    {
+      "label": "How a request travels.",
+      "text": "{{backend-behind-connectors}} {{identity-before-tunnel}} {{tunnel-through-pse}} The calls that start each tunnel are in [[shared.zsdk.developer-api]]."
+    },
+    {
+      "label": "App Connectors.",
+      "text": "{{connector-outbound}} {{connector-placement}} {{connector-selection}} {{connector-redundancy}} {{connector-platforms}} {{connector-zpa-software}} {{connector-zpath-hosts}} The ZSDK API also reports errors when no Private Access (ZPA) service is registered: [[shared.zsdk.error-codes:api-private-access]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the App Connectors serving the app have outbound connectivity to the ZSDK cloud, since they accept no inbound connections.",
+      "uses": [
+        "connector-outbound"
+      ]
+    },
+    {
+      "do": "Whether App Connectors are deployed at least in pairs, as the configuration guide recommends for upgrades.",
+      "uses": [
+        "connector-redundancy"
+      ]
+    }
+  ],
+  "claims": {
+    "components": {
+      "statement": "ZSDK's infrastructure consists of ZSDK Public Service Edges, ZSDK Private Service Edges, App Connectors and the Mobile Client SDK.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-zsdk-cloud-architecture.json",
+          "quotes": [
+            "ZSDK's scalable and multi-tenant infrastructure consists of ZSDK Public Service Edges, ZSDK Private Service Edges, App Connectors, and Mobile Client SDK."
+          ]
+        }
+      ]
+    },
+    "multi-tenant": {
+      "statement": "ZSDK runs on a dedicated multi-tenant infrastructure, and all communication is encrypted end to end to isolate the organizations using the same service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-zsdk-cloud-architecture.json",
+          "quotes": [
+            "ZSDK runs on a dedicated multi-tenant infrastructure designed for high availability and security.",
+            "All communication is encrypted end to end to allow complete isolation between different organizations using the same service."
+          ]
+        }
+      ]
+    },
+    "public-service-edges": {
+      "statement": "ZSDK Public Service Edges are cloud components maintained by Zscaler and deployed globally, the primary interface between ZSDK apps and protected back-end services. They authenticate mobile applications and their App Connectors with public keys only; private keys are never stored or used except for the Service Edge's own identity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-zsdk-cloud-architecture.json",
+          "quotes": [
+            "ZSDK Public Service Edges are cloud-based components maintained by Zscaler and deployed globally. They serve as the primary interface between mobile applications using ZSDK and protected back-end services.",
+            "Public Service Edges use only public keys for authenticating all mobile applications and their corresponding App Connectors. Private keys are never stored or used, except for the Public Service Edge's own identity."
+          ]
+        }
+      ]
+    },
+    "private-service-edges": {
+      "statement": "ZSDK Private Service Edges are single-tenant brokers with functions similar to Public Service Edges, hosted by the organization on premises or on a cloud service but managed by Zscaler; they authenticate mobile applications with provisioning keys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-zsdk-cloud-architecture.json",
+          "quotes": [
+            "ZSDK Private Service Edges are single-tenant instance brokers that provide similar functionality of ZSDK Public Service Edges in an organization's environment. Your organization hosts them either on your premises or on a cloud service, but Zscaler manages them.",
+            "Private Service Edges use provisioning keys for authenticating all mobile applications."
+          ]
+        }
+      ]
+    },
+    "mobile-client": {
+      "statement": "The Mobile Client SDK is the client-side component integrated into the app; among its functions are device posture checking and certificate and key management, and it creates a unique device fingerprint and application signature to prevent unauthorized copies or modifications of the app.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-zsdk-cloud-architecture.json",
+          "quotes": [
+            "The Mobile Client SDK is the client-side component integrated into mobile applications to provide:",
+            "Device posture checking.",
+            "Certificate and key management.",
+            "The Mobile Client SDK creates a unique device fingerprint and application signature to prevent unauthorized copies or modifications of protected applications."
+          ]
+        }
+      ]
+    },
+    "backend-behind-connectors": {
+      "statement": "APIs and back-end services are deployed behind App Connectors, which create inside-out mTLS microtunnels to the Zscaler cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-what-zscaler-sdk-mobile-apps.json",
+          "quotes": [
+            "APIs and back-end services are deployed behind App Connectors to enable service access by creating inside-out mTLS microtunnels to the Zscaler cloud."
+          ]
+        }
+      ]
+    },
+    "identity-before-tunnel": {
+      "statement": "ZSDK verifies the token's signature against the security certificate and confirms that the JSON Web Token contains the required claims before granting app access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-what-zscaler-sdk-mobile-apps.json",
+          "quotes": [
+            "ZSDK verifies the token's signature against the security certificate, confirms that the JSON Web Token contains the required claims, and then authenticates the user's identity prior to granting app access."
+          ]
+        }
+      ]
+    },
+    "tunnel-through-pse": {
+      "statement": "After the user's identity is verified, ZSDK creates mTLS microtunnels that route the app's network requests through the ZSDK cloud, where the ZSDK Public Service Edge brokers the connection through the App Connector's microtunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-what-zscaler-sdk-mobile-apps.json",
+          "quotes": [
+            "After the user's identity is verified, ZSDK creates mTLS microtunnels to route network requests through the ZSDK cloud. The ZSDK Public Service Edge acts as a broker to route connections via the App Connector's microtunnel."
+          ]
+        }
+      ]
+    },
+    "connector-outbound": {
+      "statement": "App Connectors only connect outbound and need no inbound open ports; they authenticate with a provisioning key pair and keep persistent mTLS connections to the nearest Public Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-app-connectors.json",
+          "quotes": [
+            "App Connectors only connect outbound; they do not need any inbound open ports to operate correctly."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-understanding-zsdk-cloud-architecture.json",
+          "quotes": [
+            "App Connectors authenticate a provisioning key pair and maintain persistent mTLS connections to the nearest Public Service Edge. They do not accept inbound connections and only require outbound internet access."
+          ]
+        }
+      ]
+    },
+    "connector-placement": {
+      "statement": "App Connectors can be co-located with the applications or deployed in any location with connectivity to them, typically on network segments that can reach both the applications and the ZSDK cloud, such as a Demilitarized Zone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-app-connectors.json",
+          "quotes": [
+            "App Connectors can be co-located with your applications, or they can be deployed in any location that has connectivity to the applications.",
+            "Typically, App Connectors are deployed on network segments that can access secured applications and the ZSDK cloud simultaneously, such as in a Demilitarized Zone."
+          ]
+        }
+      ]
+    },
+    "connector-selection": {
+      "statement": "ZSDK selects the closest App Connector given the location of the user and the App Connector-to-application latency.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-app-connectors.json",
+          "quotes": [
+            "ZSDK selects the closest App Connector given the location of the user and the App Connector-to-application latency."
+          ]
+        }
+      ]
+    },
+    "connector-redundancy": {
+      "statement": "App Connectors are always active and typically deployed in a redundant configuration, but they never communicate with each other; the configuration guide recommends deploying them in pairs to keep availability during software upgrades.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-app-connectors.json",
+          "quotes": [
+            "App Connectors are always active, so they are typically deployed in a redundant configuration. However, App Connectors never communicate with each other."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-step-step-configuration-guide-zsdk.json",
+          "quotes": [
+            "Zscaler recommends that App Connectors be deployed in pairs to ensure continuous availability during software upgrades."
+          ]
+        }
+      ]
+    },
+    "connector-zpa-software": {
+      "statement": "The ZSDK maintenance guide checks a deployed App Connector through the `zpa-connector` systemd service, which reports itself as the Zscaler Private Access App Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-maintaining-deployed-app-connectors.json",
+          "quotes": [
+            "You can use systemd to check that the zpa-connector service is running on the local system.",
+            "zpa-connector.service - Zscaler Private Access App Connector Loaded: loaded (/usr/lib/systemd/system/zpa-connector.service; enabled; vendor preset: enabled) Active: active (running)"
+          ]
+        }
+      ]
+    },
+    "connector-zpath-hosts": {
+      "statement": "ZSDK App Connectors reach the ZSDK Public Service Edges on *.prod.zpath.net, which must be in the SSL bypass list for App Connector traffic because certificate verification cannot be configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-app-connector-deployment-prerequisites.json",
+          "quotes": [
+            "By design, certificate verification is not configurable to maintain the integrity of the service. Ensure that *.prod.zpath.net is in your SSL bypass list for traffic originating from the App Connector to allow the App Connector to resolve and reach ZSDK Public Service Edges."
+          ]
+        }
+      ]
+    },
+    "connector-platforms": {
+      "statement": "Zscaler distributes App Connectors as a standard VM image and as packages for supported Linux distributions; the listed platforms are AWS, Google Cloud Platform, Linux (Red Hat Enterprise Linux 8 or 9), Microsoft Azure, VMware vCenter or vSphere Hypervisor (ESXi), Nutanix, Docker and OpenShift.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-app-connectors.json",
+          "quotes": [
+            "Zscaler distributes a standard VM image for deployment in enterprise data centers, local private cloud environments such as VMware, or public cloud environments such as Amazon Web Services (AWS) EC2.",
+            "Additionally, Zscaler provides packages that can be installed on supported Linux distributions.",
+            "- Amazon Web Services (AWS) - Google Cloud Platform (GCP) - Linux (Red Hat Enterprise Linux 8 or 9) - Microsoft Azure - VMware vCenter or vSphere Hypervisor (ESXi) - Nutanix - Docker - OpenShift"
+          ]
+        }
+      ]
+    }
+  }
+}

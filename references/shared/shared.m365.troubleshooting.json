@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "id": "shared.m365.troubleshooting",
+  "title": "Why a Microsoft 365 sign-in is still challenged or blocked with Source IP Anchoring",
+  "aliases": [
+    "m365 unexpected mfa behind zscaler",
+    "conditional access blocks sign-in sipa",
+    "named location app connector ip",
+    "app connector public ip changed",
+    "m365 sign-in intermittent mfa",
+    "sipa not anchoring m365"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.m365"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.m365.sipa-setup"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.sipa"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.predefined-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.predefined-rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The address Microsoft recorded for the failed sign-in decides which section below applies. Much of the Microsoft side is outside every captured source, so most of it stays open here."
+    },
+    {
+      "heading": "The sign-in came from a Zscaler edge address"
+    },
+    {
+      "text": "Then it took the ordinary egress path: [[zia.saas-apps.conditional-access:shared-edge-ips-fail-named-location]] The DNS Control resolver rules must be enabled and ordered for the forwarding rule to see the traffic: [[zia.dns-control.predefined-rules:road-warrior-above-locations]], [[zia.dns-control.predefined-rules:dns-must-reach-zscaler]]. What the resolver rules change, and what happens without them, is open: [[zia.dns-control.predefined-rules:resolver-mechanism]]. Z-Tunnel 1.0 and PAC users need the firewall option: [[zia.forwarding-control.sipa:ztunnel1-option]] Which other paths skip anchoring is open {{gap:non-anchored-paths}}."
+    },
+    {
+      "heading": "The sign-in came from an App Connector address"
+    },
+    {
+      "text": "{{named-location-holds-connector-ip}} {{mixed-egress-ips}} How the connector is chosen for an anchored flow is open: [[shared.source-ip-anchoring:connector-selection]]. Keeping that address stable, and keeping the named location in step with it, is open {{gap:egress-address-drift}}. How many ranges a named location takes is open {{gap:named-location-cap}}. The named location and policy configuration itself is open {{gap:entra-configuration}}."
+    },
+    {
+      "heading": "The sign-in fails outright"
+    },
+    {
+      "text": "Where anchored traffic goes when no App Connector in the server group is healthy is open: [[zia.forwarding-control.sipa:unhealthy-connectors]]. Whether a Microsoft 365 sign-in then fails with a connection error or arrives from an edge address and meets a Conditional Access challenge is open {{gap:connectors-down}}. A Private Access deny is the other cause: the access rule must allow the ZIA Service Edge client type, [[shared.m365.sipa-setup:access-zia-service-edge-only]], and carry no user criteria, [[zia.forwarding-control.sipa:no-user-criteria]]. Why user criteria make it deny is open: [[shared.source-ip-anchoring:user-criteria-mechanism]]."
+    },
+    {
+      "heading": "After sign-in"
+    },
+    {
+      "text": "Application traffic after sign-in uses the token: [[zia.saas-apps.conditional-access:anchor-login-only]] When Microsoft evaluates the source address again is open {{gap:ca-evaluation-timing}}, and so is the effect of Continuous Access Evaluation {{gap:cae-interaction}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The source address in Microsoft's sign-in log for the failed sign-in, compared with Zscaler's published edge ranges and the App Connectors' public addresses.",
+      "uses": [
+        "zia.saas-apps.conditional-access:shared-edge-ips-fail-named-location",
+        "named-location-holds-connector-ip"
+      ]
+    },
+    {
+      "do": "If it is an edge address: whether the forwarding rule's criteria (location, users) cover this user, whether both ZPA resolver DNS rules are enabled and Road Warrior sits above Locations, whether the user is on Z-Tunnel 1.0 or PAC without the firewall option, and whether a Client Connector bypass or PAC exception covers the sign-in hosts.",
+      "uses": [
+        "shared.m365.sipa-setup:gateway-and-forwarding-rule",
+        "zia.dns-control.predefined-rules:road-warrior-above-locations",
+        "zia.forwarding-control.sipa:ztunnel1-option",
+        "non-anchored-paths"
+      ]
+    },
+    {
+      "do": "If it is an App Connector address: whether the named location lists it, and whether every connector in the anchoring connector group egresses from a listed address, including connectors replaced recently.",
+      "uses": [
+        "named-location-holds-connector-ip",
+        "mixed-egress-ips",
+        "egress-address-drift",
+        "shared.source-ip-anchoring:connector-selection"
+      ]
+    },
+    {
+      "do": "If it is the user's own address: whether Client Connector is running and tunnelling, and whether the app or forwarding profile bypasses the sign-in hosts.",
+      "uses": [
+        "non-anchored-paths"
+      ]
+    },
+    {
+      "do": "If the sign-in fails with a connection error: the health of the App Connectors in the anchoring group, whether they can reach the sign-in hosts outbound, and the Private Access access rule for the ZIA Service Edge client type.",
+      "uses": [
+        "connectors-down",
+        "shared.m365.sipa-setup:access-zia-service-edge-only",
+        "zia.forwarding-control.sipa:no-user-criteria",
+        "shared.source-ip-anchoring:user-criteria-mechanism"
+      ]
+    }
+  ],
+  "claims": {
+    "named-location-holds-connector-ip": {
+      "statement": "For an IP-based Conditional Access policy to treat an anchored sign-in as coming from the trusted location, the trusted range has to contain the public address of the App Connector that carried it.",
+      "tier": "B",
+      "derived_from": [
+        "zia.forwarding-control.sipa:purpose",
+        "zia.saas-apps.conditional-access:ca-use-case"
+      ],
+      "conditions": "Assumes the Conditional Access policy decides trust from the sign-in's source address; how Microsoft evaluates named locations is not in any captured source."
+    },
+    "mixed-egress-ips": {
+      "statement": "The source address Microsoft sees for an anchored sign-in is the address of whichever App Connector carried it, so when the connectors serving the anchored segment egress from different public addresses, sign-ins can pass and fail intermittently if only some of those addresses are trusted.",
+      "tier": "B",
+      "derived_from": [
+        "zia.forwarding-control.sipa:purpose"
+      ],
+      "conditions": "Assumes connectors in the group egress from distinct public addresses and that the connector chosen varies between sign-ins (how it is chosen for anchored flows is open in shared.source-ip-anchoring:connector-selection); that a sign-in from an untrusted address is challenged or blocked is Microsoft-side behavior no captured source states."
+    }
+  },
+  "gaps": {
+    "non-anchored-paths": {
+      "kind": "semantic",
+      "title": "Which client and forwarding paths keep a Microsoft 365 sign-in off the anchored path",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"ZIA Forwarding Control rule not matching ... traffic falls through to the default ZIA egress path (PSE IP)\"; \"User is off-network without ZCC. A user whose ZCC is disabled, not installed, or in bypass mode will reach M365 directly from their ISP IP\"; \"Split-tunnel bypass rule ... for login.microsoftonline.com ... bypass ZIA entirely\"; \"Is ZCC using a PAC file that bypasses M365 login domains?\"; \"Is ZCC App Profile configured to bypass M365?\". No captured source walks these paths for anchored traffic. Resolve by signing in through each path and reading the source address in Microsoft's sign-in log.",
+      "blocks": "attributing a non-anchored sign-in to a cause",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "egress-address-drift": {
+      "kind": "semantic",
+      "title": "Keeping App Connector egress addresses stable and in step with the named location",
+      "status": "open",
+      "former_ids": [
+        "shared-15"
+      ],
+      "detail": "Unverified legacy statement: \"App Connectors used for SIPA should be deployed in environments where the outbound IP is static ... If the connector is behind a NAT gateway ... the NAT gateway's IP must be static ... If a connector is replaced or redeployed without the same static IP assignment, the Named Locations entry becomes stale ... The app_connector_schedule automated deletion of inactive connectors can retire a connector VM ... There is no automated mechanism in ZIA, ZPA, or Azure AD that synchronizes App Connector IPs with Named Locations.\" No captured source describes connector egress address requirements for anchoring, or any mechanism, Zscaler-provided or third-party, that updates a named location when a connector's address changes.",
+      "blocks": "advising how to keep anchored sign-ins trusted across connector replacement",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ]
+    },
+    "named-location-cap": {
+      "kind": "semantic",
+      "title": "How many IP ranges one Microsoft named location takes",
+      "status": "open",
+      "former_ids": [
+        "shared-16"
+      ],
+      "detail": "The maximum number of IP ranges per Microsoft Entra named location is a Microsoft limit that no captured source gives.",
+      "blocks": "sizing a named location for many anchoring connectors",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "entra-configuration": {
+      "kind": "semantic",
+      "title": "How the named location and Conditional Access policy are configured for anchored sign-ins",
+      "status": "open",
+      "detail": "Unverified legacy statement: in Entra ID, create an IP ranges named location holding the App Connectors' public egress addresses, mark it trusted if the policy evaluates trusted locations, configure the policy's Locations condition to challenge or block traffic outside it, test in report-only mode first, and read the address Microsoft saw in the sign-in log's location or authentication details. These are Microsoft console steps; the Zscaler article stops at the Zscaler configuration.",
+      "blocks": "giving Microsoft-side configuration steps with a source",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "connectors-down": {
+      "kind": "semantic",
+      "title": "Whether a Microsoft 365 sign-in fails outright or is challenged when no anchoring App Connector is healthy",
+      "status": "open",
+      "former_ids": [
+        "shared-14"
+      ],
+      "detail": "Unverified legacy statement: with every connector in the anchoring server group unhealthy, \"M365 login attempts fail entirely (connection errors, not CA blocks)\", while the Fallback mode of ZPA Forwarding rule \"may route the traffic to a fallback path, but the fallback path uses PSE IPs, so CA policy evaluation changes\". Where the traffic is routed in that case is the open question zia.forwarding-control.sipa:unhealthy-connectors; this gap holds only the Microsoft 365 symptom: whether the user sees a connection error or a sign-in from an edge address that Conditional Access challenges or blocks.",
+      "blocks": "telling a connector outage from a Conditional Access decision in a failed sign-in",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    },
+    "ca-evaluation-timing": {
+      "kind": "semantic",
+      "title": "When Microsoft Conditional Access evaluates the sign-in's source address",
+      "status": "open",
+      "former_ids": [
+        "shared-12"
+      ],
+      "detail": "Unverified legacy statement: Conditional Access evaluates the source address of the client making the /authorize and /token requests at authentication time, not on every later API call; a token refresh or forced re-authentication returns through login.microsoftonline.com and must again come from a trusted address. The Zscaler article says only that application traffic after sign-in uses an authenticated token and need not be anchored (zia.saas-apps.conditional-access:anchor-login-only).",
+      "blocks": "predicting whether an egress change mid-session breaks Microsoft 365 access",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "cae-interaction": {
+      "kind": "semantic",
+      "title": "How Continuous Access Evaluation interacts with anchored sign-ins",
+      "status": "open",
+      "former_ids": [
+        "shared-13"
+      ],
+      "detail": "Unverified legacy statement: \"Users on Azure AD Continuous Access Evaluation (CAE) may have shorter token lifetimes and more frequent re-authentications, increasing the frequency at which source IP is evaluated.\" No Zscaler source addresses Continuous Access Evaluation.",
+      "blocks": "advising on anchoring for tenants with strict IP-bound Continuous Access Evaluation",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

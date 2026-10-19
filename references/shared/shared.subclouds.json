@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "id": "shared.subclouds",
+  "title": "Subclouds: restricting which Service Edges handle a tenant's traffic",
+  "aliases": [
+    "subcloud",
+    "sub cloud",
+    "zscaler subcloud",
+    "traffic going to the wrong region",
+    "eu only service edges",
+    "conus subcloud",
+    "subcloud vs sublocation",
+    "restrict service edges to a region"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.subclouds.api"
+    },
+    {
+      "rel": "depends-on",
+      "to": "shared.pac-files.variables"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.pac-files.hosting"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.sublocations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "By default a user's traffic goes to the Public Service Edge geolocation finds nearest; a subcloud narrows the set of edges the tenant's traffic may use. {{definition}}"
+    },
+    {
+      "label": "Why.",
+      "text": "{{geolocation-default}} {{recommend-public}} {{may-be-farther}}"
+    },
+    {
+      "label": "Shapes.",
+      "text": "{{three-shapes}} {{shape-uses}}"
+    },
+    {
+      "label": "Getting one.",
+      "text": "{{setup-by-support}} {{name-rules}} Whether surcharge or restricted data centers are reachable only through a subcloud is open {{gap:surcharge-dc-selection}}. Reading and editing a subcloud's data center exclusions through the API is in [[shared.subclouds.api]]."
+    },
+    {
+      "heading": "Pointing clients at a subcloud"
+    },
+    {
+      "text": "{{dns-name}} [[shared.pac-files.variables:subcloud-vars]] How the secondary variable is spelled differs between help articles: [[shared.pac-files.variables:subcloud-secondary-syntax]]. Whether the subcloud name in a variable is case-sensitive is open {{gap:name-case}}."
+    },
+    {
+      "text": "{{conus}} {{conus-no-request}}"
+    },
+    {
+      "text": "Private Service Edge PAC variables must name the subcloud Zscaler configured: [[zia.private-service-edge.deployment:pac-subcloud]]. Edits to a subcloud's data centers reach hosted PAC files and clients in stages: [[shared.pac-files.hosting:subcloud-propagation]]."
+    },
+    {
+      "heading": "What a subcloud does not change"
+    },
+    {
+      "text": "{{not-sublocations}} Dedicated IP egress is independent of subclouds: [[shared.source-ip-anchoring.egress-options:subcloud-independent]]."
+    },
+    {
+      "text": "Whether moving traffic to other edges changes which location-based rules apply is open {{gap:policy-after-move}}, and so is whether the Central Authority is subcloud-aware {{gap:central-authority-scope}}. How the Business Continuity Cloud treats a subcloud is open {{gap:business-continuity}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For traffic seen on unexpected Service Edges, check whether the PAC file or application uses the unqualified gateway variable instead of the subcloud-qualified one.",
+      "uses": [
+        "shared.pac-files.variables:subcloud-vars",
+        "dns-name"
+      ]
+    },
+    {
+      "do": "Use the subcloud's DNS name, as configured, in the variable, and the tenant's own cloud name after it.",
+      "uses": [
+        "dns-name",
+        "name-case"
+      ]
+    },
+    {
+      "do": "After a subcloud edit, allow for the staged propagation before concluding the change failed; request the app policy update only once the app profile PAC reflects the change.",
+      "uses": [
+        "shared.pac-files.hosting:subcloud-propagation"
+      ]
+    },
+    {
+      "do": "Do not use a sublocation to steer traffic to other Service Edges, or a subcloud to change per-subnet policy.",
+      "uses": [
+        "not-sublocations"
+      ]
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "A subcloud is a subset of Public Service Edges for Internet & SaaS (ZIA).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-subclouds.json",
+          "quotes": [
+            "A subcloud is a subset of Public Service Edges for Internet & SaaS (ZIA)"
+          ]
+        }
+      ]
+    },
+    "geolocation-default": {
+      "statement": "The service uses geolocation to find the Public Service Edge closest to the user and forwards web traffic there. When traffic must stay on Public Service Edges in one region, a remote user who has traveled outside it may be forwarded to an edge outside the preferred region; a subcloud ensures the traffic goes to the preferred Public Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-subclouds.json",
+          "quotes": [
+            "The service uses geolocation technology to find the Public Service Edge closest to the user and forwards web traffic to that Public Service Edge, which in some cases might be less than ideal.",
+            "but if a remote user has traveled outside of it, then web traffic might be forwarded to a Public Service Edge located outside of your preferred region.",
+            "In such a case, an organization can use a subcloud to ensure that traffic is forwarded to your preferred Public Service Edges."
+          ]
+        }
+      ]
+    },
+    "recommend-public": {
+      "statement": "Zscaler always recommends that organizations forward traffic to the Public Service Edges in the Zscaler cloud, which are deployed active-active worldwide for availability and redundancy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-subclouds.json",
+          "quotes": [
+            "Zscaler always recommends that organizations forward traffic to the Public Service Edges in the Zscaler cloud.",
+            "They are deployed in active-active mode all over the world, to ensure availability and redundancy."
+          ]
+        }
+      ]
+    },
+    "may-be-farther": {
+      "statement": "Because a subcloud replaces nearest-edge selection with a fixed set, a user outside the subcloud's region is sent to an edge in the subcloud even when a nearer edge exists outside it.",
+      "tier": "B",
+      "derived_from": [
+        "geolocation-default",
+        "shared.pac-files.variables:subcloud-vars"
+      ],
+      "conditions": "Follows from the purpose of a subcloud and from the subcloud variables resolving only the subcloud's edges; no source states the latency effect."
+    },
+    "three-shapes": {
+      "statement": "A subcloud can be a subset of Public Service Edges, a subset of Private Service Edges, or a subset of both; it cannot be a subset of Public Service Edges in only one data center.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-subclouds.json",
+          "quotes": [
+            "A subcloud can be a subset of Public Service Edges, a subset of Private Service Edges, or a subset of both Public Service Edges and Private Service Edges.",
+            "A subcloud cannot be a subset of Public Service Edges in only one data center."
+          ]
+        }
+      ]
+    },
+    "shape-uses": {
+      "statement": "The help's examples: a subcloud of Public Service Edges in one region (for example Europe only, for compliance or regulatory requirements); a subcloud of only the organization's Private Service Edges, so traffic is not forwarded to Public Service Edges; and a subcloud of preferred Public and Private Service Edges, so traffic goes only to the Public Service Edges in that subcloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-subclouds.json",
+          "quotes": [
+            "if you need to forward web traffic to Public Service Edges that are located in Europe only (for compliance or regulatory requirements), you can use a subcloud that consists of Public Service Edges in Europe",
+            "This ensures that your traffic does not get forwarded to Public Service Edges.",
+            "This ensures that your traffic is only forwarded to the Public Service Edges in that subcloud.",
+            "a subcloud that consists of only your Private Service Edges can be created",
+            "a subcloud that consists of only your preferred Public Service Edges and Private Service Edges can be created"
+          ]
+        }
+      ]
+    },
+    "setup-by-support": {
+      "statement": "A subcloud is requested with a Zscaler Support ticket; the service sets up the subcloud if the organization has access only to limited, restricted or private data centers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-subclouds.json",
+          "quotes": [
+            "If you are interested in having a subcloud for your organization, submit a ticket to Zscaler Support.",
+            "The Zscaler service sets up the subcloud if your organization has access only to limited, restricted, or private data centers."
+          ]
+        }
+      ]
+    },
+    "name-rules": {
+      "statement": "A subcloud name has up to 32 characters of upper- and lower-case letters, numerals or hyphens, and its first and last characters must be a letter or numeral.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-subclouds.json",
+          "quotes": [
+            "The subcloud name can contain up to 32 characters, including alphabet (both upper and lower cases), numerals, or hyphens (-).",
+            "The first and last character must always be an alphabet or a numeral."
+          ]
+        }
+      ]
+    },
+    "dns-name": {
+      "statement": "Each subcloud is associated with a DNS name that resolves the Public Service Edges in that subcloud; in the subcloud variables, <Subcloud> is replaced with that DNS name and <Zscaler cloud> with the tenant's cloud name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-subclouds.json",
+          "quotes": [
+            "Each subcloud is associated with a DNS name, which resolves the Public Service Edges in that subcloud.",
+            "Replace <Subcloud> with the DNS name of the subcloud, and replace <Zscaler cloud> with your cloud name."
+          ]
+        }
+      ]
+    },
+    "conus": {
+      "statement": "To keep traffic forwarding within US data centers, PAC files can use the Zscaler-managed subcloud CONUS on `zscaler.net`, `zscalertwo.net` or `zscalerthree.net`, with `${GATEWAY.CONUS.<Zscaler cloud>}` and `${SECONDARY.GATEWAY.CONUS.<Zscaler cloud>}` in the return statement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-subclouds.json",
+          "quotes": [
+            "if you want to restrict the traffic forwarding within the data centers only in the US, then configure your PAC files to use the Zscaler-managed subcloud CONUS for any of the following clouds:",
+            "zscaler.net - zscalertwo.net - zscalerthree.net",
+            "Use the variables ${GATEWAY.CONUS.<Zscaler cloud>} and ${SECONDARY.GATEWAY.CONUS.<Zscaler cloud>} in the return statement of your PAC file."
+          ]
+        }
+      ]
+    },
+    "conus-no-request": {
+      "statement": "Because CONUS is Zscaler-managed, using it is a PAC file change rather than a subcloud request to Support.",
+      "tier": "B",
+      "derived_from": [
+        "conus",
+        "setup-by-support"
+      ],
+      "conditions": "Inference from \"Zscaler-managed\"; the article does not say whether CONUS needs enabling for a tenant."
+    },
+    "not-sublocations": {
+      "statement": "A subcloud and a sublocation act on different things: a subcloud is a set of Service Edges that decides where traffic is processed, while a sublocation classifies traffic inside a location by internal IP address for policy, authentication, bandwidth and reporting, and does not choose the Service Edge.",
+      "tier": "B",
+      "derived_from": [
+        "definition",
+        "zia.locations.sublocations:what-it-is",
+        "zia.locations.sublocations:what-it-is-for"
+      ],
+      "conditions": "Compares the two definitions; no source states the contrast."
+    }
+  },
+  "gaps": {
+    "surcharge-dc-selection": {
+      "kind": "semantic",
+      "title": "Whether restricted or surcharge data centers need a subcloud",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Surcharge data centers - some special-region PSEs (restricted geographies) require explicit subcloud membership. Geolocation won't select them by default.\" and \"There's no 'set preferred region' toggle - the mechanism is always 'create a subcloud'.\" The subclouds article ties setup to organizations with access only to limited, restricted or private data centers; the PAC variables article says regional surcharge data centers are not in the gateway variable. Data center exclusion is a separate mechanism (shared.subclouds.api).",
+      "blocks": "advising a tenant that needs a surcharge or restricted data center",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "name-case": {
+      "kind": "semantic",
+      "title": "Case sensitivity of the subcloud name in PAC variables",
+      "status": "open",
+      "detail": "Unverified legacy statement: tooling \"should preserve the exact subcloud name (case-sensitive, matches the DNS name registered by Support)\". The article allows upper- and lower-case names and says to use the DNS name; it does not say whether substitution is case-sensitive. The Go SDK's GetByName matches names case-insensitively, which says nothing about the PAC server.",
+      "blocks": "validating generated PAC files",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "policy-after-move": {
+      "kind": "semantic",
+      "title": "Whether a subcloud change alters which location-based policy applies",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"ZIA policy is evaluated at the PSE. The active PSE determines which ZIA policies apply (location-based rules, firewall egress rules, etc.). A subcloud change that shifts traffic to a different PSE can change which location-based policies apply, depending on how locations and PSE clusters are mapped.\" The architecture article says policy follows the user; no source ties location rules to the edge chosen.",
+      "blocks": "predicting policy changes after a subcloud edit",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "central-authority-scope": {
+      "kind": "semantic",
+      "title": "Whether the Central Authority is subcloud-aware",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"subclouds gate the PSE pool but do not affect the Central Authority. Policy evaluation and CA-level config propagation aren't subcloud-aware - the CA remains tenant-global.\" No captured source discusses the Central Authority in relation to subclouds.",
+      "blocks": "data-residency answers that include control-plane data",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "business-continuity": {
+      "kind": "semantic",
+      "title": "How business continuity mode interacts with a subcloud",
+      "status": "open",
+      "detail": "The Business Continuity Cloud uses dedicated private cloud infrastructure and does not support Z-Tunnel 2.0 (zia.private-service-edge.business-continuity). No captured source says whether business continuity redirection respects a tenant's subcloud, so subcloud guarantees during a business continuity event are unverified.",
+      "blocks": "data-residency answers during a business continuity event",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

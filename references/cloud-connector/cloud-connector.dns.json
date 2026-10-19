@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.dns",
+  "title": "Cloud & Branch Connector DNS handling: DNS policies and DNS gateways",
+  "aliases": [
+    "cloud connector dns",
+    "branch connector dns",
+    "cloud connector dns not working",
+    "cloud connector dns subsystem"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.dns.policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.dns.gateways"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.forwarding.criteria"
+    }
+  ],
+  "prose": [
+    {
+      "text": "DNS handling on a Connector is two configured objects, with a third policy that carries the Connector's own traffic. {{route-through}}"
+    },
+    {
+      "steps": [
+        {
+          "label": "DNS policies.",
+          "text": "Rules evaluated against each DNS request and response that allow, block, or redirect it: [[cloud-connector.dns.policies]]."
+        },
+        {
+          "label": "DNS gateways.",
+          "text": "The resolvers a redirecting rule sends queries to, and what happens when they do not answer: [[cloud-connector.dns.gateways]]."
+        },
+        {
+          "label": "Log and Control Forwarding.",
+          "text": "Not DNS itself: the channel for the Connector's logs, enrollment and policy updates: [[cloud-connector.forwarding.log-and-control]]."
+        }
+      ]
+    },
+    {
+      "text": "DNS through the Connector also decides whether wildcard and FQDN forwarding criteria can match non-web traffic: [[cloud-connector.forwarding.criteria:dns-required]]."
+    },
+    {
+      "text": "These are Cloud & Branch Connector features, distinct from ZIA DNS Control: [[zia.dns-control:cbc-has-dns-policies]], [[zia.dns-control:cbc-gateways-differ]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the workloads' DNS queries actually route through the Connector; otherwise neither DNS policies nor gateways see them.",
+      "uses": [
+        "route-through"
+      ]
+    }
+  ],
+  "claims": {
+    "route-through": {
+      "statement": "To use DNS gateway and DNS policy functions, the help says to design the network so that workloads', servers' and endpoints' DNS queries route through the Cloud or Branch Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-dns-gateways.json",
+          "quotes": [
+            "To use DNS gateway and policy functionalities, design your network where workloads, servers, and endpoints are deployed to route DNS queries through the Cloud or Branch Connector."
+          ]
+        }
+      ]
+    }
+  }
+}

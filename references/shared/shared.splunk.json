@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "id": "shared.splunk",
+  "title": "Searching Zscaler logs in Splunk: field names, placeholders and validation searches",
+  "aliases": [
+    "splunk queries",
+    "spl patterns",
+    "splunk field names for zscaler logs",
+    "zscaler splunk add-on",
+    "splunk index for zscaler",
+    "search zscaler logs in splunk"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.splunk.zia-policy-validation"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.splunk.zpa-validation"
+    },
+    {
+      "rel": "depends-on",
+      "to": "shared.log-correlation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.nss-feed-format"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.formats"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A search can only filter on the names a record carries once it is indexed, and those come from how the feed was written and parsed. Index and source type names are tenant plumbing and are not held here."
+    },
+    {
+      "heading": "Field names in the SIEM"
+    },
+    {
+      "text": "An NSS feed replaces each field specifier with its value, in the order written: [[shared.nss.feeds:format-specifiers]], [[shared.nss.feeds:field-order]]. {{name-value-pairs}} {{search-names}}"
+    },
+    {
+      "text": "NSS and LSS field names are case-sensitive: [[zia.logs.nss-feed-format:case-sensitive]], [[zpa.log-receivers.formats:field-names-newline]]. The default LSS templates and their keys are in the log types, for example [[zpa/user-activity-log]]; custom content changes them: [[zpa.log-receivers.formats:custom-content]]."
+    },
+    {
+      "text": "What the Zscaler add-on for Splunk renames is open {{gap:add-on-mapping}}. Source type names per log type are open in [[shared.siem-mapping:splunk-landing]]; a vendor example shows two of them: [[shared.siem-mapping:splunk-example]]."
+    },
+    {
+      "heading": "Validation searches"
+    },
+    {
+      "items": [
+        {
+          "label": "ZIA policy answers.",
+          "text": "Which rule and category a URL hit, SSL inspection outcome, configured versus observed action: [[shared.splunk.zia-policy-validation]]."
+        },
+        {
+          "label": "ZPA answers.",
+          "text": "Segment and connector that served a host, connector load, user status, posture: [[shared.splunk.zpa-validation]]."
+        },
+        {
+          "label": "Firewall or web block.",
+          "text": "Which ZIA module denied a request: [[shared.log-correlation.zia-feeds]]."
+        },
+        {
+          "label": "Client Connector devices and bypasses.",
+          "text": "Device activity, traffic that did not come through Client Connector, tunnel versions and gaps: [[shared.log-correlation.zcc-in-zia]]."
+        },
+        {
+          "label": "One user across products.",
+          "text": "A timeline across ZIA and ZPA records: [[shared.log-correlation.zia-zpa-join]]."
+        }
+      ]
+    },
+    {
+      "label": "ZDX data.",
+      "text": "How ZDX data reaches a SIEM is open: [[shared.log-export.zdx:streaming-path]]. The ZDX API's time windows and reporting delay are in [[shared.log-export.zdx]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Confirm the field names the tenant's feed actually carries (the feed's output format or the receiver's log stream content, and any add-on aliases) before running a search written with NSS or LSS names.",
+      "uses": [
+        "search-names",
+        "add-on-mapping"
+      ]
+    },
+    {
+      "do": "If a search's result depends on an open field question, keep the search and say which question it depends on.",
+      "uses": [
+        "shared.log-correlation"
+      ]
+    }
+  ],
+  "claims": {
+    "name-value-pairs": {
+      "statement": "Both the NSS feed guidelines and the LSS log stream content guidelines suggest name-value pairs where the SIEM supports them, and say some SIEMs, such as Splunk, can parse name-value formats and auto-detect field names regardless of order.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "general-guidelines-nss-feeds-and-feed-formats.json",
+          "quotes": [
+            "Consider using name-value pairs, if your SIEM can support it. Some SIEMs, such as Splunk, can automatically parse name-value formats and auto-detect field names, regardless of the order."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-log-stream-content-format.json",
+          "quotes": [
+            "If your SIEM can support it, consider using name-value pairs. Some SIEMs, such as Splunk, can automatically parse name-value formats and auto-detect field names regardless of the order."
+          ]
+        }
+      ]
+    },
+    "search-names": {
+      "statement": "The names a SIEM search can use therefore come from the feed format and its parsing, not from the specifiers themselves: a positional feed carries only values, and a name such as url exists in the index only if the format writes it as a name-value pair or the SIEM's parsing assigns it, so a search written with NSS or LSS field names works only where the feed or its parsing uses those names.",
+      "tier": "B",
+      "derived_from": [
+        "shared.nss.feeds:format-specifiers",
+        "shared.nss.feeds:field-order",
+        "name-value-pairs"
+      ],
+      "conditions": "Follows from the feed-format guidance; how a given add-on or parser names positional values is not in any registered source."
+    }
+  },
+  "gaps": {
+    "add-on-mapping": {
+      "kind": "semantic",
+      "title": "What the Zscaler add-on for Splunk renames",
+      "status": "open",
+      "detail": "Unverified legacy statement: the Zscaler Internet Security for Splunk add-on (Splunkbase app 3865) provides field aliases from NSS names to Splunk CIM names (login to user, url to url, host to dest_host, action to action, rulelabel to rule, threatname to threat_name, ssldecrypted to ssl_decrypted, ZPA Username to user, ZPA Application to app) and dashboards; its aliases vary by add-on version, and whether ssl_decrypt or ssldecrypted is the searchable name depends on the version. The legacy table also mapped clientip, sourceip, destip and a firewall proto, which are not names in the ZIA field tables (the web feed has cip, the firewall feed csip, cdip and ipproto). Source type names are a separate question (shared.siem-mapping:splunk-landing). No registered source covers the add-on's aliases.",
+      "blocks": "Writing searches that use CIM names or add-on source types",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

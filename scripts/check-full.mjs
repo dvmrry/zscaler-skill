@@ -83,6 +83,7 @@ const FULL_CHECKS = [
   { name: "generated surface layer is current (ZIA)", command: "node", args: ["scripts/gen-surfaces.mjs", "zia", "--check"] },
   { name: "generated surface layer is current (ZPA)", command: "node", args: ["scripts/gen-surfaces.mjs", "zpa", "--check"] },
   { name: "generated surface layer is current (ZCC)", command: "node", args: ["scripts/gen-surfaces.mjs", "zcc", "--check"] },
+  { name: "generated surface layer is current (Cloud Connector)", command: "node", args: ["scripts/gen-surfaces.mjs", "ztw", "--check"] },
   { name: "generated log types are current", command: "node", args: ["scripts/gen-log-types.mjs", "--check"] },
   { name: "documentation links", command: "./scripts/check-doc-links.py", args: [] },
   {

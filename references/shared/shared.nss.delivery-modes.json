@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "id": "shared.nss.delivery-modes",
+  "title": "VM-based NSS and Cloud NSS: subscriptions, transport and what each needs",
+  "aliases": [
+    "vm-based nss vs cloud nss",
+    "cloud nss",
+    "nss for web",
+    "nss for firewall",
+    "cloud nss subscription",
+    "nss transport tcp https",
+    "send the same logs to two siems",
+    "multi-siem fan-out"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.nss"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.reliability"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api.cloud-nss-feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.siem-mapping"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Both modes read the same Nanolog; they differ in where the streaming component runs, how it reaches the SIEM and how it is bought. [[zia.logs.nss-feed-format:one-store]]"
+    },
+    {
+      "heading": "VM-based NSS"
+    },
+    {
+      "text": "Its two subscriptions are [[zia.audit-logs.streaming:vm-nss-subscriptions]]. {{vm-transport}} {{vm-comparison}} It needs a virtual appliance: [[shared.nss.servers]]."
+    },
+    {
+      "heading": "Cloud NSS"
+    },
+    {
+      "text": "{{cloud-push}} {{cloud-siem-requirement}} {{cloud-subscription}} {{cloud-cloudops}} Its HTTPS-only endpoint URLs and OAuth fields are in [[zia.api.cloud-nss-feeds]], and the one-feed-per-log-type rule and JSON recommendation in [[zia.logs.nss-feed-format:cloud-feed-limit]]."
+    },
+    {
+      "heading": "Which logs each subscription carries"
+    },
+    {
+      "text": "Which subscription carries DNS, tunnel and the other log types is not stated in the captured help {{gap:subscription-log-types}}."
+    },
+    {
+      "heading": "One log type to two SIEMs"
+    },
+    {
+      "text": "{{same-type-two-destinations}} Whether one VM-based feed can itself send to two destinations is open {{gap:feed-destinations}}."
+    },
+    {
+      "table": {
+        "columns": [
+          "",
+          "VM-based NSS",
+          "Cloud NSS"
+        ],
+        "rows": [
+          [
+            "Runs",
+            "A VM in the customer network {{vm-transport|ref}}",
+            "In the Zscaler cloud, no on-premises connector {{cloud-push|ref}}"
+          ],
+          [
+            "Transport to the SIEM",
+            "TCP feed or HTTPS feed {{vm-transport|ref}}",
+            "HTTPS POST of batches to a publicly routable collector {{cloud-siem-requirement|ref}}"
+          ],
+          [
+            "Feeds",
+            "Up to 16 per server [[shared.nss.feeds]]",
+            "One per log type per instance [[zia.logs.nss-feed-format]]"
+          ],
+          [
+            "Buffering and recovery",
+            "VM memory buffer, Nanolog one-hour recovery [[shared.nss.reliability]]",
+            "Batch retry up to one hour, Nanolog one-hour recovery [[shared.nss.reliability]]"
+          ],
+          [
+            "Monitoring",
+            "Separate alert feed [[shared.nss.feeds]]",
+            "Zscaler CloudOps {{cloud-cloudops|ref}}"
+          ],
+          [
+            "Subscription",
+            "NSS for Web, NSS for Firewall [[zia.audit-logs.streaming]]",
+            "Separate concurrent subscription {{cloud-subscription|ref}}"
+          ]
+        ]
+      }
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which mode the tenant runs, and for Cloud NSS which subscription the log type falls under.",
+      "uses": [
+        "cloud-subscription",
+        "subscription-log-types"
+      ]
+    },
+    {
+      "do": "For a Cloud NSS feed, whether the SIEM exposes a publicly routable HTTPS collection endpoint.",
+      "uses": [
+        "cloud-siem-requirement",
+        "zia.api.cloud-nss-feeds:https-only-urls"
+      ]
+    },
+    {
+      "do": "For a second destination of the same log type, whether a second Cloud NSS instance or a second VM feed is available.",
+      "uses": [
+        "same-type-two-destinations"
+      ]
+    }
+  ],
+  "claims": {
+    "vm-transport": {
+      "statement": "VM-based NSS uses a VM in the customer network to stream logs to the SIEM over a raw TCP connection or an HTTP connection: a TCP feed uses a TCP connection between NSS and the SIEM, and an HTTPS feed uses TLS to load-balance and encrypt syslog feeds between them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "Uses a VM set within your network to stream logs to your SIEM over a raw TCP connection or HTTP connection.",
+            "TCP Feed: Uses a TCP connection to stream the logs between NSS and your SIEM.",
+            "HTTPS Feed: Uses the TLS protocol to load-balance and encrypt syslog feeds between NSS and your SIEM."
+          ]
+        }
+      ]
+    },
+    "vm-comparison": {
+      "statement": "The vendor comparison lists for VM-based NSS a customizable feed format, a separate alert feed for monitoring, buffering in VM memory, and TCP and HTTP(S) connections for interoperability with most SIEMs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "Supports a customizable feed format.",
+            "Supports a separate alert feed for monitoring purposes.",
+            "Buffers logs in the VM memory for increased resiliency.",
+            "Supports TCP and HTTP(S) connection, allowing interoperability with most SIEMs."
+          ],
+          "after": "| VM-based NSS | Operates with minimal administration after deployment."
+        }
+      ]
+    },
+    "cloud-push": {
+      "statement": "Cloud NSS uses an HTTPS API feed to push logs from the Zscaler cloud to an HTTPS API-based log collector on the SIEM, for all Internet & SaaS (ZIA) log types and without on-premises connectors; Zscaler offers Cloud NSS for Web and Cloud NSS for Firewall subscriptions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "Cloud NSS: Uses an HTTPS API feed to push logs to an HTTPS API-based log collector on your SIEM.",
+            "enabling direct cloud-to-cloud log streaming for all Internet & SaaS (ZIA) log types into a compatible cloud-based SIEM without any on-premises connectors. Zscaler offers Cloud NSS for Web and Cloud NSS for Firewall subscriptions."
+          ]
+        }
+      ]
+    },
+    "cloud-siem-requirement": {
+      "statement": "Cloud NSS has a customizable HTTPS outbound connector for cloud-based SIEMs that support a stateless log ingestion API; Zscaler can POST batches of logs if the SIEM exposes a publicly routable HTTPS log collection API, for example Splunk HTTP Event Collector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "Cloud NSS supports a customizable HTTPS outbound connector, allowing interoperability with most private and public cloud-based SIEMs that support a stateless log ingestion API.",
+            "Zscaler can POST batches of logs if the SIEM exposes a publicly routable HTTPS log collection API (e.g., Splunk HTTP Event Collector)."
+          ]
+        }
+      ]
+    },
+    "cloud-subscription": {
+      "statement": "Cloud NSS requires a separate concurrent subscription, and its geo-availability and qualifications are obtained from Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "Requires a separate concurrent subscription.",
+            "To learn more about the geo-availability and qualifications for Cloud NSS, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "cloud-cloudops": {
+      "statement": "Cloud NSS comes with continuous monitoring and alerting by Zscaler CloudOps, given in the comparison as 24/7.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "After deployment, you have access to continuous monitoring and alerting with Zscaler CloudOps.",
+            "Includes CloudOps 24/7 monitoring and alerting."
+          ]
+        }
+      ]
+    },
+    "same-type-two-destinations": {
+      "statement": "Sending one ZIA log type to two SIEM destinations through Cloud NSS takes a second Cloud NSS instance, because an instance holds one feed per log type; a VM-based NSS server can hold several Web or Firewall feeds, up to 8 of each, each with its own filters, fields and output format.",
+      "tier": "B",
+      "derived_from": [
+        "zia.logs.nss-feed-format:cloud-feed-limit",
+        "shared.nss.feeds:feed-limits",
+        "shared.nss.feeds:feed-purpose"
+      ],
+      "conditions": "Follows from the per-instance and per-server feed limits; no source describes sending one log type to several SIEMs. Whether one VM-based feed can have more than one SIEM destination is open (feed-destinations).",
+      "gaps": [
+        "feed-destinations"
+      ]
+    }
+  },
+  "gaps": {
+    "subscription-log-types": {
+      "kind": "semantic",
+      "title": "Which subscription carries each log type",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"DNS and tunnel logs flow through the Firewall NSS subscription on VM-based NSS. The Cloud NSS 'Firewall' subscription covers all firewall-module records including DNS\", \"DNS and tunnel logs are not available under the NSS for Web subscription\", and \"Why does my Cloud NSS feed only carry Web logs even though I configured Firewall? Cloud NSS subscription is per-log-type.\" The help names NSS for Web (web and mobile traffic) and NSS for Firewall (Zscaler Firewall logs), and Cloud NSS for Web and Cloud NSS for Firewall, and lists TCP and Cloud NSS feeds for fifteen log types, but does not map DNS, Tunnel or the other log types to a subscription.",
+      "blocks": "saying whether a tenant's subscription allows a DNS, Tunnel, SaaS Security or audit feed",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ]
+    },
+    "feed-destinations": {
+      "kind": "semantic",
+      "title": "Whether one VM-based NSS feed can send to more than one SIEM destination",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"one VM-NSS feed (which can stream to multiple TCP receivers)\". The captured ZIA NSS articles do not say how many destinations a feed has; the Cloud & Branch Connector feed article describes each feed as one connection between NSS and the SIEM.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-feeds-session-logs.json",
+          "quotes": [
+            "Each feed is a connection between NSS and your SIEM."
+          ]
+        }
+      ],
+      "blocks": "planning a second SIEM destination for the same VM-based feed",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

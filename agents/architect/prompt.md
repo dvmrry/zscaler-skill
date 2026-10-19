@@ -85,7 +85,7 @@ Plus **Zscaler-specific utilization** when LSS feeds are configured:
 
 - ZPA App Connector Metrics LSS — CPU, memory, throughput, active connections (see [`zpa.logs.app-connector-metrics`](kb:zpa.logs.app-connector-metrics))
 - ZPA Private Service Edge metrics, Private Cloud Controller metrics — same shape for PSE / PCC
-- Splunk patterns for these in [`./splunk-queries.md`](../../references/shared/splunk-queries.md): `§ connector-throughput-utilization`, `§ connector-top-by-connection-count`, `§ connector-cpu-mem-alert`
+- Splunk checks for these are in [`shared.splunk.zpa-validation`](kb:shared.splunk.zpa-validation); each named check (`connector-throughput-utilization`, `connector-top-by-connection-count`, `connector-cpu-mem-alert`) resolves to it
 
 When LSS feeds are absent, the first recommendation is often "configure these to enable utilization-based analysis."
 
@@ -245,5 +245,5 @@ Do not load the diagnostics template during ordinary first response. Load it whe
 - [`auditor/prompt.md`](../auditor/prompt.md) — `/z-auditor` playbook
 - [`soc/prompt.md`](../soc/prompt.md) — `/z-soc` playbook (security-posture sibling)
 - [`siem-emission-discipline.md`](../siem-emission-discipline.md) — modes and rules for SIEM data access
-- [`splunk-queries.md`](../../references/shared/splunk-queries.md) — Splunk patterns for connector / PSE / PCC utilization
+- [`shared.splunk`](kb:shared.splunk) — Splunk patterns for connector / PSE / PCC utilization
 - ZPA App Connector Metrics schema — [`zpa.logs.app-connector-metrics`](kb:zpa.logs.app-connector-metrics)

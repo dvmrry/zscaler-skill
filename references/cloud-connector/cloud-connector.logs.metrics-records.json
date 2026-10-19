@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.logs.metrics-records",
+  "title": "Cloud Connector metrics logs: VM, instance and resource samples",
+  "aliases": [
+    "cloud connector metrics log",
+    "cloud connector cpu memory",
+    "branch connector metrics",
+    "data-processing instance metrics",
+    "nodata metrics",
+    "cloud connector disk usage"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.insights.alerting"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Metrics logs are the streamed resource-usage samples of each connector. This subject covers their kinds, timing and missing values."
+    },
+    {
+      "label": "Three kinds.",
+      "text": "{{three-types}} {{one-minute}} {{instances-per-connector}}"
+    },
+    {
+      "label": "Missing values.",
+      "text": "{{nodata}} {{not-applicable}}"
+    },
+    {
+      "label": "Use.",
+      "text": "{{siem-thresholds}} The state changes that accompany resource trouble are in [[cloud-connector.logs.event-records]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a gap in instance metrics shows nodata set to True, which points at the connector instance service rather than at the feed.",
+      "uses": [
+        "nodata"
+      ]
+    },
+    {
+      "do": "Whether a zero metric on a resource line is a real value or a metric that does not apply to that resource type.",
+      "uses": [
+        "not-applicable"
+      ]
+    }
+  ],
+  "claims": {
+    "three-types": {
+      "statement": "Each Cloud or Branch Connector generates three types of Metrics logs: VM (applicable to the whole VM), Instance (per data-processing instance) and Resource (per physical or logical resource that all data-processing instances use).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-metrics-logs.json",
+          "quotes": [
+            "There are three types of Metrics logs that each Zscaler Cloud Connector or Branch Connector generates:",
+            "VM: Metrics that are applicable at the virtual machine (VM) level.",
+            "Instance: Metrics that are applicable at the level of an individual data-processing instance.",
+            "Resource: Metrics that are applicable at an individual resource level.",
+            "There are physical and logical resources in a Cloud Connector or Branch Connector that all data-processing instances use."
+          ]
+        }
+      ]
+    },
+    "one-minute": {
+      "statement": "All three are collected at one-minute intervals, with one log line per minute for each connector, each data-processing instance and each resource respectively.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-metrics-logs.json",
+          "quotes": [
+            "There is one log line per minute for each Cloud Connector or Branch Connector.",
+            "There is one log line per minute for each data-processing instance.",
+            "There is one log line per minute for each resource."
+          ]
+        }
+      ]
+    },
+    "instances-per-connector": {
+      "statement": "Each Cloud or Branch Connector has between one and three data-processing instances, depending on the form factor.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-metrics-logs.json",
+          "quotes": [
+            "Each Cloud Connector or Branch Connector has between one and three data-processing instances, depending on the form factor."
+          ]
+        }
+      ]
+    },
+    "nodata": {
+      "statement": "Instance metrics carry a `nodata` field set to True when no data is available, which indicates an issue on the connector instance service in which the metrics samples were not collected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-metrics-logs.json",
+          "quotes": [
+            "There is also a %s{nodata} field, which is set to True when no data is available. This value indicates an issue on the connector instance service in which the metrics samples were not collected."
+          ]
+        }
+      ]
+    },
+    "not-applicable": {
+      "statement": "On a resource line, metrics that do not apply to that resource type are set to zero or absent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-metrics-logs.json",
+          "quotes": [
+            "Metrics that are not applicable to that resource are set to zero or absent from the log line."
+          ]
+        }
+      ]
+    },
+    "siem-thresholds": {
+      "statement": "The vendor's stated use of VM metrics is SIEM-side alerts when CPU or memory utilization crosses a defined threshold, and of resource metrics is monitoring and notification on disk partition usage.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-nss-feed-output-format-metrics-logs.json",
+          "quotes": [
+            "you can configure alerts on the SIEM side to monitor the CPU or memory utilization when they cross a defined threshold.",
+            "You can set up your SIEM to monitor the usage of disk partitions and send notifications when necessary."
+          ]
+        }
+      ]
+    }
+  }
+}

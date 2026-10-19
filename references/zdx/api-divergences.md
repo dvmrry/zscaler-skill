@@ -72,7 +72,7 @@ This is the cluster where the three sources most directly contradict one another
 - **Go SDK:** default `rawBaseURL = "https://api.zdxcloud.net"` (or `https://api.%s.net` for a user-specified cloud), and the token URL is `cfg.BaseURL.String() + "/v1/oauth/token"` — i.e. `https://api.zdxcloud.net/v1/oauth/token`. (`vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:150-152`, `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:267`)
 - **Help-site reference:** documents the token endpoint as the OneAPI gateway `POST https://api.zsapi.net/zdx/v1/oauth/token`, with the data base URL `https://api.zsapi.net/zdx/v1`. (`vendor/zscaler-api-specs/automate-zscaler/openapi/zdx.openapi.json:10`, `:16`)
 
-**Significance / which to trust:** Both hosts are documented — the direct cloud host (`api.zdxcloud.net`) is what both vendored SDKs use today; the OneAPI gateway host (`api.zsapi.net`) is the front-door form the help site documents and is also the host the [`../shared/oneapi.md`](../shared/oneapi.md) ZDX-legacy row records. Whether a given tenant's credentials work against one host, the other, or both is unverified from source alone (see open question 1 below). A hand-built client must pick a host and stay on it — the auth path prefix differs by host (next entry).
+**Significance / which to trust:** Both hosts are documented — the direct cloud host (`api.zdxcloud.net`) is what both vendored SDKs use today; the OneAPI gateway host (`api.zsapi.net`) is the front-door form the help site documents and is also the host the [`shared.oneapi`](kb:shared.oneapi) ZDX-legacy row records. Whether a given tenant's credentials work against one host, the other, or both is unverified from source alone (see open question 1 below). A hand-built client must pick a host and stay on it — the auth path prefix differs by host (next entry).
 
 ---
 
@@ -95,7 +95,7 @@ This is the cluster where the three sources most directly contradict one another
 - **Go SDK:** reads the same two headers, `X-Ratelimit-Remaining-Second` and `X-Ratelimit-Limit-Second`. (`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:192-193`)
 - **Help-site reference:** documents the rate-limit response headers as `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset`. (`vendor/zscaler-api-specs/automate-zscaler/openapi/zdx.openapi.json:103`)
 
-**Significance / which to trust:** A hand-built client that reads `RateLimit-Remaining` (the help name) against the direct cloud host the SDKs target may find it absent and silently lose its backoff signal — both SDKs read the `X-Ratelimit-*-Second` family. Conversely, code calling the OneAPI gateway should expect the `RateLimit-*` family. The header family is **inferred** to be host-coupled, same as the path prefix (unverified — see open question 2 below; this is read off two sources hitting two hosts, not a single confirmed live response). [`api.md § Rate limits`](./api.md) and [`../shared/oneapi.md § ZDX — tier-based by license count`](../shared/oneapi.md) document the `RateLimit-*` (gateway) form; this entry records the `X-Ratelimit-*-Second` form the SDKs actually parse.
+**Significance / which to trust:** A hand-built client that reads `RateLimit-Remaining` (the help name) against the direct cloud host the SDKs target may find it absent and silently lose its backoff signal — both SDKs read the `X-Ratelimit-*-Second` family. Conversely, code calling the OneAPI gateway should expect the `RateLimit-*` family. The header family is **inferred** to be host-coupled, same as the path prefix (unverified — see open question 2 below; this is read off two sources hitting two hosts, not a single confirmed live response). [`api.md § Rate limits`](./api.md) and [`shared.oneapi`](kb:shared.oneapi) document the `RateLimit-*` (gateway) form; this entry records the `X-Ratelimit-*-Second` form the SDKs actually parse.
 
 ---
 
@@ -104,7 +104,7 @@ This is the cluster where the three sources most directly contradict one another
 **What each source says:**
 
 - **Go SDK:** initializes a single global rate limiter at a fixed **100 requests / 60 seconds** with a **5-second** additional delay, regardless of tenant: `globalLimiter := rl.NewGlobalRateLimiter(100, 60)` and `AdditionalDelay: 5 * time.Second`. (`vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:314`, `:322`)
-- **Server model (help-site / shared doc):** ZDX rate limits are **tiered by license count** — per-second/minute/hour/day caps that scale across four tiers (e.g. 30/min at tier 1 up to 180/min at tier 4). (`vendor/zscaler-api-specs/automate-zscaler/openapi/zdx.openapi.json:98-101`; tabulated in [`../shared/oneapi.md § ZDX — tier-based by license count`](../shared/oneapi.md))
+- **Server model (help-site / shared doc):** ZDX rate limits are **tiered by license count** — per-second/minute/hour/day caps that scale across four tiers (e.g. 30/min at tier 1 up to 180/min at tier 4). (`vendor/zscaler-api-specs/automate-zscaler/openapi/zdx.openapi.json:98-101`; tabulated in [`shared.oneapi`](kb:shared.oneapi))
 
 **Significance / which to trust:** The Go SDK's client-side throttle is a conservative fixed ceiling, not a reflection of the tenant's actual server-side allowance. A large-license tenant (higher tier) is more permissively limited server-side than the Go client self-throttles to; a low-tier tenant could in principle exceed its per-minute server cap if the hardcoded 100/60s is more generous than its tier — the limiter is a static guard, not a tier-aware one. Trust the server tier table for the real budget; treat the Go limiter as a floor.
 
@@ -358,5 +358,5 @@ The following are unresolved after cross-referencing the available sources. Each
 - ZDX SDK service catalog and Go-parity table — [`./sdk.md`](./sdk.md)
 - Device fields (Wi-Fi, `os_build`, network) — [`./devices.md`](./devices.md)
 - Deeptrace start chain and snapshot sharing — [`./diagnostics-and-alerts.md`](./diagnostics-and-alerts.md)
-- Cross-product auth / rate-limit comparison — [`../shared/oneapi.md`](../shared/oneapi.md)
+- Cross-product auth / rate-limit comparison — [`shared.oneapi`](kb:shared.oneapi)
 - Sibling divergence docs — [`zia.api`](kb:zia.api), [`zpa.api`](kb:zpa.api)

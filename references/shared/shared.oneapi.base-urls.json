@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "id": "shared.oneapi.base-urls",
+  "title": "OneAPI hosts and per-product base paths",
+  "aliases": [
+    "api.zsapi.net",
+    "oneapi base url",
+    "oneapi base path",
+    "api.beta.zsapi.net",
+    "zia api v1 oneapi path",
+    "ztw api v1",
+    "zcc papi public v1",
+    "ziam admin api v1"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.government-clouds"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.base-paths"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.authentication"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{commercial-host}} {{relative-endpoints}}"
+    },
+    {
+      "label": "Base paths.",
+      "text": "{{base-path-table}} {{easm-example-path}}"
+    },
+    {
+      "label": "Beta.",
+      "text": "{{beta-host}}"
+    },
+    {
+      "label": "Tenant identifiers in the path.",
+      "text": "{{zpa-customer-id}} How the ZPA path families take the customer ID is in [[zpa.api.base-paths:customer-id-in-path]]. {{cellular-customer-id}} Event Monitoring calls carry tenant headers instead: [[shared.event-monitoring.api]]."
+    },
+    {
+      "label": "Elsewhere.",
+      "text": "The Analytics GraphQL endpoint is in [[shared.analytics.graphql]]. {{go-ziam-routing}} The older Go ZIdentity routing is discussed in [[doc:references/zidentity/api-divergences.md]]. Government hosts are in [[shared.oneapi.government-clouds]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the request URL is the product's base URL with the endpoint appended, on api.zsapi.net (or the beta or government host the tenant uses).",
+      "uses": [
+        "relative-endpoints",
+        "base-path-table",
+        "beta-host"
+      ]
+    },
+    {
+      "do": "For ZPA, whether the customer ID is in the path.",
+      "uses": [
+        "zpa-customer-id",
+        "zpa.api.base-paths:customer-id-in-path"
+      ]
+    }
+  ],
+  "claims": {
+    "commercial-host": {
+      "statement": "The OneAPI host for commercial customers is api.zsapi.net.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "The OneAPI host for commercial customers is api.zsapi.net."
+          ]
+        }
+      ]
+    },
+    "relative-endpoints": {
+      "statement": "Each API has its own base path, and every endpoint is relative to that base URL: a ZIA call to /users goes to https://api.zsapi.net/zia/api/v1/users, and ZPA, Client Connector and Cloud & Branch Connector calls append the endpoint to their own base URLs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "All endpoints are relative to the base URL.",
+            "you must send the API request to the following URL: https://api.zsapi.net/zia/api/v1/users.",
+            "API requests to ZPA, Client Connector, and Cloud & Branch Connector endpoints must use the respective base URLs with the endpoints appended at the end."
+          ]
+        }
+      ]
+    },
+    "base-path-table": {
+      "statement": "The guide's base paths are: ZIA `/zia/api/v1`; ZPA `/zpa/mgmtconfig/v1`, `/zpa/mgmtconfig/v2` and `/zpa/userconfig/v1` (the last for SCIM attribute and group endpoints); ZDX `/zdx/v1`; Authentication Service `/ziam/admin/api/v1`; Client Connector `/zcc/papi/public/v1`; Cloud & Branch Connector `/ztw/api/v1`; Business Insights `/bi/api/v1`; EASM `/easm/easm-ui/v1`; Cellular `/zcell/config/api/v1`; Event Monitoring & Notification `/event-monitoring`; Unified RBAC `/urbac/urbac`; AI Security `/aisecurity/aispm/v1` (AI Infrastructure) and `/aisecurity/airt/api/v2` (AI Red Teaming); AI Guard `/aiguard/v1`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "| ZIA API | /zia/api/v1 | https://api.zsapi.net/zia/api/v1 |",
+            "Supported Base Paths: /zpa/mgmtconfig/v1 /zpa/mgmtconfig/v2 /zpa/userconfig/v1",
+            "For endpoints to retrieve SCIM attribute details and SCIM group details, /userconfig/v1 is used as the base URI.",
+            "| ZDX API | /zdx/v1 | https://api.zsapi.net/zdx/v1 |",
+            "| Authentication Service API | /ziam/admin/api/v1 | https://api.zsapi.net/ziam/admin/api/v1 |",
+            "| Client Connector API | /zcc/papi/public/v1 | https://api.zsapi.net/zcc/papi/public/v1 |",
+            "| Cloud & Branch Connector API | /ztw/api/v1 | https://api.zsapi.net/ztw/api/v1 |",
+            "| Business Insights API | /bi/api/v1 | https://api.zsapi.net/bi/api/v1 |",
+            "| EASM API | /easm/easm-ui/v1 | https://api.zsapi.net/easm/easm-ui/v1 |",
+            "| Cellular API | /zcell/config/api/v1 | https://api.zsapi.net/zcell/config/api/v1 |",
+            "| Event Monitoring & Notification API | /event-monitoring | https://api.zsapi.net/event-monitoring |",
+            "| Unified Role-Based Access Control (RBAC) API | /urbac/urbac | https://api.zsapi.net/urbac/urbac |",
+            "AI Infrastructure: /aisecurity/aispm/v1 AI Red Teaming: /aisecurity/airt/api/v2",
+            "| AI Guard API | /aiguard/v1 | https://api.zsapi.net/aiguard/v1 |"
+          ]
+        }
+      ]
+    },
+    "easm-example-path": {
+      "statement": "The same guide's EASM example request uses `https://api.zsapi.net/easm-ui/v1/organizations`, without the `/easm` prefix its base-path table gives.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "url = \"https://api.zsapi.net/easm-ui/v1/organizations\"",
+            "| EASM API | /easm/easm-ui/v1 | https://api.zsapi.net/easm/easm-ui/v1 |"
+          ]
+        }
+      ]
+    },
+    "beta-host": {
+      "statement": "A beta OneAPI endpoint uses api.beta.zsapi.net as the host with the same base path for each API, for example https://api.beta.zsapi.net/zia/api/v1/users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "Zscaler also supports a beta endpoint for OneAPI that uses api.beta.zsapi.net as the host. The basePath remains the same for each API",
+            "https://api.beta.zsapi.net/zia/api/v1/users"
+          ]
+        }
+      ]
+    },
+    "zpa-customer-id": {
+      "statement": "ZPA requests need a `customerId`, the customer's ZPA tenant ID, which can be read from the ZPA OneAPI resource's scope in Authentication Service or copied from the ZPA API Keys page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "API requests to ZPA endpoints require a customerId parameter, which represents the customer's ZPA tenant ID.",
+            "Your customer ID is displayed as part of the scope and you can copy this value.",
+            "On the API Keys page, click Copy Customer ID.",
+            "Obtaining the ZPA customer ID from Authentication Service",
+            "Click ZPA OneAPI to expand the resource."
+          ]
+        }
+      ]
+    },
+    "cellular-customer-id": {
+      "statement": "Cellular requests likewise need a `customer_id`, the customer's Cellular tenant ID (spelled 'Celullar' in the guide).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "API requests to Cellular endpoints require a customer_id parameter, which represents the customer's Celullar tenant ID."
+          ]
+        }
+      ]
+    },
+    "go-ziam-routing": {
+      "statement": "The Go SDK's OneAPI client checks for the `ziam` prefix before the `zia` prefix so that ZIdentity calls are not metered against ZIA's rate limiter, and sends `ziam` and `admin` paths through its default HTTP client.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "ZIAM must be checked before ZIA: \"ziam/admin/api/v1/...\" has \"zia\" as a",
+            "meter it against ZIA's rate limiter",
+            "return client.oauth2Credentials.HTTPClient // Use default client for ZIdentity admin endpoints"
+          ]
+        }
+      ]
+    }
+  }
+}

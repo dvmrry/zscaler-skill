@@ -13,7 +13,7 @@ sources:
   - "agents/soc/grounding/security-taxonomy.md"
   - "agents/auditor/methodology.md"
   - "agents/investigator/methodology.md"
-  - "references/shared/siem-log-mapping.md"
+  - "kb:shared.siem-mapping"
   - "agents/siem-emission-discipline.md"
 dependencies:
   - "harness.md"
@@ -218,11 +218,11 @@ Check-set:
 
 Check-set:
 
-- **LSS feed health** — every ZPA log type that should stream is streaming (User Activity, App Connector Status, Audit Logs, etc.). Cross-reference [`./siem-log-mapping.md`](../../references/shared/siem-log-mapping.md) for the catalog.
+- **LSS feed health** — every ZPA log type that should stream is streaming (User Activity, App Connector Status, Audit Logs, etc.). Cross-reference [`shared.siem-mapping`](kb:shared.siem-mapping) for the catalog.
 - **NSS feed health** — every ZIA log type (web, firewall, DNS, IPS, alerts, audit) is enabled and arriving in SIEM.
-- **Sourcetype enablement** — any expected sourcetype missing from SIEM per [`./siem-log-mapping.md`](../../references/shared/siem-log-mapping.md). Use [`./tenant-schema-derivation.md`](../tenant-schema-derivation.md) to confirm tenant view matches canonical schema.
+- **Sourcetype enablement** — any expected sourcetype missing from SIEM per [`shared.siem-mapping`](kb:shared.siem-mapping). Use [`./tenant-schema-derivation.md`](../tenant-schema-derivation.md) to confirm tenant view matches canonical schema.
 - **Field-level coverage** — TA-required fields actually present in tenant view (e.g., `clt_sport`, `srv_dport`, `dlprulename` per ZIA web log notes).
-- **Detection coverage** — does the SIEM have queries / alerts for the skill's known posture concerns? Cross-reference [`./splunk-queries.md`](../../references/shared/splunk-queries.md) for the pattern catalog.
+- **Detection coverage** — does the SIEM have queries / alerts for the skill's known posture concerns? Cross-reference [`shared.splunk`](kb:shared.splunk) for the pattern catalog.
 - **Audit log retention** — tenant retention setting matches IR / compliance policy.
 
 ### Subtype: config posture
@@ -234,7 +234,7 @@ Check-set:
 - **Tenant default actions** — URL filtering default action, FW default action, DNS Control default action. Default-allow ⇒ posture finding.
 - **Cloud connector / segment exposure** — segments reachable from `Any` source without scope refinement; segments with broad FQDN wildcards.
 - **Posture profile freshness** — profiles last updated > N months when device fleet has changed.
-- **Subcloud restrictions** — restrictive subclouds applied where they shouldn't be (impacting BC Cloud fallback per [`./subclouds.md`](../../references/shared/subclouds.md)).
+- **Subcloud restrictions** — restrictive subclouds applied where they shouldn't be (impacting BC Cloud fallback per [`shared.subclouds`](kb:shared.subclouds)).
 
 ### Subtype: activity / admin audit
 
@@ -280,9 +280,9 @@ For routine posture reviews with no incident shape, only `posture.md` exists in 
 - [`investigator/prompt.md`](../investigator/prompt.md) — `/z-investigator` (hypothesis-driven sibling)
 - [`auditor/prompt.md`](../auditor/prompt.md) — `/z-auditor` (linter sibling)
 - [`architect/prompt.md`](../architect/prompt.md) — `/z-architect` (capacity sibling)
-- [`siem-log-mapping.md`](../../references/shared/siem-log-mapping.md) — Zscaler log type catalog (used in coverage subtype)
+- [`shared.siem-mapping`](kb:shared.siem-mapping) — Zscaler log type catalog (used in coverage subtype)
 - [`siem-emission-discipline.md`](../siem-emission-discipline.md) — SIEM execution modes
-- [`splunk-queries.md`](../../references/shared/splunk-queries.md) — Splunk pattern catalog (used in detection-coverage check)
+- [`shared.splunk`](kb:shared.splunk) — Splunk pattern catalog (used in detection-coverage check)
 - [`tenant-schema-derivation.md`](../tenant-schema-derivation.md) — canonical vs. tenant schemas (used in coverage subtype)
 - [`../../docs/data-contract/cases.md`](../../docs/data-contract/cases.md) — case artifact convention (where `posture.md` lands)
 

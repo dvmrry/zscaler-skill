@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.nss-va.log-control-path",
+  "title": "Log and Control Forwarding and NSS: the two legs that carry connector logs",
+  "aliases": [
+    "log and control forwarding nss",
+    "cloud connector logs missing in siem",
+    "log and control gateway logs",
+    "connector log upload path",
+    "log and control forwarding first match"
+  ],
+  "binds": [
+    "ztw/traffic-log-rules"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.nss-va"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.insights.connector-status"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Connector logs pass two separately configured legs before they reach a SIEM. This subject separates them."
+    },
+    {
+      "label": "First leg, connector to Zscaler cloud.",
+      "text": "{{lc-scope}} Each rule's scope (locations or Cloud & Branch Connector groups) and its Log and Control Gateway are in [[cloud-connector.forwarding.log-and-control:rule-fields]]; the rule model is in [[cloud-connector.forwarding.log-and-control]]."
+    },
+    {
+      "label": "Second leg, Nanolog to SIEM.",
+      "text": "{{two-legs}} The NSS side is in [[cloud-connector.nss-va.servers]] and [[cloud-connector.nss-va.feeds]]."
+    },
+    {
+      "label": "When the first leg breaks.",
+      "text": "What a connector does with its logs when its Log and Control Gateway is unreachable, and what the console then shows, is open {{gap:log-upload-starvation}}. Rules are evaluated in ascending order, [[cloud-connector.forwarding.log-and-control:rule-order]], with a default rule created automatically, [[cloud-connector.forwarding.log-and-control:default-rule]]; whether evaluation stops at the first matching rule is open {{gap:rule-first-match}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which Log and Control Forwarding rule covers the connector's location or group, and whether its gateway is reachable from the connector.",
+      "uses": [
+        "cloud-connector.forwarding.log-and-control:rule-fields",
+        "rule-first-match"
+      ]
+    },
+    {
+      "do": "Whether the records are missing in the console's Insights logs too, which places the break on the first leg rather than the NSS leg.",
+      "uses": [
+        "two-legs",
+        "cloud-connector.insights.analytics:insights-logs-pages"
+      ]
+    }
+  ],
+  "claims": {
+    "lc-scope": {
+      "statement": "The Log and Control Forwarding policy controls how a connector's traffic logs and operational messages are forwarded to the Zscaler cloud, covering enrollment, policy changes, software updates and sending logs.",
+      "tier": "A",
+      "binds": [
+        "ztw/traffic-log-rules"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-log-and-control-forwarding.json",
+          "quotes": [
+            "The Log and Control Forwarding policy allows you to control how the traffic logs and the operational messages are being forwarded to the Zscaler cloud.",
+            "The policy controls items such as Zscaler Cloud & Branch Connector enrollment, policy changes, software updates, and sending logs."
+          ]
+        }
+      ]
+    },
+    "two-legs": {
+      "statement": "A connector log reaches a SIEM over two legs: the connector forwards it to the Zscaler cloud under the Log and Control Forwarding policy, and an NSS VM streams it from the Nanolog to the SIEM. A Log and Control Forwarding rule configures only the first leg; the NSS VM authenticates with its own certificate and is configured by NSS servers and feeds.",
+      "tier": "B",
+      "derived_from": [
+        "lc-scope",
+        "cloud-connector.nss-va:what-nss-is",
+        "cloud-connector.nss-va.servers:client-certificate"
+      ],
+      "conditions": "Chain of evidence: the Log and Control Forwarding articles scope the policy to traffic the connector sends to the Zscaler cloud, and the NSS articles describe a VM that streams from the Nanolog after authenticating with a server certificate. No source describes the two together."
+    }
+  },
+  "gaps": {
+    "log-upload-starvation": {
+      "kind": "semantic",
+      "title": "What happens to connector logs when the Log and Control Gateway is unreachable",
+      "status": "partial",
+      "blocks": "telling a broken first leg from a broken NSS leg when the SIEM and Insights stop receiving records",
+      "detail": "Unverified legacy statement: \"If the Log & Control Forwarding gateway becomes unreachable, CC continues forwarding data-plane traffic but stops shipping session logs to Zscaler. Insights data stops accumulating while the CC remains Active in the console.\" The help confirms that the policy governs how logs are forwarded to the Zscaler cloud (claim lc-scope); whether logs are held, dropped or sent another way when the gateway is down, and whether the console status changes, is not stated. The console's Inactive status reflects loss of management-plane contact (cloud-connector.insights.connector-status:inactive-meaning), and whether that contact runs over the Log and Control Gateway is not stated either. Former cloud-connector-20 item 5.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "rule-first-match": {
+      "kind": "semantic",
+      "title": "Whether Log and Control Forwarding evaluation stops at the first matching rule",
+      "status": "open",
+      "blocks": "deciding which Log and Control Forwarding rule, and so which gateway, applies to a connector covered by several rules",
+      "detail": "The help states that forwarding rules are evaluated in ascending numerical order, that a disabled rule is skipped and keeps its place, and that a default rule is created automatically; it does not state that evaluation stops at the first match or that the default rule is the terminal catch-all. The earlier comparison to traffic forwarding rules and ZIA URL Filtering was an inference. Former cloud-connector-20 item 7.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-log-and-control-forwarding-rule.json",
+          "quotes": [
+            "Forwarding rules are evaluated in ascending numerical order (Rule 1 before Rule 2), and the Rule Order reflects this rule's place in the order.",
+            "When you select Disabled, the service skips it and moves to the next rule. However, the rule does not lose its place in the Rule Order."
+          ]
+        }
+      ]
+    }
+  }
+}

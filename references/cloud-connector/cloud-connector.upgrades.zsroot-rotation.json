@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.upgrades.zsroot-rotation",
+  "title": "Rotating the zsroot password on Cloud and Branch Connectors",
+  "aliases": [
+    "zsroot",
+    "zsroot password",
+    "cloud connector service account",
+    "branch connector ssh 169.254.2.2",
+    "cloud connector password rotation",
+    "passwd zsroot"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.upgrades"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.upgrades.os-images"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Every Cloud and Branch Connector device has a local privileged account whose password the admin rotates by hand on each device. It is a different credential from Admin Console users."
+    },
+    {
+      "label": "The account.",
+      "text": "{{zsroot-account}} {{cc-ssh-key}} Whether it has any role beyond device administration is open {{gap:zsroot-scope}}. Zero Trust SD-WAN devices carry an account of the same name: [[cloud-connector.sdwan.device-modes:zsroot]]."
+    },
+    {
+      "label": "Procedure.",
+      "text": "{{cc-procedure}} {{bc-procedure}}"
+    },
+    {
+      "label": "No fleet-wide rotation.",
+      "text": "{{no-rotation-api}} Admin Console users are a different credential with an API path: {{console-admin-password}}"
+    },
+    {
+      "label": "Open points.",
+      "text": "What a redeployment does to the password, and what a new connector's password is, is open {{gap:redeploy-password-state}}. Failure modes during a rotation are open {{gap:rotation-failure-modes}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the device is a Cloud Connector (log in with the cloud SSH key as zsroot) or a virtual Branch Connector (console, then SSH to 169.254.2.2), before running passwd.",
+      "uses": [
+        "cc-procedure",
+        "bc-procedure"
+      ]
+    },
+    {
+      "do": "Whether connectors were redeployed since the last rotation, which may have changed the password state.",
+      "uses": [
+        "redeploy-password-state"
+      ]
+    }
+  ],
+  "claims": {
+    "zsroot-account": {
+      "statement": "Cloud & Branch Connector virtual devices contain a Zscaler Service Account called zsroot, a privileged user for administrative access and management of the device, and Zscaler strongly recommends routine rotation of its password.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-rotating-zscaler-service-account-passwords.json",
+          "quotes": [
+            "Zscaler Cloud & Branch Connector virtual devices contain a Zscaler Service Account called zsroot.",
+            "This account is a privileged user that enables secure administrative access and management of the virtual device.",
+            "Zscaler strongly recommends implementing routine password rotation as a best practice."
+          ]
+        }
+      ]
+    },
+    "cc-ssh-key": {
+      "statement": "Cloud Connectors are typically accessed with the SSH key the cloud provider supplies when the connector is created; the zsroot password is not required to log in, but Zscaler recommends changing it periodically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-rotating-zscaler-service-account-passwords.json",
+          "quotes": [
+            "Zscaler Cloud Connectors are typically accessed with the SSH key that your cloud provider provides when you create the connector.",
+            "Although your zsroot password is not required for logging in, Zscaler recommends periodically changing the password."
+          ]
+        }
+      ]
+    },
+    "cc-procedure": {
+      "statement": "On a Cloud Connector the admin logs in to the VM as zsroot, runs `passwd zsroot`, and enters the current and then the new password at the prompts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-rotating-zscaler-service-account-passwords.json",
+          "after": "Although your zsroot password is not required for logging in",
+          "quotes": [
+            "Log in to the VM as user zsroot.",
+            "passwd zsroot",
+            "Follow the prompts to enter the current password and then a new password."
+          ]
+        }
+      ]
+    },
+    "bc-procedure": {
+      "statement": "On a virtual Branch Connector the admin logs in through the console or management interface as zsroot, runs `ssh zsroot@169.254.2.2` and then `passwd zsroot`, and follows the same prompts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-rotating-zscaler-service-account-passwords.json",
+          "quotes": [
+            "Log in to the device through the console/management interface as user zsroot.",
+            "ssh zsroot@169.254.2.2"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-rotating-zscaler-service-account-passwords.json",
+          "after": "ssh zsroot@169.254.2.2",
+          "quotes": [
+            "passwd zsroot",
+            "Follow the prompts to enter the current password and then a new password."
+          ]
+        }
+      ]
+    },
+    "no-rotation-api": {
+      "statement": "zsroot is rotated per device: the documented procedure is an interactive passwd on each connector, and the Cloud & Branch Connector API offers no operation for device account passwords.",
+      "tier": "B",
+      "derived_from": [
+        "cc-procedure",
+        "bc-procedure"
+      ],
+      "conditions": "Rests on a search: the captured Cloud & Branch Connector OpenAPI document does not mention zsroot, and its only password path is the admin user's password change. Absence from the captures is not proof that no such operation exists."
+    },
+    "console-admin-password": {
+      "statement": "The Python SDK's `change_password` changes the password of a specified admin user with a POST to `/passwordChange`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/admin_users.py",
+          "after": "def change_password(self, username: str, old_password: str, new_password: str, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "Change the password for the specified admin user.",
+            "http_method = \"post\".upper()",
+            "/passwordChange"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "redeploy-password-state": {
+      "kind": "semantic",
+      "title": "What a redeployment does to the zsroot password, and what a new connector's password is",
+      "status": "open",
+      "blocks": "keeping a rotation record valid across OS-image redeployments",
+      "detail": "Unverified legacy statements: re-provisioning a Cloud Connector \"creates a new VM; password state does not persist unless baked into the image\", a Branch Connector's password \"persists across software upgrades\", and the default zsroot password of a freshly provisioned connector is not documented. The legacy advice to rotate after each redeploy and before the group enters production rests on these statements.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "rotation-failure-modes": {
+      "kind": "semantic",
+      "title": "Failure modes of a zsroot rotation",
+      "status": "open",
+      "blocks": "recovering a connector after an interrupted or failed rotation",
+      "detail": "Unverified legacy statements (marked inference in the legacy page): losing the SSH session before the change commits can leave the account indeterminate; repeated wrong current passwords may lock the account; recovery without the password needs cloud-provider console access (Azure Serial Console, AWS EC2 Instance Connect); and a rotation during an upgrade window is \"likely fine\". No captured source covers any of these.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "zsroot-scope": {
+      "kind": "semantic",
+      "title": "What zsroot is not used for",
+      "status": "open",
+      "detail": "Unverified legacy statement: zsroot \"is used for administrative SSH access and internal device management. It is not the account used for control-plane registration or cloud-provider API calls — it is a local OS-level account.\" The help describes it only as a privileged account for administrative access and management of the virtual device.",
+      "blocks": "judging what a zsroot password change can affect besides device login",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

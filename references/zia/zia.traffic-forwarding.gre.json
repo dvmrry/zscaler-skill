@@ -51,7 +51,7 @@
     },
     {
       "label": "How much it carries.",
-      "text": "{{bandwidth-limit}} {{nat-limit-reason}} {{scale-out}} {{client-persistence}}"
+      "text": "{{bandwidth-limit}} {{nat-limit-reason}} {{one-gbps-reason}} {{scale-out}} {{client-persistence}}"
     },
     {
       "label": "Where to build it.",
@@ -68,6 +68,9 @@
     {
       "label": "MTU and MSS.",
       "text": "{{mtu-mss}} The symptom of an unclamped MSS is open {{gap:mss-symptom}}. Whether premium data centers can be used with a Support ticket is open {{gap:premium-dc-support}}. Whether GRE carries IPv6 is open {{gap:ipv6-coverage}}; IPSec's coverage is in [[zia.traffic-forwarding.ipsec]]."
+    },
+    {
+      "text": "{{vse-unnumbered}} Virtual Service Edge clusters are [[zia.virtual-service-edge.clusters]]."
     }
   ],
   "checks": [
@@ -409,6 +412,33 @@
       ],
       "binds": [
         "zia/gre-tunnels"
+      ]
+    },
+    "vse-unnumbered": {
+      "statement": "GRE tunnels configured on Virtual Service Edges are established dynamically with no internal IP addresses, like unnumbered GRE tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-generic-routing-encapsulation-gre.json",
+          "quotes": [
+            "GRE tunnels configured on Virtual Service Edges are dynamically established with no internal IP addresses, similar to unnumbered GRE tunnels."
+          ]
+        }
+      ]
+    },
+    "one-gbps-reason": {
+      "statement": "Zscaler set the 1 Gbps limit because much of the internet infrastructure uses 1 Gbps links, and multilink technologies such as LACP still aggregate 1 Gbps interfaces, so more than 1 Gbps from a single source IP address becomes a bottleneck.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-generic-routing-encapsulation-gre.json",
+          "quotes": [
+            "Zscaler set the bandwidth limit to 1 Gbps because a significant part of the internet infrastructure uses network links that are 1 Gbps.",
+            "Multilink technologies such as Link Aggregation Control Protocol (LACP) still rely on aggregating multiple 1 Gbps interfaces, so having more than 1 Gbps of traffic from a single source IP address results in a bottleneck."
+          ]
+        }
       ]
     }
   },

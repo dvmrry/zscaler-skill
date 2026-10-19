@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.gcp-ztg.creation",
+  "title": "Creating a GCP Zero Trust Gateway: region, zones, location, IAM principals",
+  "aliases": [
+    "add gcp zero trust gateway",
+    "gcp ztg iam principal",
+    "gcp ztg change region",
+    "gcp ztg availability zones",
+    "gcp ztg location template",
+    "gcp ztg connection not allowed"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.gcp-ztg"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp-ztg.operations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A GCP gateway is created in the Admin Console with a configuration tab and an IAM principals tab. What each setting commits to is below; the service boundary is in [[cloud-connector.gcp-ztg]]."
+    },
+    {
+      "label": "Placement.",
+      "text": "{{one-region-immutable}} {{two-zones-minimum}}"
+    },
+    {
+      "label": "Location.",
+      "text": "{{location-optional-synced}} {{location-template}}"
+    },
+    {
+      "label": "Who may connect.",
+      "text": "{{iam-principals}} {{principal-allows-endpoint-group}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the gateway was created in the intended region, since the region cannot be changed afterwards.",
+      "uses": [
+        "one-region-immutable"
+      ]
+    },
+    {
+      "do": "Whether the intercept endpoint group that is being refused belongs to a project whose IAM principal is listed on the gateway.",
+      "uses": [
+        "iam-principals",
+        "principal-allows-endpoint-group"
+      ]
+    },
+    {
+      "do": "Whether a location name was set, which decides whether policies can reference the gateway's location.",
+      "uses": [
+        "location-optional-synced"
+      ]
+    }
+  ],
+  "claims": {
+    "one-region-immutable": {
+      "statement": "A GCP gateway is deployed in exactly one GCP region, and the region cannot be modified after the gateway is created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-google-cloud-platform-zero-trust-gateway.json",
+          "quotes": [
+            "You can only deploy in one region, and you cannot modify it after the GCP gateway is created."
+          ]
+        }
+      ]
+    },
+    "two-zones-minimum": {
+      "statement": "Creating a GCP gateway requires selecting at least two availability zones for its components.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-google-cloud-platform-zero-trust-gateway.json",
+          "quotes": [
+            "Availability Zone: Select the availability zones where you want to create the GCP gateway components. You must select a minimum of two availability zones."
+          ]
+        }
+      ]
+    },
+    "location-optional-synced": {
+      "statement": "The location name is optional; when set, the location object is visible in every policy where location objects are available and is created and synced between Cloud Connector and Internet & SaaS policy pages.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-google-cloud-platform-zero-trust-gateway.json",
+          "quotes": [
+            "Location Name (Optional): Enter the name of the location to be associated with the GCP gateway.",
+            "This name is visible in all the policies where the location object is available.",
+            "This location object is created and synced between Cloud Connector policy pages and Internet & SaaS policy pages."
+          ]
+        }
+      ]
+    },
+    "location-template": {
+      "statement": "The location template selected at creation is the template used to create the gateway's location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-google-cloud-platform-zero-trust-gateway.json",
+          "quotes": [
+            "Location Template: Select the location template that is used for creating the location associated with the GCP gateway."
+          ]
+        }
+      ]
+    },
+    "iam-principals": {
+      "statement": "IAM principals are added with a principal value and a type of User, Group or Service Account, and the principal is associated with the customer's VPC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-google-cloud-platform-zero-trust-gateway.json",
+          "quotes": [
+            "On the IAM Principals tab, enter a Principal Value and select Principal Type (i.e., User, Group, or Service Account).",
+            "The IAM principal is associated with your virtual private cloud (VPC)."
+          ]
+        }
+      ]
+    },
+    "principal-allows-endpoint-group": {
+      "statement": "On a connection request the Zscaler service checks the incoming connection and allows it from an intercept endpoint group associated with an added IAM principal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-google-cloud-platform-zero-trust-gateway.json",
+          "quotes": [
+            "When a user enters a connection request, the Zscaler service checks the incoming connection and allows the incoming connection from an intercept endpoint group that is associated with the IAM principal you added."
+          ]
+        }
+      ]
+    }
+  }
+}

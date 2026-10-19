@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "id": "shared.pac-files.variables",
+  "title": "Zscaler PAC file variables: gateways, hosts, load-balancing tokens, subclouds and Client Connector",
+  "aliases": [
+    "pac variables",
+    "${GATEWAY}",
+    "${SECONDARY_GATEWAY}",
+    "${GATEWAY_HOST}",
+    "${GATEWAY_FX}",
+    "gateway_fx",
+    "gateway index tokens",
+    "${COUNTRY_GATEWAY}",
+    "${SRCIP}",
+    "${ZS_CUSTOM_PORT}",
+    "${TRUSTED_NETWORK}",
+    "${ZT2_REQUEST}",
+    "subcloud pac variable",
+    "pac server geolocation",
+    "pac manual failover"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.pac-files.syntax"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.pac-files"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "shared.pac-files.kerberos"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A Zscaler-hosted PAC file is not served as written: the PAC server fills in variables for each request. The default files use them, and custom files should."
+    },
+    {
+      "label": "How substitution works.",
+      "text": "{{substitution-flow}} {{hosted-only}} How the server geolocates a client that fetches the file through a VPN is open {{gap:vpn-egress-geolocation}}."
+    },
+    {
+      "label": "Gateways and failover.",
+      "text": "{{gateway-vars}} {{manual-failover}}"
+    },
+    {
+      "label": "Host names.",
+      "text": "{{gateway-host}} Kerberos use is in [[shared.pac-files.kerberos]]."
+    },
+    {
+      "label": "Load-balancing tokens.",
+      "text": "{{index-tokens}} {{fx-tokens}} Dedicated proxy ports also require the _FX variables: [[zia.traffic-forwarding.pac:dedicated-port-variables]]."
+    },
+    {
+      "label": "Source, country and country gateways.",
+      "text": "{{source-and-country}}"
+    },
+    {
+      "label": "Subclouds.",
+      "text": "{{subcloud-vars}} The documents spell the secondary subcloud variable two ways {{divergence:subcloud-secondary-syntax}}. How long a subcloud change takes to reach clients is [[shared.pac-files.hosting:subcloud-propagation]]."
+    },
+    {
+      "label": "Client Connector variables.",
+      "text": "{{zcc-port-variable}} {{zcc-network-variables}} The PAC files Client Connector uses are listed from [[shared.pac-files]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the file is hosted on the Zscaler cloud; a self-hosted copy gets no variable substitution.",
+      "uses": [
+        "hosted-only"
+      ]
+    },
+    {
+      "do": "For a subcloud tenant, whether every return statement uses the subcloud form rather than ${GATEWAY}.",
+      "uses": [
+        "subcloud-vars",
+        "subcloud-secondary-syntax"
+      ]
+    },
+    {
+      "do": "Whether _FX tokens are used for clients that are not Client Connector, where they do not balance load.",
+      "uses": [
+        "fx-tokens",
+        "index-tokens"
+      ]
+    }
+  ],
+  "claims": {
+    "substitution-flow": {
+      "statement": "When a browser requests the default PAC file, the service uses geolocation to find the Public Service Edges closest to the user and inserts their IP addresses into the file it returns; the browser then forwards web traffic to the primary Public Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-pac-file.json",
+          "quotes": [
+            "The Zscaler service uses geolocation technology to find the Public Service Edges that are closest to the user.",
+            "The service inserts the Public Service Edge IP addresses in the PAC file that is returned to the browser.",
+            "The browser follows the instructions in the PAC file and forwards its web traffic to the primary Public Service Edge."
+          ]
+        }
+      ]
+    },
+    "hosted-only": {
+      "statement": "The Zscaler-specific variables work only when the PAC file is hosted on the Zscaler cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.json",
+          "quotes": [
+            "The Zscaler-specific variables are applicable only if you host your PAC files on the Zscaler cloud."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-writing-pac-files.json",
+          "quotes": [
+            "The Zscaler-specific variables are applicable only if you host your PAC file on the Zscaler cloud."
+          ]
+        }
+      ]
+    },
+    "gateway-vars": {
+      "statement": "${GATEWAY} and ${SECONDARY_GATEWAY} resolve to the Public Service Edges closest to the client with the quickest response, found by geolocation; naming both provides failover when one is unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.json",
+          "quotes": [
+            "You can use the ${GATEWAY} and ${SECONDARY_GATEWAY} variables to determine the Public Service Edge closest to the client.",
+            "The Zscaler service uses its geolocation technology to find the closest Public Service Edge with the quickest response time.",
+            "Naming a primary and secondary gateway provides failover when one of the Public Service Edges is unavailable for any reason."
+          ]
+        }
+      ]
+    },
+    "manual-failover": {
+      "statement": "Failover to the secondary data center is automatic when the primary is down; to move users for other reasons, such as ISP or latency issues, the vendor reverses the order: PROXY ${SECONDARY_GATEWAY_FX}:80 before PROXY ${GATEWAY_FX}:80, then DIRECT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.json",
+          "quotes": [
+            "When the primary data center is down, the failover to the secondary data center is automatic.",
+            "if the primary data center is unavailable for any other reason, such as ISP issues, latency issues, etc., modify the PAC file syntax as follows to manual failover to the secondary data center:",
+            "return \"PROXY ${SECONDARY_GATEWAY_FX}:80; PROXY ${GATEWAY_FX}:80; DIRECT\";"
+          ]
+        }
+      ]
+    },
+    "gateway-host": {
+      "statement": "${GATEWAY_HOST} and ${SECONDARY_GATEWAY_HOST} resolve to host names instead of IP addresses. They are mandatory for Kerberos authentication and for IPv6: Zscaler mandates the host-name variable to forward IPv6 traffic, with IPv6 support also enabled for the organization and its locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.json",
+          "quotes": [
+            "variable to resolve to a hostname instead of an IP address. For Kerberos authentication and IPv6 traffic, this is a mandatory configuration.",
+            "Zscaler mandates using this variable and resolving your hostname to forward IPv6 traffic to Internet & SaaS. You must also ensure that IPv6 support is enabled for your organization and locations in the Zscaler Admin Console.",
+            "return \"PROXY ${GATEWAY_HOST}:80; PROXY ${SECONDARY_GATEWAY_HOST}:80; DIRECT\";"
+          ]
+        }
+      ]
+    },
+    "index-tokens": {
+      "statement": "For many users behind one egress IP, the suffixes _F0 to _F7 on ${GATEWAY} return up to 8 healthy gateway IP addresses (reused round-robin when a data center has fewer than 8). These load-balancing variables are for non-tunnel traffic, and regional surcharge data centers are not in the gateway variable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.json",
+          "after": "If your organization has many users behind a single egress IP address, you can configure the PAC file to choose from multiple gateway IP addresses to distribute the load.",
+          "quotes": [
+            "The load-balancing PAC variables are designed for non-tunnel traffic. You do not require these variables for load-balancing your tunnel (GRE/IPSec) traffic.",
+            "Regional surcharge data centers are not included in the gateway variable.",
+            "Add the suffixes _F0 through _F7 to the ${GATEWAY} variable in the PAC file for the PAC server to return the healthy gateway IP addresses through the 8 variables.",
+            "If the data center has fewer than 8 healthy gateway IP addresses, then the PAC server allocates the available healthy VIP addresses to all 8 variables in a round-robin fashion."
+          ]
+        }
+      ]
+    },
+    "fx-tokens": {
+      "statement": "The _FX suffix (${GATEWAY_FX}, ${SECONDARY_GATEWAY_FX}) makes the PAC server issue gateway addresses by client fingerprint, giving all users behind one egress IP addresses from a pool of healthy gateway IPs and keeping a device on the same gateway; it balances on the useragent, x-forwarded-for and z-client headers and is effective only for Client Connector clients, and other clients can use the index tokens.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.json",
+          "after": "Dynamic Gateway Tokens",
+          "quotes": [
+            "Use the suffix _FX to the ${GATEWAY} variable in the PAC file for the PAC server to dynamically issue gateway IP addresses based on the client fingerprints",
+            "(all users coming from a single egress IP address are given an IP address from a pool of healthy gateway IP addresses)",
+            "The fingerprint is used to ensure that a single device continues its session to the same gateway IP address.",
+            "return \"PROXY ${GATEWAY_FX}:80; PROXY ${SECONDARY_GATEWAY_FX}:80; DIRECT\";",
+            "The _FX suffix provides load balancing across multiple VIP addresses depending on the HTTP headers (useragent, x-forwarded-for, and z-client). This variable is effective only for Zscaler Client Connector clients because the z-client ID is different for each user.",
+            "To implement load balancing for non-Zscaler Client Connector clients, you can use the Gateway Index Tokens."
+          ]
+        }
+      ]
+    },
+    "source-and-country": {
+      "statement": "${SRCIP} gives the client's public IP address and ${COUNTRY} its country (countries as listed on GeoNames); ${COUNTRY_GATEWAY} and ${COUNTRY_SECONDARY_GATEWAY} give the closest Public Service Edge in the client's country, and ${COUNTRY_GATEWAY} behaves like ${GATEWAY} when no Service Edge is configured there.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.json",
+          "quotes": [
+            "You can use the ${SRCIP} variable to determine the client's public IP address.",
+            "You can use the ${COUNTRY} variable to determine the client's country",
+            "The ${COUNTRY} variable supports the countries listed on GeoNames.",
+            "You can use the ${COUNTRY_GATEWAY} and ${COUNTRY_SECONDARY_GATEWAY} variables to determine the closest Public Service Edge in the client's country.",
+            "When there is no Public Service Edge configured in your country, the ${COUNTRY_GATEWAY} variable behaves just like the ${GATEWAY} variable."
+          ]
+        }
+      ]
+    },
+    "subcloud-vars": {
+      "statement": "A PAC file for a subcloud must not use ${GATEWAY} or gateway.<Zscaler cloud> in its return statement, or traffic goes to the nearest Public Service Edge, which may be outside the subcloud; it uses ${GATEWAY.<Subcloud>.<Zscaler cloud>} and ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>}, with _HOST forms for Kerberos and plain host names for applications that do not support PAC files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-subclouds.json",
+          "quotes": [
+            "you must use a custom PAC file that doesn't use the variables gateway.<Zscaler cloud> and ${GATEWAY} in its return statement. Otherwise, web traffic is forwarded to the nearest Public Service Edge, which might not be a Public Service Edge in your subcloud.",
+            "${GATEWAY.<Subcloud>.<Zscaler cloud>} ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>}",
+            "Use the following variables for Kerberos:",
+            "${GATEWAY.<Subcloud>.<Zscaler cloud>_HOST} ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>_HOST}",
+            "Use the following variables for applications that don't support PAC files:",
+            "gateway.<Subcloud>.<Zscaler cloud> secondary.gateway.<Subcloud>.<Zscaler cloud>"
+          ]
+        }
+      ]
+    },
+    "zcc-port-variable": {
+      "statement": "${ZS_CUSTOM_PORT} returns a custom port by country and Z-Tunnel version (in China 9401 for Z-Tunnel 2.0 and 9400 for 1.0, elsewhere 443 for both; the ports are subject to change). It needs Use Preferred Port from PAC enabled in the Client Connector Windows profile and Client Connector 4.2.0 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.json",
+          "after": "Custom Port Variable",
+          "quotes": [
+            "To use this variable, enable the Use Preferred Port from PAC for Z-Tunnel 1.0 or the Use Preferred Port from PAC for Z-Tunnel 2.0 option in the Zscaler Client Connector Windows profile policy rule.",
+            "if you are in China, then the variable is replaced with port 9401 for Z-Tunnel 2.0 requests and 9400 for Z-Tunnel 1.0 requests. The ports are subject to change.",
+            "if you are in a country other than China, then the variable is replaced with port 443 for Z-Tunnel 2.0 and Z-Tunnel 1.0 requests.",
+            "This variable is applicable only if you use Zscaler Client Connector version 4.2.0 or later."
+          ]
+        }
+      ]
+    },
+    "zcc-network-variables": {
+      "statement": "${TRUSTED_NETWORK} gives Client Connector's network type (ON_TRUSTED, OFF_TRUSTED, VPN_TRUSTED, SPLIT_VPN_TRUSTED) only in an app profile PAC file, and NOT_AVAILABLE in a forwarding profile or proxy PAC file or when no type is known; it needs Client Connector 4.2.0 or later. ${ZT2_REQUEST} is true when the PAC file is requested for Z-Tunnel 2.0 and false for Z-Tunnel 1.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.json",
+          "after": "Zscaler Client Connector Trusted Network Variable",
+          "quotes": [
+            "The following values correspond to the supported network types: ON_TRUSTED, OFF_TRUSTED, VPN_TRUSTED, and SPLIT_VPN_TRUSTED. These values are taken only if the variable is used in an APP Profile PAC file.",
+            "If there is no network type available or if the variable is used in a forwarding profile or Proxy PAC file, then the variable takes the value NOT_AVAILABLE.",
+            "This variable is applicable only if you use Zscaler Client Connector version 4.2.0 or later.",
+            "This variable takes the value true if the request is for Z-Tunnel 2.0 or the value false if the request is for Z-Tunnel 1.0."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "subcloud-secondary-syntax": {
+      "summary": "How the secondary gateway variable for a subcloud is written.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "writing-pac-file.json",
+            "quotes": [
+              "return \"PROXY ${GATEWAY.<Subcloud>.<Zscaler cloud>.net}:80; PROXY ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net}:80; DIRECT\";"
+            ]
+          },
+          "says": "The PAC writing article uses ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net}, with a period after SECONDARY; the subclouds article uses the same form."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "best-practices-writing-pac-files.json",
+            "quotes": [
+              "If your organization uses a subcloud, use the variables ${GATEWAY.organization_name.zscaler.net} and ${SECONDARY_GATEWAY.organization_name.zscaler.net}."
+            ]
+          },
+          "says": "The PAC best practices article writes ${SECONDARY_GATEWAY.organization_name.zscaler.net}, with an underscore."
+        }
+      ],
+      "impact": "A file copied from the best practices article may use a secondary subcloud variable that differs from the one the other two articles document; whether the PAC server substitutes the underscore form is not stated, so the secondary entry may not resolve to a subcloud Service Edge."
+    }
+  },
+  "gaps": {
+    "vpn-egress-geolocation": {
+      "kind": "semantic",
+      "title": "Which address the PAC server geolocates",
+      "status": "open",
+      "detail": "Unverified legacy statement: when a remote user fetches the PAC URL through a corporate VPN, the PAC server geolocates the VPN egress IP rather than the user, so the returned file names Service Edges near the VPN egress and traffic can cross continents. The sources say the service geolocates to find the Service Edges closest to the user, without saying which address it uses.",
+      "blocks": "explaining distant Service Edge selection for PAC users on a VPN",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

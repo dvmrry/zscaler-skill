@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "id": "shared.nss.collector",
+  "title": "NSS Collector: third-party firewall and proxy logs into the SaaS Security Report",
+  "aliases": [
+    "nss collector",
+    "log collection",
+    "third-party firewall logs into zscaler",
+    "cef syslog to zscaler",
+    "nss collector rate limit",
+    "shadow it third-party logs"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.nss"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.delivery-modes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The NSS Collector runs the opposite way to a feed: it brings logs in. {{collector-purpose}}"
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{collector-deployment}}"
+    },
+    {
+      "label": "What it does with a log.",
+      "text": "{{collector-processing}} {{collector-retention}}"
+    },
+    {
+      "label": "Limits and loss.",
+      "text": "{{collector-buffer}} {{collector-limits}} Whether the rate applies per collector or per organization, and whether drops are reported, is open {{gap:rate-scope}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant holds an NSS VM or Cloud NSS subscription and had the feature enabled through Zscaler Support.",
+      "uses": [
+        "collector-purpose",
+        "collector-deployment"
+      ]
+    },
+    {
+      "do": "Whether the third-party devices send CEF syslog over TCP to the collector's port.",
+      "uses": [
+        "collector-processing"
+      ]
+    },
+    {
+      "do": "For missing third-party events, whether they were older than one hour or above the events-per-second limit when they arrived.",
+      "uses": [
+        "collector-limits",
+        "rate-scope"
+      ]
+    }
+  ],
+  "claims": {
+    "collector-purpose": {
+      "statement": "The NSS Collector collects logs in near real time from third-party firewall and web proxy devices inside the network perimeter and streams them to the Zscaler cloud; the functionality and its data are exclusive to the SaaS Security Report, and enabling it requires contacting Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "This provision allows for near real-time log collection from third-party vendors' firewall and web proxy devices inside your network perimeter and streaming of the logs to the Zscaler cloud by using the NSS Collector.",
+            "The NSS Collector functionality and the data collected using this functionality are exclusive to the SaaS Security Report. To enable this feature for your organization, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "collector-deployment": {
+      "statement": "The NSS Collector requires a subscription to the NSS VM or Cloud NSS, must be deployed on VMware inside the network perimeter from a VM image obtained in the Admin Console, and uses a client certificate issued by Zscaler.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "The NSS Collector requires a subscription to the NSS VM or Cloud NSS.",
+            "The NSS Collector must be deployed on VMware within your organization",
+            "network perimeter. The deployment involves installing the NSS Collector server",
+            "installing the NSS Collector server using the packaged software (VM image) obtained from the Zscaler Admin Console and configuring the client certificate issued by Zscaler for the NSS Collector server."
+          ]
+        }
+      ]
+    },
+    "collector-processing": {
+      "statement": "The collector listens on a fixed port for syslog feeds in CEF format over TCP from one or many firewalls; it resolves users through IdP integration, putting unmanaged users under Unidentified Users, resolves URL information for cloud application discovery, and sends the processed data to the Zscaler cloud over HTTPS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "it listens on a fixed port configured on your firewall to forward the logs.",
+            "The NSS Collector can collect the syslog feeds from one or many firewall devices in the CEF format over a TCP connection.",
+            "Resolves user information based on integration with IdP. Unmanaged Zscaler users are categorized as Unidentified Users.",
+            "Resolves the URL information to facilitate cloud application discovery and analysis by Zscaler.",
+            "Securely transmits processed log data to the Zscaler cloud over HTTPS."
+          ]
+        }
+      ]
+    },
+    "collector-retention": {
+      "statement": "Third-party device logs are processed by Zscaler, retained for 6 months, and made available for cloud application discovery and analytics through the SaaS Security Report.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "The third-party device logs are processed by Zscaler and retained for 6 months. This data is integrated with Zscaler and is made available for cloud application discovery and analytics through the SaaS Security Report."
+          ]
+        }
+      ]
+    },
+    "collector-buffer": {
+      "statement": "The collector keeps a one-hour buffer against communication issues with the Zscaler cloud and maintenance, sending buffered logs when the connection is re-established; the buffer grows in proportion to the RAM allocated to it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "The NSS Collector maintains a one-hour buffer to ensure no data loss due to communication issues with the Zscaler cloud or during maintenance procedures.",
+            "the NSS Collector buffers the third-party firewall or web proxy logs and sends them when the connection is re-established.",
+            "The buffer size increases proportionally to the amount of RAM allocated to the NSS Collector."
+          ]
+        }
+      ]
+    },
+    "collector-limits": {
+      "statement": "An organization can have up to 4 NSS Collector servers; the collector does not support historical load, so records older than one hour are dropped from the stream, and it restricts streaming to the Zscaler cloud to 10K events per second, dropping events that exceed the rate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "An organization can have up to 4 NSS Collector servers.",
+            "The NSS Collector does not support historical load from the source. Records older than one hour are dropped from the stream.",
+            "The NSS Collector restricts the log events streaming to the Zscaler cloud to 10K events per second. Events that exceed the rate limit are dropped."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "rate-scope": {
+      "kind": "semantic",
+      "title": "Scope of the 10K events-per-second limit and visibility of drops",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Tenants with chatty third-party firewalls ... can silently lose events when exceeding this rate; nothing warns operators that excess is being dropped. Size third-party log volume against the 4-collector / 10K-per-collector ceiling.\" The help states the limit for \"the NSS Collector\" and that excess events are dropped; it does not say whether the limit is per collector or per organization, or whether drops are reported anywhere.",
+      "blocks": "sizing third-party log volume across collectors and detecting dropped events",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

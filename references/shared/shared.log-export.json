@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "id": "shared.log-export",
+  "title": "Where each Zscaler product's logs go and how to get them out",
+  "aliases": [
+    "log export",
+    "where do i find this log",
+    "which log stream has",
+    "export logs to siem",
+    "nss vs lss vs cloud nss",
+    "zscaler log sources",
+    "log export architecture"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.nss"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.log-export.zdx"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.siem-mapping"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Each product has its own way out. Find the product first, then the path."
+    },
+    {
+      "table": {
+        "columns": [
+          "Logs",
+          "Path out",
+          "Described in"
+        ],
+        "rows": [
+          [
+            "ZIA web, firewall, DNS, tunnel and the other ZIA log types",
+            "An NSS feed on VM-based NSS or Cloud NSS [[shared.nss.feeds]]",
+            "[[shared.nss]], [[shared.nss.delivery-modes]]"
+          ],
+          [
+            "ZIA admin audit log",
+            "An admin audit feed [[zia.audit-logs.streaming]]",
+            "[[zia.audit-logs.streaming]]"
+          ],
+          [
+            "ZIA SaaS Security scan records",
+            "A SaaS Security feed [[zia.casb.insights-logs]]",
+            "[[zia.casb.insights-logs]]"
+          ],
+          [
+            "ZPA user activity, user status, App Connector, audit and other Private Access logs",
+            "A log receiver fed by App Connectors [[zpa.log-receivers.architecture]]",
+            "[[zpa.log-receivers]], [[zpa.log-receivers.log-types]]"
+          ],
+          [
+            "Client Connector logs",
+            "Kept on the device; collected by export, Report an Issue or Fetch Logs [[zcc.logging.collection]]",
+            "[[zcc.logging]], [[zcc.logs.client-log]]"
+          ],
+          [
+            "ZDX scores, alerts and device data",
+            "The ZDX API [[shared.log-export.zdx]]",
+            "[[shared.log-export.zdx]]"
+          ],
+          [
+            "Cloud Connector session logs and Insights",
+            "Not converted yet [[cloud-connector.logs]]",
+            "[[cloud-connector.nss-va]]"
+          ],
+          [
+            "Third-party firewall and proxy logs, inbound",
+            "The NSS Collector [[shared.nss.collector]]",
+            "[[shared.nss.collector]]"
+          ]
+        ]
+      }
+    },
+    {
+      "label": "DLP and Sandbox.",
+      "text": "The web feed carries inline DLP and Sandbox fields: [[zia/web-log]], [[zia.logs.web-field-semantics:dlp-rule-fields]], [[zia.logs.web-field-semantics:malwarecat-sandbox]]. Endpoint DLP, Email DLP and Sandbox Verdict logs also have feeds of their own: [[shared.nss.feeds:feed-log-types]]."
+    },
+    {
+      "label": "Delivery differs by path.",
+      "text": "NSS recovery and retry rules are in [[shared.nss.reliability]]. ZPA's stream drops logs from a connection loss except for a short retransmit and audit logs: [[zpa.app-connectors.health:lss-retransmit-limits]], with retention in [[zpa.log-receivers.delivery]]."
+    },
+    {
+      "label": "LSS is a separate path.",
+      "text": "TLS between App Connector and receiver is optional, not required: [[zpa.log-receivers.tls:mutual-tls-optional]]. Whether LSS shares the Nanolog store with NSS is not stated {{gap:lss-store}}."
+    },
+    {
+      "label": "Client Connector logs are not a SIEM stream.",
+      "text": "What users can export and when it is readable is [[zcc.logging.user-access]]; whether the client log records individual transactions is open in [[zcc.logs.client-log]]."
+    },
+    {
+      "label": "Landing in a SIEM.",
+      "text": "Which log type to look for and how it tends to be named in a SIEM: [[shared.siem-mapping]]. Joining records across streams: [[shared.log-correlation]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a per-URL allow or block decision, read the ZIA web log and its rule fields rather than the Client Connector log.",
+      "uses": [
+        "zia.logs.web-rule-attribution",
+        "zcc.logs.client-log:transaction-records"
+      ]
+    },
+    {
+      "do": "For a gap in a SIEM, which path the log type takes before applying a recovery rule: NSS or LSS.",
+      "uses": [
+        "shared.nss.reliability:legs-differ",
+        "zpa.app-connectors.health:lss-retransmit-limits"
+      ]
+    }
+  ],
+  "gaps": {
+    "lss-store": {
+      "kind": "semantic",
+      "title": "Whether LSS reads from the Nanolog",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"LSS ... is architecturally distinct from NSS; it does not go through the Nanolog cluster.\" The help says NSS streams from the Zscaler Nanolog and that LSS resides in the Zero Trust Exchange and starts its stream through a Public Service Edge; it does not say where Private Access logs are stored before streaming.",
+      "blocks": "reasoning about whether a Nanolog outage affects ZPA log streaming",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    }
+  }
+}

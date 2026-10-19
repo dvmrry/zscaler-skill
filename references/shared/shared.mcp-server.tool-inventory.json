@@ -1,0 +1,382 @@
+{
+  "schema_version": 1,
+  "id": "shared.mcp-server.tool-inventory",
+  "title": "Which tools a Zscaler MCP server registers: toolsets, entitlements and the write gate",
+  "aliases": [
+    "--enable-write-tools",
+    "--write-tools",
+    "ZSCALER_MCP_WRITE_ENABLED",
+    "ZSCALER_MCP_WRITE_TOOLS",
+    "--toolsets",
+    "--disabled-toolsets",
+    "--no-entitlement-filter",
+    "ZSCALER_MCP_DISABLE_ENTITLEMENT_FILTER",
+    "mcp write tools missing",
+    "mcp tools disappeared",
+    "mcp entitlement filter",
+    "service-info prd",
+    "mcp tool annotations",
+    "readOnlyHint"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.mcp-server"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "shared.mcp-server.delete-confirmation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The set of tools a client sees is fixed when the server starts. {{precedence}}"
+    },
+    {
+      "heading": "Toolsets"
+    },
+    {
+      "text": "{{toolset-flags}} {{unknown-toolsets}}"
+    },
+    {
+      "heading": "OneAPI entitlement filter"
+    },
+    {
+      "text": "{{entitlement-filter}} {{entitlement-skip}} {{entitlement-aliases}} {{entitlement-unmapped-warning}} Whether the mapped aliases are the complete set ZIdentity emits for every tenant and token generation is open {{gap:prd-alias-set}}. {{entitlement-disable}} {{entitlement-disable-effect}}"
+    },
+    {
+      "heading": "Write tools"
+    },
+    {
+      "text": "{{write-gate}} {{write-gate-warnings}} {{write-gate-history}} {{read-tools-always}} Once a write tool is registered, what gates each call is in [[shared.mcp-server.delete-confirmation]]."
+    },
+    {
+      "heading": "What clients are told"
+    },
+    {
+      "text": "{{annotations}} {{annotations-advisory}} {{list-cache-hint}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether both write settings are set (switch and a non-empty allowlist) when write tools are missing, from the startup warning.",
+      "uses": [
+        "write-gate",
+        "write-gate-warnings"
+      ]
+    },
+    {
+      "do": "When a product's tools are missing after OneAPI sign-in, the startup entitlement log line and any unmapped prd warning, compared with the token's service-info values.",
+      "uses": [
+        "entitlement-filter",
+        "entitlement-unmapped-warning",
+        "prd-alias-set"
+      ]
+    },
+    {
+      "do": "Whether a toolset ID passed to --toolsets or --disabled-toolsets is reported as unknown at startup.",
+      "uses": [
+        "unknown-toolsets"
+      ]
+    }
+  ],
+  "claims": {
+    "precedence": {
+      "statement": "Tool selection applies, in order: disabled tool-name patterns (highest precedence), service enable and disable, OneAPI entitlement downscoping, toolset selection, then the read/write gate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/registry/registry.py",
+          "quotes": [
+            "Mirrors v1's precedence (DESIGN.md §6): disabled patterns win, then service enable/disable, then OneAPI entitlement downscoping, then toolset selection, then the read/write gate."
+          ]
+        }
+      ]
+    },
+    "toolset-flags": {
+      "statement": "`--toolsets` (`ZSCALER_MCP_TOOLSETS`) enables toolsets and `--disabled-toolsets` (`ZSCALER_MCP_DISABLED_TOOLSETS`) excludes them; both take exact toolset IDs with no wildcards, and the disabled list wins when both name a toolset.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "default=os.getenv(\"ZSCALER_MCP_TOOLSETS\", \"\"),",
+            "default=os.getenv(\"ZSCALER_MCP_DISABLED_TOOLSETS\", \"\"),",
+            "Exact ids only (no wildcards); wins over --toolsets when both name a \"",
+            "\"toolset (env: ZSCALER_MCP_DISABLED_TOOLSETS).\""
+          ]
+        }
+      ]
+    },
+    "unknown-toolsets": {
+      "statement": "An unknown toolset ID is logged as a warning naming the unknown and the known IDs, and startup continues; for `--toolsets` a selection that matches nothing starts the server with zero tools.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "\"%s: unknown toolset id(s) %s — ignored. Known toolsets: %s\",",
+            "and for ``--toolsets`` it is silent in the worst possible way: the selection",
+            "matches nothing and the server starts with ZERO tools. Warn and continue,"
+          ]
+        }
+      ]
+    },
+    "entitlement-filter": {
+      "statement": "The OneAPI entitlement filter reads the `service-info` entries of the OneAPI token, maps each `prd` value (case-insensitively) to an MCP service, and keeps only tools of the mapped services; it runs once while the server is built.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/entitlements.py",
+          "quotes": [
+            "Reads ``service-info`` from the payload, lifts each ``prd`` value, and maps",
+            "mapped = PRD_TO_SERVICE.get(prd.strip().upper())"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "entitled_services = _resolve_entitled_services(disable_entitlement_filter)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/registry/registry.py",
+          "quotes": [
+            "if entitled is not None and spec.service not in entitled:"
+          ]
+        }
+      ]
+    },
+    "entitlement-skip": {
+      "statement": "The filter is non-fatal: when it cannot decide (missing credentials, a network or decode failure, an empty service-info) it applies no downscoping, leaves the tool surface untouched and logs one line.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "``None`` means \"apply no entitlement downscoping\" — either the operator",
+            "decision (missing creds, network/decode failure, empty service-info). In",
+            "every skip case the tool surface is left untouched and a single line is"
+          ]
+        }
+      ]
+    },
+    "entitlement-aliases": {
+      "statement": "Since 0.15.2 the filter maps `CLOUD_CONNECTOR` to `ztw`, `ZIAM` to `zid` and `ZINSIGHTS` to `zins`, the values ZIdentity emits in the token's `service-info` claim; before that it removed `ztw_*`, `zid_*` and `zins_*` tools from entitled tenants (issue #95).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/entitlements.py",
+          "quotes": [
+            "\"CLOUD_CONNECTOR\": \"ztw\",",
+            "\"ZIAM\": \"zid\",",
+            "\"ZINSIGHTS\": \"zins\","
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "ZIdentity emits `CLOUD_CONNECTOR`, `ZIAM`, and `ZINSIGHTS` in the token's `service-info` claim — values the filter did not recognize, so it removed `ztw_*` / `zid_*` / `zins_*` tools the tenant was genuinely entitled to.",
+            "[Issue #95](https://github.com/zscaler/zscaler-mcp-server/issues/95)"
+          ],
+          "after": "## 0.15.2 (August 13, 2026)"
+        }
+      ]
+    },
+    "entitlement-unmapped-warning": {
+      "statement": "`prd` values with no known mapping are skipped, and the skipped values are named in a warning saying that if one corresponds to a product the server provides tools for, its tools are being removed by a mapping gap, not a missing entitlement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/entitlements.py",
+          "quotes": [
+            "unmapped.append(prd.strip())",
+            "\"entitlement filter: token carries prd values with no known service \"",
+            "\"mapping, ignored: %s. If one of these corresponds to a product this \"",
+            "\"server provides tools for, its tools are being removed by a mapping \"",
+            "\"gap, not a missing entitlement — please report it.\""
+          ]
+        }
+      ]
+    },
+    "entitlement-disable": {
+      "statement": "`--no-entitlement-filter` or `ZSCALER_MCP_DISABLE_ENTITLEMENT_FILTER=true` skips the filter; the flag's help calls it an emergency override.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "\"--no-entitlement-filter\",",
+            "default=os.getenv(\"ZSCALER_MCP_DISABLE_ENTITLEMENT_FILTER\", \"\").lower()",
+            "\"filter is non-fatal and self-skips on any failure; use this only \"",
+            "\"as an emergency override.\""
+          ]
+        }
+      ]
+    },
+    "entitlement-disable-effect": {
+      "statement": "With the filter disabled, tools of products the OneAPI client is not entitled to are also registered, so they appear in the inventory and can fail only when called.",
+      "tier": "B",
+      "derived_from": [
+        "entitlement-filter",
+        "entitlement-disable"
+      ],
+      "conditions": "Follows from the filter being the only entitlement check at registration; that the API then refuses the calls is inferred, not shown in a source."
+    },
+    "write-gate": {
+      "statement": "Write tools (create, update, delete) are registered only when both the master switch `--enable-write-tools` (`ZSCALER_MCP_WRITE_ENABLED`) and the allowlist `--write-tools` (`ZSCALER_MCP_WRITE_TOOLS`, fnmatch patterns) are set; then only write tools whose names match a pattern are registered. The rule is enforced in server construction, so the CLI, tests and embedding callers all fail closed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "# Writes need BOTH knobs: the switch grants nothing on its own, and an",
+            "# absent allowlist means zero write tools rather than all of them. Enforced",
+            "# here, at the registration boundary, so the CLI, tests and embedders all",
+            "default=os.getenv(\"ZSCALER_MCP_WRITE_ENABLED\", \"\").lower() in (\"true\", \"1\", \"yes\"),",
+            "default=os.getenv(\"ZSCALER_MCP_WRITE_TOOLS\", \"\"),",
+            "\"Allowlist of write tools to permit (fnmatch patterns, e.g. 'zpa_create_*'). \""
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/registry/registry.py",
+          "quotes": [
+            "if allow is not None and not any(fnmatch.fnmatch(spec.name, p) for p in allow):"
+          ]
+        }
+      ]
+    },
+    "write-gate-warnings": {
+      "statement": "Either half alone registers zero write tools and logs a startup warning: the switch without an allowlist, or an allowlist with the switch off.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "\"Write tools are enabled but no allowlist was given — registering 0 write \"",
+            "\"A write-tool allowlist was given (%d pattern(s)) but write tools are \"",
+            "\"disabled — registering 0 write tools. Add --enable-write-tools \""
+          ]
+        }
+      ]
+    },
+    "write-gate-history": {
+      "statement": "Version 0.15.0 restored the two-setting requirement: from 0.13.0 either setting alone turned writes on, and the switch with a blank allowlist registered every write tool (148, deletes included).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "**Enabling write tools now takes both settings again, and an empty allowlist grants nothing.**",
+            "Since 0.13.0 either one on its own quietly turned writes on, and the switch with a blank allowlist registered **every** write tool — all 148, deletes included — rather than none"
+          ],
+          "after": "## 0.15.0 (August 5, 2026)"
+        }
+      ]
+    },
+    "read-tools-always": {
+      "statement": "Read-only tools are always registered by the server, regardless of any flags.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "README.md",
+          "quotes": [
+            "Read-only tools are ALWAYS registered** by the server regardless of any flags."
+          ]
+        }
+      ]
+    },
+    "annotations": {
+      "statement": "Every tool gets MCP annotations derived from its single action: reads are read-only; creates are not read-only, not destructive and not idempotent; updates and deletes are destructive and idempotent. `openWorldHint` is false for every tool, and the write-only hints are left unset on read tools.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/registry/fastmcp_bridge.py",
+          "quotes": [
+            "* read  -> ``readOnlyHint=True``",
+            "* create -> not read-only, not destructive, not idempotent",
+            "* update -> not read-only, destructive (PUT-replace), idempotent",
+            "* delete -> not read-only, destructive, idempotent",
+            "``openWorldHint`` is ``False`` for every tool:",
+            "treats as meaningful only for writes are left unset (``None``) on read-only"
+          ]
+        }
+      ]
+    },
+    "annotations-advisory": {
+      "statement": "The annotations are advisory hints for the client, not a security control; the server-side write allowlist and delete confirmation apply regardless of them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/registry/fastmcp_bridge.py",
+          "quotes": [
+            "advisory metadata, never a security control. The authoritative gate stays",
+            "server-side: reads are always safe, and writes require the ``--write-tools``",
+            "allowlist plus (for deletes) HMAC confirmation regardless of what any hint"
+          ]
+        }
+      ]
+    },
+    "list-cache-hint": {
+      "statement": "`tools/list` alone carries a public cache hint of five minutes (300,000 ms), on the grounds that every filter is resolved once at registration and the inventory cannot change while a connection lives.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "_TOOL_LIST_CACHE_HINTS = {\"tools/list\": CacheHint(ttl_ms=300_000, scope=\"public\")}",
+            "#: SEP-2549 freshness hints. Only ``tools/list`` is hinted, and only because this",
+            "(toolsets, write allowlist, entitlement downscope) is resolved once during",
+            "registration and there is no runtime registration path, so the listing a",
+            "client receives cannot change while the connection lives."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "prd-alias-set": {
+      "kind": "semantic",
+      "title": "The complete set of service-info prd values ZIdentity emits",
+      "status": "partial",
+      "former_ids": [
+        "shared-40"
+      ],
+      "detail": "The 0.15.2 mapping covers the values observed on one live token (issue #95), and the map itself carries guessed variants for ZCell with a note that the canonical value is not yet confirmed. No vendor document lists the prd values ZIdentity emits, so whether other tenants or token generations use other aliases is unknown.",
+      "blocks": "trusting the entitlement filter not to hide tools a tenant is entitled to",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/entitlements.py",
+          "quotes": [
+            "# ZCell (Zscaler Cellular). The exact `prd` claim value ZIdentity emits for",
+            "# TODO: pin the canonical value against a real OneAPI token."
+          ]
+        }
+      ]
+    }
+  }
+}

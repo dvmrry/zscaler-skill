@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.insights",
+  "title": "Monitoring Cloud Connectors: which surface answers which question",
+  "aliases": [
+    "cloud connector monitoring",
+    "cloud connector insights",
+    "branch connector monitoring",
+    "cloud connector health",
+    "cloud connector dashboard",
+    "insights api cloud connector"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.insights.connector-status"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.insights.analytics"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.insights.alerting"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.upgrades.monitoring"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Cloud and Branch Connector health and traffic are visible in the Admin Console, in streamed logs, and in a few API reads. This subject points each question at the surface that answers it."
+    },
+    {
+      "label": "Fleet and status.",
+      "text": "{{monitoring-pages}} What Active, Inactive and Disabled mean, and what the API reports per VM, is in [[cloud-connector.insights.connector-status]]."
+    },
+    {
+      "label": "Traffic.",
+      "text": "{{insights-pages}} Their controls, logs pages and limits are in [[cloud-connector.insights.analytics]]."
+    },
+    {
+      "label": "Programmatic access.",
+      "text": "{{no-insights-api}} Streamed logs are the programmatic path, in [[cloud-connector.logs]] and [[cloud-connector.nss-va]]. Upgrade state has its own API read, in [[cloud-connector.upgrades.monitoring]]."
+    },
+    {
+      "label": "Alerts.",
+      "text": "How state changes reach an operator is in [[cloud-connector.insights.alerting]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the question is about connector state (Monitoring page, VM record) or about traffic (Insights, session logs), before choosing a surface.",
+      "uses": [
+        "monitoring-pages",
+        "insights-pages"
+      ]
+    }
+  ],
+  "claims": {
+    "monitoring-pages": {
+      "statement": "The Cloud & Branch Connector Monitoring pages show the name, group, location, geolocation and status of deployed connector VMs, and are refreshed on demand with a Refresh icon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-accessing-cloud-branch-connector-monitoring.json",
+          "quotes": [
+            "The Cloud & Branch Connector Monitoring pages provide information on the name, group, location, geolocation, and status of your Cloud and Branch Connector virtual machines (VMs)",
+            "You can use the Refresh icon to refresh the dashboard to view the most recent information."
+          ]
+        }
+      ]
+    },
+    "insights-pages": {
+      "statement": "The Insights pages (Session, DNS and Tunnel Insights) chart each transaction processed by the Zscaler service and let an admin drill down with filters and operators.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-insights.json",
+          "quotes": [
+            "View insights for each transaction processed by the Zscaler service on any chart type of your choice.",
+            "Quickly drill down on insights with the help of multiple filters and operators available.",
+            "go to Data Explorer > Zero Trust Cloud > Session/DNS/Tunnel Insights"
+          ]
+        }
+      ]
+    },
+    "no-insights-api": {
+      "statement": "No Insights or Insights-logs read appears in the Cloud & Branch Connector API: the captured API reference has no path for Session, DNS or Tunnel insights or their logs, and the help's API overview lists no such feature.",
+      "tier": "B",
+      "conditions": "Rests on a search: the 96 paths of the captured Cloud & Branch Connector OpenAPI document contain no insight path (the only log-like paths are the audit log report and its download), and the API overview's feature list names no Insights area. The console offers a log Download (cloud-connector.insights.analytics:insights-logs-pages), which is not an API.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-zscaler-cloud-branch-connector-api.json",
+          "quotes": [
+            "The Zscaler Cloud & Branch Connector API gives you programmatic access to the following Zscaler Cloud & Branch Connector features:"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/insights",
+            "/sessionInsights",
+            "/tunnelInsights",
+            "/dnsInsights"
+          ],
+          "note": "No path in the document contains 'insight'."
+        }
+      ]
+    }
+  }
+}

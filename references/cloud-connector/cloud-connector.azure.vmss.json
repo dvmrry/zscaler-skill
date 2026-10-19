@@ -1,0 +1,687 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.azure.vmss",
+  "title": "Cloud Connector on Azure: VMSS autoscaling, health monitoring and resource sync",
+  "aliases": [
+    "azure vmss cloud connector",
+    "cloud connector scale set",
+    "cloud connector autoscaling azure",
+    "vmss_max_ccs",
+    "vmss_min_ccs",
+    "vmss_default_ccs",
+    "smedge_cpu_utilization azure",
+    "cloud_connector_aggr_health azure",
+    "health monitoring function azure",
+    "resource sync function azure",
+    "orphan cloud connector cleanup azure",
+    "terminate_unhealthy_instances",
+    "asp_sku_name",
+    "flex consumption cloud connector function app",
+    "terraform-zscc-ccvmss-azure",
+    "terraform-zscc-function-app-azure"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure.load-balancing"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure.terraform-modules"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp.mig-autoscaling"
+    }
+  ],
+  "prose": [
+    {
+      "text": "VMSS is the Azure form of Cloud Connector autoscaling: scale sets grow and shrink on a custom CPU metric, and a Function App replaces unhealthy connectors and removes orphaned ones from the Cloud Connector group. Help and the reference Terraform state the defaults separately, and they do not always agree."
+    },
+    {
+      "label": "Enablement.",
+      "text": "{{vmss-requires-terraform}} {{support-gated}} The Marketplace names for each cloud's autoscaling are in [[cloud-connector.overview.groups:autoscaling-names]]. What a template with Auto Scaling turned on does on a tenant where Support has not enabled it is not documented {{gap:not-enabled-behavior}}."
+    },
+    {
+      "label": "What a scale set does.",
+      "text": "{{vmss-behavior}} {{vmss-per-zone}} {{flexible-orchestration}}"
+    },
+    {
+      "heading": "Scaling rules"
+    },
+    {
+      "text": "{{help-scaling-rules}} {{module-scaling-rules}} The evaluation window differs between the two {{divergence:scale-evaluation-window}}. {{scheduled-scaling}}"
+    },
+    {
+      "heading": "Instance counts"
+    },
+    {
+      "text": "{{per-vmss-capacity}} {{module-counts}} {{wrapper-max-16}} The module README renders a different maximum default {{divergence:vmss-max-default}}. {{zsec-counts}} {{zsec-exceeds-module}}"
+    },
+    {
+      "heading": "The Function App"
+    },
+    {
+      "text": "{{function-app-roles}} {{function-app-in-templates}} {{grace-period}} {{unhealthy-criteria}} {{termination-iterations}} {{module-function-settings}} {{schedule-not-in-terraform}}"
+    },
+    {
+      "label": "Hosting plan.",
+      "text": "{{asp-sku}} {{asp-sku-guidance}} What a deployment loses when the Function App cannot be hosted is not documented {{gap:function-app-degraded}}."
+    },
+    {
+      "label": "Identities.",
+      "text": "{{managed-identities}} A system-assigned identity must not be added: [[cloud-connector.azure:no-system-identity]]."
+    },
+    {
+      "label": "Metrics.",
+      "text": "{{metrics}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Zscaler Support enabled autoscaling for the tenant and the provisioning template has Auto Scaling enabled before a VMSS deployment.",
+      "uses": [
+        "support-gated",
+        "vmss-requires-terraform",
+        "not-enabled-behavior"
+      ]
+    },
+    {
+      "do": "Which evaluation window, thresholds and cooldowns the deployed autoscale setting actually uses, rather than the Help defaults.",
+      "uses": [
+        "module-scaling-rules",
+        "help-scaling-rules",
+        "scale-evaluation-window"
+      ]
+    },
+    {
+      "do": "How many scale sets were created (one per zone) and the capacity set on each, since minimum and maximum apply per scale set.",
+      "uses": [
+        "per-vmss-capacity",
+        "vmss-per-zone",
+        "wrapper-max-16"
+      ]
+    },
+    {
+      "do": "Whether the Function App is running and its Health Monitoring invocations show terminations, in Application Insights, when unhealthy connectors are not replaced or orphans remain in the group.",
+      "uses": [
+        "function-app-roles",
+        "module-function-settings",
+        "function-app-degraded"
+      ]
+    },
+    {
+      "do": "Whether the Cloud Connector VMs carry only the user-assigned identity, since a system-assigned identity overrides the deployment requirements.",
+      "uses": [
+        "cloud-connector.azure:no-system-identity",
+        "managed-identities"
+      ]
+    }
+  ],
+  "claims": {
+    "vmss-requires-terraform": {
+      "statement": "A Cloud Connector VMSS deployment requires the Terraform deployment template with VMSS and a new Cloud Provisioning Template with Auto Scaling enabled; to enable autoscaling, contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "Cloud Connector with VMSS deployment requires using the Terraform Deployment Template with Virtual Machine Scale Sets (VMSS) and a new Cloud Provisioning Template with Auto Scaling set to Enabled. To enable autoscaling, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "vmss-behavior": {
+      "statement": "A VMSS adds Cloud Connector VMs as load increases and removes them as it decreases, removes unhealthy VMs and replaces them, and replaces a VM someone terminates manually; stopping or rebooting a scale-set VM from the Azure portal could cause it to be terminated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-azure-vmss-deployments.json",
+          "quotes": [
+            "dynamically adds Cloud Connector virtual machines (VMs) to a scale set to meet the current load when it increases, and it removes Cloud Connector VMs from the scale set when the load decreases.",
+            "It removes unhealthy VMs from the scale set and replaces them with healthy ones. If someone manually terminates a VM that is part of a scale set from the Azure portal, the VMSS likewise replaces the VM.",
+            "Stopping or rebooting a VM that is part of a scale set from the Azure portal could cause the VM to be terminated."
+          ]
+        }
+      ]
+    },
+    "vmss-per-zone": {
+      "statement": "A scale set is created in each configured zone; the module creates one scale set per zone when zones are supported and enabled, and one otherwise.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-azure-vmss-deployments.json",
+          "quotes": [
+            "A VMSS is created in each configured zone to provide high availability across zones."
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/main.tf",
+          "quotes": [
+            "count = local.zones_supported ? length(var.zones) : 1"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/variables.tf",
+          "quotes": [
+            "contains(local.az_supported_regions, var.location) && var.zones_enabled == true"
+          ]
+        }
+      ]
+    },
+    "flexible-orchestration": {
+      "statement": "The module deploys scale sets as `azurerm_orchestrated_virtual_machine_scale_set` (Flexible orchestration) with a 5-minute termination notification.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/main.tf",
+          "quotes": [
+            "resource \"azurerm_orchestrated_virtual_machine_scale_set\" \"cc_vmss\" {",
+            "termination_notification { enabled = true timeout = \"PT5M\" }"
+          ]
+        }
+      ]
+    },
+    "help-scaling-rules": {
+      "statement": "Each Cloud Connector reports a custom CPU utilization metric to Azure Monitor every minute, and VMSS uses the aggregate across the scale set; Zscaler's recommended defaults are scale out above 70% and scale in below 50%, each after 10 consecutive minutes, with a 15-minute cooldown and one VM per event.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-azure-vmss-deployments.json",
+          "quotes": [
+            "Each Cloud Connector independently reports custom CPU utilization metrics to the Azure Monitor Service at one-minute intervals to advertise the load it is handling.",
+            "VMSS uses the aggregate CPU utilization of all VMs in the scale set to determine when to trigger scale-out and scale-in events",
+            "| CPU utilization threshold | The aggregate percentage of CPU utilization for the VMs in the scale set. | 70% | 50% |",
+            "| Duration | The number of consecutive minutes after the threshold is crossed before a scale-out or scale-in event is triggered. | 10 | 10 |",
+            "| Cooldown | The number of minutes to wait before triggering another scale-out or scale-in event.",
+            "| 15 | 15 |",
+            "| Instance count | The number of VMs to remove or add for a single scale-out or scale-in event. | 1 | 1 |"
+          ]
+        }
+      ]
+    },
+    "module-scaling-rules": {
+      "statement": "The module's autoscale profile triggers on metric `smedge_metrics` in namespace `Zscaler/CloudConnectors`, filtered to `metric_name` = `smedge_cpu_utilization` and averaged per minute: scale out by 1 when above 70 over PT5M, scale in by 1 when below 50 over PT5M, each with a PT15M cooldown.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/main.tf",
+          "after": "resource \"azurerm_monitor_autoscale_setting\" \"vmss_autoscale_setting\" {",
+          "quotes": [
+            "metric_name = \"smedge_metrics\" dimensions { name = \"metric_name\" operator = \"Equals\" values = [\"smedge_cpu_utilization\"] }",
+            "time_grain = \"PT1M\" statistic = \"Average\" time_window = var.scale_out_evaluation_period time_aggregation = \"Average\" operator = \"GreaterThan\" threshold = var.scale_out_threshold metric_namespace = \"Zscaler/CloudConnectors\"",
+            "time_window = var.scale_in_evaluation_period time_aggregation = \"Average\" operator = \"LessThan\" threshold = var.scale_in_threshold metric_namespace = \"Zscaler/CloudConnectors\" } scale_action { direction = \"Decrease\""
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/variables.tf",
+          "quotes": [
+            "variable \"scale_out_evaluation_period\" { type = string description = \"Amount of time the average of scaling metric is evaluated over.\" default = \"PT5M\"",
+            "description = \"Metric threshold for determining scale out.\" default = 70",
+            "description = \"Number of CCs to bring up on scale out event.\" default = \"1\"",
+            "description = \"Amount of time after scale out before scale out is evaluated again.\" default = \"PT15M\"",
+            "variable \"scale_in_evaluation_period\" { type = string description = \"Amount of time the average of scaling metric is evaluated over.\" default = \"PT5M\"",
+            "description = \"Metric threshold for determining scale in.\" default = 50",
+            "description = \"Number of CCs to bring up on scale in event.\" default = \"1\"",
+            "description = \"Amount of time after scale in before scale in is evaluated again.\" default = \"PT15M\""
+          ]
+        }
+      ]
+    },
+    "scheduled-scaling": {
+      "statement": "Help describes optional scheduled scaling (minimum instances, days, start and end time) for predictable load; in the module it is off by default (`scheduled_scaling_enabled` false) and otherwise defaults to Monday to Friday from hour 9 to hour 17, Pacific Standard Time, with a scheduled minimum of 2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-azure-vmss-deployments.json",
+          "quotes": [
+            "If you have predictable load patterns, you can define a schedule for scale-out and scale-in events.",
+            "Minimum instances: The minimum number of VMs in the scaling set during the scheduled scaling event.",
+            "- Days of week: The days of the week when the schedule takes effect.",
+            "- Start time: The time in hours and minutes to start the scheduled scaling event.",
+            "- End time: The time in hours and minutes to end the scheduled scaling event."
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/variables.tf",
+          "quotes": [
+            "variable \"scheduled_scaling_enabled\" { type = bool description = \"Enable scheduled scaling on top of metric scaling.\" default = false",
+            "description = \"Minimum number of CCs in vmss for scheduled scaling profile.\" default = 2",
+            "default = \"Pacific Standard Time\"",
+            "default = [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"]",
+            "description = \"Hour to start scheduled scaling profile.\" default = 9",
+            "description = \"Hour to end scheduled scaling profile.\" default = 17"
+          ]
+        }
+      ]
+    },
+    "per-vmss-capacity": {
+      "statement": "The module creates one autoscale setting per scale set, each with capacity default, minimum and maximum from `vmss_default_ccs`, `vmss_min_ccs` and `vmss_max_ccs`; the `zsec` helper prompts for the minimum, default and maximum per VMSS and, for a zonal deployment, reports `$zones_count` scale sets each with those values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/main.tf",
+          "quotes": [
+            "count = length(azurerm_orchestrated_virtual_machine_scale_set.cc_vmss[*].id)",
+            "capacity { default = var.vmss_default_ccs minimum = var.vmss_min_ccs maximum = var.vmss_max_ccs }"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/zsec",
+          "quotes": [
+            "Enter the minimum amount of Cloud Connectors per VMSS?",
+            "Enter the default amount of Cloud Connectors per VMSS?",
+            "Enter the maximum amount of Cloud Connectors per VMSS?",
+            "echo \"${dtype} will deploy $zones_count VMSS each with min: ${vmss_min} default: ${vmss_default} max: ${vmss_max} Cloud Connectors in ${azure_location}\""
+          ]
+        }
+      ]
+    },
+    "module-counts": {
+      "statement": "In the direct VMSS module, `vmss_default_ccs` and `vmss_min_ccs` default to 2 and `vmss_max_ccs` to 4, and all three are validated to 1-16, with error messages calling 16 a hard limit of Cloud Connectors per group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/variables.tf",
+          "quotes": [
+            "description = \"Default number of CCs in vmss.\" default = 2",
+            "var.vmss_default_ccs >= 1 && var.vmss_default_ccs <= 16",
+            "error_message = \"Input vmss_default_ccs cannot exceed 16 (hard limit of 16 Cloud Connectors per group).\"",
+            "description = \"Minimum number of CCs in vmss.\" default = 2",
+            "var.vmss_min_ccs >= 1 && var.vmss_min_ccs <= 16",
+            "description = \"Maximum number of CCs in vmss.\" default = 4",
+            "var.vmss_max_ccs >= 1 && var.vmss_max_ccs <= 16",
+            "error_message = \"Input vmss_max_ccs cannot exceed 16 (hard limit of 16 Cloud Connectors per group).\""
+          ]
+        }
+      ]
+    },
+    "wrapper-max-16": {
+      "statement": "The `base_cc_vmss` and `cc_vmss` example roots declare `vmss_max_ccs` with default 16 and no validation, and pass it to the VMSS module.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_cc_vmss/variables.tf",
+          "quotes": [
+            "variable \"vmss_max_ccs\" { type = number description = \"Maximum number of CCs in vmss.\" default = 16 }"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/cc_vmss/variables.tf",
+          "quotes": [
+            "variable \"vmss_max_ccs\" { type = number description = \"Maximum number of CCs in vmss.\" default = 16 }"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_cc_vmss/main.tf",
+          "quotes": [
+            "source = \"../../modules/terraform-zscc-ccvmss-azure\"",
+            "vmss_max_ccs = var.vmss_max_ccs"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/cc_vmss/main.tf",
+          "quotes": [
+            "source = \"../../modules/terraform-zscc-ccvmss-azure\"",
+            "vmss_max_ccs = var.vmss_max_ccs"
+          ]
+        }
+      ]
+    },
+    "zsec-counts": {
+      "statement": "The `zsec` helper accepts 1-20 for the VMSS minimum, default and maximum (prompt defaults 2, 2 and 5) and requires the default to lie between minimum and maximum; for the load-balancer types (names containing lb, and cc_gwlb) it asks for a `cc_count` and accepts 1-20 (prompt default 2).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/zsec",
+          "quotes": [
+            "vmss_min_default=2",
+            "if (( $vmss_min < 1 || $vmss_min > 20 )); then",
+            "vmss_default_default=2",
+            "if (( $vmss_default < 1 || $vmss_default > 20 )); then",
+            "vmss_max_default=5",
+            "if (( $vmss_max < 1 || $vmss_max > 20 )); then",
+            "if (( $vmss_default < $vmss_min || $vmss_default > $vmss_max )); then",
+            "cc_count_default=2",
+            "if ((cc_count >= 1 && cc_count <= 20)); then"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/zsec",
+          "after": "cc_count_default=2",
+          "quotes": [
+            "elif [[ \"$dtype\" == *\"lb\"* || \"$dtype\" == \"cc_gwlb\" ]]; then",
+            "read -r -p \"${CYAN}Enter how many Cloud Connectors to deploy? [Default=$cc_count_default]: ${RESET}\" cc_count_input"
+          ]
+        }
+      ]
+    },
+    "zsec-exceeds-module": {
+      "statement": "A VMSS count of 17 to 20 passes the `zsec` prompt check and then fails the direct module's 1-16 validation; with the example roots' default of 16, a scale-set maximum of 16 reaches the module unless the helper or tfvars set another value. This is a tooling mismatch, not evidence of a 20-connector runtime limit.",
+      "tier": "B",
+      "conditions": "Follows from the helper's and the module's validators and the example roots' defaults at the pin.",
+      "derived_from": [
+        "zsec-counts",
+        "module-counts",
+        "wrapper-max-16"
+      ]
+    },
+    "function-app-roles": {
+      "statement": "A VMSS deployment has two Azure functions: Health Monitoring, which runs every minute, uses each connector's custom metrics to find unhealthy connectors and terminates and immediately replaces them; and Resource Sync, which runs every 30 minutes and removes from the Cloud Connector group any connector that is not in the VMSS. The functions call the Cloud Connector API server over REST and do not talk to connectors directly, and the Function App runs a ZIP from a storage account created at runtime or supplied at deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-azure-vmss-deployments.json",
+          "quotes": [
+            "Health Monitoring: Uses the custom metrics published by each Cloud Connector to determine whether there are any unhealthy Cloud Connectors that need to be replaced. The function terminates an unhealthy instance and immediately replaces it with a new one. This function runs at one-minute intervals.",
+            "If the function finds a Cloud Connector in the Cloud Connector Group that is not in the VMSS, it cleans up that instance in the Cloud Connector Group to ensure that the two entities are in sync. This function runs at 30-minute intervals.",
+            "The Azure Functions communicate with the Cloud Connector API server via REST APIs. Azure Functions do not communicate directly with Cloud Connectors.",
+            "It finds the ZIP file in a new storage account that is created at runtime or from an existing storage account that you specify during deployment."
+          ]
+        }
+      ]
+    },
+    "function-app-in-templates": {
+      "statement": "The VMSS deployment templates (`base_cc_vmss`, `base_cc_vmss_zpa`, `cc_vmss`) create an Azure Function App, a storage account and a Log Analytics workspace alongside one scale set, NAT gateway and scale-set settings per zone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deployment-templates-zscaler-cloud-connector.json",
+          "after": "Use the Starter Deployment Template with VMSS and Load Balancer (base_cc_vmss)",
+          "quotes": [
+            "- Cloud Connector Scale Set (one per zone)",
+            "- NAT gateway (one per zone)",
+            "- Azure Function App",
+            "- Storage account",
+            "- Virtual Machine Scale Set settings (one per zone)",
+            "- Log analytics workspace"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deployment-templates-zscaler-cloud-connector.json",
+          "quotes": [
+            "Use the Starter Deployment Template with VMSS, Load Balancer, and Private Access (base_cc_vmss_zpa)",
+            "Use the Custom Deployment Template with VMSS and Load Balancer (cc_vmss)"
+          ]
+        }
+      ]
+    },
+    "grace-period": {
+      "statement": "A grace period lets a connector boot before its health is evaluated; it lasts until the VM has been alive more than 30 minutes or reports at least one healthy metric.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-azure-vmss-deployments.json",
+          "quotes": [
+            "A grace period allows a Cloud Connector to boot up before its health is evaluated, and it is potentially terminated.",
+            "- The VM has been alive for more than 30 minutes.",
+            "- The VM reports at least one healthy metric."
+          ]
+        }
+      ]
+    },
+    "unhealthy-criteria": {
+      "statement": "After the grace period, a connector is unhealthy when its health metric is None or 0 for 7 of the last 10 samples, or for 5 consecutive samples, counting from the first healthy sample; each connector publishes the metric every minute as 0 (unhealthy) or 100 (healthy).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-azure-vmss-deployments.json",
+          "quotes": [
+            "- None or 0 for 7 out of the last 10 samples, starting with the first healthy sample",
+            "- None or 0 for 5 consecutive samples, starting with the first healthy sample",
+            "Each Cloud Connector publishes a VM-level custom health metric at one-minute intervals. This metric value is 0 for an unhealthy VM or 100 for a healthy VM."
+          ]
+        }
+      ]
+    },
+    "termination-iterations": {
+      "statement": "Unhealthy instances are terminated in iterations of at most 20% of the instances or one instance, whichever is greater, and each terminated VM is replaced immediately.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-azure-vmss-deployments.json",
+          "quotes": [
+            "Unhealthy instances are terminated in iterations. In a single iteration, a VMSS can terminate 20% of the instances, or one instance, whichever is greater.",
+            "This function terminates an unhealthy VM after the grace period ends and the unhealthy criteria are met. The VM is replaced immediately."
+          ]
+        }
+      ]
+    },
+    "module-function-settings": {
+      "statement": "The Function App module passes the provisioning URL, Key Vault URL, scale-set names and `TERMINATE_UNHEALTHY_INSTANCES` as app settings; `terminate_unhealthy_instances` defaults to true, and the app runs from the ZIP uploaded to a blob or from a public URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-function-app-azure/main.tf",
+          "after": "resource \"azurerm_linux_function_app\" \"vmss_orchestration_app\" {",
+          "quotes": [
+            "\"VMSS_NAME\" = jsonencode(var.vmss_names)",
+            "\"TERMINATE_UNHEALTHY_INSTANCES\" = var.terminate_unhealthy_instances",
+            "\"VAULT_URL\" = var.azure_vault_url",
+            "\"CC_URL\" = var.cc_vm_prov_url",
+            "\"WEBSITE_RUN_FROM_PACKAGE\" = var.upload_function_app_zip ? azurerm_storage_blob.cc_function_storage_blob[0].url : var.zscaler_cc_function_public_url"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-function-app-azure/variables.tf",
+          "quotes": [
+            "description = \"Indicate whether detected unhealthy instances are terminated or not.\" default = true"
+          ]
+        }
+      ]
+    },
+    "schedule-not-in-terraform": {
+      "statement": "The Health Monitoring and Resource Sync cadences and thresholds are not set by any Terraform variable or app setting of the Function App module; they come from the bundled function package.",
+      "tier": "B",
+      "conditions": "Read of the Function App module's main.tf and variables.tf at the pin: the app settings hold subscription, identity, resource group, scale-set names, the termination switch, Key Vault and provisioning URLs, Application Insights and the package location, and no schedule or threshold. The package's internal values were not read.",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-function-app-azure/main.tf",
+          "after": "resource \"azurerm_linux_function_app\" \"vmss_orchestration_app\" {",
+          "quotes": [
+            "\"SUBSCRIPTION_ID\" = data.azurerm_subscription.current.id"
+          ]
+        }
+      ]
+    },
+    "asp-sku": {
+      "statement": "`asp_sku_name` defaults to Y1, which the module recommends (calling it flex consumption) unless the Azure region does not support it, and accepts Y1, FC1, EP1 or B1; the changelog says the variable was added for VMSS deployments in regions without the Flex Consumption plan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-function-app-azure/variables.tf",
+          "quotes": [
+            "description = \"SKU Name for the App Service Plan. Recommended Y1 (flex consumption) for function app unless not supported by Azure region\" default = \"Y1\"",
+            "var.asp_sku_name == \"Y1\" || var.asp_sku_name == \"FC1\" || var.asp_sku_name == \"EP1\" || var.asp_sku_name == \"B1\""
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "add: variable asp_sku_name for VMSS Deployments in regions that do not support Flex Consumption App Service Plan"
+          ]
+        }
+      ]
+    },
+    "asp-sku-guidance": {
+      "statement": "An example tfvars file says Y1 is not available in all Azure regions; without Y1, choose B1 if VNet integration is not required and EP1 if it is.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_cc_gwlb_vmss/terraform.tfvars",
+          "quotes": [
+            "Zscaler recommends leaving the default (Y1 / Flex Consumption plan), but this",
+            "is not available in all Azure regions. If you cannot use Y1 and you do not require VNet Integration, then choose B1. If you do need",
+            "VNet Integration, then choose EP1."
+          ]
+        }
+      ]
+    },
+    "managed-identities": {
+      "statement": "A VMSS deployment needs two user-assigned managed identities: the Cloud Connector identity (Network Contributor, Monitoring Metrics Publisher, Storage Queue Data Contributor) for operations such as network interface discovery and metric publishing, and the Function App identity (Network Contributor, Virtual Machine Contributor, Monitoring Contributor, Managed Identity Operator, Storage Blob Data Reader) for instance termination, replacement and metric reading.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-azure-vmss-deployments.json",
+          "quotes": [
+            "This managed identity allows Cloud Connectors to perform Azure operations such as network interface discovery and metric publishing. It needs the following roles: - Network Contributor - Monitoring Metrics Publisher - Storage Queue Data Contributor",
+            "This managed identity allows the Azure Functions App to make API calls to perform operations such as instance termination, instance replacement, and metric reading.",
+            "It needs the following roles: - Network Contributor - Virtual Machine Contributor - Monitoring Contributor - Managed Identity Operator - Storage Blob Data Reader"
+          ]
+        }
+      ]
+    },
+    "metrics": {
+      "statement": "In namespace zscaler/cloudconnectors, the per-VM health metric is `cloud_connector_aggr_health`, and scale-set metrics are published under `smedge_metrics` with a `metric_name` dimension covering `smedge_cpu_utilization`, `smedge_mem_utilization`, `smedge_bytes_in` and `smedge_bytes_out`; the scaling rules compare `smedge_cpu_utilization`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-azure-vmss-deployments.json",
+          "quotes": [
+            "- Metric Namespace: zscaler/cloudconnectors - Metric: cloud_connector_aggr_health",
+            "The scaling metrics include smedge_cpu_utilization, smedge_mem_utilization, smedge_bytes_in, and smedge_bytes_out. The scaling rules compare the smedge_cpu_utilization value with the defined threshold.",
+            "- Metric: smedge_metrics",
+            "- Property: metric_name"
+          ]
+        }
+      ]
+    },
+    "support-gated": {
+      "statement": "The provisioning template's Auto Scaling setting covers AWS Auto Scaling, Azure VMSS and GCP MIG autoscaling, and enabling any of them requires contacting Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-cloud-provisioning-template.json",
+          "quotes": [
+            "Auto Scaling: Enable or disable autoscaling for AWS, Azure, or GCP.",
+            "To enable Auto Scaling, VMSS, or a MIG with autoscaling, contact Zscaler Support.",
+            "In the Azure Marketplace, autoscaling is referred to as Virtual Machine Scale Sets (VMSS). In the Google Cloud Marketplace, autoscaling is referred to as a Managed Instance Group (MIG) with autoscaling."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "scale-evaluation-window": {
+      "summary": "How long the CPU threshold must hold before a VMSS scale event: Help's recommended duration versus the module's default evaluation window.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-understanding-azure-vmss-deployments.json",
+            "quotes": [
+              "| Duration | The number of consecutive minutes after the threshold is crossed before a scale-out or scale-in event is triggered. | 10 | 10 |"
+            ]
+          },
+          "says": "Zscaler recommends 10 consecutive minutes above or below the threshold for both scale out and scale in."
+        },
+        {
+          "evidence": {
+            "source": "tfmod-azure-cloud-connector",
+            "path": "modules/terraform-zscc-ccvmss-azure/variables.tf",
+            "quotes": [
+              "variable \"scale_out_evaluation_period\" { type = string description = \"Amount of time the average of scaling metric is evaluated over.\" default = \"PT5M\"",
+              "variable \"scale_in_evaluation_period\" { type = string description = \"Amount of time the average of scaling metric is evaluated over.\" default = \"PT5M\""
+            ]
+          },
+          "says": "The module averages the metric over a PT5M (5-minute) window for scale out and for scale in by default."
+        }
+      ],
+      "impact": "A deployment made from the module reacts on a 5-minute average, not the 10 minutes Help describes; reasoning from Help over- or under-estimates how fast a scale set responds."
+    },
+    "vmss-max-default": {
+      "summary": "The default of `vmss_max_ccs` in the direct VMSS module: its source declaration versus its generated README.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tfmod-azure-cloud-connector",
+            "path": "modules/terraform-zscc-ccvmss-azure/variables.tf",
+            "quotes": [
+              "description = \"Maximum number of CCs in vmss.\" default = 4"
+            ]
+          },
+          "says": "The source declaration defaults the maximum to 4."
+        },
+        {
+          "evidence": {
+            "source": "tfmod-azure-cloud-connector",
+            "path": "modules/terraform-zscc-ccvmss-azure/README.md",
+            "quotes": [
+              "| <a name=\"input_vmss_max_ccs\"></a> [vmss\\_max\\_ccs](#input\\_vmss\\_max\\_ccs) | Maximum number of CCs in vmss. | `number` | `16` | no |"
+            ]
+          },
+          "says": "The generated README renders the default as 16."
+        }
+      ],
+      "impact": "Sizing from the README overstates the direct module's maximum; the example roots, which default to 16, behave as the README says, so the effective value depends on which root called the module.",
+      "resolution": {
+        "by": "module-counts",
+        "rule": "source-rank",
+        "note": "The variable declaration is what Terraform evaluates; the README is generated documentation."
+      }
+    }
+  },
+  "gaps": {
+    "not-enabled-behavior": {
+      "kind": "semantic",
+      "title": "Auto Scaling template on a tenant without Support enablement",
+      "status": "open",
+      "detail": "Unverified legacy statement: toggling VMSS in the provisioning template without Zscaler Support enabling it on the tenant first leaves the provisioning template misconfigured. Help says only that Support must be contacted to enable autoscaling.",
+      "blocks": "diagnosing a VMSS deployment whose connectors do not register",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ]
+    },
+    "function-app-degraded": {
+      "kind": "semantic",
+      "title": "VMSS behavior without a working Function App",
+      "status": "open",
+      "detail": "Unverified legacy statement: when the Flex Consumption plan is unavailable and Elastic Premium is not used, the VMSS deployment is degraded with no orphan cleanup or unhealthy-instance termination. The sources state the two functions' jobs and the plan guidance but not the outcome of a failed or missing Function App.",
+      "blocks": "assessing the risk of a Function App outage or a region without the default plan",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

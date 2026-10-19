@@ -1,0 +1,325 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.sdwan",
+  "title": "Zero Trust SD-WAN: what Zscaler means by it and what the sources leave open",
+  "aliases": [
+    "zero trust sd-wan",
+    "zscaler sd-wan",
+    "branch connector sd-wan",
+    "is zscaler sd-wan a router",
+    "branch to branch zscaler",
+    "sd-wan replacement zscaler",
+    "site-to-site vpn replacement"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdwan.device-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.gateway-failover"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zero Trust SD-WAN is Zscaler's name for its branch and cloud connectivity product family. {{definition}} {{traffic-to-zte}} {{no-overlay}}"
+    },
+    {
+      "label": "Branch Connector.",
+      "text": "{{branch-connector-vm}} {{branch-connector-proxy}} Cloud Connector, the cloud-workload counterpart, is covered from [[cloud-connector.overview]]. Hardware devices, gateway and one-arm modes and zero touch provisioning are in [[cloud-connector.sdwan.device-modes]]. Whether Zero Trust SD-WAN is licensed as a product of its own is not stated {{gap:product-packaging}}."
+    },
+    {
+      "label": "Branch to branch and VPN replacement.",
+      "text": "{{branch-to-branch-via-zte}} {{vpn-replacement}} How much latency the path through the Zero Trust Exchange adds against a direct WAN path is not documented {{gap:hairpin-latency}}."
+    },
+    {
+      "label": "Inspection.",
+      "text": "{{inspection-at-zte}} Whether the connector itself inspects traffic is not stated {{gap:connector-inspection}}. Whether the connector optimizes WAN traffic itself is not stated either {{gap:wan-optimization}}."
+    },
+    {
+      "label": "Device visibility and OT access.",
+      "text": "{{iot-classification}} How classification works is not documented {{gap:iot-classification-detail}}. {{ot-access}}"
+    },
+    {
+      "label": "Availability.",
+      "text": "{{n-plus-one}} The branch-site high availability model behind it is not described {{gap:branch-ha-model}}. Cloud Connector gateway failover and the fail-close and fail-open setting are in [[cloud-connector.overview.gateway-failover]]. Upgrades run in a scheduled window: [[cloud-connector.upgrades:default-window]], [[cloud-connector.upgrades:two-hour-staggered]]; what happens to long-lived sessions on an upgrading connector is not stated {{gap:upgrade-session-drop}}."
+    },
+    {
+      "label": "Forwarding.",
+      "text": "Forwarding methods are in [[cloud-connector.forwarding.methods]], WAN selection in [[cloud-connector.forwarding.methods:wan-selection]], and the gateway-mode predefined rules in [[cloud-connector.forwarding.predefined-rules]]. What metric Best Link uses, and whether WAN selection ever applies outside hardware in gateway mode, is open {{gap:wan-selection-detail}}. Whether traffic markings such as DSCP survive the connector, or any per-link QoS exists, is not documented {{gap:qos}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the requirement is internet and private-application access through the Zero Trust Exchange, which the product covers, or WAN transport functions the sources do not describe (overlay meshing, link QoS, MPLS integration).",
+      "uses": [
+        "definition",
+        "no-overlay",
+        "qos"
+      ]
+    },
+    {
+      "do": "For branch-to-branch access, whether the destination applications are reachable through the Zero Trust Exchange as private applications.",
+      "uses": [
+        "branch-to-branch-via-zte",
+        "vpn-replacement"
+      ]
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "Zscaler Zero Trust SD-WAN gives branches, on-premises data centers and public clouds access to the internet and private applications with a direct-to-cloud architecture, and connects users and IoT/OT devices to applications through the Zero Trust Exchange (ZTE).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-what-zscaler-zero-trust-sd-wan.json",
+          "quotes": [
+            "Zscaler Zero Trust SD-WAN (software-defined wide area network) provides branches, on-premises data centers, and public clouds with fast and reliable access to the internet and private applications with a direct-to-cloud architecture that features strong security and operational simplicity.",
+            "The solution eliminates lateral threat movement by connecting users and IoT/OT devices to applications through the Zscaler Zero Trust Exchange (ZTE)."
+          ]
+        }
+      ]
+    },
+    "traffic-to-zte": {
+      "statement": "Cloud and branch traffic is forwarded directly to the ZTE, where Internet & SaaS (ZIA) or Private Access (ZPA) policies apply depending on the traffic's destination.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-what-zscaler-zero-trust-sd-wan.json",
+          "quotes": [
+            "Cloud and branch traffic is securely forwarded directly to the ZTE, where you can apply Internet & SaaS (ZIA) or Private Access (ZPA) policies depending on traffic destination"
+          ]
+        }
+      ]
+    },
+    "no-overlay": {
+      "statement": "The help says Zero Trust SD-WAN combines lightweight virtual machines or plug-and-play devices with the ZTE to provide zero trust networking for sites and clouds without overlay routing or additional firewall appliances.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-what-zscaler-zero-trust-sd-wan.json",
+          "quotes": [
+            "By combining lightweight virtual machines or plug-and-play devices with the ZTE, Zero Trust SD-WAN provides secure inbound and outbound zero trust networking for sites and clouds, without overlay routing, additional firewall appliances, or policy inconsistencies."
+          ]
+        }
+      ]
+    },
+    "branch-connector-vm": {
+      "statement": "Branch Connector is a virtual machine that forwards traffic to Zscaler services; Zero Trust SD-WAN is deployed as a Branch Connector VM, which works similarly to Cloud Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-zscaler-branch-connector.json",
+          "quotes": [
+            "Zscaler Branch Connector is a virtual machine (VM) that simplifies traffic forwarding to Zscaler services. The Zero Trust Software-Defined Wide Area Network (SD-WAN) is deployed as a Branch Connector VM.",
+            "Branch Connector works similarly to Zscaler Cloud Connector."
+          ]
+        }
+      ]
+    },
+    "branch-connector-proxy": {
+      "statement": "Branch Connector establishes direct branch-to-internet and branch-to-private-app connections using a full proxy architecture, and its forwarding can send traffic to Internet & SaaS, Private Access, or Direct (bypassing Zscaler services).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-zscaler-branch-connector.json",
+          "quotes": [
+            "Branch Connector eliminates the network attack surface by establishing direct branch-to-internet and branch-to-private app connections using a full proxy architecture.",
+            "Granular Forwarding Policy: Applies to internet and private application traffic to Internet & SaaS, Private Access, or Direct (bypassing Zscaler services)."
+          ]
+        }
+      ]
+    },
+    "branch-to-branch-via-zte": {
+      "statement": "Branches and data centers connect to each other through the ZTE, independent of the underlying corporate network, VPN or WAN; all branch communications forward to the ZTE and from there to any destination.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-zscaler-branch-connector.json",
+          "quotes": [
+            "Eliminates Attack Surfaces: Branches and data centers connect directly to each other through the ZTE, independent of their underlying corporate network, VPN, or WAN.",
+            "The communications then forward from the ZTE to any destination (i.e., internet, private applications in a public cloud, on-premises data center, etc.)."
+          ]
+        }
+      ]
+    },
+    "vpn-replacement": {
+      "statement": "As a site-to-site VPN replacement, branches connect to private applications in data centers or public clouds without extending the WAN or relying on VPNs; access goes through the ZTE to named entities after identity, context and policy are verified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-what-zscaler-zero-trust-sd-wan.json",
+          "quotes": [
+            "Site-to-site VPN replacement: Connect branches directly to private applications in data centers or public clouds without extending your WAN or relying on VPNs, both of which increase a network’s attack surface.",
+            "Applications are hidden from discovery behind the branches, and access is restricted via the ZTE to a set of named entities. Identity, context, and policy adherence of the specified participants are all verified before access is allowed"
+          ]
+        }
+      ]
+    },
+    "inspection-at-zte": {
+      "statement": "Branch communications are forwarded to the ZTE, where Internet & SaaS or Private Access policies apply for full security inspection and identity-based access control.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-zscaler-branch-connector.json",
+          "quotes": [
+            "All branch communications forward directly to the ZTE, where Internet & SaaS or Private Access policies can be applied for full security inspection and access identity-based control of branch and data center communications."
+          ]
+        }
+      ]
+    },
+    "iot-classification": {
+      "statement": "The help claims Zero Trust SD-WAN discovers and classifies shadow IoT devices with automatic device classification based on traffic profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-what-zscaler-zero-trust-sd-wan.json",
+          "quotes": [
+            "Enables organizations to discover and classify shadow IoT devices with automatic device classification based on traffic profiles."
+          ]
+        }
+      ]
+    },
+    "ot-access": {
+      "statement": "For OT, the help describes clientless browser-based access to SSH, RDP and VNC ports on OT assets, with Privileged Remote Access for RDP and SSH targets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-what-zscaler-zero-trust-sd-wan.json",
+          "quotes": [
+            "Simplifies secure access to OT resources with clientless browser-based access to SSH/RDP/VNC ports on OT assets.",
+            "Zero Trust SD-WAN for IoT/OT and Privileged Remote Access (PRA) provide fully isolated, clientless remote desktop access to Remote Desktop Protocol (RDP) and Secure Shell (SSH) Protocol target systems"
+          ]
+        }
+      ]
+    },
+    "n-plus-one": {
+      "statement": "Branch Connector's feature list claims high availability with automatic failover and N+1 redundancy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-zscaler-branch-connector.json",
+          "quotes": [
+            "Service Continuity: Ensures high availability automatic failover with N+1 redundancy."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "hairpin-latency": {
+      "kind": "semantic",
+      "title": "Latency added by branch-to-branch traffic through the ZTE",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'a Dallas user accessing a Chicago data-center app via ZPA hairpins: Dallas branch, nearest ZTE PoP, ZPA, App Connector in Chicago. The round-trip adds PoP-distance latency that does not exist on an MPLS circuit or SD-WAN overlay.' No captured source gives latency figures or guidance.",
+      "blocks": "Judging whether latency-sensitive branch-to-branch applications suit the design.",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    },
+    "connector-inspection": {
+      "kind": "semantic",
+      "title": "Whether the connector itself inspects traffic",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'The branch or cloud connector itself performs no deep inspection: it is a traffic forwarder, not a security appliance.' The help places full inspection at the ZTE, but Branch Connector's feature list also names a proxy architecture that 'holds, inspects, and enforces policy' and single scan multi-action inspection without saying where these run.",
+      "blocks": "Sizing and threat-modeling the edge device.",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "iot-classification-detail": {
+      "kind": "semantic",
+      "title": "How IoT/OT device classification works",
+      "status": "open",
+      "detail": "Unverified legacy statement: the classification specifics (engine, supported device databases, update cadence, accuracy, false-positive handling) are not documented; treat automatic device classification as a directional claim. The help states only that classification is based on traffic profiles.",
+      "blocks": "Relying on device classification for access policy.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "branch-ha-model": {
+      "kind": "semantic",
+      "title": "High availability for a branch site with physical devices",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'HA model not fully captured in available docs: the help content covers hardware redundancy at a high level but does not specify failover timing or mode for physical Branch Connector appliances.' The Branch Connector page claims N+1 redundancy with automatic failover; how that is built at a site with hardware devices, and its timing, are not described.",
+      "blocks": "Designing branch redundancy.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "wan-selection-detail": {
+      "kind": "semantic",
+      "title": "Best Link metric and WAN selection outside hardware gateway mode",
+      "status": "open",
+      "detail": "Unverified legacy statements: 'The best-performing metric is not defined in the captured documentation: it is not clear whether this is measured RTT, loss, or a proprietary metric'; 'Cloud Connector and virtual Branch Connector deployments do not have this option.' The forwarding rule help says WAN selection is only applicable to hardware devices deployed in gateway mode and that Best Link uses the best-performing link; it does not define the metric or address virtual Branch Connectors explicitly.",
+      "blocks": "Predicting which uplink Best Link picks, and whether a VM deployment can use WAN selection.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "qos": {
+      "kind": "semantic",
+      "title": "DSCP and per-link QoS through the connector",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'There is no documented DSCP marking, traffic shaping, or queuing configuration in the Cloud & Branch Connector traffic-forwarding rules ... there is no per-branch WAN-link QoS.' Whether the connector preserves DSCP markings toward the ZTE, and whether the ZTE re-marks, is not addressed by any captured source.",
+      "blocks": "Carrying voice or video QoS across a Zero Trust SD-WAN site.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "product-packaging": {
+      "kind": "semantic",
+      "title": "Whether Zero Trust SD-WAN is a separate product or SKU",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'There is no separate binary or product SKU called Zero Trust SD-WAN; the Zscaler help site places all Zero Trust SD-WAN documentation under help.zscaler.com/cloud-branch-connector/, the same URL space as Cloud Connector and Branch Connector.' The help describes Zero Trust SD-WAN as deployed as a Branch Connector VM but says nothing about licensing or SKUs.",
+      "blocks": "Answering licensing or procurement questions about Zero Trust SD-WAN.",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "wan-optimization": {
+      "kind": "semantic",
+      "title": "Whether the connector does any WAN optimization",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Not WAN optimization. No TCP acceleration, no compression, no deduplication. Zscaler's claim to improved application performance is based on ZTE PoP proximity to SaaS providers (peering) and the elimination of data-center hairpinning.' The help claims improved application performance from replacing site-to-site VPNs with a direct-to-cloud architecture, and Cloud Connector's page credits peering with SaaS providers; no source says whether the connector optimizes traffic itself.",
+      "blocks": "Comparing Zero Trust SD-WAN with WAN-optimizing SD-WAN products.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "upgrade-session-drop": {
+      "kind": "semantic",
+      "title": "Effect of a connector upgrade on long-lived sessions",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'During upgrade, the connector is temporarily out of rotation. Existing long-lived sessions (database connections, long-polling, streaming) through the affected connector may drop. Horizontal scaling reduces but does not eliminate the impact because existing sessions on the connector being upgraded are not migrated.' The upgrade help gives the window and staggering but not the effect on sessions in flight.",
+      "blocks": "Planning upgrade windows for long-lived application sessions.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.api.ec-groups-wire",
+  "title": "Cloud Connector group endpoints on the wire: release channels, VM status and upgrade scheduling",
+  "aliases": [
+    "ztw ecgroup",
+    "ecgroup releaseChannel",
+    "ecgroup vmStatus",
+    "ecgroup scheduleupgrade",
+    "cloud connector upgrade api",
+    "edge connector group api",
+    "vmUpgradeMetrics"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api.provisioning-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.upgrades"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Cloud & Branch Connector groups (edge connector groups in the SDKs) are where VM release channels, enable or disable, and upgrade windows are set through the API. The Go package's read and delete functions and the contract's paths are generated; the two API references disagree on which upgrade operations exist."
+    },
+    {
+      "text": "What a group is for is in [[cloud-connector.overview.groups:group-purpose]], and how upgrades, windows and release channels work is in [[cloud-connector.upgrades]]."
+    },
+    {
+      "heading": "The two references disagree"
+    },
+    {
+      "text": "The legacy group reference has bulk release-channel and VM-status operations, [[cloud-connector.upgrades:release-channel-api]] and [[cloud-connector.upgrades:vm-status-api]], and an upgrade-metrics read, [[cloud-connector.upgrades.monitoring:upgrade-metrics]]; how the console uses them is in [[cloud-connector.upgrades:group-actions]]. The OneAPI contract has none of those three operations and has its own per-VM status and upgrade-schedule operations instead {{divergence:upgrade-operations}}."
+    },
+    {
+      "text": "The Go SDK has no function for the bulk operations: [[cloud-connector.sdk-go.coverage:bulk-vm-ops-not-in-go]]. Whether any operation upgrades a connector immediately is open in [[cloud-connector.upgrades:upgrade-now]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which reference a script was written against before debugging a 404 on an EC group upgrade call: the legacy reference's bulk paths are absent from the OneAPI contract, and the contract's per-VM and schedule paths are absent from the legacy reference.",
+      "uses": [
+        "upgrade-operations"
+      ]
+    }
+  ],
+  "divergences": {
+    "upgrade-operations": {
+      "summary": "Which group and VM upgrade operations exist: the legacy reference's bulk calls or the OneAPI contract's per-VM and schedule calls.",
+      "positions": [
+        {
+          "says": "The legacy reference has bulk release-channel, bulk VM-status and upgrade-metrics operations.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-cloud-branch-connector-groups-api.json",
+            "pointer": "/spec/paths/~1ecgroup~1releaseChannel/put",
+            "expect": {
+              "operationId": "EcGroupZResource_updateReleaseChannel"
+            }
+          }
+        },
+        {
+          "says": "The OneAPI contract has none of those three paths.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths",
+            "expect_absent": [
+              "/ecgroup/releaseChannel",
+              "/ecgroup/vmStatus",
+              "/ecgroup/vmUpgradeMetrics"
+            ]
+          }
+        },
+        {
+          "says": "The OneAPI contract instead has a PUT that updates the scheduled upgrade time and a per-VM PUT that changes one VM's status to `ENABLE` or `DISABLE` in the path.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1ecgroup~1scheduleupgrade/put",
+            "expect": {
+              "description": "Update Schedule Upgrade Time"
+            }
+          }
+        },
+        {
+          "says": "The per-VM status operation takes the status as a path segment.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+            "pointer": "/paths/~1ecgroup~1{ecgroupId}~1vm~1{vmId}~1{status}/put/parameters/[name=status]",
+            "expect": {
+              "schema": {
+                "enum": [
+                  "ENABLE",
+                  "DISABLE"
+                ],
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "says": "The legacy reference has no schedule-upgrade path.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-cloud-branch-connector-groups-api.json",
+            "pointer": "/spec/paths",
+            "expect_absent": [
+              "/ecgroup/scheduleupgrade",
+              "/ecgroup/{ecgroupId}/vm/{vmId}/{status}"
+            ]
+          }
+        }
+      ],
+      "impact": "The generated surface follows the OneAPI contract, so the bulk release-channel and VM-status calls do not appear there. Which set the live API serves on each host is not shown; a script should be tested against the host it will run on."
+    }
+  }
+}

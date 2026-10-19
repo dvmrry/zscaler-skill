@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "id": "shared.mcp-server.results",
+  "title": "What a Zscaler MCP tool result contains: full records, untrusted-content banners, JMESPath and CSV",
+  "aliases": [
+    "mcp outputSchema",
+    "mcp output_view",
+    "mcp full record",
+    "mcp untrusted content",
+    "untrusted_content",
+    "mcp provenance banner",
+    "mcp jmespath query",
+    "mcp query parameter",
+    "mcp csv encoding",
+    "mcp snake_case keys",
+    "mcp output sanitization"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.mcp-server"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.report"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.pagination"
+    }
+  ],
+  "prose": [
+    {
+      "heading": "Records"
+    },
+    {
+      "text": "{{no-output-schema}} {{shape-overlay}} {{snake-case-keys}} {{sanitized}} A full record is not a full collection: ZPA list tools return one caller-chosen page ([[zpa.api.pagination:mcp-manual-pages]])."
+    },
+    {
+      "heading": "Externally authored content"
+    },
+    {
+      "text": "{{untrusted-criterion}} {{untrusted-set}} {{untrusted-additions}} How the banner is placed, and that it is a hint rather than a gate, is described with the Sandbox report in [[zia.sandbox.report:banner-is-a-hint]] and [[zia.sandbox.report:sample-controlled-surfaces]]."
+    },
+    {
+      "heading": "Caller-side filtering"
+    },
+    {
+      "text": "{{query-scope}} {{query-after-fetch}} {{query-shapes}}"
+    },
+    {
+      "heading": "Wire encoding"
+    },
+    {
+      "text": "{{csv-eligibility}} {{csv-empty-collections}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "When a JMESPath query returns an empty list, whether its field names match the keys of a record returned by the same tool without a query.",
+      "uses": [
+        "snake-case-keys",
+        "query-shapes"
+      ]
+    },
+    {
+      "do": "Whether the tool is one of the externally authored content tools, before acting on any text in its results.",
+      "uses": [
+        "untrusted-set"
+      ]
+    }
+  ],
+  "claims": {
+    "no-output-schema": {
+      "statement": "A tool that returns a Zscaler API record has no `output_view` and advertises no `outputSchema`, because the attribute set belongs to the API; a schema is advertised only for the few results the server constructs itself, and never for delete tools.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/registry/spec.py",
+          "quotes": [
+            "output_view: Optional :class:`AgentView` subclass describing a SYNTHETIC",
+            "``outputSchema``: the set of attributes a resource carries is owned",
+            "``None`` — the norm — means the tool",
+            "returns a Zscaler API record verbatim and therefore advertises no"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/registry/fastmcp_bridge.py",
+          "quotes": [
+            "``Any`` is the normal case, and it means *no schema is advertised*: a tool",
+            "A schema IS advertised for the few tools whose result the server constructs",
+            "DELETE tools always return ``Any``."
+          ]
+        }
+      ]
+    },
+    "shape-overlay": {
+      "statement": "Shaping returns the full SDK record (a dict, or an SDK model converted with `as_dict()`) with the view's normalized or computed fields merged on top; the shaper can add or normalize fields but never drop them, for single objects and for every row of a list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/shaping/helpers.py",
+          "quotes": [
+            "\"\"\"Return the FULL record with the shaper's highlighted fields merged on top.",
+            "SDK returned, with the view's normalized/computed fields (cast ids,",
+            "as_dict = getattr(raw, \"as_dict\", None)",
+            "return {**record, **shaper(record).model_dump()}",
+            "return [shape_one(item, shaper) for item in raw_items]"
+          ]
+        }
+      ]
+    },
+    "snake-case-keys": {
+      "statement": "The keys of returned records are usually snake_case (`custom_category`) even where the Zscaler API documents camelCase (`customCategory`), as the description of the JMESPath query parameter warns.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/registry/fastmcp_bridge.py",
+          "quotes": [
+            "\"of the returned records, which are usually snake_case (`custom_category`) \"",
+            "\"even where the Zscaler API documents camelCase (`customCategory`) — \""
+          ]
+        }
+      ]
+    },
+    "sanitized": {
+      "statement": "Every tool's return value passes through output sanitization, which is on by default, before it is encoded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/audit.py",
+          "quotes": [
+            "\"\"\"Wrap a tool function with output sanitization + (optional) audit logging.",
+            "Sanitization is always applied to the return value (cheap, on-by-default)."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/registry/fastmcp_bridge.py",
+          "quotes": [
+            "secured_fn = wrap_tool(spec.fn, spec.name)",
+            "result = secured_fn(model)",
+            "return _to_tool_result(spec, result)"
+          ]
+        }
+      ]
+    },
+    "untrusted-criterion": {
+      "statement": "A tool is flagged as returning untrusted content when a party without tenant credentials can author strings it returns; the dividing line is authorship, not the delivery channel, so device hostnames authored by an authenticated enrollee are not flagged.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "tests/test_provenance.py",
+          "quotes": [
+            "# The test that decides membership: can a party WITHOUT tenant credentials",
+            "# author arbitrary strings that this tool returns? The dividing line is",
+            "# AUTHORSHIP, not the delivery channel",
+            "#   - zcc_list_devices / zdx device tools / zia device tools — hostnames and",
+            "#     device identity are authored by the IdP-authenticated enrollee"
+          ]
+        }
+      ]
+    },
+    "untrusted-set": {
+      "statement": "At 0.15.4 exactly eight tools are flagged: `zeasm_get_finding_evidence`, `zeasm_get_finding_scan_output`, `zeasm_get_lookalike_domain`, `zeasm_list_lookalike_domains`, `zia_get_sandbox_report`, `zdx_list_software`, `zdx_get_software_details` and `zdx_list_deeptrace_top_processes`; a test asserts the flagged set equals this list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "tests/test_provenance.py",
+          "quotes": [
+            "_EXPECTED_UNTRUSTED = { \"zeasm_get_finding_evidence\", \"zeasm_get_finding_scan_output\", \"zeasm_get_lookalike_domain\", \"zeasm_list_lookalike_domains\", \"zia_get_sandbox_report\", \"zdx_list_software\", \"zdx_get_software_details\", \"zdx_list_deeptrace_top_processes\", }",
+            "assert flagged == _EXPECTED_UNTRUSTED"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "pyproject.toml",
+          "quotes": [
+            "version = \"0.15.4\""
+          ]
+        }
+      ]
+    },
+    "untrusted-additions": {
+      "statement": "Version 0.15.4 added the banner to `zeasm_list_lookalike_domains`, `zdx_list_software`, `zdx_get_software_details` and `zdx_list_deeptrace_top_processes`, and states that every record is still returned verbatim and nothing is suppressed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Four more read tools now carry the untrusted-content provenance banner: `zeasm_list_lookalike_domains`",
+            "`zdx_list_software` and `zdx_get_software_details`",
+            "and `zdx_list_deeptrace_top_processes`",
+            "**every record is still returned verbatim and nothing is suppressed**"
+          ],
+          "after": "## 0.15.4 (August 18, 2026)"
+        }
+      ]
+    },
+    "query-scope": {
+      "statement": "Tools that return a collection (list tools, and `*_list_*` reads whose SDK call returns an envelope) get an optional JMESPath query parameter; single-object gets, writes, and tools with a server-defined output view do not.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/registry/spec.py",
+          "quotes": [
+            "if self.output_view is not None or self.is_write:",
+            "return self.is_list or \"_list_\" in self.name",
+            "whose SDK call returns a single envelope object wrapping the collection",
+            "Excluded: single-object gets (nothing to filter down), writes (the result"
+          ]
+        }
+      ]
+    },
+    "query-after-fetch": {
+      "statement": "The bridge removes the query from the tool input, runs the tool, and applies the expression to the result afterwards, before encoding and token accounting; it is client-side filtering, not a filter sent to the Zscaler API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/registry/fastmcp_bridge.py",
+          "quotes": [
+            "query = call_kwargs.pop(_QUERY_PARAM, None)"
+          ],
+          "after": "def impl(**call_kwargs: Any) -> Any:  # type: ignore[misc]"
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/registry/fastmcp_bridge.py",
+          "quotes": [
+            "# Caller-side filtering/projection runs AFTER the tool returns, so the",
+            "# encoder and the token accounting below both measure what the agent",
+            "\"Optional JMESPath expression applied to the results after the API \"",
+            "\"call, for client-side filtering and projection. Examples: \""
+          ]
+        }
+      ]
+    },
+    "query-shapes": {
+      "statement": "An omitted or empty query returns the data unchanged; no match becomes `[]`; a scalar result is wrapped in a list; an invalid expression returns a single error record instead of failing the call.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/common/jmespath_utils.py",
+          "quotes": [
+            "if not expression: return data",
+            "if filtered is None: return []",
+            "return [filtered]",
+            "return [{\"error\": f\"Invalid JMESPath expression: {exc}\"}]"
+          ]
+        }
+      ]
+    },
+    "csv-eligibility": {
+      "statement": "Automatic encoding sends a non-empty list of flat records as CSV; a non-empty nested value in any row disqualifies CSV for the whole response, which is then sent as JSON.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/encoding/encoder.py",
+          "quotes": [
+            "\"\"\"A response is CSV-eligible iff it's a non-empty list of flat dicts.\"\"\"",
+            "A NON-empty collection still disqualifies the row.",
+            "return isinstance(data, list) and len(data) > 0 and all(_is_flat_row(r) for r in data)",
+            "# AUTO: flat list -> CSV, everything else -> JSON."
+          ]
+        }
+      ]
+    },
+    "csv-empty-collections": {
+      "statement": "Empty lists, dicts, tuples and sets count as CSV cells and are rendered as `[]` or `{}`, while an empty cell means `None`; before 0.15.0 a single empty list switched the whole response to JSON.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/encoding/encoder.py",
+          "quotes": [
+            "An **empty** list or dict counts.",
+            "if isinstance(value, (list, dict, tuple, set)): return len(value) == 0",
+            "return \"[]\"  # only reachable when empty; see _is_flat_scalar",
+            "return \"{}\"",
+            "An empty cell already means ``None``"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "a single empty list (such as the empty `urls` field on many records) switched the whole response to JSON"
+          ],
+          "after": "## 0.15.0 (August 5, 2026)"
+        }
+      ]
+    }
+  }
+}

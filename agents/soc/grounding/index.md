@@ -16,9 +16,9 @@ sources:
   - "https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html"
   - "https://cloud.google.com/architecture/framework/security/security-principles"
   - "agents/soc/grounding/security-taxonomy.md"
-  - "references/shared/admin-rbac.md"
-  - "references/shared/audit-logs.md"
-  - "references/shared/siem-log-mapping.md"
+  - "kb:shared.admin-rbac"
+  - "kb:shared.audit-logs"
+  - "kb:shared.siem-mapping"
   - "references/zidentity/admin-rbac.md"
   - "kb:zia.ssl-inspection"
   - "kb:zia.cloud-app-control"
@@ -70,9 +70,9 @@ When instructions are ambiguous, bias toward:
 
 ## Always load for SOC review
 
-- [`references/shared/admin-rbac.md`](../../../references/shared/admin-rbac.md) - cross-product admin role posture
-- [`references/shared/audit-logs.md`](../../../references/shared/audit-logs.md) - audit-log availability and limits
-- [`references/shared/siem-log-mapping.md`](../../../references/shared/siem-log-mapping.md) - telemetry source mapping
+- [`shared.admin-rbac`](kb:shared.admin-rbac) - cross-product admin role posture
+- [`shared.audit-logs`](kb:shared.audit-logs) - audit-log availability and limits
+- [`shared.siem-mapping`](kb:shared.siem-mapping) - telemetry source mapping
 
 ## Load by subtype
 
@@ -93,7 +93,7 @@ When instructions are ambiguous, bias toward:
 
 ### `coverage` or `activity`
 
-- [`references/shared/siem-log-mapping.md`](../../../references/shared/siem-log-mapping.md)
+- [`shared.siem-mapping`](kb:shared.siem-mapping)
 - [`zia.audit-logs`](kb:zia.audit-logs)
 - [`zpa.audit-logs`](kb:zpa.audit-logs)
 - [`references/zwa/audit-logs.md`](../../../references/zwa/audit-logs.md)

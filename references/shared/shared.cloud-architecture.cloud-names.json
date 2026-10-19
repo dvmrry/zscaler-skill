@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "id": "shared.cloud-architecture.cloud-names",
+  "title": "Zscaler cloud names: which cloud a tenant is on, and the production name list",
+  "aliases": [
+    "zscaler cloud name",
+    "which cloud am i on",
+    "zscaler.net",
+    "zscalerone.net",
+    "zscalertwo.net",
+    "zscalerthree.net",
+    "zscloud.net",
+    "private.zscaler.com",
+    "zpatwo.net",
+    "zdxcloud.net",
+    "mobile.zscaler.net",
+    "connector.zscaler.net",
+    "production clouds"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.subclouds"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A Zscaler cloud is a separate deployment that a tenant is provisioned on. {{one-cloud}}"
+    },
+    {
+      "label": "Finding the tenant's cloud.",
+      "text": "{{where-to-find}} {{name-from-admin-url}} {{when-name-needed}}"
+    },
+    {
+      "label": "The production list.",
+      "text": "{{zia-zpa-zdx-names}} {{derived-names}} {{other-services}}"
+    },
+    {
+      "label": "What the list is not.",
+      "text": "Which non-production or government clouds exist, and their names, is open {{gap:non-production-clouds}}. API hosts for government clouds are in [[shared.oneapi.government-clouds]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Read the tenant's Internet & SaaS and Private Access cloud names from Account Settings, or from the admin login host, before naming any host or config.zscaler.com page.",
+      "uses": [
+        "where-to-find",
+        "name-from-admin-url"
+      ]
+    },
+    {
+      "do": "For Client Connector and Cloud & Branch Connector, derive the cloud from the tenant's Internet & SaaS cloud.",
+      "uses": [
+        "derived-names"
+      ]
+    },
+    {
+      "do": "If the tenant's cloud is not on the production list, do not reason from the list.",
+      "uses": [
+        "non-production-clouds"
+      ]
+    }
+  ],
+  "claims": {
+    "one-cloud": {
+      "statement": "An organization is provisioned on one cloud, and its traffic is processed by that cloud only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-names.json",
+          "quotes": [
+            "An organization is provisioned on one cloud and its traffic is processed by that cloud only."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-architecture.json",
+          "quotes": [
+            "An organization is provisioned on one cloud and its traffic is processed by that cloud only."
+          ]
+        }
+      ]
+    },
+    "where-to-find": {
+      "statement": "The names of the Internet & SaaS (ZIA) and Private Access (ZPA) clouds an organization is provisioned on are shown on the Account Settings page of the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-names.json",
+          "quotes": [
+            "You can find the names of the Internet & SaaS (ZIA) and Private Access (ZPA) clouds on which your organization has been provisioned by accessing the Account Settings page within the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "name-from-admin-url": {
+      "statement": "The cloud name is also in the URL admins use to log in: an organization that logs in to admin.zscalertwo.net is on zscalertwo.net.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-multi-cluster-load-sharing.json",
+          "quotes": [
+            "You can find the name of your cloud in the URL your admins use to log in to the Zscaler service.",
+            "if an organization logs in to admin.zscalertwo.net, then that organization's cloud name is zscalertwo.net"
+          ]
+        }
+      ]
+    },
+    "when-name-needed": {
+      "statement": "Some configurations require the cloud name, for example SAML for admin Single Sign-On; the name is also needed to find configuration information on config.zscaler.com and maintenance notifications on the Zscaler Trust Portal, and when working with Zscaler Support and account teams.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-names.json",
+          "quotes": [
+            "For example, you must specify a cloud name when you configure SAML for admin Single Sign-On (SSO).",
+            "in order to locate configuration information on config.zscaler.com, maintenance notifications on Zscaler Trust Portal, or when you are working with Zscaler Support and Zscaler Account teams."
+          ]
+        }
+      ]
+    },
+    "zia-zpa-zdx-names": {
+      "statement": "The help lists the production clouds an organization might be provisioned on per service: for Internet & SaaS `zscaler.net`, `zscalerone.net`, `zscalertwo.net`, `zscalerthree.net` and `zscloud.net`; for Private Access `private.zscaler.com` and `zpatwo.net`; for Digital Experience (ZDX) `zdxcloud.net`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-names.json",
+          "quotes": [
+            "The following table lists the production clouds your organization might be provisioned on for each service:",
+            "zscaler.netzscalerone.netzscalertwo.netzscalerthree.netzscloud.net",
+            "private.zscaler.comzpatwo.net",
+            "Digital Experience (ZDX) | zdxcloud.net"
+          ]
+        }
+      ]
+    },
+    "derived-names": {
+      "statement": "The Zscaler Client Connector and Cloud & Branch Connector clouds follow the organization's Internet & SaaS cloud: a tenant on `zscaler.net` uses `mobile.zscaler.net` for Client Connector and `connector.zscaler.net` for Cloud & Branch Connector, and each of the five Internet & SaaS clouds has a `mobile.` and a `connector.` counterpart.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-names.json",
+          "quotes": [
+            "if you are provisioned for zscaler.net for Internet & SaaS, then the cloud for Zscaler Client Connector is mobile.zscaler.net.",
+            "mobile.zscaler.netmobile.zscalerone.netmobile.zscalertwo.netmobile.zscalerthree.netmobile.zscloud.net",
+            "if you are provisioned for zscaler.net for Internet & SaaS, then the cloud for Cloud & Branch Connector is connector.zscaler.net.",
+            "connector.zscaler.netconnector.zscalerone.netconnector.zscalertwo.netconnector.zscalerthree.netconnector.zscloud.net"
+          ]
+        }
+      ]
+    },
+    "other-services": {
+      "statement": "The same list gives `goairgap.com` for Zero Trust Branch, `ztsim.com` for Zscaler Cellular, `zscalerrisk.net` for Zscaler Risk360 and `zslogin.net` for the Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-names.json",
+          "quotes": [
+            "Zero Trust Branch | goairgap.com",
+            "Zscaler Cellular | ztsim.com",
+            "Zscaler Risk360 | zscalerrisk.net",
+            "Authentication Service | zslogin.net"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "non-production-clouds": {
+      "kind": "semantic",
+      "title": "Non-production and government cloud names",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"use this as a public production naming map, not as a government-cloud matrix. The list does not by itself identify a tenant's assigned cloud, select an API/SDK/provider endpoint, or establish product availability; retain the relevant tenant configuration and product-specific government-host routing as separate evidence.\" The captured article lists production clouds only; no captured Help page lists government or other non-production cloud names and how they map per service.",
+      "blocks": "naming hosts, config.zscaler.com pages or endpoints for a tenant on a cloud the production list does not include",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

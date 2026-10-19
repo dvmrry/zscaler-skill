@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "id": "shared.legacy-api.zia-oauth",
+  "title": "ZIA legacy OAuth 2.0 through an external identity provider",
+  "aliases": [
+    "zia oauth 2.0 external idp",
+    "zia api roles",
+    "cloud name org id api role scope",
+    "oauth-<rolename>$@ admin id",
+    "pingfederate okta entra zia api",
+    "oauth 2.0 authorization servers zia"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.legacy-api.zia-session"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.authentication"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Before OneAPI, ZIA's cloud service API could already take OAuth 2.0 tokens, issued by the customer's own identity provider rather than by Authentication Service. {{external-idps}} {{cloud-service-only}}"
+    },
+    {
+      "label": "Why use it.",
+      "text": "{{advantages}}"
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{prerequisites}}"
+    },
+    {
+      "label": "Scope.",
+      "text": "{{scope-format}} {{claims-table}} {{api-roles-on-clients}} The OneAPI flow uses an audience instead: [[shared.oneapi.authentication:audience-required]]."
+    },
+    {
+      "label": "Token request.",
+      "text": "{{token-request}} {{token-lifetime}}"
+    },
+    {
+      "label": "Validation.",
+      "text": "{{validation}} {{jwks-cache-retry}}"
+    },
+    {
+      "label": "Audit.",
+      "text": "{{audit-admin-id}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a rejected OAuth call, whether the token's scope (or scp or roles) claim is cloud::org ID::API role and names an API role configured in ZIA.",
+      "uses": [
+        "scope-format",
+        "validation"
+      ]
+    },
+    {
+      "do": "For a first-call authorization failure after the identity provider rotated keys, whether the client retried after a minute.",
+      "uses": [
+        "jwks-cache-retry"
+      ]
+    },
+    {
+      "do": "To attribute OAuth API changes in audit logs, which oauth-<rolename>$@<orgid>.<cloud_domain> admin ID they appear under.",
+      "uses": [
+        "audit-admin-id"
+      ]
+    }
+  ],
+  "claims": {
+    "external-idps": {
+      "statement": "ZIA supports OAuth 2.0 for the cloud service API with the Client Credentials flow, using PingFederate, Okta or Microsoft Entra ID as the authorization server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-securing-zia-apis-oauth-2.0.json",
+          "quotes": [
+            "The Zscaler service uses the Client Credentials OAuth flow, in which the clients exchange their credentials for an access token and gain access to the cloud service API, outside the context of users.",
+            "The Zscaler service supports OAuth 2.0 implementations with PingFederate, Okta, and Microsoft Entra ID (formerly Azure Active Directory)."
+          ]
+        }
+      ]
+    },
+    "cloud-service-only": {
+      "statement": "This OAuth 2.0 method is supported only for the cloud service API, and the vendor recommends it over the API key method for that API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-securing-zia-apis-oauth-2.0.json",
+          "quotes": [
+            "OAuth 2.0 authentication is supported only for cloud service API."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "Zscaler recommends the OAuth 2.0 authentication method for accessing the cloud service API.",
+            "| Cloud Service API | OAuth 2.0 (recommended)Combination of Basic Authentication and API Key |"
+          ]
+        }
+      ]
+    },
+    "advantages": {
+      "statement": "The vendor lists as advantages that it needs no ZIA admin credentials, scopes access with API roles tied to client applications, and needs no client-side key obfuscation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-securing-zia-apis-oauth-2.0.json",
+          "quotes": [
+            "OAuth 2.0 does not require Internet & SaaS admin credentials for authentication.",
+            "The Client Credentials OAuth flow employs API Roles to define permissions required to access specific categories of cloud service API.",
+            "OAuth 2.0 does not require obfuscation of credentials"
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "It needs an API subscription, API roles configured in ZIA, client applications registered on the authorization server with the required scope, and the authorization server added to ZIA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "You must have an API subscription. If you do not have a subscription, submit a Zscaler Support ticket.",
+            "You must have the API Roles configured in the ZIA Admin Portal.",
+            "You must have your client applications registered on your authorization server (i.e., PingFederate, Okta, or Azure AD) with the required scope and configured appropriately.",
+            "You must have your OAuth 2.0 authorization server added to the ZIA Admin Portal."
+          ]
+        }
+      ]
+    },
+    "scope-format": {
+      "statement": "The scope must be `<Zscaler Cloud Name>::<Org ID>::<API Role>`, for example `zscalerbeta.net::8956412::sampleRole`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "You must configure the scope value in the <Zscaler Cloud Name>::<Org ID>::<API Role> format",
+            "For example, zscalerbeta.net::8956412::sampleRole"
+          ]
+        }
+      ]
+    },
+    "claims-table": {
+      "statement": "The scope claim may be named `scope`, `scp` or `roles` and is required; `iss`, `aud` and a client ID claim (`client_id`, `cid` or `appid`) are optional, and claim names vary with the OAuth vendor.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-securing-zia-apis-oauth-2.0.json",
+          "quotes": [
+            "| scope, scp, or roles | (Required)",
+            "| iss | (Optional) The issuer of the JWT. |",
+            "| aud | (Optional) The intended recipient of the JWT. |",
+            "| client_id, cid, or appid | (Optional)",
+            "The claim names can vary with the OAuth 2.0 vendors."
+          ]
+        }
+      ]
+    },
+    "api-roles-on-clients": {
+      "statement": "API roles are not assigned to admin users; they are associated with the client applications that call the API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-securing-zia-apis-oauth-2.0.json",
+          "quotes": [
+            "Unlike admin roles, API roles are not assigned to Internet & SaaS admin users. Instead, API roles are associated with the client applications that are accessing the API."
+          ]
+        }
+      ]
+    },
+    "token-request": {
+      "statement": "The client POSTs to its identity provider's token endpoint with `grant_type` client_credentials and the scope, presenting its client ID and secret by HTTP Basic authentication or in the body; a failed request returns 400.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "The client makes a POST request to the token endpoint with the client credentials (client ID and client secret) presented using HTTP Basic authentication.",
+            "Alternatively, the client credentials can also be provided using the client_id and client_secret parameters in the body of the POST request.",
+            "\"grant_type\": \"client_credentials\", \"scope\": \"zscalerbeta.net::8956412::sampleRole\"",
+            "If an unsuccessful POST request is made to the token endpoint, the response code returns a 400 error."
+          ]
+        }
+      ]
+    },
+    "token-lifetime": {
+      "statement": "The access token's lifetime is configured on the OAuth provider's console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-securing-zia-apis-oauth-2.0.json",
+          "quotes": [
+            "You can configure and manage the lifetime of the access token on the OAuth service console."
+          ]
+        }
+      ]
+    },
+    "validation": {
+      "statement": "ZIA verifies the JWT signature with the authorization server's public key, then validates the scope claim: its API role must match an API role configured in ZIA or the request is rejected; it may also verify claims such as audience, issuer and client ID. The authorization servers must be added in ZIA for this.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-securing-zia-apis-oauth-2.0.json",
+          "quotes": [
+            "The Zscaler service cryptographically verifies the signature of the JWT token using the authorization server's public key.",
+            "This value must match with one of the API Roles configured in the Zscaler Admin Console. If no match is found, the API request is rejected.",
+            "The Zscaler service may verify any additional claims in the JWT, such as audience, issuer, client ID, etc.",
+            "The Zscaler service requires you to add your authorization servers to the Zscaler Admin Console to verify the authenticity of the access token in API requests"
+          ]
+        }
+      ]
+    },
+    "jwks-cache-retry": {
+      "statement": "ZIA caches the identity provider's public key set briefly; after the cache expires or the keys rotate, validation may fail until ZIA refetches the JWKS, so the client should resend a request after a minute if authorization fails the first time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zia-api.json",
+          "quotes": [
+            "The Zscaler service caches the public key set for a brief period of time.",
+            "If the caching period expires or if the public keys are rotated by the authorization server, then the validation may fail.",
+            "In such cases, the Zscaler service queries the JWKS endpoint to fetch the public key set.",
+            "So, you need to program your client application to resend an API request after a minute if the authorization fails for the first time."
+          ]
+        }
+      ]
+    },
+    "audit-admin-id": {
+      "statement": "Operations authenticated this way are recorded in the audit logs under an auto-generated admin ID, one per API role, of the form `oauth-<rolename>$@<orgid>.<cloud_domain>`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-securing-zia-apis-oauth-2.0.json",
+          "quotes": [
+            "API operations that are authenticated using OAuth 2.0 are associated with an auto-generated Admin ID and recorded in Audit Logs.",
+            "An Admin ID is generated for each API role in the following format: oauth-<rolename>$@<orgid>.<cloud_domain>."
+          ]
+        }
+      ]
+    }
+  }
+}

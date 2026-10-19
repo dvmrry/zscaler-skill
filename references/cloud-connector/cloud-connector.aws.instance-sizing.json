@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.aws.instance-sizing",
+  "title": "Cloud Connector on AWS: VM size, EC2 instance type, and matching the provisioning template",
+  "aliases": [
+    "cloud connector instance type aws",
+    "cc_instance_size",
+    "ccvm_instance_type",
+    "cloud connector small medium large",
+    "m6i.large cloud connector",
+    "cloud connector m5 c5 migrate",
+    "no appliances were created errorlog"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.aws"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.interfaces"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.provisioning"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Two choices must agree: the VM size in the provisioning template and the EC2 instance type the template or module launches."
+    },
+    {
+      "label": "What the deployment guide supports.",
+      "text": "{{vm-sizes}} {{small-recommended}} {{m5-c5-retired}} {{marketplace-validated}}"
+    },
+    {
+      "label": "Size must match the template.",
+      "text": "{{size-must-match}} {{module-size-variable}} Autoscaling takes only the small size: [[cloud-connector.aws.autoscaling]]."
+    },
+    {
+      "label": "What the reference Terraform module accepts.",
+      "text": "{{module-instance-types}} The module's list is wider than the guide's {{divergence:small-instance-list}}. {{module-size-pairing}} {{mismatch-applies-cleanly}}"
+    },
+    {
+      "label": "Interfaces.",
+      "text": "The number of network interfaces follows the size: [[cloud-connector.aws.interfaces]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the VM size in the provisioning template equals the instance size given to the CloudFormation template or Terraform module.",
+      "uses": [
+        "size-must-match",
+        "module-size-variable"
+      ]
+    },
+    {
+      "do": "Whether the EC2 instance type is one the deployment guide lists for that size, and not an M5 or C5 type such as m5.large or c5.large.",
+      "uses": [
+        "vm-sizes",
+        "m5-c5-retired",
+        "small-instance-list"
+      ]
+    },
+    {
+      "do": "After a Terraform apply that created no Cloud Connector, whether errorlog.txt in the root module directory reports invalid parameters.",
+      "uses": [
+        "module-size-pairing",
+        "mismatch-applies-cleanly"
+      ]
+    }
+  ],
+  "claims": {
+    "vm-sizes": {
+      "statement": "The AWS deployment guide lists Small VMs on m5n.large, c5a.large, m6i.large (recommended) or c6i.large, and Medium and Large VMs, both deprecated, on m5n.4xlarge, m6i.4xlarge (recommended) or c6i.4xlarge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Small VM: Requires one of the following Elastic Compute Cloud (EC2) instances: m5n.large, c5a.large, m6i.large (recommended), or c6i.large.",
+            "Medium VM (deprecated): Requires one of the following EC2 instances: m5n.4xlarge, m6i.4xlarge (recommended), or c6i.4xlarge.",
+            "Large VM (deprecated): Requires one of the following EC2 instances: m5n.4xlarge, m6i.4xlarge (recommended), or c6i.4xlarge."
+          ]
+        }
+      ]
+    },
+    "small-recommended": {
+      "statement": "Zscaler recommends the Small VM size in the provisioning template and the m6i instance for best performance and security, with the latest available AMI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Zscaler recommends selecting the VM Size as Small.",
+            "For the best performance and security, always deploy the latest available AMI and the recommended m6i instance."
+          ]
+        }
+      ]
+    },
+    "m5-c5-retired": {
+      "statement": "The EC2 M5 and C5 instance families are no longer available from the AWS Marketplace or Zscaler deployment templates, and existing Cloud Connectors on them (such as m5.large or c5.large) should be redeployed on a supported instance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "The Amazon EC2 M5 and C5 instance families are no longer available from the AWS Marketplace or Zscaler deployment templates.",
+            "If you have any existing Cloud Connector deployments based on M5 or C5 instances (such as m5.large or c5.large), redeploy and migrate them to one of the supported instances listed above."
+          ]
+        }
+      ]
+    },
+    "marketplace-validated": {
+      "statement": "AWS Marketplace restricts Cloud Connector to instances Zscaler validated, a list Zscaler reviews periodically, and Zscaler cannot guarantee that VMs on unsupported instances function properly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "AWS Marketplace restricts instances to those that Zscaler validated. Zscaler periodically reviews and updates this list.",
+            "Zscaler cannot guarantee that VMs deployed on unsupported instances will function properly."
+          ]
+        }
+      ]
+    },
+    "size-must-match": {
+      "statement": "The instance size given to the deployment (small, medium or large) must match the VM size of the cloud provisioning template; if the provisioning URL's sizing and the deployment template's sizing differ, the deployment is unsuccessful.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Your Cloud Connector instance size selection of small, medium (deprecated), or large (deprecated) must match the selected VM size of the configured cloud provisioning template.",
+            "If the sizing demonstrated in the cloud provisioning URL and the deployment template do not match, Cloud Connector deployment is unsuccessful."
+          ]
+        }
+      ]
+    },
+    "module-size-variable": {
+      "statement": "The reference CCVM module's `cc_instance_size` accepts small, medium or large, defaults to small, and is described as determined by and needing to match the provisioning template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/variables.tf",
+          "quotes": [
+            "Cloud Connector Instance size. Determined by and needs to match the Cloud Connector Portal provisioning template configuration",
+            "default = \"small\"",
+            "var.cc_instance_size == \"small\" || var.cc_instance_size == \"medium\" || var.cc_instance_size == \"large\""
+          ]
+        }
+      ]
+    },
+    "module-instance-types": {
+      "statement": "The reference CCVM module defaults `ccvm_instance_type` to m6i.large and its validation accepts only t3.medium, m5n.large, c5a.large, m6i.large, c6i.large, c6in.large, m5n.4xlarge, m6i.4xlarge, c6i.4xlarge and c6in.4xlarge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/variables.tf",
+          "quotes": [
+            "default = \"m6i.large\"",
+            "var.ccvm_instance_type == \"t3.medium\" || var.ccvm_instance_type == \"m5n.large\" || var.ccvm_instance_type == \"c5a.large\" || var.ccvm_instance_type == \"m6i.large\" || var.ccvm_instance_type == \"c6i.large\" ||",
+            "var.ccvm_instance_type == \"c6in.large\" || var.ccvm_instance_type == \"m5n.4xlarge\" || var.ccvm_instance_type == \"m6i.4xlarge\" || var.ccvm_instance_type == \"c6i.4xlarge\" || var.ccvm_instance_type == \"c6in.4xlarge\"",
+            "Input ccvm_instance_type must be set to an approved vm instance type."
+          ]
+        }
+      ]
+    },
+    "module-size-pairing": {
+      "statement": "The CCVM module pairs medium and large only with m5n.4xlarge, m6i.4xlarge, c6i.4xlarge or c6in.4xlarge; when size and type do not pair, it creates no Cloud Connector instance and a local-exec appends a message beginning \"Cloud Connector parameters were invalid. No appliances were created.\" and naming cc_instance_size and ccvm_instance_type to errorlog.txt in the root module directory.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/variables.tf",
+          "quotes": [
+            "medium_cc_instance = [\"m5n.4xlarge\", \"m6i.4xlarge\", \"c6i.4xlarge\", \"c6in.4xlarge\"]",
+            "large_cc_instance = [\"m5n.4xlarge\", \"m6i.4xlarge\", \"c6i.4xlarge\", \"c6in.4xlarge\"]",
+            "contains(local.medium_cc_instance, var.ccvm_instance_type) && var.cc_instance_size == \"medium\""
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "quotes": [
+            "count = local.valid_cc_create ? 0 : 1 # 0 means no error is thrown, else throw error",
+            "echo \"Cloud Connector parameters were invalid. No appliances were created. Please check the documentation and cc_instance_size / ccvm_instance_type values that were chosen\" >> ${path.root}/errorlog.txt"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "after": "resource \"aws_instance\" \"cc_vm\" {",
+          "quotes": [
+            "count = local.valid_cc_create ? var.cc_count : 0"
+          ]
+        }
+      ]
+    },
+    "mismatch-applies-cleanly": {
+      "statement": "A size and type mismatch therefore surfaces as an apply that creates zero Cloud Connectors and a line in errorlog.txt, not as a validation error at plan time.",
+      "tier": "B",
+      "derived_from": [
+        "module-size-pairing"
+      ],
+      "conditions": "Follows from the pairing check being a count on the resources plus an echo in a null_resource provisioner rather than a variable validation; Terraform semantics, not stated by the module."
+    }
+  },
+  "divergences": {
+    "small-instance-list": {
+      "summary": "Which EC2 types a Small Cloud Connector may use: the deployment guide lists four, the reference Terraform module accepts ten.",
+      "positions": [
+        {
+          "says": "Small VMs require m5n.large, c5a.large, m6i.large or c6i.large.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+            "quotes": [
+              "Small VM: Requires one of the following Elastic Compute Cloud (EC2) instances: m5n.large, c5a.large, m6i.large (recommended), or c6i.large."
+            ]
+          }
+        },
+        {
+          "says": "The small size also accepts t3.medium, c6in.large and the 4xlarge types m5n.4xlarge, m6i.4xlarge, c6i.4xlarge and c6in.4xlarge.",
+          "evidence": {
+            "source": "tfmod-aws-cloud-connector",
+            "path": "modules/terraform-zscc-ccvm-aws/variables.tf",
+            "quotes": [
+              "small_cc_instance = [\"t3.medium\", \"m5n.large\", \"c5a.large\", \"m6i.large\", \"c6i.large\", \"c6in.large\", \"m5n.4xlarge\", \"m6i.4xlarge\", \"c6i.4xlarge\", \"c6in.4xlarge\"]"
+            ]
+          }
+        }
+      ],
+      "impact": "A module deployment can pass validation on a type the guide does not list (t3.medium, c6in.large), and the guide says Zscaler cannot guarantee unsupported instances work."
+    }
+  }
+}

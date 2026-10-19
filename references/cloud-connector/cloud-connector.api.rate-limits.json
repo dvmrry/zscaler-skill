@@ -1,0 +1,245 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.api.rate-limits",
+  "title": "Cloud Connector API rate limits and how the Go and Python clients back off and retry",
+  "aliases": [
+    "ztw rate limit",
+    "cloud connector api rate limits",
+    "cbc api 429",
+    "ztw retry-after",
+    "ztw heavy medium light",
+    "ztw retry policy"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api.conventions"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.retries"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api.rate-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.rate-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.legacy-retry-classification"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Cloud & Branch Connector API documents weighted per-endpoint limits, while the Go SDK throttles on its own, simpler model. This subject records both, how they differ, and how the clients react to a 429 or a failing request."
+    },
+    {
+      "heading": "Documented limits"
+    },
+    {
+      "text": "Cloud & Branch Connector weights its endpoints by method, as ZIA does: [[shared.oneapi.rate-limits:cbc-weights]]. An exceeded limit returns 429 with the retry interval in the body: [[shared.oneapi.rate-limits:cbc-429-body]]."
+    },
+    {
+      "heading": "Client-side throttling"
+    },
+    {
+      "text": "The Go SDK's OneAPI client gives ZTW the ZIA limiter: [[shared.oneapi.rate-limits:go-client-limiters]]. {{go-legacy-limiter}} {{go-delete-shares-write-window}}"
+    },
+    {
+      "text": "{{go-limits-above-documented}}"
+    },
+    {
+      "text": "{{python-legacy-retry-after}}"
+    },
+    {
+      "heading": "Retries in the legacy Go client"
+    },
+    {
+      "text": "{{legacy-retry-statuses}} {{legacy-5xx-heuristic}} How that rule treats other 5xx bodies is in [[zia.sdk-go.legacy-retry-classification:five-xx-classification]]. {{legacy-exhaustion-returns-response}}"
+    },
+    {
+      "text": "{{legacy-error-body-kept}} Retry behavior common to all Go products, including write replay, is in [[shared.sdk-go.retries]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a bulk delete loop stays under the documented Heavy weight (1 DELETE a minute, 40 an hour) rather than the Go limiter's write window, which lets DELETE run at the POST and PUT rate.",
+      "uses": [
+        "shared.oneapi.rate-limits:cbc-weights",
+        "go-delete-shares-write-window",
+        "go-limits-above-documented"
+      ]
+    },
+    {
+      "do": "For a 429, whether the script reads Retry-After from the response body, where the API guide puts it, or from a header, which is where the Python legacy client looks.",
+      "uses": [
+        "shared.oneapi.rate-limits:cbc-429-body",
+        "python-legacy-retry-after"
+      ]
+    }
+  ],
+  "claims": {
+    "go-legacy-limiter": {
+      "statement": "The Go SDK's legacy ZTW client builds its rate limiter as 20 GET requests per 10 seconds and 10 POST, PUT or DELETE requests per 10 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/v2_config.go",
+          "quotes": [
+            "// GET: 20 per 10s (2/sec), POST/PUT/DELETE: 10 per 10s (1/sec)",
+            "ztwRateLimiter := rl.NewRateLimiter(20, 10, 10, 10)"
+          ]
+        }
+      ]
+    },
+    "go-delete-shares-write-window": {
+      "statement": "In the Go limiter a DELETE counts against the same short-window list as POST and PUT; only the hourly cap, when one is set, is tracked separately for DELETE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "after": "case http.MethodDelete:",
+          "quotes": [
+            "if rl.deleteHourlyLimit > 0 {",
+            "if len(rl.postPutDeleteRequests) >= rl.postPutDeleteLimit {",
+            "rl.postPutDeleteRequests = append(rl.postPutDeleteRequests, now) rl.deleteRequests = append(rl.deleteRequests, now)"
+          ]
+        }
+      ]
+    },
+    "python-legacy-retry-after": {
+      "statement": "On a 429 the Python SDK's legacy ZTW client reads `Retry-After` from the response headers (defaulting to 2 when absent), strips a \" seconds\" suffix, and waits at least 1 second before retrying.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/legacy.py",
+          "quotes": [
+            "if resp.status_code == 429:",
+            "# ZTW returns \"Retry-After\": \"0 seconds\" (with \" seconds\" suffix)",
+            "retry_after = resp.headers.get(\"Retry-After\", \"2\")",
+            "retry_after = retry_after.replace(\" seconds\", \"\").replace(\"seconds\", \"\").strip()",
+            "sleep_time = max(sleep_time, 1)"
+          ]
+        }
+      ]
+    },
+    "legacy-retry-statuses": {
+      "statement": "The legacy Go ZTW client's retry callback retries every Too Many Requests response (`StatusTooManyRequests`). An Unauthorized, Conflict or Precondition Failed response (`StatusUnauthorized`, `StatusConflict`, `StatusPreconditionFailed`) is retried only when its JSON body carries one of these markers: code `EDIT_LOCK_NOT_AVAILABLE`, message \"Resource Access Blocked\", or code `UNEXPECTED_ERROR` with the message \"Failed during enter Org barrier\" or \"Request processing failed, possibly because an expected precondition was not met\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/v2_client.go",
+          "quotes": [
+            "return []int{http.StatusTooManyRequests}",
+            "if resp != nil && (resp.StatusCode == http.StatusPreconditionFailed || resp.StatusCode == http.StatusConflict || resp.StatusCode == http.StatusUnauthorized) {",
+            "if apiRespErr.Code == \"UNEXPECTED_ERROR\" && apiRespErr.Message == \"Failed during enter Org barrier\" ||",
+            "apiRespErr.Code == \"EDIT_LOCK_NOT_AVAILABLE\" || apiRespErr.Message == \"Resource Access Blocked\" ||",
+            "apiRespErr.Code == \"UNEXPECTED_ERROR\" && apiRespErr.Message == \"Request processing failed, possibly because an expected precondition was not met\" {"
+          ]
+        }
+      ]
+    },
+    "legacy-5xx-heuristic": {
+      "statement": "For a 5xx the same callback returns the SDK's shared server-error rule, `IsRetryableServerError`, which never retries Not Implemented (`StatusNotImplemented`) and always retries 502, 503 and 504.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/v2_client.go",
+          "quotes": [
+            "if err == nil && resp != nil && resp.StatusCode >= 500 { return errorx.IsRetryableServerError(resp), nil }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/errorx/errors.go",
+          "after": "func IsRetryableServerError(res *http.Response) bool {",
+          "quotes": [
+            "if res.StatusCode < 500 || res.StatusCode == http.StatusNotImplemented { return false }",
+            "if alwaysRetryableServerStatuses[res.StatusCode] { return true }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/errorx/errors.go",
+          "quotes": [
+            "http.StatusBadGateway: true, // 502 http.StatusServiceUnavailable: true, // 503 http.StatusGatewayTimeout: true, // 504"
+          ]
+        }
+      ]
+    },
+    "legacy-exhaustion-returns-response": {
+      "statement": "When the legacy Go ZTW client runs out of retries while the callback still wants to retry, it hands back the last response rather than retryablehttp's bare \"giving up\" error, so the request layer can build an error from it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/v2_client.go",
+          "quotes": [
+            "// err is nil only when the retry budget ran out while CheckRetry still // wanted to retry.",
+            "Hand the final // response back instead so the request layer can build a structured // errorx.ErrorResponse carrying the API code and message.",
+            "if err == nil && resp != nil { l.Printf(\"[WARN] giving up after %d attempt(s); surfacing API response status %d\", numTries, resp.StatusCode) return resp, nil }"
+          ]
+        }
+      ]
+    },
+    "go-limits-above-documented": {
+      "statement": "The Go SDK's ZTW limiters are looser than the documented server limits: they let DELETE run in the 10-per-10-seconds write window rather than 1 a minute, and the OneAPI limiter's hourly caps (380 DELETE, 950 POST or PUT) are above the documented 40 and 400, while the legacy limiter has no hourly cap. A Go client deleting or writing in bulk can therefore draw 429s that its own limiter did not prevent.",
+      "tier": "B",
+      "derived_from": [
+        "shared.oneapi.rate-limits:cbc-weights",
+        "shared.oneapi.rate-limits:go-client-limiters",
+        "go-legacy-limiter",
+        "go-delete-shares-write-window"
+      ],
+      "conditions": "Comparison of the documented typical weights with the limiter arguments; specific operations can carry other weights, and the client retries 429s. Not run."
+    },
+    "legacy-error-body-kept": {
+      "statement": "In the legacy Go ZTW client the API's error body survives to the error the caller gets. `do` replaces the first response's body with an in-memory copy, and the response logger it calls on every response (also the one it re-sends after a session refresh) dumps the response with its body, which replaces the body with an in-memory copy too. So `GenericRequest` closing the body before `CheckErrorInResponse` reads it loses nothing, including for a 401 that survives all attempts.",
+      "tier": "B",
+      "derived_from": [
+        "legacy-retry-statuses"
+      ],
+      "conditions": "Code read at the pin, not run: `httputil.DumpResponse(resp, true)` replacing the body with a buffered copy is Go standard library behavior; the client's logger is always set (GetDefaultLogger). A caller-supplied HTTP client or logger is not considered. Corrects the legacy statement that a persistent 401's code and message cannot be parsed.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/v2_client.go",
+          "quotes": [
+            "resp, err := c.HTTPClient.Do(req) logger.LogResponse(c.Logger, resp, start, reqID)",
+            "resp.Body = ioutil.NopCloser(bytes.NewBuffer(body))",
+            "resp, err = c.HTTPClient.Do(req) logger.LogResponse(c.Logger, resp, start, reqID)",
+            "resp.Body.Close() if resp.StatusCode > 299 && resp.StatusCode != http.StatusUnauthorized { return nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"api responded with code: %d\", resp.StatusCode)) }",
+            "logger := logger.GetDefaultLogger(loggerPrefix)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "logger/logger.go",
+          "quotes": [
+            "out, err := httputil.DumpResponse(resp, true)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/errorx/errors.go",
+          "quotes": [
+            "bodyBytes, _ := io.ReadAll(res.Body) defer res.Body.Close()"
+          ],
+          "after": "func CheckErrorInResponse(res *http.Response, respErr error) error {"
+        }
+      ]
+    }
+  }
+}

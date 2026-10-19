@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.overview",
+  "title": "Cloud & Branch Connector: what Cloud Connector is and where each area is described",
+  "aliases": [
+    "cloud connector",
+    "cloud & branch connector",
+    "cloud and branch connector",
+    "ztw",
+    "ztc",
+    "edge connector",
+    "what is cloud connector",
+    "cloud connector architecture"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.load-balancing"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.gateway-failover"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.zero-trust-gateways"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.dns"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.regions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{internet-vs-private}}"
+    },
+    {
+      "text": "{{l4-controls}} {{onramps}}"
+    },
+    {
+      "heading": "How it is built and kept running"
+    },
+    {
+      "items": [
+        {
+          "label": "Groups.",
+          "text": "Connectors are managed, scaled and upgraded as groups: [[cloud-connector.overview.groups]]; upgrades: [[cloud-connector.upgrades]]."
+        },
+        {
+          "label": "Load balancing.",
+          "text": "Cloud load balancers probe each Connector and route around unhealthy ones: [[cloud-connector.overview.load-balancing]]."
+        },
+        {
+          "label": "Tunnels to Zscaler.",
+          "text": "Primary, secondary and tertiary Service Edges, fail-close and fail-open, and Private Access enrollment: [[cloud-connector.overview.gateway-failover]]."
+        },
+        {
+          "label": "Zero Trust Gateways.",
+          "text": "The Zscaler-managed alternative to running Connector VMs: [[cloud-connector.overview.zero-trust-gateways]], with GCP detail in [[cloud-connector.gcp-ztg]]."
+        },
+        {
+          "label": "Regions.",
+          "text": "Three different region lists: [[cloud-connector.regions]]."
+        }
+      ]
+    },
+    {
+      "heading": "Deploying in each cloud"
+    },
+    {
+      "items": [
+        {
+          "label": "AWS.",
+          "text": "Traffic steering, Gateway Load Balancer and autoscaling: [[cloud-connector.aws.traffic-steering]], [[cloud-connector.aws.gwlb]], [[cloud-connector.aws.autoscaling]]."
+        },
+        {
+          "label": "Azure.",
+          "text": "[[cloud-connector.azure]]."
+        },
+        {
+          "label": "GCP.",
+          "text": "[[cloud-connector.gcp]]."
+        },
+        {
+          "label": "Branch and SD-WAN devices.",
+          "text": "[[cloud-connector.sdwan]]."
+        }
+      ]
+    },
+    {
+      "heading": "Policy"
+    },
+    {
+      "items": [
+        {
+          "label": "Traffic forwarding.",
+          "text": "Which rule sends a flow to ZIA, ZPA, direct, drop or local: [[cloud-connector.forwarding]]."
+        },
+        {
+          "label": "DNS.",
+          "text": "DNS policies and gateways: [[cloud-connector.dns]]."
+        },
+        {
+          "label": "Workloads and sources.",
+          "text": "Tag-based workload discovery and source IP groups: [[cloud-connector.workload-discovery]], [[cloud-connector.source-ip-groups]]; on the ZIA side, Connector traffic arrives at workload locations and can be scoped by workload groups: [[zia.locations.workload-scopes]], [[zia.workload-groups]]."
+        }
+      ]
+    },
+    {
+      "heading": "Visibility"
+    },
+    {
+      "items": [
+        {
+          "label": "Logs.",
+          "text": "Log records, and their path to a SIEM through NSS virtual appliances: [[cloud-connector.logs]], [[cloud-connector.nss-va]]."
+        },
+        {
+          "label": "Monitoring.",
+          "text": "Insights and Connector status: [[cloud-connector.insights]]."
+        }
+      ]
+    },
+    {
+      "heading": "Automation"
+    },
+    {
+      "items": [
+        {
+          "label": "API.",
+          "text": "[[cloud-connector.api]]."
+        },
+        {
+          "label": "SDKs.",
+          "text": "[[cloud-connector.sdk-go.coverage]], [[cloud-connector.sdk-go.service-defects]], [[cloud-connector.sdk-python.coverage]]."
+        },
+        {
+          "label": "Terraform.",
+          "text": "[[cloud-connector.terraform.coverage]], [[cloud-connector.terraform.provider-behavior]], [[cloud-connector.terraform.rule-order]]."
+        }
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Zscaler Cloud Connector is a virtual machine that simplifies traffic forwarding to Zscaler services, extending Internet & SaaS (ZIA) and Private Access (ZPA) to cloud-native workloads.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-zscaler-cloud-connector.json",
+          "quotes": [
+            "Zscaler Cloud Connector is a virtual machine (VM) that simplifies traffic forwarding to Zscaler services. It extends the capabilities of Internet & SaaS (ZIA) and Private Access (ZPA) to cloud-native workloads"
+          ]
+        }
+      ]
+    },
+    "internet-vs-private": {
+      "statement": "Internet & SaaS is used when a private workload communicates with a public workload through the Zero Trust Exchange; Private Access is used when two private workloads communicate with each other through it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-zscaler-cloud-connector.json",
+          "quotes": [
+            "Internet & SaaS is used when a private workload is communicating to a public workload through the ZTE. Private Access is used when two private workloads are communicating with each other through the ZTE."
+          ]
+        }
+      ]
+    },
+    "l4-controls": {
+      "statement": "Cloud Connector provides Layer 4 controls for east-west traffic, including subnet-to-subnet and VPC-to-VPC traffic across AWS, Azure and GCP, and for ingress traffic to public applications hosted there, with tag-based policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-zscaler-cloud-connector.json",
+          "quotes": [
+            "Cloud Connector provides Layer 4 security controls for east-west traffic, including subnet-to-subnet and virtual private cloud (VPC)-to-VPC communication across cloud providers such as AWS, Azure, and Google Cloud Platform (GCP).",
+            "Layer 4 controls are also used to secure ingress traffic for public applications hosted in AWS, Azure, and GCP.",
+            "the added flexibility of leveraging tag-based policies for Layer 4 controls."
+          ]
+        }
+      ]
+    },
+    "onramps": {
+      "statement": "Cloud Connector is one of the ways to forward traffic to the Zero Trust Exchange, alongside Zscaler Client Connector, Branch Connector, and PAC files, GRE tunnels and IPSec tunnels (the last three for Internet & SaaS only).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "Organizations can forward users, workload, and Internet of Things (IoT) devices to the ZTE using:",
+            "- Zscaler Client Connector - Cloud Connector - Branch Connector - PAC Files (Internet & SaaS only) - GRE Tunnels (Internet & SaaS only) - IPSec Tunnels (Internet & SaaS only)"
+          ]
+        }
+      ]
+    }
+  }
+}

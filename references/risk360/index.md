@@ -53,5 +53,5 @@ Risk360 is the Zscaler risk-quantification reference area. Start with [`./overvi
 
 - ZIA: [`../zia/index.md`](../zia/index.md)
 - ZPA: [`../zpa/index.md`](../zpa/index.md)
-- Shared admin/RBAC context: [`../shared/admin-rbac.md`](../shared/admin-rbac.md)
+- Shared admin/RBAC context: [`shared.admin-rbac`](kb:shared.admin-rbac)
 - Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

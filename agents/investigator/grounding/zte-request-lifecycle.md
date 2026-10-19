@@ -7,7 +7,7 @@ last-verified: "2026-05-15"
 confidence: medium
 source-tier: practice
 sources:
-  - "references/shared/cloud-architecture.md"
+  - "kb:shared.cloud-architecture"
   - "references/zcc/index.md"
   - "kb:zia.traffic-forwarding"
   - "`kb:zpa.app-segments`"
@@ -54,14 +54,14 @@ Fast triage:
 
 | Stage | Failure cues | First docs | Related grounding |
 |---|---|---|---|
-| Origin | DNS points somewhere unexpected; host override; suffix issue | `references/shared/terminology.md` | none |
+| Origin | DNS points somewhere unexpected; host override; suffix issue | `node scripts/kb.mjs resolve shared.terminology` | none |
 | Forwarding | Z-Tunnel down; PAC/DIRECT surprise; GRE/IPsec/Cloud Connector path issue | `references/zcc/index.md`, `kb:zia.traffic-forwarding`, `references/cloud-connector/index.md` | none |
-| Identity | user/group/attribute mismatch; SCIM/SAML drift; step-up auth ambiguity | `references/zidentity/index.md`, `references/shared/scim-provisioning.md` | none |
-| Service Edge | wrong PoP; PSE/PSEN issue; subcloud/routing concern | `references/shared/cloud-architecture.md`, `kb:zia.private-service-edge` | none |
-| Routing | internet vs private-app path is wrong; app segment catches/misses traffic | `kb:zpa.app-segments`, `references/shared/source-ip-anchoring.md` | `grounding/zpa-segment-matching.md` |
+| Identity | user/group/attribute mismatch; SCIM/SAML drift; step-up auth ambiguity | `references/zidentity/index.md`, `node scripts/kb.mjs resolve shared.scim` | none |
+| Service Edge | wrong PoP; PSE/PSEN issue; subcloud/routing concern | `node scripts/kb.mjs resolve shared.cloud-architecture`, `kb:zia.private-service-edge` | none |
+| Routing | internet vs private-app path is wrong; app segment catches/misses traffic | `kb:zpa.app-segments`, `node scripts/kb.mjs resolve shared.source-ip-anchoring` | `grounding/zpa-segment-matching.md` |
 | ZIA policy | URL/category/rule/CAC/SSL/DLP/Sandbox outcome looks wrong | `kb:zia.url-filtering`, `kb:zia.ssl-inspection` | `grounding/zia-url-filtering-precedence.md`, `grounding/zia-ssl-inspection-bypass.md` |
 | ZPA connector | segment allowed but app not reached; empty `Connector`; no connector eligible | `kb:zpa.app-connectors`, `kb:zpa.server-groups` | `grounding/zpa-connector-assignment.md` |
-| Egress/response | destination allowlist/source-IP issue; SIPA; post-CONNECT surprise | `references/shared/source-ip-anchoring.md`, `kb:zia.ssl-inspection` | depends on path |
+| Egress/response | destination allowlist/source-IP issue; SIPA; post-CONNECT surprise | `node scripts/kb.mjs resolve shared.source-ip-anchoring`, `kb:zia.ssl-inspection` | depends on path |
 
 ## Inspect tenant config
 

@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "id": "shared.log-correlation.zia-zpa-join",
+  "title": "Joining ZIA logs to ZPA User Activity logs",
+  "aliases": [
+    "correlate zia and zpa logs",
+    "zia to zpa join",
+    "zpa_app_seg_name",
+    "same user in zia and zpa logs",
+    "trace a request across zia and zpa",
+    "user activity join key",
+    "cross-product log correlation",
+    "user session timeline across products"
+  ],
+  "binds": [
+    "zia/web-log#zpa_app_seg_name",
+    "zia/firewall-log#zpa_app_seg_name",
+    "zia/web-log#fwd_type",
+    "zpa/user-activity-log#Application",
+    "zpa/user-activity-log#Username",
+    "zpa/user-activity-log#LogTimestamp"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.log-correlation.zia-feeds"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.logs.user-activity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.zpa-gateway"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.log-correlation.zcc-in-zia"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A request that passes through both ZIA and ZPA leaves a ZIA NSS record and a ZPA User Activity record. Nothing in either record points at the other."
+    },
+    {
+      "label": "No shared key.",
+      "text": "{{no-shared-key}}"
+    },
+    {
+      "label": "Application segment.",
+      "text": "{{segment-name}} {{ua-application}} ZIA forwards traffic to a Private Access application segment through a ZPA gateway in a forwarding rule: [[zia.forwarding-control.zpa-gateway]]. When zpa_app_seg_name is filled, and whether it equals the User Activity Application value for the same request, is open {{gap:segment-name-match}}."
+    },
+    {
+      "label": "User.",
+      "text": "ZIA's login is in email address format in every feed: [[shared.log-correlation.zia-feeds:common-fields]]. User Activity's Username is the username as entered into Client Connector: [[zpa.logs.user-activity:username-in-both-logs]]. Whether the two hold the same string for one user is open {{gap:identity-match}}."
+    },
+    {
+      "label": "Device.",
+      "text": "User Activity's Hostname is valid only for Client Connector and machine tunnel clients: [[zpa.logs.user-activity:hostname-client-types]]. {{client-fields}} Whether the ZIA device fields and the ZPA Hostname carry the same value for one device is open {{gap:device-match}}."
+    },
+    {
+      "label": "Time.",
+      "text": "{{time-fields}} ZIA consolidates logs with a latency of seconds to minutes: [[shared.log-correlation.streams:zia-consolidation-latency]]. What window to allow between the two timestamps is open {{gap:time-skew}}."
+    },
+    {
+      "label": "Sessions across data centers.",
+      "text": "Reconstructing one user's session when it spans several Service Edges or data centers, and whether recordid is unique across them, is open {{gap:cross-dc-sessions}}."
+    },
+    {
+      "label": "Status values.",
+      "text": "The User Activity ConnectionStatus values are listed and shown differently: [[zpa.logs.user-activity:status-case]]. What triggers Active records on a long connection is open: [[zpa.logs.user-activity:active-cadence]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Start from the user's ZIA web records in the window (login and action) and note url, zpa_app_seg_name, fwd_type and epochtime.",
+      "uses": [
+        "segment-name",
+        "time-fields",
+        "zia.logs.web-rule-attribution:action-values-precedence"
+      ]
+    },
+    {
+      "do": "Where zpa_app_seg_name is filled, look for User Activity records for the same user whose Application matches, near that time, and read ConnectionStatus and InternalReason.",
+      "uses": [
+        "ua-application",
+        "segment-name-match",
+        "identity-match",
+        "time-skew",
+        "zpa.logs.user-activity:status-case"
+      ]
+    },
+    {
+      "do": "Where zpa_app_seg_name is empty, treat any ZPA record as a separate connection matched only by user and time.",
+      "uses": [
+        "no-shared-key",
+        "segment-name-match"
+      ]
+    },
+    {
+      "do": "To reconstruct a user's activity, put the web, firewall and DNS records for login and the User Activity records for Username in one timeline ordered by time, adding User Status records for session events; narrow the window first.",
+      "uses": [
+        "identity-match",
+        "time-fields",
+        "time-skew",
+        "zpa.logs.user-status:session-status-values"
+      ]
+    },
+    {
+      "do": "When a session may have moved between data centers, do not deduplicate on recordid or assume one datacenter value per session.",
+      "uses": [
+        "cross-dc-sessions"
+      ]
+    }
+  ],
+  "claims": {
+    "no-shared-key": {
+      "statement": "The ZIA feeds identify a record by recordid, a unique identifier for each log, while User Activity carries SessionID, the TLS session ID, and ConnectionID, the application connection ID; no field on either side is described as carrying the other product's identifier, so a ZIA-to-ZPA join rests on user, device, application and time fields.",
+      "tier": "B",
+      "conditions": "Rests on a search of the ZIA web, firewall and DNS field tables and the User Activity field table for a field described as the other product's record, session or connection identifier; none was found.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %d{recordid} | The unique record identifier for each log |  | This field is specific to"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "| SessionID | The TLS session ID | %[OPT]s%[OPT]j%[OPT]J%[OPT]o",
+            "| ConnectionID | The application connection ID | %[OPT]s%[OPT]j%[OPT]J%[OPT]o"
+          ]
+        }
+      ]
+    },
+    "segment-name": {
+      "statement": "The web and firewall feeds carry zpa_app_seg_name, the name of the Private Access (ZPA) application segment, and fwd_type, the type of forwarding method used, with Direct, Drop, Proxy Chaining and ZPA as examples.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#zpa_app_seg_name",
+        "zia/firewall-log#zpa_app_seg_name",
+        "zia/web-log#fwd_type",
+        "zia/firewall-log#fwd_type"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{zpa_app_seg_name} | The name of the Private Access (ZPA) application segment",
+            "| %s{fwd_type} | The type of forwarding method used | DirectDropProxy ChainingZPA"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-firewall-logs.json",
+          "quotes": [
+            "| %s{zpa_app_seg_name} | The name of the Zscaler Private Access (ZPA) application segment",
+            "| %s{fwd_type} | The type of forwarding method used | DirectDropProxy ChainingZPA"
+          ]
+        }
+      ]
+    },
+    "ua-application": {
+      "statement": "User Activity describes Application as the application name, AppGroup as the application group name and Policy as the access policy rule name.",
+      "tier": "A",
+      "binds": [
+        "zpa/user-activity-log#Application",
+        "zpa/user-activity-log#AppGroup",
+        "zpa/user-activity-log#Policy"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "| Application | The application name | %[OPT]s%[OPT]j%[OPT]J%[OPT]o",
+            "| AppGroup | The application group name | %[OPT]s%[OPT]j%[OPT]J%[OPT]o",
+            "| Policy | The access policy rule name | %[OPT]s%[OPT]j%[OPT]J%[OPT]o"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "after": "\"zpn_trans_log\":{",
+          "quotes": [
+            "\\\"Application\\\": %j{Application}"
+          ],
+          "note": "The default User Activity template keys the value as Application."
+        }
+      ]
+    },
+    "time-fields": {
+      "statement": "ZIA's epochtime is the epoch time of the transaction, while User Activity's LogTimestamp is the timestamp when the log was generated.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#epochtime",
+        "zpa/user-activity-log#LogTimestamp"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %d{epochtime} | The epoch time of the transaction | 1578128400"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "| LogTimestamp | The timestamp when the log was generated | %[OPT]s%[OPT]j%[OPT]J"
+          ]
+        }
+      ]
+    },
+    "client-fields": {
+      "statement": "User Activity's Platform is the platform on the device as reported by Client Connector (for example Windows) and ClientPublicIP the public IP address of Client Connector; the ZIA web feed's cpubip is the client public IP address.",
+      "tier": "A",
+      "binds": [
+        "zpa/user-activity-log#Platform",
+        "zpa/user-activity-log#ClientPublicIP",
+        "zia/web-log#cpubip"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "| Platform | The platform on the device as reported by Zscaler Client Connector (e.g., Windows)",
+            "| ClientPublicIP | The public IP address of the Zscaler Client Connector"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{cpubip} | The client public IP address | 198.51.100.100 | Client External IP"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "segment-name-match": {
+      "kind": "semantic",
+      "title": "When zpa_app_seg_name is filled, and whether it equals User Activity Application",
+      "status": "open",
+      "detail": "Unverified legacy statement: zpa_app_seg_name appears \"when a ZIA forwarding control rule routes the request to a ZPA application segment (Source IP Anchoring)\", with fwd_type = ZPA; matching it to the ZPA application name is \"the highest-fidelity ZIA→ZPA join field\"; if it is empty, \"the ZIA block happened before the request reached ZPA.\" The field tables say only that it is the segment's name, and User Activity describes Application only as the application name, so neither when the ZIA field is filled nor whether the two values are equal for one request is stated.",
+      "blocks": "Matching a ZIA record to the ZPA connection it was forwarded to",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "identity-match": {
+      "kind": "semantic",
+      "title": "Whether ZIA login and ZPA Username hold the same string for one user",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"ZIA uses email-format login; ZPA uses the username as entered in ZCC. Typically the same value if the IdP is shared\"; elsewhere both fields were said to \"carry the same email-format identity\" so one coalesced user field can join the streams. The ZIA tables say login is in email address format; User Activity says only that Username is as entered into Client Connector (see zpa.logs.user-activity:username-identity).",
+      "blocks": "Joining ZIA and ZPA records on the user name",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "device-match": {
+      "kind": "semantic",
+      "title": "Whether ZIA device fields and ZPA Hostname carry the same value for one device",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"devicehostname and deviceowner in ZIA logs, and Hostname and Username in ZPA LSS, are both populated from ZCC client metadata. On ZCC-forwarded traffic, these fields carry consistent values that function as device-level correlation keys across the two products\"; Platform complements deviceostype and ClientPublicIP complements cpubip. The two products' vocabularies differ (deviceostype examples such as Windows OS against a Platform example of Windows), and no source states the values match. The legacy table also listed deviceowner as ZIA-only, with no direct ZPA equivalent; no source states that either.",
+      "blocks": "Joining ZIA and ZPA records on the device",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "time-skew": {
+      "kind": "semantic",
+      "title": "What time window to allow between ZIA and ZPA records of one request",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Use a ±30-second window for cross-feed correlation (event ordering may differ)\"; a per-session variant searched five minutes either side of each ZPA record. epochtime is the transaction time and LogTimestamp the log generation time, and ZIA's consolidation latency is given only as seconds to minutes, so the skew between the two for one request is not stated.",
+      "blocks": "Choosing a join window that neither drops nor over-matches records",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    },
+    "cross-dc-sessions": {
+      "kind": "semantic",
+      "title": "Correlating one session across several Service Edges or data centers",
+      "status": "open",
+      "former_ids": [
+        "shared-22"
+      ],
+      "detail": "When one user's traffic in one logical session lands on Public Service Edges in different data centers (load-balancer failover, network changes), it is not stated whether datacenter is the key that separates the legs, whether recordid is unique across data centers or only within one (so whether deduplicating on it is safe), what session-like key ties the legs together given that the web feed has no session ID, or whether an identity bound to the first Service Edge (Surrogate IP) carries to the next. Legacy open question: no evidence that ZPA User Activity carries a counterpart to ZIA recordid.",
+      "blocks": "Reconstructing a user's activity across a Service Edge or data center change",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

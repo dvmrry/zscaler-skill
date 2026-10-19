@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.regions.topology",
+  "title": "Cloud Connector placement across regions: centralized, decentralized, overlapping address space",
+  "aliases": [
+    "cloud connector hub and spoke",
+    "cloud connector transit gateway",
+    "cloud connector virtual wan",
+    "cloud connector cross-region failover",
+    "cloud connector overlapping cidr",
+    "cloud connector vnet peering"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.regions"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "cloud-connector.overview.gateway-failover"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.workload-discovery.namespaces"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Centralized or decentralized.",
+      "text": "{{egress-groups}} {{region-independence}}"
+    },
+    {
+      "label": "Failure across regions.",
+      "text": "Failover between Service Edges is described per Cloud Connector, not across cloud regions: [[cloud-connector.overview.gateway-failover]]. Whether workloads in one region can fail over to Cloud Connectors in another, other than by routing changes, is not stated {{gap:cross-region-failover}}."
+    },
+    {
+      "label": "Overlapping address space.",
+      "text": "How namespaces keep tag mappings apart when AWS address ranges overlap: [[cloud-connector.workload-discovery.namespaces]]. {{azure-peering-duplicate-stack}}"
+    },
+    {
+      "text": "Cost and latency trade-offs of each layout are cloud-provider matters the captured sources do not state {{gap:placement-guidance}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the workload's region has its own Cloud Connector group or reaches one in a hub region through a transit gateway or virtual WAN hub.",
+      "uses": [
+        "egress-groups",
+        "region-independence"
+      ]
+    },
+    {
+      "do": "In Azure with VNet peering and overlapping CIDRs, whether a separate Cloud Connector group stack serves each overlapping set.",
+      "uses": [
+        "azure-peering-duplicate-stack"
+      ]
+    }
+  ],
+  "claims": {
+    "egress-groups": {
+      "statement": "In most cases Cloud Connector is deployed into groups or locations that serve the same internet egress.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "In most cases, Cloud Connector is deployed into groups or locations that serve the same internet egress."
+          ]
+        }
+      ]
+    },
+    "region-independence": {
+      "statement": "Deployments may be centralized, using AWS Transit Gateway or Azure Virtual WAN Hub, or decentralized, with each VPC or VNet having direct internet access; either way each region serves its own egress points for Cloud Connector and is not affected by other regions, even during a cloud provider outage.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-high-availability-and-failover.json",
+          "quotes": [
+            "Whether centralized, using AWS Transit Gateway or Azure Virtual WAN Hub, or decentralized, where each Virtual Private Cloud (VPC) or Azure Virtual Network (VNet) has direct internet access,",
+            "each region serves a number of different egress points for Cloud Connector and does not affect other regions even if there is a cloud provider outage."
+          ]
+        }
+      ]
+    },
+    "azure-peering-duplicate-stack": {
+      "statement": "In Azure the same CIDR block can be reused in a deployment, but with VPC peering endpoints cannot separate the traffic, so the Cloud Connector group stack must be duplicated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-namespaces-amazon-web-services-and-microsoft-azure-accounts.json",
+          "quotes": [
+            "When deploying applications in Azure, you can reuse the same CIDR block in a deployment. When using VPC peering, you cannot use endpoints to separate traffic. You must duplicate the Cloud Connector group stack."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "cross-region-failover": {
+      "kind": "semantic",
+      "title": "Failover of workloads to Cloud Connectors in another region",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"There is no automatic cross-region CC failover — a workload VPC in us-east-1 does not automatically reroute through us-west-2 CCs if the us-east-1 group fails. Cross-region recovery requires either a hub-spoke TGW topology or operator-managed route-table changes\"; and a Cloud Connector failing over its Service Edge tunnel \"does not route through US PSEs unless the subcloud config permits it\".",
+      "blocks": "regional disaster-recovery answers",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "placement-guidance": {
+      "kind": "semantic",
+      "title": "Same-region placement and the cost of centralized egress",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Cloud Connector should always be deployed in the same region as the workloads it serves\"; cross-region traffic incurs data-transfer charges and latency; Transit Gateway attachment and inter-region charges apply to hub designs; decentralized designs need more instances and \"more egress IPs to register with ZIA\". These rest on cloud-provider pricing and design advice, not on a captured Zscaler source.",
+      "blocks": "design recommendations on region placement",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ]
+    }
+  }
+}

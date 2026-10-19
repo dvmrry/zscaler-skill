@@ -1,0 +1,297 @@
+{
+  "schema_version": 1,
+  "id": "shared.pac-files.hosting",
+  "title": "Hosted PAC files: the console page, Obfuscate URL, limits and how changes reach clients",
+  "aliases": [
+    "hosted pac files page",
+    "obfuscate url",
+    "pac url obfuscation",
+    "pac number of hits",
+    "currently deployed version",
+    "error-accepted",
+    "pac non-ascii limit",
+    "pac file size limit",
+    "pac rollback",
+    "pac propagation"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.traffic-forwarding.pac"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.pac-files"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.pac-files"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The service hosts the default PAC files and an organization's custom ones. The limits, version states and the rule that changes are immediate are in [[zia.traffic-forwarding.pac]]; this subject covers the rest of hosting."
+    },
+    {
+      "label": "Serving.",
+      "text": "{{http-https}} {{multiple-files}}"
+    },
+    {
+      "label": "The Hosted PAC Files page.",
+      "text": "{{page-columns}} {{accept-risk}} {{versions-actions}}"
+    },
+    {
+      "label": "Who can read the file.",
+      "text": "{{public-file}} {{obfuscate-recommended}} {{obfuscate-fixed}}"
+    },
+    {
+      "label": "Size and characters.",
+      "text": "{{name-and-characters}} What saving a file over the non-ASCII limit does is open {{gap:non-ascii-save}}. {{size-is-encoded}} Whether 256 KB is a hard maximum differs between sources {{divergence:max-file-size}}; the help's limits are [[zia.traffic-forwarding.pac:limits]]."
+    },
+    {
+      "label": "How fast changes reach clients.",
+      "text": "{{subcloud-propagation}} When browsers pick up a changed file is open in [[zia.traffic-forwarding.pac:client-cache]], and WPAD delivery in [[zia.traffic-forwarding.pac:delivery-methods]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether clients are fetching the file at all, from its Number of Hits over the last 30 days.",
+      "uses": [
+        "page-columns"
+      ]
+    },
+    {
+      "do": "Whether the file was deployed with verification errors (Error-Accepted) rather than Verified.",
+      "uses": [
+        "page-columns",
+        "accept-risk"
+      ]
+    },
+    {
+      "do": "After an Obfuscate URL change, whether users were given the new hosted URL; users on the old URL get the default proxy PAC file.",
+      "uses": [
+        "obfuscate-fixed"
+      ]
+    },
+    {
+      "do": "For Client Connector users, whether the app profile PAC has refreshed (every 15 minutes, or Update Policy).",
+      "uses": [
+        "subcloud-propagation"
+      ]
+    }
+  ],
+  "claims": {
+    "http-https": {
+      "statement": "The PAC servers support HTTP and HTTPS; HTTPS is used by changing the URL scheme and is recommended for security.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-hosted-pac-files.json",
+          "quotes": [
+            "PAC servers support both HTTP and HTTPS. To use a PAC file with HTTPS, change the PAC file URL string from http to https. HTTPS is recommended for additional security."
+          ]
+        }
+      ]
+    },
+    "multiple-files": {
+      "statement": "An organization can use more than one PAC file, for example one for mobile devices and another for all other devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-hosted-pac-files.json",
+          "quotes": [
+            "Your organization can use more than one PAC file. For example, you can use one PAC file for mobile devices and another for all other devices."
+          ]
+        }
+      ]
+    },
+    "page-columns": {
+      "statement": "For each file the Hosted PAC Files page shows its hosted URL, a status of Verified or Error-Accepted (saved with errors the admin accepted at verification), the Number of Hits in the last 30 days and the Currently Deployed Version; files can be previewed and exported as text, PAC or JS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-hosted-pac-files.json",
+          "quotes": [
+            "Hosted URL: The hosted URL of the PAC file.",
+            "Verified: Indicates that the PAC file is verified in the Zscaler Admin Console.",
+            "Error-Accepted: Indicates that the PAC file has some errors and the admin has accepted and saved it with errors at the time of verification in the Zscaler Admin Console.",
+            "Number of Hits: The number of times the PAC file is hit in the last 30 days.",
+            "Currently Deployed Version: The version number of the currently deployed PAC file.",
+            "Export a PAC file as a text, PAC, or JS file.",
+            "Preview a PAC file."
+          ]
+        }
+      ]
+    },
+    "accept-risk": {
+      "statement": "Deploying a file that has verification errors requires a commit message and selecting I accept the risk.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-custom-pac-file-forward-traffic-zia.json",
+          "after": "Click Verify PAC File to check for errors in the syntax.",
+          "quotes": [
+            "If the PAC file has verification errors, complete the following sections in the window that appears:",
+            "Enter a commit message under the Save section.",
+            "Select I accept the risk under the Deploy section."
+          ]
+        }
+      ]
+    },
+    "versions-actions": {
+      "statement": "On Manage Versions, any two versions can be compared, and each version's actions are deploy, mark or remove Last Known Good, create a branch, delete or stage deployment; a separate tab shows the deployed version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-custom-pac-file-forward-traffic-zia.json",
+          "quotes": [
+            "You can also compare the contents of any two PAC file versions.",
+            "Action: Deploy, mark or remove the Last Known Good tag, create a branch, delete, or stage deployment for the PAC file version.",
+            "On the View Deployed Version tab, you can view the details of the currently deployed PAC file version."
+          ]
+        }
+      ]
+    },
+    "public-file": {
+      "statement": "A PAC file is text that anyone can download and view, so it should be protected with appropriate file permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-writing-pac-files.json",
+          "quotes": [
+            "Because PAC files are text and can be downloaded and viewed by anyone, use appropriate file permissions to ensure that they are secure."
+          ]
+        }
+      ]
+    },
+    "obfuscate-recommended": {
+      "statement": "Because the file must be public for users' machines to fetch it, anyone with the URL can read content the organization may not want public; enabling Obfuscate URL makes the console generate a different URL, and Zscaler strongly recommends it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Because this file must be made public for your users’ machines to access, this means anyone who has the URL can access the content. This can contain information you don’t want to be public.",
+            "The ZIA Admin Portal generates a URL for your use when you enable Obfuscate URL. Zscaler strongly recommends enabling Obfuscate URL."
+          ]
+        }
+      ]
+    },
+    "obfuscate-fixed": {
+      "statement": "Obfuscate URL applies to all versions of a file and cannot be changed on a saved file, because it changes the hosted URL; users still on the old URL are served the default proxy PAC file instead of the custom one. To change it, the content is copied into a new PAC file with the setting changed, and the new URL is distributed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-custom-pac-file-forward-traffic-zia.json",
+          "quotes": [
+            "Obfuscate URL: Enable this field to obfuscate the PAC file URL. This selection applies to all the additional versions of the PAC file.",
+            "You cannot modify (enable or disable) the Obfuscate URL field for a saved PAC file as it changes the Hosted URL",
+            "Users using the old Hosted URL are served by the default proxy PAC file instead of the intended custom PAC file.",
+            "In the PAC File Contents section, paste the content copied from the old PAC file.",
+            "Distribute the new PAC file URL to your users."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "When you enable obfuscation, you need to update your client machines to the new URL location."
+          ]
+        }
+      ]
+    },
+    "name-and-characters": {
+      "statement": "A PAC file name and description are each limited to 255 characters, and the file can contain up to 12% non-ASCII characters (binary).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "after": "The following table shows the ranges and limitations for PAC files:",
+          "quotes": [
+            "| Name | 255 characters |",
+            "| Description | 255 characters |",
+            "| Non-ASCII Characters | The file can contain up to 12% of non-ASCII characters (binary). |"
+          ]
+        }
+      ]
+    },
+    "size-is-encoded": {
+      "statement": "Characters take different numbers of bits to encode, so a precise character count is difficult; saving a file over 256 KB without a raised limit shows an error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-writing-pac-files.json",
+          "quotes": [
+            "The number of bits required to encode a character changes from character to character, making a precise character count difficult. An error message displays when you try to save a PAC file that is over 256 KB without increasing the limit."
+          ]
+        }
+      ]
+    },
+    "subcloud-propagation": {
+      "statement": "A change to a subcloud's data center list takes about 5 minutes to reach Zscaler-hosted PAC files; Client Connector refreshes the app profile PAC every 15 minutes, so users are redirected about 10 to 20 minutes after the change, and Update Policy in the app syncs the app profile PAC immediately.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-subclouds.json",
+          "quotes": [
+            "it takes about 5 minutes for the changes to be reflected in Zscaler Hosted PAC files.",
+            "Zscaler Client Connector automatically refreshes the Application Profile PAC every 15 minutes",
+            "Users should be redirected about 10–20 minutes after the subcloud changes are activated.",
+            "Click Update Policy next to App Policy to immediately sync the Application Profile PAC."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "max-file-size": {
+      "summary": "Whether 256 KB is the maximum PAC file size.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+            "quotes": [
+              "The maximum file size ZIA supports is 256 KB."
+            ]
+          },
+          "says": "The reference architecture gives 256 KB as the maximum file size."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "using-custom-pac-file-forward-traffic-zia.json",
+            "quotes": [
+              "The size limit of each PAC file that you can upload is 256 KB. Contact Zscaler Support to increase the PAC file size limit to a maximum of 2 MB."
+            ]
+          },
+          "says": "The custom PAC file article gives 256 KB as the default, raisable by Zscaler Support to 2 MB."
+        }
+      ],
+      "impact": "Reading the reference architecture alone, a file over 256 KB looks impossible and gets split or trimmed, when a Support request can raise the limit."
+    }
+  },
+  "gaps": {
+    "non-ascii-save": {
+      "kind": "semantic",
+      "title": "What saving a PAC file over the non-ASCII limit does",
+      "status": "open",
+      "detail": "Unverified legacy statement: PAC files with verbose Unicode comments, non-English hostnames or BOM markers can silently fail save validation once they pass the 12% non-ASCII cap. The limits table states the cap but not what the console does with a file over it.",
+      "blocks": "explaining a PAC file that will not save or deploy",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

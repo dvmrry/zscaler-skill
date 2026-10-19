@@ -1,0 +1,345 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.aws.provisioning",
+  "title": "Cloud Connector on AWS: provisioning template, URL, Secrets Manager credentials, user data",
+  "aliases": [
+    "cloud connector provisioning url aws",
+    "cloud connector secrets manager",
+    "cloud connector api_key username password secret",
+    "cloud connector user data",
+    "userdata.cfg cloud connector",
+    "CC_URL SECRET_NAME HTTP_PROBE_PORT",
+    "cloud connector not registering aws",
+    "imdsv2 cloud connector"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.aws"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.instance-sizing"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.iam"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.troubleshooting"
+    }
+  ],
+  "prose": [
+    {
+      "text": "An AWS Cloud Connector registers with Zscaler using the provisioning URL of an AWS provisioning template and admin credentials held in AWS Secrets Manager."
+    },
+    {
+      "label": "Admin Console side.",
+      "text": "{{dedicated-admin-role}} {{api-key}} {{provisioning-template}} {{locations-automatic}} The size chosen here must match the deployment: [[cloud-connector.aws.instance-sizing]]."
+    },
+    {
+      "label": "AWS side.",
+      "text": "{{secret-keys}} {{custom-kms}} {{secret-iam}}"
+    },
+    {
+      "label": "How the inputs reach the instance.",
+      "text": "{{module-user-data}} {{example-user-data}} {{asg-launch-template-user-data}} {{lambda-holds-url}} {{imdsv2}} When the AMI reads these inputs is not documented {{gap:boot-time-read}}. FIPS mode is one of these user-data settings: [[cloud-connector.aws.reference-modules]]."
+    },
+    {
+      "label": "When registration fails.",
+      "text": "{{wrong-url-recreate}} {{userdata-cfg-check}} Whether a regenerated URL leaves an autoscaling launch template stale is not documented {{gap:stale-url-launch-template}}. The full not-registered checklist is in [[cloud-connector.aws.troubleshooting]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the provisioning template is an AWS template and the deployment used its URL.",
+      "uses": [
+        "provisioning-template",
+        "wrong-url-recreate"
+      ]
+    },
+    {
+      "do": "Whether the Secrets Manager secret holds api_key, username and password for a deployment admin whose role has Location Management and Cloud Connector Provisioning access, in the region of the instance.",
+      "uses": [
+        "secret-keys",
+        "dedicated-admin-role",
+        "secret-iam"
+      ]
+    },
+    {
+      "do": "Whether /etc/cloud/cloud.cfg.d/userdata.cfg on the appliance contains the provisioning URL and secret name.",
+      "uses": [
+        "userdata-cfg-check",
+        "example-user-data"
+      ]
+    },
+    {
+      "do": "For an autoscaling group, whether the launch template and the Lambda still carry the current provisioning URL.",
+      "uses": [
+        "asg-launch-template-user-data",
+        "lambda-holds-url",
+        "stale-url-launch-template"
+      ]
+    }
+  ],
+  "claims": {
+    "dedicated-admin-role": {
+      "statement": "Zscaler recommends a dedicated admin role for Cloud Connector deployment, with full access to Location Management and Cloud Connector Provisioning and all other permissions set to None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Zscaler recommends creating a dedicated admin role for Cloud Connector deployment.",
+            "Permissions: Ensure that the admin has full access to Location Management and Cloud Connector Provisioning. Set all other permissions to None."
+          ]
+        }
+      ]
+    },
+    "api-key": {
+      "statement": "Cloud Connector uses the Cloud & Branch Connector API key to authenticate and register the AMI with Zscaler.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Cloud Connector uses the API key to authenticate and register the AMI with Zscaler.",
+            "Go to Administration > API > Cloud & Branch Connector API."
+          ]
+        }
+      ]
+    },
+    "provisioning-template": {
+      "statement": "The cloud provisioning template for AWS sets the cloud provider to AWS, location creation and Cloud Connector group creation to Automatic, a location template, a VM size and autoscaling; its cloud provisioning URL is copied for the deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Cloud Provider: Select AWS as the cloud provider.",
+            "Location Creation: This field is set to Automatic.",
+            "Cloud Connector Group Creation: This field is set to Automatic.",
+            "VM Size: Select from Small, Medium, or Large for your VM size.",
+            "Auto Scaling: Enable or disable autoscaling.",
+            "copy the cloud provisioning URL. Store the cloud provisioning URL in a secure location.",
+            "Location Template: From the drop-down menu, select the Default Location Template or another template."
+          ]
+        }
+      ]
+    },
+    "locations-automatic": {
+      "statement": "Locations are created automatically when Cloud Connector is deployed to AWS, so configuring a location template is optional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "You do not need to configure location templates because locations are created automatically when you deploy Cloud Connector to a cloud provider such as AWS."
+          ]
+        }
+      ]
+    },
+    "secret-keys": {
+      "statement": "The Secrets Manager secret is an other-type secret with the keys api_key (the Admin Console API key), username and password (the dedicated deployment admin's Admin Console credentials).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "On the Choose Secret type page, set the secret type to Other type of secrets.",
+            "api_key: Enter api_key for the name of your secret key. For the corresponding value, enter the value copied from the API Key Management page in the Zscaler Admin Console.",
+            "username: Enter username for the name of your secret key. For the corresponding value, enter your dedicated deployment Zscaler Admin Console username.",
+            "password: Enter password for the name of your secret key. For the corresponding value, enter your dedicated deployment Zscaler Admin Console password."
+          ]
+        }
+      ]
+    },
+    "custom-kms": {
+      "statement": "The secret is encrypted with aws/secrets manager, the KMS key Secrets Manager creates by default, or with a custom-managed KMS key; with a custom key the IAM user or role must have kms:decrypt.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Under Encryption key, select aws/secrets manager. You can use this encryption key, which is the AWS Key Management Service (KMS) key that AWS Secrets Manager creates by default, or select Add new key to create a custom-managed key in the AWS KMS.",
+            "If you create a custom AWS KMS key, the IAM user or role must have permissions set to kms:decrypt."
+          ]
+        }
+      ]
+    },
+    "secret-iam": {
+      "statement": "The IAM role attached to the Cloud Connector instance must carry a Secrets Manager read policy (Help names it SecretsManagerRead); if it does not, Help says to attach the correct role and re-create the instance, and to replicate the secret from a working region to new regions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "has the SecretsManagerRead policy attached to it. If it does not, attach the correct IAM role and re-create a new Cloud Connector instance in the AWS Management Console.",
+            "To avoid access issues with the Cloud Connector instance, make sure to replicate the AWS Secrets Manager from a working region to new regions."
+          ]
+        }
+      ]
+    },
+    "module-user-data": {
+      "statement": "The reference CCVM module takes the bootstrap as a single `user_data` string described as \"Cloud Init data\" and passes it base64-encoded to the instance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/variables.tf",
+          "quotes": [
+            "variable \"user_data\" { type = string description = \"Cloud Init data\" }"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "quotes": [
+            "user_data = base64encode(var.user_data)"
+          ]
+        }
+      ]
+    },
+    "example-user-data": {
+      "statement": "The reference Terraform examples write user data as a [ZSCALER] section with CC_URL (the provisioning URL), SECRET_NAME, HTTP_PROBE_PORT and FIPS_ENABLED.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_1cc/main.tf",
+          "quotes": [
+            "[ZSCALER] CC_URL=${var.cc_vm_prov_url} SECRET_NAME=${var.secret_name} HTTP_PROBE_PORT=${var.http_probe_port} FIPS_ENABLED=${var.fips_enabled}"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_cc_gwlb_asg/main.tf",
+          "quotes": [
+            "[ZSCALER] CC_URL=${var.cc_vm_prov_url} SECRET_NAME=${var.secret_name} HTTP_PROBE_PORT=${var.http_probe_port} FIPS_ENABLED=${var.fips_enabled}"
+          ]
+        }
+      ]
+    },
+    "asg-launch-template-user-data": {
+      "statement": "The autoscaling module sets the user data, base64-encoded, on the launch template it creates, and the group launches from that template at version `$Latest` by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/main.tf",
+          "after": "resource \"aws_launch_template\" \"cc_launch_template\" {",
+          "quotes": [
+            "user_data = base64encode(var.user_data)"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/variables.tf",
+          "quotes": [
+            "description = \"Launch template version. Can be version number, `$Latest` or `$Default`\" default = \"$Latest\""
+          ]
+        }
+      ]
+    },
+    "lambda-holds-url": {
+      "statement": "The autoscaling Lambda module also receives the provisioning URL and secret name, as the CC_URL and SECRET_NAME environment variables.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-lambda-aws/main.tf",
+          "quotes": [
+            "CC_URL = var.cc_vm_prov_url SECRET_NAME = var.secret_name"
+          ]
+        }
+      ]
+    },
+    "imdsv2": {
+      "statement": "Help says IMDSv2 is enforced by default for Cloud Connector on AWS; the reference CCVM module's `imdsv2_enabled` defaults to true and sets the metadata `http_tokens` to required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deployment-templates-zscaler-cloud-connector.json",
+          "quotes": [
+            "When you deploy Cloud Connector with AWS, Instance Metadata Service Version 2 (IMDSv2) is enforced by default."
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/variables.tf",
+          "quotes": [
+            "true/false whether to force IMDSv2 only for instance bring up. Default is true"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-aws/main.tf",
+          "quotes": [
+            "http_tokens = var.imdsv2_enabled ? \"required\" : \"optional\""
+          ]
+        }
+      ]
+    },
+    "wrong-url-recreate": {
+      "statement": "When a Cloud Connector does not appear after provisioning, Help says to confirm the provisioning template is for AWS and that the CloudFormation or Terraform run used the correct provisioning URL; if it used an incorrect one, remove the instance and create a new one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "The cloud provisioning template in the Zscaler Admin Console is for AWS.",
+            "The CloudFormation or Terraform cloud automation script process used the correct provisioning URL. If it used an incorrect provisioning URL, remove the instance and create a new instance."
+          ]
+        }
+      ]
+    },
+    "userdata-cfg-check": {
+      "statement": "Help says to verify the bootstrap file was imported by running cat /etc/cloud/cloud.cfg.d/userdata.cfg over SSH and confirming the Terraform and CloudFormation variables are present; if they are not, re-create the appliance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "The bootstrap file (userdata.cfg) was properly imported into the Cloud Connector. You can verify this by logging into the appliance via SSH and issuing the following command: cat /etc/cloud/cloud.cfg.d/userdata.cfg.",
+            "Confirm that Terraform and CloudFormation variables are present in this file. If the variables are not present, re-create the appliance."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "stale-url-launch-template": {
+      "kind": "semantic",
+      "title": "Scale-out after the provisioning URL is regenerated",
+      "status": "open",
+      "detail": "Unverified legacy statement: if the provisioning URL is regenerated in the Admin Console and the launch template is not updated, scale-out events produce Cloud Connectors that fail to register. The URL does sit in the launch template's user data and in the Lambda environment, but no source says what a regenerated URL does to the old one.",
+      "blocks": "diagnosing new autoscaling instances that never register",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "boot-time-read": {
+      "kind": "semantic",
+      "title": "When the AMI reads the user data and the secret",
+      "status": "open",
+      "detail": "Unverified legacy statement: the Cloud Connector AMI reads the provisioning URL from user data and the credentials from Secrets Manager at boot. The sources show the URL and secret name in user data, the secret's keys, and that the API key is used to register the AMI, but not when the read happens or whether it repeats.",
+      "blocks": "explaining whether fixing a secret or role after launch lets an existing instance register",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

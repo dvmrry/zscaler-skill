@@ -45,7 +45,7 @@ What the ZDX CA does:
 - Orchestrates software updates to ZDX Module on ZCC.
 - Does not handle customer traffic — it is a control plane only.
 
-For the ZIA CA topology (active + two passive standbys) and ZPA CA topology (active-active distributed), see [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md).
+For the ZIA CA topology (active + two passive standbys) and ZPA CA topology (active-active distributed), see [`shared.cloud-architecture`](kb:shared.cloud-architecture).
 
 ### Zscaler Client Connector (ZCC)
 
@@ -180,4 +180,4 @@ The TPG is explicitly described as a "multi-tenant RESTFUL application." (`vendo
 - ZDX overview and score mechanics — [`./overview.md`](./overview.md)
 - Probe measurement types and targeting — [`./probes.md`](./probes.md)
 - ZCC entitlement (ZDX gate for metrics reporting) — [`zcc.entitlements`](kb:zcc.entitlements)
-- Shared Zscaler cloud architecture (CA topology, ZIA CA active-passive, ZPA CA active-active) — [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md)
+- Shared Zscaler cloud architecture (CA topology, ZIA CA active-passive, ZPA CA active-active) — [`shared.cloud-architecture`](kb:shared.cloud-architecture)

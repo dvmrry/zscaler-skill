@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.nss-va",
+  "title": "NSS for Cloud & Branch Connector: how connector logs reach a SIEM",
+  "aliases": [
+    "cloud connector nss",
+    "cbc nss",
+    "nss virtual appliance cloud connector",
+    "nss va cloud connector",
+    "nss for firewall cloud and branch connector",
+    "cloud connector siem streaming",
+    "branch connector nss"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.nss-va.servers"
+    },
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.nss-va.feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.nss-va.log-control-path"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.logs"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Cloud and Branch Connector logs leave the Zscaler cloud for a SIEM through the Nanolog Streaming Service. This subject says what is needed and walks to the server, feed and forwarding-path subjects."
+    },
+    {
+      "label": "What it is.",
+      "text": "{{what-nss-is}} {{log-types}} The fields of each log type are in [[cloud-connector.logs]]."
+    },
+    {
+      "label": "Subscription.",
+      "text": "{{subscription}} {{firewall-config-only}}"
+    },
+    {
+      "label": "Servers and feeds.",
+      "text": "Registering the VM, its certificate, buffering and sizing are in [[cloud-connector.nss-va.servers]]. Feed limits, output formats and the SIEM destination are in [[cloud-connector.nss-va.feeds]]. How the connector's own Log and Control Forwarding policy relates to this path is in [[cloud-connector.nss-va.log-control-path]]."
+    },
+    {
+      "label": "Cloud NSS.",
+      "text": "Whether the HTTPS-push Cloud NSS carries Cloud and Branch Connector logs is open {{gap:cloud-nss-for-cbc}}. The NSS model shared with ZIA (Nanolog tunnel, one-hour recovery, Cloud NSS) is in [[shared.nss.delivery-modes]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant holds the NSS for Firewall, Cloud and Branch Connector subscription before troubleshooting a missing feed.",
+      "uses": [
+        "subscription"
+      ]
+    },
+    {
+      "do": "Which log type the SIEM is missing (Session, DNS, Event or Metrics), since each has its own feed.",
+      "uses": [
+        "log-types"
+      ]
+    }
+  ],
+  "claims": {
+    "what-nss-is": {
+      "statement": "For Cloud & Branch Connector, NSS uses a VM to stream traffic logs in real time from the Zscaler Nanolog to a SIEM, and an NSS server is the representation of that VM in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-nss-servers.json",
+          "quotes": [
+            "The Nanolog Streaming Service (NSS) uses a virtual machine (VM) to stream traffic logs in real time from the Zscaler Nanolog to your security information and event management (SIEM) system",
+            "An NSS server is the representation of the NSS VM in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "log-types": {
+      "statement": "Both Cloud Connector and Branch Connector can generate Session, DNS, Event and Metrics logs, and an NSS feed specifies which log data the NSS sends to the SIEM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-nss-feeds.json",
+          "quotes": [
+            "Both Cloud Connector and Branch Connector can generate Session, DNS, Event, and Metrics logs.",
+            "A Nanolog Streaming Service (NSS) feed specifies the data from the logs that the NSS sends to the security information and event management (SIEM) system."
+          ]
+        }
+      ]
+    },
+    "subscription": {
+      "statement": "Managing Cloud & Branch Connector NSS requires a subscription to NSS for Firewall, Cloud and Branch Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-nss-virtual-appliances.json",
+          "quotes": [
+            "You must be subscribed to NSS for Firewall, Cloud and Branch Connector to manage your Cloud & Branch Connector NSS."
+          ]
+        }
+      ]
+    },
+    "firewall-config-only": {
+      "statement": "The NSS VM is deployed from the NSS deployment guides for Azure, AWS and vSphere; for Cloud & Branch Connector only their NSS for Firewall configurations apply, and the NSS for Web configurations are to be ignored as not applicable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-nss-virtual-appliances.json",
+          "quotes": [
+            "NSS Deployment Guide for Azure",
+            "NSS Deployment Guide for AWS",
+            "NSS Deployment Guide for vSphere",
+            "For Cloud & Branch Connector, consider only the NSS for Firewall configurations in the deployment guides and ignore the NSS for Web configurations because they are not applicable."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "cloud-nss-for-cbc": {
+      "kind": "semantic",
+      "title": "Whether Cloud NSS carries Cloud and Branch Connector logs",
+      "status": "open",
+      "blocks": "choosing between an NSS VM and Cloud NSS for a cloud-hosted SIEM",
+      "detail": "Unverified legacy statement: \"A Cloud NSS for Firewall subscription covers CBC log types\" and Cloud NSS is \"the lower-friction path when the SIEM exposes a publicly routable HTTPS ingestion API\". The captured Cloud & Branch Connector NSS articles describe only NSS servers (VMs) and NSS feeds; the Cloud NSS articles are written for Internet & SaaS (ZIA) log types.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "You can optionally subscribe to Cloud NSS, enabling direct cloud-to-cloud log streaming for all Internet & SaaS (ZIA) log types into a compatible cloud-based SIEM without any on-premises connectors."
+          ]
+        }
+      ]
+    }
+  }
+}

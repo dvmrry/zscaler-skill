@@ -1,0 +1,626 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.azure.network",
+  "title": "Cloud Connector on Azure: NICs, subnets, NSGs, NAT and routing",
+  "aliases": [
+    "azure cloud connector nic order",
+    "azure cloud connector dual nic",
+    "azure cloud connector management nic",
+    "azure cloud connector service nic",
+    "ip forwarding cloud connector azure",
+    "azure cloud connector nsg",
+    "azure cloud connector nat gateway",
+    "azure cloud connector udr",
+    "azure cloud connector route table",
+    "bgp route propagation cloud connector",
+    "azure private dns resolver cloud connector",
+    "terraform-zscc-network-azure",
+    "terraform-zscc-nsg-azure",
+    "terraform-zscc-private-dns-azure",
+    "zssupport_server"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure.load-balancing"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure.terraform-modules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "How the Azure reference deployment wires a Cloud Connector into the network: two interfaces per VM, the security groups on them, NAT egress, and the routes that steer workloads to it. Most of this comes from Zscaler's Terraform modules, which are one valid deployment shape; the Help pages are cited where they state the same point."
+    },
+    {
+      "label": "Two interfaces, in order.",
+      "text": "{{nic-order-required}} {{vmss-nic-order}} {{service-nic-forwarding}} {{mgmt-nic-no-forwarding}} {{two-nics-always}} What happens on a VM booted with the order reversed is not documented {{gap:nic-order-consequence}}."
+    },
+    {
+      "label": "One subnet by default.",
+      "text": "{{same-subnet-default}} {{mgmt-same-subnet-help}}"
+    },
+    {
+      "label": "IP forwarding.",
+      "text": "{{ip-forwarding-must-stay-on}} What the load-balancer probe shows when it is off is not documented {{gap:ip-forwarding-probe-effect}}."
+    },
+    {
+      "label": "Address space.",
+      "text": "{{vnet-sizing}}"
+    },
+    {
+      "heading": "Security groups"
+    },
+    {
+      "text": "{{outbound-only}} {{mgmt-nsg}} {{support-access-rule}} {{service-nsg}} {{gwlb-service-nsg}} Whether platform traffic (load-balancer probes, the Azure fabric addresses) needs explicit rules is not stated by the module or Help {{gap:nsg-platform-traffic}}."
+    },
+    {
+      "heading": "NAT egress"
+    },
+    {
+      "text": "{{nat-per-zone}} {{nat-per-zone-help}} {{wrong-geolocation}} The egress identity of the NAT address, and deployments without a NAT gateway, are not covered by these sources {{gap:nat-egress}}."
+    },
+    {
+      "heading": "Routing workloads to the connectors"
+    },
+    {
+      "text": "{{hub-spoke}} {{help-workload-route}} {{module-route-tables}} How routes learned from ExpressRoute or a VPN gateway interact with that default route is not covered by a captured source {{gap:bgp-learned-routes}}."
+    },
+    {
+      "heading": "Private DNS Resolver"
+    },
+    {
+      "text": "{{private-dns-module}} {{private-dns-only-zpa}} {{private-dns-targets}} {{private-dns-azure-limits}} {{gwlb-no-zpa-variant}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether each Cloud Connector VM has the management NIC first and the service NIC second, as the module comment requires.",
+      "uses": [
+        "nic-order-required",
+        "vmss-nic-order",
+        "nic-order-consequence"
+      ]
+    },
+    {
+      "do": "Whether IP forwarding is still enabled on the service NIC, since manual or automated changes can disable it.",
+      "uses": [
+        "ip-forwarding-must-stay-on",
+        "service-nic-forwarding",
+        "ip-forwarding-probe-effect"
+      ]
+    },
+    {
+      "do": "Whether the management NSG still has the outbound support-access rule, and which destination it points to for the tenant's cloud.",
+      "uses": [
+        "support-access-rule"
+      ]
+    },
+    {
+      "do": "Whether the workload route table sends 0.0.0.0/0 to the load balancer frontend (or the single connector's service IP) and has gateway route propagation disabled.",
+      "uses": [
+        "help-workload-route",
+        "module-route-tables",
+        "bgp-learned-routes"
+      ]
+    },
+    {
+      "do": "Whether the connector's egress public IP matches the expected NAT gateway when the Admin Console shows the wrong geolocation.",
+      "uses": [
+        "wrong-geolocation",
+        "nat-per-zone"
+      ]
+    }
+  ],
+  "claims": {
+    "nic-order-required": {
+      "statement": "The single-VM module attaches the management NIC first and the service NIC second; its source comment states that Cloud Connector requires the interface order #1 management, #2 service (or load balancer for medium and large connectors), then further service interfaces.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-azure/main.tf",
+          "quotes": [
+            "# Cloud Connector requires that the ordering of network_interface_ids associated are #1/mgmt, #2/service (or lb for med/lrg CC), #3/service-1, #4/service-2, #5/service-3",
+            "network_interface_ids = [ azurerm_network_interface.cc_mgmt_nic[count.index].id, azurerm_network_interface.cc_service_nic[count.index].id, ]"
+          ]
+        }
+      ]
+    },
+    "vmss-nic-order": {
+      "statement": "The VMSS module declares the management interface first, marked primary, and the forwarding interface second, with IP forwarding enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/main.tf",
+          "quotes": [
+            "name = \"${var.name_prefix}-ccvmss-mgmt-nic-${var.resource_tag}\" primary = true"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/main.tf",
+          "after": "name = \"${var.name_prefix}-ccvmss-mgmt-nic-${var.resource_tag}\"",
+          "quotes": [
+            "name = \"${var.name_prefix}-ccvmss-fwd-nic-${var.resource_tag}\" enable_accelerated_networking = var.accelerated_networking_enabled enable_ip_forwarding = true"
+          ]
+        }
+      ]
+    },
+    "service-nic-forwarding": {
+      "statement": "The single-VM module creates the service NIC with `ip_forwarding_enabled = true` and accelerated networking taken from `accelerated_networking_enabled`, which defaults to true.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-azure/main.tf",
+          "after": "resource \"azurerm_network_interface\" \"cc_service_nic\" {",
+          "quotes": [
+            "ip_forwarding_enabled = true",
+            "accelerated_networking_enabled = var.accelerated_networking_enabled"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-azure/variables.tf",
+          "quotes": [
+            "description = \"Enable/Disable accelerated networking support on all Cloud Connector service interfaces\" default = true"
+          ]
+        }
+      ]
+    },
+    "mgmt-nic-no-forwarding": {
+      "statement": "The management NIC resource sets neither IP forwarding nor accelerated networking, so it gets the azurerm provider defaults for both.",
+      "tier": "B",
+      "conditions": "Read of the cc_mgmt_nic resource block, which sets only name, location, resource group, one dynamic primary IP configuration and tags. The azurerm defaults (IP forwarding and accelerated networking off) are not quoted from a registered source.",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-azure/main.tf",
+          "quotes": [
+            "resource \"azurerm_network_interface\" \"cc_mgmt_nic\" { count = var.cc_count name = \"${var.name_prefix}-ccvm-${count.index + 1}-mgmt-nic-${var.resource_tag}\" location = var.location resource_group_name = var.resource_group"
+          ]
+        }
+      ]
+    },
+    "two-nics-always": {
+      "statement": "Neither direct module offers a single-NIC path: every VM, and every scale-set instance, is given one management and one forwarding interface with no condition on either.",
+      "tier": "B",
+      "conditions": "Read of both direct modules at the pin: the VM's network_interface_ids list and the scale set's two network_interface blocks carry no count or dynamic condition.",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-azure/main.tf",
+          "quotes": [
+            "network_interface_ids = [ azurerm_network_interface.cc_mgmt_nic[count.index].id, azurerm_network_interface.cc_service_nic[count.index].id, ]"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/main.tf",
+          "quotes": [
+            "network_interface { name = \"${var.name_prefix}-ccvmss-mgmt-nic-${var.resource_tag}\"",
+            "network_interface { name = \"${var.name_prefix}-ccvmss-fwd-nic-${var.resource_tag}\""
+          ]
+        }
+      ]
+    },
+    "same-subnet-default": {
+      "statement": "Both direct modules note that by default they receive the same single subnet ID for the management and service subnets, keeping the two inputs separate in case a deployment puts the interfaces in individual subnets for isolation; the VMSS example passes the same subnet list to both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvm-azure/variables.tf",
+          "quotes": [
+            "#### module by default pushes the same single subnet ID for both mgmt_subnet_id and service_subnet_id, so they are effectively the same variable",
+            "#### leaving each as unique values should customer choose to deploy mgmt and service as individual subnets for additional isolation"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/variables.tf",
+          "quotes": [
+            "#### module by default pushes the same single subnet ID for both mgmt_subnet_id and service_subnet_id, so they are effectively the same variable"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_cc_vmss/main.tf",
+          "quotes": [
+            "mgmt_subnet_id = module.network.cc_subnet_ids service_subnet_id = module.network.cc_subnet_ids"
+          ]
+        }
+      ]
+    },
+    "mgmt-same-subnet-help": {
+      "statement": "Help states that Cloud Connector appliances have a dedicated management interface installed, by default, in the same subnet as the service interface, and that network operations such as ping use the management interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "Cloud Connector appliances have a dedicated management interface installed, by default, in the same subnet as the Service Interface.",
+            "Network operations, such as ping, use the management interface."
+          ]
+        }
+      ]
+    },
+    "ip-forwarding-must-stay-on": {
+      "statement": "Help states that IP forwarding must be enabled on the Cloud Connector service interface to avoid connectivity disruptions or unreachable destinations; it is enabled by default but can be disabled manually or by automation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "To avoid connectivity disruptions and/or unreachable destinations, IP forwarding must be enabled on the Cloud Connector service interface. This setting is enabled by default, but it could be inadvertently disabled manually or via automation."
+          ]
+        }
+      ]
+    },
+    "vnet-sizing": {
+      "statement": "The minimum IPv4 address space for the VNet is /24, and for the subnet the Cloud Connectors are deployed into (zsccSubnet) it is /28.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "The minimum IPv4 address space for the VNet is 24 (/24). The minimum IPv4 address space for the subnet (zsccSubnet) into which Cloud Connectors are deployed is 28 (/28)."
+          ]
+        }
+      ]
+    },
+    "outbound-only": {
+      "statement": "A Cloud Connector instance requires only outbound connections to the Zscaler cloud and no inbound connections from it; the per-cloud outbound requirements are published at config.zscaler.com under the cloud name and cloud-branch-connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "The Cloud Connector instance requires only outbound connections to the Zscaler cloud. It does not require any inbound connections to your network from the Zscaler cloud.",
+            "https://config.zscaler.com/<Zscaler Cloud Name>/cloud-branch-connector."
+          ]
+        }
+      ]
+    },
+    "mgmt-nsg": {
+      "statement": "The NSG module's management NSG allows inbound TCP 22 (priority 4000) and ICMP (priority 4001) from `VirtualNetwork`, and all outbound traffic (priority 4000).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-nsg-azure/main.tf",
+          "quotes": [
+            "name = \"SSH_VNET\" priority = 4000 direction = \"Inbound\" access = \"Allow\" protocol = \"Tcp\" source_port_range = \"*\" destination_port_range = \"22\" source_address_prefix = \"VirtualNetwork\"",
+            "name = \"ICMP_VNET\" priority = 4001 direction = \"Inbound\" access = \"Allow\" protocol = \"Icmp\" source_port_range = \"*\" destination_port_range = \"*\" source_address_prefix = \"VirtualNetwork\""
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-nsg-azure/main.tf",
+          "after": "resource \"azurerm_network_security_group\" \"cc_mgmt_nsg\" {",
+          "quotes": [
+            "name = \"OUTBOUND\" priority = 4000 direction = \"Outbound\" access = \"Allow\" protocol = \"*\""
+          ]
+        }
+      ]
+    },
+    "support-access-rule": {
+      "statement": "When `support_access_enabled` is true (the default), the management NSG adds an outbound TCP 12002 rule at priority 3000 to `zssupport_server`, described as required for Zscaler Support to assist remotely; the destination defaults to 199.168.148.101, the resolved address of remotesupport.<cloud>.net, commented as the value for commercial clouds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-nsg-azure/main.tf",
+          "quotes": [
+            "for_each = var.support_access_enabled ? [\"1\"] : []",
+            "description = \"Required for Cloud Connector to establish connectivity for Zscaler Support to remotely assist\" priority = 3000 direction = \"Outbound\" access = \"Allow\" protocol = \"Tcp\" source_port_range = \"*\" destination_port_range = \"12002\"",
+            "destination_address_prefix = var.zssupport_server"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-nsg-azure/variables.tf",
+          "quotes": [
+            "enable a specific outbound rule for Cloud Connector to be able to establish connectivity for Zscaler support access. Default is true\" default = true",
+            "description = \"destination IP address of Zscaler Support access server. IP resolution of remotesupport.<zscaler_customer_cloud>.net\" default = \"199.168.148.101\" #for commercial clouds"
+          ]
+        }
+      ]
+    },
+    "service-nsg": {
+      "statement": "The service NSG allows all inbound traffic from `VirtualNetwork` (priority 4000) and all outbound traffic; when a public load balancer is deployed it also allows inbound TCP 80 (priority 4010) and 443 (priority 4015) from any source.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-nsg-azure/main.tf",
+          "quotes": [
+            "name = \"ALL_VNET\" priority = 4000 direction = \"Inbound\" access = \"Allow\" protocol = \"*\" source_port_range = \"*\" destination_port_range = \"*\" source_address_prefix = \"VirtualNetwork\"",
+            "for_each = var.public_lb_deployed ? [\"1\"] : [] content { name = \"AllowHTTP\"",
+            "name = \"AllowHTTP\" priority = 4010 direction = \"Inbound\" access = \"Allow\" protocol = \"Tcp\" source_port_range = \"*\" destination_port_range = \"80\" source_address_prefix = \"*\"",
+            "name = \"AllowHTTPS\" priority = 4015 direction = \"Inbound\" access = \"Allow\" protocol = \"Tcp\" source_port_range = \"*\" destination_port_range = \"443\" source_address_prefix = \"*\""
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-nsg-azure/main.tf",
+          "after": "resource \"azurerm_network_security_group\" \"cc_service_nsg\" {",
+          "quotes": [
+            "name = \"OUTBOUND\" priority = 4000 direction = \"Outbound\" access = \"Allow\" protocol = \"*\""
+          ]
+        }
+      ]
+    },
+    "gwlb-service-nsg": {
+      "statement": "Gateway Load Balancer deployments get a separate service NSG that allows inbound UDP only from the `AzureLoadBalancer` service tag on the configured VXLAN port range and denies all other inbound traffic, because VXLAN traffic comes only from the GWLB data plane.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-nsg-azure/main.tf",
+          "quotes": [
+            "# Security note: VXLAN traffic is sourced exclusively from the Azure GWLB data",
+            "name = \"VXLAN-Allow-GWLB\" priority = 100 direction = \"Inbound\" access = \"Allow\" protocol = \"Udp\" source_port_range = \"*\" destination_port_range = \"${var.vxlan_internal_port}-${var.vxlan_external_port}\" source_address_prefix = \"AzureLoadBalancer\"",
+            "name = \"DenyAllInbound\" priority = 4096 direction = \"Inbound\" access = \"Deny\""
+          ]
+        }
+      ]
+    },
+    "nat-per-zone": {
+      "statement": "The network module creates one NAT gateway and one static Standard public IP per distinct zone (zonal when the region supports zones) unless existing ones are supplied, and associates each Cloud Connector subnet with a NAT gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-network-azure/main.tf",
+          "quotes": [
+            "count = var.byo_pips == false && var.base_only == false ? length(distinct(var.zones)) : 0",
+            "allocation_method = \"Static\" sku = \"Standard\"",
+            "count = var.byo_nat_gws == false && var.base_only == false ? length(distinct(var.zones)) : 0",
+            "resource \"azurerm_subnet_nat_gateway_association\" \"cc_subnet_nat_association\""
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-network-azure/main.tf",
+          "after": "resource \"azurerm_nat_gateway\" \"ngw\" {",
+          "quotes": [
+            "zones = local.zones_supported ? [element(var.zones, count.index)] : null"
+          ]
+        }
+      ]
+    },
+    "nat-per-zone-help": {
+      "statement": "In a VMSS deployment, a NAT gateway for the Cloud Connectors' outbound traffic is deployed in each configured zone with a dedicated IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-azure-vmss-deployments.json",
+          "quotes": [
+            "A NAT Gateway (NATGW) used for outbound traffic from the Cloud Connectors is deployed in each configured zone and has a dedicated IP address associated with it."
+          ]
+        }
+      ]
+    },
+    "wrong-geolocation": {
+      "statement": "When a Cloud Connector shows the wrong geolocation in the Admin Console, Help says to verify that outbound NAT and routing take the expected egress path and to confirm the public IP address in the Admin Console, then contact Support if it is correct.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "| Cloud Connector is in the wrong geolocation in the Zscaler Admin Console. | Verify that the outbound NAT and routing take the appropriate egress path. In the Zscaler Admin Console, confirm the Public IP address.If the Public IP address is correct, contact Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "hub-spoke": {
+      "statement": "Help for VMSS deployments recommends deploying the security stack into its own Security VNet with workload VNets peered to it, and a user-defined route in the workload VNets steering traffic to the internal load balancer in front of the Cloud Connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-azure-vmss-deployments.json",
+          "quotes": [
+            "Zscaler recommends that you deploy the security stack into its own Security VNet and that you peer Workload VNets with it. After the security stack is deployed, route tables in the Workload VNets should have a user-defined route steering traffic to the ILB in front of the Cloud Connectors."
+          ]
+        }
+      ]
+    },
+    "help-workload-route": {
+      "statement": "After deployment, Help has the workload subnet's route table send 0.0.0.0/0 to next hop type Virtual appliance at the load balancer's front-end IP; the route table's Propagate gateway routes setting chooses whether gateway routes reach the subnet's interfaces.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
+          "quotes": [
+            "Destination IP addresses/CIDR ranges: Enter 0.0.0.0/0.",
+            "Next hop type: From the drop-down menu, select Virtual appliance.",
+            "Next hop address: Enter the front-end IP address of your load balancer.",
+            "Propagate gateway routes: Select Yes to propagate gateway routes, or No to prevent the propagation of routes to the network interfaces in associated subnets."
+          ]
+        }
+      ]
+    },
+    "module-route-tables": {
+      "statement": "When the network module creates the workload subnet, it attaches a route table with BGP route propagation disabled and a default route 0.0.0.0/0 whose next hop is a virtual appliance at the load balancer frontend IP (when a load balancer is used) or a Cloud Connector service IP; in base-only deployments, or when that address is not supplied, the next hop is Internet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-network-azure/main.tf",
+          "after": "resource \"azurerm_route_table\" \"workload_rt\" {",
+          "quotes": [
+            "count = var.workloads_enabled == true ? 1 : 0",
+            "bgp_route_propagation_enabled = false",
+            "address_prefix = \"0.0.0.0/0\"",
+            "next_hop_type = (var.base_only == true || (var.lb_enabled == true && var.lb_frontend_ip == null) || (var.lb_enabled == false && length(var.cc_service_ip) == 0)) ? \"Internet\" : \"VirtualAppliance\"",
+            "(var.lb_enabled == true ? var.lb_frontend_ip : element(var.cc_service_ip, count.index))"
+          ]
+        }
+      ]
+    },
+    "private-dns-module": {
+      "statement": "The private DNS module deploys an Azure DNS Private Resolver with a ruleset, forwarding rules and an outbound endpoint for conditional forwarding of Azure DNS queries to Cloud Connector, for ZPA resolution and/or ZIA DNS Controls; the network module creates a subnet delegated to the dnsResolvers service with a route table pointing 0.0.0.0/0 at the Cloud Connector service IP or the load balancer frontend IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-private-dns-azure/README.md",
+          "quotes": [
+            "This module creates the required resource dependencies to deploy Azure Private DNS that can be utilized to facilitate conditional DNS forwarding from Azure to Zscaler Cloud Connector for ZPA resolution and/or ZIA DNS Controls security.",
+            "Resources included: Private DNS Resolver, Ruleset, Forwarding Rules, and Outbound Endpoint resources.",
+            "Terraform will create a new subnet delegated for the dnsResolvers service in the same VNet as the Cloud Connector(s).",
+            "Terraform will also create a new Route Table associated with this subnet pointing a default route (0.0.0.0/0) towards the Cloud Connector service IP or Load Balancer Front-End IP for HA deployments"
+          ]
+        }
+      ]
+    },
+    "private-dns-only-zpa": {
+      "statement": "In the network module the resolver subnet and its route table are created only when `zpa_enabled` is set; the `base_1cc_zpa` example defaults `zpa_enabled` to true and is described as adding Private DNS Resolver capability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-network-azure/main.tf",
+          "after": "resource \"azurerm_subnet\" \"private_dns_subnet\" {",
+          "quotes": [
+            "count = var.zpa_enabled ? 1 : 0",
+            "name = \"Microsoft.Network.dnsResolvers\""
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-network-azure/main.tf",
+          "after": "resource \"azurerm_route_table\" \"private_dns_rt\" {",
+          "quotes": [
+            "count = var.zpa_enabled ? 1 : 0"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_1cc_zpa/variables.tf",
+          "quotes": [
+            "description = \"Configure Azure Private DNS Outbound subnet, Resolvers, Rulesets/Rules, and Outbound Endpoint ZPA DNS redirection\" default = true"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "README.md",
+          "quotes": [
+            "Use the [**Starter Deployment Template with ZPA**](examples/base_1cc_zpa) to deploy your Cloud Connector in a new resource group and virtual network with Azure Private DNS Resolver capability."
+          ]
+        }
+      ]
+    },
+    "private-dns-targets": {
+      "statement": "The resolver's forwarding targets default to 185.46.212.88 and 185.46.212.89, described as a pair of Zscaler Global VIP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-private-dns-azure/variables.tf",
+          "quotes": [
+            "description = \"Azure DNS queries will be conditionally forwarded to these target IP addresses. Default are a pair of Zscaler Global VIP addresses\" default = [\"185.46.212.88\", \"185.46.212.89\"]"
+          ]
+        }
+      ]
+    },
+    "private-dns-azure-limits": {
+      "statement": "The module README lists the Azure limits it works within: a ruleset holds up to 25 forwarding rules and links to up to 10 virtual networks in the same region, and a resolver subnet is between /28 and /24.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-private-dns-azure/README.md",
+          "quotes": [
+            "- A ruleset can have up to 25 DNS forwarding rules.",
+            "- A ruleset can be linked to up to 10 virtual networks in the same region",
+            "- A subnet must be a minimum of /28 address space or a maximum of /24 address space."
+          ]
+        }
+      ]
+    },
+    "gwlb-no-zpa-variant": {
+      "statement": "The changelog notes that ZPA (Private DNS Resolver) variants are intentionally not provided for the Gateway Load Balancer and Public Load Balancer examples, since ZPA conditional forwarding is paired with the Cloud Connector egress (Private LB) topologies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "ZPA (Azure Private DNS Resolver) variants are intentionally not provided for the new GWLB and Public LB greenfield examples. ZPA conditional forwarding is paired with Cloud Connector egress (Private LB) topologies"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "nic-order-consequence": {
+      "kind": "semantic",
+      "title": "Effect of reversed NIC order on a Cloud Connector VM",
+      "status": "open",
+      "detail": "Unverified legacy statement: swapping the subnet IDs (service NIC first) produces VMs that fail at boot in the reference deployment shape, and whether the order is a hard requirement of the VM image or a convention of the reference Terraform is not separately documented. The module comment says Cloud Connector requires the order but does not say what happens otherwise.",
+      "blocks": "diagnosing a custom (non-reference) Azure deployment whose connectors do not come up",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "nsg-platform-traffic": {
+      "kind": "semantic",
+      "title": "Whether platform traffic needs explicit NSG rules",
+      "status": "open",
+      "detail": "Unverified legacy statement: the service NSG's VirtualNetwork inbound rule implicitly covers Azure Load Balancer health probes, and no explicit rules for the Azure fabric addresses (168.63.129.16, 169.254.169.254) are needed because Cloud Connector relies on standard Azure platform reachability for IMDS and DHCP, unlike Client Connector. Neither the NSG module nor the captured Help states this.",
+      "blocks": "advising a custom NSG design that tightens the reference rules",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "nat-egress": {
+      "kind": "semantic",
+      "title": "NAT gateway egress identity and alternatives",
+      "status": "open",
+      "detail": "Unverified legacy statements: the NAT gateway's public IP is the egress source IP ZIA sees and may need to be registered at the tenant; Zscaler's reference architecture recommends one NAT gateway per availability zone because a NAT gateway shared across zones is a single point of zone failure; deploying without a NAT gateway (VM public IPs or Azure Firewall) is not covered by the reference module; and (marked inference in the legacy doc) a missing or misconfigured NAT gateway leaves the service NIC no egress path, so the connector cannot reach the Service Edges and the load-balancer probe shows 503. The captured sources show one NAT gateway per zone (module and VMSS Help) but none of these statements.",
+      "blocks": "egress design and allow-listing advice for Azure Cloud Connector",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "bgp-learned-routes": {
+      "kind": "semantic",
+      "title": "ExpressRoute or VPN gateway routes versus the workload default route",
+      "status": "open",
+      "detail": "Unverified legacy statement: when Cloud Connector coexists with an ExpressRoute or VPN gateway in the same VNet, learned routes can override the static 0.0.0.0/0, so propagation should be disabled on the workload route table. The module disables BGP propagation on the route tables it creates, but no captured source describes the interaction. The Zscaler and Azure Traffic Forwarding deployment guide and the Azure reference architecture PDF were the named capture targets.",
+      "blocks": "routing advice for hybrid VNets with gateways",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "ip-forwarding-probe-effect": {
+      "kind": "semantic",
+      "title": "Load-balancer probe result when IP forwarding is off",
+      "status": "open",
+      "detail": "Unverified legacy statement (marked inference in the legacy doc): with ip_forwarding_enabled not set on the service NIC, the VM looks healthy to Azure but passes no traffic, and the load-balancer health probe fails with 503 quickly. Help states only that IP forwarding must stay enabled to avoid connectivity disruptions and unreachable destinations.",
+      "blocks": "recognizing a disabled IP-forwarding setting from load-balancer probe results",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

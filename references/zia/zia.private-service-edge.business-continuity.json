@@ -34,11 +34,26 @@
       "text": "{{prerequisites}} {{z-tunnel-2-unsupported}} The two vendor pages disagree about IPSec {{divergence:supported-connectivity-methods}}."
     },
     {
-      "text": "How Z-Tunnel 2.0 interacts with a restrictive subcloud is in the [[doc:references/shared/subclouds.md]]."
+      "text": "How Z-Tunnel 2.0 interacts with a restrictive subcloud is in the [[shared.subclouds]]."
     },
     {
       "label": "What it will not do.",
       "text": "{{last-known-good-policy}}"
+    },
+    {
+      "text": "{{redundant-pairs}}"
+    },
+    {
+      "text": "{{upgrade-delay}}"
+    },
+    {
+      "text": "{{policy-cache-roles}}"
+    },
+    {
+      "text": "{{pac-servers}}"
+    },
+    {
+      "text": "What a Z-Tunnel 2.0 client does when the mode starts is open {{gap:z-tunnel-2-fallback}}."
     }
   ],
   "checks": [
@@ -148,6 +163,64 @@
           ]
         }
       ]
+    },
+    "redundant-pairs": {
+      "statement": "Private Policy Cache and Private PAC Servers are deployed in redundant pairs in each Business Continuity Cloud site; they are managed by Zscaler and subject to ongoing updates and enhancements at any time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-business-continuity-cloud-components.json",
+          "quotes": [
+            "Both Private Policy Cache and Private PAC Servers are deployed in redundant pairs in each Business Continuity Cloud site.",
+            "They are managed by Zscaler and are subject to ongoing updates and enhancements at any time."
+          ]
+        }
+      ]
+    },
+    "upgrade-delay": {
+      "statement": "During public cloud software upgrades the Business Continuity Cloud upgrade is delayed on purpose to prevent upgrade-related issues; this also delays the update of new policies or configurations, for fault isolation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-business-continuity-cloud-components.json",
+          "quotes": [
+            "During public cloud software upgrades, the Business Continuity Cloud upgrade is delayed on purpose to prevent upgrade-related issues.",
+            "This also delays the update of any new policies or configurations to support fault isolation."
+          ]
+        }
+      ]
+    },
+    "policy-cache-roles": {
+      "statement": "During normal operations the Private Policy Cache fetches, stores and regularly syncs tenant-specific configurations from the cloud so they are available in business continuity mode, and serves as the primary control path for local Service Edge instances; during business continuity it operates independently of public clouds to maintain security policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-business-continuity-cloud-components.json",
+          "quotes": [
+            "Fetches and stores tenant-specific configurations from the cloud and syncs them regularly to be readily available in business continuity mode.",
+            "Serves as the primary control path for local Service Edge instances, ensuring up-to-date policy availability for business continuity.",
+            "Operates independently of public clouds to maintain security policies."
+          ]
+        }
+      ]
+    },
+    "pac-servers": {
+      "statement": "Private PAC Servers receive and locally store PAC files from the public cloud for each Business Continuity Cloud site; during business continuity they host disaster recovery PAC files that redirect client requests to the appropriate Business Continuity Cloud, and their geo-awareness lets Zscaler Client Connector connect to the nearest Business Continuity Cloud based on its IP address or location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-business-continuity-cloud-components.json",
+          "quotes": [
+            "Receives and locally stores PAC files from the public cloud for each Business Continuity Cloud site.",
+            "Hosts disaster recovery PAC files to redirect client requests to the appropriate Business Continuity Cloud.",
+            "Provides geo-awareness, allowing Zscaler Client Connector to connect to the nearest Business Continuity Cloud based on its IP address or location."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -158,6 +231,17 @@
       "detail": "Unverified legacy statement: 'When the Business Continuity Cloud activates (during a PSE or ZIA service outage) ... PSE outages are one of the triggers.' The captured pages describe critical failure in which the public clouds are unreachable as the main case, and list blackouts, brownouts and critical failure as failure scenarios, but do not say that a customer's own Private Service Edge outage activates business continuity mode, or what activates it.",
       "resolves_with": [
         "source-read",
+        "support-ticket"
+      ]
+    },
+    "z-tunnel-2-fallback": {
+      "kind": "semantic",
+      "title": "What a Z-Tunnel 2.0 client does when business continuity mode starts",
+      "status": "open",
+      "detail": "Unverified legacy statement (references/shared/cross-product-integrations.md): \"Z-Tunnel 2.0 doesn't work in BC mode. Tenants migrated to 2.0 fall back to 1.0 during BC failover.\" The help says only that Z-Tunnel 2.0 is not supported in business continuity mode (claim z-tunnel-2-unsupported); it does not say whether clients fall back to Z-Tunnel 1.0 or lose service.",
+      "blocks": "planning business continuity for a Z-Tunnel 2.0 fleet",
+      "resolves_with": [
+        "lab-test",
         "support-ticket"
       ]
     }

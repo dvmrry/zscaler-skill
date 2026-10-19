@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.insights.analytics",
+  "title": "Cloud Connector Insights pages and Insights logs: time range, aggregation and limits",
+  "aliases": [
+    "session insights",
+    "dns insights",
+    "tunnel insights",
+    "insights logs download",
+    "insights 92 days",
+    "tunnel insights bytes",
+    "dpd received"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.insights"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.logs"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Insights pages chart connector traffic, and each has a Logs tab with the underlying records. Their limits shape what an investigation in the console can show."
+    },
+    {
+      "label": "Charts.",
+      "text": "{{units}} {{time-frame}} {{top-n}} How per-day aggregation treats day boundaries is open {{gap:multi-day-aggregation}}."
+    },
+    {
+      "label": "Working a chart.",
+      "text": "{{drilldown}} {{history-bar}}"
+    },
+    {
+      "label": "Logs pages.",
+      "text": "{{insights-logs-pages}} How far back a query can start, against the 180-day storage in [[cloud-connector.logs:nanolog-180]], is open {{gap:query-range-vs-retention}}. A programmatic read of these logs is open {{gap:insights-log-api}}."
+    },
+    {
+      "label": "Tunnel Insights.",
+      "text": "{{tunnel-data-types}} {{tunnel-bytes-perspective}} Whether these byte counts match the session records for the same traffic is open {{gap:byte-count-parity}}. Whether a chart can be narrowed to one connector VM is open {{gap:tunnel-per-connector}}, and what a fall in DPD Received means is open {{gap:dpd-semantics}}."
+    },
+    {
+      "label": "Freshness.",
+      "text": "How soon a transaction appears in Insights is open {{gap:insights-latency}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the chart spans several days, in which case values are per-day sums and an intraday spike is hidden; narrow to one day.",
+      "uses": [
+        "time-frame"
+      ]
+    },
+    {
+      "do": "Whether a trend or pie chart is hiding the item of interest in Other, since those charts show only the top 5.",
+      "uses": [
+        "top-n"
+      ]
+    },
+    {
+      "do": "Which side a tunnel byte count is measured from before comparing it with workload-side numbers.",
+      "uses": [
+        "tunnel-bytes-perspective",
+        "byte-count-parity"
+      ]
+    }
+  ],
+  "claims": {
+    "units": {
+      "statement": "Session Insights is measured in Sessions or Bytes, DNS Insights in Transactions, and Tunnel Insights in DPD Received, Received Bytes, Received Packets, Sent Bytes and Sent Packets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-insights.json",
+          "quotes": [
+            "Session Insights: Sessions, Bytes",
+            "DNS Insights: Transactions",
+            "Tunnel Insights: DPD Received, Received Bytes, Received Packets, Sent Bytes, and Sent Packets"
+          ]
+        }
+      ]
+    },
+    "time-frame": {
+      "statement": "A custom time frame can end up to 92 days after its start date, and selecting multiple days shows the sum of bytes or transactions per day in whichever chart type is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-insights.json",
+          "quotes": [
+            "In Custom, the end date can be up to 92 days after the start date. Selecting multiple days results in seeing the sum of bytes/transactions per day in whichever chart type you select."
+          ]
+        }
+      ]
+    },
+    "top-n": {
+      "statement": "For certain data types the chart can show the top 5, 10, 25, 50 or 100 items; trend and pie charts show only the top 5, with the rest grouped as Other.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-insights.json",
+          "quotes": [
+            "For certain data types, you can choose to view the top 5, 10, 25, 50, or 100 items.",
+            "In trend and pie charts, you'll only see the top 5 items. The \"Other\" category refers to the rest of the data types that are not in the top 5."
+          ]
+        }
+      ]
+    },
+    "drilldown": {
+      "statement": "Filters, some of which take multiple values, are applied with Apply Filters; hovering on a chart item and selecting Click for more info opens the logs for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-insights.json",
+          "quotes": [
+            "Select filters. Certain filters support the selection of multiple values.",
+            "Click Apply Filters to activate your changes.",
+            "View logs for a specific item in the chart. Hover and click it, and then select Click for more info to view the Logs."
+          ]
+        }
+      ]
+    },
+    "history-bar": {
+      "statement": "The history bar keeps up to 50 versions of the chart, deleting the oldest beyond that; changing an earlier version deletes all versions after it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-insights.json",
+          "quotes": [
+            "The history bar can retain up to 50 versions of the chart. If there are more than 50 versions, the Zscaler Admin Console deletes the oldest versions as new ones are added.",
+            "If you view an earlier version and change it, all subsequent versions are automatically deleted."
+          ]
+        }
+      ]
+    },
+    "insights-logs-pages": {
+      "statement": "Each Insights page has a Logs tab (the Session, DNS and Tunnel logs pages) with filters, a custom time frame ending up to 92 days after its start, a choice of Display or Download, and selectable columns; downloads are in the time zone set on the My Profile page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-insights-logs.json",
+          "quotes": [
+            "You can view the following logs pages:",
+            "Session Logs",
+            "DNS Logs",
+            "Tunnel Logs",
+            "Choose the Logs tab, located at the top left corner of each Insights page.",
+            "In Custom, the end date can be up to 92 days after the start date.",
+            "Select Display to view logs, or select Download to download logs. Logs are downloaded in the time zone set on the My Profile page.",
+            "Customize your log view by selecting or deselecting which column fields you want to see."
+          ]
+        }
+      ]
+    },
+    "tunnel-data-types": {
+      "statement": "Besides Overall Traffic, a Tunnel Insights chart can break traffic down by Location, Tunnel Destination IP and Tunnel Source IP, and filters such as Location narrow it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-traffic-using-insights.json",
+          "quotes": [
+            "Other data type options include Location, Tunnel Destination IP, and Tunnel Source IP.",
+            "Under Select Filters, select Location to filter accordingly."
+          ]
+        }
+      ]
+    },
+    "tunnel-bytes-perspective": {
+      "statement": "Tunnel log byte and packet counts are taken from Zscaler's side over a one-minute sample interval: Bytes Received and Packets Received are what Zscaler received through the tunnel from the organization, and Bytes Sent and Packets Sent what Zscaler sent through the tunnel to the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-tunnel-insights-logs-columns.json",
+          "quotes": [
+            "Bytes Received: The total bytes of data Zscaler received through the tunnel from the organization in the one-minute sample interval.",
+            "Bytes Sent: The total bytes of data Zscaler sent through the tunnel to the organization in the one-minute sample interval.",
+            "Packets Received: The total number of packets Zscaler received through the tunnel from the organization in the one-minute sample interval.",
+            "Packets Sent: The total number of packets Zscaler sent through the tunnel to the organization in the one-minute sample interval."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "byte-count-parity": {
+      "kind": "semantic",
+      "title": "Whether Tunnel Insights byte counts match session-record byte counts for the same traffic",
+      "status": "open",
+      "former_ids": [
+        "cloud-connector-21"
+      ],
+      "blocks": "reconciling tunnel throughput with per-session volumes",
+      "detail": "Whether Tunnel Insights byte counts match the byte counts of session records for the same sessions is unverified, and whether the chart units Received Bytes and Sent Bytes use the Zscaler-side perspective of the tunnel log columns (claim tunnel-bytes-perspective) is not stated; the legacy page described Received Bytes as bytes received by the connector. Ledger cloud-connector-21 also held the Insights download API (gap insights-log-api) and multi-day aggregation (gap multi-day-aggregation).",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "insights-log-api": {
+      "kind": "semantic",
+      "title": "Whether Insights logs can be read through an API",
+      "status": "partial",
+      "blocks": "automating the export of connector Insights logs without an NSS feed",
+      "detail": "The console's Logs tab offers a Download (claim insights-logs-pages), and no API path for Insights is in the captured reference (cloud-connector.insights:no-insights-api). An undocumented or newer API endpoint is not excluded. Former cloud-connector-21 item 1.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "multi-day-aggregation": {
+      "kind": "semantic",
+      "title": "How multi-day Insights charts aggregate per day",
+      "status": "partial",
+      "blocks": "comparing per-day Insights values with SIEM counts bucketed in another time zone",
+      "detail": "The help states that multiple days show the sum of bytes or transactions per day (claim time-frame); which time zone sets the day boundary, and how Sessions and Tunnel packet units aggregate, is not stated. Former cloud-connector-21 item 3.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "query-range-vs-retention": {
+      "kind": "semantic",
+      "title": "How far back an Insights query can start",
+      "status": "open",
+      "blocks": "deciding whether the console can answer a question about traffic more than a few months old",
+      "detail": "Unverified legacy statement (open question): whether Insights retention is the 92-day maximum window or shorter. Logs are stored for 180 days and a custom window spans up to 92 days; whether the start date can be set anywhere in the 180 days is not stated.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "insights-latency": {
+      "kind": "semantic",
+      "title": "Delay between a transaction and its appearance in Insights",
+      "status": "open",
+      "blocks": "deciding during an incident whether missing Insights data is a delay or a real absence",
+      "detail": "No captured source states how long after a session ends it appears in Session Insights or its logs.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "tunnel-per-connector": {
+      "kind": "semantic",
+      "title": "Whether Tunnel Insights can be narrowed to one connector VM",
+      "status": "partial",
+      "blocks": "isolating one failing connector's tunnel statistics",
+      "detail": "The documented Tunnel Insights data types are Overall Traffic, Location, Tunnel Destination IP and Tunnel Source IP (claim tunnel-data-types), and the Tunnel logs have a Cloud Connector Instance column; whether the chart can be filtered to one VM or only to a location or tunnel IP is not stated.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-tunnel-insights-logs-columns.json",
+          "quotes": [
+            "Cloud Connector Instance: The specific Zscaler software instance"
+          ]
+        }
+      ]
+    },
+    "dpd-semantics": {
+      "kind": "semantic",
+      "title": "What a drop in DPD Received means",
+      "status": "open",
+      "blocks": "telling an upstream tunnel fault from a connector fault in Tunnel Insights",
+      "detail": "Unverified legacy statement: DPD Received counts \"Dead Peer Detection keepalive packets received from the ZIA/ZPA peer — proxy for tunnel liveness\". The help names DPD Received as a unit and does not define it.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

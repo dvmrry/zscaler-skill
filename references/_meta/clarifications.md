@@ -105,7 +105,7 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 ## Status summary
 
 Skim this before reading the full entries. Summary refreshed 2026-08-14:
-8 entries are resolved or clarified, 13 are partially resolved, and 176 are open.
+7 entries are resolved or clarified, 6 are partially resolved, and 120 are open.
 The three exact memberships below are checked against every detailed entry's
 explicit `Status`; range notation is inclusive and is expanded by the checker.
 Most open entries require lab tests,
@@ -114,7 +114,7 @@ public-doc reading.
 
 Entries migrated to the knowledge graph are no longer listed here; they are gaps
 with their old ID kept in `former_ids` (resolve with `node scripts/kb.mjs resolve <old-id>`):
-`zia-01` → [`zia.url-categories.membership:predefined-vs-custom`](kb:zia.url-categories.membership:predefined-vs-custom); `zia-02` → [`zia.url-categories.membership:same-specificity-collision`](kb:zia.url-categories.membership:same-specificity-collision); `zia-03` → [`zia.url-categories.entry-matching:wildcard-tokenization`](kb:zia.url-categories.entry-matching:wildcard-tokenization); `zia-04` → [`zia.url-filtering.advanced-settings:nrod-lag`](kb:zia.url-filtering.advanced-settings:nrod-lag); `zia-06` → [`zia.cloud-app-control.precedence:cac-disabled-rules`](kb:zia.cloud-app-control.precedence:cac-disabled-rules); `zia-10` → [`zia.cloud-app-control.precedence:default-allow-vs-explicit`](kb:zia.cloud-app-control.precedence:default-allow-vs-explicit); `zia-11` → [`zia.ssl-inspection.pipeline:mixed-forwarding`](kb:zia.ssl-inspection.pipeline:mixed-forwarding); `zia-12` → [`zia.ssl-inspection.pipeline:bypass-and-default-rule`](kb:zia.ssl-inspection.pipeline:bypass-and-default-rule); `zia-14` → [`zia.url-categories.entry-matching:exactly-five-levels`](kb:zia.url-categories.entry-matching:exactly-five-levels); `zia-15` → [`zia.url-categories.entry-matching:console-accepts-asterisk`](kb:zia.url-categories.entry-matching:console-accepts-asterisk); `zia-07` → [`zia.cloud-app-control.risk-profiles:composition`](kb:zia.cloud-app-control.risk-profiles:composition); `zia-09` → [`zia.cloud-app-control.rule-criteria:app-identity`](kb:zia.cloud-app-control.rule-criteria:app-identity); `zia-13` → [`zia.ssl-inspection.pipeline:first-pass-on-domain`](kb:zia.ssl-inspection.pipeline:first-pass-on-domain); `zia-47` → [`zia.dns-control.actions:block-response-code-values`](kb:zia.dns-control.actions:block-response-code-values); `zia-48` → [`zia.dns-control.actions:redirect-ip-binding`](kb:zia.dns-control.actions:redirect-ip-binding); `zia-58` → [`zia.dlp.rule-wire-shape:without-content-inspection-keying`](kb:zia.dlp.rule-wire-shape:without-content-inspection-keying); `zia-59` → [`zia.dns-control.actions:redir-req-gateway`](kb:zia.dns-control.actions:redir-req-gateway); `zia-60` → [`zia.firewall.network-services:type-meanings`](kb:zia.firewall.network-services:type-meanings); `zia-63` → [`zia.sandbox.md5-blocklist:quota-cap`](kb:zia.sandbox.md5-blocklist:quota-cap); `zia-66` → [`zia.ssl-inspection.rules:cap-raisable`](kb:zia.ssl-inspection.rules:cap-raisable); `zia-71` → [`zia.dns-control.api-rules:web-eun-false`](kb:zia.dns-control.api-rules:web-eun-false); `zia-08` → [`zia.tenant-profiles.wire-mechanic:per-app-inspection-detail`](kb:zia.tenant-profiles.wire-mechanic:per-app-inspection-detail); `zia-16` → [`zia.locations.sublocations:cap-2000`](kb:zia.locations.sublocations:cap-2000); `zia-17` → [`zia.locations.sublocations:name-uniqueness-scope`](kb:zia.locations.sublocations:name-uniqueness-scope); `zia-18` → [`zia.locations.sublocations:parent-delete-behavior`](kb:zia.locations.sublocations:parent-delete-behavior); `zia-19` → [`zia.locations.sublocations:reparenting-rules`](kb:zia.locations.sublocations:reparenting-rules); `zia-20` → [`zia.locations.sublocations:depth-limit`](kb:zia.locations.sublocations:depth-limit); `zia-46` → [`zia.locations.group-assignment:tf-dynamic-removal-reason`](kb:zia.locations.group-assignment:tf-dynamic-removal-reason); `zia-56` → [`zia.bandwidth-control.limits:caps-api-enforced`](kb:zia.bandwidth-control.limits:caps-api-enforced); `zia-57` → [`zia.file-type-control.api-shape:filtering-action-dependencies`](kb:zia.file-type-control.api-shape:filtering-action-dependencies); `zia-61` → [`zia.atp.api-surface:tenant-defaults`](kb:zia.atp.api-surface:tenant-defaults); `zia-67` → [`zia.tenant-profiles.microsoft:v1-v2-semantics`](kb:zia.tenant-profiles.microsoft:v1-v2-semantics); `log-04` → [`zia.atp.block-diagnosis:ruletype-values`](kb:zia.atp.block-diagnosis:ruletype-values); `zia-26` → [`zia.rule-labels:audit-log-label-names`](kb:zia.rule-labels:audit-log-label-names); `zia-27` → [`zia.rule-labels.constraints:name-charset`](kb:zia.rule-labels.constraints:name-charset); `zia-28` → [`zia.rule-labels.constraints:name-uniqueness`](kb:zia.rule-labels.constraints:name-uniqueness); `zia-29` → [`zia.rule-labels.constraints:description-max-length`](kb:zia.rule-labels.constraints:description-max-length); `zia-30` → [`zia.rule-labels:duplicate-action`](kb:zia.rule-labels:duplicate-action); `zia-31` → [`zia.rule-labels.rule-types:label-filter-server-support`](kb:zia.rule-labels.rule-types:label-filter-server-support); `zia-32` → [`zia.rule-labels.constraints:tenant-cap`](kb:zia.rule-labels.constraints:tenant-cap); `zia-50` → [`zia.rule-labels.api-surface:rule-type-endpoint-backing`](kb:zia.rule-labels.api-surface:rule-type-endpoint-backing); `zia-69` → [`zia.workload-groups.expressions:runtime-evaluation`](kb:zia.workload-groups.expressions:runtime-evaluation); `zia-55` → [`zia.audit-logs.report-api:pagination`](kb:zia.audit-logs.report-api:pagination); `shared-38` → [`zia.traffic-forwarding.vpn-credentials:psk-live-read`](kb:zia.traffic-forwarding.vpn-credentials:psk-live-read); `zia-39` → [`zia.scim.groups-and-departments:department-no-match`](kb:zia.scim.groups-and-departments:department-no-match); `zia-40` → [`zia.scim.deactivation:session-kill`](kb:zia.scim.deactivation:session-kill); `zia-41` → [`zia.scim.operations:rate-limit`](kb:zia.scim.operations:rate-limit); `zia-42` → [`zia.ad-integration.identity-objects:org-limits`](kb:zia.ad-integration.identity-objects:org-limits); `zia-43` → [`zia.scim.attribute-mapping:per-idp-department-mapping`](kb:zia.scim.attribute-mapping:per-idp-department-mapping); `zia-44` → [`zia.scim.propagation:sync-log-visibility`](kb:zia.scim.propagation:sync-log-visibility); `zia-45` → [`zia.scim.propagation:per-idp-cadence`](kb:zia.scim.propagation:per-idp-cadence); `zia-64` → [`zia.scim.groups-and-departments:department-no-match`](kb:zia.scim.groups-and-departments:department-no-match); `zia-62` → [`zia.private-service-edge.ip-requirements:shared-nat-behavior`](kb:zia.private-service-edge.ip-requirements:shared-nat-behavior); `zia-33` → [`zia.virtual-service-edge.upgrades:cluster-update-sequencing`](kb:zia.virtual-service-edge.upgrades:cluster-update-sequencing); `zia-34` → [`zia.virtual-service-edge.clusters:removal-and-disable-behavior`](kb:zia.virtual-service-edge.clusters:removal-and-disable-behavior); `zia-35` → [`zia.virtual-service-edge.operations:log-identifier`](kb:zia.virtual-service-edge.operations:log-identifier); `zia-36` → [`zia.virtual-service-edge.clusters:cluster-vs-vm-settings`](kb:zia.virtual-service-edge.clusters:cluster-vs-vm-settings); `zia-37` → [`zia.virtual-service-edge.network-requirements:vse-nat-topology`](kb:zia.virtual-service-edge.network-requirements:vse-nat-topology); `zia-38` → [`zia.virtual-service-edge.clusters:public-cloud-cluster-object`](kb:zia.virtual-service-edge.clusters:public-cloud-cluster-object); `zia-21` → [`zia.time-intervals.timezone:dst-handling`](kb:zia.time-intervals.timezone:dst-handling); `zia-22` → [`zia.time-intervals.limits:object-cap`](kb:zia.time-intervals.limits:object-cap); `zia-23` → [`zia.time-intervals.time-windows:terraform-resource-intent`](kb:zia.time-intervals.time-windows:terraform-resource-intent); `zia-24` → [`zia.time-intervals.evaluation:midnight-spanning`](kb:zia.time-intervals.evaluation:midnight-spanning); `zia-25` → [`zia.time-intervals.time-windows:predefined-intervals`](kb:zia.time-intervals.time-windows:predefined-intervals); `zia-49` → [`zia.cloud-app-control.actions:all-vs-available-differs`](kb:zia.cloud-app-control.actions:all-vs-available-differs); `zia-51` → [`zia.api.sdk-coverage:parity-drift`](kb:zia.api.sdk-coverage:parity-drift); `zia-52` → [`zia.api.legacy-ips-signature-wire:import-wire-unconfirmed`](kb:zia.api.legacy-ips-signature-wire:import-wire-unconfirmed); `zia-53` → [`zia.cloud-app-control.actions:per-tuple-validation-contract`](kb:zia.cloud-app-control.actions:per-tuple-validation-contract); `zia-54` → [`zia.cloud-app-control.api-surface:python-risk-profile-runtime`](kb:zia.cloud-app-control.api-surface:python-risk-profile-runtime); `zia-68` → [`zia.terraform.early-access:early-access-eligibility`](kb:zia.terraform.early-access:early-access-eligibility); `zia-72` → [`zia.url-filtering.advanced-settings:creative-commons-backend-effect`](kb:zia.url-filtering.advanced-settings:creative-commons-backend-effect); `log-01` → [`zia.logs.nss-feed-format:format-field-presence`](kb:zia.logs.nss-feed-format:format-field-presence); `log-02` → [`zia.logs.nss-feed-format:vm-conversion-omits`](kb:zia.logs.nss-feed-format:vm-conversion-omits); `log-03` → [`zia.logs.nss-feed-format:multi-feed-timezone`](kb:zia.logs.nss-feed-format:multi-feed-timezone); `log-05` → [`zia.logs.web-rule-attribution:action-values-precedence`](kb:zia.logs.web-rule-attribution:action-values-precedence); `log-06` → [`zia.logs.web-field-semantics:reason-structure`](kb:zia.logs.web-field-semantics:reason-structure); `log-07` → [`zia.logs.web-field-semantics:url-category-fields`](kb:zia.logs.web-field-semantics:url-category-fields); `log-08` → [`zia.logs.web-field-semantics:riskscore-lineage`](kb:zia.logs.web-field-semantics:riskscore-lineage); `log-09` → [`zia.logs.web-field-semantics:byte-counters`](kb:zia.logs.web-field-semantics:byte-counters); `log-10` → [`zia.logs.web-field-semantics:prompt-scope`](kb:zia.logs.web-field-semantics:prompt-scope); `log-11` → [`zia.logs.firewall-records:aggregate-counters`](kb:zia.logs.firewall-records:aggregate-counters); `log-12` → [`zia.logs.firewall-records:action-precedence`](kb:zia.logs.firewall-records:action-precedence); `log-13` → [`zia.logs.firewall-records:nwapp-vs-nwsvc`](kb:zia.logs.firewall-records:nwapp-vs-nwsvc); `log-14` → [`zia.logs.dns-outcome:action-enum-open`](kb:zia.logs.dns-outcome:action-enum-open); `log-15` → [`zia.logs.dns-outcome:res-sentinels-open`](kb:zia.logs.dns-outcome:res-sentinels-open); `log-16` → [`zia.logs.dns-gateway-fields:dnsgw-flags-semantics-open`](kb:zia.logs.dns-gateway-fields:dnsgw-flags-semantics-open); `log-17` → [`zia.casb.insights-logs:record-category-discriminator`](kb:zia.casb.insights-logs:record-category-discriminator); `zpa-02` → [`zpa.app-segments.matching:granularity-ranking`](kb:zpa.app-segments.matching:granularity-ranking); `zpa-03` → [`zpa.app-segments.multimatch:config-conflict`](kb:zpa.app-segments.multimatch:config-conflict); `zpa-04` → [`zpa.app-segments.matching:same-specificity-tie`](kb:zpa.app-segments.matching:same-specificity-tie); `zpa-05` → [`zpa.app-segments.matching:port-mismatch-bypass`](kb:zpa.app-segments.matching:port-mismatch-bypass); `zpa-06` → [`zpa.policy.actions:require-approval-equals-conditional-access`](kb:zpa.policy.actions:require-approval-equals-conditional-access); `zpa-07` → [`zpa.policy.access-rule-order:deception-rule-ordering-rationale`](kb:zpa.policy.access-rule-order:deception-rule-ordering-rationale); `zpa-08` → [`zpa.policy.evaluation-order:wildcard-matches-bare-domain`](kb:zpa.policy.evaluation-order:wildcard-matches-bare-domain); `zpa-11` → [`zpa.machine-groups.api-surface:create-endpoint-absence`](kb:zpa.machine-groups.api-surface:create-endpoint-absence); `zpa-12` → [`zpa.machine-groups.definition:no-group-level-criteria`](kb:zpa.machine-groups.definition:no-group-level-criteria); `zpa-13` → [`zpa.machine-groups.policy-use:api-without-client-type`](kb:zpa.machine-groups.policy-use:api-without-client-type); `zpa-14` → [`zpa.machine-groups.definition:capacity-other-limits`](kb:zpa.machine-groups.definition:capacity-other-limits); `zpa-15` → [`zpa.machine-groups`](kb:zpa.machine-groups); `zpa-20` → [`zpa.app-connectors.health:status-pending-unverified`](kb:zpa.app-connectors.health:status-pending-unverified); `zpa-27` → [`zpa.app-connectors.selection:latency-probe-cadence`](kb:zpa.app-connectors.selection:latency-probe-cadence); `zpa-28` → [`zpa.app-connectors.enrollment:certificate-validity-window`](kb:zpa.app-connectors.enrollment:certificate-validity-window); `zpa-29` → [`zpa.app-connectors.deployment:max-connectors-per-group`](kb:zpa.app-connectors.deployment:max-connectors-per-group); `zpa-30` → [`zpa.app-connectors.provisioning-key-tooling:group-delete-removes-keys`](kb:zpa.app-connectors.provisioning-key-tooling:group-delete-removes-keys); `zpa-31` → [`zpa.app-connectors.provisioning-key-tooling:api-requires-cert-for-connector-key`](kb:zpa.app-connectors.provisioning-key-tooling:api-requires-cert-for-connector-key); `zpa-32` → [`zpa.audit-logs.streaming:field-schema`](kb:zpa.audit-logs.streaming:field-schema); `zpa-33` → [`zpa.audit-logs.streaming:siem-policy-purpose`](kb:zpa.audit-logs.streaming:siem-policy-purpose); `zpa-34` → [`zpa.audit-logs.streaming:microtenant-scoping`](kb:zpa.audit-logs.streaming:microtenant-scoping); `zpa-35` → [`zpa.audit-logs.streaming:audit-filter-api`](kb:zpa.audit-logs.streaming:audit-filter-api); `zpa-36` → [`zpa.browser-access.backend-options:field-setting-mapping`](kb:zpa.browser-access.backend-options:field-setting-mapping); `zpa-40` → [`zpa.log-receivers.log-types:auth-log-1id-label`](kb:zpa.log-receivers.log-types:auth-log-1id-label); `zpa-41` → [`zpa.log-receivers.log-types:format-only-codes`](kb:zpa.log-receivers.log-types:format-only-codes); `zpa-42` → [`zpa.machine-tunnels.requirements:enable-for-all`](kb:zpa.machine-tunnels.requirements:enable-for-all); `zpa-43` → [`zpa.machine-tunnels.requirements:session-lifecycle`](kb:zpa.machine-tunnels.requirements:session-lifecycle); `zpa-44` → [`zpa.machine-tunnels.provisioning-keys:macos-mdm-effect`](kb:zpa.machine-tunnels.provisioning-keys:macos-mdm-effect); `zpa-45` → [`zpa.machine-tunnels.provisioning-keys:separate-key-type`](kb:zpa.machine-tunnels.provisioning-keys:separate-key-type); `zpa-46` → [`zpa.policy.conditions:chrome-operand-form-api-enforcement`](kb:zpa.policy.conditions:chrome-operand-form-api-enforcement); `zpa-47` → [`zpa.private-service-edges.deployment:session-limits`](kb:zpa.private-service-edges.deployment:session-limits); `zpa-49` → [`zpa.private-service-edges.deployment:release-images`](kb:zpa.private-service-edges.deployment:release-images); `zpa-50` → [`zpa.private-service-edges.what-it-is:pse-hardware-sales`](kb:zpa.private-service-edges.what-it-is:pse-hardware-sales); `zpa-51` → [`zpa.private-service-edges.private-cloud-controller:controller-role`](kb:zpa.private-service-edges.private-cloud-controller:controller-role); `zpa-52` → [`zpa.private-service-edges.private-cloud-controller:restart-semantics`](kb:zpa.private-service-edges.private-cloud-controller:restart-semantics); `zpa-53` → [`zpa.private-service-edges.api-surface:schedule-default-cadence`](kb:zpa.private-service-edges.api-surface:schedule-default-cadence); `zpa-54` → [`zpa.private-service-edges.client-selection:location-propagation`](kb:zpa.private-service-edges.client-selection:location-propagation); `zpa-55` → [`zpa.private-service-edges.enrollment:oauth2-prerequisites`](kb:zpa.private-service-edges.enrollment:oauth2-prerequisites); `zpa-56` → [`zpa.private-service-edges.deployment:max-per-group`](kb:zpa.private-service-edges.deployment:max-per-group); `zpa-57` → [`zpa.pra:absent-from-base-zpa`](kb:zpa.pra:absent-from-base-zpa); `zpa-58` → [`zpa.public-service-edges.what-it-is:safe-mode`](kb:zpa.public-service-edges.what-it-is:safe-mode); `zpa-59` → [`zpa.public-service-edges.what-it-is:ca-reconnect-semantics`](kb:zpa.public-service-edges.what-it-is:ca-reconnect-semantics); `zpa-60` → [`zpa.public-service-edges.api-visibility:upgrade-priority`](kb:zpa.public-service-edges.api-visibility:upgrade-priority); `zpa-61` → [`zpa.saml-attributes.registration:zpa-61-limit`](kb:zpa.saml-attributes.registration:zpa-61-limit); `zpa-62` → [`zpa.saml-attributes.api-surface:zpa-62-user-attribute-delta`](kb:zpa.saml-attributes.api-surface:zpa-62-user-attribute-delta); `zpa-63` → [`zpa.scim.group-lifecycle:zpa-63-deleted-group-in-rule`](kb:zpa.scim.group-lifecycle:zpa-63-deleted-group-in-rule); `zpa-64` → [`zpa.scim.api-surface:zpa-64-internal-id`](kb:zpa.scim.api-surface:zpa-64-internal-id); `zpa-65` → [`zpa.scim.policy-criteria:zpa-65-setting-fallback`](kb:zpa.scim.policy-criteria:zpa-65-setting-fallback); `zpa-66` → [`zpa.scim.policy-criteria:zpa-66-case-sensitivity`](kb:zpa.scim.policy-criteria:zpa-66-case-sensitivity); `zpa-67` → [`zpa.scim.provisioning-timing:zpa-67-membership-resolution`](kb:zpa.scim.provisioning-timing:zpa-67-membership-resolution); `zpa-68` → [`zpa.scim.policy-criteria:zpa-68-isolation-scim`](kb:zpa.scim.policy-criteria:zpa-68-isolation-scim); `zpa-69` → [`zpa.segment-groups.api-surface:v2-update-differences`](kb:zpa.segment-groups.api-surface:v2-update-differences); `zpa-70` → [`zpa.segment-groups.api-surface:skip-detailed-app-info-effect`](kb:zpa.segment-groups.api-surface:skip-detailed-app-info-effect); `zpa-71` → [`zpa.segment-groups.api-surface:tcp-keep-alive-enabled-effect`](kb:zpa.segment-groups.api-surface:tcp-keep-alive-enabled-effect); `zpa-72` → [`zpa.segment-groups.api-surface:config-space-meaning`](kb:zpa.segment-groups.api-surface:config-space-meaning); `zpa-78` → [`zpa.trusted-networks.policy-operand:rhs-false-semantics`](kb:zpa.trusted-networks.policy-operand:rhs-false-semantics); `zpa-79` → [`zpa.trusted-networks.zcc-relationship:zpa-objects-are-zcc-networks`](kb:zpa.trusted-networks.zcc-relationship:zpa-objects-are-zcc-networks); `zpa-80` → [`zpa.trusted-networks.zcc-relationship:signal-path`](kb:zpa.trusted-networks.zcc-relationship:signal-path); `zpa-81` → [`zpa.trusted-networks.service-edge-groups:off-network-fallback`](kb:zpa.trusted-networks.service-edge-groups:off-network-fallback); `zpa-83` → [`zpa.app-segments.api-fields:hbr-sticky-guest-semantics`](kb:zpa.app-segments.api-fields:hbr-sticky-guest-semantics); `log-18` → [`zpa.logs.microsegmentation-flow:enforcement-triple`](kb:zpa.logs.microsegmentation-flow:enforcement-triple); `log-19` → [`zpa.logs.user-status:record-granularity`](kb:zpa.logs.user-status:record-granularity); `log-20` → [`zpa.logs.browser-access:connection-status-values`](kb:zpa.logs.browser-access:connection-status-values); `zpa-01` → [`zpa.logs.user-activity:multi-segment-lss`](kb:zpa.logs.user-activity:multi-segment-lss); `zpa-16` → [`zpa.logs.user-activity:active-cadence`](kb:zpa.logs.user-activity:active-cadence); `zpa-17` → [`zpa.logs.user-activity:byte-counter-reset`](kb:zpa.logs.user-activity:byte-counter-reset); `zpa-18` → [`zpa.logs.user-activity:timing-overlap`](kb:zpa.logs.user-activity:timing-overlap); `zpa-19` → [`zpa.logs.user-activity:server-setup-scope`](kb:zpa.logs.user-activity:server-setup-scope); `zpa-21` → [`zpa.pra.app-segments:contract-application-protocol-enum`](kb:zpa.pra.app-segments:contract-application-protocol-enum); `zpa-22` → [`zpa.api.service-edges-wire:restart-path-canonical`](kb:zpa.api.service-edges-wire:restart-path-canonical); `zpa-23` → [`zpa.api.pra-wire:credential-secrets-on-read`](kb:zpa.api.pra-wire:credential-secrets-on-read); `zpa-24` → [`zpa.api.app-segments-wire:connection-security-values`](kb:zpa.api.app-segments-wire:connection-security-values); `zpa-25` → [`zpa.api.certificates-wire:ba-certificate-put-valid`](kb:zpa.api.certificates-wire:ba-certificate-put-valid); `zpa-26` → [`zpa.api.lss-wire:browser-isolation-accepted`](kb:zpa.api.lss-wire:browser-isolation-accepted); `zpa-37` → [`zpa.api.legacy-endpoints:stepup-write-verbs`](kb:zpa.api.legacy-endpoints:stepup-write-verbs); `zpa-38` → [`zpa.api.base-paths:legacy-host-accepts-zpa-prefix`](kb:zpa.api.base-paths:legacy-host-accepts-zpa-prefix); `zpa-39` → [`zpa.api.legacy-endpoints:assistant-schedule-served`](kb:zpa.api.legacy-endpoints:assistant-schedule-served); `zpa-76` → [`zpa.log-receivers.filtering:tf-other-types-rejected`](kb:zpa.log-receivers.filtering:tf-other-types-rejected); `zpa-77` → [`zpa.terraform.resource-constraints:tag-group-in-policy-conditions`](kb:zpa.terraform.resource-constraints:tag-group-in-policy-conditions); `zpa-82` → [`zpa.pra.tooling:approval-identity-windows`](kb:zpa.pra.tooling:approval-identity-windows); `zpa-84` → [`zpa.api.pagination:mcp-manual-pages`](kb:zpa.api.pagination:mcp-manual-pages); `zcc-01` → [`zcc.api.forwarding-profile-wire:condition-type-values`](kb:zcc.api.forwarding-profile-wire:condition-type-values); `zcc-02` → [`zcc.api.forwarding-profile-wire:network-type-values`](kb:zcc.api.forwarding-profile-wire:network-type-values); `zcc-03` → [`zcc.api.forwarding-profile-wire:action-type-values`](kb:zcc.api.forwarding-profile-wire:action-type-values); `zcc-04` → [`zcc.api.forwarding-profile-wire:primary-transport-values`](kb:zcc.api.forwarding-profile-wire:primary-transport-values); `zcc-05` → [`zcc.forwarding-profiles.internet-actions:system-proxy-vs-action`](kb:zcc.forwarding-profiles.internet-actions:system-proxy-vs-action); `zcc-06` → [`zcc.trusted-networks.object:condition-type-values`](kb:zcc.trusted-networks.object:condition-type-values); `zcc-07` → [`zcc.app-profiles.selection:default-policy`](kb:zcc.app-profiles.selection:default-policy); `zcc-08` → [`zcc.api.rate-limits:body-shape-429`](kb:zcc.api.rate-limits:body-shape-429); `zcc-09` → [`zcc.api.rate-limits:download-cap-scope`](kb:zcc.api.rate-limits:download-cap-scope); `zcc-10` → [`zcc.api.rate-limits:remaining-on-success`](kb:zcc.api.rate-limits:remaining-on-success); `zcc-11` → [`zcc.api.devices-wire:udid-batch-cap`](kb:zcc.api.devices-wire:udid-batch-cap); `zcc-12` → [`zcc.api.rate-limits:oneapi-retry-headers`](kb:zcc.api.rate-limits:oneapi-retry-headers); `zcc-13` → [`zcc.api.rate-limits:bucket-scope`](kb:zcc.api.rate-limits:bucket-scope); `zcc-14` → [`zcc.install.macos-deployment:preference-domain`](kb:zcc.install.macos-deployment:preference-domain); `zcc-15` → [`zcc.install.macos-extensions:profile-timing`](kb:zcc.install.macos-extensions:profile-timing); `zcc-16` → [`zcc.install.macos-deployment:uninstall-script-path`](kb:zcc.install.macos-deployment:uninstall-script-path); `zcc-17` → [`zcc.install.macos-deployment:launchtray-zero-extension`](kb:zcc.install.macos-deployment:launchtray-zero-extension); `zcc-18` → [`zcc.install.macos-deployment:app-store-build`](kb:zcc.install.macos-deployment:app-store-build); `zcc-19` → [`zcc.install.macos-extensions:team-and-bundle-ids`](kb:zcc.install.macos-extensions:team-and-bundle-ids); `zcc-20` → [`zcc.install.macos-extensions:full-disk-access-scope`](kb:zcc.install.macos-extensions:full-disk-access-scope); `zcc-21` → [`zcc.install.macos-deployment:minimum-macos`](kb:zcc.install.macos-deployment:minimum-macos); `zcc-22` → [`zcc.install.macos-deployment:update-channel-key`](kb:zcc.install.macos-deployment:update-channel-key); `zcc-23` → [`zcc.install.macos-deployment:launchtray-zero-extension`](kb:zcc.install.macos-deployment:launchtray-zero-extension); `zcc-24` → [`zcc.notifications.templates:template-schema`](kb:zcc.notifications.templates:template-schema); `zcc-25` → [`zcc.notifications.templates:per-profile-reauth-interval`](kb:zcc.notifications.templates:per-profile-reauth-interval); `zcc-26` → [`zcc.acceptable-use:localization`](kb:zcc.acceptable-use:localization); `zcc-27` → [`zcc.notifications.templates:posture-failure-notification`](kb:zcc.notifications.templates:posture-failure-notification); `zcc-28` → [`zcc.notifications:cert-trust-ux`](kb:zcc.notifications:cert-trust-ux); `zcc-29` → [`zcc.notifications:delivery-logging`](kb:zcc.notifications:delivery-logging); `zcc-30` → [`zcc.notifications.localization:fallback-language`](kb:zcc.notifications.localization:fallback-language); `zcc-31` → [`zcc.notifications.framework:platform-support`](kb:zcc.notifications.framework:platform-support); `zcc-32` → [`zcc.notifications.framework:platform-support`](kb:zcc.notifications.framework:platform-support); `zcc-33` → [`zcc.api.company-wire:set-company-info-go`](kb:zcc.api.company-wire:set-company-info-go); `zcc-34` → [`zcc.support-options:toggle-defaults`](kb:zcc.support-options:toggle-defaults); `zcc-35` → [`zcc.api.web-policy-wire:ui-capture-password-keys`](kb:zcc.api.web-policy-wire:ui-capture-password-keys); `zcc-36` → [`zcc.support-options:bundle-contents`](kb:zcc.support-options:bundle-contents); `zcc-37` → [`zcc.support-options:bundle-contents`](kb:zcc.support-options:bundle-contents); `zcc-38` → [`zcc.support-options:submission-audit`](kb:zcc.support-options:submission-audit); `zcc-39` → [`zcc.firefox.integration:linux`](kb:zcc.firefox.integration:linux); `zcc-40` → [`zcc.firefox.proxy-and-trust:enterprise-roots`](kb:zcc.firefox.proxy-and-trust:enterprise-roots); `zcc-41` → [`zcc.firefox.integration:preference-keys`](kb:zcc.firefox.integration:preference-keys); `zcc-42` → [`zcc.firefox.integration:upgrade-persistence`](kb:zcc.firefox.integration:upgrade-persistence); `zcc-43` → [`zcc.firefox.integration:version-scope`](kb:zcc.firefox.integration:version-scope); `zcc-44` → [`zcc.acceptable-use:redisplay-on-change`](kb:zcc.acceptable-use:redisplay-on-change); `zcc-45` → [`zcc.acceptable-use:decline-and-variants`](kb:zcc.acceptable-use:decline-and-variants); `zcc-46` → [`zcc.acceptable-use:external-links`](kb:zcc.acceptable-use:external-links); `zcc-47` → [`zcc.acceptable-use:decline-and-variants`](kb:zcc.acceptable-use:decline-and-variants); `zcc-48` → [`zcc.acceptable-use:decline-and-variants`](kb:zcc.acceptable-use:decline-and-variants); `zcc-49` → [`zcc.acceptable-use:min-agent-version`](kb:zcc.acceptable-use:min-agent-version); `zcc-50` → [`zcc.acceptable-use:notification-templates-mode`](kb:zcc.acceptable-use:notification-templates-mode); `zcc-51` → [`zcc.acceptable-use:acceptance-logging`](kb:zcc.acceptable-use:acceptance-logging); `zcc-52` → [`zcc.acceptable-use:localization`](kb:zcc.acceptable-use:localization); `zcc-53` → [`zcc.acceptable-use:message-size`](kb:zcc.acceptable-use:message-size); `zcc-54` → [`zcc.acceptable-use:non-interactive-sessions`](kb:zcc.acceptable-use:non-interactive-sessions); `zcc-55` → [`zcc.acceptable-use:config-propagation`](kb:zcc.acceptable-use:config-propagation); `zcc-56` → [`zcc.logging.log-modes:default-mode`](kb:zcc.logging.log-modes:default-mode); `zcc-57` → [`zcc.logging.log-modes:level-vs-mode`](kb:zcc.logging.log-modes:level-vs-mode); `zcc-58` → [`zcc.app-profiles.logging:log-file-size`](kb:zcc.app-profiles.logging:log-file-size); `zcc-59` → [`zcc.web-privacy.collection:unmapped-keys`](kb:zcc.web-privacy.collection:unmapped-keys); `zcc-60` → [`zcc.logging.collection:os-log-integration`](kb:zcc.logging.collection:os-log-integration); `zcc-61` → [`zcc.logging.collection:os-log-integration`](kb:zcc.logging.collection:os-log-integration); `zcc-62` → [`zcc.logging.collection:os-log-integration`](kb:zcc.logging.collection:os-log-integration); `zcc-63` → [`zcc.logging.collection:os-log-integration`](kb:zcc.logging.collection:os-log-integration); `zcc-64` → [`zcc.logging.user-access:ios-log-access`](kb:zcc.logging.user-access:ios-log-access); `zcc-65` → [`zcc.support-options:bundle-contents`](kb:zcc.support-options:bundle-contents); `zcc-66` → [`zcc.logs.client-log:file-format`](kb:zcc.logs.client-log:file-format); `zcc-67` → [`zcc.logs.client-log:transaction-records`](kb:zcc.logs.client-log:transaction-records); `zcc-68` → [`zcc.logging.collection:log-locations`](kb:zcc.logging.collection:log-locations); `zcc-69` → [`zcc.logging.collection:os-log-integration`](kb:zcc.logging.collection:os-log-integration); `zcc-70` → [`zcc.logging.collection:os-log-integration`](kb:zcc.logging.collection:os-log-integration); `zcc-71` → [`zcc.logging.collection:os-log-integration`](kb:zcc.logging.collection:os-log-integration); `zcc-72` → [`zcc.logging.collection:fetch-logs-permission`](kb:zcc.logging.collection:fetch-logs-permission); `zcc-73` → [`zcc.api.conventions:status-500-label`](kb:zcc.api.conventions:status-500-label); `zcc-74` → [`zcc.troubleshooting:generic-legacy-codes`](kb:zcc.troubleshooting:generic-legacy-codes); `zcc-75` → [`zcc.install.macos-extensions:unapproved-extension`](kb:zcc.install.macos-extensions:unapproved-extension); `zcc-76` → [`zcc.passwords-and-otp.otp:otp-expiry`](kb:zcc.passwords-and-otp.otp:otp-expiry); `zcc-77` → [`zcc.api.web-policy-wire:top-vs-nested-precedence`](kb:zcc.api.web-policy-wire:top-vs-nested-precedence); `zcc-78` → [`zcc.api.web-policy-wire:devicetype-precedence`](kb:zcc.api.web-policy-wire:devicetype-precedence); `zcc-79` → [`zcc.api.web-policy-wire:selected-required`](kb:zcc.api.web-policy-wire:selected-required); `zcc-80` → [`zcc.api.trusted-networks-wire:v1-v2-coexistence`](kb:zcc.api.trusted-networks-wire:v1-v2-coexistence); `zcc-81` → [`zcc.devices.record-fields:zd-vs-zdp`](kb:zcc.devices.record-fields:zd-vs-zdp); `zcc-82` → [`zcc.devices.record-fields:registration-state-vs-state`](kb:zcc.devices.record-fields:registration-state-vs-state); `zcc-83` → [`zcc.devices.record-fields:state-wire-type`](kb:zcc.devices.record-fields:state-wire-type); `zcc-84` → [`zcc.forwarding-profiles:unified-tunnel-semantics`](kb:zcc.forwarding-profiles:unified-tunnel-semantics); `zcc-85` → [`zcc.forwarding-profiles.fail-open:precedence-detail`](kb:zcc.forwarding-profiles.fail-open:precedence-detail); `zcc-86` → [`zcc.sdk-python.return-shapes:web-privacy-get-none`](kb:zcc.sdk-python.return-shapes:web-privacy-get-none); `zcc-87` → [`zcc.sdk-python.client-configuration:oneapi-429-headers`](kb:zcc.sdk-python.client-configuration:oneapi-429-headers); `zcc-88` → [`zcc.api.web-policy-wire:mac-block-read-key`](kb:zcc.api.web-policy-wire:mac-block-read-key); `zcc-89` → [`zcc.api.web-policy-wire:scope-keys-on-read`](kb:zcc.api.web-policy-wire:scope-keys-on-read); `zcc-90` → [`zcc.api.web-policy-wire:devicetype-string-on-read`](kb:zcc.api.web-policy-wire:devicetype-string-on-read); `zcc-91` → [`zcc.support-options:toggle-defaults`](kb:zcc.support-options:toggle-defaults); `zcc-92` → [`zcc.passwords-and-otp.password-api:surface-authority`](kb:zcc.passwords-and-otp.password-api:surface-authority); `zcc-93` → [`zcc.passwords-and-otp.app-profile-passwords:macos-password-key-asymmetry`](kb:zcc.passwords-and-otp.app-profile-passwords:macos-password-key-asymmetry); `zcc-94` → [`zcc.passwords-and-otp.app-profile-passwords:ui-gate-per-os`](kb:zcc.passwords-and-otp.app-profile-passwords:ui-gate-per-os); `zcc-95` → [`zcc.trusted-networks.detection:transition-handling`](kb:zcc.trusted-networks.detection:transition-handling); `zcc-96` → [`zcc.trusted-networks.detection:multiple-networks`](kb:zcc.trusted-networks.detection:multiple-networks); `zcc-97` → [`zcc.forwarding-profiles.assignment:orphan-reference`](kb:zcc.forwarding-profiles.assignment:orphan-reference); `zcc-98` → [`zcc.api.web-policy-wire:join-on-read`](kb:zcc.api.web-policy-wire:join-on-read); `zcc-99` → [`zcc.app-profiles.advanced-settings:drop-quic`](kb:zcc.app-profiles.advanced-settings:drop-quic); `zcc-100` → [`zcc.forwarding-profiles.internet-actions:ipv6-flags`](kb:zcc.forwarding-profiles.internet-actions:ipv6-flags); `zcc-101` → [`zcc.z-tunnel.transport:session-internals`](kb:zcc.z-tunnel.transport:session-internals); `log-21` → [`zcc.logging.log-modes:level-vs-mode`](kb:zcc.logging.log-modes:level-vs-mode).
+`zia-01` → [`zia.url-categories.membership:predefined-vs-custom`](kb:zia.url-categories.membership:predefined-vs-custom); `zia-02` → [`zia.url-categories.membership:same-specificity-collision`](kb:zia.url-categories.membership:same-specificity-collision); `zia-03` → [`zia.url-categories.entry-matching:wildcard-tokenization`](kb:zia.url-categories.entry-matching:wildcard-tokenization); `zia-04` → [`zia.url-filtering.advanced-settings:nrod-lag`](kb:zia.url-filtering.advanced-settings:nrod-lag); `zia-06` → [`zia.cloud-app-control.precedence:cac-disabled-rules`](kb:zia.cloud-app-control.precedence:cac-disabled-rules); `zia-10` → [`zia.cloud-app-control.precedence:default-allow-vs-explicit`](kb:zia.cloud-app-control.precedence:default-allow-vs-explicit); `zia-11` → [`zia.ssl-inspection.pipeline:mixed-forwarding`](kb:zia.ssl-inspection.pipeline:mixed-forwarding); `zia-12` → [`zia.ssl-inspection.pipeline:bypass-and-default-rule`](kb:zia.ssl-inspection.pipeline:bypass-and-default-rule); `zia-14` → [`zia.url-categories.entry-matching:exactly-five-levels`](kb:zia.url-categories.entry-matching:exactly-five-levels); `zia-15` → [`zia.url-categories.entry-matching:console-accepts-asterisk`](kb:zia.url-categories.entry-matching:console-accepts-asterisk); `zia-07` → [`zia.cloud-app-control.risk-profiles:composition`](kb:zia.cloud-app-control.risk-profiles:composition); `zia-09` → [`zia.cloud-app-control.rule-criteria:app-identity`](kb:zia.cloud-app-control.rule-criteria:app-identity); `zia-13` → [`zia.ssl-inspection.pipeline:first-pass-on-domain`](kb:zia.ssl-inspection.pipeline:first-pass-on-domain); `zia-47` → [`zia.dns-control.actions:block-response-code-values`](kb:zia.dns-control.actions:block-response-code-values); `zia-48` → [`zia.dns-control.actions:redirect-ip-binding`](kb:zia.dns-control.actions:redirect-ip-binding); `zia-58` → [`zia.dlp.rule-wire-shape:without-content-inspection-keying`](kb:zia.dlp.rule-wire-shape:without-content-inspection-keying); `zia-59` → [`zia.dns-control.actions:redir-req-gateway`](kb:zia.dns-control.actions:redir-req-gateway); `zia-60` → [`zia.firewall.network-services:type-meanings`](kb:zia.firewall.network-services:type-meanings); `zia-63` → [`zia.sandbox.md5-blocklist:quota-cap`](kb:zia.sandbox.md5-blocklist:quota-cap); `zia-66` → [`zia.ssl-inspection.rules:cap-raisable`](kb:zia.ssl-inspection.rules:cap-raisable); `zia-71` → [`zia.dns-control.api-rules:web-eun-false`](kb:zia.dns-control.api-rules:web-eun-false); `zia-08` → [`zia.tenant-profiles.wire-mechanic:per-app-inspection-detail`](kb:zia.tenant-profiles.wire-mechanic:per-app-inspection-detail); `zia-16` → [`zia.locations.sublocations:cap-2000`](kb:zia.locations.sublocations:cap-2000); `zia-17` → [`zia.locations.sublocations:name-uniqueness-scope`](kb:zia.locations.sublocations:name-uniqueness-scope); `zia-18` → [`zia.locations.sublocations:parent-delete-behavior`](kb:zia.locations.sublocations:parent-delete-behavior); `zia-19` → [`zia.locations.sublocations:reparenting-rules`](kb:zia.locations.sublocations:reparenting-rules); `zia-20` → [`zia.locations.sublocations:depth-limit`](kb:zia.locations.sublocations:depth-limit); `zia-46` → [`zia.locations.group-assignment:tf-dynamic-removal-reason`](kb:zia.locations.group-assignment:tf-dynamic-removal-reason); `zia-56` → [`zia.bandwidth-control.limits:caps-api-enforced`](kb:zia.bandwidth-control.limits:caps-api-enforced); `zia-57` → [`zia.file-type-control.api-shape:filtering-action-dependencies`](kb:zia.file-type-control.api-shape:filtering-action-dependencies); `zia-61` → [`zia.atp.api-surface:tenant-defaults`](kb:zia.atp.api-surface:tenant-defaults); `zia-67` → [`zia.tenant-profiles.microsoft:v1-v2-semantics`](kb:zia.tenant-profiles.microsoft:v1-v2-semantics); `log-04` → [`zia.atp.block-diagnosis:ruletype-values`](kb:zia.atp.block-diagnosis:ruletype-values); `zia-26` → [`zia.rule-labels:audit-log-label-names`](kb:zia.rule-labels:audit-log-label-names); `zia-27` → [`zia.rule-labels.constraints:name-charset`](kb:zia.rule-labels.constraints:name-charset); `zia-28` → [`zia.rule-labels.constraints:name-uniqueness`](kb:zia.rule-labels.constraints:name-uniqueness); `zia-29` → [`zia.rule-labels.constraints:description-max-length`](kb:zia.rule-labels.constraints:description-max-length); `zia-30` → [`zia.rule-labels:duplicate-action`](kb:zia.rule-labels:duplicate-action); `zia-31` → [`zia.rule-labels.rule-types:label-filter-server-support`](kb:zia.rule-labels.rule-types:label-filter-server-support); `zia-32` → [`zia.rule-labels.constraints:tenant-cap`](kb:zia.rule-labels.constraints:tenant-cap); `zia-50` → [`zia.rule-labels.api-surface:rule-type-endpoint-backing`](kb:zia.rule-labels.api-surface:rule-type-endpoint-backing); `zia-69` → [`zia.workload-groups.expressions:runtime-evaluation`](kb:zia.workload-groups.expressions:runtime-evaluation); `zia-55` → [`zia.audit-logs.report-api:pagination`](kb:zia.audit-logs.report-api:pagination); `shared-38` → [`zia.traffic-forwarding.vpn-credentials:psk-live-read`](kb:zia.traffic-forwarding.vpn-credentials:psk-live-read); `zia-39` → [`zia.scim.groups-and-departments:department-no-match`](kb:zia.scim.groups-and-departments:department-no-match); `zia-40` → [`zia.scim.deactivation:session-kill`](kb:zia.scim.deactivation:session-kill); `zia-41` → [`zia.scim.operations:rate-limit`](kb:zia.scim.operations:rate-limit); `zia-42` → [`zia.ad-integration.identity-objects:org-limits`](kb:zia.ad-integration.identity-objects:org-limits); `zia-43` → [`zia.scim.attribute-mapping:per-idp-department-mapping`](kb:zia.scim.attribute-mapping:per-idp-department-mapping); `zia-44` → [`zia.scim.propagation:sync-log-visibility`](kb:zia.scim.propagation:sync-log-visibility); `zia-45` → [`zia.scim.propagation:per-idp-cadence`](kb:zia.scim.propagation:per-idp-cadence); `zia-64` → [`zia.scim.groups-and-departments:department-no-match`](kb:zia.scim.groups-and-departments:department-no-match); `zia-62` → [`zia.private-service-edge.ip-requirements:shared-nat-behavior`](kb:zia.private-service-edge.ip-requirements:shared-nat-behavior); `zia-33` → [`zia.virtual-service-edge.upgrades:cluster-update-sequencing`](kb:zia.virtual-service-edge.upgrades:cluster-update-sequencing); `zia-34` → [`zia.virtual-service-edge.clusters:removal-and-disable-behavior`](kb:zia.virtual-service-edge.clusters:removal-and-disable-behavior); `zia-35` → [`zia.virtual-service-edge.operations:log-identifier`](kb:zia.virtual-service-edge.operations:log-identifier); `zia-36` → [`zia.virtual-service-edge.clusters:cluster-vs-vm-settings`](kb:zia.virtual-service-edge.clusters:cluster-vs-vm-settings); `zia-37` → [`zia.virtual-service-edge.network-requirements:vse-nat-topology`](kb:zia.virtual-service-edge.network-requirements:vse-nat-topology); `zia-38` → [`zia.virtual-service-edge.clusters:public-cloud-cluster-object`](kb:zia.virtual-service-edge.clusters:public-cloud-cluster-object); `zia-21` → [`zia.time-intervals.timezone:dst-handling`](kb:zia.time-intervals.timezone:dst-handling); `zia-22` → [`zia.time-intervals.limits:object-cap`](kb:zia.time-intervals.limits:object-cap); `zia-23` → [`zia.time-intervals.time-windows:terraform-resource-intent`](kb:zia.time-intervals.time-windows:terraform-resource-intent); `zia-24` → [`zia.time-intervals.evaluation:midnight-spanning`](kb:zia.time-intervals.evaluation:midnight-spanning); `zia-25` → [`zia.time-intervals.time-windows:predefined-intervals`](kb:zia.time-intervals.time-windows:predefined-intervals); `zia-49` → [`zia.cloud-app-control.actions:all-vs-available-differs`](kb:zia.cloud-app-control.actions:all-vs-available-differs); `zia-51` → [`zia.api.sdk-coverage:parity-drift`](kb:zia.api.sdk-coverage:parity-drift); `zia-52` → [`zia.api.legacy-ips-signature-wire:import-wire-unconfirmed`](kb:zia.api.legacy-ips-signature-wire:import-wire-unconfirmed); `zia-53` → [`zia.cloud-app-control.actions:per-tuple-validation-contract`](kb:zia.cloud-app-control.actions:per-tuple-validation-contract); `zia-54` → [`zia.cloud-app-control.api-surface:python-risk-profile-runtime`](kb:zia.cloud-app-control.api-surface:python-risk-profile-runtime); `zia-68` → [`zia.terraform.early-access:early-access-eligibility`](kb:zia.terraform.early-access:early-access-eligibility); `zia-72` → [`zia.url-filtering.advanced-settings:creative-commons-backend-effect`](kb:zia.url-filtering.advanced-settings:creative-commons-backend-effect); `log-01` → [`zia.logs.nss-feed-format:format-field-presence`](kb:zia.logs.nss-feed-format:format-field-presence); `log-02` → [`zia.logs.nss-feed-format:vm-conversion-omits`](kb:zia.logs.nss-feed-format:vm-conversion-omits); `log-03` → [`zia.logs.nss-feed-format:multi-feed-timezone`](kb:zia.logs.nss-feed-format:multi-feed-timezone); `log-05` → [`zia.logs.web-rule-attribution:action-values-precedence`](kb:zia.logs.web-rule-attribution:action-values-precedence); `log-06` → [`zia.logs.web-field-semantics:reason-structure`](kb:zia.logs.web-field-semantics:reason-structure); `log-07` → [`zia.logs.web-field-semantics:url-category-fields`](kb:zia.logs.web-field-semantics:url-category-fields); `log-08` → [`zia.logs.web-field-semantics:riskscore-lineage`](kb:zia.logs.web-field-semantics:riskscore-lineage); `log-09` → [`zia.logs.web-field-semantics:byte-counters`](kb:zia.logs.web-field-semantics:byte-counters); `log-10` → [`zia.logs.web-field-semantics:prompt-scope`](kb:zia.logs.web-field-semantics:prompt-scope); `log-11` → [`zia.logs.firewall-records:aggregate-counters`](kb:zia.logs.firewall-records:aggregate-counters); `log-12` → [`zia.logs.firewall-records:action-precedence`](kb:zia.logs.firewall-records:action-precedence); `log-13` → [`zia.logs.firewall-records:nwapp-vs-nwsvc`](kb:zia.logs.firewall-records:nwapp-vs-nwsvc); `log-14` → [`zia.logs.dns-outcome:action-enum-open`](kb:zia.logs.dns-outcome:action-enum-open); `log-15` → [`zia.logs.dns-outcome:res-sentinels-open`](kb:zia.logs.dns-outcome:res-sentinels-open); `log-16` → [`zia.logs.dns-gateway-fields:dnsgw-flags-semantics-open`](kb:zia.logs.dns-gateway-fields:dnsgw-flags-semantics-open); `log-17` → [`zia.casb.insights-logs:record-category-discriminator`](kb:zia.casb.insights-logs:record-category-discriminator); `zpa-02` → [`zpa.app-segments.matching:granularity-ranking`](kb:zpa.app-segments.matching:granularity-ranking); `zpa-03` → [`zpa.app-segments.multimatch:config-conflict`](kb:zpa.app-segments.multimatch:config-conflict); `zpa-04` → [`zpa.app-segments.matching:same-specificity-tie`](kb:zpa.app-segments.matching:same-specificity-tie); `zpa-05` → [`zpa.app-segments.matching:port-mismatch-bypass`](kb:zpa.app-segments.matching:port-mismatch-bypass); `zpa-06` → [`zpa.policy.actions:require-approval-equals-conditional-access`](kb:zpa.policy.actions:require-approval-equals-conditional-access); `zpa-07` → [`zpa.policy.access-rule-order:deception-rule-ordering-rationale`](kb:zpa.policy.access-rule-order:deception-rule-ordering-rationale); `zpa-08` → [`zpa.policy.evaluation-order:wildcard-matches-bare-domain`](kb:zpa.policy.evaluation-order:wildcard-matches-bare-domain); `zpa-11` → [`zpa.machine-groups.api-surface:create-endpoint-absence`](kb:zpa.machine-groups.api-surface:create-endpoint-absence); `zpa-12` → [`zpa.machine-groups.definition:no-group-level-criteria`](kb:zpa.machine-groups.definition:no-group-level-criteria); `zpa-13` → [`zpa.machine-groups.policy-use:api-without-client-type`](kb:zpa.machine-groups.policy-use:api-without-client-type); `zpa-14` → [`zpa.machine-groups.definition:capacity-other-limits`](kb:zpa.machine-groups.definition:capacity-other-limits); `zpa-15` → [`zpa.machine-groups`](kb:zpa.machine-groups); `zpa-20` → [`zpa.app-connectors.health:status-pending-unverified`](kb:zpa.app-connectors.health:status-pending-unverified); `zpa-27` → [`zpa.app-connectors.selection:latency-probe-cadence`](kb:zpa.app-connectors.selection:latency-probe-cadence); `zpa-28` → [`zpa.app-connectors.enrollment:certificate-validity-window`](kb:zpa.app-connectors.enrollment:certificate-validity-window); `zpa-29` → [`zpa.app-connectors.deployment:max-connectors-per-group`](kb:zpa.app-connectors.deployment:max-connectors-per-group); `zpa-30` → [`zpa.app-connectors.provisioning-key-tooling:group-delete-removes-keys`](kb:zpa.app-connectors.provisioning-key-tooling:group-delete-removes-keys); `zpa-31` → [`zpa.app-connectors.provisioning-key-tooling:api-requires-cert-for-connector-key`](kb:zpa.app-connectors.provisioning-key-tooling:api-requires-cert-for-connector-key); `zpa-32` → [`zpa.audit-logs.streaming:field-schema`](kb:zpa.audit-logs.streaming:field-schema); `zpa-33` → [`zpa.audit-logs.streaming:siem-policy-purpose`](kb:zpa.audit-logs.streaming:siem-policy-purpose); `zpa-34` → [`zpa.audit-logs.streaming:microtenant-scoping`](kb:zpa.audit-logs.streaming:microtenant-scoping); `zpa-35` → [`zpa.audit-logs.streaming:audit-filter-api`](kb:zpa.audit-logs.streaming:audit-filter-api); `zpa-36` → [`zpa.browser-access.backend-options:field-setting-mapping`](kb:zpa.browser-access.backend-options:field-setting-mapping); `zpa-40` → [`zpa.log-receivers.log-types:auth-log-1id-label`](kb:zpa.log-receivers.log-types:auth-log-1id-label); `zpa-41` → [`zpa.log-receivers.log-types:format-only-codes`](kb:zpa.log-receivers.log-types:format-only-codes); `zpa-42` → [`zpa.machine-tunnels.requirements:enable-for-all`](kb:zpa.machine-tunnels.requirements:enable-for-all); `zpa-43` → [`zpa.machine-tunnels.requirements:session-lifecycle`](kb:zpa.machine-tunnels.requirements:session-lifecycle); `zpa-44` → [`zpa.machine-tunnels.provisioning-keys:macos-mdm-effect`](kb:zpa.machine-tunnels.provisioning-keys:macos-mdm-effect); `zpa-45` → [`zpa.machine-tunnels.provisioning-keys:separate-key-type`](kb:zpa.machine-tunnels.provisioning-keys:separate-key-type); `zpa-46` → [`zpa.policy.conditions:chrome-operand-form-api-enforcement`](kb:zpa.policy.conditions:chrome-operand-form-api-enforcement); `zpa-47` → [`zpa.private-service-edges.deployment:session-limits`](kb:zpa.private-service-edges.deployment:session-limits); `zpa-49` → [`zpa.private-service-edges.deployment:release-images`](kb:zpa.private-service-edges.deployment:release-images); `zpa-50` → [`zpa.private-service-edges.what-it-is:pse-hardware-sales`](kb:zpa.private-service-edges.what-it-is:pse-hardware-sales); `zpa-51` → [`zpa.private-service-edges.private-cloud-controller:controller-role`](kb:zpa.private-service-edges.private-cloud-controller:controller-role); `zpa-52` → [`zpa.private-service-edges.private-cloud-controller:restart-semantics`](kb:zpa.private-service-edges.private-cloud-controller:restart-semantics); `zpa-53` → [`zpa.private-service-edges.api-surface:schedule-default-cadence`](kb:zpa.private-service-edges.api-surface:schedule-default-cadence); `zpa-54` → [`zpa.private-service-edges.client-selection:location-propagation`](kb:zpa.private-service-edges.client-selection:location-propagation); `zpa-55` → [`zpa.private-service-edges.enrollment:oauth2-prerequisites`](kb:zpa.private-service-edges.enrollment:oauth2-prerequisites); `zpa-56` → [`zpa.private-service-edges.deployment:max-per-group`](kb:zpa.private-service-edges.deployment:max-per-group); `zpa-57` → [`zpa.pra:absent-from-base-zpa`](kb:zpa.pra:absent-from-base-zpa); `zpa-58` → [`zpa.public-service-edges.what-it-is:safe-mode`](kb:zpa.public-service-edges.what-it-is:safe-mode); `zpa-59` → [`zpa.public-service-edges.what-it-is:ca-reconnect-semantics`](kb:zpa.public-service-edges.what-it-is:ca-reconnect-semantics); `zpa-60` → [`zpa.public-service-edges.api-visibility:upgrade-priority`](kb:zpa.public-service-edges.api-visibility:upgrade-priority); `zpa-61` → [`zpa.saml-attributes.registration:zpa-61-limit`](kb:zpa.saml-attributes.registration:zpa-61-limit); `zpa-62` → [`zpa.saml-attributes.api-surface:zpa-62-user-attribute-delta`](kb:zpa.saml-attributes.api-surface:zpa-62-user-attribute-delta); `zpa-63` → [`zpa.scim.group-lifecycle:zpa-63-deleted-group-in-rule`](kb:zpa.scim.group-lifecycle:zpa-63-deleted-group-in-rule); `zpa-64` → [`zpa.scim.api-surface:zpa-64-internal-id`](kb:zpa.scim.api-surface:zpa-64-internal-id); `zpa-65` → [`zpa.scim.policy-criteria:zpa-65-setting-fallback`](kb:zpa.scim.policy-criteria:zpa-65-setting-fallback); `zpa-66` → [`zpa.scim.policy-criteria:zpa-66-case-sensitivity`](kb:zpa.scim.policy-criteria:zpa-66-case-sensitivity); `zpa-67` → [`zpa.scim.provisioning-timing:zpa-67-membership-resolution`](kb:zpa.scim.provisioning-timing:zpa-67-membership-resolution); `zpa-68` → [`zpa.scim.policy-criteria:zpa-68-isolation-scim`](kb:zpa.scim.policy-criteria:zpa-68-isolation-scim); `zpa-69` → [`zpa.segment-groups.api-surface:v2-update-differences`](kb:zpa.segment-groups.api-surface:v2-update-differences); `zpa-70` → [`zpa.segment-groups.api-surface:skip-detailed-app-info-effect`](kb:zpa.segment-groups.api-surface:skip-detailed-app-info-effect); `zpa-71` → [`zpa.segment-groups.api-surface:tcp-keep-alive-enabled-effect`](kb:zpa.segment-groups.api-surface:tcp-keep-alive-enabled-effect); `zpa-72` → [`zpa.segment-groups.api-surface:config-space-meaning`](kb:zpa.segment-groups.api-surface:config-space-meaning); `zpa-78` → [`zpa.trusted-networks.policy-operand:rhs-false-semantics`](kb:zpa.trusted-networks.policy-operand:rhs-false-semantics); `zpa-79` → [`zpa.trusted-networks.zcc-relationship:zpa-objects-are-zcc-networks`](kb:zpa.trusted-networks.zcc-relationship:zpa-objects-are-zcc-networks); `zpa-80` → [`zpa.trusted-networks.zcc-relationship:signal-path`](kb:zpa.trusted-networks.zcc-relationship:signal-path); `zpa-81` → [`zpa.trusted-networks.service-edge-groups:off-network-fallback`](kb:zpa.trusted-networks.service-edge-groups:off-network-fallback); `zpa-83` → [`zpa.app-segments.api-fields:hbr-sticky-guest-semantics`](kb:zpa.app-segments.api-fields:hbr-sticky-guest-semantics); `log-18` → [`zpa.logs.microsegmentation-flow:enforcement-triple`](kb:zpa.logs.microsegmentation-flow:enforcement-triple); `log-19` → [`zpa.logs.user-status:record-granularity`](kb:zpa.logs.user-status:record-granularity); `log-20` → [`zpa.logs.browser-access:connection-status-values`](kb:zpa.logs.browser-access:connection-status-values); `zpa-01` → [`zpa.logs.user-activity:multi-segment-lss`](kb:zpa.logs.user-activity:multi-segment-lss); `zpa-16` → [`zpa.logs.user-activity:active-cadence`](kb:zpa.logs.user-activity:active-cadence); `zpa-17` → [`zpa.logs.user-activity:byte-counter-reset`](kb:zpa.logs.user-activity:byte-counter-reset); `zpa-18` → [`zpa.logs.user-activity:timing-overlap`](kb:zpa.logs.user-activity:timing-overlap); `zpa-19` → [`zpa.logs.user-activity:server-setup-scope`](kb:zpa.logs.user-activity:server-setup-scope); `zpa-21` → [`zpa.pra.app-segments:contract-application-protocol-enum`](kb:zpa.pra.app-segments:contract-application-protocol-enum); `zpa-22` → [`zpa.api.service-edges-wire:restart-path-canonical`](kb:zpa.api.service-edges-wire:restart-path-canonical); `zpa-23` → [`zpa.api.pra-wire:credential-secrets-on-read`](kb:zpa.api.pra-wire:credential-secrets-on-read); `zpa-24` → [`zpa.api.app-segments-wire:connection-security-values`](kb:zpa.api.app-segments-wire:connection-security-values); `zpa-25` → [`zpa.api.certificates-wire:ba-certificate-put-valid`](kb:zpa.api.certificates-wire:ba-certificate-put-valid); `zpa-26` → [`zpa.api.lss-wire:browser-isolation-accepted`](kb:zpa.api.lss-wire:browser-isolation-accepted); `zpa-37` → [`zpa.api.legacy-endpoints:stepup-write-verbs`](kb:zpa.api.legacy-endpoints:stepup-write-verbs); `zpa-38` → [`zpa.api.base-paths:legacy-host-accepts-zpa-prefix`](kb:zpa.api.base-paths:legacy-host-accepts-zpa-prefix); `zpa-39` → [`zpa.api.legacy-endpoints:assistant-schedule-served`](kb:zpa.api.legacy-endpoints:assistant-schedule-served); `zpa-76` → [`zpa.log-receivers.filtering:tf-other-types-rejected`](kb:zpa.log-receivers.filtering:tf-other-types-rejected); `zpa-77` → [`zpa.terraform.resource-constraints:tag-group-in-policy-conditions`](kb:zpa.terraform.resource-constraints:tag-group-in-policy-conditions); `zpa-82` → [`zpa.pra.tooling:approval-identity-windows`](kb:zpa.pra.tooling:approval-identity-windows); `zpa-84` → [`zpa.api.pagination:mcp-manual-pages`](kb:zpa.api.pagination:mcp-manual-pages); `zcc-01` → [`zcc.api.forwarding-profile-wire:condition-type-values`](kb:zcc.api.forwarding-profile-wire:condition-type-values); `zcc-02` → [`zcc.api.forwarding-profile-wire:network-type-values`](kb:zcc.api.forwarding-profile-wire:network-type-values); `zcc-03` → [`zcc.api.forwarding-profile-wire:action-type-values`](kb:zcc.api.forwarding-profile-wire:action-type-values); `zcc-04` → [`zcc.api.forwarding-profile-wire:primary-transport-values`](kb:zcc.api.forwarding-profile-wire:primary-transport-values); `zcc-05` → [`zcc.forwarding-profiles.internet-actions:system-proxy-vs-action`](kb:zcc.forwarding-profiles.internet-actions:system-proxy-vs-action); `zcc-06` → [`zcc.trusted-networks.object:condition-type-values`](kb:zcc.trusted-networks.object:condition-type-values); `zcc-07` → [`zcc.app-profiles.selection:default-policy`](kb:zcc.app-profiles.selection:default-policy); `zcc-08` → [`zcc.api.rate-limits:body-shape-429`](kb:zcc.api.rate-limits:body-shape-429); `zcc-09` → [`zcc.api.rate-limits:download-cap-scope`](kb:zcc.api.rate-limits:download-cap-scope); `zcc-10` → [`zcc.api.rate-limits:remaining-on-success`](kb:zcc.api.rate-limits:remaining-on-success); `zcc-11` → [`zcc.api.devices-wire:udid-batch-cap`](kb:zcc.api.devices-wire:udid-batch-cap); `zcc-12` → [`zcc.api.rate-limits:oneapi-retry-headers`](kb:zcc.api.rate-limits:oneapi-retry-headers); `zcc-13` → [`zcc.api.rate-limits:bucket-scope`](kb:zcc.api.rate-limits:bucket-scope); `zcc-14` → [`zcc.install.macos-deployment:preference-domain`](kb:zcc.install.macos-deployment:preference-domain); `zcc-15` → [`zcc.install.macos-extensions:profile-timing`](kb:zcc.install.macos-extensions:profile-timing); `zcc-16` → [`zcc.install.macos-deployment:uninstall-script-path`](kb:zcc.install.macos-deployment:uninstall-script-path); `zcc-17` → [`zcc.install.macos-deployment:launchtray-zero-extension`](kb:zcc.install.macos-deployment:launchtray-zero-extension); `zcc-18` → [`zcc.install.macos-deployment:app-store-build`](kb:zcc.install.macos-deployment:app-store-build); `zcc-19` → [`zcc.install.macos-extensions:team-and-bundle-ids`](kb:zcc.install.macos-extensions:team-and-bundle-ids); `zcc-20` → [`zcc.install.macos-extensions:full-disk-access-scope`](kb:zcc.install.macos-extensions:full-disk-access-scope); `zcc-21` → [`zcc.install.macos-deployment:minimum-macos`](kb:zcc.install.macos-deployment:minimum-macos); `zcc-22` → [`zcc.install.macos-deployment:update-channel-key`](kb:zcc.install.macos-deployment:update-channel-key); `zcc-23` → [`zcc.install.macos-deployment:launchtray-zero-extension`](kb:zcc.install.macos-deployment:launchtray-zero-extension); `zcc-24` → [`zcc.notifications.templates:template-schema`](kb:zcc.notifications.templates:template-schema); `zcc-25` → [`zcc.notifications.templates:per-profile-reauth-interval`](kb:zcc.notifications.templates:per-profile-reauth-interval); `zcc-26` → [`zcc.acceptable-use:localization`](kb:zcc.acceptable-use:localization); `zcc-27` → [`zcc.notifications.templates:posture-failure-notification`](kb:zcc.notifications.templates:posture-failure-notification); `zcc-28` → [`zcc.notifications:cert-trust-ux`](kb:zcc.notifications:cert-trust-ux); `zcc-29` → [`zcc.notifications:delivery-logging`](kb:zcc.notifications:delivery-logging); `zcc-30` → [`zcc.notifications.localization:fallback-language`](kb:zcc.notifications.localization:fallback-language); `zcc-31` → [`zcc.notifications.framework:platform-support`](kb:zcc.notifications.framework:platform-support); `zcc-32` → [`zcc.notifications.framework:platform-support`](kb:zcc.notifications.framework:platform-support); `zcc-33` → [`zcc.api.company-wire:set-company-info-go`](kb:zcc.api.company-wire:set-company-info-go); `zcc-34` → [`zcc.support-options:toggle-defaults`](kb:zcc.support-options:toggle-defaults); `zcc-35` → [`zcc.api.web-policy-wire:ui-capture-password-keys`](kb:zcc.api.web-policy-wire:ui-capture-password-keys); `zcc-36` → [`zcc.support-options:bundle-contents`](kb:zcc.support-options:bundle-contents); `zcc-37` → [`zcc.support-options:bundle-contents`](kb:zcc.support-options:bundle-contents); `zcc-38` → [`zcc.support-options:submission-audit`](kb:zcc.support-options:submission-audit); `zcc-39` → [`zcc.firefox.integration:linux`](kb:zcc.firefox.integration:linux); `zcc-40` → [`zcc.firefox.proxy-and-trust:enterprise-roots`](kb:zcc.firefox.proxy-and-trust:enterprise-roots); `zcc-41` → [`zcc.firefox.integration:preference-keys`](kb:zcc.firefox.integration:preference-keys); `zcc-42` → [`zcc.firefox.integration:upgrade-persistence`](kb:zcc.firefox.integration:upgrade-persistence); `zcc-43` → [`zcc.firefox.integration:version-scope`](kb:zcc.firefox.integration:version-scope); `zcc-44` → [`zcc.acceptable-use:redisplay-on-change`](kb:zcc.acceptable-use:redisplay-on-change); `zcc-45` → [`zcc.acceptable-use:decline-and-variants`](kb:zcc.acceptable-use:decline-and-variants); `zcc-46` → [`zcc.acceptable-use:external-links`](kb:zcc.acceptable-use:external-links); `zcc-47` → [`zcc.acceptable-use:decline-and-variants`](kb:zcc.acceptable-use:decline-and-variants); `zcc-48` → [`zcc.acceptable-use:decline-and-variants`](kb:zcc.acceptable-use:decline-and-variants); `zcc-49` → [`zcc.acceptable-use:min-agent-version`](kb:zcc.acceptable-use:min-agent-version); `zcc-50` → [`zcc.acceptable-use:notification-templates-mode`](kb:zcc.acceptable-use:notification-templates-mode); `zcc-51` → [`zcc.acceptable-use:acceptance-logging`](kb:zcc.acceptable-use:acceptance-logging); `zcc-52` → [`zcc.acceptable-use:localization`](kb:zcc.acceptable-use:localization); `zcc-53` → [`zcc.acceptable-use:message-size`](kb:zcc.acceptable-use:message-size); `zcc-54` → [`zcc.acceptable-use:non-interactive-sessions`](kb:zcc.acceptable-use:non-interactive-sessions); `zcc-55` → [`zcc.acceptable-use:config-propagation`](kb:zcc.acceptable-use:config-propagation); `zcc-56` → [`zcc.logging.log-modes:default-mode`](kb:zcc.logging.log-modes:default-mode); `zcc-57` → [`zcc.logging.log-modes:level-vs-mode`](kb:zcc.logging.log-modes:level-vs-mode); `zcc-58` → [`zcc.app-profiles.logging:log-file-size`](kb:zcc.app-profiles.logging:log-file-size); `zcc-59` → [`zcc.web-privacy.collection:unmapped-keys`](kb:zcc.web-privacy.collection:unmapped-keys); `zcc-60` → [`zcc.logging.collection:os-log-integration`](kb:zcc.logging.collection:os-log-integration); `zcc-61` → [`zcc.logging.collection:os-log-integration`](kb:zcc.logging.collection:os-log-integration); `zcc-62` → [`zcc.logging.collection:os-log-integration`](kb:zcc.logging.collection:os-log-integration); `zcc-63` → [`zcc.logging.collection:os-log-integration`](kb:zcc.logging.collection:os-log-integration); `zcc-64` → [`zcc.logging.user-access:ios-log-access`](kb:zcc.logging.user-access:ios-log-access); `zcc-65` → [`zcc.support-options:bundle-contents`](kb:zcc.support-options:bundle-contents); `zcc-66` → [`zcc.logs.client-log:file-format`](kb:zcc.logs.client-log:file-format); `zcc-67` → [`zcc.logs.client-log:transaction-records`](kb:zcc.logs.client-log:transaction-records); `zcc-68` → [`zcc.logging.collection:log-locations`](kb:zcc.logging.collection:log-locations); `zcc-69` → [`zcc.logging.collection:os-log-integration`](kb:zcc.logging.collection:os-log-integration); `zcc-70` → [`zcc.logging.collection:os-log-integration`](kb:zcc.logging.collection:os-log-integration); `zcc-71` → [`zcc.logging.collection:os-log-integration`](kb:zcc.logging.collection:os-log-integration); `zcc-72` → [`zcc.logging.collection:fetch-logs-permission`](kb:zcc.logging.collection:fetch-logs-permission); `zcc-73` → [`zcc.api.conventions:status-500-label`](kb:zcc.api.conventions:status-500-label); `zcc-74` → [`zcc.troubleshooting:generic-legacy-codes`](kb:zcc.troubleshooting:generic-legacy-codes); `zcc-75` → [`zcc.install.macos-extensions:unapproved-extension`](kb:zcc.install.macos-extensions:unapproved-extension); `zcc-76` → [`zcc.passwords-and-otp.otp:otp-expiry`](kb:zcc.passwords-and-otp.otp:otp-expiry); `zcc-77` → [`zcc.api.web-policy-wire:top-vs-nested-precedence`](kb:zcc.api.web-policy-wire:top-vs-nested-precedence); `zcc-78` → [`zcc.api.web-policy-wire:devicetype-precedence`](kb:zcc.api.web-policy-wire:devicetype-precedence); `zcc-79` → [`zcc.api.web-policy-wire:selected-required`](kb:zcc.api.web-policy-wire:selected-required); `zcc-80` → [`zcc.api.trusted-networks-wire:v1-v2-coexistence`](kb:zcc.api.trusted-networks-wire:v1-v2-coexistence); `zcc-81` → [`zcc.devices.record-fields:zd-vs-zdp`](kb:zcc.devices.record-fields:zd-vs-zdp); `zcc-82` → [`zcc.devices.record-fields:registration-state-vs-state`](kb:zcc.devices.record-fields:registration-state-vs-state); `zcc-83` → [`zcc.devices.record-fields:state-wire-type`](kb:zcc.devices.record-fields:state-wire-type); `zcc-84` → [`zcc.forwarding-profiles:unified-tunnel-semantics`](kb:zcc.forwarding-profiles:unified-tunnel-semantics); `zcc-85` → [`zcc.forwarding-profiles.fail-open:precedence-detail`](kb:zcc.forwarding-profiles.fail-open:precedence-detail); `zcc-86` → [`zcc.sdk-python.return-shapes:web-privacy-get-none`](kb:zcc.sdk-python.return-shapes:web-privacy-get-none); `zcc-87` → [`zcc.sdk-python.client-configuration:oneapi-429-headers`](kb:zcc.sdk-python.client-configuration:oneapi-429-headers); `zcc-88` → [`zcc.api.web-policy-wire:mac-block-read-key`](kb:zcc.api.web-policy-wire:mac-block-read-key); `zcc-89` → [`zcc.api.web-policy-wire:scope-keys-on-read`](kb:zcc.api.web-policy-wire:scope-keys-on-read); `zcc-90` → [`zcc.api.web-policy-wire:devicetype-string-on-read`](kb:zcc.api.web-policy-wire:devicetype-string-on-read); `zcc-91` → [`zcc.support-options:toggle-defaults`](kb:zcc.support-options:toggle-defaults); `zcc-92` → [`zcc.passwords-and-otp.password-api:surface-authority`](kb:zcc.passwords-and-otp.password-api:surface-authority); `zcc-93` → [`zcc.passwords-and-otp.app-profile-passwords:macos-password-key-asymmetry`](kb:zcc.passwords-and-otp.app-profile-passwords:macos-password-key-asymmetry); `zcc-94` → [`zcc.passwords-and-otp.app-profile-passwords:ui-gate-per-os`](kb:zcc.passwords-and-otp.app-profile-passwords:ui-gate-per-os); `zcc-95` → [`zcc.trusted-networks.detection:transition-handling`](kb:zcc.trusted-networks.detection:transition-handling); `zcc-96` → [`zcc.trusted-networks.detection:multiple-networks`](kb:zcc.trusted-networks.detection:multiple-networks); `zcc-97` → [`zcc.forwarding-profiles.assignment:orphan-reference`](kb:zcc.forwarding-profiles.assignment:orphan-reference); `zcc-98` → [`zcc.api.web-policy-wire:join-on-read`](kb:zcc.api.web-policy-wire:join-on-read); `zcc-99` → [`zcc.app-profiles.advanced-settings:drop-quic`](kb:zcc.app-profiles.advanced-settings:drop-quic); `zcc-100` → [`zcc.forwarding-profiles.internet-actions:ipv6-flags`](kb:zcc.forwarding-profiles.internet-actions:ipv6-flags); `zcc-101` → [`zcc.z-tunnel.transport:session-internals`](kb:zcc.z-tunnel.transport:session-internals); `log-21` → [`zcc.logging.log-modes:level-vs-mode`](kb:zcc.logging.log-modes:level-vs-mode).; `cloud-connector-01` → [`cloud-connector.workload-discovery.regions:region-status-representation`](kb:cloud-connector.workload-discovery.regions:region-status-representation); `cloud-connector-02` → [`cloud-connector.workload-discovery:cloudformation-body`](kb:cloud-connector.workload-discovery:cloudformation-body); `cloud-connector-03` → [`cloud-connector.source-ip-groups:size-and-count-limits`](kb:cloud-connector.source-ip-groups:size-and-count-limits); `cloud-connector-04` → [`cloud-connector.source-ip-groups:ipv6-entries`](kb:cloud-connector.source-ip-groups:ipv6-entries); `cloud-connector-05` → [`cloud-connector.source-ip-groups.rule-use:exclusion-applicability`](kb:cloud-connector.source-ip-groups.rule-use:exclusion-applicability); `cloud-connector-06` → [`cloud-connector.source-ip-groups:zia-origin-editability`](kb:cloud-connector.source-ip-groups:zia-origin-editability); `cloud-connector-07` → [`cloud-connector.overview.zero-trust-gateways:no-infrastructure`](kb:cloud-connector.overview.zero-trust-gateways:no-infrastructure); `cloud-connector-08` → [`cloud-connector.overview.gateway-failover:fail-open-egress`](kb:cloud-connector.overview.gateway-failover:fail-open-egress); `cloud-connector-09` → [`cloud-connector.forwarding.methods:method-semantics`](kb:cloud-connector.forwarding.methods:method-semantics); `cloud-connector-10` → [`cloud-connector.forwarding.rule-order:rank-and-rule-limit`](kb:cloud-connector.forwarding.rule-order:rank-and-rule-limit); `cloud-connector-11` → [`cloud-connector.dns.policies:response-overwrite`](kb:cloud-connector.dns.policies:response-overwrite); `cloud-connector-12` → [`cloud-connector.dns.policies:criteria-tunnel-doh`](kb:cloud-connector.dns.policies:criteria-tunnel-doh); `cloud-connector-13` → [`cloud-connector.dns.gateways:failover-default-ipv6`](kb:cloud-connector.dns.gateways:failover-default-ipv6); `cloud-connector-14` → [`cloud-connector.terraform.gateways:dns-gateway-type-semantics`](kb:cloud-connector.terraform.gateways:dns-gateway-type-semantics); `cloud-connector-15` → [`cloud-connector.terraform.gateways:subcloud-backend`](kb:cloud-connector.terraform.gateways:subcloud-backend); `cloud-connector-16` → [`cloud-connector.terraform.provider-config:legacy-mode-rule-resources`](kb:cloud-connector.terraform.provider-config:legacy-mode-rule-resources); `cloud-connector-17` → [`cloud-connector.terraform.forwarding-rules:local-switch-wire-value`](kb:cloud-connector.terraform.forwarding-rules:local-switch-wire-value); `cloud-connector-18` → [`cloud-connector.api.partner-integrations-wire:azure-gcp-rest-family`](kb:cloud-connector.api.partner-integrations-wire:azure-gcp-rest-family); `cloud-connector-19` → [`cloud-connector.terraform.provider-config:fedramp-live-acceptance`](kb:cloud-connector.terraform.provider-config:fedramp-live-acceptance); `cloud-connector-20` → [`cloud-connector.nss-va.servers:active-active`](kb:cloud-connector.nss-va.servers:active-active); `cloud-connector-21` → [`cloud-connector.insights.analytics:byte-count-parity`](kb:cloud-connector.insights.analytics:byte-count-parity); `cloud-connector-22` → [`cloud-connector.regions.deployment:standard-cc-regions`](kb:cloud-connector.regions.deployment:standard-cc-regions); `cloud-connector-23` → [`cloud-connector.api.rules-wire:local-switch-acceptance`](kb:cloud-connector.api.rules-wire:local-switch-acceptance); `cloud-connector-24` → [`cloud-connector.forwarding.log-and-control:limit-enforcement`](kb:cloud-connector.forwarding.log-and-control:limit-enforcement); `cloud-connector-25` → [`cloud-connector.api.conventions:default-response-semantics`](kb:cloud-connector.api.conventions:default-response-semantics); `cloud-connector-26` → [`cloud-connector.terraform.forwarding-rules:rule-labels`](kb:cloud-connector.terraform.forwarding-rules:rule-labels); `cloud-connector-27` → [`cloud-connector.regions.zero-trust-gateways:eu-central-2`](kb:cloud-connector.regions.zero-trust-gateways:eu-central-2); `cloud-connector-28` → [`cloud-connector.gcp.mig-autoscaling:resource-sync-default`](kb:cloud-connector.gcp.mig-autoscaling:resource-sync-default); `cloud-connector-29` → [`cloud-connector.overview.zero-trust-gateways:azure-availability`](kb:cloud-connector.overview.zero-trust-gateways:azure-availability); `log-22` → [`cloud-connector.insights.connector-status:vm-status-codes`](kb:cloud-connector.insights.connector-status:vm-status-codes); `shared-06` → [`shared.policy-evaluation:zpa-disabled-rule`](kb:shared.policy-evaluation:zpa-disabled-rule); `shared-07` → [`shared.multi-cluster:flow-stickiness`](kb:shared.multi-cluster:flow-stickiness); `shared-08` → [`shared.multi-cluster:auth-state`](kb:shared.multi-cluster:auth-state); `shared-09` → [`shared.multi-cluster:vip-failure-detection`](kb:shared.multi-cluster:vip-failure-detection); `shared-10` → [`shared.multi-cluster:ztunnel2`](kb:shared.multi-cluster:ztunnel2); `shared-11` → [`shared.multi-cluster:other-clouds`](kb:shared.multi-cluster:other-clouds); `shared-12` → [`shared.m365.troubleshooting:ca-evaluation-timing`](kb:shared.m365.troubleshooting:ca-evaluation-timing); `shared-13` → [`shared.m365.troubleshooting:cae-interaction`](kb:shared.m365.troubleshooting:cae-interaction); `shared-14` → [`shared.m365.troubleshooting:connectors-down`](kb:shared.m365.troubleshooting:connectors-down); `shared-15` → [`shared.m365.troubleshooting:egress-address-drift`](kb:shared.m365.troubleshooting:egress-address-drift); `shared-16` → [`shared.m365.troubleshooting:named-location-cap`](kb:shared.m365.troubleshooting:named-location-cap); `shared-17` → [`shared.cloud-architecture.service-edges:selection-algorithm`](kb:shared.cloud-architecture.service-edges:selection-algorithm); `shared-18` → [`shared.cloud-architecture.service-edges:auth-timeline`](kb:shared.cloud-architecture.service-edges:auth-timeline); `shared-19` → [`shared.policy-evaluation:modern-http`](kb:shared.policy-evaluation:modern-http); `shared-20` → [`shared.cloud-architecture.failure-domains:source-ip-change-mid-session`](kb:shared.cloud-architecture.failure-domains:source-ip-change-mid-session); `shared-21` → [`shared.cloud-architecture.service-edges:workload-identity`](kb:shared.cloud-architecture.service-edges:workload-identity); `shared-22` → [`shared.log-correlation.zia-zpa-join:cross-dc-sessions`](kb:shared.log-correlation.zia-zpa-join:cross-dc-sessions); `shared-23` → [`zia.traffic-forwarding.pac:delivery-methods`](kb:zia.traffic-forwarding.pac:delivery-methods); `shared-24` → [`zia.traffic-forwarding.pac:client-cache`](kb:zia.traffic-forwarding.pac:client-cache); `shared-25` → [`zia.traffic-forwarding.pac:auth-challenge-behavior`](kb:zia.traffic-forwarding.pac:auth-challenge-behavior); `shared-26` → [`shared.pac-files.coverage:non-browser-clients`](kb:shared.pac-files.coverage:non-browser-clients); `shared-27` → [`shared.pac-files.coverage:ipv6`](kb:shared.pac-files.coverage:ipv6); `shared-28` → [`zia.scim.sdk-coverage:python-none`](kb:zia.scim.sdk-coverage:python-none); `shared-29` → [`shared.analytics.graphql-errors-and-limits:rate-limits`](kb:shared.analytics.graphql-errors-and-limits:rate-limits); `shared-30` → [`shared.analytics.graphql:production-introspection`](kb:shared.analytics.graphql:production-introspection); `shared-31` → [`shared.analytics.graphql-queries:pagination`](kb:shared.analytics.graphql-queries:pagination); `shared-32` → [`shared.analytics.graphql-queries:obfuscated-source`](kb:shared.analytics.graphql-queries:obfuscated-source); `shared-33` → [`shared.analytics.graphql-queries:iot-time-range`](kb:shared.analytics.graphql-queries:iot-time-range); `shared-34` → [`shared.analytics.graphql:zdx-linkage`](kb:shared.analytics.graphql:zdx-linkage); `shared-35` → [`shared.analytics.graphql-queries:mutations`](kb:shared.analytics.graphql-queries:mutations); `shared-36` → [`shared.analytics.graphql-queries:bytes-unit`](kb:shared.analytics.graphql-queries:bytes-unit); `shared-37` → [`shared.audit-logs:trace-id-propagation`](kb:shared.audit-logs:trace-id-propagation); `shared-39` → [`shared.secret-surfaces.revealed:zpa-shared-model-secrets`](kb:shared.secret-surfaces.revealed:zpa-shared-model-secrets); `shared-40` → [`shared.mcp-server.tool-inventory:prd-alias-set`](kb:shared.mcp-server.tool-inventory:prd-alias-set)
 
 The 2026-06-18 Automate-contract / rosetta closure pass narrowed several
 previously open source-surface questions without settling their runtime
@@ -202,19 +202,11 @@ families.
 | [`shared-04`](#shared-04-snapshot-auth-pattern) | Credentials via env vars; no `.env` convention |
 | [`shared-05`](#shared-05-snapshot-format) | Raw JSON per resource; no paraphrasing |
 | [`zpa-48`](#zpa-48-pse-provisioning-key-apiterraform-support) | PSE provisioning keys are supported through the generic Terraform resource |
-| [`cloud-connector-07`](#cloud-connector-07-ztg-vs-cloud-connector-group-type-semantics) | AWS and GCP ZTG are Zscaler-managed services; standard Cloud Connector is the customer-deployed VM path |
 
 ### Partially resolved
 
 | ID | Title | What's still open |
 |---|---|---|
-| [`shared-17`](#shared-17-public-service-edge-selection-algorithm) | Public Service Edge selection algorithm | Selection-signal weighting, failover timing, and DC-exclusion mechanics remain open |
-| [`shared-18`](#shared-18-end-to-end-authentication-timeline-across-the-request-chain) | End-to-end authentication timeline across the request chain | Auth-source precedence, surrogate-IP clock anchoring, and trusted-network transitions remain open |
-| [`shared-19`](#shared-19-modern-http-response-side-re-evaluation-http2-websocket-http3-streaming-rpc) | Modern HTTP response-side re-evaluation | Per-stream and non-DLP inspection semantics for modern protocols remain open |
-| [`shared-40`](#shared-40-oneapi-entitlement-prd-aliases-for-ztw-zid-and-zins) | OneAPI entitlement aliases for `ztw`, `zid`, and `zins` | The three observed aliases are mapped and tested; a complete cross-tenant alias taxonomy remains unpublished |
-| [`cloud-connector-09`](#cloud-connector-09-forwarding-method-semantics-and-the-true-backend-forwardmethod-enum) | `ENATDEDIP`/`GEOIP`/`PROXYCHAIN` semantics + true `forwardMethod` enum | Automate contract now gives an independent contract enum and records Terraform disagreement; runtime semantics and backend acceptance remain open |
-| [`cloud-connector-18`](#cloud-connector-18-ztw-api-surface-gaps-endpoint-paths-azuregcp-discovery-automation-go-zidentity-auth) | ZTW API paths, cloud discovery, and Go auth | Admin/role, activation, Azure discovery, and Go OAuth paths are resolved; only a public GCP discovery REST family remains open |
-| [`cloud-connector-22`](#cloud-connector-22-cc-region-coverage-govcloud-china-gcp-deployment-and-wds-vs-ztg-region-set-parity) | CC region coverage and deployment boundaries | GCP ZTG regions and standard deployment architecture are documented; standard-CC regions, WDS/ZTG parity, sovereign clouds, VM-size regionality, and Azure Flex gaps remain open |
 | [`zdx-35`](#zdx-35-share_snapshot-obfuscation-transmission) | `share_snapshot` obfuscation transmission | Automate contract now confirms `obfuscation` is a request-body field; Python wrapper transmission remains open |
 | [`ai-security-04`](#ai-security-04-ai-guard-admin-plane-programmability) | AI Guard admin-plane programmability | Current Automate publishes 47 operations; Python has 39 callable methods, with remaining wrapper gaps and live acceptance unresolved |
 | [`zbi-02`](#zbi-02-cbizpaprofile-vs-isolationprofile-preferred-endpoint) | `cbizpaprofile` vs `isolationprofile` preferred endpoint | Automate contract confirms both paths are first-class documented GET operations; preference and runtime divergence remain open |
@@ -225,20 +217,17 @@ families.
 ### Open
 
 - **zia**: `zia-65`, `zia-70`
-- **log**: `log-22`
 - **zpa**: `zpa-09`–`zpa-10`, `zpa-73`–`zpa-75`
-- **shared**: `shared-06`–`shared-16`, `shared-20`–`shared-37`, `shared-39`
 - **zdx**: `zdx-01`–`zdx-34`, `zdx-36`–`zdx-44`
 - **zms**: `zms-01`
-- **easm**: `easm-01`, `easm-02`
-- **cloud-connector**: `cloud-connector-01`–`cloud-connector-06`, `cloud-connector-08`, `cloud-connector-10`–`cloud-connector-17`, `cloud-connector-19`–`cloud-connector-21`, `cloud-connector-23`–`cloud-connector-29`
+- **easm**: `easm-01`–`easm-02`
 - **zid**: `zid-01`–`zid-36`
 - **ai-security**: `ai-security-01`–`ai-security-03`, `ai-security-06`–`ai-security-09`
 - **risk360**: `risk360-01`, `risk360-02`
 - **breach-predictor**: `breach-predictor-01`
 - **uvm**: `uvm-01`
 - **dspm**: `dspm-01`
-- **zbi**: `zbi-01`, `zbi-05`, `zbi-06`
+- **zbi**: `zbi-01`, `zbi-05`–`zbi-06`
 - **zwa**: `zwa-01`–`zwa-05`
 - **business-insights**: `business-insights-01`
 - **soc-workbench**: `soc-workbench-01`
@@ -246,7 +235,7 @@ families.
 - **aem**: `aem-01`
 - **deception**: `deception-01`
 - **identity-protection**: `identity-protection-01`
-- **zero-trust-branch**: `zero-trust-branch-01`, `zero-trust-branch-02`
+- **zero-trust-branch**: `zero-trust-branch-01`–`zero-trust-branch-02`
 - **zscaler-cellular**: `zscaler-cellular-02`–`zscaler-cellular-04`
 
 ### Refresh history
@@ -490,39 +479,39 @@ The ZIdentity refresh (2026-06-15) registered these open behavior questions from
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
-`shared-17`, `shared-18`, `shared-19` — partially resolved by 2026-05-06 doc sweep (refined further the same day). Existing-doc backing now covers: Service Edge re-evaluation triggers + **subcloud override mechanics fully resolved** via `references/shared/subclouds.md`; ZIA auth-frequency + surrogate-IP TTL fields and dependency rules + **ZIdentity step-up timing fully resolved** as synchronous via `vendor/zscaler-help/understanding-step-up-authentication.json`; QUIC handling with ZTunnel-mode interaction, HTTP/2 enable toggle + Bandwidth Control fallback, WebSocket DLP Copilot-only carveout. The remaining sub-questions narrowed substantially: selection-signal weighting and DC-exclusion mechanics (shared-17), surrogate IP clock anchor + auth-source decision tree + trusted-network-transition behavior (shared-18), HTTP/2 per-stream re-evaluation + WebSocket non-DLP inspection coverage + gRPC/SSE/chunked behavior (shared-19).
+`shared-17`, `shared-18`, `shared-19` — partially resolved by 2026-05-06 doc sweep (refined further the same day). Existing-doc backing now covers: Service Edge re-evaluation triggers + **subcloud override mechanics fully resolved** via `node scripts/kb.mjs resolve shared.subclouds`; ZIA auth-frequency + surrogate-IP TTL fields and dependency rules + **ZIdentity step-up timing fully resolved** as synchronous via `vendor/zscaler-help/understanding-step-up-authentication.json`; QUIC handling with ZTunnel-mode interaction, HTTP/2 enable toggle + Bandwidth Control fallback, WebSocket DLP Copilot-only carveout. The remaining sub-questions narrowed substantially: selection-signal weighting and DC-exclusion mechanics (shared-17), surrogate IP clock anchor + auth-source decision tree + trusted-network-transition behavior (shared-18), HTTP/2 per-stream re-evaluation + WebSocket non-DLP inspection coverage + gRPC/SSE/chunked behavior (shared-19).
 
 The Cloud & Branch Connector (ZTW) deep-dive refresh (2026-06-15) added these open behavior questions — each links to its detailed entry below:
 
 | ID | Title | Resolves with |
 |---|---|---|
-| [`cloud-connector-01`](#cloud-connector-01-per-region-status-representation-regionstatusstatus) | Per-region `status` representation (boolean vs four console strings) | code read / lab test |
-| [`cloud-connector-02`](#cloud-connector-02-aws-workload-discovery-cloudformation-body-eventbridge-iam-sqs) | AWS workload-discovery CloudFormation body (EventBridge / IAM / SQS) | zscaler doc not yet read / operator experience |
-| [`cloud-connector-03`](#cloud-connector-03-source-ip-group-size-and-count-limits) | Source IP group member + per-tenant count limits | support ticket / lab test |
-| [`cloud-connector-04`](#cloud-connector-04-ipv6-entries-in-ztc_ip_source_groups-vs-a-separate-ipv6-group-object) | IPv6 entries in `ztc_ip_source_groups` vs separate IPv6 group object | lab test / code read |
-| [`cloud-connector-05`](#cloud-connector-05-source_ip_group_exclusion-applicability-to-cloud-branch-connector) | `source_ip_group_exclusion` applicability to CC | lab test |
-| [`cloud-connector-06`](#cloud-connector-06-zia-origin-source-groups-editability-from-ztc-and-lite-payload-shape) | ZIA-origin group editability from ZTC + `/lite` payload shape | lab test / zscaler doc not yet read |
-| [`cloud-connector-08`](#cloud-connector-08-ha-mechanics-cchealth-port-fail-openclose-toggle-fail-open-egress-path) | HA: `?cchealth` port, fail-open/close toggle path, fail-open egress | lab test / zscaler doc not yet read |
-| [`cloud-connector-09`](#cloud-connector-09-forwarding-method-semantics-and-the-true-backend-forwardmethod-enum) | `ENATDEDIP`/`GEOIP`/`PROXYCHAIN` semantics + true `forwardMethod` enum | lab test / Postman cross-check |
-| [`cloud-connector-10`](#cloud-connector-10-forwarding-rule-count-limit-and-admin-rank-rule-order-interaction) | Forwarding rule-count limit + Admin Rank ↔ Rule Order interaction | support ticket / lab test |
-| [`cloud-connector-11`](#cloud-connector-11-overwrite-dns-response-does-a-response-rewrite-action-exist-at-all) | "Overwrite DNS response" — does a response-rewrite action exist | zscaler doc not yet read / lab test |
-| [`cloud-connector-12`](#cloud-connector-12-dns-rule-ui-match-criteria-tunnel-detection-and-doh-interception-not-in-the-sdk) | DNS rule UI criteria / tunnel detection / DoH interception not in SDK | zscaler doc not yet read / lab test |
-| [`cloud-connector-13`](#cloud-connector-13-dns-gateway-failover-order-default-gateway-config-and-ipv6-on-referenced-resolvers) | DNS gateway failover order / default gateway / IPv6 resolvers | lab test / zscaler doc not yet read |
-| [`cloud-connector-14`](#cloud-connector-14-duplicate-dns-gateway-packages-and-the-type-field-semantics) | Duplicate DNS gateway packages + `type` field semantics | lab test / code read |
-| [`cloud-connector-15`](#cloud-connector-15-subcloud_primarysecondary-backend-behavior-for-cc-dc-proxies) | `subcloud_primary`/`secondary` backend behavior for CC DC proxies | lab test |
-| [`cloud-connector-16`](#cloud-connector-16-ztc_traffic_forwarding_rule-oneapi-requirement-and-zpa-app-segment-id-equivalence) | `ztc_traffic_forwarding_rule` OneAPI requirement + ZPA segment-ID parity | lab test |
-| [`cloud-connector-17`](#cloud-connector-17-local-local_switch-forwarding-method-real-behavior-or-doc-artifact) | "Local" / `LOCAL_SWITCH` forwarding method — real or doc artifact | lab test / Postman cross-check |
-| [`cloud-connector-18`](#cloud-connector-18-ztw-api-surface-gaps-endpoint-paths-azuregcp-discovery-automation-go-zidentity-auth) | ZTW API gap: public GCP discovery REST family | vendor API documentation / lab test |
-| [`cloud-connector-19`](#cloud-connector-19-ztw-sdk-method-convention-anomalies-and-oneapi-fedramp-behavior) | ZTW SDK method-convention anomalies + OneAPI FedRAMP behavior | code read / release note / lab test |
-| [`cloud-connector-20`](#cloud-connector-20-nss-va-for-cbc-feed-coverage-sizing-certs-ha-and-rule-match-semantics) | NSS VA for CBC: feed coverage / sizing / certs / HA / rule-match | zscaler doc not yet read / lab test |
-| [`cloud-connector-21`](#cloud-connector-21-insightstunnel-insights-aggregation-and-byte-count-parity-with-nss-feeds) | Insights/Tunnel-Insights aggregation + byte-count parity with NSS feeds | lab test / zscaler doc not yet read |
-| [`cloud-connector-22`](#cloud-connector-22-cc-region-coverage-govcloud-china-gcp-deployment-and-wds-vs-ztg-region-set-parity) | CC region coverage: standard deployment / sovereign clouds / WDS-vs-ZTG parity | tenant read / support ticket / cloud Marketplace checks |
-| [`cloud-connector-23`](#cloud-connector-23-dest_workload_groups_ids-binding-to-local_switch-local) | `dest_workload_groups_ids` binding to `LOCAL_SWITCH` / "Local" | lab test |
-| [`cloud-connector-24`](#cloud-connector-24-field-character-limit-enforcement-on-dns-and-log-and-control-rules) | Field character-limit enforcement on DNS / Log-and-Control rules | lab test / zscaler doc not yet read |
-| [`cloud-connector-25`](#cloud-connector-25-zcloudconnector-default-response-success-schema-semantics) | ZCloudConnector default-response success schema semantics | vendor spec / live response |
-| [`cloud-connector-26`](#cloud-connector-26-ztc_traffic_forwarding_rule-label-support) | `ztc_traffic_forwarding_rule` label support | provider source update / lab test |
-| [`cloud-connector-27`](#cloud-connector-27-eu-central-2-ztg-region-source-conflict) | `eu-central-2` ZTG region source conflict | Help capture / vendor clarification |
-| [`cloud-connector-28`](#cloud-connector-28-gcp-resource-sync-default-cadence-help-vs-terraform-module) | GCP Resource Sync default cadence: Help vs Terraform module | vendor clarification |
+| [`cloud-connector-01`](kb:cloud-connector.workload-discovery.regions:region-status-representation) | Per-region `status` representation (boolean vs four console strings) | code read / lab test |
+| [`cloud-connector-02`](kb:cloud-connector.workload-discovery:cloudformation-body) | AWS workload-discovery CloudFormation body (EventBridge / IAM / SQS) | zscaler doc not yet read / operator experience |
+| [`cloud-connector-03`](kb:cloud-connector.source-ip-groups:size-and-count-limits) | Source IP group member + per-tenant count limits | support ticket / lab test |
+| [`cloud-connector-04`](kb:cloud-connector.source-ip-groups:ipv6-entries) | IPv6 entries in `ztc_ip_source_groups` vs separate IPv6 group object | lab test / code read |
+| [`cloud-connector-05`](kb:cloud-connector.source-ip-groups.rule-use:exclusion-applicability) | `source_ip_group_exclusion` applicability to CC | lab test |
+| [`cloud-connector-06`](kb:cloud-connector.source-ip-groups:zia-origin-editability) | ZIA-origin group editability from ZTC + `/lite` payload shape | lab test / zscaler doc not yet read |
+| [`cloud-connector-08`](kb:cloud-connector.overview.gateway-failover:fail-open-egress) | HA: `?cchealth` port, fail-open/close toggle path, fail-open egress | lab test / zscaler doc not yet read |
+| [`cloud-connector-09`](kb:cloud-connector.forwarding.methods:method-semantics) | `ENATDEDIP`/`GEOIP`/`PROXYCHAIN` semantics + true `forwardMethod` enum | lab test / Postman cross-check |
+| [`cloud-connector-10`](kb:cloud-connector.forwarding.rule-order:rank-and-rule-limit) | Forwarding rule-count limit + Admin Rank ↔ Rule Order interaction | support ticket / lab test |
+| [`cloud-connector-11`](kb:cloud-connector.dns.policies:response-overwrite) | "Overwrite DNS response" — does a response-rewrite action exist | zscaler doc not yet read / lab test |
+| [`cloud-connector-12`](kb:cloud-connector.dns.policies:criteria-tunnel-doh) | DNS rule UI criteria / tunnel detection / DoH interception not in SDK | zscaler doc not yet read / lab test |
+| [`cloud-connector-13`](kb:cloud-connector.dns.gateways:failover-default-ipv6) | DNS gateway failover order / default gateway / IPv6 resolvers | lab test / zscaler doc not yet read |
+| [`cloud-connector-14`](kb:cloud-connector.terraform.gateways:dns-gateway-type-semantics) | Duplicate DNS gateway packages + `type` field semantics | lab test / code read |
+| [`cloud-connector-15`](kb:cloud-connector.terraform.gateways:subcloud-backend) | `subcloud_primary`/`secondary` backend behavior for CC DC proxies | lab test |
+| [`cloud-connector-16`](kb:cloud-connector.terraform.provider-config:legacy-mode-rule-resources) | `ztc_traffic_forwarding_rule` OneAPI requirement + ZPA segment-ID parity | lab test |
+| [`cloud-connector-17`](kb:cloud-connector.terraform.forwarding-rules:local-switch-wire-value) | "Local" / `LOCAL_SWITCH` forwarding method — real or doc artifact | lab test / Postman cross-check |
+| [`cloud-connector-18`](kb:cloud-connector.api.partner-integrations-wire:azure-gcp-rest-family) | ZTW API gap: public GCP discovery REST family | vendor API documentation / lab test |
+| [`cloud-connector-19`](kb:cloud-connector.terraform.provider-config:fedramp-live-acceptance) | ZTW SDK method-convention anomalies + OneAPI FedRAMP behavior | code read / release note / lab test |
+| [`cloud-connector-20`](kb:cloud-connector.nss-va.servers:active-active) | NSS VA for CBC: feed coverage / sizing / certs / HA / rule-match | zscaler doc not yet read / lab test |
+| [`cloud-connector-21`](kb:cloud-connector.insights.analytics:byte-count-parity) | Insights/Tunnel-Insights aggregation + byte-count parity with NSS feeds | lab test / zscaler doc not yet read |
+| [`cloud-connector-22`](kb:cloud-connector.regions.deployment:standard-cc-regions) | CC region coverage: standard deployment / sovereign clouds / WDS-vs-ZTG parity | tenant read / support ticket / cloud Marketplace checks |
+| [`cloud-connector-23`](kb:cloud-connector.api.rules-wire:local-switch-acceptance) | `dest_workload_groups_ids` binding to `LOCAL_SWITCH` / "Local" | lab test |
+| [`cloud-connector-24`](kb:cloud-connector.forwarding.log-and-control:limit-enforcement) | Field character-limit enforcement on DNS / Log-and-Control rules | lab test / zscaler doc not yet read |
+| [`cloud-connector-25`](kb:cloud-connector.api.conventions:default-response-semantics) | ZCloudConnector default-response success schema semantics | vendor spec / live response |
+| [`cloud-connector-26`](kb:cloud-connector.terraform.forwarding-rules:rule-labels) | `ztc_traffic_forwarding_rule` label support | provider source update / lab test |
+| [`cloud-connector-27`](kb:cloud-connector.regions.zero-trust-gateways:eu-central-2) | `eu-central-2` ZTG region source conflict | Help capture / vendor clarification |
+| [`cloud-connector-28`](kb:cloud-connector.gcp.mig-autoscaling:resource-sync-default) | GCP Resource Sync default cadence: Help vs Terraform module | vendor clarification |
 
 ---
 
@@ -554,19 +543,9 @@ Admin Rank is an opt-in feature ("if you've enabled Admin Rank"); without it, ru
 Applies to ZIA URL Filtering, SSL Inspection, and other ZIA policy types that expose the Admin Rank field. ZPA access policies don't use the same admin-rank mechanism based on vendored material.
 
 ---
-### shared-06 — ZPA disabled-rule semantics
-
-*Origin: `references/shared/policy-evaluation.md` § Shared patterns*
-
-ZIA explicitly documents that a disabled URL filtering rule retains its order position and is simply skipped during evaluation (*Configuring the URL Filtering Policy* p.3). No equivalent statement is made in the vendored ZPA access-policy material. Whether a disabled ZPA rule behaves the same (skip-in-place) or differently (removed from the evaluation list entirely) is not stated.
-
-**Resolves with**: lab test OR zscaler doc not yet read (likely "Configuring Access Policies"). **Status**: open. **Low priority** — behavior is almost certainly parity with ZIA.
-
----
-
 ### shared-01 — SPL index naming portability
 
-*Origin: `references/shared/splunk-queries.md`*
+*Origin: `node scripts/kb.mjs resolve shared.splunk`*
 
 Our SPL patterns parameterize on `$INDEX_ZIA_WEB` / `$INDEX_ZPA` etc. Where those values come from in practice — env var, config file, pulled from overlay or IaC metadata — is undecided. Affects how we make SPL patterns tenant-portable when index naming varies between customers.
 
@@ -581,13 +560,13 @@ Rationale:
 - **Snapshot metadata is the wrong source** — snapshot captures Zscaler config, not SIEM config. Splunk index naming is external to Zscaler and can't be inferred from tenant dumps.
 - **Defaults in `splunk-queries.md`** — the reference doc shows patterns using the `zscaler_*` naming that is conventional out of the box from Zscaler's Splunk-TA; operators with non-default naming override per-pattern via env var.
 
-Threaded into `scripts/splunk-query.sh` header (documents the 4 env vars) and `references/shared/splunk-queries.md` (§ "Tenant-portable index naming" callout).
+Threaded into `scripts/splunk-query.sh` header (documents the 4 env vars) and `node scripts/kb.mjs resolve shared.splunk` (§ "Tenant-portable index naming" callout).
 
 ---
 
 ### shared-02 — Log-query latency budget
 
-*Origin: `references/shared/log-correlation.md`*
+*Origin: `node scripts/kb.mjs resolve shared.log-correlation`*
 
 We've said logs are a "validation layer" but haven't set an SLO: at what point does a log query get too slow to be worth waiting for (vs. replying "config says X, can validate on request")? Affects when the skill auto-queries vs. defers.
 
@@ -606,7 +585,7 @@ Rationale:
 - **Config-first answers degrade gracefully** — config reasoning is deterministic and fast; log-validation is the "verify" step, and operators can decide whether they want it based on the question's stakes.
 - **Pre-emptive log queries waste tenant query budget** — Splunk license / query quota is finite. The skill should never spend those cycles uninvited.
 
-Affects: `scripts/splunk-query.sh` is run-on-request by the operator; the skill's job is to produce the right SPL, not to run it. Threaded into `references/shared/log-correlation.md` § "When the skill recommends a log query vs answers from config".
+Affects: `scripts/splunk-query.sh` is run-on-request by the operator; the skill's job is to produce the right SPL, not to run it. Threaded into `node scripts/kb.mjs resolve shared.log-correlation` § "When the skill recommends a log query vs answers from config".
 
 ---
 
@@ -667,27 +646,6 @@ A paraphrased-markdown post-processing step remains an option for the future if 
 
 ---
 
-### log-22 — Cloud Connector `Status` flags and `UpgradeStatus` codes
-
-*Origin: `references/cloud-connector/logs/log-schema.md` § SDK/API state fields*
-
-The Go SDK `ECVMs` struct (`vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go`) exposes per-VM observability fields including:
-
-- `Status []string` — "Per-VM status flags" — slice of strings, but enum/value space undocumented
-- `UpgradeStatus int` — "Current upgrade state (0 = current; non-zero = in-progress or failed; exact codes undocumented)"
-
-For monitoring automation polling these fields, enum semantics matter:
-
-1. **`Status` flag set** — what flags exist? Are they health flags (`HEALTHY`, `DEGRADED`), tunnel flags (`ZIA_OK`, `ZPA_OK`), upgrade flags (`UPGRADING`), or a mix? Are flags additive (multiple coexist on a healthy VM) or mutually exclusive?
-2. **`UpgradeStatus` int → meaning** — `0` = current, but what do `1`, `2`, `3`, etc. represent? In-progress, failed, rollback-in-progress, requires-manual-action? Without the mapping, alerting on non-zero is too broad to be actionable.
-3. **Relationship to `OperationalStatus`** — `OperationalStatus` is `Active` / `Inactive` / `Disabled`. How does that interact with the `Status` flags? E.g., is `Active` + `Status=[DEGRADED]` a valid combination?
-
-For SIEM dashboards correlating CC health to traffic anomalies, knowing what each status code means is essential. Without it, dashboards either alert on every non-zero (noisy) or alert on nothing (missed signals).
-
-**Resolves with**: SDK behavior observation across known CC states (healthy, mid-upgrade, post-upgrade-failure) plus vendor doc on the value spaces. **Status**: open — 2026-05-06.
-
----
-
 ### zpa-10 — `policy_type` enum drift between data source and reorder resource
 
 *Origin: `scripts/find-asymmetries.py` Pass 1, intra-provider scan*
@@ -718,525 +676,6 @@ Possible explanations:
 2. **Profile validator is stale** and needs to be updated to accept API_PREDEFINED.
 
 **Resolves with**: lab test creating an `API_PREDEFINED` custom control and attempting to attach it to an inspection profile via the TF resource. If the API rejects it, explanation 1 holds; if accepted, the profile validator is stale. **Status**: open candidate. Threading deferred until lab confirms.
-
----
-
-### shared-07 — MCLS session-level stickiness
-
-*Origin: `references/shared/multi-cluster-load-sharing.md` § Session affinity*
-
-Whether the MCLS VIP pool provides per-flow stickiness (all packets of a single TCP flow land on the same service node), or whether a single flow can be distributed across nodes in different clusters. Impacts DLP large-object scanning and file reassembly accuracy.
-
-**Status**: open
-**Resolves with**: operator experience OR support ticket
-
----
-
-### shared-08 — MCLS cross-cluster auth state replication
-
-*Origin: `references/shared/multi-cluster-load-sharing.md` § Identity caching*
-
-When a user authenticated at one service node is subsequently routed to a node in a different cluster within the MCLS pool, whether the CA re-query is transparent (no user re-prompt) or triggers a visible re-authentication event. Likely varies by auth method (IP surrogacy, cookie, Kerberos, SAML).
-
-**Status**: open
-**Resolves with**: operator experience OR support ticket
-
----
-
-### shared-09 — MCLS VIP failure detection timeout
-
-*Origin: `references/shared/multi-cluster-load-sharing.md` § Failure modes*
-
-How long a ZCC or router-terminated GRE/IPSec tunnel takes to detect a full datacenter VIP failure before triggering failover or re-resolution. Not documented in MCLS or architecture vendor sources.
-
-**Status**: open
-**Resolves with**: operator experience OR support ticket
-**Blocks**: accurate failover SLA documentation for MCLS deployments
-
----
-
-### shared-10 — Z-Tunnel 2.0 interaction with MCLS
-
-*Origin: `references/shared/multi-cluster-load-sharing.md` § Traffic distribution*
-
-The MCLS documentation lists VPN VIPs but does not specify Z-Tunnel 2.0 explicitly. Whether Z-Tunnel 2.0 stateful TLS multiplexing interacts differently with cross-cluster LB forwarding compared to GRE/IPSec is unconfirmed.
-
-**Status**: open
-**Resolves with**: zscaler doc not yet read OR operator experience
-
----
-
-### shared-11 — Government cloud MCLS topology
-
-*Origin: `references/shared/multi-cluster-load-sharing.md` § Constraints*
-
-Whether `zscalergov` and `zspreview` clouds operate an equivalent MCLS model or a different cluster topology. Not documented in available sources.
-
-**Status**: open
-**Resolves with**: zscaler doc not yet read OR support ticket
-
----
-
-### shared-12 — Azure AD CA IP evaluation frequency
-
-*Origin: `references/shared/m365-conditional-access.md` § Open questions*
-
-Whether Azure AD Conditional Access re-evaluates source IP on every HTTP request or only at token-issuance time. The SIPA config guide states post-auth traffic uses a token and "does not require being redirected through Source IP Anchoring," implying token-based evaluation, but the exact CA re-evaluation model is Microsoft's documentation responsibility.
-
-**Status**: open
-**Resolves with**: zscaler doc not yet read (Microsoft Entra ID / Azure AD CA documentation) — Microsoft-side behavior
-
----
-
-### shared-13 — Azure AD CAE interaction with SIPA
-
-*Origin: `references/shared/m365-conditional-access.md` § Open questions*
-
-Whether Azure AD Continuous Access Evaluation (CAE) in tenants with IP-binding policies imposes more-frequent re-authentication and what the implications are for SIPA-anchored connections. Not addressed in any Zscaler vendor source reviewed.
-
-**Status**: open
-**Resolves with**: zscaler doc not yet read (Microsoft CAE documentation + Zscaler SIPA guidance)
-
----
-
-### shared-14 — SIPA fallback when all connectors are unhealthy
-
-*Origin: `references/shared/m365-conditional-access.md` § Open questions*
-
-Whether the predefined `Fallback mode of ZPA Forwarding` ZIA forwarding rule routes SIPA-destined M365 traffic to PSE egress or drops it when all connectors in the designated SIPA connector group are unhealthy. The predefined rule exists (see `kb:zia.forwarding-control.predefined-rules`) but its exact fallback action for SIPA traffic is not source-confirmed.
-
-**Status**: open
-**Resolves with**: lab test OR operator experience
-**Blocks**: accurate disaster-recovery documentation for SIPA deployments
-
----
-
-### shared-15 — App Connector public IP sync to Azure AD Named Locations
-
-*Origin: `references/shared/m365-conditional-access.md` § Open questions*
-
-Whether an automated mechanism exists (Zscaler-provided or third-party) to sync App Connector public IPs with Azure AD Named Locations when connector IPs change. Available vendor sources state this as operator responsibility only; no automation is documented.
-
-**Status**: open
-**Resolves with**: zscaler doc not yet read OR operator experience
-
----
-
-### shared-16 — Azure AD Named Locations IP range cap
-
-*Origin: `references/shared/m365-conditional-access.md` § Open questions*
-
-The maximum number of IP ranges supported per Azure AD Named Location object. This is a Microsoft constraint, not Zscaler's, and was not captured in available sources.
-
-**Status**: open
-**Resolves with**: zscaler doc not yet read (Microsoft Entra ID Named Locations documentation) — Microsoft-side constraint
-
----
-
-### shared-17 — Public Service Edge selection algorithm
-
-*Origin: chain-coverage review 2026-05-06 — request flow phase 3 (ZCC tunnel → Service Edge selection)*
-
-When a ZCC client establishes its tunnel, it connects to "the nearest Public Service Edge" — but the actual selection signals are not laid out in any captured Zscaler documentation. Operators investigating routing surprises ("traffic landing on a far-away Service Edge despite a closer one being available") need to know:
-
-1. **Selection signals** — Anycast-based BGP, geo-IP lookup of the ZCC client public IP, latency probing from ZCC, datacenter exclusion lists, tenant-pinned-cloud assignments, or some combination?
-2. **Failover behavior** when the selected Service Edge is unhealthy or congested — automatic re-selection? How fast? Cached for some duration?
-3. **Manual override hierarchy** — admin-pinned Service Edge in App Profile / Forwarding Profile vs ZCC's auto-selection; what wins?
-4. **Subcloud interaction** — for tenants assigned to a specific subcloud (e.g., `zscloud.net` vs `zscaler.net`), does selection happen within the subcloud's edge set only, or can ZCC fall back to a parent-cloud edge?
-5. **Government cloud / Air-gapped cloud restrictions** — `zscalergov` and `zscalerten` likely have stricter edge-set boundaries; not documented.
-
-This affects two operational questions: "why is user X's traffic on Service Edge Y instead of Z?" and "what happens when the customer's preferred edge is in a known outage?".
-
-**Doc sweep 2026-05-06** (partial resolution):
-
-- `vendor/zscaler-help/what-is-zscaler-client-connector.json` § Service Edge Selection and Re-evaluation: ZCC "regularly checks whether the current Public Service Edge is still optimal." Triggers documented: regular intervals (duration unspecified), network change (e.g., user moves Wi-Fi), app or device restart. Override options exist (specifics not extracted).
-- `references/shared/cloud-architecture.md` explicitly states: "Zscaler's 'advanced geo-IP resolution' routes traffic to the nearest edge; the algorithm itself isn't customer-documented." This is the architectural confirmation that the gap is real and Zscaler-side rather than a doc-capture miss.
-- `vendor/zscaler-help/zscaler-resilience-marketing.md` mentions "dynamic service edge selection and customer-controlled data center exclusion" as the brownout/blackout mitigation — confirming both autonomous selection and a customer-override mechanism (DC exclusion) exist, but doesn't specify either.
-- **Subcloud interaction is fully resolved** by `references/shared/subclouds.md` (Tier A, sourced from `vendor/zscaler-help/understanding-subclouds.json`):
-  - **Default Zscaler PSE selection is geolocation-based** — explicit statement in `subclouds.md`.
-  - **Subclouds OVERRIDE default geolocation selection entirely** — they restrict the eligible edge set to a named subset; geolocation no longer applies once a subcloud is in effect.
-  - **Constraint**: a subcloud cannot consist of PSEs in a single data center (≥ 2 DCs required for availability).
-  - **Mechanism**: clients resolve subcloud-qualified hosted-PAC variables (e.g., `gateway.subcloud.zscaler.net`) — there is no "preferred region" toggle separate from the subcloud abstraction.
-  - **Reasons**: GDPR/data-residency, private-DC-enforcement, surcharge-region opt-in.
-
-**Resolved by sweep**:
-
-- Trigger events that cause re-evaluation (regular intervals + network change + app/device restart).
-- Existence of both autonomous and customer-override paths.
-- **Subcloud-vs-default behavior** — subclouds REPLACE default geolocation selection within the subcloud's edge set; not a tie-break, not a preference, full override.
-- Subcloud minimum-DC constraint (≥ 2 DCs).
-
-**Still open after sweep**:
-
-- Specific selection signals within the eligible edge set (Anycast vs latency probe vs geo-IP — likely a combination but unweighted).
-- Re-evaluation interval duration.
-- Failover timing on edge unhealth.
-- DC-exclusion mechanism details — admin-portal location, per-tenant or per-app-profile, interaction with subclouds.
-- Government cloud (`zscalergov`, `zscalerten`) edge-set restrictions — likely stricter than commercial subcloud rules but unverified.
-
-**Resolves the rest with**: vendor doc on the selection algorithm and DC-exclusion mechanism, or lab observation across forced failure scenarios. **Status**: partially resolved — 2026-05-06.
-
----
-
-### shared-18 — End-to-end authentication timeline across the request chain
-
-*Origin: chain-coverage review 2026-05-06 — request flow phase 4 (Service Edge ingress + auth)*
-
-The skill has individual refs covering pieces of the auth timeline (`kb:zia.authentication` for the auth gate and frequency model, `kb:zia.authentication.surrogate-ip` for surrogate IP, `shared/oneapi.md` for OAuth, ZIdentity refs for step-up) but no consolidated walk-through of when each event fires across a request's lifetime.
-
-**Doc sweep 2026-05-06** (partial resolution):
-
-`kb:zia.authentication` already covers more than the original framing assumed:
-
-- **Auth-frequency enum is fully documented** with cookie semantics: `ALWAYS` (per browser session, cookie discarded at close), `DAILY_COOKIE` (1 day), `WEEKLY_COOKIE`, `MONTHLY_COOKIE`, `CUSTOM_FREQUENCY` (1–180 days via `authCustomFrequency`). Cited from `authentication_settings.py:41-42, 243`.
-- **Surrogate IP TTL fields documented**: `idle_time_in_minutes` (TTL for IP-to-user binding), `surrogate_refresh_time_in_minutes` (revalidation interval), `surrogate_refresh_time_unit` (`MINUTE` / `HOUR` / `DAY`), `surrogate_ip_enforced_for_known_browsers` (force browsers to also re-auth via cookie).
-- **Dependency rules** enforced at TF plan time: `surrogate_ip = true` requires `idle_time_in_minutes > 0` AND `auth_required = true`; `surrogate_ip_enforced_for_known_browsers = true` requires `surrogate_ip = true`.
-- **Cookie lifetime applies only to browser flows**: non-browser UAs can't follow SAML redirects; alternative paths (Kerberos, no-auth locations, pre-auth proxy) documented.
-
-**Resolved by existing refs**: auth-frequency enum and clock semantics (cookie expiry-based), surrogate IP TTL field names and dependency rules, browser-vs-non-browser flow split.
-
-**Step-up timing — resolved 2026-05-06** by `vendor/zscaler-help/understanding-step-up-authentication.json`:
-
-The step-up flow is **synchronous on the access attempt**:
-
-> When the user attempts to access a high-sensitivity resource (as defined by policies in Internet & SaaS or Private Access), ZIdentity checks the required authentication level. If the user's current authentication level is insufficient (e.g., they logged in with a basic password), ZIdentity prompts the user to reauthenticate, typically using MFA via Zscaler Client Connector. After the user successfully authenticates with the required level, access is granted.
-
-So the request blocks until the user completes the higher-AL authentication. The flow: user attempts access → ZIdentity AL check → if insufficient → prompt via ZCC → user MFA → access granted. Constraint: **OIDC-only** (SAML IdPs do not support step-up). The cross-link in `references/zidentity/step-up-authentication.md` already captures this; updated this clarification to point at the full vendor source.
-
-**Still open after sweep**:
-
-1. **Surrogate IP `idle_time_in_minutes` clock anchor** — does the idle clock start at last activity (so any traffic from the IP within the window resets it), at first auth, or at some other event? Field name implies idle-based, but unconfirmed.
-2. **Cookie/token/IP auth-source decision tree** — when the Service Edge has multiple usable auth sources for the same request (ZCC tunnel auth + surrogate IP + SAML cookie), the precedence isn't documented.
-3. **Re-auth on traffic-forwarding-method transitions** — ZCC moving on-trusted → off-trusted mid-session: does existing auth state survive?
-
-**Resolves the rest with**: scripted reproduction (force trusted-network transition mid-session, observe whether re-auth fires; load-test surrogate IP at varying activity intervals to confirm idle-clock semantics), or vendor support thread. **Status**: partially resolved — 2026-05-06 (step-up timing now resolved; auth-source decision tree and trusted-network-transition behavior remain).
-
----
-
-### shared-19 — Modern HTTP response-side re-evaluation (HTTP/2, WebSocket, HTTP/3, streaming RPC)
-
-*Origin: chain-coverage review 2026-05-06 — request flow phase 9 (response path)*
-
-`shared/policy-evaluation.md` documents the ZIA web module pipeline order for HTTP GET, POST, and Response (per *Understanding Policy Enforcement* pp.3–9). The pipeline order assumes a classical request/response model. Modern HTTP behaviors are partially documented across multiple refs but not consolidated.
-
-**Doc sweep 2026-05-06** (substantial partial resolution):
-
-**HTTP/3 / QUIC** — `kb:zia.saas-apps.quic-conferencing` has the canonical answer:
-
-- ZIA's TLS inspection relies on TCP session state.
-- Under explicit-proxy forwarding, QUIC bypasses the proxy entirely.
-- Z-Tunnel-mode interaction:
-  - **Z-Tunnel 2.0** (packet-tunnel) captures UDP 443 — QUIC is intercepted at the tunnel layer.
-  - **Z-Tunnel 1.0** (HTTP CONNECT) does not capture UDP — QUIC traffic egresses outside the tunnel.
-- Zscaler's recommendation: **block QUIC at the firewall** so browsers fall back to TCP/TLS (which can then be inspected). Cited from *Leading Practices Guide* p.24, *CAC Deployment Guide* troubleshooting section, and `kb:zia.ssl-inspection`.
-
-**HTTP/2** — `kb:zia.ssl-inspection` documents:
-
-- **Per-rule `http2Enabled` toggle** on the SSL Inspection rule controls whether HTTP/2 inspection is enabled.
-- **Falls back to HTTP/1.1 for locations where Bandwidth Control is also enabled**, even if HTTP/2 is on in the SSL/TLS rule. Concrete operational gotcha.
-- Inspection capability exists; per-stream re-evaluation behavior not stated.
-
-**WebSocket** — `kb:zia.dlp` § 5 has a sharply-scoped answer:
-
-- **WebSocket DLP inspection is Microsoft-Copilot-only.** The WebSocket protocol option for DLP inspection works exclusively for Microsoft Copilot. Adding WebSocket as a protocol expecting it to cover other WebSocket-heavy apps (Slack, Figma, Linear, Notion) yields **zero coverage** for those apps. WebSocket SSL/TLS DLP is similarly Copilot-only. Cited from *Configuring DLP Policy Rules and Content Inspection* line 166.
-
-**Resolved by sweep**:
-
-- QUIC handling end-to-end (recommendation: block at firewall; ZTunnel-mode interaction)
-- HTTP/2 enable toggle + Bandwidth Control fallback gotcha
-- WebSocket DLP scope (Copilot-only) — answers "does DLP see Slack/Figma WebSocket traffic" with a defensible "no"
-
-**Still open after sweep**:
-
-1. **HTTP/2 per-stream inspection** — when `http2Enabled=true`, is each stream re-evaluated against the response pipeline independently, or is the connection inspected once at upgrade? HPACK header decompression behavior at inspection time also unstated.
-2. **WebSocket inspection beyond DLP** — DLP is Copilot-only, but does URL Filter, Cloud App Control, Sandbox, or Malware Protection apply to WebSocket frames for *any* app? Or is the entire WebSocket pipeline post-upgrade L4-byte-forwarding except for the Copilot-DLP carveout?
-3. **gRPC / streaming RPC** — gRPC runs over HTTP/2 with binary protobuf framing. DLP-scannable? Treated as opaque bytes? No captured doc addresses this.
-4. **Server-Sent Events** (`text/event-stream`) — re-evaluated per event or one-time at connection?
-5. **Chunked transfer encoding** — does DLP accumulate chunks for full-payload analysis or scan per-chunk?
-
-**Resolves the rest with**: vendor doc (likely lives in help articles not yet captured) or controlled lab tests with known-payload WebSocket non-Copilot, HTTP/2 multi-stream, and gRPC traffic. **Status**: partially resolved — 2026-05-06.
-
----
-
-### shared-20 — Cross-PSE session state on customer-side LB failover (GRE source IP change mid-session)
-
-*Origin: chain-coverage soft-test 2026-05-06 — Cloud Connector + 185.x GRE + customer F5 geo-LB walkthrough*
-
-When customer-side architecture introduces multiple GRE-source-IP egress paths (e.g., F5 BIG-IP geo-LB fronting two routers, each terminating its own GRE tunnel to ZIA), a mid-session failover from Router A to Router B changes the GRE source IP that ZIA sees. The skill has good coverage of the building blocks but no single ref addresses the **session-state implications across PSEs** when this happens. Specifically:
-
-1. **Surrogate IP binding survival** — `surrogate_ip` binding is per-(PSE, source-IP) tuple. When the source IP changes, what happens to the existing binding? Is it invalidated immediately on the original PSE? Does the new PSE see a "new user" until re-auth?
-2. **Cross-PSE session continuity** — if Router A's primary GRE goes to PSE-DC-A and Router B's goes to PSE-DC-B, a mid-stream failover lands the next packet at a different Service Edge. Does the original PSE's TCP/policy state replicate to the new PSE, or does the session effectively reset from ZIA's perspective?
-3. **Long-lived flow handling** — for a stateful client (HTTP/2 multi-stream, WebSocket, gRPC streaming) in flight when failover happens, what behavior does the user perceive? Cleanly reset, silent drop, or continuation if the client tolerates source-IP changes?
-4. **Interaction with `shared-07` / `shared-08` / `shared-09`** — those clarifications cover MCLS (multi-cluster within a DC); this is the *cross-DC* failover case driven by customer-side LB topology, which MCLS doesn't address.
-
-This is the canonical "HA-on-HA stacking" question: customer's HA design (F5 + redundant routers) interacts with Zscaler's HA design (multi-PSE / per-DC GRE VIPs) in ways neither side documents.
-
-**Resolves with**: lab test driving deliberate mid-session F5 failover with active flows (long curl, persistent SSH, WebSocket app) and observing the ZIA-side behavior — re-auth, session reset, or continuation. Plus vendor doc on cross-PSE state replication. **Status**: open — 2026-05-06.
-
----
-
-### shared-21 — Anonymous-workload identity treatment at the Service Edge (Cloud Connector flow)
-
-*Origin: chain-coverage soft-test 2026-05-06 — Cloud Connector flow walkthrough*
-
-`kb:zia.workload-groups` documents Workload Groups as the policy-scope primitive for Cloud Connector traffic — workload-tag-based attribution replaces the user-identity-based attribution that ZCC traffic carries. But the **Service Edge ingress behavior for traffic without a user identity** is not laid out:
-
-1. **Auth gate behavior** — `kb:zia.authentication` records the legacy statement that auth runs before all other policies (unverified: gap `zia.authentication.unauthenticated-traffic:auth-before-policy`). For a workload session arriving via CC's GRE/IPSec tunnel with no user identity to authenticate, does the auth gate skip (workload tag is sufficient), block (non-browser UA fails SAML), or apply a different mechanism? Per-location `auth_required` setting on the CC-fronted location should make this configurable but the actual handling isn't documented.
-2. **Surrogate IP behavior on workload IPs** — does a CC-fronted location with `surrogate_ip = true` bind workload identity to source IP? If multiple workloads share a CC's NAT IP, is the binding shared (correct for traffic-volume attribution but wrong for per-workload policy)?
-3. **Auth-frequency setting interaction** — workload sessions are typically long-lived (microservice keepalives, persistent connections). What does `MONTHLY_COOKIE` or `ALWAYS` mean for a session that has no user-side cookie?
-4. **NSS feed identity-field population** — the `cloud-connector/logs/log-schema.md` ref lists fields like `login`, `dept`, `deviceowner`, `devicehostname` from the ZIA firewall log schema. For workload traffic with no user identity, are these fields empty, populated with a workload-derived value, or populated with a tag-derived stub?
-
-This matters operationally because operators investigating "why is workload X being blocked by ZIA" need to know whether the blocking subsystem evaluated a user-identity-scoped rule that didn't match (because workloads have no user) or a workload-group-scoped rule (which should match).
-
-**Resolves with**: tenant lab walkthrough — deploy a CC, send known workload traffic, observe: (a) auth gate behavior at the per-location setting, (b) NSS feed field population for the workload session, (c) whether Surrogate IP fires. Plus vendor doc consolidating workload identity semantics (the skill currently has it spread across `kb:zia.workload-groups` + `kb:zia.authentication` + `kb:zia.locations`). **Status**: open — 2026-05-06.
-
----
-
-### shared-22 — Cross-DC log correlation for sessions spanning multiple PSEs
-
-*Origin: chain-coverage soft-test 2026-05-06 — F5 geo-LB walkthrough surfaced multi-DC session traversal*
-
-`references/shared/log-correlation.md` documents joining ZIA web/firewall/DNS logs to ZPA LSS using `epochtime` + `login` (or `Username`) within a tolerance window, and identifies `zpa_app_seg_name` as the highest-fidelity ZIA→ZPA join field for SIPA. It does **not** address the case where a single user's traffic, within one logical session, lands on **multiple PSEs in different datacenters** (driven by customer-side LB failover, mobile users moving between Wi-Fi networks, or BGP-induced VIP changes). Specific gaps:
-
-1. **PSE-discriminator field** — the `datacenter` field exists in all ZIA NSS feeds, but is it the correlation key for "same user, different DC, same logical session"? Or does the customer SIEM need to reconstruct logical sessions by user + time-window across multiple `datacenter` values?
-2. **`recordid` scope** — is `recordid` globally unique across all PSEs (so deduplication across feeds is safe), or per-PSE (so the same `recordid` could appear in two records from different DCs)?
-3. **Session-ID-equivalent** — ZIA web logs have no documented session ID; firewall logs have aggregation flags but no session ID either. For "trace this user's full activity across a 30-second F5-failover window" the join key set is unclear.
-4. **Cross-PSE Surrogate IP gap** — if Surrogate IP binding doesn't replicate cross-PSE (per `shared-20`), a logical session could appear as two different "users" in the logs after failover (the original IP-bound identity, then anonymous/re-auth on the new PSE).
-
-For SOC analysts reconstructing user activity during incident response, this gap means investigations spanning multiple PSEs may silently undercount or mis-attribute activity unless the SIEM reconstruction logic explicitly handles cross-DC session bridging.
-
-**Resolves with**: tenant lab — drive a deliberate multi-PSE session (e.g., force trusted-network transition or simulate F5 failover), capture NSS feeds from both PSEs, attempt reconstruction. Plus vendor doc on per-record uniqueness guarantees for `recordid`. **Status**: open — 2026-05-06.
-
----
-
-### shared-23 — WPAD (Web Proxy Auto-Discovery) support with Zscaler-hosted PACs
-
-*Origin: `references/shared/pac-files.md` § WPAD review 2026-05-06*
-
-Many enterprises rely on WPAD for automatic PAC URL distribution to clients — DNS-based (`http://wpad.<domain>/wpad.dat`) or DHCP option 252. Zscaler's available help-portal captures **do not document**:
-
-1. Whether the Zscaler-hosted PAC URL can be served at a `wpad.dat` path or with the `application/x-ns-proxy-autoconfig` MIME type that some browsers require for WPAD discovery.
-2. Whether DHCP option 252 is a supported delivery mechanism for the Zscaler-hosted PAC URL.
-3. Whether the Zscaler PAC server returns variable-substituted content when fetched as `wpad.dat` (likely yes — substitution is URL-pattern-agnostic — but unconfirmed).
-4. Whether redirect-based WPAD (customer's `wpad.<domain>` returning a 302 to the Zscaler-hosted PAC) preserves variable substitution (browser ultimately fetches from Zscaler, so probably yes — but unconfirmed).
-
-This matters because tenants relying on WPAD often default to self-hosting (which loses variable substitution and geolocation) when the Zscaler-hosted PAC URL pattern doesn't fit their WPAD infrastructure.
-
-**Resolves with**: vendor doc on WPAD compatibility or testing the documented workarounds (rename the Zscaler PAC URL to `wpad.dat` via DNS CNAME, observe browser behavior). **Status**: open — 2026-05-06.
-
----
-
-### shared-24 — Zscaler-hosted PAC cache headers and client refresh behavior
-
-*Origin: `references/shared/pac-files.md` § PAC fetch frequency review 2026-05-06*
-
-`pac-files.md` states "PAC changes are immediate" (server-side) but acknowledges that client-side propagation is gated by browser caching. The specific behavior is undocumented:
-
-1. **Cache-Control / Expires headers** sent by the Zscaler PAC server are not in any captured doc. Operationally observed: PAC changes can take **minutes to ~1 hour** to fully roll out; the bound depends on these headers.
-2. **ZCC PAC mode refresh cadence** — when ZCC is in PAC mode (vs Z-Tunnel mode), how often does it re-fetch the PAC? Does ZCC respect HTTP cache headers like a browser, or use its own poll schedule?
-3. **Force-refresh mechanism** — is there an admin-portal action that pushes PAC re-fetch to clients (vs waiting for cache expiry)? None documented.
-4. **Versioned-URL semantics** — if a PAC is rolled back to a prior version, do clients holding the cached newer version see the rollback only after their cache expires?
-
-For incident response — "we just rolled back a bad PAC, when do we know it's actually deployed everywhere?" — current answer is "wait an hour and check Number-of-Hits." A documented refresh window would be more useful.
-
-**Resolves with**: HTTP HEAD request against a Zscaler-hosted PAC URL to inspect actual cache headers (operator-side), or vendor doc. **Status**: open — 2026-05-06.
-
----
-
-### shared-25 — PAC-mode authentication handshake specifics
-
-*Origin: `references/shared/pac-files.md` § PAC mode authentication review 2026-05-06*
-
-The high-level auth methods (SAML SSO / Hosted DB / Kerberos) and the Surrogate IP mechanic are well-documented in `kb:zia.authentication`. What's not documented is the **PAC-mode-specific handshake sequence**:
-
-1. **407 Proxy-Authentication challenge handling** — when a non-cookie-bearing client (curl, script, non-browser) hits the PSE via a PAC-resolved proxy, does the PSE issue a 407 challenge or a 302 SAML redirect? Browser response to each differs; non-browser HTTP clients often fail on either.
-2. **Cookie domain / scope** — the ZIA session cookie issued on SAML completion is scoped to the PSE's domain. In PAC mode (where each request hits a `PROXY h:80` resolution), how is the cookie attached to subsequent requests? Browsers handle this transparently but the cookie domain rules aren't documented.
-3. **Repeated-challenge symptom in PAC mode vs Z-Tunnel** — operators commonly report that the same user gets re-challenged for auth more frequently in PAC mode than in Z-Tunnel mode for identical traffic. The operational lore is "Surrogate IP + per-location auth-frequency works differently across the two modes" — exact mechanism unconfirmed.
-4. **Kerberos challenge port (8800) interaction with non-`kerberos.pac` PAC files** — what happens when a Kerberos-eligible user is on a PAC that returns `:80` instead of `:8800`? Silent fallback to other auth method, or block?
-
-**Resolves with**: instrumented packet capture during a fresh PAC-mode session (force re-auth scenarios), or vendor doc consolidating PAC-mode auth specifics. **Status**: open — 2026-05-06.
-
----
-
-### shared-26 — Non-browser HTTP client PAC support — Zscaler-side recommendations
-
-*Origin: `references/shared/pac-files.md` § PAC behavior with non-browser HTTP clients review 2026-05-06*
-
-The non-browser-client PAC support matrix is well-known operationally but not Zscaler-documented:
-
-- `curl`, Python `urllib`, Node.js default agent, `apt`, `yum`, Docker, Kubernetes — none have native PAC support.
-- Java `HttpURLConnection`, .NET `HttpClient` — partial PAC support via system PAC URL on supported OSes.
-
-The skill's existing material correctly identifies Cloud Connector as the workload-traffic forwarding answer, but the **PAC-vs-CC decision boundary** for environments running both browser users and non-browser workloads is not laid out as Zscaler-side guidance. Specific gaps:
-
-1. Does Zscaler publish guidance on "for these client classes, use proxy-URL config instead of PAC" or "use Cloud Connector for workload traffic"?
-2. For environments where Cloud Connector isn't deployed but workload traffic must traverse Zscaler, is there a recommended lightweight pattern (explicit proxy URL pointing at hosted-PAC-resolved-`${GATEWAY}` IP)? Such IPs change over time as Zscaler scales — fragile.
-3. For tenants on subclouds, the workload-pinned proxy URL has to use the subcloud-qualified hostname; is there a documented pattern?
-
-**Resolves with**: vendor doc consolidating recommendations for non-browser-client traffic forwarding, or admission that PAC + workload-traffic is operationally a gap that Cloud Connector is the only Zscaler-supported answer for. **Status**: open — 2026-05-06.
-
----
-
-### shared-27 — Zscaler PAC + IPv6 handling
-
-*Origin: `references/shared/pac-files.md` § PAC + IPv6 review 2026-05-06*
-
-The standard PAC `isInNet` is IPv4-only; the IPv6-aware `isInNetEx` extension exists but support is browser-dependent. Zscaler-side IPv6 handling in PAC is undocumented:
-
-1. **Variable substitution for IPv6** — do `${GATEWAY}` / `${SECONDARY_GATEWAY}` ever resolve to IPv6 addresses? If so, in which clouds / subclouds? If never, IPv6 traffic hitting a PAC-returned IPv4 PROXY directive will fail at the OS network layer.
-2. **PSE IPv6 endpoint availability** — do Zscaler Public Service Edges accept IPv6 ingress on the standard PAC-returned ports? `references/cloud-connector/azure-deployment.md` notes that "1:1 NAT disables IPv6" on the CC side — analogous behavior on the PSE side?
-3. **Recommended IPv6-bypass pattern** — what's the canonical PAC pattern for tenants with dual-stack networks who want IPv6 to bypass Zscaler? `if (host.indexOf(":") !== -1) return "DIRECT";` is the operationally-conservative fallback (Tier C in `pac-files.md`); a Zscaler-recommended pattern would be more authoritative.
-4. **`isInNetEx` browser support matrix** — Zscaler-side recommendations for tenants whose user populations include browsers that don't support `isInNetEx`.
-
-For tenants with growing IPv6 deployments (especially in mobile/cellular and APAC environments where IPv6 is increasingly default), this is an operational concern.
-
-**Resolves with**: vendor doc on IPv6 PAC support / PSE IPv6 ingress, or experimental verification by attempting IPv6-only PAC fetch and observing variable substitution behavior. **Status**: open — 2026-05-06.
-
----
-
-### shared-28 — Python ZIA SCIM wrapper surface
-
-*Origin: `references/shared/scim-provisioning.md` § Open questions*
-
-The 2026-06-16 shared SCIM refresh verified function-level Go SDK SCIM user/group surfaces and Python ZPA SCIM read surfaces, but did not establish a Python SDK ZIA SCIM provisioning wrapper in the pinned source. Future Python SDK releases may add one, so answers should avoid saying "Python cannot do this" as a product fact. Say instead that this source set verifies the Go SDK SCIM provisioning functions and the REST endpoint surface, and advise Python callers to use direct HTTP or confirm their installed SDK release.
-
-**Status**: open — 2026-06-16
-**Resolves with**: code read of the current Python SDK package / generated docs index for ZIA SCIM wrappers, plus line-level citations to any discovered module
-
----
-
-### shared-29 — ZInsights GraphQL rate limits
-
-*Origin: `references/shared/analytics-graphql.md` § Open questions*
-
-The ZInsights GraphQL endpoint is captured as `https://api.zsapi.net/zins/graphql`, but the rate-limit guide does not list a ZInsights-specific bucket. Whether GraphQL shares a Business Insights or ZIA analytics bucket, has its own bucket, and which response headers expose rate-limit state is unresolved.
-
-**Status**: open — 2026-06-16
-**Resolves with**: vendor ZInsights rate-limit documentation or a live 429 capture for `/zins/graphql`
-
----
-
-### shared-30 — ZInsights production introspection support
-
-*Origin: `references/shared/analytics-graphql.md` § Open questions*
-
-The captured guide documents GraphQL introspection support for the Beta cloud environment only (`vendor/zscaler-help/automate-zscaler/working-with-zscaler-analytics.json:31`). Production introspection is not confirmed by this source set; clients should assume it is unavailable unless vendor documentation or a live production test confirms an exception.
-
-**Status**: open — 2026-06-16
-**Resolves with**: vendor documentation for production introspection behavior or a live production introspection response capture
-
----
-
-### shared-31 — ZInsights pagination and truncation behavior
-
-*Origin: `references/shared/analytics-graphql.md` § Open questions*
-
-Captured examples show per-query `limit` arguments but do not show cursor, offset, or total-count pagination. Whether `limit` is the complete pagination model, whether result sets truncate silently, and whether a maximum `limit` exists are unresolved.
-
-**Status**: open — 2026-06-16
-**Resolves with**: vendor GraphQL pagination docs or live query tests over a dataset large enough to exceed default and explicit limits
-
----
-
-### shared-32 — ZInsights `obfuscated` flag source setting
-
-*Origin: `references/shared/analytics-graphql.md` § Open questions*
-
-The GraphQL schema exposes `obfuscated` fields on several response shapes, but the captured source does not identify which tenant privacy setting or report configuration flips the flag. Callers should display the flag defensively and avoid treating masked names as real entity names.
-
-**Status**: open — 2026-06-16
-**Resolves with**: vendor privacy-setting documentation tied to ZInsights responses or tenant tests toggling the relevant setting
-
----
-
-### shared-33 — ZInsights IoT `device_stats` time range
-
-*Origin: `references/shared/analytics-graphql.md` § Open questions*
-
-The multi-domain GraphQL example calls IoT `device_stats` without explicit time-range arguments while most other analytics queries use `start_time` and `end_time`. Whether `device_stats` is time-agnostic or applies an implicit default window is unresolved.
-
-**Status**: open — 2026-06-16
-**Resolves with**: vendor IoT domain argument documentation or live queries comparing `device_stats` results across controlled time windows
-
----
-
-### shared-34 — ZDX trend linkage to ZInsights GraphQL
-
-*Origin: `references/shared/analytics-graphql.md` § Open questions*
-
-The captured ZInsights GraphQL domain list does not include ZDX, and the OneAPI Postman collection exposes ZDX REST trend endpoints for application metrics and device application score trends. The unresolved question is whether any ZDX dashboard uses ZInsights behind the scenes, or whether ZDX trend access is REST-only in the captured public API surface.
-
-**Status**: open — 2026-06-16
-**Resolves with**: vendor documentation that maps ZDX dashboards to ZInsights GraphQL, or confirmation that ZDX trend data is exposed only through `/zdx/v1` REST endpoints
-
----
-
-### shared-35 — ZInsights mutation support
-
-*Origin: `references/shared/analytics-graphql.md` § Open questions*
-
-The introspection query template asks for `mutationType { name }`, but the captured docs provide no introspection output showing mutation fields and no mutation examples. Whether any write operations exist is unresolved.
-
-**Status**: open — 2026-06-16
-**Resolves with**: introspection output showing mutation fields plus vendor docs or live tests confirming their behavior
-
----
-
-### shared-36 — `WebTrafficUnits` `BYTES` validity
-
-*Origin: `references/shared/analytics-graphql.md` § Open questions*
-
-Captured analytics guide examples show `TRANSACTIONS` for `WebTrafficUnits`, but this pass did not find source confirmation that `BYTES` is a valid enum value. SaaS Security UI/reporting exposes byte counters, so `BYTES` is plausible, but it remains unsupported as a GraphQL enum claim.
-
-**Status**: open — 2026-06-16
-**Resolves with**: schema introspection output listing `WebTrafficUnits` enum values or a successful live query using `BYTES`
-
----
-
-### shared-37 — Cross-product Trace ID propagation
-
-*Origin: `references/shared/audit-logs.md` § Open questions*
-
-ZIA audit logs include a Trace ID column, but this pass did not find source confirmation that the same OneAPI Trace ID is present in ZPA, ZIdentity, ZWA, ZDX, or ZCC audit contexts. Until confirmed, cross-product Trace ID correlation should be treated as an investigation candidate rather than a guaranteed join key.
-
-**Status**: open — 2026-06-16
-**Resolves with**: vendor audit schema docs or live audit samples showing the same Trace ID across products for one API client action
-
----
-
-### shared-39 — ZPA shared-model secret fields live GET population
-
-*Origin: `references/shared/secret-bearing-api-surfaces.md` § Reveals (contract-documented, live population unverified)*
-
-Several ZPA resources reuse one Go struct for Create requests and Get responses, so a secret field's presence on the model does not prove the GET echoes it: ZPA `/apiKeys` `clientSecret` (`vendor/zscaler-sdk-go/zscaler/zpa/services/api_keys/api_keys.go:20` — and **no** Automate contract op was found for this endpoint to confirm the response schema); PRA credential `password`/`passphrase`/`privateKey` (`vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/pracredential/credential_controller.go:36,39,42`; contract `GET /credential/{id}` lists them at `vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json` op `privileged-credential-management/get-credential`); and enrollment-cert `privateKey` alongside a `privateKeyPresent` boolean and encrypted blobs (`vendor/zscaler-sdk-go/zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go:35-41`; contract `GET /enrollmentCert/{id}`). The `privateKeyPresent` boolean in particular suggests the GET may return the flag instead of the raw key for Zscaler-held keys. Whether any of these three surfaces returns a populated (or masked) secret on a live read is unverified. Contrast ZPA provisioning keys, where the Terraform provider's Read demonstrably stores `resp.ProvisioningKey` — a consumer-confirmed cleartext read.
-
-**Status**: open
-**Resolves with**: live ZPA reads of an api-key, a PRA credential, and an enrollment cert with a private key present, observing whether each secret field is populated, masked, or empty on GET
-
----
-
-### shared-40 — OneAPI entitlement `prd` aliases for `ztw`, `zid`, and `zins`
-
-*Origin: `references/shared/mcp-server.md` § OneAPI entitlement filtering and unmapped aliases*
-
-MCP v0.15.2 maps `CLOUD_CONNECTOR` to `ztw`, `ZIAM` to `zid`, and
-`ZINSIGHTS` to `zins`, and it now warns with the names of any still-unmapped
-`service-info[].prd` values
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py:53-88`;
-`:116-155`). The regression tests exercise all three aliases and the warning
-path (`vendor/zscaler-mcp-server/tests/test_entitlements.py:78-124`). Upstream
-issue [#95](https://github.com/zscaler/zscaler-mcp-server/issues/95) supplies
-the original one-tenant token observation and successful calls with filtering
-disabled.
-
-**Status**: partially resolved — last updated 2026-08-14
-**Resolves with**: vendor entitlement documentation or additional token captures sufficient to establish the complete supported canonical/alias set across tenants and token generations
-
-**Partial answer (2026-08-14)**: the concrete three-alias compatibility gap is
-fixed in the current MCP implementation and protected by tests. What remains is
-the deliberately broader taxonomy question: current public evidence does not
-establish that these and the existing aliases are exhaustive for every
-ZIdentity tenant or token generation.
 
 ---
 
@@ -1361,420 +800,6 @@ A live ZIA `web_dlp_rules` GET returns a flat integer field `ucTemplateId`. The 
 **Resolves with**: lab test (read a DLP web rule with a notification template set; observe whether the payload also carries `notificationTemplate`/`eunTemplateId` with the same id and whether `ucTemplateId` holds a non-zero value — co-occurrence ⇒ redundant flat alias, sole template id ⇒ live rename of `eun_template_id`) OR zscaler confirmation of the field's meaning
 
 ---
-### cloud-connector-01 — Per-region status representation (RegionStatus.status)
-
-*Origin: `references/cloud-connector/aws-workload-discovery.md` § Open questions*
-
-The Go workload-discovery `RegionStatus.status` field is typed as a boolean, while the captured console help text shows four string states (`Success` / `Disabled` / `Error` / `Starting Discovery`). Whether the API actually returns a richer status that the Go SDK under-models (boolean only) — or the console derives the four strings from a boolean plus other fields — is unresolved. Until this is settled the skill cannot map a workload-discovery region row to one of the four console states from the SDK shape alone.
-
-**Status**: open
-**Resolves with**: code read (a future SDK release may widen the type) OR lab test (read a region in each console state via the API, observe the wire value)
-
----
-
-### cloud-connector-02 — AWS workload-discovery CloudFormation body (EventBridge / IAM / SQS)
-
-*Origin: `references/cloud-connector/aws-workload-discovery.md` § Open questions*
-
-Three AWS workload-discovery details live inside the CloudFormation template that the setup flow deploys, and the template is referenced by URL only — its rendered body is not reproduced as text in any captured source: (1) the EventBridge rule's event-pattern JSON (which EC2/ECS/Lambda event types are matched) and the cross-account target ARN format — the `eventBusName` field is API-modeled but the pattern is not; (2) the IAM permission document the template installs; (3) the SQS permissions added by the "Update the Cloud Connector Role for SQS Permissions" setup step, including the queue-ARN detail. None of these has an SDK or Terraform surface to recover them from.
-
-**Status**: open
-**Resolves with**: zscaler doc not yet read (render the linked CloudFormation template body) OR operator experience (inspect a deployed stack)
-
----
-
-### cloud-connector-03 — Source IP group size and count limits
-
-*Origin: `references/cloud-connector/source-ip-groups.md` § Open questions*
-
-No captured source states an upper bound on (a) the number of address entries a single `ztc_ip_source_groups` group may hold, or (b) the number of source IP groups a tenant may define. The SDK struct and Terraform schema (`vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go`; `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`) impose no documented cap. Relevant to capacity planning and to explaining a rejected create.
-
-**Status**: open
-**Resolves with**: support ticket (Zscaler confirms platform limits) OR lab test (grow a group / group count until the API rejects)
-
----
-
-### cloud-connector-04 — IPv6 entries in ztc_ip_source_groups vs a separate IPv6 group object
-
-*Origin: `references/cloud-connector/source-ip-groups.md` § Open questions*
-
-Whether the `ip_addresses` field on `ztc_ip_source_groups` accepts IPv6 CIDR notation is unconfirmed. The forwarding-rule struct carries dedicated IPv6 group fields on both sides — `SrcIpv6Groups` and `DestIpv6Groups`, parallel to the IPv4 `SrcIpGroups` / `DestIpGroups` (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:124,132`) — distinct from the IPv4 group fields. It is unclear whether those IPv6 fields reference the same `ztc_ip_source_groups` object type or a separate IPv6-specific group resource, and therefore whether IPv6 source addresses are configured in the same group object or a different one.
-
-**Status**: open
-**Resolves with**: lab test (create a group with an IPv6 CIDR, reference it from `srcIpv6Groups`, observe acceptance) OR code read (a future SDK/TF release may expose an IPv6 group type)
-
----
-
-### cloud-connector-05 — source_ip_group_exclusion applicability to Cloud & Branch Connector
-
-*Origin: `references/cloud-connector/source-ip-groups.md` § Open questions; `references/cloud-connector/api-divergences.md` § Open questions*
-
-The forwarding-rule SDK struct comment marks `SourceIpGroupExclusion` "Not applicable to Cloud & Branch Connector," yet the Terraform provider exposes it as a configurable boolean. Whether the backend honors a set value on a CC `ecRdr` rule, rejects it, or silently ignores it is unresolved — the SDK comment and the TF schema disagree, and the wire behavior is not recoverable from source.
-
-**Status**: open
-**Resolves with**: lab test (set `source_ip_group_exclusion` on a CC forwarding rule, observe whether the backend applies, rejects, or ignores it)
-
----
-
-### cloud-connector-06 — ZIA-origin source groups: editability from ZTC and lite payload shape
-
-*Origin: `references/cloud-connector/source-ip-groups.md` § Open questions*
-
-Two related gaps on source IP groups: (1) whether groups created in ZIA (`creator_context = "ZIA"`) can be modified through the ZTC provider/API or only via ZIA is not confirmed; (2) the `/ipSourceGroups/lite` response is only confirmed to return `id`+`name` — whether it also includes additional fields such as `creator_context` is not documented in captured sources.
-
-**Status**: open
-**Resolves with**: lab test (attempt a ZTC update of a ZIA-origin group; read a `/lite` response and inspect its fields) OR zscaler doc not yet read
-
----
-
-### cloud-connector-07 — ZTG vs Cloud Connector group type semantics
-
-*Origin: `references/cloud-connector/overview.md` § Open questions*
-
-The capability distinction is now documented. AWS and GCP Zero Trust Gateway are
-Zscaler cloud-native services that secure workload traffic without requiring
-the customer to manage the security infrastructure
-(`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.json:8-21`;
-`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.json:8-17`).
-For GCP specifically, intercept endpoint groups provide project access to a Zscaler-managed
-security service
-(`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.json:51-54`).
-Standard GCP Cloud Connector is the customer-deployed VM path: Help directs the
-customer to deploy it with Terraform and distinguishes the deployment, VM, and
-Cloud Run function service accounts
-(`vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.json:8-29`).
-Whether the backend happens to represent the two surfaces with related group
-objects is not a remaining capability question and must not be used to collapse
-the managed-service and customer-VM operating models.
-
-**Status**: resolved (2026-08-04; AWS boundary expanded 2026-08-12)
-**Answer**: AWS and GCP ZTG are Zscaler-managed SaaS surfaces; standard Cloud
-Connector remains the customer-deployed VM surface. Exact cross-cloud operating
-contract parity and Azure ZTG deployment availability are separate questions.
-**Resolved by**: current AWS/GCP ZTG and GCP Cloud Connector deployment Help
-
----
-
-### cloud-connector-08 — HA mechanics: cchealth port, fail-open/close toggle, fail-open egress path
-
-*Origin: `references/cloud-connector/overview.md` § Open questions*
-
-Three high-availability mechanics are named in the captured HA help article but not pinned down: (1) whether the `?cchealth` probe port is configurable and over what range — the article says only "configured during deployment" (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.json:30`); (2) where in the admin portal the fail-open / fail-close toggle lives — the article says "customers can change this configuration" without naming the path (`:51`); (3) what the fail-open egress path actually is — the source says fail-open lets "workloads that are accessing the internet to continue doing so" yet also that "the egressing traffic is flowing through Zscaler for inspection and policy control" (`:51`), two clauses that are hard to reconcile when the fail-open precondition is that no Cloud Connector in the group can reach a Service Edge. Whether fail-open routes direct-to-internet (no inspection) or via a retained/degraded Zscaler path is not resolved; neither reading should be documented as fact.
-
-**Status**: open
-**Resolves with**: lab test (trigger a fail-open condition, observe the egress path) OR zscaler doc not yet read (a clearer source on the toggle path and probe-port range)
-
----
-
-### cloud-connector-09 — Forwarding-method semantics and the true backend forwardMethod enum
-
-*Origin: `references/cloud-connector/forwarding.md` § Open questions; `references/cloud-connector/api-divergences.md` § Open questions*
-
-The console-label and runtime semantics of several `ForwardMethod` enum values are unconfirmed, and the sources disagree on the enum itself. The Go doc-comment lists ten values including `ENATDEDIP`, `GEOIP`, and `PROXYCHAIN` (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:44`), the Terraform validator lists a smaller set, and the wire field is a free string. Specifically unresolved: (1) `ENATDEDIP` (reads as dedicated-IP NAT) and `GEOIP` (reads as geo-based forwarding) have no console label or documented semantics in captures; (2) `PROXYCHAIN`'s full chaining topology — where the proxy gateway sits, auth, failover — is not in source (only the proxy-gateway action field and its TCP-only network-service constraint are sourced); (3) the full set of values the `ecRdr` endpoint actually accepts — and whether `LOCAL_SWITCH`, `ENATDEDIP`, `GEOIP`, `PROXYCHAIN`, and bare `ZPA` are all live — is unknown without a tenant.
-
-**Status**: partially resolved — last updated 2026-06-18
-**Resolves with**: lab test (submit each candidate `forwardMethod` against the `ecRdr` endpoint, observe acceptance and behavior) OR Postman / oneapi-spec cross-check (a third independent source on the enum)
-
-**2026-06-18 narrowing**: the captured Automate contract now gives a third source on the documented `traffic_forwarding_rule.forwardMethod` enum for `POST /ztw/api/v1/ecRules/ecRdr`, and the generated reconciliation records the precise divergence: contract has `INVALID`, `DIRECT`, `PROXYCHAIN`, `ZIA`, `ZPA`, `ECZPA`, `ECSELF`, `DROP`, `ENATDEDIP`, and `GEOIP`, while Terraform accepts `DIRECT`, `LOCAL_SWITCH`, `ZIA`, `ECZPA`, and `DROP` (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-divergences.json:2455-2458`, `:2540-2562`). This closes the "Postman / oneapi-spec cross-check" part of the evidence request. It still does not prove which values the backend accepts in a tenant or what `ENATDEDIP` / `GEOIP` / `PROXYCHAIN` do operationally.
-
----
-
-### cloud-connector-10 — Forwarding rule count limit and Admin Rank ↔ Rule Order interaction
-
-*Origin: `references/cloud-connector/forwarding.md` § Open questions*
-
-Two forwarding-rule capacity/precedence questions: (1) how many traffic forwarding rules a tenant may define is not captured — the wildcard-domain/FQDN-entry caps (16K per org, 8,000 per rule, `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json:108`) are entry limits, not a rule-count limit; (2) CC forwarding rules carry an Admin Rank field (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:41`), but whether admin rank *gates* the editable Rule Order values the way ZIA URL Filtering's admin-rank does is not stated in captured source.
-
-**Status**: open
-**Resolves with**: support ticket OR lab test (grow rule count until rejection; vary admin rank and observe whether Rule Order editability is constrained)
-
----
-
-### cloud-connector-11 — "Overwrite DNS response" — does a response-rewrite action exist at all?
-
-*Origin: `references/cloud-connector/dns-subsystem.md` § Open questions; `references/cloud-connector/api-divergences.md` § Open questions*
-
-"Overwrite DNS response" is named in help-page capability text but absent from the DNS-rule `action` enum (`ALLOW` / `BLOCK` / `REDIR_REQ` / `REDIR_ZPA`) and from every `*ztw*` SDK/TF source. Whether it is a separate feature with its own object/endpoint, a different rule type, or just marketing wording for one of the `REDIR_*` actions is unresolved — no source establishes it.
-
-**Status**: open
-**Resolves with**: zscaler doc not yet read (a source describing the feature's object/endpoint) OR lab test (look for a response-rewrite action in a live DNS-rule config)
-
----
-
-### cloud-connector-12 — DNS rule UI match criteria, tunnel detection, and DoH interception not in the SDK
-
-*Origin: `references/cloud-connector/dns-subsystem.md` § Open questions*
-
-Several DNS-policy capabilities named in help UI text have no field in the captured `ECDNSRules` struct, which exposes only IP/group/location/ecGroup fields: (1) the UI match dimensions "users/groups/departments," "domain categorization / IP categorization," "DNS record types," and "location of resolved IP addresses" — whether these map to a richer (uncaptured) schema or are ZIA-DNS-Control concepts mislabeled in shared help text is unresolved; (2) DNS tunnel-detection trigger heuristics, thresholds, and response actions are not in captures and not modeled by any SDK field; (3) how CC identifies and handles DoH at the app layer is neither documented in captures nor exposed in the SDK.
-
-**Status**: open
-**Resolves with**: zscaler doc not yet read (a DNS-rule schema source naming these criteria) OR lab test (configure each UI criterion, inspect the resulting object)
-
----
-
-### cloud-connector-13 — DNS gateway failover order, default gateway config, and IPv6 on referenced resolvers
-
-*Origin: `references/cloud-connector/dns-subsystem.md` § Open questions*
-
-Three DNS-gateway behaviors not exposed in the gateway object: (1) whether the secondary resolver is tried before `failureBehavior` fires (and under what conditions) — the SDK carries `primaryIp` / `secondaryIp` / `failureBehavior` but no field describing the try-order; (2) what the default (non-deletable) DNS gateway resolves to and whether it is operator-modifiable — the SDK has no `isDefault` discriminator; (3) whether a LAN- or WAN-referenced resolver slot can carry an IPv6 address — the "IPv4 only" statement in capture is scoped to the Custom DNS Server entry (`vendor/zscaler-help/cbc-configuring-dns-gateway.json:32,40`), and the gateway struct's `primaryIp` / `secondaryIp` are plain strings with no documented address-family constraint. Related: the `ZPA Resolver` predefined DNS rule is treated as predefined/non-deletable by the TF deletion guard (`vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_dns_rule.go:135-139`) but no captured source describes its default state, match criteria, action, or license/mode gating.
-
-**Status**: open
-**Resolves with**: lab test (induce primary-resolver failure and observe try-order; inspect the default gateway and the `ZPA Resolver` rule) OR zscaler doc not yet read
-
----
-
-### cloud-connector-14 — Duplicate DNS gateway packages and the type field semantics
-
-*Origin: `references/cloud-connector/terraform.md` § Open questions; `references/cloud-connector/sdk.md` § Open questions; `references/cloud-connector/api-divergences.md` § Open questions*
-
-Two Go SDK packages — `dns_gateway` and `forwarding_gateways/dns_forwarding_gateway` — both target `/ztw/api/v1/dnsGateways` with no clear deprecation note. The `dns_gateway` package omits `*http.Response` from its `Get`/`Create`/`Update` signatures and omits the `Type` field; the `dns_forwarding_gateway` package includes both, and its `type` carries `ZIA` / `ECSELF` values. Unresolved: (1) which package is canonical for the Terraform provider (`ztc_dns_forwarding_gateway` vs `ztc_dns_gateway`, both targeting the same endpoint); (2) whether the API distinguishes the two by `dnsGatewayType`; (3) whether `type` is required by the backend, optional, or meaningful only for the Log-and-Control ("ECSELF") variant.
-
-**Status**: open
-**Resolves with**: lab test (create gateways via each resource and compare the wire payloads / `type` handling) OR code read (a future SDK release may deprecate one package)
-
----
-
-### cloud-connector-15 — subcloud_primary/secondary backend behavior for CC DC proxies
-
-*Origin: `references/cloud-connector/terraform.md` § Open questions; `references/cloud-connector/api-divergences.md` § Open questions*
-
-The Terraform forwarding-gateway resource registers `subcloud_primary` / `subcloud_secondary` as `id`+`name` blocks and reads/writes them (`vendor/terraform-provider-ztc/ztc/resource_ztc_forwarding_gateway.go:127-128,187-190,250-251`), tying them to a manual DC proxy when the org has subclouds. The SDK struct comment still calls them "Not applicable to Cloud & Branch Connector" (`vendor/zscaler-sdk-go/zscaler/ztw/services/forwarding_gateways/.../zia_forwarding_gateway.go:38-41`). Whether the backend API actually honors subclouds for Cloud & Branch Connector DC proxies (vs the TF schema merely exposing the fields) is not verifiable from source.
-
-**Status**: open
-**Resolves with**: lab test (set subcloud blocks on a CC forwarding gateway, observe whether the backend applies them to DC-proxy selection)
-
----
-
-### cloud-connector-16 — ztc_traffic_forwarding_rule: OneAPI requirement and ZPA App Segment ID equivalence
-
-*Origin: `references/cloud-connector/terraform.md` § Open questions*
-
-Two forwarding-rule questions on the Terraform surface: (1) whether `ztc_traffic_forwarding_rule` requires OneAPI auth or works with both auth frameworks is not confirmed from available sources; (2) the `zparesources` Go package exports `GetZPAApplicationSegments`, returning ZPA Application Segment IDs visible to the CC tenant (`vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/zparesources/zparesources.go`), but whether those IDs are identical to the IDs returned by the `zpa_application_segment` data source in the ZPA Terraform provider has not been confirmed by a live cross-provider test. The ZTC provider exposes no data source for this lookup.
-
-**Status**: open
-**Resolves with**: lab test (run a forwarding-rule create under each auth framework; compare segment IDs from `zparesources` against the ZPA provider data source for the same segment)
-
----
-
-### cloud-connector-17 — "Local" / LOCAL_SWITCH forwarding method — real behavior or doc artifact
-
-*Origin: `references/cloud-connector/terraform.md` § Open questions; `references/cloud-connector/index.md` § forwarding-method prose*
-
-The Go `ForwardMethod` enum (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:44`) has no `LOCAL_SWITCH` value, yet a `LOCAL_SWITCH` value appears in the Terraform validator and in Python docstrings, and `index.md` prose lists "local" among the forwarding methods. Whether "local switch" / "Local" is a real portal-only or hardware-gateway (Branch Connector) behavior that the Go enum simply does not model, or an erroneous notion that propagated through docs, is unresolved. Until confirmed, the skill should not assert a `LOCAL_SWITCH` enum value against the Go SDK.
-
-**Status**: open
-**Resolves with**: lab test (attempt a `LOCAL_SWITCH` / "Local" forwarding rule on a Cloud vs Branch Connector tenant, observe acceptance) OR Postman / oneapi-spec cross-check on the `forwardMethod` enum
-
----
-
-### cloud-connector-18 — ZTW API surface gaps: endpoint paths, Azure/GCP discovery automation, Go ZIdentity auth
-
-*Origin: `references/cloud-connector/api.md` § Open questions*
-
-The three original items now reduce to one. (1) **Resolved:** current Go source
-uses `/ztw/api/v1/adminUsers` and `/ztw/api/v1/adminRoles`
-(`vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminusers/adminusers.go:13-15`;
-`vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminroles/adminroles.go:14-16`)
-and the active activation package uses the status, activate, and forced-activate
-paths under `/ztw/api/v1/ecAdminActivateStatus`
-(`vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go:10-14`).
-The separate `activation_cli` implementation is entirely commented and is not
-an additional active service surface
-(`vendor/zscaler-sdk-go/zscaler/ztw/services/activation_cli/zconActivator.go:1-76`).
-(2) **Partially resolved:** current Help enumerates the Azure
-`/publicCloudTenant` and `/discoveryService/azure/...` families
-(`vendor/zscaler-help/cbc-release-upgrade-summary-2026.json:44-64`) and documents
-the Azure partner-integration behavior
-(`vendor/zscaler-help/cbc-about-microsoft-azure-accounts.json:8-28`). No
-corresponding public GCP discovery REST family is established by the current
-captured API navigation, so only that GCP surface remains open. (3)
-**Resolved:** the unified Go client routes ZTW through a dedicated
-`ZTWHTTPClient` OAuth2 client
-(`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:372-373`); legacy `ZTC_*`
-credentials are the backward-compatible alternative.
-
-**Status**: partially resolved — last updated 2026-08-04
-**Resolves with**: vendor API documentation or a lab test establishing whether
-GCP workload discovery has a public REST family
-
----
-
-### cloud-connector-19 — ZTW SDK method-convention anomalies and OneAPI FedRAMP behavior
-
-*Origin: `references/cloud-connector/sdk.md` § Open questions*
-
-Two Go SDK convention anomalies remain unconfirmed: (1) `provisioning_url` uses the ZIA-style methods (`service.Client.Create`, not `CreateResource`) for `Create` / `UpdateWithPut` / `Delete`; and (2) `workload_groups.Get` calls `service.Client.Read` rather than the ZTW-typical `ReadResource`. The endpoint may use the older request path intentionally, but source does not explain either choice.
-
-The earlier FedRAMP premise is reopened. The shared Go OneAPI client constructs dedicated `gov` / `govus` ZIdentity and API-gateway routes, and the ZTC provider passes its unrestricted `zscaler_cloud` string into that client (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/terraform-provider-ztc/ztc/provider.go:44-49`; `vendor/terraform-provider-ztc/ztc/config.go:350-372`). The current provider docs claim FedRAMP support but attach it to `>=v4.7.25`, an impossible threshold for the current v0.2.0 ZTC provider (`vendor/terraform-provider-ztc/docs/index.md:143-152`; `vendor/terraform-provider-ztc/CHANGELOG.md:3-12`). Official Terraform Skills v0.3.1 says the opposite: no released ZTC version supports OneAPI FedRAMP and government tenants should use legacy auth (`vendor/zscaler-terraform-skills/skills/ztc-skill/references/auth-and-providers.md:5-16`). Static source therefore establishes route construction but neither released support nor live ZTW acceptance. The prior categorical gov/ten exclusion and its fallback question are no longer supportable as written.
-
-**Status**: open — last updated 2026-08-09
-**Resolves with**: code read (a future SDK release or maintainer note clarifying the method-convention choices) AND a current ZTC release note or vendor API statement explicitly establishing FedRAMP support, or a lab test that authenticates and completes a ZTW operation through OneAPI on `gov` / `govus`
-
----
-
-### cloud-connector-20 — NSS VA for CBC: feed coverage, sizing, certs, HA, and rule-match semantics
-
-*Origin: `references/cloud-connector/nss-va.md` § Open questions*
-
-Several NSS-VA-for-CBC behaviors are not pinned down in the captured help sources: (1) whether CBC DNS events (from the DNS Forwarding Gateway / DNS policy) appear under the NSS Firewall log type or require a separate feed — generic NSS docs list DNS as a separate type, but CBC NSS guidance references only Firewall; (2) NSS VA sizing numbers for typical CC fleet sizes (the guides point to Zscaler's interactive sizing tool but capture no CBC table); (3) the NSS client certificate's validity period and whether Zscaler offers automated renewal or requires manual re-registration; (4) whether two NSS VAs can consume the same Nanolog partition simultaneously (active-active HA) or the stream targets exactly one VA; (5) whether Log-and-Control Forwarding gateway selection affects the path CC VMs take to upload logs to the Nanolog — i.e. whether a misconfigured log/control rule could starve the Nanolog before the NSS VA can pull; (6) whether JSON is a supported Firewall feed output format for VM-based NSS in CBC (or CSV is the only tested format); (7) whether Log-and-Control Forwarding rule evaluation stops at the first matching rule (first-match-wins) and whether the auto-created default rule holds the terminal catch-all position — captured source confirms ascending-numerical-order evaluation and disabled-rule skip (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.json:34,36`) but not the stop-on-first-match semantics.
-
-**Status**: open
-**Resolves with**: zscaler doc not yet read (CBC-specific NSS sizing / cert / feed-format guidance) OR lab test (observe DNS-in-Firewall-feed, active-active VA behavior, and rule-match stop semantics in a tenant)
-
----
-
-### cloud-connector-21 — Insights/Tunnel-Insights aggregation and byte-count parity with NSS feeds
-
-*Origin: `references/cloud-connector/logs/log-schema.md` § Open questions*
-
-Three Insights-surface items the log-schema doc flags but cannot resolve from source: (1) whether a raw log-download API exists for Insights data — none is confirmed (absence of evidence, not evidence of absence); (2) whether the byte counts in Tunnel Insights (DPD / Received / Sent bytes) match `inbytes` / `outbytes` from NSS-firewall records for the same sessions is unverified — no NSS feed equivalent of the Tunnel Insights metrics is confirmed; (3) the exact time-window aggregation behavior of Insights session/DNS/tunnel views at multi-day scale (the UI says it aggregates per day, but the precise semantics are undocumented). The separate `Status` / `UpgradeStatus` SDK value-space question is filed as `log-22`, not here.
-
-**Status**: open
-**Resolves with**: lab test (compare Tunnel Insights byte counts against NSS records for the same sessions; observe multi-day aggregation) OR zscaler doc not yet read (a raw-log-download API surface)
-
----
-
-### cloud-connector-22 — CC region coverage: GovCloud, China, GCP deployment, and WDS-vs-ZTG region-set parity
-
-*Origin: `references/cloud-connector/regions.md` § Open questions*
-
-The GCP side is now substantially bounded. Current Help enumerates exactly 16
-GCP Zero Trust Gateway regions
-(`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.json:31-53`). It
-also confirms standard GCP Cloud Connector is deployed with Terraform
-(`vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.json:8-10`),
-and the release summary confirms the Terraform package uses a Google Cloud
-Marketplace image
-(`vendor/zscaler-help/cbc-release-upgrade-summary-2026.json:38-42`). The standard
-customer-deployed architecture is documented as separate management and service
-VPCs, zonal MIGs, a regional Cloud NAT gateway, a load balancer, custom routes,
-and distinct deployment, VM, and function service accounts
-(`vendor/zscaler-help/cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json:8-32,65-76`).
-
-What remains open is narrower: the region matrix for standard customer-deployed
-Cloud Connector; whether the workload-discovery region set equals the ZTG set;
-AWS/Azure Gov, China, and other sovereign-cloud availability; per-region
-Small/Medium/Large VM-size availability; and the Azure Function App Flex
-Consumption regional-gap list. None of the confirmed GCP facts establishes
-parity among WDS, ZTG, and standard-CC deployment regions.
-
-**Status**: partially resolved — last updated 2026-08-04
-**Resolves with**: tenant read (query supported WDS regions and compare with
-the ZTG table), cloud Marketplace checks, or vendor confirmation for standard
-CC, sovereign-cloud, VM-size, and Azure Flex regional availability
-
----
-
-### cloud-connector-23 — dest_workload_groups_ids binding to LOCAL_SWITCH / "Local"
-
-*Origin: `references/cloud-connector/api-divergences.md` § Open questions*
-
-The Python docstring ties destination workload groups (`dest_workload_groups_ids` / `destWorkloadGroups`) to the `LOCAL_SWITCH` forward method, while the help text ties them to the console "Local" method. Whether the backend actually accepts `destWorkloadGroups` only on `LOCAL_SWITCH` / "Local" rules — and rejects or ignores them on other forwarding methods — is unconfirmed (and depends partly on cloud-connector-17, the question of whether `LOCAL_SWITCH` is itself a live method).
-
-**Status**: open
-**Resolves with**: lab test (set `dest_workload_groups_ids` on rules of varying forward method, observe which the backend accepts)
-
----
-
-### cloud-connector-24 — Field character-limit enforcement on DNS and Log-and-Control rules
-
-*Origin: `references/cloud-connector/dns-subsystem.md` § Open questions*
-
-The help pages state character limits for Log-and-Control rule fields (name ≤ 31, description ≤ 10,240), but the captured `ECTrafficLogRules` struct models them as plain string fields with no enforcement. Whether the API actually enforces these limits server-side — and whether the DNS-rule fields carry analogous undocumented limits — is doc-tier until confirmed against the API's validation behavior.
-
-**Status**: open
-**Resolves with**: lab test (submit over-length name/description values, observe whether the API rejects them) OR zscaler doc not yet read
-
----
-
-### cloud-connector-25 — ZCloudConnector default-response success schema semantics
-
-*Origin: `references/cloud-connector/api-divergences.md` § Contract reconciliation caveat*
-
-The reconstructed OpenAPI snapshot carries 165 ZCloudConnector operations, but the structural validation report flags 124 of them as `default_response_as_success`: the exporter used a schema-bearing `default` response as the success schema because no explicit `2xx` schema was present (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:17`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:25`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:30-153`). This preserves useful method/path/field metadata for reconciliation, but it does not prove the intended success status code for those operations or whether the embedded `default` response is a success envelope rather than a catch-all envelope.
-
-**Status**: open
-**Resolves with**: vendor OpenAPI/spec clarification OR live response capture for representative ZCloudConnector operations that currently rely on `default` response schemas
-
----
-
-### cloud-connector-26 — ztc_traffic_forwarding_rule label support
-
-*Origin: `references/cloud-connector/terraform.md` § Policy Management — Traffic Forwarding Rules*
-
-Upstream issue [zscaler/terraform-provider-ztc#46](https://github.com/zscaler/terraform-provider-ztc/issues/46) reports GUI support for Cloud Connector traffic-forwarding rule labels and requests Terraform `rule_label` support. The `ztc_traffic_forwarding_rule` provider schema currently exposes no `labels` / `rule_label` field in its top-level schema (`vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_rule.go:123-248`). The reconstructed ZCloudConnector contract includes a `labels` array in the request shape for `POST /ecRules/ecRdr`, but its field description explicitly says it is "Not applicable to Cloud & Branch Connector" (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:88559-88571`; `vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:90749-90756`). Static sources therefore establish the provider omission and a GUI-versus-contract documentation conflict; they do not prove Cloud & Branch Connector API write acceptance, provider implementation timing, or that the generic field applies to this product.
-
-**Status**: open
-**Resolves with**: provider source update adding `labels` / `rule_label`, lab test writing labels through the API, or vendor documentation clarifying GUI/API behavior
-
----
-
-### cloud-connector-27 — `eu-central-2` ZTG region source conflict
-
-*Origin: `references/cloud-connector/regions.md` § Open questions*
-
-The official Cloud & Branch Connector 2025 release summary announced
-`eu-central-2` for Zero Trust Gateways on December 15, 2025, alongside
-`sa-east-1`, `ca-central-1`, and `eu-west-3`
-(`vendor/zscaler-help/cbc-release-upgrade-summary-2025.json:11-18`; [official
-release entry](https://help.zscaler.com/cloud-branch-connector/release-upgrade-summary-2025?applicable_category=connector.zscaler.net&deployment_date=2025-12-15&id=1532586)).
-The current locally captured AWS ZTG region table includes the other three
-regions but omits `eu-central-2`
-(`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.json:8-29`). The
-omission is a source conflict; neither source says whether the region was
-withdrawn, and omission alone is not evidence of withdrawal.
-
-**Status**: open
-**Resolves with**: current portal, tenant, or vendor confirmation of
-`eu-central-2`, including whether support changed after the 2025 announcement
-
----
-
-### cloud-connector-28 — GCP Resource Sync default cadence: Help vs Terraform module
-
-*Origin: `references/cloud-connector/gcp-deployment.md` § Resource Sync*
-
-Current GCP MIG Help says the Resource Sync Cloud Run function reconciles Admin
-Console membership with the MIG and runs every 10 minutes by default
-(`vendor/zscaler-help/cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json:26-32`).
-The pinned official GCP Terraform module instead describes a 30-minute trigger
-and configures cron `*/30 * * * *`
-(`vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/main.tf:331-353`).
-For a deployment made from that module, 30 minutes is the concrete configured
-value. Static source does not establish whether Help describes a different
-managed/default template or whether one source is stale.
-
-**Status**: open
-**Resolves with**: vendor clarification or a versioned deployment-template
-mapping that explains which implementation uses the 10-minute default
-
----
-
-### cloud-connector-29 — Azure Zero Trust Gateway deployment availability
-
-*Origin: `references/cloud-connector/overview.md` § Current Zero Trust Gateway product surface and availability boundary*
-
-The current generic Zero Trust Gateway product page describes private VPC/VNet
-traffic and names Azure ExpressRoute alongside AWS Direct Connect and GCP
-Interconnect (`vendor/zscaler-help/zero-trust-gateway-marketing.md:15-20`). That
-is connectivity and product-positioning evidence, not a per-cloud deployment
-matrix; the page does not state where customers can currently create gateways,
-their release stage, tenant entitlement, or an API contract
-(`vendor/zscaler-help/zero-trust-gateway-marketing.md:25-31`). The cloud-specific
-Help captured in this pass establishes AWS and GCP Zero Trust Gateways as
-Limited Availability and Support-enabled, but no equivalent Azure deployment
-article or first-party availability matrix was found
-(`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.json:8-10`;
-`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.json:8-17`).
-
-**Status**: open
-**Resolves with**: a first-party cloud-specific Azure Zero Trust Gateway Help
-article, an explicit per-cloud deployment/availability matrix, or tenant/vendor
-confirmation that distinguishes Azure-hosted gateway deployment from Azure
-ExpressRoute connectivity to a gateway service
-
----
-
 ### zdx-03 — ZDX token host per tenant
 
 *Origin: `references/zdx/api-divergences.md` § Open questions; `references/zdx/api.md` § Open questions*

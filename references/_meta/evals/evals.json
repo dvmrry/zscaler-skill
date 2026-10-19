@@ -264,7 +264,7 @@
     {
       "id": 13,
       "prompt": "We deployed Cloud Connector in AWS yesterday. Today some workloads can't reach the internet at all. Admin dashboard shows one of our configured gateways is unhealthy. What's the most likely explanation?",
-      "expected_output": "Cloud Connector's default is **fail-close**: when all gateways are unreachable, internet-bound workload traffic is dropped, not bypassed. This is the opposite of the typical enterprise 'fail-open = broken access' intuition. The failover path is primary → secondary → tertiary (tertiary is automatic even if only two gateways were configured), with ~30-second failover between them. If workloads are failing completely, check whether secondary and tertiary gateways are also unhealthy (not just primary). Alternatively, the tenant might be configured fail-open but a specific rule is still blocking the traffic. If operational posture prefers availability over inspection during outages, flip to fail-open explicitly. Note that fail-open means traffic egresses direct, skipping Zscaler entirely — a security trade-off the tenant has to accept.",
+      "expected_output": "Cloud Connector's default gateway configuration is **fail-close**: internet-bound workload traffic is dropped when no Cloud Connector in the group can reach any Internet & SaaS Service Edge. The failover path is primary → secondary (about 30 seconds), and by default it also tries a tertiary Service Edge if both fail. If workloads are failing completely, check whether the secondary and tertiary paths are also unhealthy, not just the primary. Customers can change the configuration to fail-open; where fail-open traffic egresses, and whether the toggle is the forwarding gateway's `failClosed` setting, is not settled by the sources, so treat it as open rather than assuming traffic goes direct.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
@@ -273,12 +273,12 @@
         "secondary",
         "30"
       ],
-      "must_cite_files": [
-        "references/cloud-connector/overview.md"
-      ],
       "must_not_say": [
         "fail-open is the default",
         "Cloud Connector always bypasses when gateways are down"
+      ],
+      "must_cite": [
+        "cloud-connector.overview.gateway-failover"
       ]
     },
     {
@@ -356,13 +356,13 @@
         "verify",
         "Zscaler Support"
       ],
-      "must_cite_files": [
-        "references/cloud-connector/azure-deployment.md"
-      ],
       "must_not_say": [
         "Your deployment is definitively wrong",
         "Single-NIC is impossible",
         "Zscaler doesn't support custom deployments"
+      ],
+      "must_cite": [
+        "cloud-connector.azure.network"
       ]
     },
     {
@@ -641,25 +641,24 @@
     {
       "id": 28,
       "prompt": "Can I automate Cloud Connector from the Zscaler Python SDK? Our team is considering moving the integration to the Python 2.0.0 beta; identify the correct accessor and supported release line.",
-      "expected_output": "Yes. Cloud Connector/ZTW is available from the Python v1.x GA line through `client.ztw.*`; the current captured version is v1.9.41. The 2.0.0bN beta does not include ZTW, so do not migrate Cloud Connector automation to that beta expecting parity. Go also exposes `zscaler/ztw`, and Terraform uses `ztc_*` resources.",
+      "expected_output": "Yes. Cloud Connector (ZTW) is available from the Python SDK's v1.x GA line through `client.ztw.*`. The v2.x beta (`2.0.0bN`) covers ZIA, ZDX and ZIdentity only; ZTW stays on v1.x, which remains the recommended GA release, so do not migrate Cloud Connector automation to the beta expecting parity. Go also exposes `zscaler/ztw`, and Terraform uses `ztc_*` resources.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
         "client.ztw",
         "v1.x",
-        "v1.9.41",
         "2.0.0",
-        "does not include",
-        "ztc_"
-      ],
-      "must_cite_files": [
-        "references/cloud-connector/api.md",
-        "references/cloud-connector/sdk.md"
+        "ztc_",
+        "ZDX",
+        "ZIdentity"
       ],
       "must_not_say": [
         "Python SDK has no Cloud Connector coverage",
         "ZTW was added in Python SDK v2.0.0",
         "migrate to v2.0.0 for ZTW"
+      ],
+      "must_cite": [
+        "cloud-connector.api.client-coverage"
       ]
     },
     {
@@ -719,25 +718,25 @@
     {
       "id": 31,
       "prompt": "Which actions can I send in a Cloud Connector `traffic_dns_rules` API or Terraform resource? Is `OVERWRITE` / 'Overwrite DNS response' a valid fifth action?",
-      "expected_output": "The captured Terraform constraint and SDK model support exactly four rule actions: `ALLOW`, `BLOCK`, `REDIR_REQ` (bind a DNS Gateway), and `REDIR_ZPA` (bind a ZPA IP group). There is no `OVERWRITE` token in the captured ZTW SDK or ZTC provider. Help capability wording about overwriting responses may describe another feature or redirect behavior, but it is not a fifth `traffic_dns_rules` action.",
+      "expected_output": "It depends on the client. The Terraform DNS rule resource validates `action` against four values: `ALLOW`, `BLOCK`, `REDIR_REQ` (bind a DNS gateway) and `REDIR_ZPA`. The API contract lists eleven, adding `REDIR_RES`, the DoH, TCP and UDP request redirects, `REDIR_REQ_KEEP_SENDER`, `BLOCK_WITH_RESPONSE` and `BLOCK_WITH_EUN`; those seven cannot be written through Terraform. Neither has an `OVERWRITE` token. The help's 'overwriting DNS responses' wording may correspond to `REDIR_RES`, but no source says so; it is an open question.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
-        "exactly four",
         "ALLOW",
         "BLOCK",
         "REDIR_REQ",
         "REDIR_ZPA",
-        "not a fifth"
-      ],
-      "must_cite_files": [
-        "references/cloud-connector/dns-subsystem.md",
-        "references/cloud-connector/api-divergences.md"
+        "REDIR_RES",
+        "eleven",
+        "Terraform"
       ],
       "must_not_say": [
         "OVERWRITE is a supported action",
         "Overwrite DNS response is a traffic_dns_rules action",
-        "five traffic_dns_rules actions"
+        "exactly four actions in the API"
+      ],
+      "must_cite": [
+        "cloud-connector.dns.policies"
       ]
     }
   ]

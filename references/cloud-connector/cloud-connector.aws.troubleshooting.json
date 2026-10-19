@@ -1,0 +1,355 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.aws.troubleshooting",
+  "title": "Troubleshooting Cloud Connector on AWS: not registering, inactive, no tunnel, no Private Access",
+  "aliases": [
+    "cloud connector not showing in admin console aws",
+    "cloud connector inactive aws",
+    "cloud connector wrong geolocation",
+    "cloud connector private access enrollment failed",
+    "ec2br.prod.zpath.net",
+    "pkg-repo.zscaler.com",
+    "zsroot ssh cloud connector",
+    "cloud connector cloudformation stack failed"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.aws"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.provisioning"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.security-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.gwlb"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Help's AWS troubleshooting article sorts failures by symptom. Each symptom below names its checks; bootstrap inputs are in [[cloud-connector.aws.provisioning]]."
+    },
+    {
+      "label": "Instance never comes up.",
+      "text": "{{boot-timeouts}} {{supported-types}}"
+    },
+    {
+      "label": "Not shown in the Admin Console.",
+      "text": "{{network-path}} The URL, secret, role and user-data checks are in [[cloud-connector.aws.provisioning]]. {{package-repo}}"
+    },
+    {
+      "label": "Deployment tooling fails.",
+      "text": "{{cfn-input}} {{cfn-stack-fails}} IAM requirements for the deployer are in [[cloud-connector.aws.iam]]."
+    },
+    {
+      "label": "Wrong location, inactive, or no tunnel.",
+      "text": "{{wrong-geolocation}} {{inactive}} {{no-gateway-ip}}"
+    },
+    {
+      "label": "Private Access.",
+      "text": "{{zpa-enrollment-limit}} {{zpa-dns}} {{private-apps}}"
+    },
+    {
+      "label": "Traffic.",
+      "text": "{{ingress-routing}} {{traffic-not-restored}} Source/destination check and device indexes are in [[cloud-connector.aws.interfaces]]; GWLB target health is in [[cloud-connector.aws.gwlb]]."
+    },
+    {
+      "label": "Getting a shell.",
+      "text": "{{cli-ssh}} {{cli-ssm}}"
+    },
+    {
+      "label": "Not documented.",
+      "text": "Whether a second scaling policy on EC2 CPUUtilization conflicts with the Cloud Connector policy is not documented {{gap:competing-scaling-policy}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the instance is running within 20 minutes with 2/2 status checks within 10.",
+      "uses": [
+        "boot-timeouts"
+      ]
+    },
+    {
+      "do": "From the appliance console, whether an internet destination and pkg-repo.zscaler.com on TCP 443 are reachable.",
+      "uses": [
+        "network-path",
+        "package-repo"
+      ]
+    },
+    {
+      "do": "Whether the service interface sits behind the NAT gateway and elastic IP expected for the Cloud Connector's geolocation.",
+      "uses": [
+        "wrong-geolocation"
+      ]
+    },
+    {
+      "do": "For Private Access failures, whether the group has more than 100 Cloud Connectors in one VPC or availability zone, and whether ec2br.prod.zpath.net resolves.",
+      "uses": [
+        "zpa-enrollment-limit",
+        "zpa-dns"
+      ]
+    }
+  ],
+  "claims": {
+    "boot-timeouts": {
+      "statement": "An instance that is not running after 20 minutes, or without 2/2 status checks after 10, should have its system log and screenshot collected and be rebooted; if it still does not pass two of two checks, delete and re-create it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "The Cloud Connector instance state is not running after 20 minutes, or the status check is not 2/2 checks passed after 10 minutes.",
+            "If the appliance does not proceed after rebooting and indicate two of two checks have passed, delete and re-create the appliance.",
+            "From the Monitor and troubleshoot submenu, select Get instance screenshot.",
+            "Reboot the instance by clicking Instance state, followed by Reboot instance.",
+            "Navigate to the Monitor and troubleshoot submenu and select Get system log."
+          ]
+        }
+      ]
+    },
+    "supported-types": {
+      "statement": "Help says to confirm the instance type is supported in the AWS Marketplace and recommends m6i.large or m6i.4xlarge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "The instance types are supported in the AWS Marketplace. Zscaler recommends deploying with m6i.large or m6i.4xlarge instance types."
+          ]
+        }
+      ]
+    },
+    "network-path": {
+      "statement": "For a Cloud Connector missing from the console, Help says to verify route tables, NAT gateway and internet gateway by pinging or curling an internet destination from the appliance console, and that security groups and network ACLs permit the needed inbound, outbound and workload traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Network connectivity is configured correctly. Verify route tables, NAT gateway, and the internet gateway. To test, from the Cloud Connector appliance console, attempt to ping or cURL a destination on the internet.",
+            "The workload traffic that transits the Cloud Connector is included in the security group and network ACL rule sets.",
+            "Security configuration within AWS is accurate. Inbound and outbound access is verified by security groups and network access control lists (ACLs)."
+          ]
+        }
+      ]
+    },
+    "package-repo": {
+      "statement": "When the Cloud Connector does not update, Help says to test pkg-repo.zscaler.com on TCP 443 from the console, where a 500 response means connectivity succeeded and a timeout points at the NAT gateway, route table or internet gateway, then check the certificate bundle and run sudo pkg update.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Verify that pkg-repo.zscaler.com is reachable on TCP port 443 by running either telnet pkg-repo.zscaler.com 443 or curl pkg-repo.zscaler.com 443.",
+            "Check whether Cloud Connector received a 500 response from the server indicating that connectivity has succeeded. If the request times out, verify the AWS network configuration (NAT gateway, route table, and internet gateway).",
+            "Run the sudo pkg update command to verify the software update.",
+            "command to verify that the certificate bundle is present."
+          ]
+        }
+      ]
+    },
+    "cfn-input": {
+      "statement": "For CloudFormation rule failures caused by user input, Help's checks are that the VPC, subnet and availability-zone stack parameters do not mismatch, and that the provisioning URL field is not empty and is in the correct format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "CloudFormation built-in rules and constraints are not satisfied due to user input error.",
+            "There is no mismatch with the CloudFormation stack parameters: virtual private cloud (VPC), subnet, and availability zone.The provisioning URL field is not empty and is in the correct format."
+          ]
+        }
+      ]
+    },
+    "cfn-stack-fails": {
+      "statement": "When the stack fails and is rolled back, Help says to read the event log, confirm permissions, and confirm the AWS Marketplace terms for the Cloud Connector offering were accepted before the first deployment in the account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "CloudFormation stack fails to deploy. Resources and the stack are deleted.",
+            "Verify that Supported Images in the AWS Marketplace terms and conditions were accepted before deploying to the AWS account for the first time.",
+            "Investigate the event log for errors.Confirm that the user has the correct permissions."
+          ]
+        }
+      ]
+    },
+    "wrong-geolocation": {
+      "statement": "For a Cloud Connector in the wrong geolocation, Help says to ensure its service interface is associated with the correct NAT gateway and that gateway has the correct elastic IP, or, without a NAT gateway, that the public or elastic IP on its ENI is correct.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Ensure that the Cloud Connector Service Interface is associated with the correct NAT gateway and that the NAT gateway has the correct elastic IP address assigned. If you are not using a NAT gateway, ensure that the public or elastic IP associated with the elastic network interface (ENI) of Cloud Connector is correct."
+          ]
+        }
+      ]
+    },
+    "inactive": {
+      "statement": "For an inactive Cloud Connector, Help's checks are registration and policy fetch (through Zscaler Support), the instance running, the Admin Console reachable from the VPC, Secrets Manager credentials current after any rotation, and the network path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "The registration and policy fetch are correct. To check, contact Zscaler Support.",
+            "The Zscaler Admin Console can be reached from your VPC/Subnet.AWS Secrets Manager has the correct secret credentials in case of a secrets rotation.",
+            "The Cloud Connector instance is up and running within the AWS Management Console.",
+            "The network is connected. Verify by checking the route tables, NAT gateway, and internet gateway configurations."
+          ]
+        }
+      ]
+    },
+    "no-gateway-ip": {
+      "statement": "When the Internet & SaaS gateway IP is not populated and no tunnel forms, Help's checks are TCP/UDP 443 not blocked, the gateway configuration set to Auto, Manual with the right data center, or Override with the right IP, and pac.<cloudname>.net reachable from the VPC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "The Internet & SaaS gateway IP address in the Zscaler Admin Console is not populated, and the tunnel is not established.",
+            "The service security group is not blocking access to the management interface (TCP/UDP 443) and the network ACL.",
+            "Ensure that Gateway configuration is set to Auto or Manual (with the proper Data Center set), or in the case of Override, the proper IP Address is input.The PAC file for pac.<cloudname>.net is reachable from the customer's VPC or subnet."
+          ]
+        }
+      ]
+    },
+    "zpa-enrollment-limit": {
+      "statement": "Private Access enrollment fails when more than 100 Cloud Connectors are deployed in one group within the same VPC or availability zone; Help says to contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "If the user deploys more than 100 Cloud Connectors within a group and within the same VPC or availability zone, then the Private Access enrollment fails. Contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "zpa-dns": {
+      "statement": "When a Cloud Connector has no Private Access service edge IP, Help says to check that ec2br.prod.zpath.net resolves from it and that TCP/UDP 443 is allowed by the network ACL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "The DNS to ec2br.prod.zpath.net is resolvable from the Cloud Connector.The connection to TCP/UDP port 443 is allowed in the network ACL.",
+            "AWS Cloud Connector does not have an assigned Private Access Private Service Edge or Private Access Public Service Edge IP address, resulting in a DNS or reachability issue."
+          ]
+        }
+      ]
+    },
+    "private-apps": {
+      "statement": "When workloads cannot reach private applications, Help says to check the CloudFormation Private Access endpoint parameters, that the application name matches the Route 53 configuration, and that the application is available in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "The parameters in the CloudFormation template that pertain to the Private Access endpoints are accurate.",
+            "The application name matches the route53 configuration.",
+            "The application is available from the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "ingress-routing": {
+      "statement": "For workloads that cannot reach the internet, Help's ingress checks are a default route on the workload subnet associated to the Cloud Connector service interface ENI, and no network ACL or service-ENI security group blocking the workload subnet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Configure a default route and associate the route to the ENI of the Cloud Connector Service Interface.The network ACL on the Cloud Connector subnet does not restrict access from the workload subnet.The security group on the Cloud Connector service ENI does not restrict access from the workload.",
+            "The routing of the workload subnet does not interfere with the connection."
+          ]
+        }
+      ]
+    },
+    "traffic-not-restored": {
+      "statement": "When traffic does not return after a Cloud Connector failure, Help says to check that the backup instance is healthy under the high-availability model and that the Cloud Connector is healthy in the AWS Gateway Load Balancer console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "The Cloud Connector backup instance is in good health with the high-availability model.",
+            "The Cloud Connector instance is healthy in the Gateway Load Balancer console of AWS."
+          ]
+        }
+      ]
+    },
+    "cli-ssh": {
+      "statement": "CLI access over SSH uses the instance key pair and the administrative login zsroot, through a bastion host or an elastic IP on the management interface; Zscaler highly recommends restricting inbound rules to known management IP sources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "after": "Management Interface Elastic IP Address",
+          "quotes": [
+            "The administrative login for the appliance is zsroot.",
+            "Zscaler highly recommends that your inbound rules are restricted to your known management IP address sources."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "A Bastion host is a lightweight EC2 instance installed within the same subnet as the Cloud Connector Service Interface or Management Interface.",
+            "Therefore, you must have access to the SSH key pair used when instantiating the appliances.",
+            "Management Interface Elastic IP Address"
+          ]
+        }
+      ]
+    },
+    "cli-ssm": {
+      "statement": "Cloud Connector appliances have the AWS SSM Agent installed by default; in an SSM session sudo is not in PATH, so administrative commands such as starting a support tunnel use /usr/local/bin/sudo zssupport start.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Cloud Connector appliances have the AWS SSM Agent installed by default.",
+            "However, this user does not have the sudo command within its PATH variable. To execute any administrative tasks, such as starting a support tunnel, on the appliance via SSM, enter the sudo $ /usr/local/bin/sudo zssupport start command."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "competing-scaling-policy": {
+      "kind": "semantic",
+      "title": "A second Auto Scaling policy on EC2 CPUUtilization",
+      "status": "open",
+      "detail": "Unverified legacy statement: if operators add a second scaling policy on the standard CPUUtilization metric alongside the Cloud Connector custom metric, the policies may conflict and cause oscillation. Help explains only why the custom metric is used.",
+      "blocks": "advising on custom scaling policies for Cloud Connector groups",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

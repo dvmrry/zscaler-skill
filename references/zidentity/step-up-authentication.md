@@ -165,5 +165,5 @@ Step-up is the execution layer for both these actions:
 - ZIA URL Filtering Conditional action (the ZIA-side entry point) — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZPA Require Approval action (the ZPA-side entry point) — [`zpa.policy`](kb:zpa.policy)
 - ZPA StepUpAuthLevelAPI in SDK catalog — [`zpa.sdk-python`](kb:zpa.sdk-python) §2.62
-- Cross-product integrations — [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)
+- Cross-product integrations — [`shared.integrations`](kb:shared.integrations)
 - ZIdentity overview (OIDC vs SAML IdP choice) — [`./overview.md`](./overview.md)

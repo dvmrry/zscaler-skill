@@ -12,11 +12,11 @@ sources:
   - "https://aws.amazon.com/architecture/well-architected/"
   - "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-areas"
   - "https://cloud.google.com/architecture/framework"
-  - "references/shared/cloud-architecture.md"
+  - "kb:shared.cloud-architecture"
   - "references/_meta/primer/networking-basics.md"
-  - "references/cloud-connector/overview.md"
-  - "references/cloud-connector/aws-deployment.md"
-  - "references/cloud-connector/azure-deployment.md"
+  - "kb:cloud-connector.overview"
+  - "kb:cloud-connector.aws"
+  - "kb:cloud-connector.azure"
   - "`kb:zpa.app-connectors`"
   - "`kb:zpa.logs.app-connector-metrics`"
 dependencies: []
@@ -58,20 +58,20 @@ When instructions are ambiguous, bias toward:
 
 ## Always load for architecture review
 
-- [`references/shared/cloud-architecture.md`](../../../references/shared/cloud-architecture.md) - shared cloud placement and dependency concepts
+- [`shared.cloud-architecture`](kb:shared.cloud-architecture) - shared cloud placement and dependency concepts
 - [`references/_meta/primer/networking-basics.md`](../../../references/_meta/primer/networking-basics.md) - routing, DNS, private connectivity, and load-balancing vocabulary
 
 ## Load when scope names Cloud Connector
 
-- [`references/cloud-connector/overview.md`](../../../references/cloud-connector/overview.md)
-- [`references/cloud-connector/forwarding.md`](../../../references/cloud-connector/forwarding.md)
-- [`references/cloud-connector/dns-subsystem.md`](../../../references/cloud-connector/dns-subsystem.md)
-- [`references/cloud-connector/insights-monitoring.md`](../../../references/cloud-connector/insights-monitoring.md)
+- [`cloud-connector.overview`](kb:cloud-connector.overview)
+- [`cloud-connector.forwarding`](kb:cloud-connector.forwarding)
+- [`cloud-connector.dns`](kb:cloud-connector.dns)
+- [`cloud-connector.insights`](kb:cloud-connector.insights)
 
 ## Load when scope names a cloud provider
 
-- AWS: [`references/cloud-connector/aws-deployment.md`](../../../references/cloud-connector/aws-deployment.md), [`references/cloud-connector/aws-workload-discovery.md`](../../../references/cloud-connector/aws-workload-discovery.md)
-- Azure: [`references/cloud-connector/azure-deployment.md`](../../../references/cloud-connector/azure-deployment.md), [`zcc.install.azure-virtual-desktop`](kb:zcc.install.azure-virtual-desktop)
+- AWS: [`cloud-connector.aws`](kb:cloud-connector.aws), [`cloud-connector.workload-discovery`](kb:cloud-connector.workload-discovery)
+- Azure: [`cloud-connector.azure`](kb:cloud-connector.azure), [`zcc.install.azure-virtual-desktop`](kb:zcc.install.azure-virtual-desktop)
 
 No GCP-specific grounding exists yet. If the scope names GCP, say that provider-specific grounding is missing and proceed from generic cloud/networking references plus user-provided evidence.
 

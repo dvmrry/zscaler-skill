@@ -1,0 +1,383 @@
+{
+  "schema_version": 1,
+  "id": "shared.pac-files.syntax",
+  "title": "Writing a PAC file for Zscaler: function, return statements, ports and performance rules",
+  "aliases": [
+    "pac syntax",
+    "findproxyforurl",
+    "pac return statement",
+    "pac proxy ports",
+    "port 9400",
+    "port 9443",
+    "port 9480",
+    "pac performance",
+    "isinnet dns lookup",
+    "pac best practices",
+    "pactester"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.pac-files.variables"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.pac-files"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.pac"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler's articles on writing PAC files mix JavaScript rules, Public Service Edge facts and performance advice. The variables a hosted file can use are in [[shared.pac-files.variables]]."
+    },
+    {
+      "label": "Structure.",
+      "text": "The required first line is [[zia.proxy-mode.explicit:pac-function]]. {{function-first-line}} {{return-values}} {{proxy-target}} {{top-down}} Client Connector's disaster recovery PAC files also take BLOCK: [[zcc.app-profiles:dr-pac-block]]."
+    },
+    {
+      "label": "Ports.",
+      "text": "{{pse-ports}} Dedicated proxy ports are [[zia.forwarding-control.proxy-ports]], and what the service does with explicit-mode traffic is [[zia.proxy-mode.explicit]]."
+    },
+    {
+      "label": "Bypassing internal destinations.",
+      "text": "{{internal-bypass}} {{isinnet-dns}} {{regex-guard}}"
+    },
+    {
+      "label": "Performance.",
+      "text": "{{serial-execution}} {{grouping}} {{dns-functions}} {{regex-cost}}"
+    },
+    {
+      "label": "Authoring.",
+      "text": "{{editor-and-brackets}} {{lowercase}} {{keep-small}}"
+    },
+    {
+      "label": "Testing.",
+      "text": "{{testing}} {{ip-zscaler-check}} The console's verification statuses are [[shared.pac-files.hosting:page-columns]] and [[zia.traffic-forwarding.pac:validation]]."
+    },
+    {
+      "label": "When no proxy answers.",
+      "text": "{{trailing-direct}} Browser-engine behavior the vendor does not document (runtime errors, IPv6 matching functions) is open {{gap:browser-engine-behavior}}, and the legacy list of destinations to always bypass is open {{gap:always-bypass-list}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the file starts with FindProxyForURL on the first line and every return value is an uppercase quoted DIRECT or PROXY with a host and port.",
+      "uses": [
+        "function-first-line",
+        "return-values",
+        "proxy-target"
+      ]
+    },
+    {
+      "do": "Whether an earlier statement matches the request before the one expected to, since the file is evaluated top-down and the first match wins.",
+      "uses": [
+        "top-down"
+      ]
+    },
+    {
+      "do": "Whether the returned port is open outbound from the user's network, especially 9400.",
+      "uses": [
+        "pse-ports"
+      ]
+    },
+    {
+      "do": "Whether the browser reaches the service, by visiting ip.zscaler.com with the file loaded.",
+      "uses": [
+        "ip-zscaler-check"
+      ]
+    }
+  ],
+  "claims": {
+    "function-first-line": {
+      "statement": "Beyond the FindProxyForURL(url, host) first line, the writing article says url holds the full destination URL and host its domain name or IP address, the host variable is generally preferable, and if no URL or host is specified every request uses the return argument.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.json",
+          "quotes": [
+            "A PAC file must start with the opening function FindProxyForURL(url, host) on the first line.",
+            "The URL variable must contain the full URL of a destination (e.g., http://www.zscaler.com), and the host variable must contain a domain name or its IP address",
+            "Generally speaking, the host variable is preferable to the URL variable. If no URL or host is specified, all web requests use the return argument."
+          ]
+        }
+      ]
+    },
+    "return-values": {
+      "statement": "In a PAC file for a browser or the ZIA-hosted PAC service, a return statement takes one of two values, DIRECT (bypass the proxy and go to the destination) or PROXY (send the request to a proxy), written in uppercase inside quotation marks and followed by a semicolon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.json",
+          "quotes": [
+            "A return statement accepts one of two values:",
+            "DIRECT tells the browser to bypass the proxy and go directly to the destination server.",
+            "PROXY tells the browser to send the request to a proxy.",
+            "The DIRECT or PROXY values must be in uppercase characters and enclosed in quotation marks. Add a semicolon immediately after the closing quotation marks."
+          ]
+        }
+      ]
+    },
+    "proxy-target": {
+      "statement": "Each PROXY statement names the proxy's fully qualified hostname or IP address and a port; IP addresses are discouraged because they can change, and Zscaler recommends its gateway variables instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.json",
+          "quotes": [
+            "Each PROXY statement must specify the fully qualified hostname or the IP address of the proxy and the port. IP addresses are generally discouraged because they can change at any time.",
+            "Zscaler recommends that you use the variables ${GATEWAY} and ${SECONDARY_GATEWAY} instead."
+          ]
+        }
+      ]
+    },
+    "top-down": {
+      "statement": "The JavaScript in a PAC file is parsed top-down and the first match wins; statements match against host names or IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "The JavaScript within a PAC file is parsed in top-down and first match wins. Commands are matched against hostnames or IP addresses."
+          ]
+        }
+      ]
+    },
+    "pse-ports": {
+      "statement": "Public Service Edges accept web requests on ports 80, 443, 9400, 9443 and 9480. Port 9400 is an alternative when a host on the path redirects traffic before it reaches the Service Edge, and should only be returned if it is open outbound; 9443 is for remote users whose HTTPS the service should proxy and inspect; 9480 exempts traffic from a known location from authentication, while remote users on it are still forced to authenticate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.json",
+          "quotes": [
+            "Public Service Edges accept web requests on ports 80, 443, 9400, 9443, and 9480.",
+            "Port 9400 can be used instead if another host between the end user and Public Service Edge attempts to redirect the user’s traffic before it can reach the Public Service Edge.",
+            "If port 9400 is blocked at the user's end for outbound traffic, do not add the proxy entry for the port to the PAC file.",
+            "Port 9443 can be used for remote users who need the service to proxy and inspect HTTPS transactions.",
+            "Port 9480 can be used to exempt authentication for traffic that is destined for Public Service Edges from a known location.",
+            "However, they are forced to authenticate because Zscaler does not accept unauthenticated traffic from unregistered IP addresses or unknown locations."
+          ]
+        }
+      ]
+    },
+    "internal-bypass": {
+      "statement": "The vendor's examples return DIRECT for internal hosts and networks with isInNet (for example 192.168.0.0/255.255.0.0) and bypass a single host with the mask 255.255.255.255; an internal host reached through a Public Service Edge is denied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.json",
+          "quotes": [
+            "The following lines in the PAC file example exclude requests for internal hosts from being redirected to a proxy:",
+            "if (isInNet(host), \"192.168.0.0\", \"255.255.0.0\") { return \"DIRECT\"; }",
+            "If you were proxied through a Public Service Edge, your request would be denied.",
+            "To bypass specific hosts, enter the exact IP address with a subnet mask of 255.255.255.255."
+          ]
+        }
+      ]
+    },
+    "isinnet-dns": {
+      "statement": "isInNet on a host name triggers a DNS lookup, which can hurt performance when DNS is unavailable, and an unresolvable name makes the client wait for the DNS timeout; used for the client address, it returns the device's first IP address, which can be an IPv6 or virtual-adapter address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.json",
+          "quotes": [
+            "Be aware that this argument results in a DNS lookup. It can impact performance if the DNS server is not available.",
+            "If the hostname is not resolvable, the client needs to wait for DNS to time out before moving on.",
+            "Be aware that this argument returns the first IP address on your device, based on its OS.",
+            "might be the IPv6 address of the device or the IP address of virtual adapters and this can cause conflicts."
+          ]
+        }
+      ]
+    },
+    "regex-guard": {
+      "statement": "To avoid those lookups the vendor puts a regular-expression test before isInNet so the network checks run only when the host is an IP address, and bypasses named hosts with a regular-expression variable tested against host, which needs no DNS lookup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.json",
+          "quotes": [
+            "insert a variable that uses a regular expression immediately preceding the isInNet() argument to restrict the result just to IP addresses.",
+            "var bypassHosts = /(remote\\.mydomain\\.com|mail\\.mydomain\\.com)/; if (bypassHosts.test(host)) { return \"DIRECT\"; }",
+            "Using the JavaScript test (host) function, any host you enter here returns DIRECT and does not require a DNS lookup."
+          ]
+        }
+      ]
+    },
+    "serial-execution": {
+      "statement": "Execution speed depends on how the arguments are built, not on file length, because PAC files execute serially: avoid excessive exclusions and put high-probability checks, such as private IP address lookups, at the beginning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-writing-pac-files.json",
+          "quotes": [
+            "The speed of file execution depends on the way arguments are constructed in the PAC file, not on the total length of the file. PAC files execute commands serially.",
+            "Do not use excessive exclusion functions, as this might cause slowness.",
+            "For example, private IP address lookups should be at the beginning."
+          ]
+        }
+      ]
+    },
+    "grouping": {
+      "statement": "Numerous OR statements slow processing; the vendor recommends grouping them inside IF statements so they are parsed in batches, for example one outer test for *.google.com with the specific hosts inside it, and checking IP addresses in a separate if.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-writing-pac-files.json",
+          "quotes": [
+            "Numerous logical OR statements can cause slowness when processing PAC files. It is recommended to group each of the 100 OR statements within its IF statements, so they can be parsed in batches.",
+            "convert it into an outer if statement that is applied to if the host has *.google.com and then test against the 10 hosts.",
+            "Check for IP addresses in a separate if loop."
+          ]
+        }
+      ]
+    },
+    "dns-functions": {
+      "statement": "The vendor advises care with isResolvable(), dnsResolve() and isInNet() because of potential DNS performance issues.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-writing-pac-files.json",
+          "quotes": [
+            "Carefully consider the use (overuse) of isResolvable(), dnsResolve(), and isInNet() due to potential DNS performance issues."
+          ]
+        }
+      ]
+    },
+    "regex-cost": {
+      "statement": "Regular expressions are allowed but should be minimized and kept efficient; complex ones used to make a file smaller can make it less efficient.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-writing-pac-files.json",
+          "quotes": [
+            "Avoid using complex regular expressions to make a PAC file smaller. This can make it less efficient.",
+            "Minimize the use of regular expressions.",
+            "Use efficient regular expressions, and avoid capturing matches that will not be used."
+          ]
+        }
+      ]
+    },
+    "editor-and-brackets": {
+      "statement": "Edit PAC files in a plain text editor rather than Microsoft Office Word, whose smart quotes can break the file; every opening bracket and parenthesis needs its closing one (losing count is among the most common mistakes); comments begin with //; and external or global variables and functions should be avoided.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-writing-pac-files.json",
+          "quotes": [
+            "Use a simple text editor, such as Windows Notepad, to create and edit a PAC file.",
+            "Avoid using Microsoft Office Word; some of its characters and features, such as smart quotes, can affect or break the PAC file.",
+            "One of the most common mistakes in building PAC files is losing count of opening and closing parentheses and brackets.",
+            "Always begin comments with two forward slashes (//).",
+            "Avoid using external or global variables and functions."
+          ]
+        }
+      ]
+    },
+    "lowercase": {
+      "statement": "Some browsers may execute PAC files case-sensitively; the vendor adds var lhost = host.toLowerCase(); host = lhost; at the top of the file, immediately below the opening curly bracket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-writing-pac-files.json",
+          "quotes": [
+            "Some browsers might execute PAC files in a case-sensitive manner.",
+            "add the following argument at the top of the PAC file (immediately below the opening curly bracket) to convert everything to lowercase when the PAC file is executed:",
+            "var lhost = host.toLowerCase(); host = lhost;"
+          ]
+        }
+      ]
+    },
+    "keep-small": {
+      "statement": "Keep the file small and efficient: configure SSL exceptions in the Admin Console rather than in the PAC file, and validate support for built-in JavaScript functions before using them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-writing-pac-files.json",
+          "quotes": [
+            "Keep the file as small and efficient as possible. Configure SSL exceptions in the Zscaler Admin Console instead of adding them to the PAC file.",
+            "Validate support for built-in JavaScript functions before using them."
+          ]
+        }
+      ]
+    },
+    "testing": {
+      "statement": "Test every condition before deployment with pactester or another PAC parser, and also use the console's Verify PAC File option.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-writing-pac-files.json",
+          "quotes": [
+            "Test all conditions and exceptions used in your PAC file prior to deployment.",
+            "You can use the Google tool (pactester) or any other PAC parser tool to ensure that there are no syntax errors in your PAC file and it works correctly. Additionally, leverage the Verify PAC File option in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "ip-zscaler-check": {
+      "statement": "ip.zscaler.com shows whether the browser reached the web server directly or through a Public Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "writing-pac-file.json",
+          "quotes": [
+            "Confirm by going to ip.zscaler.com, which indicates if you reached the web server directly or through a Public Service Edge."
+          ]
+        }
+      ]
+    },
+    "trailing-direct": {
+      "statement": "The vendor's examples end the return list with DIRECT after the primary and secondary gateways, so a request that reaches neither gateway goes to the destination without passing through the service; for traffic that must always be inspected, that last entry is a bypass.",
+      "tier": "B",
+      "derived_from": [
+        "shared.pac-files.variables:gateway-vars",
+        "shared.pac-files.variables:manual-failover",
+        "shared.pac-files.variables:gateway-host",
+        "return-values"
+      ],
+      "conditions": "The vendor return statements quoted in manual-failover and gateway-host end with DIRECT; the claim assumes the browser tries the PROXY entries in order and uses DIRECT only when none responds, which is standard PAC handling but not stated by a vendor source."
+    }
+  },
+  "gaps": {
+    "browser-engine-behavior": {
+      "kind": "semantic",
+      "title": "Browser PAC engine behavior the vendor does not document",
+      "status": "open",
+      "detail": "Unverified legacy statements: a PAC file that throws a JavaScript runtime error makes most browsers fall back to DIRECT for that request; a self-hosted HTTPS PAC with a self-signed certificate fails to load silently and the browser runs with no proxy; isInNet is IPv4-only and the IPv6 extension isInNetEx is supported by modern Chrome and Firefox but not every browser; regExpMatch is a non-portable extension. No registered source states these; they describe browser engines, not the service. (localHostOrDomainIs, also in the legacy list, is used in Zscaler's own Client Connector sample PAC files: zcc.app-profiles:dr-pac-block.)",
+      "blocks": "explaining traffic that bypasses the service with no log because the PAC file failed in the browser",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "always-bypass-list": {
+      "kind": "semantic",
+      "title": "Destinations a Zscaler PAC file should always bypass",
+      "status": "open",
+      "detail": "Unverified legacy statement: always bypass via DIRECT the private ranges 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 127.0.0.1 and localhost, realm and intranet domains, KDC proxy hosts, the Zscaler service IPs themselves (to avoid proxy loops), and internal certificate authority or OCSP endpoints. The vendor's examples bypass internal networks and the Kerberos article requires the realm and KDC proxy bypasses; no source lists the service IPs or OCSP endpoints.",
+      "blocks": "a complete bypass list for a custom PAC file",
+      "resolves_with": [
+        "support-ticket",
+        "operator-experience"
+      ]
+    }
+  }
+}

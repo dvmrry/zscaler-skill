@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.api.authentication",
+  "title": "Reaching and signing in to the Cloud Connector API: OneAPI, legacy ZTC credentials and government clouds",
+  "aliases": [
+    "ztw authentication",
+    "ztc_username ztc_password ztc_api_key ztc_cloud",
+    "cloud connector api legacy login",
+    "connector.zscaler.net api",
+    "ztw fedramp",
+    "ztc provider gov cloud",
+    "ztw oneapi"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.government-clouds"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.provider-behavior"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.provider-config"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Cloud & Branch Connector API is reached two ways: through the OneAPI gateway with a bearer token, or through the legacy connector host with portal credentials and a session. This subject records how each client picks a path and where the government-cloud question stands."
+    },
+    {
+      "label": "OneAPI path.",
+      "text": "{{go-oneapi-routes-ztw}} {{python-oneapi-default}} How the token itself is obtained is in [[shared.oneapi.authentication]]."
+    },
+    {
+      "label": "Legacy path.",
+      "text": "{{go-legacy-credentials}} {{go-legacy-host}} {{help-legacy-server}} {{legacy-session-header}}"
+    },
+    {
+      "text": "In legacy mode several Go ZTW services are sent through the ZIA legacy client, which the ZTC provider never builds: [[cloud-connector.sdk-go.service-defects:legacy-ztw-only-client-fails-generic-calls]]."
+    },
+    {
+      "heading": "Government (FedRAMP) clouds"
+    },
+    {
+      "text": "The Go SDK builds dedicated government routes for every OneAPI service, ZTW included: [[shared.oneapi.government-clouds:go-gov-routing]]. The ZTC provider passes its cloud setting through to those routes, [[cloud-connector.terraform.provider-config:provider-carries-gov-routes]], while the FedRAMP version floor its documentation gives is not a release of that provider, [[cloud-connector.terraform.provider-config:version-floors-not-ztc]]."
+    },
+    {
+      "text": "Whether a government ZTW tenant accepts OneAPI is open: [[cloud-connector.terraform.provider-config:fedramp-live-acceptance]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which path a failing client is on: a OneAPI client (vanity domain, client ID and secret or key) or the legacy ZTC_USERNAME, ZTC_PASSWORD, ZTC_API_KEY and ZTC_CLOUD credentials, since the hosts and failure modes differ.",
+      "uses": [
+        "go-oneapi-routes-ztw",
+        "go-legacy-credentials",
+        "go-legacy-host"
+      ]
+    },
+    {
+      "do": "For a government tenant, whether OneAPI acceptance for ZTW has been confirmed by a release note, the vendor or a tenant test before moving it off legacy credentials.",
+      "uses": [
+        "cloud-connector.terraform.provider-config:fedramp-live-acceptance"
+      ]
+    }
+  ],
+  "claims": {
+    "go-oneapi-routes-ztw": {
+      "statement": "The Go SDK's OneAPI client classifies any path starting with `ztw` as the ZTW service and sends it through a dedicated `ZTWHTTPClient` with its own rate limiter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "} else if strings.HasPrefix(path, \"ztw\") { return \"ztw\", nil",
+            "case \"ztw\": return client.oauth2Credentials.ZTWHTTPClient",
+            "cfg.ZTWHTTPClient = getHTTPClient(cfg.Logger, ztwRateLimiter, cfg)"
+          ]
+        }
+      ]
+    },
+    "python-oneapi-default": {
+      "statement": "The Python SDK's unified client builds the `ztw` service on its OneAPI request executor by default. With `use_legacy_client` set, the `ztw` accessor returns the supplied legacy ZTW helper instead, and raises a RuntimeError if no helper was supplied; it does not fall back to OneAPI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "def ztw(self): if self.use_legacy_client: return self._require_legacy_client(\"ZTW\", self.ztw_legacy_client) if self._ztw is None: # Pass RequestExecutor directly self._ztw = ZTWService(self._request_executor) return self._ztw",
+            "use_legacy_client: bool = False,",
+            "raise RuntimeError( f\"Legacy {service_name} client requested but no legacy client instance was provided. \""
+          ]
+        }
+      ]
+    },
+    "go-legacy-credentials": {
+      "statement": "The Go SDK's legacy ZTW configuration reads `ZTC_USERNAME`, `ZTC_PASSWORD`, `ZTC_API_KEY` and `ZTC_CLOUD` (and an optional `ZSCALER_PARTNER_ID`), and returns an error if any of the four is empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/v2_config.go",
+          "quotes": [
+            "if cfg.ZTW.Client.ZTCUsername == \"\" || cfg.ZTW.Client.ZTCPassword == \"\" || cfg.ZTW.Client.ZTCApiKey == \"\" || cfg.ZTW.Client.ZTCCloud == \"\" {",
+            "return nil, fmt.Errorf(\"client credentials (ZTC_USERNAME, ZTC_PASSWORD, ZTC_API_KEY, ZTC_CLOUD) are missing\")",
+            "PartnerID   string `yaml:\"partnerId\" envconfig:\"ZSCALER_PARTNER_ID\"`"
+          ]
+        }
+      ]
+    },
+    "go-legacy-host": {
+      "statement": "The legacy Go client's base URL is built from the cloud name as `https://connector.<cloud>.net/api/v1`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/v2_config.go",
+          "quotes": [
+            "ztwAPIVersion             = \"api/v1\"",
+            "rawURL := fmt.Sprintf(\"https://connector.%s.net/%s\", cfg.ZTW.Client.ZTCCloud, ztwAPIVersion)"
+          ]
+        }
+      ]
+    },
+    "help-legacy-server": {
+      "statement": "The legacy API reference names its public server as `https://{host}:{port}/api/v1`, with `connector.zscaler.net` as the default host and 443, 8443 or 1443 as the port.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-cloud-branch-connector-groups-api.json",
+          "pointer": "/spec/servers/[url=https:~1~1{host}:{port}~1api~1v1]/variables",
+          "expect": {
+            "host": {
+              "description": "Public APIs Server IP/Domain name hosting Cloud Connector Services",
+              "default": "connector.zscaler.net"
+            },
+            "port": {
+              "default": "443",
+              "enum": [
+                "443",
+                "8443",
+                "1443"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "legacy-session-header": {
+      "statement": "The legacy Go client checks its session before each request and sends the session ID in a `JSessionID` header.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/v2_client.go",
+          "after": "func (c *Client) GenericRequest(",
+          "quotes": [
+            "err = c.checkSession()",
+            "req.Header.Set(\"JSessionID\", jSessionID)"
+          ]
+        }
+      ]
+    }
+  }
+}

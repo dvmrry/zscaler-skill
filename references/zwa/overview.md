@@ -109,4 +109,4 @@ Source: `vendor/zscaler-help/understanding-workflows-workflow-automation.json`; 
 - ZWA audit logs - [`./audit-logs.md`](./audit-logs.md)
 - Upstream ZIA DLP - [`zia.dlp`](kb:zia.dlp)
 - Upstream ZIA SSL/TLS Inspection for inline DLP visibility - [`zia.ssl-inspection`](kb:zia.ssl-inspection)
-- Cross-product DLP dependencies - [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)
+- Cross-product DLP dependencies - [`shared.integrations`](kb:shared.integrations)

@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "id": "shared.log-export.zdx",
+  "title": "Getting ZDX data out: the ZDX API, its windows and delays",
+  "aliases": [
+    "zdx to siem",
+    "zdx export",
+    "zdx api time range",
+    "zdx data delay",
+    "zdx score -1",
+    "zdx webhooks"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.log-export"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{api-scope}} {{api-entitlement}}"
+    },
+    {
+      "label": "Pulling it.",
+      "text": "{{two-hour-window}} {{reporting-delay}} {{api-vs-ui}}"
+    },
+    {
+      "label": "Pushing it.",
+      "text": "{{webhooks}} Whether ZDX data can reach a SIEM by any streaming path is open {{gap:streaming-path}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the ZDX license tier includes the API at all, before planning a pull.",
+      "uses": [
+        "api-entitlement"
+      ]
+    },
+    {
+      "do": "Split pulls into 2-hour windows and lag the end of each by the reporting delay.",
+      "uses": [
+        "two-hour-window",
+        "reporting-delay"
+      ]
+    }
+  ],
+  "claims": {
+    "api-scope": {
+      "statement": "The ZDX API gives programmatic access to administration (active locations and departments), alerts, software inventory, reports (ZDX Scores for applications and device health metrics and events) and troubleshooting (deep tracing on a user's device).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zdx-api.json",
+          "quotes": [
+            "Lists the active locations and departments for a tenant.",
+            "Retrieves alert details such as device, application, network performance, and ZDX Score.",
+            "Retrieve the distribution of software information across your organization.",
+            "Retrieves ZDX Scores for applications and specific device health metrics and events.",
+            "Start deep tracing on a specific user and their respective device."
+          ]
+        }
+      ]
+    },
+    "api-entitlement": {
+      "statement": "The ZDX ranges list ZDX APIs as not supported on Standard, supported for Microsoft 365 events on Microsoft 365, and supported on Advanced and Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |",
+            "| ZDX APIs | Not supported | Supported for Microsoft 365 events | Supported | Supported |"
+          ],
+          "after": "## Integrations and Data Retention"
+        }
+      ]
+    },
+    "two-hour-window": {
+      "statement": "Most Report API endpoints and some Alert API endpoints require a 2-hour time range, so a longer period takes one request per 2-hour window; /devices/{deviceid}/events, /alerts/{alert_id} and /alerts/{alert_id}/affected_devices need no time range.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zdx-api.json",
+          "quotes": [
+            "Some Alert API endpoints require a 2-hour time range to provide 2 hours of data.",
+            "The following endpoints do not require a time range: - /alerts/{alert_id} - /alerts/{alert_id}/affected_devices",
+            "Most Report API endpoints require a 2-hour time range to provide 2 hours of data.",
+            "The endpoint, /devices/{deviceid}/events, does not require a time range."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zdx-api.json",
+          "after": "Most Report API endpoints require a 2-hour time range",
+          "quotes": [
+            "If more data is required for a longer duration, another request with a different 2-hour time frame must be sent."
+          ]
+        }
+      ]
+    },
+    "reporting-delay": {
+      "statement": "Client Connector collects and reports the telemetry, and the delay from collection to reporting is estimated at 20 minutes, so a full hour of data needs the timestamp adjusted for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zdx-api.json",
+          "quotes": [
+            "Zscaler Client Connector does the hard work of collecting all the telemetry and reporting.",
+            "This can cause a delay from collection to reporting, which is estimated to be 20 minutes. To get the full data for an hour, ensure that you use the correct timestamp and adjust for this delay."
+          ]
+        }
+      ]
+    },
+    "api-vs-ui": {
+      "statement": "ZDX API data can differ from the ZDX UI by a marginal 2% because aggregated metrics use approximate functions, and a ZDX Score of -1 from the API means no data is available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zdx-api.json",
+          "quotes": [
+            "The difference between the data is a marginal 2% because the aggregated metrics compute using approximate functions.",
+            "If you receive a ZDX Score of -1 on the ZDX API, then there is no data available."
+          ]
+        }
+      ]
+    },
+    "webhooks": {
+      "statement": "The ZDX ranges list Webhooks as not supported on Standard, 10 on Microsoft 365 and Advanced, and 50 on Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |",
+            "| Webhooks | Not supported | 10 | 10 | 50 |"
+          ],
+          "after": "## Integrations and Data Retention"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "streaming-path": {
+      "kind": "semantic",
+      "title": "Whether ZDX data can be streamed to a SIEM",
+      "status": "open",
+      "detail": "Unverified legacy statement: ZDX has \"no NSS/LSS path; pull-only\"; it is exported through \"ZDX REST API (pull) or ZDX Splunk Add-on (if installed)\" or \"the Zscaler ZDX Add-on / data connector (where available, separate from the ZIA/ZPA TA / connector)\"; its data lives in \"Zscaler Azure Data Explorer; time-series, not archival\"; and the path to a SIEM is a \"custom pipeline (poll ZDX API, SIEM HEC)\". The captured help documents the ZDX API and a webhook count per license tier, but not what webhooks carry, any add-on, or where ZDX data is stored.",
+      "blocks": "recommending how to get ZDX data into a SIEM",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

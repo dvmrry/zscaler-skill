@@ -50,7 +50,7 @@ Entry point for Zscaler Private Access (ZPA) questions — application segments,
 |---|---|---|
 | LSS User Activity log fields — per-connection records; segment, connector, policy, timestamps, bytes | [`zpa.logs.user-activity`](kb:zpa.logs.user-activity) | draft |
 
-For SPL patterns see [`../shared/splunk-queries.md`](../shared/splunk-queries.md); for when to query see [`../shared/log-correlation.md`](../shared/log-correlation.md).
+For SPL patterns see [`shared.splunk`](kb:shared.splunk); for when to query see [`shared.log-correlation`](kb:shared.log-correlation).
 
 ## API schema references
 
@@ -66,7 +66,7 @@ Field-and-endpoint-level catalogs derived from Zscaler SDKs and Postman collecti
 
 ## When the question spans multiple topics
 
-Start at [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md) for the cross-feature mental model, then descend into the specific topic file.
+Start at [`shared.policy-evaluation`](kb:shared.policy-evaluation) for the cross-feature mental model, then descend into the specific topic file.
 
 ## Open questions
 

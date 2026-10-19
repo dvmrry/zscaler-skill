@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "id": "shared.subclouds.api",
+  "title": "The subclouds API: reading subclouds and editing their data center exclusions",
+  "aliases": [
+    "subclouds api",
+    "/subclouds",
+    "zia_sub_cloud",
+    "sub_clouds",
+    "subcloud data center exclusions",
+    "is there a subcloud api"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.subclouds"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.early-access"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Subclouds are created by Zscaler, but a tenant can read them and edit their data center exclusions through the ZIA API. The endpoints themselves are in the generated surface (`node scripts/kb.mjs surface /subclouds`)."
+    },
+    {
+      "label": "Reading.",
+      "text": "{{list-with-exclusions}} {{exclusion-state}}"
+    },
+    {
+      "label": "Writing.",
+      "text": "{{put-exclusions}} {{put-id-is-subcloud}} The OpenAPI document describes that path ID differently {{divergence:put-path-id}}."
+    },
+    {
+      "label": "Creating and deleting.",
+      "text": "{{no-create-in-contract}} {{creation-stays-with-support}} Whether a subcloud can be deleted through the API is disputed {{divergence:delete-route}}."
+    },
+    {
+      "label": "Terraform.",
+      "text": "[[zia.terraform.early-access:early-access-resources]] [[zia.terraform.early-access:sub-cloud-id-from-own-data-source]] [[zia.terraform.early-access:sub-cloud-name-read-only]]"
+    }
+  ],
+  "checks": [
+    {
+      "do": "To find a subcloud's name and its excluded data centers, read the subcloud list rather than asking Support.",
+      "uses": [
+        "list-with-exclusions"
+      ]
+    },
+    {
+      "do": "When updating exclusions, put the subcloud's ID in the path, as both SDKs do.",
+      "uses": [
+        "put-id-is-subcloud",
+        "put-path-id"
+      ]
+    }
+  ],
+  "claims": {
+    "list-with-exclusions": {
+      "statement": "GET /subclouds retrieves all of the organization's subclouds with the excluded data centers associated with each; each entry carries an ID, a name, its list of data centers and its exclusions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1subclouds/get",
+          "expect": {
+            "description": "Retrieves all the subclouds and the excluded data centers that are associated with the subcloud"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1subclouds/get/responses/200/content/application~1json/schema/items/properties/dcs",
+          "expect": {
+            "description": "List of data centers",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1subclouds/get/responses/200/content/application~1json/schema/items/properties/exclusions",
+          "expect": {
+            "description": "List of data centers that are excluded from the subcloud",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1subclouds/get/responses/200/content/application~1json/schema/items/properties/id",
+          "expect": {
+            "description": "Unique identifier for the subcloud"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1subclouds/get/responses/200/content/application~1json/schema/items/properties/name",
+          "expect": {
+            "description": "Subcloud name"
+          }
+        }
+      ]
+    },
+    "exclusion-state": {
+      "statement": "Each exclusion names its data center and country, carries start, end, creation and last-modified times and the last modifying user, and two flags: `disabledByOps`, set when Zscaler CloudOps has disabled the exclusion, and `expired`, described as the exclusion being disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1subclouds/get/responses/200/content/application~1json/schema/items/properties/exclusions/items/properties/disabledByOps",
+          "expect": {
+            "description": "If set to true, this data center exclusion is disabled by Zscaler CloudOps",
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1subclouds/get/responses/200/content/application~1json/schema/items/properties/exclusions/items/properties/expired",
+          "expect": {
+            "description": "The subcloud data center exclusion is disabled",
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/trafficforwarding/sub_clouds/sub_clouds.go",
+          "quotes": [
+            "Datacenter       *common.IDNameExtensions `json:\"datacenter,omitempty\"`",
+            "LastModifiedUser *common.IDNameExtensions `json:\"lastModifiedUser,omitempty\"`",
+            "Country          string                   `json:\"country,omitempty\"`",
+            "CreateTime       int                      `json:\"createTime,omitempty\"`",
+            "StartTime        int                      `json:\"startTime,omitempty\"`",
+            "EndTime          int                      `json:\"endTime,omitempty\"`",
+            "LastModifiedTime int                      `json:\"lastModifiedTime,omitempty\"`"
+          ],
+          "after": "type Exclusions struct {"
+        }
+      ]
+    },
+    "put-exclusions": {
+      "statement": "PUT /subclouds/{id} updates the subcloud and its excluded data centers; the request body is the organization's subcloud with its list of excluded data centers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1subclouds~1{id}/put",
+          "expect": {
+            "description": "Updates the subcloud and excluded data centers based on the specified ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1subclouds~1{id}/put/requestBody/content/application~1json/schema",
+          "expect": {
+            "description": "The organization's subcloud containing the list of excluded data centers"
+          }
+        }
+      ]
+    },
+    "put-id-is-subcloud": {
+      "statement": "Go's `Update` formats its `cloudID` argument into the `/zia/api/v1/subclouds` path, and Python's `update_sub_clouds` takes `cloud_id`, documented as the unique ID for the Sub Clouds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/trafficforwarding/sub_clouds/sub_clouds.go",
+          "quotes": [
+            "subCloudsEndpoint = \"/zia/api/v1/subclouds\"",
+            "func Update(ctx context.Context, service *zscaler.Service, cloudID int, subClouds *SubClouds) (*SubClouds, *http.Response, error) {",
+            "service.Client.UpdateWithPut(ctx, fmt.Sprintf(\"%s/%d\", subCloudsEndpoint, cloudID), *subClouds)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sub_clouds.py",
+          "quotes": [
+            "def update_sub_clouds(self, cloud_id: int, **kwargs) -> APIResult[dict]:",
+            "cloud_id (int): The unique ID for the Sub Clouds."
+          ]
+        }
+      ]
+    },
+    "no-create-in-contract": {
+      "statement": "The OpenAPI contract has no POST, PUT or DELETE on /subclouds and no GET, POST or DELETE on /subclouds/{id}.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1subclouds",
+          "expect_absent": [
+            "post",
+            "put",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1subclouds~1{id}",
+          "expect_absent": [
+            "post",
+            "get",
+            "delete"
+          ]
+        }
+      ]
+    },
+    "creation-stays-with-support": {
+      "statement": "So creating a subcloud is not an API operation: it stays a Support request, and the API covers reading subclouds and editing their exclusions.",
+      "tier": "B",
+      "derived_from": [
+        "no-create-in-contract",
+        "shared.subclouds:setup-by-support"
+      ],
+      "conditions": "Rests on the absence of a create operation in the published contract; an undocumented route would change it."
+    }
+  },
+  "divergences": {
+    "put-path-id": {
+      "summary": "What the ID in PUT /subclouds/{id} identifies.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1subclouds~1{id}/put/parameters/[name=id]",
+            "expect": {
+              "description": "Unique identifier for the excluded data center",
+              "in": "path"
+            }
+          },
+          "says": "The OpenAPI document describes the path ID as the unique identifier for the excluded data center."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/sub_clouds.py",
+            "quotes": [
+              "cloud_id (int): The unique ID for the Sub Clouds."
+            ]
+          },
+          "says": "The Python SDK (and the Go SDK's cloudID argument) treat it as the subcloud's ID."
+        }
+      ],
+      "impact": "A caller following the OpenAPI wording would put a data center ID in the path and update the wrong subcloud or none."
+    },
+    "delete-route": {
+      "summary": "Whether a subcloud can be deleted through the API.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1subclouds~1{id}",
+            "expect_absent": [
+              "delete"
+            ]
+          },
+          "says": "The OpenAPI contract lists no DELETE operation for a subcloud."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/trafficforwarding/sub_clouds/sub_clouds.go",
+            "quotes": [
+              "func Delete(ctx context.Context, service *zscaler.Service, cloudID int) (*http.Response, error) {",
+              "err := service.Client.Delete(ctx, fmt.Sprintf(\"%s/%d\", subCloudsEndpoint, cloudID))"
+            ]
+          },
+          "says": "The Go SDK has a Delete function that sends DELETE to the subcloud path."
+        }
+      ],
+      "impact": "Tooling built on the Go SDK may offer a delete the published contract does not document; whether the backend accepts it is unknown."
+    }
+  }
+}

@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "id": "shared.admin-rbac.zia",
+  "title": "ZIA admin roles and scope: rank, permissions, functional scope and the one-scope rule",
+  "aliases": [
+    "zia admin scope",
+    "admin rank",
+    "department admin",
+    "location group admin",
+    "zia admin role types",
+    "default admin login",
+    "why can't this admin edit this rule"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.admin-rbac"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.admin-identity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs.what-is-recorded"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A ZIA admin is a role, which says what the admin can do, plus a scope, which says where. {{role-and-scope}}"
+    },
+    {
+      "label": "The role.",
+      "text": "{{role-parts}} {{less-scope-lower-rank}} {{rank-visibility}} {{role-types}} {{api-role-oauth}} How the Terraform provider validates role type and rank is in [[zia.terraform.admin-identity:role-type-values]] and [[zia.terraform.admin-identity:rank-unvalidated]]."
+    },
+    {
+      "label": "The scope.",
+      "text": "{{scope-kinds}} {{scope-limits-rules}} {{scope-limits-delegation}} {{org-scope-for-org-wide}} Location groups, which a scope can name, are in [[zia.locations.groups]]."
+    },
+    {
+      "label": "Admin accounts.",
+      "text": "{{default-admin}} {{admins-page-scope-only}} Removing admin privileges while keeping the user is a separate call from deleting the admin: [[zia.sdk-python.service-behaviors:convert-to-user-spec]]. Failed sign-ins and their lockout are recorded in the audit log: [[zia.audit-logs.what-is-recorded:lockout-recorded]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The admin's scope kind and value against the rule's locations, location groups or departments: an admin edits a rule only with equal or greater scope, and rank also counts.",
+      "uses": [
+        "scope-kinds",
+        "scope-limits-rules"
+      ]
+    },
+    {
+      "do": "Whether the change needs organization scope (security policies, custom URL categories, organization-wide settings).",
+      "uses": [
+        "org-scope-for-org-wide"
+      ]
+    },
+    {
+      "do": "For an admin who must cover a region, whether one location group can express it, since location, location group and department scopes cannot be combined; otherwise a second admin account or organization scope.",
+      "uses": [
+        "scope-kinds",
+        "zia.locations.groups"
+      ]
+    },
+    {
+      "do": "For a role edit that fails, whether the editing admin's own scope and rank exceed the role's.",
+      "uses": [
+        "less-scope-lower-rank"
+      ]
+    }
+  ],
+  "claims": {
+    "role-and-scope": {
+      "statement": "Each ZIA admin account comprises a role (an admin role or an SD-WAN partner API role), which sets which Admin Console features the admin can access, and a scope, which sets which areas of the organization, such as departments or locations, the admin can configure policies or settings for.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-administrators.json",
+          "quotes": [
+            "To facilitate role-based administration, each admin account comprises a role and scope:",
+            "Using an admin role or SD-WAN partner API role, you can specify which features admins can access in the Zscaler Admin Console.",
+            "Using an admin scope, you can specify which areas of the organization (for example, which departments or which locations) admins can configure policies or settings in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "role-parts": {
+      "statement": "Zscaler provides a default super admin role with full access to the Admin Console and the Executive Insights App; every additional role is defined by an admin rank, permissions and a functional scope.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-rbac-captures.json",
+          "quotes": [
+            "Zscaler provides a default super admin role which has full access to the Zscaler Admin Console and Executive Insights App.",
+            "For each additional role you create, you must define the role's access by specifying: - Admin rank - Permissions - Functional scope"
+          ]
+        }
+      ]
+    },
+    "less-scope-lower-rank": {
+      "statement": "Admins who may manage roles can add, edit or delete only roles with less scope and lower rank than their own, and rank-based roles keep a lower-ranked admin from modifying the settings of a higher-ranked one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-rbac-captures.json",
+          "quotes": [
+            "Admins who have permission to manage roles can only add, edit, or delete roles with less scope and lower rank.",
+            "Assign rank-based roles to admins to maintain hierarchy among the admins so that a lower-ranked admin can't modify the settings of an admin with a higher rank."
+          ]
+        }
+      ]
+    },
+    "rank-visibility": {
+      "statement": "A role's admin rank is shown only if admin ranking is enabled in Advanced Settings, and rank does not apply to SD-WAN partner API or API roles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-rbac-captures.json",
+          "quotes": [
+            "This is visible only if admin ranking is enabled in the Advanced Settings. Admin rank does not apply to SD-WAN partner API or API roles."
+          ]
+        }
+      ]
+    },
+    "role-types": {
+      "statement": "Admin role types are Standard Admin, SD-WAN Partner API, Executive App Admin and Standard & Executive App Admin; an API role has the type API Client.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-rbac-captures.json",
+          "quotes": [
+            "The admin role types are Standard Admin, SD-WAN Partner API, Executive App Admin, or Standard & Executive App Admin. The API role type is API Client."
+          ]
+        }
+      ]
+    },
+    "api-role-oauth": {
+      "statement": "An API role, added in the Admin Console and then configured in an external OAuth 2.0 authentication server, dictates a client application's access to the API categories of the cloud service API, instead of the API passing an admin user, password and API key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-rbac-captures.json",
+          "quotes": [
+            "The API role configured in the external OAuth 2.0 authentication server for a client application dictates the client application's permission and access to the different API categories in the Zscaler cloud service API.",
+            "instead of the APIs passing an admin user, password, and API key.",
+            "You add the API role using the Zscaler Admin Console and then configure the external OAuth 2.0 authentication server to use that role."
+          ]
+        }
+      ]
+    },
+    "scope-kinds": {
+      "statement": "The default admin has scope over the whole organization; every other admin gets one scope of four kinds (Organization, Department, Location or Location Group), and location, location group and department cannot be combined.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-admin-scope.json",
+          "quotes": [
+            "The default admin has scope over the entire organization.",
+            "For each additional admin you create, you must select one of the following scopes: - Organization - Department - Location - Location Group",
+            "You can assign scope over the entire organization or either location, location group, or department (you can't combine location, location group, and department)."
+          ]
+        }
+      ]
+    },
+    "scope-limits-rules": {
+      "statement": "Admins can define rules and settings only for their assigned locations, location groups or departments, and can edit a rule or setting only if their scope is equal to or greater than the scope assigned to it; admin rank also affects which rules and settings an admin can edit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-admin-scope.json",
+          "quotes": [
+            "Admins can only define rules and settings for their assigned locations, location groups, or departments.",
+            "Admins can edit a rule or setting only if their scope is equal to or greater than the scope assigned the rule or setting.",
+            "Along with scope, admin rank also impacts which rule or setting an admin can edit."
+          ]
+        }
+      ]
+    },
+    "scope-limits-delegation": {
+      "statement": "An admin who may manage admins can assign other admins only scope within their own scope.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-admin-scope.json",
+          "quotes": [
+            "If admins have permission to manage admins, their scope limits the scope that they can assign other admins."
+          ]
+        }
+      ]
+    },
+    "org-scope-for-org-wide": {
+      "statement": "Only admins with scope over the entire organization can create or edit organization-wide policies, settings and resources, such as security policies and custom URL categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-admin-scope.json",
+          "quotes": [
+            "Only admins who have scope over the entire organization can create or edit organization-wide policies, settings, and resources.",
+            "For example, only admins with organizational scope can edit security policies or create custom URL categories."
+          ]
+        }
+      ]
+    },
+    "default-admin": {
+      "statement": "The default admin account has full access and full scope; it can be enabled or disabled but not deleted. The new default admin login ID has the form admin@<Organization ID>.<Zscaler Cloud>.net, cannot be used to log in to the Zscaler service and browse the internet, and is the only admin for which password reset is supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-administrators.json",
+          "quotes": [
+            "Zscaler provides a default admin account with full access to the Zscaler Admin Console and full scope.",
+            "Enable or disable the default admin account status, but you cannot delete the account.",
+            "admin@<Organization ID>.<Zscaler Cloud>.net",
+            "As a best practice, the new default admin can't be used to log in to the Zscaler service and browse the internet. Also, password reset is only supported for the new default admin."
+          ]
+        }
+      ]
+    },
+    "admins-page-scope-only": {
+      "statement": "On the ZIA Administrators page an existing admin's scope and update-notification enrollment are the only things that can be edited; admins themselves are configured with Authentication Service, while SD-WAN partner API clients are created on that page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-administrators.json",
+          "quotes": [
+            "On the Administrators page for Internet & SaaS, you can only edit an existing admin's scope and enroll them to receive security, service, and product updates. The admins are configured with Authentication Service.",
+            "SD-WAN partner API clients are created on the Administrators page for Internet & SaaS."
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "id": "shared.multi-cluster.egress-addresses",
+  "title": "Which Zscaler source addresses a destination can see, and what to allowlist",
+  "aliases": [
+    "zscaler egress ip ranges",
+    "allowlist zscaler ips",
+    "egress ip changes between clusters",
+    "named locations zscaler ip",
+    "which ip does zia egress from"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.multi-cluster"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.source-ip-anchoring.egress-options"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.saas-apps.conditional-access"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Traffic forwarded Direct leaves with the Zscaler service address [[zia.forwarding-control.methods:direct-meaning]]. {{source-is-processing-edge}} {{egress-any-block}}"
+    },
+    {
+      "label": "Allowlists.",
+      "text": "{{vendor-ranges}} {{allowlist-all-blocks}} Conditional Access built on named locations has the same problem, and Zscaler's answer there is anchoring: [[zia.saas-apps.conditional-access]]."
+    },
+    {
+      "label": "Taking cluster choice out of it.",
+      "text": "{{organization-address-independent}} The options compared: [[shared.source-ip-anchoring.egress-options]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Build a source-IP allowlist from every network address block that config.zscaler.com/<cloud name>/cenr lists for the data centers in use, not from addresses seen in one test.",
+      "uses": [
+        "vendor-ranges",
+        "allowlist-all-blocks",
+        "shared.multi-cluster:cenr"
+      ]
+    },
+    {
+      "do": "If the destination needs one stable address, check whether the rule forwards with ZPA (Source IP Anchoring) or Dedicated IP rather than Direct.",
+      "uses": [
+        "organization-address-independent"
+      ]
+    }
+  ],
+  "claims": {
+    "egress-any-block": {
+      "statement": "Under Multi-Cluster Load Sharing, traffic forwarded with the Zscaler service address can reach a destination from a cluster in any of the network address blocks listed for the data center, so the source address the destination sees is not limited to one block.",
+      "tier": "B",
+      "derived_from": [
+        "shared.multi-cluster:definition",
+        "shared.multi-cluster:any-node",
+        "source-is-processing-edge"
+      ],
+      "conditions": "Inference: the reference architecture says the source address becomes that of the processing Service Edge, and the Multi-Cluster Load Sharing page says traffic reaches the destination via any instance of the clusters from any of the listed address blocks. No page names the egress block directly; confirm with tenant logs or a lab test before relying on a specific block."
+    },
+    "source-is-processing-edge": {
+      "statement": "When ZIA processes traffic, its source IP address is changed to that of the Service Edge processing it, which is needed for the traffic to flow back through the same Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "When your traffic is processed by the ZIA service, its source IP address is modified for the ZIA Service Edge that is processing the traffic. This is necessary for the traffic to flow bidirectionally through the ZIA Service Edge."
+          ]
+        }
+      ]
+    },
+    "vendor-ranges": {
+      "statement": "If a vendor accepts Zscaler IP addresses, the reference architecture says to update the application with the Zscaler IP address range, listed by cloud at config.zscaler.com/<cloud>/cenr. It can be a subset when access comes only from fixed site locations: from the primary and secondary data centers up to the entire Public Service Edge range; the vendor's requirements decide.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "If your vendor accepts Zscaler IP addresses, you simply need to update that application with the Zscaler IP address range.",
+            "Find a list of Zscaler IP address ranges by cloud (https:// config.zscaler.com/zscaler.net/cenr).",
+            "This can also be a subset of the addresses if your access only comes from fixed site locations.",
+            "This could be as small as your primary and secondary data centers, or as large as the entire ZIA Public Service Edge IP address range. Contact your application vendor to understand the specifics of their requirements."
+          ]
+        }
+      ]
+    },
+    "allowlist-all-blocks": {
+      "statement": "A destination that allowlists Zscaler addresses for traffic forwarded with the service address needs every network address block that the cenr list gives for the data centers its users reach, not only the block of the cluster seen in one test.",
+      "tier": "B",
+      "derived_from": [
+        "vendor-ranges",
+        "egress-any-block",
+        "shared.multi-cluster:cenr"
+      ],
+      "conditions": "The vendor guidance to use the cenr ranges, or a subset down to the primary and secondary data centers, is Tier A in vendor-ranges; that a data center's subset must include all its cluster blocks follows from egress-any-block, which is itself an inference."
+    },
+    "organization-address-independent": {
+      "statement": "Source IP Anchoring and Dedicated IP give a source address that does not depend on which cluster inspected the traffic: anchored traffic leaves with the App Connector's address, and Dedicated IP traffic with the address dedicated to the tenant at a data center.",
+      "tier": "B",
+      "derived_from": [
+        "zia.forwarding-control.sipa:purpose",
+        "shared.source-ip-anchoring.egress-options:dedicated-egress"
+      ],
+      "conditions": "Neither page mentions Multi-Cluster Load Sharing; the independence follows from where each method's egress address comes from."
+    }
+  }
+}

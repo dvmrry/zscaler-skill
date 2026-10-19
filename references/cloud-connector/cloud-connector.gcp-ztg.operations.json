@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.gcp-ztg.operations",
+  "title": "Operating a GCP Zero Trust Gateway: health states, configuration rejection, traffic tests",
+  "aliases": [
+    "gcp ztg unhealthy",
+    "gcp ztg degraded",
+    "gcp ztg not available",
+    "gcp ztg config rejected",
+    "gcp ztg traffic simulation",
+    "gcp ztg test environment",
+    "gcp ztg analytics"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.gcp-ztg"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp-ztg.creation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The gateway list shows one service status per gateway; the gateway page breaks health down per zone and adds configuration, analytics, events and a traffic test."
+    },
+    {
+      "label": "Status.",
+      "text": "{{list-status}} {{zone-status}} {{status-meanings}}"
+    },
+    {
+      "label": "Intercept information.",
+      "text": "{{intercept-information}}"
+    },
+    {
+      "label": "Configuration.",
+      "text": "{{config-rejection}}"
+    },
+    {
+      "label": "Analytics and events.",
+      "text": "{{analytics}} {{events}}"
+    },
+    {
+      "label": "Traffic simulation.",
+      "text": "{{simulation-mechanics}} {{simulation-lifetime}} {{simulation-shared}} {{simulation-options}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which zone and which path (Internet, Local Egress, Private Applications) is Unhealthy or Degraded on the Status tab; Unhealthy means traffic in that zone is dropped.",
+      "uses": [
+        "zone-status",
+        "status-meanings"
+      ]
+    },
+    {
+      "do": "Whether the latest Internet & SaaS configuration version is Active on the Config tab, or the gateway rejected it.",
+      "uses": [
+        "config-rejection"
+      ]
+    },
+    {
+      "do": "Whether a test environment already exists in the account before creating one, since a test created on one gateway is shared by every GCP gateway in the account.",
+      "uses": [
+        "simulation-shared",
+        "simulation-lifetime"
+      ]
+    }
+  ],
+  "claims": {
+    "list-status": {
+      "statement": "The GCP gateway list shows each gateway's region, availability zone ID, intercept deployment group, intercept endpoint group count, location, created and modified times, and a service status of Healthy, Unhealthy or Not Available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-google-cloud-platform-zero-trust-gateways.json",
+          "quotes": [
+            "Region: The region associated with the GCP gateway.",
+            "Availability Zone ID: The ID of the GCP availability zone associated with the GCP gateway.",
+            "Intercept Endpoint Groups Count: The number of a project-wide resource",
+            "Location: The location associated with the GCP gateway.",
+            "Last Modified On: The date and time when the GCP gateway was last modified.",
+            "Service Status: The service status of the GCP gateway (i.e., Healthy, Unhealthy, or Not Available).",
+            "Intercept Deployment Group: A GCP-provided resource that allows the Zscaler service to intercept and inspect workload traffic from your VPCs.",
+            "Created Date: The date and time when the GCP gateway was created."
+          ]
+        }
+      ]
+    },
+    "zone-status": {
+      "statement": "The Status tab reports, per availability zone, the gateway's ability to reach Internet & SaaS (Internet), to forward direct traffic (Local Egress) and to reach Private Access (Private Applications), and the status refreshes when the page is refreshed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-google-cloud-platform-zero-trust-gateway-details.json",
+          "quotes": [
+            "The Zscaler service refreshes the status when you refresh the page.",
+            "Internet: The ability of the GCP gateway to reach Internet & SaaS.",
+            "Local Egress: The ability of the GCP gateway to forward direct traffic.",
+            "Private Applications: The ability of the GCP gateway to reach Private Access."
+          ]
+        }
+      ]
+    },
+    "status-meanings": {
+      "statement": "Healthy means the zone's backend traffic is functioning as expected; Unhealthy means traffic is being dropped because no healthy backend is processing it; Degraded means traffic may have lost redundancy but is still forwarded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-google-cloud-platform-zero-trust-gateway-details.json",
+          "quotes": [
+            "Healthy: The backend traffic in the availability zone is functioning as expected.",
+            "Unhealthy: The traffic is being dropped because there is no healthy backend processing.",
+            "Degraded: The traffic might have lost redundancy, but it is still being forwarded."
+          ]
+        }
+      ]
+    },
+    "intercept-information": {
+      "statement": "The Intercept Information view names the intercept endpoint group and the GCP project in which it was created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-google-cloud-platform-zero-trust-gateway-details.json",
+          "quotes": [
+            "Intercept Endpoint Group: The name of your project-wide resource that allows you to access a Zscaler-managed security service in GCP.",
+            "Project: The GCP project where you created the intercept endpoint group."
+          ]
+        }
+      ]
+    },
+    "config-rejection": {
+      "statement": "The gateway can reject an activated Internet & SaaS configuration that would make it unable to function; the Config tab lists activated versions as Active or Inactive, a latest version that is not Active may have been rejected, and two versions can be compared.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-google-cloud-platform-zero-trust-gateway-details.json",
+          "quotes": [
+            "Status: The status of the version (i.e., Active or Inactive).",
+            "The GCP gateway can reject a configuration that you activate if it makes the GCP gateway unable to function properly.",
+            "If the latest configuration version is not active, the GCP gateway might have rejected the configuration.",
+            "You can compare two configuration versions by selecting the checkboxes and clicking Compare Versions."
+          ]
+        }
+      ]
+    },
+    "analytics": {
+      "statement": "Analytics graphs total bytes and total packets processed by the internal load balancer over a chosen timeframe as Average, Max or Sum; the byte count excludes health-check traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-google-cloud-platform-zero-trust-gateway-details.json",
+          "quotes": [
+            "Stat: Select Average, Max, or Sum to view the average, maximum, or total amount of data.",
+            "Total Bytes Processed: The total number of bytes processed by the internal load balancer during the selected time frame. This includes traffic sent to and from the destination, but not traffic from health checks.",
+            "Total Packets Processed: The total number of packets processed by the internal load balancer during the selected time frame."
+          ]
+        }
+      ]
+    },
+    "events": {
+      "statement": "The Events tab lists events in a timeframe with event, category, type, start time and status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-google-cloud-platform-zero-trust-gateway-details.json",
+          "quotes": [
+            "On the Events tab, you can select a Timeframe to view events that occurred within the range:",
+            "Category: The category of the event",
+            "Start Time: The date and time when the event started",
+            "Event: The event that occurred",
+            "Status: The status of the event"
+          ]
+        }
+      ]
+    },
+    "simulation-mechanics": {
+      "statement": "Traffic Simulation tests forwarding and Internet & SaaS policy: the Zscaler service sets up a virtual environment in the Zscaler GCP account, sends traffic through the endpoint, and returns the output of the GCP curl command.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-google-cloud-platform-zero-trust-gateway-details.json",
+          "quotes": [
+            "You can test your forwarding and Internet & SaaS policies by creating a traffic test.",
+            "The Zscaler service sets up a virtual environment in the Zscaler GCP account and sends traffic through the endpoint to execute the test. The result of the test appears as the output of the GCP curl command."
+          ]
+        }
+      ]
+    },
+    "simulation-lifetime": {
+      "statement": "A test environment takes approximately 5 minutes to create, lasts one hour, can be renewed for one more hour, and tests run once it reaches the CREATE_COMPLETE state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-google-cloud-platform-zero-trust-gateway-details.json",
+          "quotes": [
+            "After approximately 5 minutes, the test environment is created. The test environment lasts for one hour.",
+            "If you need more time, click Renew and the test environment lasts for one more hour.",
+            "When the test environment is in the CREATE_COMPLETE state, you can run the test."
+          ]
+        }
+      ]
+    },
+    "simulation-shared": {
+      "statement": "A test created in one GCP gateway is available in all GCP gateways of the same Cloud Connector account in all regions, and while it is active a connected endpoint owned by the Zscaler account appears on the gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-google-cloud-platform-zero-trust-gateway-details.json",
+          "quotes": [
+            "A test created in one GCP gateway is available in all the GCP gateways created in that Cloud Connector account in all regions.",
+            "During that time, an endpoint appears on your GCP gateway with the Zscaler account as its associated account.",
+            "If you navigate to the GCP Gateways page or the Endpoints page while the test environment is active, a connected VPC endpoint that is the Zscaler account is shown."
+          ]
+        }
+      ]
+    },
+    "simulation-options": {
+      "statement": "A test takes a protocol of HTTP or HTTPS, a URL, optional curl parameters, and verbose (-v) and insecure (-k) options; run is offered only after a test environment exists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-google-cloud-platform-zero-trust-gateway-details.json",
+          "quotes": [
+            "Protocol: Enter HTTP or HTTPS as the protocol for the test.",
+            "Verbose (-v): Select the checkbox to enable verbose",
+            "Insecure (-k): Select the checkbox to enable insecure, which instructs the curl command to not verify the certificate.",
+            "If a test environment has not been created, run is not an option and the icon does not appear.",
+            "URL: Enter the URL of the website you are testing.",
+            "Commands (Optional): Enter the GCP curl command parameters to test and fetch information about a website."
+          ]
+        }
+      ]
+    }
+  }
+}

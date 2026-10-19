@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.upgrades.os-images",
+  "title": "Cloud Connector OS upgrades: redeployment and the ZscalerOS 24 end of support",
+  "aliases": [
+    "cloud connector os upgrade",
+    "zscaleros 24 end of support",
+    "zscaleros 42",
+    "zsos24",
+    "cloud connector redeploy image",
+    "branch connector zscaleros 24",
+    "cloud connector marketplace image"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.upgrades"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The weekly upgrade replaces connector software but not the operating system image. OS changes, including the move off ZscalerOS 24, need new deployments."
+    },
+    {
+      "label": "OS images.",
+      "text": "{{os-not-in-place}} {{branch-images}} How physical Branch Connector appliances receive new images is open {{gap:branch-hardware-images}}. Whether scale-set members pick up new images or weekly upgrades as they are replaced is open {{gap:scale-set-members}}."
+    },
+    {
+      "label": "ZscalerOS 24, Cloud Connector.",
+      "text": "{{os24-cloud}}"
+    },
+    {
+      "label": "ZscalerOS 24, Branch Connector.",
+      "text": "{{os24-branch}}"
+    },
+    {
+      "label": "Supported Versions page.",
+      "text": "{{os24-eol}} Its tables still list ZscalerOS 24 for these connectors {{divergence:os24-support-status}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which ZscalerOS version each connector runs before relying on the weekly upgrade to bring it current, since an OS change needs a new deployment.",
+      "uses": [
+        "os-not-in-place",
+        "os24-cloud",
+        "os24-branch"
+      ]
+    },
+    {
+      "do": "Which deadline applies: November 30, 2026 for Cloud Connector, December 31, 2026 for Branch Connector, without treating the general EOL date as an extension of the Cloud Connector date.",
+      "uses": [
+        "os24-cloud",
+        "os24-branch",
+        "os24-eol"
+      ]
+    }
+  ],
+  "claims": {
+    "os-not-in-place": {
+      "statement": "OS upgrades do not happen the way other packages do: after the latest images are posted in the public cloud for Cloud Connector, new deployments must be created for the OS upgrade.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-managing-cloud-branch-connector-upgrades.json",
+          "quotes": [
+            "OS upgrades do not happen in the same way other packages do. After the latest images are posted in the public cloud for Cloud Connector, you must create new deployments for the OS upgrade."
+          ]
+        }
+      ]
+    },
+    "branch-images": {
+      "statement": "For Branch Connector VMs the images are hosted in the Admin Console for download, and the devices are reprovisioned with the latest images.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-managing-cloud-branch-connector-upgrades.json",
+          "quotes": [
+            "is hosted in the Zscaler Admin Console for download for Branch Connector virtual machines (VMs). The devices are reprovisioned with the latest images."
+          ]
+        }
+      ]
+    },
+    "os24-cloud": {
+      "statement": "The notice announced August 30, 2026 says Cloud Connector deployments with ZscalerOS 24 and earlier are no longer supported on AWS, Microsoft Azure and GCP, and directs them to migrate to ZscalerOS 42 or higher by November 30, 2026 to ensure service continuity; Cloud Connectors running ZscalerOS 42 need no action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-os24-cloud-20260909.json",
+          "quotes": [
+            "Zscaler deployments with ZscalerOS 24 and earlier are no longer supported on Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP).",
+            "migrate to ZscalerOS 42 or higher by November 30, 2026 to ensure service continuity.",
+            "No action is required for customers with Cloud Connectors running ZscalerOS 42.",
+            "Announcement date: August 30, 2026"
+          ]
+        }
+      ]
+    },
+    "os24-branch": {
+      "statement": "The notice announced August 30, 2026 says Branch Connector appliances based on ZscalerOS 24 and earlier are no longer supported, both virtual appliances (VMware platforms, Linux KVM, Microsoft Hyper-V) and hardware appliances (ZT-400, ZT-600, ZT-800), and that affected deployments must upgrade to ZscalerOS 42 or higher by December 31, 2026 to ensure service continuity; Branch Connectors on ZscalerOS 42 need no action, and the notice does not apply to Zero Trust Branch appliances.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-os24-branch-20260909.json",
+          "quotes": [
+            "Branch Connector appliances based on ZscalerOS 24 and earlier are no longer supported:",
+            "Virtual appliances are no longer supported on VMware platforms, Linux KVM, and Microsoft Hyper-V.",
+            "Hardware appliances are no longer supported on ZT-400, ZT-600, and ZT-800.",
+            "you must upgrade to ZscalerOS 42 or higher by December 31, 2026 to ensure service continuity.",
+            "No action is required for customers with Branch Connectors running ZscalerOS 42.",
+            "This notice does not apply to Zero Trust Branch appliances.",
+            "Announcement date: August 30, 2026"
+          ]
+        }
+      ]
+    },
+    "os24-eol": {
+      "statement": "The Supported Versions page gives December 31, 2026 as the End-of-Life of ZscalerOS 24.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-versions-20260909.json",
+          "quotes": [
+            "The End-of-Life (EOL) for ZscalerOS 24 is on December 31, 2026."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "os24-support-status": {
+      "summary": "The end-of-support notices say connectors on ZscalerOS 24 are no longer supported, while the Supported Versions tables list ZscalerOS 24 as a supported version for the same connectors.",
+      "positions": [
+        {
+          "says": "Cloud Connector deployments with ZscalerOS 24 and earlier are no longer supported on AWS, Azure and GCP.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-os24-cloud-20260909.json",
+            "quotes": [
+              "Zscaler deployments with ZscalerOS 24 and earlier are no longer supported on Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP)."
+            ]
+          }
+        },
+        {
+          "says": "Branch Connector appliances based on ZscalerOS 24 and earlier are no longer supported.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-os24-branch-20260909.json",
+            "quotes": [
+              "Branch Connector appliances based on ZscalerOS 24 and earlier are no longer supported:"
+            ]
+          }
+        },
+        {
+          "says": "Zscaler supports ZscalerOS 24 and ZscalerOS 42 for Cloud Connector on AWS, Azure and GCP, and for Branch Connector on VMware platforms, Linux KVM, Hyper-V and the ZT-400, ZT-600 and ZT-800.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "supported-versions-20260909.json",
+            "after": "Cloud Connector on Amazon Web Services, Microsoft Azure, and Google Cloud Platform Supported Versions",
+            "quotes": [
+              "Amazon Web Services | ZscalerOS 24, ZscalerOS 42",
+              "VMware platforms | ZscalerOS 24, ZscalerOS 42",
+              "ZT-800 | ZscalerOS 24, ZscalerOS 42"
+            ]
+          }
+        }
+      ],
+      "impact": "An answer about whether a ZscalerOS 24 connector is supported depends on which page it reads; the notices' migration dates are the ones stated for service continuity, and no source says the tables extend them."
+    }
+  },
+  "gaps": {
+    "branch-hardware-images": {
+      "kind": "semantic",
+      "title": "How physical Branch Connector appliances receive OS images",
+      "status": "open",
+      "blocks": "planning an OS upgrade of a hardware Branch Connector",
+      "detail": "Unverified legacy statement: for a physical Branch Connector \"firmware/image updates come via Admin Console download, not cloud marketplace re-deploy. The physical device can't simply be re-provisioned the way a cloud VM can.\" The upgrades article names Branch Connector VMs only.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "scale-set-members": {
+      "kind": "semantic",
+      "title": "How scale-set and autoscaling members are upgraded",
+      "status": "open",
+      "blocks": "knowing whether an autoscaled group's members run current software and OS",
+      "detail": "Unverified legacy statements: a replacement VM in an Azure VMSS, AWS autoscaling group or GCP MIG \"is launched from the current image\", so a scale-out or health-driven replacement is \"effectively a de-facto OS upgrade\"; and whether a member that stays up for weeks also receives the weekly in-place upgrade is not captured. The deployment articles say unhealthy or terminated members are replaced, not which image or version the replacement runs.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-azure-vmss-deployments.json",
+          "quotes": [
+            "It removes unhealthy VMs from the scale set and replaces them with healthy ones."
+          ]
+        }
+      ]
+    }
+  }
+}

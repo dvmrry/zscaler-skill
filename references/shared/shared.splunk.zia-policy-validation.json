@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "id": "shared.splunk.zia-policy-validation",
+  "title": "Checking a ZIA policy answer against web logs",
+  "aliases": [
+    "url-coverage-check",
+    "rule-hit-history",
+    "ssl-inspection-observed",
+    "config-reality-drift",
+    "which rule actually fired",
+    "was this url inspected",
+    "configured allow but logged block"
+  ],
+  "binds": [
+    "zia/web-log#ssldecrypted",
+    "zia/web-log#externalspr",
+    "zia/web-log#urlfilterrulelabel",
+    "zia/web-log#apprulelabel"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.logs.web-rule-attribution"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.splunk"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A configuration answer about URL Filtering, Cloud App Control or SSL inspection can be checked against the web records of the traffic it governs. The fields that carry each answer, and their limits, are below."
+    },
+    {
+      "label": "Category.",
+      "text": "urlcat is the category of the destination URL, with the categorization source beside it: [[zia.logs.web-rule-attribution:category-source]]. How it relates to the other category fields, and what a URL in several categories shows, is open: [[zia.logs.web-field-semantics:url-category-fields]]."
+    },
+    {
+      "label": "Rule.",
+      "text": "rulelabel is filled only for Block rules: [[zia.logs.web-rule-attribution:rulelabel-block-only]]. URL Filtering and Cloud App Control each have their own rule-name field: [[zia.logs.web-rule-attribution:separate-layer-labels]]. {{cac-only-label}}"
+    },
+    {
+      "label": "Action.",
+      "text": "The full set of action values, and which subsystem fills action, is open: [[zia.logs.web-rule-attribution:action-values-precedence]]."
+    },
+    {
+      "label": "Order.",
+      "text": "The rule that should have matched is the first match in ascending order: [[zia.url-filtering.rule-order:first-match]]."
+    },
+    {
+      "label": "SSL inspection.",
+      "text": "{{ssl-fields}} Which inspection action a reason corresponds to, including the two Do Not Inspect variants in [[zia.ssl-inspection.actions:variants]], is open {{gap:ssl-reason-reading}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "To see whether a URL has been seen and how it was handled, search web records for the url over the window and list urlcat, urlfilterrulelabel, apprulelabel and action per host.",
+      "uses": [
+        "zia.logs.web-rule-attribution:category-source",
+        "zia.logs.web-rule-attribution:separate-layer-labels",
+        "zia.logs.web-field-semantics:url-category-fields"
+      ]
+    },
+    {
+      "do": "Identify the rule that fired from urlfilterrulelabel, not rulelabel, which is empty for allowed traffic.",
+      "uses": [
+        "zia.logs.web-rule-attribution:rulelabel-block-only"
+      ]
+    },
+    {
+      "do": "To check which URL Filtering rule fires, count web records for the url or host by urlfilterrulelabel and action, and compare with the ordered rule list from IaC or a live zscalerctl read; a different first match is the finding.",
+      "uses": [
+        "zia.url-filtering.rule-order:first-match",
+        "zia.logs.web-rule-attribution:action-values-precedence"
+      ]
+    },
+    {
+      "do": "When records name a Cloud App Control rule but no URL Filtering rule, check the tenant's cascading setting before concluding URL Filtering did not run.",
+      "uses": [
+        "cac-only-label",
+        "zia.cloud-app-control.precedence:cascading-allow-path"
+      ]
+    },
+    {
+      "do": "To see whether a host was inspected, count its web records by ssldecrypted and externalspr.",
+      "uses": [
+        "ssl-fields",
+        "ssl-reason-reading"
+      ]
+    },
+    {
+      "do": "To find configuration drift, compare each URL Filtering rule's configured action from a configuration export with the actions observed under its urlfilterrulelabel; a rule logging an action it is not configured with is the finding.",
+      "uses": [
+        "zia.logs.web-rule-attribution:separate-layer-labels",
+        "zia.logs.web-rule-attribution:action-values-precedence"
+      ]
+    },
+    {
+      "do": "Do not filter on action=Blocked alone and treat the result as every denial.",
+      "uses": [
+        "zia.logs.web-rule-attribution:action-values-precedence"
+      ]
+    }
+  ],
+  "claims": {
+    "cac-only-label": {
+      "statement": "A web record that names a Cloud App Control rule in apprulelabel and no URL Filtering rule fits a Cloud App Control allow that skipped URL Filtering, the default when cascading is off, while a record naming both shows both layers evaluated.",
+      "tier": "B",
+      "derived_from": [
+        "zia.logs.web-rule-attribution:separate-layer-labels",
+        "zia.cloud-app-control.precedence:cac-allow-skips-url-filtering"
+      ],
+      "conditions": "Assumes urlfilterrulelabel is empty when URL Filtering did not run; the field table does not say what it holds then."
+    },
+    "ssl-fields": {
+      "statement": "ssldecrypted says whether the transaction was SSL/TLS inspected, with Yes and No as examples; externalspr holds the SSL/TLS policy reasons, with Blocked, Inspected, N/A, Not inspected because of Microsoft 365 bypass, Not inspected because of SSL/TLS policy, Not inspected because of UCaaS bypass and Not inspected because of Zscaler best practices as examples, and the full list is under the SSL/TLS Policy Reason filter on the Web Insights page.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#ssldecrypted",
+        "zia/web-log#externalspr"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-feed-output-format-web-logs.json",
+          "quotes": [
+            "| %s{ssldecrypted} | Indicates whether the transaction was SSL/TLS inspected or not | YesNo | SSL/TLS Inspected |",
+            "| %s{externalspr} | The SSL/TLS policy reasons | BlockedInspectedN/ANot inspected because of Microsoft 365 bypassNot inspected because of SSL/TLS policy",
+            "Not inspected because of UCaaS bypassNot inspected because of Zscaler best practicesThe full list is under the SSL/TLS Policy Reason filter on the Web Insights page."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ssl-reason-reading": {
+      "kind": "semantic",
+      "title": "Which SSL inspection action each ssldecrypted and externalspr combination corresponds to",
+      "status": "open",
+      "detail": "Unverified legacy statement: combining ssldecrypted and externalspr distinguishes inspected and allowed, inspected and blocked, Do Not Inspect with Evaluate Other Policies, and Do Not Inspect with Bypass Other Policies. The field table gives the reasons only as examples of a longer list and maps none of them to a rule action.",
+      "blocks": "Telling from logs which SSL inspection rule action applied",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    }
+  }
+}

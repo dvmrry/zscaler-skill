@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.aws.traffic-steering",
+  "title": "Cloud Connector on AWS: steering workload traffic by route table, ENI or GWLB endpoint",
+  "aliases": [
+    "workload traffic not going through cloud connector aws",
+    "route table cloud connector aws",
+    "gwlb endpoint route cloud connector",
+    "eni route target cloud connector",
+    "cloud connector security vpc",
+    "cloud connector hub and spoke aws",
+    "cloud connector route failover lambda",
+    "cloud connector bypassed aws"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "cloud-connector.aws"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.gwlb"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.interfaces"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.reference-modules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Workload traffic reaches Cloud Connector only because a route table sends it there. The route target is either one Cloud Connector's service ENI or a Gateway Load Balancer endpoint."
+    },
+    {
+      "label": "The route.",
+      "text": "{{route-targets}} The post-stack route edit is [[cloud-connector.aws.cloudformation:route-after-stack]]; {{cloudformation-leaves-routes}} {{module-routes}}"
+    },
+    {
+      "label": "Subnet layout.",
+      "text": "{{private-subnet}} {{subnet-layout}}"
+    },
+    {
+      "label": "GWLB is the recommended path.",
+      "text": "{{gwlb-recommended}} {{gwlb-endpoint-per-subnet}} {{security-vpc}} {{transit-gateway-hub}} Target-group health, stickiness and cross-zone settings are in [[cloud-connector.aws.gwlb]]. Whether GWLB preserves the workload source IP to Cloud Connector is not stated {{gap:source-ip-preserved}}."
+    },
+    {
+      "label": "ENI routing and failover.",
+      "text": "{{legacy-lambda-failover}} {{eni-single-target}}"
+    },
+    {
+      "label": "Not captured.",
+      "text": "The AWS reference architecture guide is a PDF whose body was not captured {{gap:reference-architecture}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the workload subnet's route table has 0.0.0.0/0 pointing at the Cloud Connector service ENI (non-GWLB) or at a GWLB endpoint (GWLB), and not at a NAT gateway or internet gateway.",
+      "uses": [
+        "route-targets",
+        "cloudformation-leaves-routes"
+      ]
+    },
+    {
+      "do": "For GWLB, whether the workload route points at the GWLB endpoint in the same availability zone.",
+      "uses": [
+        "gwlb-endpoint-per-subnet"
+      ]
+    },
+    {
+      "do": "For ENI routing, whether the route still names a live instance's service ENI, and whether a failover Lambda exists to rewrite it.",
+      "uses": [
+        "eni-single-target",
+        "legacy-lambda-failover"
+      ]
+    },
+    {
+      "do": "Whether the Cloud Connector subnet's default route goes to a NAT gateway (private subnet) or the internet gateway (public subnet).",
+      "uses": [
+        "private-subnet",
+        "subnet-layout"
+      ]
+    }
+  ],
+  "claims": {
+    "route-targets": {
+      "statement": "The workload route is a 0.0.0.0/0 destination whose target is, for non-GWLB deployments, the network interface of the Cloud Connector service interface and, for GWLB deployments, the Gateway Load Balancer endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "For the Destination, enter 0.0.0.0/0.",
+            "For non-GWLB-based deployments, select Network Interface and choose the ENI associated with your Cloud Connector service interface instance.",
+            "For GWLB-based deployments, select Gateway Load Balancer Endpoint and choose the GWLB Endpoint ID associated with your Gateway Load Balancer."
+          ]
+        }
+      ]
+    },
+    "cloudformation-leaves-routes": {
+      "statement": "The CloudFormation templates do not themselves create the workload subnet's route to Cloud Connector.",
+      "tier": "B",
+      "derived_from": [
+        "cloud-connector.aws.cloudformation:route-after-stack"
+      ],
+      "conditions": "Inferred from the guide listing the route edit as a manual step after stack creation and from the Starter template's resource-type list (cbc-deployment-templates-zscaler-cloud-connector.json), which contains no AWS::EC2::Route or AWS::EC2::RouteTable; no source states it directly."
+    },
+    "module-routes": {
+      "statement": "The reference Terraform network module points workload and Route 53 subnet route tables at the Cloud Connector service ENIs by default, or at the GWLB endpoints when `gwlb_enabled` is true, so the Terraform examples create the workload route themselves.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-network-aws/variables.tf",
+          "quotes": [
+            "variable \"gwlb_enabled\" { type = bool default = false",
+            "Default is false. Workload/Route 53 subnet Route Tables will point to network_interface_id via var.cc_service_enis. If true, Route Tables will point to vpc_endpoint_id via var.gwlb_endpoint_ids input."
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_1cc/README.md",
+          "quotes": [
+            "workload private subnet route repointed to service ENI of Cloud Connector."
+          ]
+        }
+      ]
+    },
+    "private-subnet": {
+      "statement": "Zscaler recommends deploying Cloud Connector in a private subnet, whose traffic goes through a NAT gateway with an elastic IP rather than directly to an internet gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "When deploying in a private subnet, the subnet's traffic is not routed to an internet gateway and is instead routed through the NAT gateway, which has an elastic IP address.",
+            "Zscaler recommends configuring your VPC with Cloud Connector in a private subnet."
+          ]
+        }
+      ]
+    },
+    "subnet-layout": {
+      "statement": "The guide's private-subnet layout has a Cloud Connector subnet whose default route goes to the NAT gateway, a workload subnet whose route is later pointed at the Cloud Connector, and a public NAT subnet whose default route goes to the internet gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+          "quotes": [
+            "Private-cloudconnector-routing: Associate the private-cloudconnector-subnet to the route table and add a default route destination CIDR (0.0.0.0/0)to the target NAT gateway.",
+            "Private-workload-routing: Associate the private-workload-subnet to point the route table to Cloud Connector's traffic.",
+            "Public-nat-routing: Associate the public-nat-subnet to the route table and add a default route destination CIDR (0.0.0.0/0)to the target internet gateway."
+          ]
+        }
+      ]
+    },
+    "gwlb-recommended": {
+      "statement": "Zscaler's recommended deployment method is the Gateway Load Balancer, which distributes traffic across multiple Cloud Connectors and achieves high availability; the autoscaling deployment places a GWLB in front of the Cloud Connectors as the entry point for endpoint traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_2cc/README.md",
+          "quotes": [
+            "Zscaler's recommended deployment method is Gateway Load Balancer (GWLB), which distributes traffic across multiple Cloud Connectors and achieves high availability."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json",
+          "quotes": [
+            "A GWLB is deployed in front of the Cloud Connectors. It is the entry point for traffic from the endpoints to the security stack."
+          ]
+        }
+      ]
+    },
+    "gwlb-endpoint-per-subnet": {
+      "statement": "The reference modules create one GWLB endpoint per listed subnet, and the GWLB examples place one endpoint in each Cloud Connector subnet with workload routes pointing at the endpoint in the same AZ.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-gwlbendpoint-aws/main.tf",
+          "quotes": [
+            "Create the GWLB Endpoint ENIs per list of subnet IDs specified"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_cc_gwlb/README.md",
+          "quotes": [
+            "2 GWLB Endpoints (1 in each Cloud Connector subnet); workload private subnet routes pointing to the GWLB Endpoint in their same AZ"
+          ]
+        }
+      ]
+    },
+    "security-vpc": {
+      "statement": "Help's sublocation topologies show workload VPC endpoints connected over AWS PrivateLink to the GWLB, which passes traffic to and from the Cloud Connectors in a security VPC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-using-sublocation-scopes-group-cloud-connector-workloads-amazon-web.json",
+          "quotes": [
+            "VCPE 1 and VCPE 2 are connected via AWS Private Link to the Gateway Load Balancer (GWLB), which passes traffic to and from the Cloud Connectors in the security VPC."
+          ]
+        }
+      ]
+    },
+    "transit-gateway-hub": {
+      "statement": "In the centralized model, spoke VPC traffic goes to an AWS Transit Gateway, which passes it to the endpoint subnet in a hub VPC; the Terraform examples have a matching Transit Gateway hub-and-spoke mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-using-sublocation-scopes-group-cloud-connector-workloads-amazon-web.json",
+          "quotes": [
+            "The workload traffic originating from each spoke VPC is routed to the AWS Transit Gateway, which passes traffic to and from the endpoint subnet in the hub VPC.",
+            "In a centralized VPC endpoint deployment, all workload traffic from subnets in spoke VPCs is routed to Cloud Connectors through a shared set of VPC endpoints in a hub VPC."
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "README.md",
+          "quotes": [
+            "to deploy a Transit Gateway hub-and-spoke inspection topology."
+          ]
+        }
+      ]
+    },
+    "legacy-lambda-failover": {
+      "statement": "The deprecated HA examples deploy a Lambda that probes each Cloud Connector's HTTP probe port and fails workload route tables over between two Cloud Connectors; its IAM policy allows ec2:ReplaceRoute only on resources whose Name tag matches the deployment's route-table pattern.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-lambda-aws/main.tf",
+          "quotes": [
+            "\"RouteTables\": \"${local.rte1}\", \"HttpProbePort\": \"${var.http_probe_port}\"",
+            "Allow HTTP GET access to the specified port on CC",
+            "\"Sid\": \"EC2ReplaceRouteTaggedOnly\", \"Action\": [ \"ec2:ReplaceRoute\" ]",
+            "\"ec2:ResourceTag/Name\": \"${var.name_prefix}-*-rt-${var.resource_tag}\""
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_2cc/README.md",
+          "quotes": [
+            "with Lambda configured for HA failover of workload route tables between the two Cloud Connectors"
+          ]
+        }
+      ]
+    },
+    "eni-single-target": {
+      "statement": "An ENI route sends the subnet's traffic to one Cloud Connector instance, so without a failover mechanism such as the deprecated Lambda, losing that instance leaves the route pointing at nothing that forwards.",
+      "tier": "B",
+      "derived_from": [
+        "route-targets",
+        "legacy-lambda-failover"
+      ],
+      "conditions": "Follows from a route target naming a single network interface and from the vendor shipping a route-rewriting Lambda for that pattern; no source describes the failure itself."
+    }
+  },
+  "gaps": {
+    "source-ip-preserved": {
+      "kind": "semantic",
+      "title": "Workload source IP as seen by Cloud Connector behind GWLB",
+      "status": "open",
+      "detail": "Unverified legacy statement: GWLB supports transparent bump-in-the-wire forwarding and the source IP of workload traffic is preserved to the Cloud Connector. No Zscaler source in the captures states it.",
+      "blocks": "explaining which source IP Cloud Connector policies and logs see in a GWLB deployment",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "reference-architecture": {
+      "kind": "semantic",
+      "title": "Body of the AWS reference architecture guide",
+      "status": "partial",
+      "detail": "The Zero Trust Security for AWS Workloads guide is offered as a PDF; the capture holds only its introduction. Unverified legacy statement: the guide places Cloud Connectors in a dedicated transit/egress VPC separate from workload VPCs, prefers hub-spoke with GWLB for multi-VPC multi-AZ, treats single-VPC as a POC pattern, and covers multi-account patterns and Transit Gateway integration. The security-VPC and Transit Gateway hub shapes are now sourced from sublocation Help and the Terraform repository; the preference ranking and multi-account guidance are not.",
+      "blocks": "citing Zscaler's preferred multi-account AWS topology",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

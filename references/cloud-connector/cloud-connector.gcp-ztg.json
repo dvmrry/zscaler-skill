@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.gcp-ztg",
+  "title": "GCP Zero Trust Gateway: managed service boundary and restrictions",
+  "aliases": [
+    "gcp zero trust gateway",
+    "gcp ztg",
+    "zero trust gateway google cloud",
+    "network security integration zscaler",
+    "nsi packet intercept zscaler",
+    "gcp ztg regions",
+    "is gcp ztg generally available"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp-ztg.creation"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp-ztg.operations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "GCP Zero Trust Gateway is a Zscaler-operated service, not a Cloud Connector VM the customer deploys. [[cloud-connector.overview.zero-trust-gateways:gcp-managed]] [[cloud-connector.overview.zero-trust-gateways:no-infrastructure]] {{limited-availability}}"
+    },
+    {
+      "label": "What it carries.",
+      "text": "{{traffic-scope}} Whether non-web private applications have any path through it is open {{gap:non-web-private-access}}."
+    },
+    {
+      "label": "Restrictions.",
+      "items": [
+        {
+          "text": "{{no-dns-interception}}"
+        },
+        {
+          "text": "{{nsi-throughput}}"
+        },
+        {
+          "text": "{{no-regional-firewall-policy}}"
+        },
+        {
+          "text": "{{in-band-unsupported}}"
+        },
+        {
+          "text": "{{firewall-enforcement-order}}"
+        }
+      ]
+    },
+    {
+      "label": "The GCP resources involved.",
+      "text": "{{intercept-groups}} Creating a gateway and binding principals is in [[cloud-connector.gcp-ztg.creation]]; health, configuration and traffic tests are in [[cloud-connector.gcp-ztg.operations]]."
+    },
+    {
+      "label": "Regions.",
+      "text": "The supported GCP regions are [[cloud-connector.regions.zero-trust-gateways:gcp-list]], with [[cloud-connector.regions.zero-trust-gateways:unlisted-contact-support]] for others; whether this set matches other region sets is open in [[cloud-connector.regions:region-set-parity]]."
+    },
+    {
+      "label": "Not settled.",
+      "text": "No GA date or default entitlement is documented {{gap:ga-timing}}, and whether the AWS and GCP gateways share one operating contract is open in [[cloud-connector.overview.zero-trust-gateways:aws-gcp-parity]]. The customer-deployed GCP Cloud Connector is a different product path: [[cloud-connector.gcp]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant has GCP Zero Trust Gateway enabled at all, since it is Limited Availability and enabled by Zscaler Support.",
+      "uses": [
+        "limited-availability"
+      ]
+    },
+    {
+      "do": "Whether the failing traffic is DNS, non-web private-application traffic, or traffic from an unsupported GCP platform, none of which the gateway handles.",
+      "uses": [
+        "no-dns-interception",
+        "traffic-scope",
+        "in-band-unsupported",
+        "non-web-private-access"
+      ]
+    },
+    {
+      "do": "Whether the affected VM needs more than 7 Gbps, or the intercept relies on a regional network firewall policy.",
+      "uses": [
+        "nsi-throughput",
+        "no-regional-firewall-policy"
+      ]
+    },
+    {
+      "do": "Whether the VPC evaluates the network firewall policy before classic VPC firewall rules.",
+      "uses": [
+        "firewall-enforcement-order"
+      ]
+    },
+    {
+      "do": "Whether the gateway's region is in the supported list.",
+      "uses": [
+        "cloud-connector.regions.zero-trust-gateways:gcp-list"
+      ]
+    }
+  ],
+  "claims": {
+    "limited-availability": {
+      "statement": "GCP gateways are in Limited Availability, and Zscaler Support enables the feature.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-google-cloud-platform-zero-trust-gateways.json",
+          "quotes": [
+            "GCP gateways are in Limited Availability (LA). To enable this feature, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "traffic-scope": {
+      "statement": "GCP gateways support Private Access for web traffic only, support Internet & SaaS functionality, and apply firewall, SSL inspection, DLP and IPS as a cloud-native service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-google-cloud-platform-zero-trust-gateways.json",
+          "quotes": [
+            "Support Private Access (ZPA) for web traffic only.",
+            "Use Internet & SaaS (ZIA) functionalities.",
+            "Apply security features such as advanced firewall protection, Secure Sockets Layer (SSL) inspection, data loss prevention (DLP), and intrusion prevention system (IPS) as a cloud-native service."
+          ]
+        }
+      ]
+    },
+    "no-dns-interception": {
+      "statement": "DNS interception is not supported by GCP gateways.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-google-cloud-platform-zero-trust-gateways.json",
+          "quotes": [
+            "DNS interception is not supported."
+          ]
+        }
+      ]
+    },
+    "nsi-throughput": {
+      "statement": "Packet interception for Network Security Integration (NSI) cancels the high-bandwidth networking benefit of third-generation or newer machine series, and the article says not to configure NSI for a VM that needs more than 7 Gbps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-google-cloud-platform-zero-trust-gateways.json",
+          "quotes": [
+            "Packet interception for Network Security Integration (NSI) cancels the high-bandwidth networking benefits of third generation or higher machine series.",
+            "If a virtual machine (VM) requires more than 7 Gbps of throughput, do not configure NSI for the VM."
+          ]
+        }
+      ]
+    },
+    "no-regional-firewall-policy": {
+      "statement": "Regional network firewall policies are not supported for packet intercept.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-google-cloud-platform-zero-trust-gateways.json",
+          "quotes": [
+            "Regional network firewall policies are not supported for packet intercept."
+          ]
+        }
+      ]
+    },
+    "in-band-unsupported": {
+      "statement": "In-band integration is not supported in Google Cloud VMware Engine, Google Distributed Cloud-Hosted, Google Distributed Cloud-Edge, Google Private Cloud, Google Cloud Run and GKE Enterprise.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-google-cloud-platform-zero-trust-gateways.json",
+          "quotes": [
+            "In-band integration is not supported in Google Cloud VMware Engine, Google Distributed Cloud-Hosted (GDC-H), Google Distributed Cloud-Edge (GDC-E), Google Private Cloud, Google Cloud Run, and GKE Enterprise."
+          ]
+        }
+      ]
+    },
+    "firewall-enforcement-order": {
+      "statement": "To have the network firewall policy evaluated before VPC firewall rules, the article says to run gcloud compute networks update on the VPC with the network firewall policy enforcement order set to `BEFORE_CLASSIC_FIREWALL`; the capture renders the VPC name and the flag with no space between them, so the command text is not copy-ready.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-google-cloud-platform-zero-trust-gateways.json",
+          "quotes": [
+            "To override classic firewall evaluation at the virtual private cloud (VPC) level so that the network firewall policy is evaluated before VPC firewall rules",
+            "run the gcloud compute networks update vpc-name--network-firewall-policy-enforcement-order=BEFORE_CLASSIC_FIREWALL command."
+          ]
+        }
+      ]
+    },
+    "intercept-groups": {
+      "statement": "An intercept deployment group is a GCP-provided resource that lets the Zscaler service intercept and inspect workload traffic from the customer's VPCs; an intercept endpoint group is a project-wide resource that gives access to the Zscaler-managed security service in GCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-google-cloud-platform-zero-trust-gateways.json",
+          "quotes": [
+            "Intercept Deployment Group: A GCP-provided resource that allows the Zscaler service to intercept and inspect workload traffic from your VPCs.",
+            "Intercept Endpoint Groups Count: The number of a project-wide resource that allows you to access a Zscaler-managed security service in GCP."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ga-timing": {
+      "kind": "semantic",
+      "title": "GA date and default entitlement for GCP Zero Trust Gateway",
+      "status": "open",
+      "detail": "Unverified legacy statement: no GA date or default-entitlement contract is documented. The captured articles state only Limited Availability with Support enablement.",
+      "blocks": "telling a customer whether the gateway is available without a Support request",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "non-web-private-access": {
+      "kind": "semantic",
+      "title": "Non-web private-application traffic through GCP Zero Trust Gateway",
+      "status": "open",
+      "detail": "Unverified legacy statement: no roadmap or fallback for non-web private applications is documented. The article states Private Access support for web traffic only and says nothing about what happens to other private traffic.",
+      "blocks": "advising on private applications that are not web traffic",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

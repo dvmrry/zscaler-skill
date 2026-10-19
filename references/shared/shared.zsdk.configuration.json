@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "id": "shared.zsdk.configuration",
+  "title": "Configuring ZSDK: registered apps and app keys, segments and access policy",
+  "aliases": [
+    "zsdk app key",
+    "zsdk registered app",
+    "zsdk trust binding",
+    "zsdk publish app key",
+    "zsdk revoke app key",
+    "zsdk access policy",
+    "zsdk segment group",
+    "zsdk token validator",
+    "zsdk setup order"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.architecture"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{setup-order}}"
+    },
+    {
+      "heading": "Registered apps and app keys"
+    },
+    {
+      "text": "{{app-key-first}} {{registration-settings}} {{key-lifecycle}} What a revoke does to tunnels that are already up is open {{gap:revoke-live-tunnels}}, and whether the SDK can reach anything with an unpublished key is open {{gap:unpublished-key-tunnels}}; the ZSDK API error codes for unpublished and revoked apps are in [[shared.zsdk.error-codes]]."
+    },
+    {
+      "heading": "Application segments and segment groups"
+    },
+    {
+      "text": "{{application-definition}} {{segment-in-group}}"
+    },
+    {
+      "heading": "Access policy"
+    },
+    {
+      "text": "{{default-block}} {{policy-targets}} {{criteria}} {{operators}} {{actions}} {{rule-order}} Whether evaluation stops at the first matching rule is open {{gap:first-match}}. How often the token is checked once a tunnel is up is open {{gap:token-check-frequency}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the app key in the app is published and not revoked.",
+      "uses": [
+        "key-lifecycle",
+        "unpublished-key-tunnels"
+      ]
+    },
+    {
+      "do": "Whether an access policy rule explicitly allows the application segment or its segment group, since access is blocked until one does.",
+      "uses": [
+        "default-block",
+        "policy-targets",
+        "operators"
+      ]
+    },
+    {
+      "do": "Whether the rule's criteria (client type, country code, device profile) all match the request.",
+      "uses": [
+        "criteria"
+      ]
+    }
+  ],
+  "claims": {
+    "setup-order": {
+      "statement": "The ZSDK configuration guide orders setup in seven steps: 1 register the app to obtain an app key, 2 configure a JSON Web Token validator, 3 add App Connectors, 4 deploy them (install and enroll each to obtain its TLS client certificate), 5 define application segments, 6 add access policy, 7 integrate ZSDK into the app.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-step-step-configuration-guide-zsdk.json",
+          "quotes": [
+            "Step 1: Register Your App",
+            "you need to register your mobile app to obtain an app key",
+            "Step 2: Configure a Token Validator",
+            "Configure a JSON Web Token validator to enable ZSDK",
+            "Step 3: Add App Connectors",
+            "Step 4: Deploy App Connectors",
+            "App Connector deployment consists of installing the App Connector and enrolling it to obtain the TLS client certificate to authenticate itself to the Zscaler cloud.",
+            "Step 5: Define Application Segment",
+            "Step 6: Add Access Policy",
+            "Step 7: Integrate ZSDK"
+          ]
+        }
+      ]
+    },
+    "app-key-first": {
+      "statement": "The mobile app must be registered to obtain an app key before ZSDK is implemented; a registered app provisions a unique app key for each mobile app or environment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-registered-apps.json",
+          "quotes": [
+            "You must register your mobile app to obtain an app key before implementing Zscaler SDK for Mobile Apps.",
+            "Provision and manage unique app keys for each mobile app or environment."
+          ]
+        }
+      ]
+    },
+    "registration-settings": {
+      "statement": "Registering an app takes a name, a description, an Authentication Type that is always One Identity (the identity provider that validates the app's access tokens), and a Trust Binding that sets device re-enrollment frequency: Strong requires more frequent re-enrollment, Loose allows longer intervals.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-register-your-app.json",
+          "quotes": [
+            "Name: Enter the name of the mobile app.",
+            "Description: Enter a description of the mobile app.",
+            "Authentication Type: One Identity is selected as the default.",
+            "Trust Binding: Select a trust binding level (Strong or Loose) that determines device re-enrollment frequency."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-registered-apps.json",
+          "quotes": [
+            "The identity provider for validating access tokens for your app. This is always set to One Identity.",
+            "Strong: Requires more frequent device re-enrollment for heightened security.",
+            "Loose: Allows longer intervals between device re-enrollments."
+          ]
+        }
+      ]
+    },
+    "key-lifecycle": {
+      "statement": "A new app key is activated by publishing it. Before publishing it can be edited or deleted; after publishing the only action is Revoke, which deactivates the key so it can no longer be used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-registered-apps.json",
+          "quotes": [
+            "Publish: Activate your app key for use.",
+            "Edit: Edit your unpublished app key prior to use.",
+            "Delete: Delete your unpublished app key.",
+            "Revoke: Deactivate your app key so that it can no longer be used.",
+            "After a registered app key is published, you can then revoke the key as an action. The Edit, Publish, and Delete actions are unavailable after a registered app key is published."
+          ]
+        }
+      ]
+    },
+    "application-definition": {
+      "statement": "An application segment defines the applications (back-end services, APIs) to protect with ZSDK; an application is an FQDN, local domain name or IP address defined on a standard set of ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-step-step-configuration-guide-zsdk.json",
+          "quotes": [
+            "You need to define an application segment for applications (e.g., back-end services, APIs) that you want to protect with ZSDK.",
+            "An application is an FQDN, local domain name, or IP address that you define on a standard set of ports."
+          ]
+        }
+      ]
+    },
+    "segment-in-group": {
+      "statement": "Each application segment must be placed in a segment group, which lets access policy be configured by segment group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-segment-groups.json",
+          "quotes": [
+            "You must place each application segment that you configure into a segment group. This allows you to configure access policies based on segment groups."
+          ]
+        }
+      ]
+    },
+    "default-block": {
+      "statement": "By default, Zscaler blocks users' access to applications and segment groups until policy rules explicitly allow it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-step-step-configuration-guide-zsdk.json",
+          "quotes": [
+            "By default, Zscaler blocks access to applications and segment groups for users until you configure policy rules that explicitly allow access."
+          ]
+        }
+      ]
+    },
+    "policy-targets": {
+      "statement": "An access policy rule names the applications or segment groups that client groups can access: a rule with application segments is the documented way to give individual applications different policies, and a rule with segment groups to give a set of applications a similar level of access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-access-policy.json",
+          "quotes": [
+            "To configure an access policy rule, you must define which applications or segment groups the client groups can access.",
+            "When you need to apply different policies to individual applications, create an access policy rule that includes one or more application segments.",
+            "However, if you want all applications that need a similar level of access across those applications, create an access policy rule that includes one or more segment groups."
+          ]
+        }
+      ]
+    },
+    "criteria": {
+      "statement": "A request must match all the conditions of a rule. The criteria are Applications, Client Types (Prelogin Tunnel or Zero Trust Tunnel), Country Code and Device Profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-access-policy.json",
+          "quotes": [
+            "A user's application request must match all the conditions within a policy rule.",
+            "You can apply any of the following criteria to a policy rule:",
+            "Applications: A grouping of defined applications based upon access type or user privileges.",
+            "Client Types: The available client types are Prelogin Tunnel and Zero Trust Tunnel.",
+            "Country Code: A grouping of country codes based upon where your users are accessing your mobile applications.",
+            "Device Profiles: A grouping of defined device profiles to apply a set of criteria for evaluation."
+          ]
+        }
+      ]
+    },
+    "operators": {
+      "statement": "Access policy rules use only AND and OR operators. Several application segments in a rule are joined by an implicit OR, as are several segment groups, and application segment and segment group criteria are joined by an explicit OR.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-access-policy.json",
+          "quotes": [
+            "Access policy rules use AND and OR operators only.",
+            "ZSDK uses an implicit OR Boolean operator between multiple application segments.",
+            "Similar to application segments, ZSDK uses an implicit OR Boolean operator between multiple segment groups.",
+            "ZSDK uses an explicit OR Boolean operator between application segment and segment group criteria."
+          ]
+        }
+      ]
+    },
+    "actions": {
+      "statement": "A rule's action is Allow Access, Block Access or Require Approval.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-access-policy.json",
+          "quotes": [
+            "The rule action is either Allow Access, Block Access, or Require Approval."
+          ]
+        }
+      ]
+    },
+    "rule-order": {
+      "statement": "Each rule has a Rule Order number, its policy evaluation order, and ZSDK applies policy rules in the order they are listed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-access-policy.json",
+          "quotes": [
+            "Rule Order: The policy evaluation order number for the rule. ZSDK applies policy rules based on the order they are listed here."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "revoke-live-tunnels": {
+      "kind": "semantic",
+      "title": "What revoking an app key does to tunnels already established",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Revoking an app key immediately invalidates all SDK tunnels for that app.\" The help page says only that Revoke deactivates the key so it can no longer be used.",
+      "blocks": "whether revoking a key is an immediate cut-off for running app sessions",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "unpublished-key-tunnels": {
+      "kind": "semantic",
+      "title": "Whether the SDK can start any tunnel with an unpublished app key",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Without a published app key, the SDK cannot establish any tunnel.\" The help pages say Publish activates the key, and the ZSDK API lists zsdkIdentifierIsNotPublished as an error, but no page says which tunnel calls fail.",
+      "blocks": "diagnosing an app that cannot start tunnels",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "first-match": {
+      "kind": "semantic",
+      "title": "Whether ZSDK access policy stops at the first matching rule",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Rules are evaluated in order; the first matching rule applies.\" The ZSDK help page says only that rules are applied in the order listed.",
+      "blocks": "predicting which rule decides a request when several match",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "token-check-frequency": {
+      "kind": "semantic",
+      "title": "Whether the access token is re-verified at every tunnel establishment",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The JWT is verified against the security certificate at every tunnel establishment.\" The help pages say ZSDK verifies the token's signature and claims before granting access, and that an expired token raises an authentication-required notification, but not when verification recurs.",
+      "blocks": "reasoning about token expiry and revocation during a session",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

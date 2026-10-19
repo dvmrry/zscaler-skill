@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "id": "shared.nss.reliability",
+  "title": "What NSS delivers across an outage: VM buffer, Duplicate Logs and one-hour recovery",
+  "aliases": [
+    "nss one-hour recovery",
+    "nss duplicate logs",
+    "siem missing logs after outage",
+    "nss buffer",
+    "nss replay",
+    "cloud nss retry",
+    "nss log gap"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.nss"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.delivery-modes"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.logs.nss-feed-format"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.delivery"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Two legs can fail, and each has its own mechanism. {{legs-differ}}"
+    },
+    {
+      "heading": "NSS to SIEM (VM-based)"
+    },
+    {
+      "text": "{{vm-buffer}} {{duplicate-logs}} {{duplicate-logs-example}} {{no-clean-replay}} {{cbc-buffer}} Whether that duration applies to ZIA NSS VMs, and what an outage longer than the buffer loses, is open {{gap:buffer-bound}}."
+    },
+    {
+      "heading": "Zscaler cloud to NSS"
+    },
+    {
+      "text": "{{nanolog-interruption}} {{vm-recovery-support}} {{recovery-bound}} The reference point of \"up to one hour back\" is not stated {{gap:recovery-reference-point}}."
+    },
+    {
+      "heading": "Cloud NSS"
+    },
+    {
+      "text": "Cloud NSS recovery: [[zia.logs.nss-feed-format:cloud-from-nanolog]] Whether it also needs a Support request is open {{gap:cloud-recovery-enablement}}. Batch handling by HTTP status: [[zia.casb.insights-logs:cloud-nss-http-codes]] {{http-feed-codes}}"
+    },
+    {
+      "heading": "After the window"
+    },
+    {
+      "text": "ZIA logs stay in the Nanolog for 180 days and can be read on the Insights Logs pages: [[shared.log-correlation.streams:zia-retention]]. Whether they can be streamed again after the recovery window is open {{gap:re-export}}."
+    },
+    {
+      "text": "ZPA's log stream behaves differently: [[zpa.app-connectors.health:lss-retransmit-limits]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which leg failed: the SIEM being unreachable from the NSS, or the NSS losing its connection to the Zscaler cloud.",
+      "uses": [
+        "legs-differ"
+      ]
+    },
+    {
+      "do": "For a SIEM outage on VM-based NSS, the feed's Duplicate Logs setting, which decides whether the minutes before detection are resent.",
+      "uses": [
+        "duplicate-logs",
+        "duplicate-logs-example"
+      ]
+    },
+    {
+      "do": "For a cloud-to-NSS outage, whether the one-hour recovery was enabled through Zscaler Support and whether the outage outlasted the hour.",
+      "uses": [
+        "vm-recovery-support",
+        "recovery-bound",
+        "cloud-recovery-enablement"
+      ]
+    },
+    {
+      "do": "For Cloud NSS or an HTTP feed, the HTTP status the SIEM returned: a 400 drops the batch at once.",
+      "uses": [
+        "zia.casb.insights-logs:cloud-nss-http-codes",
+        "http-feed-codes"
+      ]
+    }
+  ],
+  "claims": {
+    "vm-buffer": {
+      "statement": "The NSS buffers logs in VM memory to increase its resiliency to transient network issues between the SIEM and NSS; if the connection drops, it replays logs from the buffer according to the Duplicate Logs setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "NSS to SIEM: The NSS buffers the logs in the VM memory to increase its resiliency to transient network issues between the SIEM and NSS. If the connection drops, the NSS replays logs from the buffer, according to the Duplicate Logs setting."
+          ]
+        }
+      ]
+    },
+    "duplicate-logs": {
+      "statement": "Because the NSS can detect a lost SIEM connection some time after the SIEM became unavailable, a feed's Duplicate Logs setting specifies when the NSS starts replaying logs from the buffer, for example 5 minutes before the lost connection is detected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "general-guidelines-nss-feeds-and-feed-formats.json",
+          "quotes": [
+            "There can be a difference between the time that the SIEM becomes unavailable and the time that the NSS detects that the SIEM is unavailable.",
+            "you can use the Duplicate Logs setting to specify when the NSS starts replaying logs from the buffer (e.g., 5 minutes before the lost SIEM connection is detected.)"
+          ]
+        }
+      ]
+    },
+    "duplicate-logs-example": {
+      "statement": "In the vendor example the SIEM goes offline at 6:29:00 PM, the NSS detects it at 6:30:00 PM and the connection returns at 6:40:00 PM. With Duplicate Logs at 5 minutes the NSS sends from 6:25:00 PM, duplicating 6:25:00 PM to 6:28:59 PM and recovering 6:29:00 PM to 6:30:00 PM; disabled, it sends from 6:30:00 PM and does not recover 6:29:00 PM to 6:30:00 PM; at 60 minutes it sends from 5:30:00 PM, which is not recommended because of the duplicates the SIEM must process.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "general-guidelines-nss-feeds-and-feed-formats.json",
+          "quotes": [
+            "The SIEM goes offline at 6:29:00 PM.",
+            "The NSS detects the lost connection at 6:30:00 PM.",
+            "The connection is restored at 6:40:00 PM.",
+            "If Duplicate Logs is set to 5 minutes: After the connection is restored, the NSS sends logs from 6:25:00 PM onwards.",
+            "It duplicates logs from 6:25:00 PM to 6:28:59 PM and recovers logs from 6:29:00 PM to 6:30:00 PM.",
+            "If Duplicate Logs is disabled: After the connection is restored, the NSS sends logs from 6:30:00 PM onwards. It does not recover logs from 6:29:00 PM to 6:30:00 PM.",
+            "If Duplicate Logs is set to 60 minutes: After the connection is restored, the NSS sends logs from 5:30:00 PM onwards.",
+            "This setting is not recommended due to the high number of duplicates to be processed by the SIEM, introducing unnecessary delay."
+          ]
+        }
+      ]
+    },
+    "no-clean-replay": {
+      "statement": "Across a SIEM outage, VM-based NSS either loses the logs between the SIEM going down and the NSS detecting it (Duplicate Logs disabled) or resends logs the SIEM already holds (Duplicate Logs enabled).",
+      "tier": "B",
+      "derived_from": [
+        "duplicate-logs",
+        "duplicate-logs-example"
+      ],
+      "conditions": "Generalizes the vendor's single worked example; the help does not describe delivery as at-least-once or exactly-once."
+    },
+    "nanolog-interruption": {
+      "statement": "If connectivity between the Zscaler cloud and the NSS is interrupted, the NSS misses logs that arrived at the Nanolog cluster during the interruption and they are not delivered to the SIEM; when the connection is restored, the NSS one-hour recovery allows the Nanolog to replay logs up to one hour back.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "Nanolog to SIEM: If the connectivity between the Zscaler cloud and NSS is interrupted, the NSS misses logs that arrived at the Nanolog cluster during the interruption, and they are not delivered to the SIEM.",
+            "When the connection is restored, the NSS one-hour recovery allows the Nanolog to replay logs up to one hour back."
+          ]
+        }
+      ]
+    },
+    "vm-recovery-support": {
+      "statement": "The NSS one-hour recovery is enabled for an organization by contacting Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "To enable the NSS one-hour recovery for your organization, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "recovery-bound": {
+      "statement": "Without the one-hour recovery, logs that reach the Nanolog during a cloud-to-NSS interruption are not delivered to the SIEM at all; with it, the replay reaches at most one hour back from restoration, so of a longer interruption only the last hour can be replayed.",
+      "tier": "B",
+      "derived_from": [
+        "nanolog-interruption",
+        "vm-recovery-support"
+      ],
+      "conditions": "Reads \"up to one hour back\" as measured from the time the connection is restored; the help does not state the reference point.",
+      "gaps": [
+        "recovery-reference-point"
+      ]
+    },
+    "legs-differ": {
+      "statement": "The VM memory buffer covers the NSS-to-SIEM connection and the one-hour recovery covers the Zscaler cloud-to-NSS connection, so a recovery setting does not restore logs lost on the SIEM side, and the VM buffer does not help when the NSS loses the Nanolog.",
+      "tier": "B",
+      "derived_from": [
+        "vm-buffer",
+        "nanolog-interruption"
+      ],
+      "conditions": "The help lists the two as separate reliability mechanisms for separate connections; it does not state that neither covers the other leg."
+    },
+    "http-feed-codes": {
+      "statement": "The NSS Feeds article, under the SIEM connectivity test that is populated only for HTTP NSS feeds, says a feed treats HTTP/S status 200 or 204 from the SIEM as a successful upload and 400 as a parsing error that drops the batch, and retries the same batch on any other code for up to one hour, after which the batch is dropped.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-nss-feeds.json",
+          "quotes": [
+            "Test the connectivity to the SIEM. This field is only populated for the HTTP NSS Feeds.",
+            "The feed behaves differently according to HTTP/S response status codes from the SIEM.",
+            "HTTP code 200 or 204: The feed considers the batch of logs successfully uploaded.",
+            "HTTP code 400: The feed considers the batch of logs to have a parsing error and drops the batch.",
+            "The feed repeatedly attempts to upload the same batch until it receives a 200, 204, or 400 response from the SIEM up to one hour. After one hour, the batch is dropped."
+          ]
+        }
+      ]
+    },
+    "cbc-buffer": {
+      "statement": "The Cloud & Branch Connector article on adding NSS servers says the NSS buffers logs for at least one hour and sends them after the SIEM connection is re-established; the buffer memory is part of the VM specification and grows in proportion to the RAM allocated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-adding-nss-servers.json",
+          "quotes": [
+            "The NSS buffers the logs for at least one hour. If a security information and event management (SIEM) system goes offline for maintenance or if the connection between the NSS and the SIEM is disrupted, the NSS buffers the logs and sends them after the connection is re-established.",
+            "The amount of memory required to buffer the logs is incorporated into the VM spec computation. The buffer size increases proportionally to the amount of RAM allocated to the NSS."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "buffer-bound": {
+      "kind": "semantic",
+      "title": "ZIA NSS buffer duration and loss beyond the buffer",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Buffer is bounded by VM memory. Long outages overflow, drop\" and \"A SIEM that's offline longer than the VM memory buffer = data loss even with one-hour recovery enabled.\" The ZIA help says only that the NSS buffers logs in VM memory for transient network issues; the at-least-one-hour figure comes from the Cloud & Branch Connector article (cbc-buffer). Whether it applies to ZIA NSS VMs, and what happens when an outage outlasts the buffer, is not stated.",
+      "blocks": "saying how long a SIEM can be down before a VM-based NSS loses logs",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "cloud-recovery-enablement": {
+      "kind": "semantic",
+      "title": "Whether the Cloud NSS one-hour recovery needs a Support request",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Cloud NSS follows the same one-hour-recovery model, a separate capability for Cloud NSS, also gated by a Support ticket.\" The help says the Cloud NSS one-hour recovery is provided by a separate Zscaler capability; only the VM-based NSS recovery is described as enabled by contacting Zscaler Support.",
+      "blocks": "telling a Cloud NSS tenant whether replay after an outage is on",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "re-export": {
+      "kind": "semantic",
+      "title": "Re-streaming logs the SIEM never received",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Longer outages = permanent gap in the SIEM stream. The Nanolog still has the originals; operators must query them separately if needed.\" ZIA logs are kept for 180 days in the Nanolog and can be viewed per transaction on the Insights Logs pages (shared.log-correlation.streams:zia-retention), so the legacy line that the Nanolog \"isn't a customer-queryable store\" does not hold for the Insights UI. Whether NSS can re-stream, or the logs can be exported in bulk, after the one-hour recovery window is not stated.",
+      "blocks": "answering whether a SIEM gap from a long outage can be backfilled",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "recovery-reference-point": {
+      "kind": "semantic",
+      "title": "What the one-hour recovery is measured from",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"One-hour recovery only covers the first 60 minutes\" of an outage. The help says the recovery lets the Nanolog replay logs \"up to one hour back\" when the connection is restored, which reads as the last hour before restoration (recovery-bound); it does not state the reference point, so the first-hour reading is not excluded.",
+      "blocks": "saying which part of an outage longer than an hour can be replayed",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

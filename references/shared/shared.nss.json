@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "id": "shared.nss",
+  "title": "Nanolog Streaming Service (NSS): how ZIA logs leave the Zscaler cloud",
+  "aliases": [
+    "nss",
+    "nanolog streaming service",
+    "nss architecture",
+    "how do zia logs get to the siem",
+    "nanolog",
+    "nss vs lss"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.nss.delivery-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.reliability"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.servers"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.collector"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.logs.nss-feed-format"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.architecture"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.log-export"
+    }
+  ],
+  "prose": [
+    {
+      "text": "NSS is the Internet & SaaS (ZIA) path from the Zscaler log store to a customer SIEM, and also the name of a collector that runs the other way. {{family}}"
+    },
+    {
+      "label": "The store and the copies.",
+      "text": "{{originals-retained}} What each NSS then does with its copy (decompress, detokenize, filter, convert) is [[zia.logs.nss-feed-format:one-store]]."
+    },
+    {
+      "steps": [
+        {
+          "label": "Which delivery mode?",
+          "text": "VM-based NSS in the customer network or Cloud NSS pushing from the Zscaler cloud, with their subscriptions and transports: [[shared.nss.delivery-modes]]."
+        },
+        {
+          "label": "What survives an outage?",
+          "text": "The VM memory buffer, the Duplicate Logs setting and the one-hour Nanolog recovery each cover a different leg: [[shared.nss.reliability]]."
+        },
+        {
+          "label": "What does a feed send?",
+          "text": "Feed limits, feed types, filters and the output format string: [[shared.nss.feeds]]."
+        },
+        {
+          "label": "Where does the VM run and how far does it scale?",
+          "text": "The NSS server record, its certificate, platforms and Nanolog capacity: [[shared.nss.servers]]."
+        }
+      ]
+    },
+    {
+      "label": "The other direction.",
+      "text": "The NSS Collector brings third-party firewall and proxy logs into the Zscaler cloud and is not an export path: [[shared.nss.collector]]."
+    },
+    {
+      "label": "LSS is not NSS.",
+      "text": "Private Access (ZPA) streams its logs through the Log Streaming Service and App Connectors, not NSS: [[zpa.log-receivers.architecture:not-nss]]. How LSS is licensed is not stated {{gap:lss-billing}}."
+    },
+    {
+      "label": "What NSS emits.",
+      "text": "The field lists are generated types: [[zia/web-log]], [[zia/firewall-log]] and [[zia/dns-log]]. How to read the records: [[zia.logs.web-records]], [[zia.logs.firewall-records]], [[zia.logs.dns-record-fields]]."
+    }
+  ],
+  "claims": {
+    "family": {
+      "statement": "NSS is a family of products for exchanging event logs between the Zscaler cloud and third-party security solutions: Log Streaming sends logs from the Nanolog to a SIEM through VM-based NSS or Cloud NSS, and Log Collection streams logs from third-party firewall and web proxy devices to the Zscaler cloud through the NSS Collector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "Zscaler's Nanolog Streaming Service (NSS) is a family of products that enable Zscaler cloud communication with third-party security solution devices for exchanging event logs.",
+            "This provision allows streaming of all logs from the Zscaler Nanolog to your security information and event management (SIEM) system with the following offerings:",
+            "Virtual machine (VM)-based NSS: Uses a VM set within your network to stream logs to your SIEM",
+            "Cloud NSS: Uses an HTTPS API feed to push logs to an HTTPS API-based log collector on your SIEM.",
+            "This provision allows for near real-time log collection from third-party vendors' firewall and web proxy devices inside your network perimeter and streaming of the logs to the Zscaler cloud by using the NSS Collector."
+          ]
+        }
+      ]
+    },
+    "originals-retained": {
+      "statement": "Each NSS opens a secure tunnel to the Nanolog in the Zscaler cloud, the Nanolog streams copies of the logs to it in a highly compressed format, and the original logs are retained in the Nanolog.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-nanolog-streaming-service.json",
+          "quotes": [
+            "each NSS opens a secure tunnel to the Nanolog in the Zscaler cloud.",
+            "The Nanolog then streams copies of the logs to each NSS in a highly compressed format to reduce bandwidth footprint. The original logs are retained in the Nanolog."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "lss-billing": {
+      "kind": "semantic",
+      "title": "Whether LSS is licensed separately from NSS",
+      "status": "open",
+      "detail": "Unverified legacy statement: ZPA's LSS \"shares concepts (per-event log streaming, customizable format) but is separately configured and billed.\" Separate configuration is held in zpa.log-receivers.architecture; no captured source says how LSS is licensed or billed.",
+      "blocks": "saying whether streaming ZPA logs needs a subscription beyond the ZPA one",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

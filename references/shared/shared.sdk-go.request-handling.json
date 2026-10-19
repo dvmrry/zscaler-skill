@@ -66,6 +66,9 @@
     },
     {
       "text": "Related: empty-body handling for ZIA updates is in [[zia.sdk-go.write-encoding]]; token handling in [[shared.sdk-go.auth-lifecycle]]; response caching in [[shared.sdk-go.cache]]."
+    },
+    {
+      "text": "{{error-json-content-type}}"
     }
   ],
   "checks": [
@@ -946,6 +949,25 @@
         {
           "status": "unfiled",
           "note": "Filing 1 (SDK client lifecycle) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "error-json-content-type": {
+      "statement": "`CheckErrorInResponse` extracts `code`, `message`, `id`, `reason` and `exception` from an error body only when the `Content-Type` header contains the literal `application/json` (a case-sensitive substring match); for any other content type the raw body text becomes the message.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/errorx/errors.go",
+          "quotes": [
+            "func CheckErrorInResponse(res *http.Response, respErr error) error {",
+            "isJSON := strings.Contains(contentType, \"application/json\")",
+            "if code, ok := jsonBody[\"code\"]; ok {",
+            "if msg, ok := jsonBody[\"message\"].(string); ok {",
+            "if id, ok := jsonBody[\"id\"].(string); ok {",
+            "if reason, ok := jsonBody[\"reason\"].(string); ok {",
+            "if ex, ok := jsonBody[\"exception\"].(string); ok {"
+          ]
         }
       ]
     }

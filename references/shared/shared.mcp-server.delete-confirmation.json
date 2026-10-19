@@ -1,0 +1,328 @@
+{
+  "schema_version": 1,
+  "id": "shared.mcp-server.delete-confirmation",
+  "title": "How the Zscaler MCP server confirms deletes: elicitation, HMAC tokens and request state",
+  "aliases": [
+    "mcp delete confirmation",
+    "confirmation_token",
+    "ZSCALER_MCP_SKIP_CONFIRMATIONS",
+    "ZSCALER_MCP_REQUEST_STATE_KEYS",
+    "ZSCALER_MCP_CONFIRMATION_TTL",
+    "mcp elicitation",
+    "InputRequiredResult",
+    "requestState",
+    "mcp hmac token",
+    "mcp multi-replica writes"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.mcp-server.tool-inventory"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.mcp-server.http-deployment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Registration decides whether a write tool exists at all ([[shared.mcp-server.tool-inventory]]); this covers what happens when one is called. {{creates-updates-direct}} {{skip-confirmations-removed}}"
+    },
+    {
+      "heading": "Native elicitation"
+    },
+    {
+      "text": "{{elicitation-choice}} {{revision-transport}} {{fail-closed}} {{capability-check-failure}}"
+    },
+    {
+      "heading": "The token fallback"
+    },
+    {
+      "text": "{{token-fallback}} {{token-properties}} {{token-agent-redeemable}} {{token-single-process}}"
+    },
+    {
+      "heading": "Request state across replicas"
+    },
+    {
+      "text": "{{request-state-sealing}} {{request-state-not-single-use}} {{request-state-keys}} {{request-state-replicas}} {{principal-binding}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the client advertises the MCP elicitation capability; without it, deletes fall back to a token the agent can redeem itself.",
+      "uses": [
+        "token-fallback",
+        "token-agent-redeemable"
+      ]
+    },
+    {
+      "do": "For HTTP deployments with more than one replica and write tools, whether ZSCALER_MCP_REQUEST_STATE_KEYS is set to a shared key ring.",
+      "uses": [
+        "request-state-keys",
+        "request-state-replicas"
+      ]
+    },
+    {
+      "do": "To forbid deletes outright, whether delete patterns are left out of the write allowlist, since confirmation itself cannot be turned off.",
+      "uses": [
+        "skip-confirmations-removed"
+      ]
+    }
+  ],
+  "claims": {
+    "creates-updates-direct": {
+      "statement": "Only delete tools carry the confirmation channel; create and update tools execute directly once the operator has enabled them through `--write-tools`. The delete gate runs before any SDK mutation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/registry/fastmcp_bridge.py",
+          "quotes": [
+            "# Only DELETE carries the HMAC confirmation channel (v1 parity: confirmation",
+            "# is reserved for destructive operations). create/update execute directly",
+            "# once the operator has enabled them via --write-tools, so they get no",
+            "# Confirmation happens BEFORE any SDK mutation. Only destructive"
+          ]
+        }
+      ]
+    },
+    "skip-confirmations-removed": {
+      "statement": "Version 0.15.0 removed `ZSCALER_MCP_SKIP_CONFIRMATIONS`, so delete confirmation cannot be switched off; to deny deletes, leave them out of `--write-tools` / `ZSCALER_MCP_WRITE_TOOLS`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "**`ZSCALER_MCP_SKIP_CONFIRMATIONS` is removed.** Delete confirmation can no longer be switched off.",
+            "To deny deletes outright, leave them out of `--write-tools` / `ZSCALER_MCP_WRITE_TOOLS`"
+          ],
+          "after": "## 0.15.0 (August 5, 2026)"
+        }
+      ]
+    },
+    "elicitation-choice": {
+      "statement": "For a client that supports MCP elicitation, a delete asks a person to choose `delete` or `cancel`, and anything other than `delete` aborts without calling the Zscaler API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Clients that support MCP elicitation get a `delete` / `cancel` prompt answered by a human, and anything other than `delete` aborts without calling the Zscaler API."
+          ],
+          "after": "## 0.15.0 (August 5, 2026)"
+        }
+      ]
+    },
+    "revision-transport": {
+      "statement": "On revision `2026-07-28` and later the question is returned as an `InputRequiredResult` and the call resumes when the client retries with `input_responses` plus the sealed `request_state`; on `2025-11-25` and earlier a standalone `elicitation/create` request is sent mid-call.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/elicitation.py",
+          "quotes": [
+            "2026-07-28 and later — the question is returned as an `InputRequiredResult`",
+            "the call resumes when the client retries with `input_responses` plus the",
+            "sealed `request_state`. This is the ONLY option on that revision",
+            "#   * 2025-11-25 and earlier — a standalone `elicitation/create` request is sent",
+            "mid-call, the way it always was."
+          ]
+        }
+      ]
+    },
+    "fail-closed": {
+      "statement": "A declined, cancelled or unrecognized elicitation outcome, or an answer other than `delete`, returns text saying the operation was NOT performed; an unanswered confirmation must never fall through to the mutation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/elicitation.py",
+          "quotes": [
+            "_APPROVE_CHOICE = \"delete\"",
+            "return f\"Cancelled by user. {summary} was NOT performed.\"",
+            "return f\"Declined by user. {summary} was NOT performed.\"",
+            "return f\"Confirmation dismissed. {summary} was NOT performed.\"",
+            "# No recognisable outcome. Fail CLOSED — an unanswered confirmation must never",
+            "# fall through to the mutation.",
+            "\"The operation was NOT performed. Please retry.\""
+          ]
+        }
+      ]
+    },
+    "capability-check-failure": {
+      "statement": "If checking the client's elicitation capability fails for an unexpected reason, the delete is refused as a server-side fault instead of falling back to the token.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/elicitation.py",
+          "quotes": [
+            "\"DESTRUCTIVE OPERATION REFUSED\\n\\n\"",
+            "The gate turns it into a",
+            "refusal: on an internal error we decline the destructive operation rather",
+            "\"Refusing the destructive operation rather than downgrading to the token \"",
+            "\"for confirmation, so the operation was NOT performed. This is a server-side \""
+          ]
+        }
+      ]
+    },
+    "token-fallback": {
+      "statement": "A client that did not advertise the `elicitation` capability falls back to the HMAC confirmation token: the first call returns a confirmation prompt carrying a token, and the agent retries with `confirmation_token`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/elicitation.py",
+          "quotes": [
+            "1. Agent calls a write tool without a ``confirmation_token``.",
+            "2. Server returns an HMAC token bound to (tool_name + canonical args + expiry).",
+            "\"Client did not advertise the 'elicitation' capability — falling back to \"",
+            "\"the HMAC confirmation token, which cannot enforce a human decision \"",
+            "f'kwargs=\\'{{\"confirmation_token\": \"{token}\"}}\\'\\n'"
+          ]
+        }
+      ]
+    },
+    "token-properties": {
+      "statement": "The token is bound to the tool and its parameters (a mismatch is rejected), expires after `ZSCALER_MCP_CONFIRMATION_TTL` seconds (default 300), and is single-use; it is not bound to a principal, so any authenticated caller holding it can redeem it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/elicitation.py",
+          "quotes": [
+            "Tokens expire after ``ZSCALER_MCP_CONFIRMATION_TTL`` seconds (default 300) and",
+            "\"Confirmation token does not match the submitted parameters. \"",
+            "\"Confirmation token has already been used. \"",
+            "* **No principal binding.** Any authenticated caller holding a token can redeem"
+          ]
+        }
+      ]
+    },
+    "token-agent-redeemable": {
+      "statement": "The agent receives the token and can redeem it in the same turn, so the fallback does not ensure a person approved the delete; the prompt tells the agent to ask the user and wait, which the code describes as advisory, not enforcement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/elicitation.py",
+          "quotes": [
+            "The token can be",
+            "redeemed by the agent in the same turn, so falling back means no human",
+            "necessarily approves the delete.",
+            "This is advisory and cannot be otherwise.",
+            "f\"1. Show this warning to the user and ask them to confirm the {noun}.\\n\"",
+            "f\"2. Wait for the user's reply. An earlier request to {verb} is NOT \"",
+            "Do not describe it as enforcement."
+          ]
+        }
+      ]
+    },
+    "token-single-process": {
+      "statement": "The token's signing key and its spent-token ledger exist only in the process that minted it, so a token is not valid on another replica or after a restart; the key is deliberately not configurable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/elicitation.py",
+          "quotes": [
+            "* **Single-process scope.** The signing key and the single-use ledger are both",
+            "per process, so a token minted by one replica is not valid on another (nor",
+            "after a restart). SEP-2322's ``requestState``",
+            "#: Signing key for this process. Random, never stored. Deliberately NOT",
+            "#: configurable: sharing a key across replicas is what SEP-2322's `requestState`"
+          ]
+        }
+      ]
+    },
+    "request-state-sealing": {
+      "statement": "`requestState` is sealed with AES-256-GCM plus expiry, request binding and principal binding, so an answered confirmation cannot be moved to a different call or principal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "Sealing for the multi-round-trip ``requestState`` (SEP-2322).",
+            "approved, so the SDK seals it: AES-256-GCM, plus expiry, request binding and",
+            "principal binding. A confirmation answered on one call cannot be lifted onto"
+          ]
+        }
+      ]
+    },
+    "request-state-not-single-use": {
+      "statement": "Sealed request state is not single-use: re-sending an identical approved call within the TTL executes again, limited by the bindings to the same delete of the same resource by the same caller.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "**It is not single-use, unlike the HMAC confirmation token.**",
+            "inside the TTL executes again. Request and principal binding cap that at",
+            "repeating the same delete of the same resource as the same caller, which then"
+          ]
+        }
+      ]
+    },
+    "request-state-keys": {
+      "statement": "Without `ZSCALER_MCP_REQUEST_STATE_KEYS` each process uses a key generated at startup, so a restart invalidates pending confirmations and another replica cannot decrypt them. With it, the first key seals and every listed key unseals, allowing rotation; it accepts a JSON array or a comma-separated list, and the SDK requires at least 32 bytes per key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "raw = os.getenv(\"ZSCALER_MCP_REQUEST_STATE_KEYS\", \"\").strip()",
+            "Unset → ``ephemeral()``: a key generated at startup, never persisted, so state",
+            "The first key seals; every key unseals, which is what makes zero-downtime",
+            "Accepts a JSON array (``'[\"k1\",\"k2\"]'``) or a comma-separated list.",
+            "# The SDK enforces >=32 bytes of randomness per key."
+          ]
+        }
+      ]
+    },
+    "request-state-replicas": {
+      "statement": "A shared key ring is required for multi-replica HTTP deployments with write tools; sticky sessions do not substitute on `2026-07-28`, whose requests carry no session ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "**This is required for multi-replica HTTP write",
+            "**Sticky sessions do NOT rescue the second case on ``2026-07-28``.**",
+            "A shared key ring is the only mechanism that"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "**Required if you run multiple HTTP replicas with write tools enabled**; session affinity is not an alternative, because requests on the current protocol revision carry no session ID."
+          ],
+          "after": "## 0.15.0 (August 5, 2026)"
+        }
+      ]
+    },
+    "principal-binding": {
+      "statement": "Request state is bound to the authenticated caller in every HTTP auth mode: verified token claims for `jwt` and `oidc`, the OneAPI client ID for `zscaler`, and a domain-separated fingerprint of the key for `api-key`; with authentication disabled there is no principal to bind.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "caller in **every** HTTP auth mode: ``jwt`` and ``oidc`` from verified token",
+            "claims, ``zscaler`` from the OneAPI client id, and ``api-key`` from a",
+            "domain-separated fingerprint of the key (see",
+            "With auth disabled",
+            "there is no principal to bind"
+          ]
+        }
+      ]
+    }
+  }
+}
