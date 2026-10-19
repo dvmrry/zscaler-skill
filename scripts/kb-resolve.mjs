@@ -366,7 +366,9 @@ export function renderProse(g, subjectId, { footnotes = true } = {}) {
     const item = node.data[`${kind}s`]?.[local];
     if (!item) return `{{${kind}:${local}}}`;
     if (!footnotes) return `[${kind}:${local}]`;
-    return kind === "gap" ? `(open gap \`${local}\`)` : `(divergence \`${local}\`)`;
+    // Say what state the item is in: a resolved gap or divergence is not an open question.
+    if (kind === "gap") return `(${item.status || "open"} gap \`${local}\`)`;
+    return `(${item.resolution ? "resolved divergence" : "divergence"} \`${local}\`)`;
   });
   out = out.replace(/\[\[doc:([^\]\s]+)\]\]/g, (_, doc) => `\`${doc}\``);
   out = out.replace(/\[\[([^\]\s]+)\]\]/g, (_, id) => (g.nodes.has(id) ? `[${titleOf(g, id)}](kb:${id})` : `[[${id}]]`));

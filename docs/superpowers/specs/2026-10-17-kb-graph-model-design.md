@@ -506,7 +506,7 @@ This replaces the manual reverify cycle.
     the site is built from are not published, so the contract is still reconstructed from the compiled site.
 - **JSON pointers are keyed.** A step into an array by index is rejected because it shifts when the
   source is regenerated. `[member=value]` selects the one element whose member matches. API facts
-  cite the OpenAPI document, not the flattened field list. Every pointer carries `expect`.
+  cite the OpenAPI document, not the flattened field list. Every pointer carries `expect` (members it rests on, compared by value) or `expect_absent` (members that must not be there, for a claim about an absence).
 - **Material dates, not capture dates** (2026-10-18). What matters for an answer is how old the vendor's
   material is, not when the repo fetched it. Every source records the material's own date with its basis:
   a help article's published date (`pdf-last-modified`: the article PDF the site renders on publish), a

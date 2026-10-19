@@ -275,6 +275,11 @@ function anchorIn(text, ev, label, { emphasis = false } = {}) {
         errors.push(`${label}: pointer ${ev.pointer} member ${k} is ${JSON.stringify(got)}, expected ${JSON.stringify(want)}`);
       }
     }
+    for (const k of ev.expect_absent || []) {
+      if (value !== null && typeof value === "object" && Object.hasOwn(value, k)) {
+        errors.push(`${label}: pointer ${ev.pointer} has member ${k}, expected it to be absent`);
+      }
+    }
     anchors.push({ pointer: ev.pointer });
   }
   if (ev.quotes) {

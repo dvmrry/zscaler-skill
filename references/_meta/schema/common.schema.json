@@ -49,8 +49,12 @@
         },
         "pointer": { "description": "A keyed JSON Pointer into a JSON source. Array-index steps are rejected: they shift when the source is regenerated. Select an array element by a member with `[member=value]` (exactly one element must match), and cite a keyed document where one exists (for API facts, the OpenAPI document, not a flattened field list).", "type": "string", "pattern": "^(/[^/]*)*$" },
         "expect": {
-          "description": "With `pointer`: members of the object at the pointer that the claim rests on, each compared by value. Required with `pointer`, since a path alone does not show what it says.",
+          "description": "With `pointer`: members of the object at the pointer that the claim rests on, each compared by value. A pointer needs `expect` or `expect_absent`, since a path alone does not show what it says.",
           "type": "object", "minProperties": 1
+        },
+        "expect_absent": {
+          "description": "With `pointer`: members the object at the pointer must not have, for a claim that rests on an absence (a listing that carries no such field).",
+          "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 }
         },
         "at": {
           "description": "Submodule sources only: the git refs (tags or commits) at which the quotes must be found, e.g. the audited tag and \"HEAD\" (the pinned commit). Without it, quotes anchor at the pin. A bump that removes the code fails the HEAD anchor: a candidate fix.",
@@ -66,7 +70,7 @@
       "additionalProperties": false,
       "oneOf": [
         { "required": ["quotes"] },
-        { "required": ["pointer", "expect"] }
+        { "required": ["pointer"], "anyOf": [{ "required": ["expect"] }, { "required": ["expect_absent"] }] }
       ]
     }
   }

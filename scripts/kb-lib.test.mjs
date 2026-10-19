@@ -89,7 +89,7 @@ test("quotes anchor at each listed git ref; code removed at the pin fails there 
   assert.doesNotMatch(both.errors[0], /@v1\.0\.0/);
 });
 
-test("a pointer must resolve, and expect pins the members the claim rests on", () => {
+test("a pointer must resolve, and expect / expect_absent pin what the claim rests on", () => {
   const spec = { rules: [{ name: "action", type: "object", required: true }], keyed: { action: { type: "object", required: true } } };
   const g = graphOf(tmpRepo({ "vendor/fake/spec.json": spec }));
   const ev = { source: "fake-help", path: "spec.json", pointer: "/rules/0" };
@@ -100,6 +100,9 @@ test("a pointer must resolve, and expect pins the members the claim rests on", (
   assert.match(anchorEvidence(g, { ...ev, expect: { name: "action" } }).errors[0], /by index/);
   assert.deepEqual(anchorEvidence(g, { ...ev, pointer: "/rules/[name=action]", expect: { type: "object" } }).errors, []);
   assert.match(anchorEvidence(g, { ...ev, pointer: "/rules/[name=nope]", expect: { type: "object" } }).errors[0], /does not resolve/);
+  // An absence is a claim too: expect_absent names members the object must not have.
+  assert.deepEqual(anchorEvidence(g, { ...keyed, expect_absent: ["forwardingProfileId"] }).errors, []);
+  assert.match(anchorEvidence(g, { ...keyed, expect_absent: ["required"] }).errors[0], /has member required, expected it to be absent/);
   const noExpect = tmpRepo({ "vendor/fake/spec.json": spec, "references/zia/zia.example.json": subject({ claims: { c: { statement: "s", tier: "A", evidence: [keyed] } } }) });
   assert.ok(messages(noExpect, { citations: false }).some((m) => /oneOf/.test(m)));
 });
@@ -347,6 +350,14 @@ test("every subject renders, including derived claims that carry no evidence of 
   );
   assert.ok(derivedOnly.length > 0);
   for (const [id] of derivedOnly.slice(0, 20)) assert.doesNotThrow(() => renderSubject(g, id), id);
+});
+
+test("a rendered gap or divergence marker says its state, not always 'open'", () => {
+  const g = graphOf(ROOT);
+  const text = renderSubject(g, "zia.cloud-app-control.api-surface");
+  assert.match(text, /\(resolved gap `python-risk-profile-runtime`\)/);
+  assert.match(text, /\(resolved divergence `risk-profile-shape`\)/);
+  assert.doesNotMatch(text, /\(open gap `python-risk-profile-runtime`\)/);
 });
 
 test("the synthetic overlay validates, and the relation table is enforced", () => {
