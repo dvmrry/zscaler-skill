@@ -352,7 +352,7 @@
       ]
     },
     "app-recommendation-id": {
-      "statement": "`appRecommendationId` is a string field on the segment in the API spec and the Go model, and the Python SDK reads it on the Browser Access app resource.",
+      "statement": "`appRecommendationId` is a string field on the segment in the API spec and the Go model, and the Python SDK reads it on the `AppResource` model nested in its clientless application segment model (`BAAppDto`).",
       "tier": "A",
       "binds": [
         "zpa/application-segments#appRecommendationId"
@@ -418,7 +418,7 @@
       ]
     },
     "inconsistent-config-details": {
-      "statement": "The API reports `inconsistentConfigDetails` on a segment, a set of name and reason entries for inconsistent configuration of related objects such as the segment group, server group, App Connector group and IdP, and the Python Browser Access `AppResource` model carries it.",
+      "statement": "The API reports `inconsistentConfigDetails` on a segment, a set of name and reason entries for inconsistent configuration of related objects such as the segment group, server group, App Connector group and IdP, and the Python `AppResource` model, nested in the clientless application segment model (`BAAppDto`), carries it.",
       "tier": "A",
       "evidence": [
         {
@@ -469,6 +469,51 @@
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/inconsistentConfigDetails/properties/segmentGroup/items/properties",
+          "expect": {
+            "name": {
+              "description": "The name of the inconsistent configuration.",
+              "type": "string"
+            },
+            "reason": {
+              "description": "The reason for the inconsistent configuration.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/inconsistentConfigDetails/properties/serverGroup/items/properties",
+          "expect": {
+            "name": {
+              "description": "The name of the inconsistent configuration.",
+              "type": "string"
+            },
+            "reason": {
+              "description": "The reason for the inconsistent configuration.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/inconsistentConfigDetails/properties/appConnectorGroup/items/properties",
+          "expect": {
+            "name": {
+              "description": "The name of the inconsistent configuration.",
+              "type": "string"
+            },
+            "reason": {
+              "description": "The reason for the inconsistent configuration.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/inconsistentConfigDetails/properties/idp/items/properties",
           "expect": {
             "name": {
               "description": "The name of the inconsistent configuration.",

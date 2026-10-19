@@ -14,8 +14,14 @@
     "centralized_grants"
   ],
   "related": [
-    { "rel": "see-also", "to": "cloud-connector.gcp" },
-    { "rel": "see-also", "to": "cloud-connector.gcp.terraform-modules" }
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp.terraform-modules"
+    }
   ],
   "prose": [
     {
@@ -41,19 +47,30 @@
   "checks": [
     {
       "do": "Whether the four APIs are enabled in each project, since the service does not work without them regardless of roles.",
-      "uses": ["apis"]
+      "uses": [
+        "apis"
+      ]
     },
     {
       "do": "Whether the Zscaler service account holds Service Account Token Creator on the customer service account, and that account holds Compute Viewer, Cloud Asset Viewer and Browser at the intended scope.",
-      "uses": ["impersonation", "roles"]
+      "uses": [
+        "impersonation",
+        "roles"
+      ]
     },
     {
       "do": "Whether other tools calling Cloud Asset Inventory searchAllResources use a different quota project, when discovery is slow or failing.",
-      "uses": ["search-api-quota"]
+      "uses": [
+        "search-api-quota"
+      ]
     },
     {
       "do": "Whether new VMs are expected within 5 minutes (polling) or near-instantly (Pub/Sub VM-start notifications), and which roles the Cloud Connector VM has for that path.",
-      "uses": ["polling", "vm-start-flow", "pubsub-editor-required"]
+      "uses": [
+        "polling",
+        "vm-start-flow",
+        "pubsub-editor-required"
+      ]
     }
   ],
   "claims": {
@@ -127,7 +144,7 @@
       ]
     },
     "impersonation": {
-      "statement": "The service uses service-account impersonation to get short-lived credentials instead of long-lived ones: the Zscaler service account is granted Service Account Token Creator on the customer's service account.",
+      "statement": "The service uses service-account impersonation to get short-lived credentials instead of long-lived ones: on the customer's project service account, the Zscaler service account is granted Service Account Token Creator.",
       "tier": "A",
       "evidence": [
         {
@@ -135,7 +152,8 @@
           "path": "cbc-configuring-workload-discovery-workloads-google-cloud-platform.json",
           "quotes": [
             "The Zscaler service uses service account impersonation to securely access your GCP resources without long-lived credentials.",
-            "To allow the workload discovery service to generate short-lived credentials and make GCP API calls",
+            "To allow the workload discovery service to generate short-lived credentials and make GCP API calls, create or use a project service account with the required IAM roles:",
+            "Select your service account.",
             "Enter the Zscaler service account email.",
             "Assign the Service Account Token Creator role."
           ]

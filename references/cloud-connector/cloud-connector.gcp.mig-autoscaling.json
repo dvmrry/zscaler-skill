@@ -131,15 +131,17 @@
       ]
     },
     "module-one-mig-per-zone": {
-      "statement": "The CCVM module creates one instance template and one zonal instance group manager per zone, and when autoscaling is enabled one autoscaler per instance group, so replica limits apply to each zonal group.",
+      "statement": "The CCVM module creates a single instance template and, from it, one zonal instance group manager per zone, and when autoscaling is enabled one autoscaler per instance group, so replica limits apply to each zonal group.",
       "tier": "A",
       "evidence": [
         {
           "source": "tfmod-gcp-cloud-connector",
           "path": "modules/terraform-zscc-ccvm-gcp/main.tf",
           "quotes": [
+            "resource \"google_compute_instance_template\" \"cc_instance_template\" { name_prefix = var.instance_template_name == \"\"",
             "# Create Zonal Managed Instance Groups per number of zones defined",
             "resource \"google_compute_instance_group_manager\" \"cc_instance_group_manager\" { count = length(var.zones)",
+            "version { instance_template = google_compute_instance_template.cc_instance_template.id }",
             "count = var.autoscaling_enabled ? length(google_compute_instance_group_manager.cc_instance_group_manager[*].instance_group) : 0"
           ]
         },
@@ -294,13 +296,14 @@
       ]
     },
     "zsec-cc-count": {
-      "statement": "For the non-autoscaling load-balanced types, `zsec` accepts 1-10 Cloud Connectors per zone but its rejection message says the value must be between 1 and 20.",
+      "statement": "For deployment types whose names contain ilb or glb, `zsec` accepts 1-10 Cloud Connectors per zone but its rejection message says the value must be between 1 and 20.",
       "tier": "A",
       "evidence": [
         {
           "source": "tfmod-gcp-cloud-connector",
           "path": "examples/zsec",
           "quotes": [
+            "elif [[ \"$dtype\" == *\"ilb\"* || \"$dtype\" == *\"glb\"* ]]; then",
             "if ((cc_count >= 1 && cc_count <= 10)); then",
             "invalid cc_count value. Must be a number between 1 and 20"
           ]

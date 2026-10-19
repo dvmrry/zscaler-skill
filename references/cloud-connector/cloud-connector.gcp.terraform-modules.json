@@ -149,7 +149,7 @@
       ]
     },
     "user-data-metadata": {
-      "statement": "The module passes the user data to the VM as the `ZSCALER` metadata key, and the example roots build it as JSON with `cc_url`, `http_probe_port`, `fips_enabled` and `gcp_service_account`, plus `secret_name` for Secret Manager or the `hcp_vault_*` keys for HashiCorp Vault.",
+      "statement": "The module passes the user data to the VM as the `ZSCALER` metadata key, and the example roots build it as JSON with `cc_url`, `http_probe_port`, `fips_enabled` and `gcp_service_account`, plus `secret_name` for Secret Manager or `hcp_vault_addr`, `hcp_vault_secret_path`, `hcp_vault_role_name` and `hcp_gcp_auth_role_type` for HashiCorp Vault.",
       "tier": "A",
       "evidence": [
         {
@@ -164,7 +164,7 @@
           "path": "examples/base_1cc/main.tf",
           "quotes": [
             "\"cc_url\": \"${var.cc_vm_prov_url}\", \"secret_name\": \"${var.secret_name}\", \"http_probe_port\": ${var.http_probe_port}, \"fips_enabled\": \"${var.fips_enabled}\", \"gcp_service_account\": \"${module.iam_service_account.service_account}\"",
-            "\"hcp_vault_addr\": \"${var.hcp_vault_address}\""
+            "\"hcp_vault_addr\": \"${var.hcp_vault_address}\", \"hcp_vault_secret_path\": \"${var.hcp_vault_secret_path}\", \"hcp_vault_role_name\": \"${var.hcp_vault_role_name}\", \"hcp_gcp_auth_role_type\": \"${var.hcp_gcp_auth_role_type}\""
           ]
         }
       ]
@@ -364,10 +364,11 @@
           "source": "tfmod-gcp-cloud-connector",
           "path": "examples/zsec",
           "quotes": [
+            "Cloud Function ZIP file appears to be missing from directory ${dtype}/function_zip. Trying to download now...",
             "CHECKSUM_URL=\"${URL}.sha256\"",
             "if [[ \"$expected_sha256\" == \"$actual_sha256\" ]]; then",
             "SHA256 checksum MISMATCH — aborting to prevent supply-chain compromise.${RESET}\" rm -f \"$dtype/function_zip/${zip_name}\" exit 1",
-            "**Warning** SHA256 checksum file not published at remote. Integrity cannot be verified."
+            "**Warning** SHA256 checksum file not published at remote. Integrity cannot be verified.${RESET}\" fi echo \"export TF_VAR_cloud_function_source_object_name=$zip_name\" >> .zsecrc"
           ]
         }
       ]
@@ -394,13 +395,14 @@
       ]
     },
     "zsec-quoted-condition": {
-      "statement": "In `zsec`, choosing an existing bucket object sets `upload_function_zip=false` and exports the object name, but the ZIP download loop's condition quotes the whole expression `\"$upload_function_zip == true\"`, and the loop then writes the downloaded or selected ZIP's name and path to `cloud_function_source_object_name`.",
+      "statement": "In `zsec`, answering yes to whether the Cloud Function ZIP is already in an existing bucket sets `upload_function_zip=false` and exports the object name, but the ZIP download loop's condition quotes the whole expression `\"$upload_function_zip == true\"`, and the loop then writes the downloaded or locally selected ZIP's name and path to `cloud_function_source_object_name` and `cloud_function_source_object_path`.",
       "tier": "A",
       "evidence": [
         {
           "source": "tfmod-gcp-cloud-connector",
           "path": "examples/zsec",
           "quotes": [
+            "Is the latest Cloud Function version ZIP file already uploaded to this bucket? (yes/no):",
             "echo \"export TF_VAR_cloud_function_source_object_name=$zip_manual_input\" >> .zsecrc echo \"${GREEN}You entered $zip_manual_input${RESET}\" upload_function_zip=false",
             "while [[ \"$dtype\" == *\"asg\"* && \"$oper\" == \"up\" && \"$upload_function_zip == true\" ]]; do"
           ]
@@ -410,7 +412,9 @@
           "path": "examples/zsec",
           "after": "while [[ \"$dtype\" == *\"asg\"* && \"$oper\" == \"up\" && \"$upload_function_zip == true\" ]]; do",
           "quotes": [
-            "echo \"export TF_VAR_cloud_function_source_object_name=$zip_name\" >> .zsecrc"
+            "curl -# -o \"$dtype/function_zip/${zip_name}\" --fail --show-error \"$URL\"",
+            "echo \"export TF_VAR_cloud_function_source_object_name=$zip_name\" >> .zsecrc echo \"export TF_VAR_cloud_function_source_object_path='./function_zip/$zip_name'\" >> .zsecrc",
+            "zip_name=$zip_lookup"
           ]
         }
       ]

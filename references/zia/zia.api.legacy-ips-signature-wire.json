@@ -168,7 +168,7 @@
       ]
     },
     "import-csv-format": {
-      "statement": "The disabled import code documents the CSV as plus rows with five columns (rule name, rule text, category name, description and enable flag) and minus rows that carry only a rule name, which delete it; it says inner double quotes in the rule text must be doubled per RFC 4180 because the portal's parser rejects backslash-escaped quotes with 'Double quotes not terminated'.",
+      "statement": "The commented-out `ImportIPSSignatureRules` documents the CSV as plus rows with five columns (rule name, rule text, category name, description and enable flag) and minus rows that carry only a rule name (the sample's `rule-name-to-delete`); it says inner double quotes in the rule text must be doubled per RFC 4180 because the portal's parser rejects backslash-escaped quotes with 'Double quotes not terminated'.",
       "tier": "A",
       "evidence": [
         {
@@ -180,13 +180,16 @@
             "+, \"rule-name\", \"valid suricata rule text\", \"ips-category-name\", \"description\", \"Enable\"",
             "-, \"rule-name-to-delete\"",
             "RFC 4180 doubled-quote convention (\"\") rather than backslash escapes — the",
-            "reference for when the backend is fixed, but are commented out so callers"
+            "reference for when the backend is fixed, but are commented out so callers",
+            "upstream (see internal bug tracker). The three functions below are kept as",
+            "// ImportIPSSignatureRules uploads a CSV file containing custom IPS signature",
+            "func ImportIPSSignatureRules(ctx context.Context, service *zscaler.Service, csvData []byte) (*http.Response, error) {"
           ]
         }
       ]
     },
     "import-multipart-guess": {
-      "statement": "The disabled import code sends the CSV as a multipart/form-data file part named file because raw text/csv and raw application/json bodies both produce HTTP 415; the comment lists csvFile, import and uploadFile as alternates to try if the API rejects file, and says to capture the portal's request to confirm the field name.",
+      "statement": "The commented-out `ImportIPSSignatureRules` sends the CSV as a multipart/form-data file part named file because raw text/csv and raw application/json bodies both produce HTTP 415; the comment lists csvFile, import and uploadFile as alternates to try if the API rejects file, and says to capture the portal's request to confirm the field name.",
       "tier": "A",
       "evidence": [
         {
@@ -199,7 +202,10 @@
             "from CSV\" file picker. Both raw text/csv and raw application/json bodies",
             "If the API ever rejects field name \"file\", common alternates to try are",
             "the browser's network panel to confirm the field name.",
-            "reference for when the backend is fixed, but are commented out so callers"
+            "reference for when the backend is fixed, but are commented out so callers",
+            "upstream (see internal bug tracker). The three functions below are kept as",
+            "// ImportIPSSignatureRules uploads a CSV file containing custom IPS signature",
+            "func ImportIPSSignatureRules(ctx context.Context, service *zscaler.Service, csvData []byte) (*http.Response, error) {"
           ]
         }
       ]

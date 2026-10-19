@@ -273,7 +273,7 @@
       ]
     },
     "inspection-merge-not-sent": {
-      "statement": "The Inspection module also merges domains and ports into `desired_app` but sends the raw `existing_app` ports on update and the raw `app` ports on create.",
+      "statement": "The Inspection module also merges domains and ports into `desired_app`, but the port ranges it sends come from `existing_app` on update (after `existing_app.update(app)`) and from `app` on create, not from `desired_app`.",
       "tier": "A",
       "evidence": [
         {
@@ -283,6 +283,7 @@
             "# Merge the inspection app domains and ports into the declared values",
             "desired_app[\"domain_names\"] = list(declared_domains) + [",
             "desired_app[\"tcp_port_range\"] = list(declared_ports) + [",
+            "if existing_app is not None: id = existing_app.get(\"id\") existing_app.update(app) existing_app[\"id\"] = id",
             "update_segment = deleteNone( dict( segment_id=existing_app.get(\"id\"),",
             "tcp_port_ranges=convert_ports_list( existing_app.get(\"tcp_port_range\", None) ), udp_port_ranges=convert_ports_list( existing_app.get(\"udp_port_range\", None) ), ) ) # module.warn(f\"Payload Update for SDK: {update_segment}\") updated_segment, _unused, error = ( client.app_segments_pra.update_segment_pra(",
             "\"\"\"Create\"\"\" create_inspect_segment = deleteNone(",

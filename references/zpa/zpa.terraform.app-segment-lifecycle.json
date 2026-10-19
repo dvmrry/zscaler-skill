@@ -366,18 +366,28 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
           "at": [
-            "v3.8.42",
+            "v3.8.42"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, id string, appSegmentInspection *AppSegmentInspection)",
+          "quotes": [
+            "for i, appConfig := range appSegmentInspection.CommonAppsDto.AppsConfig { if existingApp, ok := existingInspectionApps[appConfig.Name]; ok {",
+            "appSegmentInspection.CommonAppsDto.AppsConfig[i].AppID = existingResource.ID // main app ID appSegmentInspection.CommonAppsDto.AppsConfig[i].InspectAppID = existingApp.ID // InspectAppID for sub-app } }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "at": [
             "HEAD"
           ],
           "after": "func Update(ctx context.Context, service *zscaler.Service, id string, appSegmentInspection *AppSegmentInspection)",
           "quotes": [
-            "for i, appConfig := range appSegmentInspection.CommonAppsDto.AppsConfig {",
-            "appSegmentInspection.CommonAppsDto.AppsConfig[i].InspectAppID = existingApp.ID",
-            "if existingApp, ok := existingInspectionApps[appConfig.Name]; ok { appSegmentInspection.CommonAppsDto.AppsConfig[i].AppID = existingResource.ID"
+            "for i, appConfig := range appSegmentInspection.CommonAppsDto.AppsConfig { if existingApp, ok := existingInspectionApps[appConfig.Name]; ok {",
+            "appSegmentInspection.CommonAppsDto.AppsConfig[i].AppID = existingResource.ID appSegmentInspection.CommonAppsDto.AppsConfig[i].InspectAppID = existingApp.ID } }"
           ]
         }
       ],
-      "conditions": "That the loop copies nothing beyond the two IDs rests on reading it; its body holds only the AppID and InspectAppID assignments at both pins."
+      "conditions": "The loop is quoted whole at each pin (separately, because only v3.8.42 carries inline comments): its body holds only the AppID and InspectAppID assignments."
     },
     "inspection-subapp-expand-subset": {
       "statement": "The inspection resource's expander builds each nested app from a subset of fields (ids, name, port, protocol, certificate, domain, trust-untrusted-cert, app types; up to v4.4.11 also description, which v4.4.12 dropped from the schema and the expander). It does not assign `Enabled`, `AdpEnabled`, `AllowOptions`, `Hidden` or `Portal`, and the `Protocols` assignment is commented out in the expander. Up to v4.4.11 it was also commented out in the flattener; v4.4.12 rewrote the flattener (#690), which maps no protocols field.",

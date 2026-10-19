@@ -167,7 +167,8 @@
           "after": "func IsRetryableServerError(res *http.Response) bool {",
           "quotes": [
             "if res.StatusCode < 500 || res.StatusCode == http.StatusNotImplemented { return false }",
-            "if alwaysRetryableServerStatuses[res.StatusCode] { return true }"
+            "if alwaysRetryableServerStatuses[res.StatusCode] { return true }",
+            "// 502 / 503 / 504 are infrastructure signals, never API verdicts: retry them // unconditionally"
           ]
         },
         {

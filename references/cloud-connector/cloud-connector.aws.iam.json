@@ -133,7 +133,8 @@
           "quotes": [
             "\"ec2:DescribeInstanceStatus\", \"autoscaling:DescribeLifecycleHookTypes\", \"autoscaling:DescribeLifecycleHooks\", \"autoscaling:DescribeAutoScalingInstances\" ] resources = [\"*\"]",
             "\"autoscaling:CompleteLifecycleAction\", \"autoscaling:RecordLifecycleActionHeartbeat\" ] #Restrict autoscaling actions to only your own ASG(s) if var.asg_arns provided. Else, default to any resources = coalescelist(var.asg_arns, [\"*\"])",
-            "count = var.byo_iam == false && var.asg_enabled == true ? var.iam_count : 0 description = \"Policy which permits CCs to send lifecycle actions when hook is enabled\""
+            "count = var.byo_iam == false && var.asg_enabled == true ? var.iam_count : 0 description = \"Policy which permits CCs to send lifecycle actions when hook is enabled\"",
+            "count = var.byo_iam == false && var.asg_enabled == true ? var.iam_count : 0 policy_arn = aws_iam_policy.cc_autoscale_lifecycle_policy[count.index].arn"
           ]
         }
       ]
@@ -203,13 +204,14 @@
       ]
     },
     "deployer-cloudformation": {
-      "statement": "For CloudFormation, Help's checklist has the security admin IAM user with full access to the AWS Management Console, Secrets Manager, CloudWatch Events, CloudFormation and Lambda, plus a published policy of IAM, SSM, Route 53 Resolver, Secrets Manager, logs, S3 and Marketplace actions.",
+      "statement": "For a deployment where the security admin IAM user's permissions are wrong, Help's checklist has that user with full access to the AWS Management Console, Secrets Manager, CloudWatch Events, CloudFormation and Lambda, plus a published policy of IAM, SSM, Route 53 Resolver, Secrets Manager, logs, S3 and Marketplace actions.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
           "quotes": [
+            "Security admin IAM user permissions are not set correctly for Cloud Connector deployment.",
             "Verify that the security admin IAM user has the following access:Full access to the AWS Management Console.Full access to the AWS Secrets Manager.Full access to Amazon CloudWatch Events.Full access to AWS CloudFormation.Full access to AWS Lamda Service.",
             "“aws-marketplace:Subscribe”",
             "“route53resolver:CreateResolverEndpoint”",

@@ -261,11 +261,12 @@
           "source": "tf-zpa",
           "path": "zpa/common.go",
           "quotes": [
-            "return fmt.Errorf(\"LHS must be a valid SAML attribute ID and cannot be empty for SAML object_type\")",
+            "case \"SAML\": entryValuesSet, ok := operandMap[\"entry_values\"].(*schema.Set) if !ok || entryValuesSet.Len() == 0 { return fmt.Errorf(\"entry_values must be provided for SAML object_type\") }",
+            "for _, ev := range entryValuesSet.List() { evMap := ev.(map[string]interface{}) lhs, lhsOk := evMap[\"lhs\"].(string) rhs := evMap[\"rhs\"].(string) // Directly accessing the value, assuming zero value (empty string) is not valid",
             "if !lhsOk || lhs == \"\" { return fmt.Errorf(\"LHS must be a valid SAML attribute ID and cannot be empty for SAML object_type\") } if rhs == \"\" {",
-            "return fmt.Errorf(\"entry_values must be provided for SAML object_type\")",
-            "return fmt.Errorf(\"RHS must be a valid string i.e email adddress, department, group etc and cannot be empty for SAML object_type\")"
-          ]
+            "return fmt.Errorf(\"RHS must be a valid string i.e email adddress, department, group etc and cannot be empty for SAML object_type\") } } case \"SCIM\":"
+          ],
+          "after": "func ValidatePolicyRuleConditions(d *schema.ResourceData) error {"
         },
         {
           "source": "tf-zpa",
