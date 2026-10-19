@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "id": "zms.provisioning-keys",
+  "title": "Microsegmentation agent provisioning keys (nonces): portal, fields and API",
+  "aliases": [
+    "zms provisioning key",
+    "zms nonce",
+    "microsegmentation enrollment key",
+    "agent provisioning key max reuse",
+    "zms_list_nonces",
+    "eyez nonce"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zms.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zms.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.secret-surfaces"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Agents enroll into an agent group with a provisioning key; the API calls these keys nonces."
+    },
+    {
+      "label": "In the portal.",
+      "text": "{{keys-per-agent-group}} {{install-paths}} {{edit-fields}} Whether a key's agent group can change is open {{gap:agent-group-editable}}."
+    },
+    {
+      "label": "In the API.",
+      "text": "{{nonces-are-keys}} {{nonce-key-readable}} {{nonce-wrapped}} {{nonce-product}}"
+    },
+    {
+      "label": "MCP.",
+      "text": "The MCP tool describes fields the query does not return {{divergence:mcp-nonce-fields}}. Other MCP behavior is in [[zms.mcp]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the key's usage count has reached its maximum reuse before blaming enrollment.",
+      "uses": [
+        "keys-per-agent-group",
+        "edit-fields"
+      ]
+    },
+    {
+      "do": "Whether the agent group is a VM group (agent manager) or a Kubernetes Cluster group (Helm chart).",
+      "uses": [
+        "install-paths"
+      ]
+    }
+  ],
+  "claims": {
+    "keys-per-agent-group": {
+      "statement": "Provisioning keys are managed on the selected agent group's Provisioning Keys tab, which lists each key's name, maximum number of agents, utilization count, agent group, signing certificate and the copyable key, and lets an administrator view the signing certificate and copy, edit or delete a key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-agent-provisioning-keys.json",
+          "quotes": [
+            "you can do the following by selecting an agent group and clicking Provisioning Keys:",
+            "Name: The name of the provisioning key.",
+            "Maximum no. of Agents: The maximum number of agents that can use the provisioning key.",
+            "Provisioning Key Utilization Count: The number of times the provisioning key has been used.",
+            "Agent Group: The agent group associated with the provisioning key.",
+            "Signing Certificate: The name of the signing certificate.",
+            "Provisioning Key: The provisioning key that you can copy.",
+            "View the signing certificate for the agent provisioning key.",
+            "Copy an agent provisioning key.",
+            "Edit an agent provisioning key.",
+            "Delete an agent provisioning key."
+          ]
+        }
+      ]
+    },
+    "install-paths": {
+      "statement": "The page gives instructions for installing the agent manager for VM agent groups or the Helm chart for Kubernetes Cluster agent groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-agent-provisioning-keys.json",
+          "quotes": [
+            "View instructions for downloading and installing the agent manager for VM agent groups or the Helm chart for Kubernetes Cluster agent groups."
+          ]
+        }
+      ]
+    },
+    "edit-fields": {
+      "statement": "Keys are created during agent group configuration; editing one changes its name, its maximum reuse (a number from 1 to 1000) and its signing certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "editing-agent-provisioning-keys.json",
+          "quotes": [
+            "Agent provisioning keys are created during agent group configuration.",
+            "Name: Edit the provisioning key name.",
+            "Maximum Reuse of Key: The number of times the key can be reused. Enter a number from 1 to 1000.",
+            "Signing Certificate: Select a signing certificate from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "nonces-are-keys": {
+      "statement": "The API calls provisioning keys nonces: the SDK's nonces module lists nonces (provisioning keys) with page and pageSize and gets one by its eyez ID, and the list selection includes `key`, `maxUsage`, `usageCount` and the agent group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/nonces.py",
+          "quotes": [
+            "Get a paginated list of nonces (provisioning keys) for a customer.",
+            "Get a nonce by its eyez ID."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/nonces.py",
+          "quotes": [
+            "nonces( customerId: $customerId, page: $page, pageSize: $pageSize,",
+            "nodes { eyezId name key maxUsage usageCount agentGroupEyezId agentGroupName agentGroupType product creationTime modifiedTime }"
+          ],
+          "after": "query ListNonces("
+        }
+      ]
+    },
+    "nonce-key-readable": {
+      "statement": "A read-only API client that can list ZMS nonces receives each provisioning key's `key` value in the response.",
+      "tier": "B",
+      "derived_from": [
+        "nonces-are-keys"
+      ],
+      "conditions": "Follows from the list selection set asking for `key`; whether the server redacts it for some roles is not shown by any source."
+    },
+    "nonce-wrapped": {
+      "statement": "The single-nonce query returns its payload nested one level deeper, under `nonce` inside `nonce`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/nonces.py",
+          "quotes": [
+            "nonce(customerId: $customerId, eyezId: $eyezId) { nonce { eyezId name key"
+          ]
+        }
+      ]
+    },
+    "nonce-product": {
+      "statement": "The SDK's `NonceProduct` enum has the values EYEZ and EYEZ_LEGACY.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/models/enums.py",
+          "quotes": [
+            "class NonceProduct(str, Enum): \"\"\"Nonce product types.\"\"\" EYEZ = \"EYEZ\" EYEZ_LEGACY = \"EYEZ_LEGACY\""
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "mcp-nonce-fields": {
+      "summary": "The MCP list tool's description promises status and expiry per nonce, but the SDK query it calls selects neither field.",
+      "positions": [
+        {
+          "says": "The tool returns one row per nonce with eyez_id, name, status and expiry.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zms/nonces.py",
+            "quotes": [
+              "Read-only. Returns one row per nonce (eyez_id, name, status, expiry)."
+            ]
+          }
+        },
+        {
+          "says": "The ListNonces selection is eyezId, name, key, maxUsage, usageCount, agent group fields, product, creationTime and modifiedTime, with no status or expiry.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zms/nonces.py",
+            "quotes": [
+              "nodes { eyezId name key maxUsage usageCount agentGroupEyezId agentGroupName agentGroupType product creationTime modifiedTime }"
+            ],
+            "after": "query ListNonces("
+          }
+        }
+      ],
+      "impact": "An agent reading the MCP tool description expects status and expiry columns that are never returned; key validity has to be judged from maxUsage and usageCount instead."
+    }
+  },
+  "gaps": {
+    "agent-group-editable": {
+      "kind": "semantic",
+      "title": "Whether a key's agent group can be changed",
+      "status": "open",
+      "detail": "Unverified legacy statement: the capture does not establish whether Agent Group is editable or immutable on a provisioning key. The edit drawer lists only name, maximum reuse and signing certificate, which suggests but does not state that the group is fixed.",
+      "blocks": "answering whether a key can be moved to another agent group",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

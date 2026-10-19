@@ -1,0 +1,665 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.admin-api",
+  "title": "The AI Guard configuration API: behavior the contract states, limits and errors, and what the Python SDK covers",
+  "aliases": [
+    "ai guard api",
+    "aiguard api",
+    "ai guard admin api",
+    "ai guard configuration api",
+    "/aiguard/v1",
+    "llm-provider-types",
+    "referential-check",
+    "regenerate application credential",
+    "deleteReferences",
+    "ai guard 409",
+    "ai guard rate limit",
+    "ai guard python sdk",
+    "client.aiguard",
+    "ai guard terraform",
+    "ai guard go sdk",
+    "ai guard automation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.base-urls"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terminology.product-names"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The configuration API's paths, operations and request and response fields are generated from the captured contract and the Python SDK: run `node scripts/kb.mjs surface aiguard` and read `vendor/zscaler-api-specs/automate-zscaler/openapi/aiguard.openapi.json`. This subject holds the behavior around them and where the sources disagree."
+    },
+    {
+      "label": "Clients.",
+      "text": "{{python-oneapi}} {{no-other-clients}} The base path is in [[shared.oneapi.base-urls:base-path-table]] and the deprecated `client.zguard` alias in [[shared.terminology.product-names:zguard-alias]]. Wider client coverage is open {{gap:other-clients}}."
+    },
+    {
+      "label": "Limits and errors.",
+      "text": "{{rate-limit}} {{error-format}} {{list-shape}} {{delete-409}}"
+    },
+    {
+      "label": "Actions.",
+      "text": "{{colon-action-routes}} Enabling or disabling a policy flips its match rules: [[ai-security.ai-guard.policies:enable-disable-match-rules]]."
+    },
+    {
+      "label": "Providers and credentials.",
+      "text": "{{provider-types}} {{provider-credentials-write-only}} {{app-credentials-once}} {{app-credentials-mode}} How Help's application names map to provider types is open {{gap:provider-labels}}."
+    },
+    {
+      "label": "What the Python SDK covers.",
+      "text": "{{python-policies-methods}} {{python-referential-commented}} {{python-unwrapped}} The SDK's documentation and its code disagree on referential checks {{divergence:referential-check-availability}}, and its regenerate path differs from the contract's {{divergence:regenerate-path}}. Live acceptance of those operations is open {{gap:live-acceptance}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a Python script, whether the operation is one of the eight the SDK does not wrap; call it through the raw OneAPI path from the generated surface instead.",
+      "uses": [
+        "python-unwrapped",
+        "colon-action-routes"
+      ]
+    },
+    {
+      "do": "On a 409 from a delete, which active configuration still references the object, or whether deleteReferences=true is supported for it.",
+      "uses": [
+        "delete-409"
+      ]
+    },
+    {
+      "do": "Before creating a provider, read the provider type's server guidance from the provider-types operation rather than hard-coding servers.",
+      "uses": [
+        "provider-types"
+      ]
+    },
+    {
+      "do": "On 429, the per-tenant budget of 1,000 calls per minute and the x-ratelimit headers.",
+      "uses": [
+        "rate-limit"
+      ]
+    }
+  ],
+  "claims": {
+    "python-oneapi": {
+      "statement": "In the Python SDK every AI Guard configuration resource (detection policies, policy match rules, LLM providers and credentials, LLM applications and credentials) is reached through OneAPI with `ZscalerClient` as `client.aiguard`; only policy detection uses the legacy client.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "**OneAPI** (``ZscalerClient``) -- all configuration APIs:",
+            "- Detection Policies and Policy Match Rules",
+            "- LLM Providers and LLM Provider Credentials",
+            "- LLM Applications and LLM Application Credentials",
+            "policies, _, err = client.aiguard.policies.list_policies()",
+            "AI Guard API key. Every other AI Guard resource is OneAPI only.",
+            "**Legacy** (``LegacyAIGuardClient``) -- policy detection only:"
+          ]
+        }
+      ]
+    },
+    "no-other-clients": {
+      "statement": "No Go SDK package, Terraform provider resource, Ansible module or MCP server tool calls the AI Guard API; the Python SDK is the only vendored client.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/servers/[description=AI Guard Public API]",
+          "expect": {
+            "url": "https://api.zsapi.net/aiguard"
+          }
+        }
+      ],
+      "conditions": "Rests on a search: the generated surface for aiguard has empty Go SDK and Terraform sections (`node scripts/kb.mjs surface aiguard`), and a search of vendor/zscaler-sdk-go, vendor/zscaler-mcp-server, the ZIA, ZPA and ZTC Terraform providers and both Ansible collections at their pins finds no aiguard or zseclipse reference. Absence in vendored clients says nothing about private or future ones."
+    },
+    "rate-limit": {
+      "statement": "Every AI Guard API endpoint is limited to 1,000 calls per minute per tenant; responses carry `x-ratelimit-limit`, `x-ratelimit-remaining` and `x-ratelimit-reset`, the last being the seconds left in the current window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-aiguard-api-rate-limits.json",
+          "quotes": [
+            "All endpoints within the AI Guard API are subject to a rate limit of 1,000 calls per minute, per tenant.",
+            "x-ratelimit-limit: The rate limit ceiling that is applicable for the current API request.",
+            "x-ratelimit-remaining: The number of API requests remaining for the current rate limit window.",
+            "x-ratelimit-reset: The time (in seconds) remaining in the current window, after which the rate limit resets."
+          ]
+        }
+      ]
+    },
+    "error-format": {
+      "statement": "Errors are RFC 9457 problem details returned as `application/problem+json` with type, title, status, detail and a correlation id; validation errors add a `fields[]` array, and a 401 carries a WWW-Authenticate Bearer header.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-aiguard-api-codes.json",
+          "quotes": [
+            "All error responses conform to RFC 9457 Problem Details and are returned with a Content-Type of application/problem+json.",
+            "Every error response includes the type, title, status, detail, and correlation id. Validation errors additionally include a fields[] array.",
+            "| 401 | Unauthorized | The bearer token is missing or expired, has an invalid signature, or fails issuer or audience validation. The response includes a WWW-Authenticate: Bearer header. |"
+          ]
+        }
+      ]
+    },
+    "list-shape": {
+      "statement": "List operations return the resources inside a JSON object of the form `{ \"items\": [] }`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-aiguard-api-codes.json",
+          "quotes": [
+            "GET requests retrieving a list of resources return it in a JSON object in the following format: { \"items\": [] }."
+          ]
+        }
+      ]
+    },
+    "delete-409": {
+      "statement": "Deleting a policy, provider, provider credential, application or application credential that an active configuration references is blocked with 409 while `deleteReferences` is false, the default; where supported, `deleteReferences=true` removes the references before the delete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/response-codes-aiguard-api-codes.json",
+          "quotes": [
+            "or the delete operation was blocked because the resource is referenced by another active configuration. Where supported, append deleteReferences=true as a query parameter to remove references before deleting the resource."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1detections~1policies~1{id}/delete",
+          "expect": {
+            "description": "Deletes a policy by ID. When deleteReferences=false (default), blocked with 409 if active match rules or LLM applications reference this policy."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-providers~1{id}/delete",
+          "expect": {
+            "description": "Deletes a provider by ID. When deleteReferences=false (default), blocked with 409 if the provider is referenced."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-provider-credentials~1{id}/delete",
+          "expect": {
+            "description": "Deletes credentials by ID. When deleteReferences=false (default), blocked with 409 if the credentials are referenced."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-applications~1{id}/delete",
+          "expect": {
+            "description": "Deletes an LLM application by ID. When deleteReferences=false (default), blocked with 409 if active credentials or access control roles reference this application."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-application-credentials~1{id}/delete",
+          "expect": {
+            "description": "Deletes credentials by ID. When deleteReferences=false (default), blocked with 409 if the credentials are referenced."
+          }
+        }
+      ]
+    },
+    "colon-action-routes": {
+      "statement": "The contract publishes action operations as colon suffixes on the resource path: `:enable`, `:disable` and `:referential-check` on detection policies, `:referential-check` on providers, provider credentials, applications and application credentials, and `:regenerate` on application credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1detections~1policies~1{id}:enable/post",
+          "expect": {
+            "operationId": "Detections Policy Resource Enable Detections Policy"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1detections~1policies~1{id}:disable/post",
+          "expect": {
+            "operationId": "Detections Policy Resource Disable Detections Policy"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1detections~1policies~1{id}:referential-check/get",
+          "expect": {
+            "operationId": "Detections Policy Resource Referential Check Detections Policy"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-providers~1{id}:referential-check/get",
+          "expect": {
+            "operationId": "Llm Provider Resource Referential Check Provider"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-provider-credentials~1{id}:referential-check/get",
+          "expect": {
+            "operationId": "Llm Provider Credentials Resource Referential Check Provider Credentials"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-applications~1{id}:referential-check/get",
+          "expect": {
+            "operationId": "Llm Application Resource Referential Check Application"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-application-credentials~1{id}:referential-check/get",
+          "expect": {
+            "operationId": "Llm Application Credentials Resource Referential Check Application Credentials"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-application-credentials~1{id}:regenerate/post",
+          "expect": {
+            "operationId": "Llm Application Credentials Resource Regenerate Llm Application Credentials"
+          }
+        }
+      ]
+    },
+    "provider-types": {
+      "statement": "The provider-types operations list the supported LLM provider types with server guidance, to be called to discover the correct `servers` keys and values before creating or updating a provider; the contract marks its provider-type list as not exhaustive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-provider-types/get",
+          "expect": {
+            "description": "Lists all supported LLM provider types and the server guidance for each. Call this to discover the correct <code>servers</code> keys and values before creating or updating an LLM provider."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-provider-types~1{type}/get/parameters/[name=type]/schema",
+          "expect": {
+            "description": "Supported LLM vendors and deployments. Zscaler adds new provider types as coverage expands, so this list is not exhaustive."
+          }
+        }
+      ]
+    },
+    "provider-credentials-write-only": {
+      "statement": "Provider credential secrets are never returned: `apiCredentials` is write-only; an update with new `apiCredentials` rotates the secret, and one with only the name or expiration leaves it unchanged.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-provider-credentials/get",
+          "expect": {
+            "description": "Gets a list of all configured LLM provider credentials. Credential secrets are never returned."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-provider-credentials/post",
+          "expect": {
+            "description": "Creates new credentials for an LLM provider. The apiCredentials field is write-only and will not appear in the response."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-provider-credentials~1{id}/put",
+          "expect": {
+            "description": "Updates the credentials. Pass new apiCredentials to rotate secrets; pass only metadata fields (name, expiration) to leave secrets unchanged."
+          }
+        }
+      ]
+    },
+    "app-credentials-once": {
+      "statement": "Application credentials return their plaintext API key exactly once, on create and on regenerate; regenerate invalidates the previous key, and an update can change only the display name and expiration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-application-credentials/post",
+          "expect": {
+            "description": "Creates new credentials for an LLM application. The response includes the plaintext API key exactly once — it cannot be retrieved again."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-application-credentials~1{id}:regenerate/post",
+          "expect": {
+            "description": "Issues a new API key for these credentials. The plaintext key is returned in the response exactly once and the previous key is invalidated."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-application-credentials~1{id}/put",
+          "expect": {
+            "description": "Updates display name and/or expiration. Other fields cannot be changed; rotate via the regenerate action endpoint."
+          }
+        }
+      ]
+    },
+    "app-credentials-mode": {
+      "statement": "Listing application credentials is per service mode and defaults to PROXY.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-application-credentials/get",
+          "expect": {
+            "description": "Gets a list of all credentials for a given service mode. Defaults to PROXY."
+          }
+        }
+      ]
+    },
+    "python-policies-methods": {
+      "statement": "The Python SDK's policies module defines list, get by ID, get by name, add, update and delete, and no other method.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/policies.py",
+          "quotes": [
+            "def __init__(self, request_executor: \"RequestExecutor\") -> None:",
+            "def list_policies(self, query_params: Optional[dict] = None) -> APIResult[List[Policies]]:",
+            "def get_policy(self, policy_id: int) -> APIResult[Policies]:",
+            "def get_policy_by_name(self, name: str) -> APIResult[Policies]:",
+            "def add_policy(self, **kwargs) -> APIResult[Policies]:",
+            "def update_policy(self, policy_id: int, **kwargs) -> APIResult[Policies]:",
+            "def delete_policy(self, policy_id: int) -> APIResult[None]:"
+          ]
+        }
+      ],
+      "conditions": "The seven def lines quoted are every method policies.py defines at the pin."
+    },
+    "python-referential-commented": {
+      "statement": "In each of the Python SDK's provider, provider-credential, application and application-credential modules the `referential_check` method is commented out, with a note that the endpoint returned HTTP 404 for every resource type, including through Postman with a known-good ID, and is to be re-enabled once the endpoint is live.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/llm_providers.py",
+          "quotes": [
+            "# NOTE: The referential-check endpoint is currently returning HTTP 404 for every",
+            "# resource type, including via Postman with a known-good id. The method is",
+            "# commented out until the API supports it; re-enable once the endpoint is live.",
+            "# def referential_check(self, provider_id: int) -> APIResult[dict]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/llm_provider_credentials.py",
+          "quotes": [
+            "# NOTE: The referential-check endpoint is currently returning HTTP 404 for every",
+            "# resource type, including via Postman with a known-good id. The method is",
+            "# commented out until the API supports it; re-enable once the endpoint is live.",
+            "# def referential_check(self, credential_id: int) -> APIResult[dict]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/llm_applications.py",
+          "quotes": [
+            "# NOTE: The referential-check endpoint is currently returning HTTP 404 for every",
+            "# resource type, including via Postman with a known-good id. The method is",
+            "# commented out until the API supports it; re-enable once the endpoint is live.",
+            "# def referential_check(self, application_id: int) -> APIResult[dict]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/llm_application_credentials.py",
+          "quotes": [
+            "# NOTE: The referential-check endpoint is currently returning HTTP 404 for every",
+            "# resource type, including via Postman with a known-good id. The method is",
+            "# commented out until the API supports it; re-enable once the endpoint is live.",
+            "# def referential_check(self, credential_id: int) -> APIResult[dict]:"
+          ]
+        }
+      ]
+    },
+    "python-unwrapped": {
+      "statement": "Eight operations of the contract have no callable Python method: policy enable, disable, referential check and policy summaries, and the referential checks for providers, provider credentials, applications and application credentials.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1detections~1policy-summaries/get",
+          "expect": {
+            "operationId": "Detections Policy Summary Resource List Detections Policy Summaries"
+          }
+        }
+      ],
+      "derived_from": [
+        "python-policies-methods",
+        "python-referential-commented",
+        "colon-action-routes"
+      ],
+      "conditions": "Rests on the policies module's complete method list and the four commented-out referential checks, plus a search of zscaler/aiguard for policy-summaries finding no call; the generated surface (`node scripts/kb.mjs surface aiguard`) likewise maps no Python method to these eight paths."
+    }
+  },
+  "divergences": {
+    "referential-check-availability": {
+      "summary": "Whether the Python SDK offers referential checks.",
+      "positions": [
+        {
+          "says": "The SDK README says the providers, provider-credentials and applications resources run referential checks.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "README.md",
+            "quotes": [
+              "- `llm_providers` — Manage LLM providers, list provider types, and run referential checks"
+            ]
+          }
+        },
+        {
+          "says": "The 1.9.39 changelog lists the referential-check endpoints among those added.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "CHANGELOG.md",
+            "quotes": [
+              "Added `GET /llm-providers/{providerId}/referential-check` to retrieve resources referencing an LLM provider."
+            ],
+            "after": "## 1.9.39 (July 27, 2026)"
+          }
+        },
+        {
+          "says": "The code has every referential_check method commented out, citing HTTP 404 from the endpoint.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/aiguard/llm_providers.py",
+            "quotes": [
+              "# NOTE: The referential-check endpoint is currently returning HTTP 404 for every",
+              "# resource type, including via Postman with a known-good id. The method is",
+              "# commented out until the API supports it; re-enable once the endpoint is live.",
+              "# def referential_check(self, provider_id: int) -> APIResult[dict]:"
+            ]
+          }
+        },
+        {
+          "says": "The contract publishes the referential checks as colon-suffixed GET operations.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/aiguard.openapi.json",
+            "pointer": "/paths/~1v1~1llm-providers~1{id}:referential-check/get",
+            "expect": {
+              "operationId": "Llm Provider Resource Referential Check Provider"
+            }
+          }
+        }
+      ],
+      "impact": "A Python user following the README finds no referential_check method; the contract documents the operations, and whether they answer live is unverified."
+    },
+    "regenerate-path": {
+      "summary": "The path of the application-credential regenerate action.",
+      "positions": [
+        {
+          "says": "The Python SDK posts to /llm-application-credentials/{credential_id}/regenerate, a slash path.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/aiguard/llm_application_credentials.py",
+            "quotes": [
+              "/llm-application-credentials/{credential_id}/regenerate"
+            ]
+          }
+        },
+        {
+          "says": "The contract publishes the action as /v1/llm-application-credentials/{id}:regenerate.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/aiguard.openapi.json",
+            "pointer": "/paths/~1v1~1llm-application-credentials~1{id}:regenerate/post",
+            "expect": {
+              "operationId": "Llm Application Credentials Resource Regenerate Llm Application Credentials"
+            }
+          }
+        },
+        {
+          "says": "The AI Guard response-codes page lists enable, disable and regenerate actions as POST /{id}/actions.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "automate-zscaler/response-codes-aiguard-api-codes.json",
+            "quotes": [
+              "| Actions (enable, disable, and regenerate) | POST /{id}/actions | 200 | 409 (on conflict) |"
+            ]
+          }
+        }
+      ],
+      "impact": "The SDK's regenerate_credential call uses a path the contract does not publish; whether the service accepts it is unverified, so a failed regenerate from Python may be a path problem rather than a permission one."
+    }
+  },
+  "gaps": {
+    "live-acceptance": {
+      "kind": "semantic",
+      "title": "Whether the live API accepts the operations the Python SDK leaves out, and the SDK's regenerate path",
+      "status": "open",
+      "former_ids": [
+        "ai-security-08"
+      ],
+      "detail": "The static sources do not establish whether the live API answers the eight contract operations Python does not wrap, whether the SDK maintainer's 404 on the referential checks was tenant- or version-specific, or whether the SDK's slash regenerate path is accepted alongside the contract's colon path.",
+      "blocks": "automation that relies on referential checks, policy enable or disable, summaries or credential regeneration",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "other-clients": {
+      "kind": "data",
+      "title": "Client coverage of the AI Guard configuration API beyond Python, and entitled-tenant acceptance",
+      "status": "partial",
+      "former_ids": [
+        "ai-security-04"
+      ],
+      "detail": "Publication of the 47-operation contract is confirmed and Python wraps the configuration resources. Whether Go, Terraform, MCP or other clients will cover the API, and whether an entitled tenant accepts every documented operation, remain open.",
+      "blocks": "infrastructure-as-code and agent tooling for AI Guard configuration",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "none"
+      ]
+    },
+    "provider-labels": {
+      "kind": "semantic",
+      "title": "How Help's supported AI applications map to the API's provider types",
+      "status": "open",
+      "former_ids": [
+        "ai-security-07"
+      ],
+      "detail": "The ZIA integration's supported-application table names applications such as GitHub Copilot, ElevenLabs, Windsurf, Mistral AI, Gamma and Builder.io, none of which appears under that name among the 23 provider-type identifiers in the contract (which says its list is not exhaustive). Static sources do not establish whether these are built-in providers that are not customer-created, application-level labels, or contract and Help timing differences.",
+      "blocks": "creating providers through the API for applications Help lists",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-configuring-zia-proxy-chain-ai-guard.json",
+          "quotes": [
+            "| GitHub Copilot | Web Browsers | api.individual.githubcopilot.com |",
+            "| ElevenLabs | Web Browsers: Text-to-speech supported | api.us.elevenlabs.io |",
+            "| Mistral AI | Mistral Vibe (formerly Le Chat) backend | *.mistral.ai |",
+            "| Gamma | Web Browsers | *.api.gamma.app*.ai.api.gamma.app |",
+            "| Builder.io | Web Browsers |",
+            "| Windsurf | Desktop App (Proxy Mode Only)."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1llm-provider-types~1{type}/get/parameters/[name=type]/schema",
+          "expect": {
+            "enum": [
+              "openai",
+              "anthropic",
+              "azure",
+              "bedrock-agent",
+              "bedrock-anthropic",
+              "bedrock-unified",
+              "bolt",
+              "deepai",
+              "glean",
+              "google-gemini",
+              "google-gemini-code",
+              "google-gemini-enterprise",
+              "google-gemini-workspace",
+              "google-vertex-studio",
+              "lovable",
+              "maxai",
+              "microsoft-365-copilot",
+              "microsoft-copilot",
+              "napkin",
+              "opencode",
+              "perplexity",
+              "vertex",
+              "xai"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

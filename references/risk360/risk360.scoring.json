@@ -1,0 +1,369 @@
+{
+  "schema_version": 1,
+  "id": "risk360.scoring",
+  "title": "How Risk360 scores risk: the organization score, factors, asset-level risk and Monte Carlo financial estimates",
+  "aliases": [
+    "risk360 score",
+    "risk360 severity ranges",
+    "risk360 factors",
+    "risk360 factor count",
+    "risk360 asset risk",
+    "risk360 monte carlo",
+    "risk360 financial risk",
+    "risk360 peer score",
+    "exclude risk360 factor"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "risk360.overview"
+    }
+  ],
+  "prose": [
+    {
+      "heading": "The organization score"
+    },
+    {
+      "text": "{{org-score}} {{severity-ranges}} {{weights}} {{trend-and-peers}}"
+    },
+    {
+      "heading": "Factors"
+    },
+    {
+      "text": "{{factor-weighting}} {{entities}} {{factor-views}} {{licensed-column}} {{factor-exclusion}} {{factor-csv-export}} How many factors exist depends on the source {{divergence:factor-count}}, and the catalog, weights and peer method are not published {{gap:factor-methodology}}."
+    },
+    {
+      "heading": "Asset-level risk"
+    },
+    {
+      "text": "{{asset-indicators}} {{asset-bands}} {{asset-inventory}}"
+    },
+    {
+      "heading": "Financial estimates"
+    },
+    {
+      "text": "{{monte-carlo-runs}} {{monte-carlo-outputs}} {{monte-carlo-scenarios}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a factor was excluded from the score (excluding needs a reason and is recorded in the audit logs) when a score looks lower than expected.",
+      "uses": [
+        "factor-exclusion"
+      ]
+    },
+    {
+      "do": "Whether the recommended action for a factor needs a feature the tenant does not have, from the Licensed? column.",
+      "uses": [
+        "licensed-column"
+      ]
+    },
+    {
+      "do": "Which peer score strategy is in use (Zscaler-defined default or custom) before comparing the score with the peer average.",
+      "uses": [
+        "trend-and-peers"
+      ]
+    },
+    {
+      "do": "Quote the factor count with its source and date, not as a fixed number.",
+      "uses": [
+        "factor-count"
+      ]
+    }
+  ],
+  "claims": {
+    "org-score": {
+      "statement": "The organization risk score is an average across four categories: External Attack Surface, Compromise, Lateral Propagation and Data Loss; the Dashboard shows it beside the industry peer average.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-dashboard.json",
+          "quotes": [
+            "The section shows the Zscaler-computed risk score for your organization and the industry peer average risk score.",
+            "Your organization's risk score is an average risk score across 4 categories, i.e., External Attack Surface, Compromise, Lateral Propagation, and Data Loss."
+          ]
+        }
+      ]
+    },
+    "severity-ranges": {
+      "statement": "Score severities are Low (0–25), Medium (26–50), High (51–75) and Critical (76–100).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-dashboard.json",
+          "quotes": [
+            "The following severities appear for the score ranges:",
+            "Low (0–25)",
+            "Medium (26–50)",
+            "High (51–75)",
+            "Critical (76–100)"
+          ]
+        }
+      ]
+    },
+    "weights": {
+      "statement": "Different risk factors bear different weights on the score; for example, an active infection is more severe than a blocked access attempt to a blocked destination.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-dashboard.json",
+          "quotes": [
+            "Different risk factors bear different weights on the score. For example, an active infection is more severe than a blocked access attempt to a blocked destination."
+          ]
+        }
+      ]
+    },
+    "trend-and-peers": {
+      "statement": "The Risk Score Trend shows the organization and peer average scores for the last 90 days and can be downloaded as CSV; the peer score's calculation strategy is Zscaler-defined by default, and a custom strategy can be created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-dashboard.json",
+          "quotes": [
+            "Risk Score Trend: The graph shows the Zscaler-computed and industry peer average risk score trend for the last 90 days.",
+            "The Default strategy is Zscaler-defined. You can create a custom strategy for peer score calculation.",
+            "to download the risk score trend data as a CSV file."
+          ]
+        }
+      ]
+    },
+    "factor-weighting": {
+      "statement": "Risk360 quantifies each contributing factor by its risk weight, which adds to the organization score, and maps factors to risk and security frameworks such as MITRE and NIST.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-factors.json",
+          "quotes": [
+            "The Risk360 service quantifies each factor according to its risk weight, which then adds to your overall organization risk score and also maps these factors to various renowned risk and security frameworks such as MITRE and NIST."
+          ]
+        }
+      ]
+    },
+    "factor-views": {
+      "statement": "The Factors page has two views: Attack-Based, which lists factors in a single list, and Entity-Based, which lists factors within their category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-factors.json",
+          "quotes": [
+            "The attack view shows the factors in a single list.",
+            "The entity-based view shows the factors listed within their category."
+          ]
+        }
+      ]
+    },
+    "licensed-column": {
+      "statement": "Each factor shows a Licensed? value saying whether the tenant subscribes to the feature required to implement the recommended action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-factors.json",
+          "quotes": [
+            "Licensed?: Whether you are subscribed to the feature required to implement the recommended action (Y for Yes and N for No)."
+          ]
+        }
+      ]
+    },
+    "factor-exclusion": {
+      "statement": "Every factor is included in the score by default; a factor can be excluded (for example, for a compensating control) only with an explanation, and the change is recorded in the audit logs with the username and reason.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-factors.json",
+          "after": "Entity-Based",
+          "quotes": [
+            "Choose whether to include or exclude the factor from risk score computation. By default, this option is enabled for all factors.",
+            "You can exclude a factor if you have a compensating control over the factor or any other reason, but you must provide an explanation.",
+            "The changes you make are captured in the audit logs with your username and the reason you provide for the change."
+          ]
+        }
+      ]
+    },
+    "factor-csv-export": {
+      "statement": "The contributing factors can be exported to a CSV file, which contains all factors regardless of any filter selected at download time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-factors.json",
+          "quotes": [
+            "Export the factors contributing to your organization's risk score into a CSV file. The downloaded file shows all the factors contributing to your organization's risk score, irrespective of any filter selected at the time of the download."
+          ],
+          "after": "The attack view shows the factors in a single list."
+        }
+      ]
+    },
+    "asset-indicators": {
+      "statement": "The asset-level risk model considers more than 65 indicators, each contributing by the severity and frequency of the associated threat, grouped into three categories: pre-infection behavior, post-infection behavior and suspicious behavior.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-asset-level-risk.json",
+          "quotes": [
+            "Zscaler’s asset-level risk scoring model considers more than 65 indicators that influence the risk score.",
+            "each indicator variably contributes to the risk score based on the severity and frequency of the associated threat. Hence, these indicators are separated into three major categories:",
+            "Pre-infection Behavior",
+            "Post-infection Behavior",
+            "Suspicious Behavior"
+          ]
+        }
+      ]
+    },
+    "asset-bands": {
+      "statement": "Asset risk severities use their own bands: No Risk (0–1), Low (>1–25), Medium (>25–50), High (>50–75) and Critical (>75–100).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-asset-level-risk.json",
+          "quotes": [
+            "No Risk (0–1)",
+            "Low (>1–25)",
+            "Medium (>25–50)",
+            "High (>50–75)",
+            "Critical (>75–100)"
+          ]
+        }
+      ]
+    },
+    "asset-inventory": {
+      "statement": "The Risky Asset Inventory table shows the top 1,000 risky assets, each with an asset ID assigned by the Zscaler service, private and egress IP address, username, asset type, authentication status, risk score, last seen time and location (city), and can be downloaded as CSV.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-asset-level-risk.json",
+          "quotes": [
+            "Risky Asset Inventory: The table shows the top 1,000 risky asset details.",
+            "Asset ID: The unique ID assigned to the asset by the Zscaler service.",
+            "Private IP Address: The IP address of the asset.",
+            "Egress IP Address: The client's gateway IP address that sends the local network traffic to other networks on the internet.",
+            "Username: The user responsible or owns the asset.",
+            "Asset Type: The type of asset (iOS, Android OS, etc.).",
+            "Authentication Status: Indicates whether the asset is authenticated or not.",
+            "Risk Score: The risk score computed for the asset.",
+            "Last Seen: The time and date when the last activity was observed on the asset.",
+            "Location: The city where the asset is located.",
+            "Download the table data into a CSV file."
+          ]
+        }
+      ]
+    },
+    "monte-carlo-runs": {
+      "statement": "Zscaler's Monte Carlo explainer says Risk360 runs the simulation 1,000 times per day per organization; each iteration measures financial loss from a randomized breach event and a randomized loss within a predefined confidence interval.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-monte-carlo.md",
+          "quotes": [
+            "With Risk360, Zscaler runs a Monte Carlo simulation **1,000 times per day per organization**.",
+            "A randomized cyber breach event",
+            "A randomized financial loss within a predefined confidence interval defined by the lower and upper bound of a loss when a breach happens"
+          ]
+        }
+      ]
+    },
+    "monte-carlo-outputs": {
+      "statement": "The simulation produces a yearly average loss and a loss exceedance curve, the probability that a loss exceeds a given amount.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-monte-carlo.md",
+          "quotes": [
+            "**Yearly average loss**",
+            "**Loss exceedance curve** — the curve showing the probability that a loss exceeds a certain amount"
+          ]
+        }
+      ]
+    },
+    "monte-carlo-scenarios": {
+      "statement": "The outputs are calculated under four scenarios: inherent risk (the current score), residual risk (after mitigating the top ten risk factors), the last 30-day average risk, and industry peer risk.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-monte-carlo.md",
+          "quotes": [
+            "under four distinct scenarios:",
+            "| **Inherent risk** | The current risk score of an organization |",
+            "| **Residual risk** | The risk score of an organization after mitigating the top ten risk factors |",
+            "| **Last 30-day average risk** | The average risk score of an organization in the last 30 days |",
+            "| **Industry peer risk** | The average risk score of peer organizations |"
+          ]
+        }
+      ]
+    },
+    "entities": {
+      "statement": "The Dashboard attributes contributing factors to four entities: Workforce (risky user activity), 3rd Parties (activity by third-party users such as contractors), Applications (unsanctioned or less secure SaaS applications) and Assets (exposed organizational assets).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-dashboard.json",
+          "quotes": [
+            "Workforce: The factors contributing to the risk score due to risky user activity.",
+            "3rd Parties: The factors contributing to the risk score due to activities by 3rd-party users (e.g., contract workers).",
+            "Applications: The factors contributing to the risk score due to the usage of unsanctioned or less secure SaaS applications.",
+            "Assets: The factors contributing to the risk score due to exposed organizational assets."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "factor-count": {
+      "summary": "Zscaler's Risk360 product page gives two different counts of predefined factors.",
+      "positions": [
+        {
+          "says": "Risk360 accounts for 140+ predefined factors.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "risk360-product-marketing.md",
+            "quotes": [
+              "Risk360 continuously monitors, normalizes, and accounts for **140+ predefined factors**"
+            ]
+          }
+        },
+        {
+          "says": "Risk360 develops a risk score based on more than 115 predefined risk factors.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "risk360-product-marketing.md",
+            "quotes": [
+              "develops a risk score based on more than **115 predefined risk factors**"
+            ]
+          }
+        }
+      ],
+      "impact": "No exact factor count can be stated; the catalog grows and the pages were written at different times."
+    }
+  },
+  "gaps": {
+    "factor-methodology": {
+      "kind": "semantic",
+      "title": "The Risk360 factor catalog, per-factor weights and peer-benchmark method",
+      "status": "open",
+      "former_ids": [
+        "risk360-02"
+      ],
+      "detail": "Unverified legacy statement: the sources establish four attack-stage categories, weighted factors, industry-peer comparison and a moving factor count, but do not enumerate the current factor catalog, disclose per-factor weights, or explain how the peer cohort is chosen.",
+      "blocks": "explaining why a specific factor moved the score by a given amount, or how the peer average is computed",
+      "resolves_with": [
+        "source-read",
+        "tenant-data",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -1,0 +1,324 @@
+{
+  "schema_version": 1,
+  "id": "zms.api.queries",
+  "title": "What each ZMS GraphQL query takes and returns: agents, resources, groups, rules, zones, catalog, tags",
+  "aliases": [
+    "zms agents query",
+    "zms resourcegroups inline fragment",
+    "managedresourcegroup unmanagedresourcegroup",
+    "zms tagvalues namespaceorigin",
+    "zms totp secret",
+    "zms default policy rules",
+    "zms includedeleted",
+    "zms protection status"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zms.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zms.api.enums-and-filters"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Each ZMS domain has one or more queries; the selection set written in the SDK module is what comes back, since the methods return the raw GraphQL result ([[zms.api:raw-dicts]])."
+    },
+    {
+      "label": "Agents and agent groups.",
+      "text": "{{agents-selection}} {{stats-unpaged}} {{agent-groups-selection}} {{totp-secrets}} Nonces are in [[zms.provisioning-keys]]."
+    },
+    {
+      "label": "Resources.",
+      "text": "{{resources-selection}} {{include-deleted}} {{protection-status}} {{metadata-scalar}} {{metadata-returns-scalar}}"
+    },
+    {
+      "label": "Resource groups.",
+      "text": "{{group-fragments}} {{group-membership}} {{group-members}}"
+    },
+    {
+      "label": "Policy rules.",
+      "text": "{{policy-rules-selection}} {{default-rules-selection}} The fetchAll flag is in [[zms.api:fetch-all]]."
+    },
+    {
+      "label": "App zones and catalog.",
+      "text": "{{app-zones-selection}} {{app-catalog-selection}}"
+    },
+    {
+      "label": "Tags.",
+      "text": "{{tag-hierarchy}}"
+    },
+    {
+      "label": "Values.",
+      "text": "Enum values and filter inputs are in [[zms.api.enums-and-filters]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For tag values, whether both the tag key ID and the namespace origin are being passed.",
+      "uses": [
+        "tag-hierarchy"
+      ]
+    },
+    {
+      "do": "Whether deleted resources were excluded by the includeDeleted default.",
+      "uses": [
+        "include-deleted"
+      ]
+    },
+    {
+      "do": "Whether a resource group is managed (tags) or unmanaged (CIDRs and FQDNs) before reasoning about its membership.",
+      "uses": [
+        "group-fragments",
+        "group-membership"
+      ]
+    }
+  ],
+  "claims": {
+    "stats-unpaged": {
+      "statement": "The agent connection-status and version statistics queries take only `customerId` and an optional `search`, with no pagination, and return totals with per-type rows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/agents.py",
+          "quotes": [
+            "query AgentConnectionStatusStats($customerId: ID!, $search: String) { agentConnectionStatusStatistics( customerId: $customerId, search: $search ) { totalCount totalPercentage agentStatuses { agentType connectionStatus count percentage } } }",
+            "query AgentVersionStats($customerId: ID!, $search: String) { agentVersionStatistics( customerId: $customerId, search: $search ) { totalCount totalPercentage agentVersions { agentType version count percentage } } }"
+          ]
+        }
+      ]
+    },
+    "agents-selection": {
+      "statement": "The agents list selects name, eyezId, connectionStatus, agentType, hostOs, currentSoftwareVersion, upgradeStatus, description, cloudProvider, publicIp, privateIps, adminStatus, agentGroupName and agentGroupType, and accepts search, sort and sortDir.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/agents.py",
+          "quotes": [
+            "nodes { name eyezId connectionStatus agentType hostOs currentSoftwareVersion upgradeStatus description cloudProvider publicIp privateIps adminStatus agentGroupName agentGroupType }",
+            "search: $search, sort: $sort, sortDir: $sortDir"
+          ],
+          "after": "query ListAgents("
+        }
+      ]
+    },
+    "agent-groups-selection": {
+      "statement": "The agent groups list selects name, eyezId, agentGroupType, cloudProvider, adminStatus, agentCount, description, policyStatus, upgradeStatus, tamperProtectionStatus, agentAutoUpgrade, agentDeletionTimeoutSeconds, timezone, upgradeDay, upgradeTime and versionProfileName.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/agent_groups.py",
+          "quotes": [
+            "nodes { name eyezId agentGroupType cloudProvider adminStatus agentCount description policyStatus upgradeStatus tamperProtectionStatus agentAutoUpgrade agentDeletionTimeoutSeconds timezone upgradeDay upgradeTime versionProfileName }"
+          ]
+        }
+      ]
+    },
+    "totp-secrets": {
+      "statement": "`agentGroupTotpSecrets`, keyed by an agent group's eyezId, returns `totpSecret`, `totpQrCode` and `totpGenerationTimestamp`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/agent_groups.py",
+          "quotes": [
+            "agentGroupTotpSecrets(customerId: $customerId, eyezId: $eyezId) { eyezId totpSecret totpQrCode totpGenerationTimestamp }"
+          ]
+        }
+      ]
+    },
+    "resources-selection": {
+      "statement": "The resources list selects id, name, resourceType, status, cloudProvider, cloudRegion, resourceHostname, platformOs, platformOsDistro, platformOsVersion, localIps, deleted, modifiedTime, agentId, appZoneIds, appZoneNames and appZoneMappingState.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/resources.py",
+          "quotes": [
+            "nodes { id name resourceType status cloudProvider cloudRegion resourceHostname platformOs platformOsDistro platformOsVersion localIps deleted modifiedTime agentId appZoneIds appZoneNames appZoneMappingState }"
+          ]
+        }
+      ]
+    },
+    "include-deleted": {
+      "statement": "The resources query takes `includeDeleted` (`include_deleted`, default False), so deleted resources are left out unless asked for.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/resources.py",
+          "quotes": [
+            "include_deleted: bool = False,",
+            "includeDeleted: $includeDeleted,"
+          ]
+        }
+      ]
+    },
+    "protection-status": {
+      "statement": "Resource and resource-group protection status queries take `pageNum` and `pageSize` and return `nodes` of protected percentage and protected, unprotected and total counts, with a `pageInfo` block.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/resources.py",
+          "quotes": [
+            "resourceProtectionStatus( customerId: $customerId, pageNum: $pageNum, pageSize: $pageSize ) {",
+            "nodes { protectedPercentage protectedResourcesCount unprotectedResourcesCount totalResources } pageInfo {"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/resource_groups.py",
+          "quotes": [
+            "resourceGroupProtectionStatus( customerId: $customerId, pageNum: $pageNum, pageSize: $pageSize ) {",
+            "nodes { protectedPercentage protectedResourceGroupsCount unprotectedResourceGroupsCount totalResourceGroups } pageInfo {"
+          ]
+        }
+      ]
+    },
+    "metadata-scalar": {
+      "statement": "`metadata` takes only the customer ID and the query selects no subfields; the SDK documents `get_metadata` as getting event metadata for a customer, returned as metadata JSON.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/resources.py",
+          "quotes": [
+            "query GetMetadata($customerId: String!) { metadata(customerId: $customerId) }",
+            "Get event metadata for a customer.",
+            "tuple: (metadata JSON, response, error)",
+            "def get_metadata("
+          ]
+        }
+      ]
+    },
+    "group-fragments": {
+      "statement": "`resourceGroups` returns two concrete types through inline fragments: `ManagedResourceGroup` with id, name, description, type, origin, resourceMemberCount and modifiedTime, and `UnmanagedResourceGroup` with the same plus `cidrs` and `fqdns`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/resource_groups.py",
+          "quotes": [
+            "resourceGroups( customerId: $customerId, pageNum: $pageNum, pageSize: $pageSize, filter: $filter ) { nodes { ... on ManagedResourceGroup { id name description type origin resourceMemberCount modifiedTime } ... on UnmanagedResourceGroup { id name description type origin resourceMemberCount modifiedTime cidrs fqdns } }"
+          ]
+        }
+      ]
+    },
+    "group-membership": {
+      "statement": "Managed groups have tag-based membership and unmanaged groups CIDR- or FQDN-based membership.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "CLAUDE.md",
+          "quotes": [
+            "**Resource groups have two types**: `ManagedResourceGroup` (tag-based membership) and `UnmanagedResourceGroup` (CIDR/FQDN-based)."
+          ]
+        }
+      ]
+    },
+    "group-members": {
+      "statement": "`resourceGroupMembers` is keyed by the group's `id` (`String!`) and pages with `pageNum` and `pageSize`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/resource_groups.py",
+          "quotes": [
+            "query GetResourceGroupMembers( $customerId: ID!, $id: String!, $pageNum: Int, $pageSize: Int )"
+          ]
+        }
+      ]
+    },
+    "policy-rules-selection": {
+      "statement": "Policy rules select id, name, action, priority, description, deleted, source, destination and AppZone-scope target types, creationTime, modifiedTime, lastHit and port ranges per protocol.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/policy_rules.py",
+          "quotes": [
+            "nodes { id name action priority description deleted sourceTargetType destinationTargetType appZoneScopeTargetType creationTime modifiedTime lastHit portAndProtocols { protocol portRanges { startPort endPort } } }"
+          ]
+        }
+      ]
+    },
+    "default-rules-selection": {
+      "statement": "Default policy rules are a separate query, paginated with no filter or fetchAll, selecting id, name, action, direction, description, scopeType and modifiedTime.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/policy_rules.py",
+          "quotes": [
+            "query ListDefaultPolicyRules( $customerId: ID!, $pageNum: Int, $pageSize: Int ) { defaultPolicyRules( customerId: $customerId, pageNum: $pageNum, pageSize: $pageSize ) { nodes { id name action direction description scopeType modifiedTime }"
+          ]
+        }
+      ]
+    },
+    "app-zones-selection": {
+      "statement": "App zones take a filter and orderBy and select id, appZoneName, description, memberCount, includeAllVpcs and includeAllSubnets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/app_zones.py",
+          "quotes": [
+            "nodes { id appZoneName description memberCount includeAllVpcs includeAllSubnets }",
+            "$filter: AppZoneFilter, $orderBy: AppZoneQueryOrderBy"
+          ]
+        }
+      ]
+    },
+    "app-catalog-selection": {
+      "statement": "App catalog entries select id, name, category, creationTime, modifiedTime and details of port ranges per protocol and processes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/app_catalog.py",
+          "quotes": [
+            "nodes { id name category creationTime modifiedTime details { portAndProtocol { protocol portRanges { startPort endPort } } processes } }"
+          ]
+        }
+      ]
+    },
+    "tag-hierarchy": {
+      "statement": "Tags are walked top-down: `tagNamespaces` lists namespaces (id, name, description, origin), `tagKeys` needs a `namespaceId`, and `tagValues` needs both a `tagId` and a `namespaceOrigin` of type `NamespaceOrigin!`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "rules/zms-graphql-conventions.mdc",
+          "quotes": [
+            "Tag hierarchy is three levels: namespace → key → value. Navigate top-down to list tag values."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/tags.py",
+          "quotes": [
+            "tagNamespaces( customerId: $customerId, pageNum: $pageNum, pageSize: $pageSize, filter: $filter, orderBy: $orderBy ) { nodes { id name description origin }",
+            "tagKeys( customerId: $customerId, namespaceId: $namespaceId,",
+            "$namespaceId: String!",
+            "$tagId: String!, $namespaceOrigin: NamespaceOrigin!"
+          ]
+        }
+      ]
+    },
+    "metadata-returns-scalar": {
+      "statement": "`metadata` returns a scalar value rather than an object type.",
+      "tier": "B",
+      "derived_from": [
+        "metadata-scalar"
+      ],
+      "conditions": "Rests on the GraphQL rule that a field queried without a selection set must be a leaf (scalar or enum) type; the ZMS schema itself is not captured, so the scalar's name and shape are unknown."
+    }
+  }
+}

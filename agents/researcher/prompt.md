@@ -73,7 +73,7 @@ extraction prose.
 
 Parse the user's request:
 
-- **Target file** - full path under `references/`, for example `references/zdx/api.md`. If ambiguous, ask once.
+- **Target file** - full path under `references/`, for example `references/zdx/zdx.api.json`. If ambiguous, ask once.
 - **Sources to mine** - suggest from the target file's `sources` frontmatter,
   then apply the source-class checklist in `grounding/index.md`: Help/product
   docs, API/schema sources, SDKs, Terraform/IaC, MCP/tools/automation, public

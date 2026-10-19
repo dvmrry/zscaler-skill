@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations",
+  "title": "Zscaler's public AI Guard integration examples (zguard-ai-integrations): what the legacy reference recorded, pending a registered source",
+  "aliases": [
+    "zguard-ai-integrations",
+    "ai guard integrations",
+    "ai guard fail closed",
+    "failClosedOnUnknown",
+    "ai guard bedrock agentcore",
+    "ai guard strands",
+    "ai guard lambda",
+    "ai guard codex hooks",
+    "ai guard claude code hooks",
+    "ai guard apigee",
+    "ai guard cloud run",
+    "ai guard windsurf",
+    "ai guard n8n",
+    "AIGUARD_POLICY_ID"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler publishes example integrations that call AI Guard's DAS API from developer tools, gateways, cloud agent frameworks and CI pipelines. The repository is vendored here but not yet a registered source, so everything the legacy reference said about it is held as open statements to verify."
+    },
+    {
+      "label": "What the repository offers.",
+      "text": "{{gap:catalog}}"
+    },
+    {
+      "label": "Failure posture.",
+      "text": "Whether an integration fails open or closed depends on the host {{gap:fail-posture}}."
+    },
+    {
+      "label": "Where each host intercepts.",
+      "text": "{{gap:host-timing}}"
+    },
+    {
+      "label": "Known source defects.",
+      "text": "{{gap:static-defects}} {{gap:policy-id-parsing}}"
+    },
+    {
+      "label": "SDK version.",
+      "text": "The repository's minimum Python SDK version is open {{gap:sdk-minimum}}; the SDK fix it points at is [[ai-security.ai-guard.runtime-api:sdk-bearer]]."
+    },
+    {
+      "label": "The API they call.",
+      "text": "The DAS endpoints, host and direction values are in [[ai-security.ai-guard.runtime-api]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Read the specific integration's own fail-open or fail-closed handling and its interception point before relying on it; the legacy notes differ by host.",
+      "uses": [
+        "fail-posture",
+        "host-timing"
+      ]
+    },
+    {
+      "do": "That an explicit policy ID in an integration's configuration is numeric; malformed values may silently fall back to policy resolution.",
+      "uses": [
+        "policy-id-parsing"
+      ]
+    }
+  ],
+  "gaps": {
+    "catalog": {
+      "kind": "data",
+      "title": "What the zguard-ai-integrations repository covers",
+      "status": "open",
+      "detail": "Unverified legacy statement: zscaler/zguard-ai-integrations provides DAS examples for developer tools and IDE hooks (Claude Code, Windsurf, Cline), CI/CD (GitHub Actions), gateways, orchestration (n8n) and AI guardrail libraries, describing DAS as application-by-application wiring without proxy infrastructure; the September 1, 2026 head (release 0.2.0) added AWS Bedrock AgentCore, a boto3 hook, a Lambda decorator and Strands, OpenAI Codex CLI hooks, and Google Apigee X and Cloud Run. vendor/zguard-ai-integrations is vendored but is not a registered source in references/_meta/sources.json, so none of this can be cited; registering it and quoting at its pin would resolve or correct each point.",
+      "blocks": "answers on which hosts have a ready AI Guard integration",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "none"
+      ]
+    },
+    "fail-posture": {
+      "kind": "semantic",
+      "title": "Which integrations fail closed, and their exceptions",
+      "status": "open",
+      "detail": "Unverified legacy statement: the root README presents a fail-closed default (ALLOW permits, DETECT is monitor-only, BLOCK blocks; missing keys, API errors, HTTP 401/403, HTTP 200 without an action, and unknown verdicts block), but the same README records exceptions: Windsurf and Cline post-hooks and the Codex Stop hook are audit-only, and unclassifiable gateway traffic passes unless failClosedOnUnknown is enabled. Codex Stop runs after the response has streamed, blocks on a BLOCK verdict, fails open on scan errors and skips short content. Windsurf pre-hooks allow traffic when AIGUARD_API_KEY is missing but fail closed on API errors. n8n documents fail-closed behavior only for its Continue On Fail path. The 0.2.0 changelog says the Claude Code hooks' fail-open paths (missing key, API error, exception, verdict-less response) were fixed, making older Claude Code file-read fail-open prose stale. vendor/zguard-ai-integrations is vendored but is not a registered source in references/_meta/sources.json, so none of this can be cited; registering it and quoting at its pin would resolve or correct each point.",
+      "blocks": "whether a given integration lets content through when AI Guard is unreachable or unsure",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "host-timing": {
+      "kind": "semantic",
+      "title": "Where each integration intercepts and when enforcement happens",
+      "status": "open",
+      "detail": "Unverified legacy statements: AWS Bedrock AgentCore scans prompt, response, tool input (before the tool runs) and tool output (before it re-enters the model) as tool events, awaiting async tools and draining generators first, with streamed-response granularity left to the caller. The Bedrock boto3 hook intercepts client calls before and after the operation and skips streaming responses at after_call. The Lambda decorator sees only one prompt and one response at the handler boundary; HTTP proxy events get 403 on a block, while direct and asynchronous invocations raise AIGuardBlocked to keep retry and dead-letter behavior. Strands hooks cover prompt, response, tool input and tool output: a blocked response can only request a retry and finally raises, tool input is cancelled before execution, tool output can be replaced only after the tool has run, streams may emit before the verdict, and Agent.structured_output() is outside the hooks. Codex hooks cover user prompts, Bash and MCP pre-tool input, Bash and MCP post-tool output, and Stop; apply_patch, other tools and stream interception are not covered, and post-tool hooks run after side effects. The Apigee inline proxy is synchronous and Gemini-only and blocks with HTTP 403; the SharedFlow covers Gemini, OpenAI, Anthropic, MCP and SSE and returns caller-shaped HTTP 200 refusals. Cloud Run pipelines deploy either pattern, the flow pipeline answering with HTTP 200 refusals and the proxy pipeline with JSON 403. vendor/zguard-ai-integrations is vendored but is not a registered source in references/_meta/sources.json, so none of this can be cited; registering it and quoting at its pin would resolve or correct each point.",
+      "blocks": "what content a given integration can still let through or act on too late",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "static-defects": {
+      "kind": "semantic",
+      "title": "Defects and contradictions in the integration examples",
+      "status": "open",
+      "detail": "Unverified legacy statements: the Strands README's constructor example has two bare policy_id= assignments and is invalid Python; the agentic integration guide labels Agent-to-LLM prompts OUT, scans llm_prompt with direction OUT and returns the generated response without a final scan, contradicting the architecture direction table and the AgentCore mapping (prompt IN, response OUT); the Bedrock response helpers discard the opaque-content flag and apply on_unscannable only when no text is extracted, so a mixed text-plus-image, document or unknown response may be scanned on its text alone; the Apigee SharedFlow MCP extractor copies only result.content[*].text, omitting non-text results; the Cloud Run README says the pipelines configure an existing Apigee organization, while the separate provision_org.py helper creates the organization, runtime, environment, group and attachments. vendor/zguard-ai-integrations is vendored but is not a registered source in references/_meta/sources.json, so none of this can be cited; registering it and quoting at its pin would resolve or correct each point.",
+      "blocks": "copying vendor examples as working configurations",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "policy-id-parsing": {
+      "kind": "semantic",
+      "title": "Malformed explicit policy IDs in the integrations",
+      "status": "open",
+      "detail": "Unverified legacy statement: the AgentCore, Bedrock boto3, Lambda and Strands helpers and the Codex utility strip quotes, attempt int() and return None for a malformed or non-numeric AIGUARD_POLICY_ID, so an invalid configured ID is treated as unset and auto-resolution runs, inconsistent with the root README's warning that a stale explicit ID can return HTTP 200 with no action and fail closed. vendor/zguard-ai-integrations is vendored but is not a registered source in references/_meta/sources.json, so none of this can be cited; registering it and quoting at its pin would resolve or correct each point.",
+      "blocks": "diagnosing an integration that applies a different policy than configured",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "sdk-minimum": {
+      "kind": "data",
+      "title": "The integrations' minimum Python SDK version",
+      "status": "open",
+      "detail": "Unverified legacy statement: zguard-ai-integrations 0.2.0 requires zscaler-sdk-python>=1.9.44 because earlier releases did not attach the Bearer token to AI Guard policy-detection calls. The SDK side of this is sourced (ai-security.ai-guard.runtime-api:sdk-bearer). vendor/zguard-ai-integrations is vendored but is not a registered source in references/_meta/sources.json, so none of this can be cited; registering it and quoting at its pin would resolve or correct each point.",
+      "blocks": "pinning SDK versions for the integrations",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "none"
+      ]
+    }
+  }
+}

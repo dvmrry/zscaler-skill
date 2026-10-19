@@ -1,0 +1,444 @@
+{
+  "schema_version": 1,
+  "id": "zdx.administration",
+  "title": "ZDX administration API: department and location lookups",
+  "aliases": [
+    "zdx administration",
+    "zdx admin api",
+    "zdx departments",
+    "zdx locations",
+    "list_departments",
+    "list_locations",
+    "GetDepartments",
+    "GetLocations",
+    "zdx config departments",
+    "zdx admin users"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.reports"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.applications"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Despite its name, the ZDX administration API is a lookup of departments and locations used to filter other reads. The help lists it that way, [[shared.log-export.zdx:api-scope]]."
+    },
+    {
+      "label": "The two lookups.",
+      "text": "{{departments-op}} {{locations-op}} {{q-param}}"
+    },
+    {
+      "label": "What the IDs are for.",
+      "text": "{{ids-as-filters}}"
+    },
+    {
+      "label": "Not administrator management.",
+      "text": "{{administration-reads-only}}"
+    },
+    {
+      "label": "The configuration area's lookups.",
+      "text": "{{config-lookups}} No SDK calls them, [[zdx.applications:config-no-sdk]]."
+    },
+    {
+      "label": "In the SDKs.",
+      "text": "{{python-departments-docstring}} {{sdk-records-id-name}} The SDKs do not send the same search parameter {{divergence:search-param}}. The Python hours shorthand applies to these lookups too, [[zdx.sdk-python.request-shaping:since-to-epoch]]."
+    },
+    {
+      "label": "Open.",
+      "text": "What the time range means for a list of departments or locations is not stated {{gap:time-filter-semantics}}, and how the search parameters match is open {{gap:q-vs-search}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a department or location filter uses an ID the lookup returned, rather than a name.",
+      "uses": [
+        "ids-as-filters"
+      ]
+    },
+    {
+      "do": "Whether a name search sends `q`, the parameter the contract defines, when results look unfiltered.",
+      "uses": [
+        "q-param",
+        "q-vs-search"
+      ]
+    }
+  ],
+  "claims": {
+    "departments-op": {
+      "statement": "The departments lookup gets the configured departments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1administration~1departments/get",
+          "expect": {
+            "description": "Gets configured departments."
+          }
+        }
+      ]
+    },
+    "locations-op": {
+      "statement": "The locations lookup gets Zscaler locations, returning all configured locations when no search filter is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1administration~1locations/get",
+          "expect": {
+            "description": "Gets Zscaler locations. All configured Zscaler locations are returned if the search filters is not specified."
+          }
+        }
+      ]
+    },
+    "q-param": {
+      "statement": "In the contract both lookups take optional query parameters `from` and `to` (int64 integers) and `q`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1administration~1departments/get/parameters/[name=q]",
+          "expect": {
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1administration~1locations/get/parameters/[name=q]",
+          "expect": {
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1administration~1departments/get/parameters/[name=from]",
+          "expect": {
+            "in": "query",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1administration~1departments/get/parameters/[name=to]",
+          "expect": {
+            "in": "query",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1administration~1locations/get/parameters/[name=from]",
+          "expect": {
+            "in": "query",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1administration~1locations/get/parameters/[name=to]",
+          "expect": {
+            "in": "query",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    },
+    "ids-as-filters": {
+      "statement": "The department and location IDs these lookups return are the values the report reads take as `dept` and `loc` filters.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps/get/parameters/[name=dept]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps/get/parameters/[name=loc]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1administration~1locations/get/responses/200/content/application~1json/schema/items/properties/id",
+          "expect": {
+            "format": "int64",
+            "type": "integer"
+          }
+        }
+      ],
+      "conditions": "Inferred from matching names and integer ID types: the lookups return objects with integer `id`, and the report operations (for example the application list) take `dept` and `loc` as integer arrays. The contract does not state the link."
+    },
+    "administration-reads-only": {
+      "statement": "The contract's Administration operations are all reads of departments and locations (and of a department's users); none creates, changes or manages administrator accounts.",
+      "tier": "B",
+      "derived_from": [
+        "departments-op",
+        "locations-op",
+        "config-lookups"
+      ],
+      "conditions": "Rests on the eight operations tagged Administration in the captured contract at the pin, all GET: the two lookups above and /v1/config/departments, its summary, a department by ID, a department's users, /v1/config/locations and a location by ID."
+    },
+    "config-lookups": {
+      "statement": "The configuration area has its own directory reads: departments and locations filtered by a search query (other filters are ignored when an `id` is given), a summarized department list of only ID and name, and location groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1departments/get",
+          "expect": {
+            "description": "Gets a list of departments. Can be filtered by a search query. If `id` is provided, other filters are ignored."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1locations/get",
+          "expect": {
+            "description": "Gets a list of locations. Can be filtered by a search query. If `id` is provided, other filters are ignored."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1departments~1summary/get",
+          "expect": {
+            "description": "Gets a summarized list of departments, returning only ID and name. Can be filtered by various parameters."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1locationGroups/get",
+          "expect": {
+            "description": "Gets a list of location groups. Can be filtered by a search query. If `id` is provided, other filters are ignored."
+          }
+        }
+      ]
+    },
+    "python-departments-docstring": {
+      "statement": "The Python `list_departments` docstring says it 'Returns the list of Admin Users enrolled in the Client Connector Portal', although the method reads `/administration/departments` and the same docstring says it returns configured departments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/admin.py",
+          "after": "def list_departments(self, query_params: Optional[dict] = None) -> APIResult[List[Administration]]:",
+          "quotes": [
+            "Returns the list of Admin Users enrolled in the Client Connector Portal.",
+            ":obj:`tuple`: A tuple containing configured departments.",
+            "/administration/departments"
+          ]
+        }
+      ]
+    },
+    "sdk-records-id-name": {
+      "statement": "Both SDKs read each department and location as an ID and a name: the Python lookups build the `Administration` model (`id`, `name`) and the Go `Department` and `Location` structs hold `ID` and `Name`, while the contract's department record also carries `comments`, `deleted`, `idpId`, `isForUnauthenticatedUser` and `isNonEditable`. The Python `Departments` and `Locations` models in `common.py`, which also read `num_devices`, are used by the alert models, not by these lookups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/admin.py",
+          "after": "def list_locations(self, query_params: Optional[dict] = None) -> APIResult[List[Administration]]:",
+          "quotes": [
+            "result.append(Administration(self.form_response_body(item)))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/admin.py",
+          "after": "def list_departments(self, query_params: Optional[dict] = None) -> APIResult[List[Administration]]:",
+          "quotes": [
+            "result.append(Administration(self.form_response_body(item)))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/administration.py",
+          "quotes": [
+            "current_obj_format = {\"id\": self.id, \"name\": self.name}"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/administration/administration.go",
+          "quotes": [
+            "type Department struct { ID int `json:\"id\"` Name string `json:\"name,omitempty\"` }",
+            "type Location struct { ID int `json:\"id\"` Name string `json:\"name,omitempty\"` }"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/common.py",
+          "after": "class Departments(ZscalerObject):",
+          "quotes": [
+            "self.num_devices = config[\"num_devices\"] if \"num_devices\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/common.py",
+          "after": "class Locations(ZscalerObject):",
+          "quotes": [
+            "self.num_devices = config[\"num_devices\"] if \"num_devices\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/alerts.py",
+          "quotes": [
+            "config[\"departments\"] if \"departments\" in config else [], common.Departments",
+            "config[\"locations\"] if \"locations\" in config else [], common.Locations"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1administration~1departments/get/responses/200/content/application~1json/schema/items/properties",
+          "expect": {
+            "comments": {
+              "description": "Additional information or comments about this department.",
+              "type": "string"
+            },
+            "deleted": {
+              "type": "boolean"
+            },
+            "idpId": {
+              "description": "The unique identifier for the IdP associated with this department.",
+              "format": "int64",
+              "type": "integer"
+            },
+            "isForUnauthenticatedUser": {
+              "description": "Indicates if this is an internally-created department for unauthenticated users. This is a read-only field.",
+              "type": "boolean"
+            },
+            "isNonEditable": {
+              "description": "Indicates if the department is not editable by the current user. This is a read-only field.",
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "time-filter-semantics": {
+      "kind": "semantic",
+      "title": "What a time range means on the department and location lookups",
+      "status": "open",
+      "former_ids": [
+        "zdx-09"
+      ],
+      "detail": "Both lookups accept `from` and `to`. Whether the range selects departments and locations with active devices in that window, or has another meaning for reference data, is not documented; the help describes the area as listing the active locations and departments.",
+      "blocks": "complete department and location lists for filters",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "q-vs-search": {
+      "kind": "semantic",
+      "title": "How the lookups' search parameters match, and whether `search` is honored",
+      "status": "open",
+      "former_ids": [
+        "zdx-10"
+      ],
+      "detail": "The contract defines `q` on both lookups. The Go SDK sends `search` on both and also `q` on locations; the Python SDK documents `search`. Whether the server honors `search`, and whether `q` matches exactly or partially and by name or ID, is not documented.",
+      "blocks": "filtering departments and locations by name",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/administration/administration.go",
+          "after": "type GetLocationsFilters struct {",
+          "quotes": [
+            "Search string `json:\"search,omitempty\" url:\"search,omitempty\"`",
+            "Q      string `json:\"q,omitempty\" url:\"q,omitempty\"`"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "search-param": {
+      "summary": "The lookups' search parameter: the contract defines `q`; the Go departments filter sends `search` (the locations filter has both `search` and `q`); the Python decorator sends a `search` argument as `q`.",
+      "positions": [
+        {
+          "says": "Both lookups take `q`.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1administration~1departments/get/parameters/[name=q]",
+            "expect": {
+              "in": "query",
+              "required": false
+            }
+          }
+        },
+        {
+          "says": "The Go departments filter sends `search` and has no `q`.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zdx/services/administration/administration.go",
+            "after": "type GetDepartmentsFilters struct {",
+            "quotes": [
+              "Search string `json:\"search,omitempty\" url:\"search,omitempty\"`",
+              "type GetLocationsFilters struct {"
+            ]
+          }
+        },
+        {
+          "says": "The Python decorator renames `search` to `q`.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/utils.py",
+            "after": "def zdx_params(func):",
+            "quotes": [
+              "(\"search\", \"q\"),"
+            ]
+          }
+        }
+      ],
+      "impact": "If the server honors only `q`, a Go department search returns every department rather than the match, while the same search through Python is filtered."
+    }
+  }
+}

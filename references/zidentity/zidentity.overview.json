@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.overview",
+  "title": "What ZIdentity (Authentication Service) is, and where each part of it is covered",
+  "aliases": [
+    "ZIdentity",
+    "Authentication Service",
+    "Zscaler Authentication Service",
+    "ZID",
+    "ZIAM",
+    "Zscaler identity platform",
+    "single login across Zscaler services",
+    "ZIdentity MFA",
+    "Experience Center login",
+    "ZIdentity vanity domain"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.users"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.entitlements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.admin-rbac"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.step-up"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview.external-idps"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.authentication"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This walks what Authentication Service does for the other Zscaler products and points to the subject for each part. {{renamed}}"
+    },
+    {
+      "label": "What it is.",
+      "text": "{{unified-service}} {{single-login}} {{user-database}}"
+    },
+    {
+      "label": "Admin controls.",
+      "text": "{{admin-controls}} Its own admin roles are in [[zidentity.admin-rbac]], and who administers which product is decided by entitlements, in [[zidentity.entitlements]]."
+    },
+    {
+      "label": "Authentication factors.",
+      "text": "{{mfa-default}} Whether admin MFA is on is shown per IdP: [[zidentity.overview.external-idps:admin-mfa-per-idp]]. Whether SMS and email one-time passwords are also factors is open {{gap:otp-factors}}."
+    },
+    {
+      "label": "Users, groups and IdPs.",
+      "text": "Users: [[zidentity.users]], and how they are provisioned: [[zidentity.users.provisioning]]. Groups: [[zidentity.groups]]. External OIDC and SAML IdPs: [[zidentity.overview.external-idps]]."
+    },
+    {
+      "label": "Step-up.",
+      "text": "ZIA and ZPA policy can demand a stronger authentication level through it: [[zidentity.step-up]]."
+    },
+    {
+      "label": "OneAPI.",
+      "text": "It is the authorization server for OneAPI: [[shared.oneapi.authentication:client-credentials-flow]]. {{vanity-token-host-only}} Hosts by cloud, government clouds included, are in [[shared.oneapi.base-urls]] and [[shared.oneapi.government-clouds]]."
+    },
+    {
+      "label": "Its own API.",
+      "text": "The Authentication Service API and API clients are covered in [[zidentity.api]] and [[zidentity.api-clients]]."
+    },
+    {
+      "label": "Which logins go through it.",
+      "text": "Which admin and end-user logins go through Authentication Service on a given tenant, and how tenants move onto it, is open {{gap:auth-path-coverage}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether MFA is still required for admins on each IdP, since it is on by default and can be turned off.",
+      "uses": [
+        "mfa-default",
+        "zidentity.overview.external-idps:admin-mfa-per-idp"
+      ]
+    },
+    {
+      "do": "For a OneAPI client that cannot get a token, whether the vanity domain is set to the organization's own subdomain and not to the API gateway host.",
+      "uses": [
+        "vanity-token-host-only",
+        "zia.sdk-python.authentication:vanity-domain-token-url"
+      ]
+    },
+    {
+      "do": "Whether the tenant (admins, end users or both) has actually moved to Authentication Service before reasoning from it.",
+      "uses": [
+        "auth-path-coverage"
+      ]
+    }
+  ],
+  "claims": {
+    "renamed": {
+      "statement": "ZIdentity has been renamed Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-zidentity.json",
+          "quotes": [
+            "ZIdentity has changed to Authentication Service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "admin-roles-and-permissions.json",
+          "quotes": [
+            "Authentication Service (formerly ZIdentity)"
+          ]
+        }
+      ]
+    },
+    "unified-service": {
+      "statement": "Authentication Service is a unified identity and authentication service that centralizes identity management, user authentication and entitlement assignment for users to Zscaler services such as Internet & SaaS (ZIA) and Private Access (ZPA); the services are managed in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-zidentity.json",
+          "quotes": [
+            "Authentication Service is a unified identity and authentication service for Zscaler that centralizes and simplifies identity management, user authentication, and entitlement assignment for users to Zscaler services, such as Internet & SaaS (ZIA), Private Access (ZPA), etc.",
+            "The services are managed in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "single-login": {
+      "statement": "Users log in once with a single authentication and reach the Zscaler services their organization uses; an organization subscribed to more than one service, or to one service for several organizations, reaches them with a single set of login credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-zidentity.json",
+          "quotes": [
+            "If you have subscribed to more than one Zscaler service or just one service for multiple organizations, you can access them using a single login credentials.",
+            "users can securely log in once with a single authentication into Zscaler and seamlessly access the Zscaler services used by their organization"
+          ]
+        }
+      ]
+    },
+    "user-database": {
+      "statement": "Users can be enrolled to the subscribed Zscaler services from the Authentication Service user database, instead of creating a separate user database in each service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-zidentity.json",
+          "quotes": [
+            "You can use Authentication Service to enroll users to your subscribed Zscaler services using the Authentication Service user database.",
+            "This mitigates the time-consuming effort of creating a separate user database in each Zscaler service to provision users."
+          ]
+        }
+      ]
+    },
+    "admin-controls": {
+      "statement": "Its listed features include controlling admin roles and access to Zscaler services, limiting administrator access by source IP address so that admins access it from authorized locations, and audit reports of configuration changes in Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-zidentity.json",
+          "quotes": [
+            "Control and manage admin roles and access to Zscaler services.",
+            "Limit administrator access based on source IP address to ensure that admins access the system from authorized locations.",
+            "Access audit reports to evaluate configuration changes in Authentication Service."
+          ]
+        }
+      ]
+    },
+    "mfa-default": {
+      "statement": "Authentication Service supports MFA and requires it by default, and Zscaler strongly recommends enabling it; users can authenticate with a password, or with a password and a second factor such as Google Authenticator (TOTP) or FIDO.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-zidentity.json",
+          "quotes": [
+            "Authentication Service supports multi-factor authentication (MFA) for enhanced security, and it is required by default. Zscaler strongly recommends enabling MFA.",
+            "You can authenticate users with a password, password and a second factor such as Google Authenticator (TOTP), and Fast IDentity Online (FIDO) authentication."
+          ]
+        }
+      ]
+    },
+    "vanity-token-host-only": {
+      "statement": "So the vanity domain enters only the token endpoint's host (`<vanity>.zslogin.net` in production); the OneAPI gateway host (`api.zsapi.net` in production) does not carry it.",
+      "tier": "B",
+      "derived_from": [
+        "shared.oneapi.government-clouds:go-other-cloud-hosts",
+        "zia.sdk-python.authentication:vanity-domain-token-url",
+        "shared.oneapi.base-urls:commercial-host"
+      ],
+      "conditions": "Follows from the token URL being built from the vanity domain while the gateway host is fixed per cloud, as the Go and Python SDKs and the OneAPI guide show; Zscaler does not state it as a rule."
+    }
+  },
+  "gaps": {
+    "otp-factors": {
+      "kind": "semantic",
+      "title": "Which second factors Authentication Service offers",
+      "status": "open",
+      "detail": "Unverified legacy statement: the supported second factors are SMS one-time password, email one-time password, TOTP and FIDO (hardware security keys and platform authenticators such as Touch ID). The overview article names TOTP and FIDO only, as examples; the authentication-methods article is not captured.",
+      "blocks": "listing which MFA factors a tenant can enforce",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "auth-path-coverage": {
+      "kind": "semantic",
+      "title": "Which admin and end-user logins go through Authentication Service, and how tenants move onto it",
+      "status": "open",
+      "detail": "Unverified legacy statement: Authentication Service cannot be opted out of, even by a single-product tenant, and the per-product admin logins (ZIA admin portal credentials, separate ZPA login) are legacy paths deprecated by a one-way migration, coexisting during the migration window and then disabled; ZIA end-user traffic authentication (surrogate IP, cookie, Kerberos, SAML) stays ZIA-native, while ZPA end users authenticate through the configured IdP, which may be Authentication Service or an external IdP federated through it; the unified admin console (Experience Center) passes the Authentication Service session token to each product backend. The captured help describes Authentication Service as the identity and authentication service and the place entitlements are assigned, but ZPA emergency-access help still distinguishes end users who have not migrated to it (zpa.emergency-access.identity:idp-by-migration), so not every tenant's logins go through it, and no captured source describes the migration steps or the console session mechanism.",
+      "blocks": "deciding whether an admin or end-user login problem belongs to Authentication Service or to the product",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

@@ -1,0 +1,361 @@
+{
+  "schema_version": 1,
+  "id": "zdx.devices",
+  "title": "ZDX devices: the device list, device detail and per-device application scores",
+  "aliases": [
+    "zdx devices",
+    "zdx device",
+    "zdx device inventory",
+    "zdx device detail",
+    "os_build",
+    "wifi_adapter",
+    "ssid",
+    "bssid",
+    "zdx device network",
+    "zdx device apps",
+    "zdx device app score trend",
+    "get_device_app"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.devices.health-and-events"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.devices.geolocation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.devices.call-quality"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.reports"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.applications"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A device is the endpoint whose Client Connector reports ZDX data; the API reads devices as a list and one at a time. {{device-list}}"
+    },
+    {
+      "label": "Detail.",
+      "text": "{{device-detail}} {{network-wifi}} {{os-build}} Whether the Wi-Fi fields are filled for wired or cellular interfaces is not documented {{gap:wifi-field-population}}."
+    },
+    {
+      "label": "Filters.",
+      "text": "The MAC address and private IPv4 filters are typed differently by the contract and the Python SDK {{divergence:mac-ipv4-filter-type}}; the Go device list has neither, [[zdx.api.client-coverage:go-device-filters]]."
+    },
+    {
+      "label": "Applications on a device.",
+      "text": "{{device-apps}} {{device-app-trend}}"
+    },
+    {
+      "label": "More per device.",
+      "text": "Health metrics and events are in [[zdx.devices.health-and-events]], geolocation in [[zdx.devices.geolocation]], call quality in [[zdx.devices.call-quality]], and per-device Web and Cloud Path probe reads in [[zdx.probes:cloudpath-hop-data]]. Paging and time ranges are in [[zdx.reports]]."
+    },
+    {
+      "label": "Groups of devices.",
+      "text": "Whether ZDX has device groups or cohorts usable as report filters is not documented {{gap:device-groups}}."
+    },
+    {
+      "label": "Client differences.",
+      "text": "The Go SDK decodes the per-device application read as a single record rather than a series, [[zdx.sdk-go.service-defects:device-app-shape]]; other differences between the Go and Python device models are in [[zdx.sdk-go.service-defects]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a device-detail field such as `os_build` or a Wi-Fi field is missing because the client model drops it, since the contract documents it.",
+      "uses": [
+        "os-build",
+        "network-wifi"
+      ]
+    },
+    {
+      "do": "Whether the device was active in the time range before treating it as missing from the device list.",
+      "uses": [
+        "device-list"
+      ]
+    }
+  ],
+  "claims": {
+    "device-list": {
+      "statement": "The device list returns all active devices with basic details, for the last 2 hours if no time range is given; the contract notes that the JSON must contain the user's ID and email address to associate a device with the user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices/get",
+          "expect": {
+            "description": "Gets the list of all active devices and its basic details. The JSON must contain the user’s ID and email address to associate the device to the user. If the time range is not specified, the endpoint defaults to the last 2 hours."
+          }
+        }
+      ]
+    },
+    "device-detail": {
+      "statement": "The device detail read returns the device model information, tunnel type, network and software details, for the last 2 hours if no time range is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}/get",
+          "expect": {
+            "description": "Gets the device details including the device model information, tunnel type, network, and software details. The JSON must contain the user ID and email address to associate the device to a user. If the time range is not specified, the endpoint defaults to the last 2 hours."
+          }
+        }
+      ]
+    },
+    "network-wifi": {
+      "statement": "In the contract a device's `network` is an array, and each entry carries the Wi-Fi adapter (`wifi_adapter`), Wi-Fi type (`wifi_type`), network SSID (`ssid`), channel (`channel`) and BSSID (`bssid`) beside its IPv4, IPv6 and MAC addresses (`ipv4`, `ipv6`, `mac`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}/get/responses/200/content/application~1json/schema/properties/network",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}/get/responses/200/content/application~1json/schema/properties/network/items/properties/wifi_adapter",
+          "expect": {
+            "description": "The Wifi adapter."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}/get/responses/200/content/application~1json/schema/properties/network/items/properties/wifi_type",
+          "expect": {
+            "description": "The type of Wifi."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}/get/responses/200/content/application~1json/schema/properties/network/items/properties/ssid",
+          "expect": {
+            "description": "The SSID of the Wifi network."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}/get/responses/200/content/application~1json/schema/properties/network/items/properties/channel",
+          "expect": {
+            "description": "The channel information."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}/get/responses/200/content/application~1json/schema/properties/network/items/properties/bssid",
+          "expect": {
+            "description": "The BSSID of the Wifi network."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}/get/responses/200/content/application~1json/schema/properties/network/items/properties/ipv4",
+          "expect": {
+            "description": "IPv4 information."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}/get/responses/200/content/application~1json/schema/properties/network/items/properties/ipv6",
+          "expect": {
+            "description": "The IPv6 information."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}/get/responses/200/content/application~1json/schema/properties/network/items/properties/mac",
+          "expect": {
+            "description": "The MAC address."
+          }
+        }
+      ]
+    },
+    "os-build": {
+      "statement": "In the contract a device's software details include `os_build`, the OS build version on the device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}/get/responses/200/content/application~1json/schema/properties/software/properties/os_build",
+          "expect": {
+            "description": "The OS build version on the device.",
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "device-apps": {
+      "statement": "The device-applications read lists all active applications for a device with each one's ZDX score, for the last 2 hours if no time range is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1apps/get",
+          "expect": {
+            "description": "Gets the list all active applications for a device. The endpoint gets the ZDX score each application. If the time range is not specified, the endpoint defaults to the last 2 hours."
+          }
+        }
+      ]
+    },
+    "device-app-trend": {
+      "statement": "The read for one application on a device returns that application's ZDX score trend for the device, a series with `metric`, `unit` and `datapoints`, for the last 2 hours if no time range is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1apps~1{appId}/get",
+          "expect": {
+            "description": "Gets the application’s ZDX score trend for a device. If the time range is not specified, the endpoint defaults to the last 2 hours."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1apps~1{appId}/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "title": "Series"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1apps~1{appId}/get/responses/200/content/application~1json/schema/properties/datapoints",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1apps~1{appId}/get/responses/200/content/application~1json/schema/properties/metric",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1apps~1{appId}/get/responses/200/content/application~1json/schema/properties/unit",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "wifi-field-population": {
+      "kind": "semantic",
+      "title": "Whether the Wi-Fi fields are filled for every interface",
+      "status": "open",
+      "former_ids": [
+        "zdx-23"
+      ],
+      "detail": "The contract lists `wifi_adapter`, `wifi_type`, `ssid`, `channel` and `bssid` on every network entry. Whether they are present or empty for wired, cellular or virtual interfaces is not documented.",
+      "blocks": "Wi-Fi root-cause answers from device detail",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "device-groups": {
+      "kind": "semantic",
+      "title": "Whether ZDX has device groups or cohorts",
+      "status": "partial",
+      "former_ids": [
+        "zdx-29"
+      ],
+      "detail": "Neither SDK has a device-group or cohort read. The contract's User Management area has groups with member devices (/v1/config/groups/{gid}/devices), and Client Connector entitlement uses device groups; whether these groups can filter report reads is not documented.",
+      "blocks": "fleet-segment answers by device group",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1groups~1{gid}~1devices/get",
+          "expect": {
+            "description": "Gets a list of devices belonging to a specific group. Can be filtered by various parameters."
+          }
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "mac-ipv4-filter-type": {
+      "summary": "The device list's `mac_address` and `private_ipv4` filters: the contract types each as an array of int64 integers, while the Python `list_devices` docstring documents each as a string.",
+      "positions": [
+        {
+          "says": "`mac_address` is an array of int64 integers.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1devices/get/parameters/[name=mac_address]",
+            "expect": {
+              "schema": {
+                "items": {
+                  "format": "int64",
+                  "type": "integer"
+                },
+                "type": "array"
+              }
+            }
+          }
+        },
+        {
+          "says": "`private_ipv4` is an array of int64 integers.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1devices/get/parameters/[name=private_ipv4]",
+            "expect": {
+              "schema": {
+                "items": {
+                  "format": "int64",
+                  "type": "integer"
+                },
+                "type": "array"
+              }
+            }
+          }
+        },
+        {
+          "says": "Both are strings: a MAC address and a private IPv4 address of the device.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zdx/devices.py",
+            "quotes": [
+              "``[query_params.mac_address]`` {str}: MAC address of the device.",
+              "``[query_params.private_ipv4]`` {str}: Private IPv4 address of the device."
+            ]
+          }
+        }
+      ],
+      "impact": "A MAC address or dotted IPv4 address does not fit the contract's integer type, and no source says how the server parses these filters, so a filter that matches nothing may be a format problem rather than an absent device."
+    }
+  }
+}

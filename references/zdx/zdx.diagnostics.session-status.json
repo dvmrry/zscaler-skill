@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "id": "zdx.diagnostics.session-status",
+  "title": "What a Diagnostics Session's status means, in the console and in the API",
+  "aliases": [
+    "diagnostics session status",
+    "diagnostics session expired",
+    "diagnostics session incomplete",
+    "abort initiated",
+    "deep trace status",
+    "deeptrace not_started",
+    "why did my diagnostics session expire"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.session-records"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A session moves through statuses shown in two console tables, and the API reports its own, shorter set."
+    },
+    {
+      "label": "In progress.",
+      "text": "{{in-progress-statuses}} How often the probes themselves run during a session is open {{gap:probe-cadence-during-session}}."
+    },
+    {
+      "label": "History.",
+      "text": "{{history-statuses}} Whether the reason for an abort is recorded anywhere is open {{gap:abort-reason}}."
+    },
+    {
+      "label": "The API's statuses.",
+      "text": "{{api-statuses}} How they map to the console's statuses is open {{gap:status-mapping}}."
+    },
+    {
+      "label": "Unverified edge cases.",
+      "text": "Two older statements about session data are unconfirmed: a newly enrolled device {{gap:new-device-baseline}} and a network change during a session {{gap:network-transition}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an Expired session's device was offline or cut off from the cloud when the session was requested.",
+      "uses": [
+        "history-statuses"
+      ]
+    },
+    {
+      "do": "Whether an Incomplete session's partial data is still usable before discarding it.",
+      "uses": [
+        "history-statuses"
+      ]
+    },
+    {
+      "do": "Which status vocabulary the reader is looking at: the console's names or the API's four values.",
+      "uses": [
+        "api-statuses",
+        "status-mapping"
+      ]
+    }
+  ],
+  "claims": {
+    "in-progress-statuses": {
+      "statement": "A session in the In Progress table is Created (an admin created it), Started (Client Connector confirmed the request and probe execution will begin; the change from Created can take a few minutes) or In Progress (Client Connector is executing it, and it provides updated session data every minute).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-diagnostics-session-status.json",
+          "quotes": [
+            "- Created: The session was created by an admin in Zscaler Admin Console.",
+            "- Started: Zscaler Client Connector confirms that it has received a request to start a session and probe execution will begin. It might take a few minutes for the state to change from Created to Started.",
+            "- In Progress: Zscaler Client Connector is executing this session; this status indicates an ongoing session. These sessions provide updated session data every minute."
+          ]
+        }
+      ]
+    },
+    "history-statuses": {
+      "statement": "A session in the History table is Abort Initiated (an admin canceled it and the request was forwarded to Client Connector), Aborted (Client Connector acknowledged; the update can take a few minutes), Expired (the start request timed out without a Client Connector response, possibly because the device is offline or has network issues), Failed (after restarting, Client Connector could not run the scheduled probes because of internal errors), Incomplete (pipeline issues; partial data is displayed) or Completed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-diagnostics-session-status.json",
+          "quotes": [
+            "- Abort Initiated: An admin canceled the session prematurely. The request is forwarded to the Zscaler Client Connector.",
+            "- Aborted: After receiving the Abort Initiated request, Zscaler Client Connector acknowledges the request and the state is changed to Aborted. It might take a few minutes for the state to be updated.",
+            "- Expired: The request to start the session timed out due to lack of response from the Zscaler Client Connector. This could be because the device is offline or facing network issues.",
+            "- Failed: After restarting, Zscaler Client Connector was not able to run the previously scheduled probes due to some internal errors.",
+            "- Incomplete: The session was not completed due to issues in the pipeline. Partial data is displayed in this case.",
+            "- Completed: The session has completed successfully."
+          ]
+        }
+      ]
+    },
+    "api-statuses": {
+      "statement": "The API reports a deep trace's `status` as one of `not_started`, `in_progress`, `error` and `done`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces~1{traceId}/get/responses/200/content/application~1json/schema/properties/status",
+          "expect": {
+            "enum": [
+              "not_started",
+              "in_progress",
+              "error",
+              "done"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "status-mapping": {
+      "kind": "semantic",
+      "title": "How the API's four deep-trace statuses map to the console's nine session statuses",
+      "status": "open",
+      "detail": "The console documents Created, Started, In Progress, Abort Initiated, Aborted, Expired, Failed, Incomplete and Completed; the contract's `status` has `not_started`, `in_progress`, `error` and `done`. No source maps one set to the other (for example, whether Expired, Failed and Incomplete all surface as `error`).",
+      "blocks": "explaining an API-read session status in console terms",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "probe-cadence-during-session": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-30"
+      ],
+      "title": "How often probes run during a Diagnostics Session",
+      "status": "open",
+      "detail": "Unverified legacy statement: sessions run at 1-minute resolution, a higher fidelity than the baseline 5-minute probe cadence. The status page says an In Progress session provides updated session data every minute; no captured source says whether the probes themselves run more often than their configured interval during a session.",
+      "blocks": "telling an operator what resolution a session's probe data has",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "abort-reason": {
+      "kind": "semantic",
+      "title": "Whether the reason for an aborted session is recorded",
+      "status": "open",
+      "detail": "Unverified legacy statement: an In Progress to Aborted transition is an admin cancellation, and the reason should be in the admin audit logs. The status page says an admin canceled the session; no captured source says the audit log records it or a reason.",
+      "blocks": "finding who stopped a session and why",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "new-device-baseline": {
+      "kind": "semantic",
+      "title": "What a session on a newly enrolled device shows",
+      "status": "open",
+      "detail": "Unverified legacy statement: a session started on a newly enrolled device may have no baseline to compare against, so the score during the session shows raw metrics rather than a useful 0-100 number. No captured source states it.",
+      "blocks": "interpreting a session's score on a new device",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "network-transition": {
+      "kind": "semantic",
+      "title": "What session data shows when the device changes network mid-session",
+      "status": "open",
+      "detail": "Unverified legacy statement: when a user moves from Wi-Fi to LTE during a session, the data stream may show a gap, and the session's events (the SDK's `get_deeptrace_events`) correlate the gap with the network-interface change. No captured source states either.",
+      "blocks": "explaining a gap in a session's data",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

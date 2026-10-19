@@ -44,11 +44,11 @@
     },
     {
       "label": "Private key JWT.",
-      "text": "{{jwt-assertion-request}} {{jwt-signing-example}}"
+      "text": "{{jwt-assertion-request}} {{jwt-signing-example}} The SDKs sign the assertion the same way {{sdk-jwt-assertion}} {{assertion-clock-skew}} Key handling differs between them: {{python-private-key-forms}} {{go-pem-only}}"
     },
     {
       "label": "Token lifetime.",
-      "text": "{{expires-in-configured}} {{secret-shown-once}}"
+      "text": "{{expires-in-configured}} {{secret-shown-once}} {{python-expires-in-default}}"
     },
     {
       "label": "Using the token.",
@@ -56,7 +56,7 @@
     },
     {
       "label": "Clients.",
-      "text": "The Python SDK always sends the audience: [[zia.sdk-python.authentication:oauth-audience]]. How the Go SDK renews tokens is in [[shared.sdk-go.auth-lifecycle]]. Government-cloud token endpoints are in [[shared.oneapi.government-clouds]]."
+      "text": "Neither SDK leaves the audience to the caller: {{go-audience}} The Python SDK does the same: [[zia.sdk-python.authentication:oauth-audience]]. How the Go SDK renews tokens is in [[shared.sdk-go.auth-lifecycle]]. Government-cloud token endpoints are in [[shared.oneapi.government-clouds]]."
     }
   ],
   "checks": [
@@ -332,6 +332,106 @@
           ]
         }
       ]
+    },
+    "sdk-jwt-assertion": {
+      "statement": "Both SDKs build the client assertion themselves: signed RS256, with `iss` and `sub` set to the client ID, `aud` set to `https://api.zscaler.com`, and `exp` ten minutes after signing (Python `now + 600`, Go `10 * time.Minute`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_oauth_client.py",
+          "quotes": [
+            "\"iss\": client_id,",
+            "\"sub\": client_id,",
+            "\"aud\": \"https://api.zscaler.com\",",
+            "\"exp\": now + 600,",
+            "assertion: str = pyjwt.encode(payload, private_key_obj, algorithm=\"RS256\")"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{",
+            "\"iss\": creds.ClientID,",
+            "\"sub\": creds.ClientID,",
+            "\"aud\": \"https://api.zscaler.com\",",
+            "\"exp\": time.Now().Add(10 * time.Minute).Unix(),"
+          ]
+        }
+      ]
+    },
+    "go-audience": {
+      "statement": "The Go SDK sends `audience=https://api.zscaler.com` in both its client-secret and its client-assertion token requests.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "data.Set(\"audience\", \"https://api.zscaler.com\")",
+            "\"audience\":              {\"https://api.zscaler.com\"},",
+            "\"client_assertion\":      {assertion},"
+          ]
+        }
+      ]
+    },
+    "python-private-key-forms": {
+      "statement": "The Python SDK accepts the private key as a JWK JSON string (text starting with `{`), as PEM text containing `BEGIN PRIVATE KEY`, or otherwise as a path to a PEM file, and rejects an RSA key below 2048 bits with a ValueError before requesting a token.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_oauth_client.py",
+          "quotes": [
+            "if private_key.strip().startswith(\"{\"):",
+            "logging.info(\"Using JWK JSON format for private key.\")",
+            "elif \"BEGIN PRIVATE KEY\" in private_key:",
+            "# **Assume it's a file path and read the private key**",
+            "logging.info(\"Using private key from file.\")",
+            "MIN_RSA_KEY_SIZE: int = 2048",
+            "if key_size < MIN_RSA_KEY_SIZE:",
+            "ValueError: If the key size is below the minimum requirement",
+            "validate_rsa_key_strength(private_key_obj)"
+          ]
+        }
+      ]
+    },
+    "go-pem-only": {
+      "statement": "The Go SDK reads the private key only as PEM text, through `jwt.ParseRSAPrivateKeyFromPEM`, and applies no minimum key size.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(creds.PrivateKey))"
+          ]
+        }
+      ],
+      "conditions": "The absence of a key-size check rests on a search of the Go SDK's top-level zscaler package at the pin for 2048, BitLen and key-size checks, which found none."
+    },
+    "python-expires-in-default": {
+      "statement": "The Python SDK sets its token expiry from the response's `expires_in`, using 3600 seconds when the field is absent, and refreshes the token proactively before that expiry.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_oauth_client.py",
+          "quotes": [
+            "expires_in: int = parsed_response.get(\"expires_in\", 3600)  # Default to 1 hour",
+            "Implements proactive token refresh using expires_in with configurable buffer."
+          ]
+        }
+      ]
+    },
+    "assertion-clock-skew": {
+      "statement": "Because the SDKs set the assertion's `exp` ten minutes after their own clock, a caller whose clock runs more than ten minutes behind the token endpoint's sends an assertion that has already expired; a clock running ahead does not cause this.",
+      "tier": "B",
+      "derived_from": [
+        "shared.oneapi.authentication:sdk-jwt-assertion"
+      ],
+      "conditions": "Follows from the `exp` arithmetic; how much clock leeway the token endpoint allows is not documented. Depends on the proposed sdk-jwt-assertion claim being merged first."
     }
   },
   "gaps": {

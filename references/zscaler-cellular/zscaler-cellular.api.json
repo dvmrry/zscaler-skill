@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "id": "zscaler-cellular.api",
+  "title": "The Zscaler Cellular (ZCell) API: customer scoping, clients and where the contract and SDK disagree",
+  "aliases": [
+    "zcell api",
+    "client.zcell",
+    "zcellcustomerid",
+    "zcell_customer_id",
+    "cellular api customer id",
+    "zcell audit metadata",
+    "zcell python sdk"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.api.wire-notes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.mcp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.sdk-python.location-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.base-urls"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZCell's operations, paths, request and response fields and the Python SDK's modules and methods are generated: run `node scripts/kb.mjs surface zcell` and read `vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json`. This subject holds what the generated layer does not."
+    },
+    {
+      "label": "Calling it.",
+      "text": "The OneAPI base path is in [[shared.oneapi.base-urls:base-path-table]]. {{oneapi-only}} {{customer-scoping}} {{id-precedence}} The OneAPI guide's own note on the Cellular customer ID is [[shared.oneapi.base-urls:cellular-customer-id]]."
+    },
+    {
+      "label": "Clients.",
+      "text": "{{python-only}} The MCP tools are a read subset: [[zscaler-cellular.mcp]]."
+    },
+    {
+      "label": "Audit metadata.",
+      "text": "{{sdk-audit-metadata}} The contract does not publish that path {{divergence:audit-metadata}}."
+    },
+    {
+      "label": "Wire notes.",
+      "text": "Paging, time windows, SIM search, violations, SIM lock and tower-location history are in [[zscaler-cellular.api.wire-notes]]. SIM location group writes through the SDK are in [[zscaler-cellular.sdk-python.location-groups]]. Entitlement is open in [[zscaler-cellular.overview]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the ZCell customer ID (not ZPA's customerId) is set as zcellCustomerId or ZCELL_CUSTOMER_ID, or passed as id.",
+      "uses": [
+        "customer-scoping",
+        "id-precedence"
+      ]
+    }
+  ],
+  "claims": {
+    "oneapi-only": {
+      "statement": "The Python SDK reaches ZCell only through OneAPI, as `client.zcell`, with no legacy client.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "# ZCell is OneAPI-only (no legacy client); construct lazily with the"
+          ]
+        }
+      ]
+    },
+    "customer-scoping": {
+      "statement": "ZCell endpoints are scoped to a customer in the `/customers/{id}` path; the SDK takes that ID from the `zcellCustomerId` config attribute or the `ZCELL_CUSTOMER_ID` environment variable and injects it, independently of ZPA's `customerId`, while authentication uses the same ZIdentity OAuth2 credentials as other products.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "The authentication to Zscaler Cellular (ZCell) via the OneAPI framework uses the same Zidentity OAuth2 credentials (`clientId`, `clientSecret`/`privateKey`, `vanityDomain`, `cloud`) as the other products.",
+            "ZCell API endpoints are scoped to a specific customer (`/customers/{id}`), so the SDK provides a dedicated `zcellCustomerId` attribute — and the `ZCELL_CUSTOMER_ID` environment variable — which is automatically injected into the request path. This value is completely independent from ZPA's `customerId`."
+          ]
+        }
+      ]
+    },
+    "id-precedence": {
+      "statement": "An explicit `id` argument on a ZCell method wins over the `zcellCustomerId` config attribute, which wins over `ZCELL_CUSTOMER_ID`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "You can supply the ZCell customer id in any of three ways (highest precedence first):",
+            "1. Explicitly, as the `id` argument on any ZCell method call.",
+            "2. Via the `zcellCustomerId` attribute in the client configuration.",
+            "3. Via the `ZCELL_CUSTOMER_ID` environment variable."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "self._zcell_customer_id = self._config[\"client\"].get(\"zcellCustomerId\") or os.getenv(\"ZCELL_CUSTOMER_ID\")"
+          ]
+        }
+      ]
+    },
+    "python-only": {
+      "statement": "The Python SDK and the MCP server are the only clients for ZCell: no Go SDK package, Terraform resource or Ansible module covers it.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "from zscaler.zcell.zcell_service import ZCellService"
+          ]
+        }
+      ],
+      "conditions": "Rests on the generated surface for zcell, which lists Python modules and no Go packages or Terraform resources, and on a grep of the Go SDK's zscaler/ tree (packages zcc, zdx, zia, ziam, zpa, ztw, zwa) and of the ZIA and ZPA Ansible plugins at their pins for zcell and cellular found nothing."
+    },
+    "sdk-audit-metadata": {
+      "statement": "The SDK's `list_audit_metadata` calls `/audit/metadata` under the ZCell base endpoint `/zcell/config/api/v1`, and the MCP server exposes it as `zcell_list_audit_metadata`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcell/audit_data_handling.py",
+          "quotes": [
+            "_zcell_base_endpoint = \"/zcell/config/api/v1\"",
+            "def list_audit_metadata(self, query_params=None)",
+            "api_url = format_url(f\"{self._zcell_base_endpoint}/audit/metadata\")"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "docs/guides/toolsets.md",
+          "quotes": [
+            "| `zcell_audit_data_handling` | 2 | `zcell_list_audit_customers_search`, `zcell_list_audit_metadata` |"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "audit-metadata": {
+      "summary": "The SDK and MCP server call an audit metadata endpoint that the captured API contract does not publish.",
+      "positions": [
+        {
+          "says": "The SDK builds `/zcell/config/api/v1/audit/metadata` for `list_audit_metadata`.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zcell/audit_data_handling.py",
+            "quotes": [
+              "api_url = format_url(f\"{self._zcell_base_endpoint}/audit/metadata\")"
+            ]
+          }
+        },
+        {
+          "says": "The contract's paths include audit search but no audit metadata path.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcell.openapi.json",
+            "pointer": "/paths",
+            "expect_absent": [
+              "/api/v1/audit/metadata"
+            ]
+          }
+        }
+      ],
+      "impact": "Whether `/audit/metadata` still works is unknown; the contract's absence does not show the backend retired it, and the SDK's presence does not show a tenant accepts it."
+    }
+  }
+}

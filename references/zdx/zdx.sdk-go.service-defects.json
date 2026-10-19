@@ -1,0 +1,587 @@
+{
+  "schema_version": 1,
+  "id": "zdx.sdk-go.service-defects",
+  "title": "Go SDK ZDX services: where the structs and functions disagree with the contract",
+  "aliases": [
+    "zdx go sdk bugs",
+    "GetDeepTraceSession",
+    "CreateAnalysis",
+    "DeviceEvents instances",
+    "GetDeviceApp",
+    "go zdx trace_id string",
+    "go zdx device id int string"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-go"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.start-request"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.request-handling"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Go SDK's ZDX packages decode responses into hand-written structs, and several of them differ from the published contract. The packages and functions are generated (`node scripts/kb.mjs surface zdx`); request handling shared by all Go products is in [[shared.sdk-go.request-handling]]."
+    },
+    {
+      "label": "Deep traces.",
+      "text": "{{go-trace-id-string}} The start body's probe key is in [[zdx.diagnostics.start-request:go-payload]]."
+    },
+    {
+      "label": "Functions that return nothing decoded.",
+      "text": "{{no-decode-functions}} What that response holds is in [[shared.sdk-go.request-handling:request-do-fabricates-200]]."
+    },
+    {
+      "label": "ID types.",
+      "text": "{{device-id-types}} {{app-id-types}}"
+    },
+    {
+      "label": "Report shapes.",
+      "text": "{{go-events-key}} The key differs from the contract's {{divergence:events-key}}, and no live response has settled it {{gap:events-key-live}}. {{go-device-app-shape}} The contract describes a time series {{divergence:device-app-shape}}, also unconfirmed live {{gap:device-app-shape-live}}. {{single-metric-fallback}} {{fallback-repeats-failures}}"
+    },
+    {
+      "label": "Lists.",
+      "text": "{{list-drops-next-offset}} {{go-list-first-batch}} {{go-device-list-struct}} {{go-device-list-loses-fields}} The Python list model reads the ID, name and user ID instead: [[zdx.sdk-python.response-models:python-device-list-fields]]."
+    },
+    {
+      "label": "Top processes.",
+      "text": "{{go-top-processes-shape}} {{go-top-processes-decode-fails}} The read itself is in [[zdx.diagnostics.session-records:top-processes]]."
+    },
+    {
+      "label": "Device fields.",
+      "text": "{{go-software-no-os-build}} The Wi-Fi fields go the other way: [[zdx.sdk-python.response-models:python-network-no-wifi]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Go deep-trace call failed on decoding `trace_id` rather than on the request itself.",
+      "uses": [
+        "go-trace-id-string"
+      ]
+    },
+    {
+      "do": "Whether a Go caller read the session or the analysis ID from the raw response body, since those functions decode nothing.",
+      "uses": [
+        "no-decode-functions"
+      ]
+    },
+    {
+      "do": "Whether empty Go device events or a single-point device-app score come from the struct shape rather than the data.",
+      "uses": [
+        "events-key",
+        "device-app-shape"
+      ]
+    }
+  ],
+  "claims": {
+    "go-trace-id-string": {
+      "statement": "The contract types `trace_id` as an integer while the Go `DeepTraceSession` struct types `TraceID` as a string, so decoding a numeric `trace_id` with Go's JSON decoder fails and `CreateDeepTraceSession` and `GetDeepTraces` would return that error instead of the session.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go",
+          "quotes": [
+            "TraceID string `json:\"trace_id\"`",
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", path, nil, payload, &response)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/utils.go",
+          "quotes": [
+            "return json.NewDecoder(bytes.NewBuffer(respData)).Decode(&v)"
+          ]
+        }
+      ],
+      "derived_from": [
+        "zdx.diagnostics.start-request:contract-response",
+        "zdx.diagnostics.session-records:record-shape"
+      ],
+      "conditions": "Follows from Go's encoding/json refusing a JSON number for a string field and from the contract's integer type; not observed against a live response."
+    },
+    "no-decode-functions": {
+      "statement": "`GetDeepTraceSession` and `CreateAnalysis` pass no decode target to `NewRequestDo` and return only the `*http.Response`, so neither hands back the session record or the new `analysis_id` as a struct.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go",
+          "quotes": [
+            "func GetDeepTraceSession(ctx context.Context, service *zscaler.Service, deviceID int, traceID string) (*http.Response, error) {",
+            "resp, err := service.Client.NewRequestDo(ctx, \"GET\", path, nil, nil, nil)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/troubleshooting/analysis/analysis.go",
+          "quotes": [
+            "func CreateAnalysis(ctx context.Context, service *zscaler.Service, request AnalysisRequest) (*http.Response, error) {",
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", path, nil, request, nil)",
+            "type AnalysisRequest struct {"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1analysis/post/responses/200/content/application~1json/schema/properties/analysis_id",
+          "expect": {
+            "format": "int64",
+            "type": "integer"
+          }
+        }
+      ]
+    },
+    "device-id-types": {
+      "statement": "The four Go deep-trace functions (`GetDeepTraces`, `GetDeepTraceSession`, `CreateDeepTraceSession`, `DeleteDeepTraceSession`) take the device ID as an `int` and format it with `%d`, while in `reports/devices` the device ID type varies: `GetDevice`, `GetDeviceApp` and `GetDeviceAllApps` take it as a `string`, and functions such as `GetEvents` take it as an `int`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go",
+          "quotes": [
+            "path := fmt.Sprintf(\"%s/%d/deeptraces\", deepTracesEndpoint, deviceID)"
+          ],
+          "after": "func GetDeepTraces(ctx context.Context, service *zscaler.Service, deviceID int) ([]DeepTraceSession, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go",
+          "quotes": [
+            "func GetDeepTraceSession(ctx context.Context, service *zscaler.Service, deviceID int, traceID string) (*http.Response, error) {",
+            "func CreateDeepTraceSession(ctx context.Context, service *zscaler.Service, deviceID int, payload DeepTraceSessionPayload) (*DeepTraceSession, *http.Response, error) {",
+            "func DeleteDeepTraceSession(ctx context.Context, service *zscaler.Service, deviceID int, traceID string) (*http.Response, error) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/devices/device_apps.go",
+          "quotes": [
+            "func GetDeviceApp(ctx context.Context, service *zscaler.Service, deviceID, appID string, filters common.GetFromToFilters) (*App, *http.Response, error) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/devices/device_apps.go",
+          "quotes": [
+            "func GetDeviceAllApps(ctx context.Context, service *zscaler.Service, deviceID string, filters common.GetFromToFilters) ([]App, *http.Response, error) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/devices/devices.go",
+          "quotes": [
+            "func GetDevice(ctx context.Context, service *zscaler.Service, deviceID string) (*DeviceDetail, *http.Response, error) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/devices/device_events.go",
+          "quotes": [
+            "func GetEvents(ctx context.Context, service *zscaler.Service, deviceID int, filters common.GetFromToFilters) ([]DeviceEvents, *http.Response, error) {"
+          ]
+        }
+      ]
+    },
+    "go-events-key": {
+      "statement": "The Go `DeviceEvents` struct reads the device's events from a JSON key `instances`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/devices/device_events.go",
+          "quotes": [
+            "type DeviceEvents struct {",
+            "Events []Events `json:\"instances,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "go-device-app-shape": {
+      "statement": "The Go `GetDeviceApp` decodes the device's application score into a single `App` record of `id`, `name` and `score`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/devices/device_apps.go",
+          "after": "type App struct {",
+          "quotes": [
+            "ID int `json:\"id,omitempty\"`",
+            "Name string `json:\"name,omitempty\"`",
+            "Score float32 `json:\"score,omitempty\"`",
+            "v := new(App)",
+            "func GetDeviceApp("
+          ]
+        }
+      ]
+    },
+    "app-id-types": {
+      "statement": "The Go application functions disagree on the application ID's type: `GetApp` takes `appID` as a string, while `GetAppScores` and `GetAppMetrics` take it as an `int`, as the `Apps` struct types its `ID`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/applications/applications.go",
+          "quotes": [
+            "func GetApp(ctx context.Context, service *zscaler.Service, appID string, filters common.GetFromToFilters) (*Apps, *http.Response, error) {",
+            "ID int `json:\"id\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/applications/application_score_metrics.go",
+          "quotes": [
+            "func GetAppScores(ctx context.Context, service *zscaler.Service, appID int, filters common.GetFromToFilters) ([]common.Metric, *http.Response, error) {",
+            "func GetAppMetrics(ctx context.Context, service *zscaler.Service, appID int, filters common.GetFromToFilters) ([]common.Metric, *http.Response, error) {"
+          ]
+        }
+      ]
+    },
+    "go-software-no-os-build": {
+      "statement": "The Go `Software` struct reads `os_name`, `os_ver`, `hostname`, `netbios`, `user`, `client_conn_ver` and `zdx_ver` but not `os_build`, so a Go device read drops the OS build version the contract defines; the Python `Software` model reads it.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/devices/devices.go",
+          "after": "type Software struct {",
+          "quotes": [
+            "OSName string `json:\"os_name,omitempty\"`",
+            "OSVer string `json:\"os_ver,omitempty\"`",
+            "Hostname string `json:\"hostname,omitempty\"`",
+            "NetBios string `json:\"netbios,omitempty\"`",
+            "User string `json:\"user,omitempty\"`",
+            "ClientConnVer string `json:\"client_conn_ver,omitempty\"`",
+            "ZDXVer string `json:\"zdx_ver,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/devices.py",
+          "quotes": [
+            "self.os_build = config[\"os_build\"] if \"os_build\" in config else None"
+          ]
+        }
+      ],
+      "derived_from": [
+        "zdx.devices:os-build"
+      ],
+      "conditions": "The seven quoted fields are the whole `Software` struct at the pin."
+    },
+    "single-metric-fallback": {
+      "statement": "`GetAppScores`, `GetAppMetrics` and `GetWebProbes` first decode the response as a list of `common.Metric`; when that call returns any error, they send the same GET again and decode it as a single `Metric`, returned as a one-element list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/applications/application_score_metrics.go",
+          "after": "func GetAppScores(ctx context.Context, service *zscaler.Service, appID int, filters common.GetFromToFilters) ([]common.Metric, *http.Response, error) {",
+          "quotes": [
+            "if err == nil {",
+            "// If unmarshalling to an array fails, try unmarshalling to a single object",
+            "resp, err = service.Client.NewRequestDo(ctx, \"GET\", path, filters, nil, &single)",
+            "v = append(v, single)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/applications/application_score_metrics.go",
+          "after": "func GetAppMetrics(ctx context.Context, service *zscaler.Service, appID int, filters common.GetFromToFilters) ([]common.Metric, *http.Response, error) {",
+          "quotes": [
+            "// If unmarshalling to an array fails, try unmarshalling to a single object",
+            "resp, err = service.Client.NewRequestDo(ctx, \"GET\", path, filters, nil, &single)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/devices/device_web_probes.go",
+          "after": "func GetWebProbes(",
+          "quotes": [
+            "var v []common.Metric",
+            "// If unmarshalling to an array fails, try unmarshalling to a single object",
+            "resp, err = service.Client.NewRequestDo(ctx, \"GET\", path, filters, nil, &single)"
+          ]
+        }
+      ]
+    },
+    "fallback-repeats-failures": {
+      "statement": "So a request to these functions that fails for a reason other than the response's shape, such as a 429, a 5xx or a timeout, is sent a second time at once, and the caller gets the second attempt's error.",
+      "tier": "B",
+      "derived_from": [
+        "zdx.sdk-go.service-defects:single-metric-fallback"
+      ],
+      "conditions": "Follows from the functions retrying on any error from `NewRequestDo`, not only a decode error; not observed against a live API."
+    },
+    "list-drops-next-offset": {
+      "statement": "`GetAllDevices` and `GetAllUsers` decode the list response into a local struct that holds `next_offset` and return only the list, so the caller never receives `next_offset`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/devices/devices.go",
+          "after": "func GetAllDevices(",
+          "quotes": [
+            "NextOffSet interface{} `json:\"next_offset\"`",
+            "return v.List, resp, nil"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/users/users.go",
+          "after": "func GetAllUsers(",
+          "quotes": [
+            "NextOffSet interface{} `json:\"next_offset\"`",
+            "return v.List, resp, nil"
+          ]
+        }
+      ]
+    },
+    "go-list-first-batch": {
+      "statement": "So through these functions a Go caller gets only the first batch of devices or users (up to `limit`, 1000 by default) with no `next_offset` to request the rest, and the SDK does not page on its own.",
+      "tier": "B",
+      "derived_from": [
+        "zdx.sdk-go.service-defects:list-drops-next-offset",
+        "zdx.reports:paging"
+      ],
+      "conditions": "Follows from the two functions discarding `next_offset` and sending one request each; the offset is an opaque string the API issues, so a caller cannot compute it."
+    },
+    "go-device-list-struct": {
+      "statement": "`GetAllDevices` decodes each listed device into the `DeviceDetail` struct of the device detail read (`id`, `name` and nested `hardware`, `network` and `software`), while the contract's device-list entries are flat records with keys such as `userid`, `os`, `hw_model`, `private_ip` and `client_conn_ver`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/devices/devices.go",
+          "quotes": [
+            "func GetAllDevices(ctx context.Context, service *zscaler.Service, filters GetDevicesFilters) ([]DeviceDetail, *http.Response, error) {",
+            "List []DeviceDetail `json:\"devices\"`",
+            "type DeviceDetail struct { ID int `json:\"id\"` Name string `json:\"name,omitempty\"` Hardware *Hardware `json:\"hardware,omitempty\"` Network []Network `json:\"network,omitempty\"` Software *Software `json:\"software,omitempty\"` }"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices/get/responses/200/content/application~1json/schema/properties/devices/items/properties",
+          "expect": {
+            "userid": {
+              "description": "User ID.",
+              "format": "int64",
+              "type": "integer"
+            },
+            "os": {
+              "type": "string"
+            },
+            "hw_model": {
+              "type": "string"
+            },
+            "private_ip": {
+              "type": "string"
+            },
+            "client_conn_ver": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "go-device-list-loses-fields": {
+      "statement": "So the Go device list gives each device's ID and name but no user ID, and its hardware, network and software stay empty, since the flat list keys match none of the struct's nested fields.",
+      "tier": "B",
+      "derived_from": [
+        "zdx.sdk-go.service-defects:go-device-list-struct"
+      ],
+      "conditions": "Follows from Go's JSON decoder ignoring keys a struct does not declare; not observed against a live response."
+    },
+    "go-top-processes-shape": {
+      "statement": "The Go `GetDeviceTopProcesses` decodes the response into a list of `DeviceTopProcesses` and sends a `GetFromToFilters` time range, while the contract's response is a single object (`timestamp` and `top_processes`) and the operation defines only the `id` and `traceId` path parameters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/devices/device_top_process.go",
+          "quotes": [
+            "func GetDeviceTopProcesses(ctx context.Context, service *zscaler.Service, deviceID int, traceID string, filters common.GetFromToFilters) ([]DeviceTopProcesses, *http.Response, error) {",
+            "var v []DeviceTopProcesses",
+            "resp, err := service.Client.NewRequestDo(ctx, \"GET\", path, filters, nil, &v)",
+            "TimeStamp int `json:\"timestamp,omitempty\"`",
+            "TopProcesses []TopProcesses `json:\"top_processes,omitempty\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces~1{traceId}~1top-processes/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "type": "object",
+            "title": "ImpactedProcessSeries"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces~1{traceId}~1top-processes/get/responses/200/content/application~1json/schema/properties/timestamp",
+          "expect": {
+            "description": "epoch seconds",
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces~1{traceId}~1top-processes/get/responses/200/content/application~1json/schema/properties/top_processes",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces~1{traceId}~1top-processes/get",
+          "expect": {
+            "parameters": [
+              {
+                "in": "path",
+                "name": "id",
+                "required": true,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer"
+                }
+              },
+              {
+                "in": "path",
+                "name": "traceId",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "go-top-processes-decode-fails": {
+      "statement": "So if the API answers with the contract's single object, Go's decoder cannot place it in a list and `GetDeviceTopProcesses` returns that decode error instead of the processes; the Python `list_top_processes` builds one model from the object.",
+      "tier": "B",
+      "derived_from": [
+        "zdx.sdk-go.service-defects:go-top-processes-shape",
+        "zdx.sdk-python.response-models:single-in-list"
+      ],
+      "conditions": "Follows from Go's encoding/json refusing a JSON object for a slice target and from the contract's object type; not observed against a live response."
+    }
+  },
+  "divergences": {
+    "events-key": {
+      "summary": "The key holding a device's events: the contract and the Python model use `events`; the Go struct reads `instances`.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1devices~1{id}~1events/get/responses/200/content/application~1json/schema/properties/events",
+            "expect": {
+              "type": "array"
+            }
+          },
+          "says": "The device-events response holds `events` and `timestamp`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zdx/models/devices.py",
+            "quotes": [
+              "self.events = ZscalerCollection.form_list(config[\"events\"] if \"events\" in config else [], Events)"
+            ]
+          },
+          "says": "The Python model reads `events`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zdx/services/reports/devices/device_events.go",
+            "quotes": [
+              "Events []Events `json:\"instances,omitempty\"`"
+            ]
+          },
+          "says": "The Go struct reads `instances`."
+        }
+      ],
+      "impact": "If the live response follows the contract, Go callers get an empty events list for every device and may conclude nothing changed."
+    },
+    "device-app-shape": {
+      "summary": "The device-application score response: the contract and the Python model describe a time series; the Go function decodes a single score record.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1devices~1{id}~1apps~1{appId}/get",
+            "expect": {
+              "description": "Gets the application’s ZDX score trend for a device. If the time range is not specified, the endpoint defaults to the last 2 hours."
+            }
+          },
+          "says": "The endpoint returns the application's score trend for the device: a series of `metric`, `unit` and `datapoints`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zdx/devices.py",
+            "quotes": [
+              "result = [DeviceAppScoreTrend(self.form_response_body(response.get_body()))]"
+            ]
+          },
+          "says": "The Python method wraps the body in `DeviceAppScoreTrend`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zdx/services/reports/devices/device_apps.go",
+            "quotes": [
+              "v := new(App)"
+            ]
+          },
+          "says": "The Go function decodes a single `App` of `id`, `name` and `score`."
+        }
+      ],
+      "impact": "A Go caller expecting a trend gets at most one value, and empty fields if the live body is the contract's series."
+    }
+  },
+  "gaps": {
+    "events-key-live": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-07"
+      ],
+      "title": "Which key the live device-events response uses",
+      "status": "partial",
+      "detail": "The contract and the Python model name the key `events`; the Go struct reads `instances`. No captured live response confirms which key the API sends.",
+      "blocks": "trusting Go device-event reads",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    },
+    "device-app-shape-live": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-06"
+      ],
+      "title": "What shape the live device-application response has",
+      "status": "partial",
+      "detail": "The contract describes a score-trend series (`metric`, `unit`, `datapoints`), which the Python model follows; the Go SDK decodes a single `id`, `name`, `score` record. No captured live response confirms the shape.",
+      "blocks": "trusting Go device-application score reads",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    }
+  }
+}

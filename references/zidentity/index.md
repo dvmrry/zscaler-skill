@@ -28,17 +28,17 @@ Questions that land here: "how do I create API client credentials?", "why is ste
 
 | Topic | File | Status |
 |---|---|---|
-| Overview — what ZIdentity is, MFA defaults, SAML JIT vs SCIM provisioning, admin access controls | [`./overview.md`](./overview.md) | draft |
-| API Clients — OneAPI OAuth 2.0 flow, API client creation, roles and scopes, access tokens, revocation | [`./api-clients.md`](./api-clients.md) | draft |
-| Step-Up Authentication — Authentication Levels (hierarchical tree, 32 max, depth 4), ZIA/ZPA integration via access policies, OIDC-only constraint, validity inversion gotcha | [`./step-up-authentication.md`](./step-up-authentication.md) | draft |
-| **Admin RBAC** — 4 system roles (Super Admin / View Only Admin / User Admin / CXO Insight User), 25+ modules with 4 permission levels, federation: identity in ZIdentity, role assignment in Zscaler Admin Console | [`./admin-rbac.md`](./admin-rbac.md) | draft |
-| **Users** — full CRUD users API, 17 fields, 8 filter params, IdP-sourced (SCIM) vs ZIdentity-internal users distinguished by `source` field | [`./users.md`](./users.md) | draft |
-| **Groups** — full CRUD on groups, dual `is_dynamic_group`/`dynamic_group` flags, group-as-policy-principal cross-product semantics, four membership-mutation operations (+ member-list read) | [`./groups.md`](./groups.md) | draft |
-| **Resource servers** — read-only OAuth resource registry, service-grouped scopes (no scope mutation API), OneAPI client linkage via `clientResources` field | [`./resource-servers.md`](./resource-servers.md) | draft |
-| **User entitlements** — read-only admin & service entitlement query API, observed role+scope values from test fixtures, Python wrapper vs Go slice/envelope return divergence | [`./user-entitlements.md`](./user-entitlements.md) | draft |
-| API surface — `client.zid.*` methods, Python vs Go SDK parity, wire format | [`./api.md`](./api.md) | draft |
-| **ZIdentity SDK** — Python and Go service catalog (`client.zid.*`); method summary; parity gaps between language SDKs | [`./sdk.md`](./sdk.md) | draft |
-| **API source divergences** — where the Go SDK, Python SDK, and Postman collection disagree on the ZIdentity (`ziam`) surface; current OneAPI route alignment, resource-servers read-only everywhere, api-client parity, entitlement return shapes, `authType` enum, auto-injected audience, wire param naming, and legacy compatibility gaps | [`./api-divergences.md`](./api-divergences.md) | draft |
+| Overview — what ZIdentity is, MFA defaults, SAML JIT vs SCIM provisioning, admin access controls | [`zidentity.overview`](kb:zidentity.overview) | draft |
+| API Clients — OneAPI OAuth 2.0 flow, API client creation, roles and scopes, access tokens, revocation | [`zidentity.api-clients`](kb:zidentity.api-clients) | draft |
+| Step-Up Authentication — Authentication Levels (hierarchical tree, 32 max, depth 4), ZIA/ZPA integration via access policies, OIDC-only constraint, validity inversion gotcha | [`zidentity.step-up`](kb:zidentity.step-up) | draft |
+| **Admin RBAC** — 4 system roles (Super Admin / View Only Admin / User Admin / CXO Insight User), 25+ modules with 4 permission levels, federation: identity in ZIdentity, role assignment in Zscaler Admin Console | [`zidentity.admin-rbac`](kb:zidentity.admin-rbac) | draft |
+| **Users** — full CRUD users API, 17 fields, 8 filter params, IdP-sourced (SCIM) vs ZIdentity-internal users distinguished by `source` field | [`zidentity.users`](kb:zidentity.users) | draft |
+| **Groups** — full CRUD on groups, dual `is_dynamic_group`/`dynamic_group` flags, group-as-policy-principal cross-product semantics, four membership-mutation operations (+ member-list read) | [`zidentity.groups`](kb:zidentity.groups) | draft |
+| **Resource servers** — read-only OAuth resource registry, service-grouped scopes (no scope mutation API), OneAPI client linkage via `clientResources` field | [`zidentity.resource-servers`](kb:zidentity.resource-servers) | draft |
+| **User entitlements** — read-only admin & service entitlement query API, observed role+scope values from test fixtures, Python wrapper vs Go slice/envelope return divergence | [`zidentity.entitlements`](kb:zidentity.entitlements) | draft |
+| API surface — `client.zid.*` methods, Python vs Go SDK parity, wire format | [`zidentity.api`](kb:zidentity.api) | draft |
+| **ZIdentity SDK** — Python and Go service catalog (`client.zid.*`); method summary; parity gaps between language SDKs | [`zidentity.api.client-coverage`](kb:zidentity.api.client-coverage) | draft |
+| **API source divergences** — where the Go SDK, Python SDK, and Postman collection disagree on the ZIdentity (`ziam`) surface; current OneAPI route alignment, resource-servers read-only everywhere, api-client parity, entitlement return shapes, `authType` enum, auto-injected audience, wire param naming, and legacy compatibility gaps | [`zidentity.api`](kb:zidentity.api) | draft |
 
 ## What this hub does NOT cover yet
 
@@ -50,7 +50,7 @@ Questions that land here: "how do I create API client credentials?", "why is ste
 
 ## When the question spans ZIdentity + another product
 
-- **"Why didn't the Conditional Access prompt appear?"** — ZCC forwarding is required for step-up to work (GRE/IPSec users don't get it). See [`shared.integrations`](kb:shared.integrations) and [`./step-up-authentication.md`](./step-up-authentication.md).
-- **"API call failed with 401"** — check OneAPI token expiry; tokens are OAuth 2.0 and have limited lifetimes. [`./api-clients.md`](./api-clients.md).
-- **"Users aren't syncing from our IdP"** — SAML JIT requires a login event to create the user; SCIM pushes in advance. Different lifecycle. [`./overview.md`](./overview.md).
+- **"Why didn't the Conditional Access prompt appear?"** — ZCC forwarding is required for step-up to work (GRE/IPSec users don't get it). See [`shared.integrations`](kb:shared.integrations) and [`zidentity.step-up`](kb:zidentity.step-up).
+- **"API call failed with 401"** — check OneAPI token expiry; tokens are OAuth 2.0 and have limited lifetimes. [`zidentity.api-clients`](kb:zidentity.api-clients).
+- **"Users aren't syncing from our IdP"** — SAML JIT requires a login event to create the user; SCIM pushes in advance. Different lifecycle. [`zidentity.overview`](kb:zidentity.overview).
 - **"How do I decide between OIDC and SAML for our IdP?"** — OIDC supports step-up auth; SAML does not. If you need Conditional Access or Require Approval actions anywhere in ZIA/ZPA policy, you need an OIDC IdP integration.

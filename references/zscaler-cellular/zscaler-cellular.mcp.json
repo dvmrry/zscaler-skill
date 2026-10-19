@@ -1,0 +1,452 @@
+{
+  "schema_version": 1,
+  "id": "zscaler-cellular.mcp",
+  "title": "The Zscaler MCP server's ZCell tools: 20 reads, the customer ID, time windows, prompts and gaps",
+  "aliases": [
+    "zcell mcp tools",
+    "zcell_list_sims",
+    "zcell_customer_id mcp",
+    "zcell prompts",
+    "zcell_review_anomaly_policies",
+    "zcell audit mcp object_id"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zscaler-cellular.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.api.wire-notes"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.mcp-server.tool-inventory"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The MCP server wraps the Python SDK's ZCell reads; toolsets and entitlement filtering are shared with other products ([[shared.mcp-server.tool-inventory]]), and whether the token's product value for Cellular is the one the filter expects is open in [[shared.mcp-server.tool-inventory:prd-alias-set]]."
+    },
+    {
+      "label": "Inventory.",
+      "text": "{{inventory}} {{read-subset}}"
+    },
+    {
+      "label": "Customer ID.",
+      "text": "{{customer-id}} {{missing-scope-error}}"
+    },
+    {
+      "label": "Time windows.",
+      "text": "{{days-input}} Where the window is computed is described inconsistently {{divergence:days-computed-where}}. {{logs-input}} {{divergence:logs-days-doc}}"
+    },
+    {
+      "label": "Audit search.",
+      "text": "{{audit-input}} {{divergence:audit-object-id}} Accepted typing and the omitted filters are open {{gap:audit-request}}. {{audit-returns-full}} {{divergence:audit-blobs}} The general result contract is in [[shared.mcp-server.results:shape-overlay]]."
+    },
+    {
+      "label": "SIM search and violations.",
+      "text": "SIM search paging and violation lists are affected by SDK behavior described in [[zscaler-cellular.api.wire-notes]]."
+    },
+    {
+      "label": "Prompts.",
+      "text": "{{prompts}} {{prompt-gating}} {{partial-toolset-prompts}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether ZCELL_CUSTOMER_ID is set in the MCP server environment when ZCell tools fail before any API call.",
+      "uses": [
+        "customer-id",
+        "missing-scope-error"
+      ]
+    },
+    {
+      "do": "Whether the operation is a write or tower history, which MCP does not expose.",
+      "uses": [
+        "read-subset"
+      ]
+    }
+  ],
+  "claims": {
+    "inventory": {
+      "statement": "The MCP server registers 20 ZCell tools, all read-only, and its tests assert both; its toolsets guide groups them into nine toolsets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "tests/test_docgen.py",
+          "quotes": [
+            "self.assertEqual(len(zcell), 20)",
+            "self.assertTrue(all(not t.is_write for t in zcell))"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "docs/guides/toolsets.md",
+          "quotes": [
+            "### ZCell — Cellular",
+            "| `zcell_anomaly_policy` | 4 | `zcell_list_anomaly_policies`, `zcell_list_anomaly_policy_logs`, `zcell_list_anomaly_policy_violations`, `zcell_list_iccid_violations` |",
+            "| `zcell_audit_data_handling` | 2 | `zcell_list_audit_customers_search`, `zcell_list_audit_metadata` |",
+            "| `zcell_customer_data_handling` | 1 | `zcell_get_customer_data_handling` |",
+            "| `zcell_customer_region_handling` | 2 | `zcell_list_region_operational_status`, `zcell_list_regions` |",
+            "| `zcell_network_events` | 1 | `zcell_list_network_events` |",
+            "| `zcell_sim_analytics` | 5 | `zcell_list_sim_analytics_map`, `zcell_list_sim_analytics_summary`, `zcell_list_sim_usage_by_country`, `zcell_list_sim_usage_by_day`, `zcell_list_sim_usage_by_sim` |",
+            "| `zcell_sim_handling` | 2 | `zcell_get_sim_details`, `zcell_list_sims` |",
+            "| `zcell_sim_location_groups` | 2 | `zcell_get_sim_location_group`, `zcell_list_sim_location_groups` |",
+            "| `zcell_tag_handling` | 1 | `zcell_list_tags` | <!-- generated:end toolset-catalog -->"
+          ]
+        }
+      ]
+    },
+    "customer-id": {
+      "statement": "ZCell tools need `ZCELL_CUSTOMER_ID` in addition to the shared OneAPI credentials, separate from the `ZSCALER_CUSTOMER_ID` ZPA uses; the server injects it as `zcellCustomerId`, so it is not a tool parameter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "ZCell requires **one additional credential**: your Zscaler Cellular customer ID, supplied via the `ZCELL_CUSTOMER_ID` environment variable",
+            "This is separate from `ZSCALER_CUSTOMER_ID` (which ZPA uses) — set both if you use ZPA and ZCell together.",
+            "All other OneAPI credentials (`ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` / `ZSCALER_PRIVATE_KEY`, `ZSCALER_VANITY_DOMAIN`) are shared."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/client.py",
+          "quotes": [
+            "config[\"zcellCustomerId\"] = zcell_customer_id"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zcell/_common.py",
+          "quotes": [
+            "The ZCell customer id is NOT a tool parameter"
+          ]
+        }
+      ]
+    },
+    "missing-scope-error": {
+      "statement": "With `ZCELL_CUSTOMER_ID` unset, a ZCell tool fails saying the value is required for zcell tools, that it is the tenant or customer ID rather than an OneAPI credential so authentication is unaffected, and that it may not exist if the tenant is not entitled to the product.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/client.py",
+          "quotes": [
+            "f\"{missing_scope[0]} is required for {service} tools. Set it in the \"",
+            "\"environment or .env file (the tenant/customer ID, not an OneAPI \"",
+            "f\"credential — authentication itself is unaffected). If your tenant \"",
+            "f\"is not entitled to {service}, this value may not exist.\"",
+            "if service == \"zcell\": scope_ids[\"ZCELL_CUSTOMER_ID\"] = zcell_customer_id"
+          ]
+        }
+      ]
+    },
+    "days-input": {
+      "statement": "Time-bounded ZCell tools share a `WindowInput` model whose only field is a `days` lookback (default 7, limited to 1 through 365), which the SDK turns into a [now - days, now] epoch-seconds window, so callers only say how far back.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zcell/_common.py",
+          "quotes": [
+            "class WindowInput(BaseModel): \"\"\"Reusable lookback window shared by time-bounded ZCell reads.",
+            "The SDK's ``days`` shorthand fills that window with ``[now - days, now]``",
+            "so callers only need to say \"how far back\". \"\"\" days: Annotated[ int, Field( default=7, ge=1, le=365, description=( \"Lookback window in DAYS. Resolves to a [now - days, now] \" \"epoch-seconds range on the server. Default 7.\" ), ), ] = 7 def as_dict("
+          ]
+        }
+      ]
+    },
+    "audit-input": {
+      "statement": "The MCP audit search tool's input model, `AuditSearchInput` (a `WindowInput` with its `days` lookback), takes `object_id` as a string and filters on operation type, object type, object name, object ID, visibility and modifying user ID, plus page and size, which the tool sends as query parameters; the model has no entry ID, customer ID or sort fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zcell/audit_data_handling.py",
+          "quotes": [
+            "class AuditSearchInput(WindowInput): \"\"\"Inputs for searching Zscaler Cellular audit entries (time-bounded).\"\"\" operation_type: Annotated[ Optional[str], Field(default=None, description=\"Filter by operation: Create, Update, Delete, Export.\"), ] = None",
+            "object_type: Annotated[ Optional[str], Field(default=None, description=\"Filter by object type.\") ] = None object_name: Annotated[ Optional[str], Field(default=None, description=\"Filter by object name.\") ] = None",
+            "object_id: Annotated[Optional[str], Field(default=None, description=\"Filter by object ID.\")] = ( None ) visibility: Annotated[ Optional[str], Field(default=None, description=\"Filter by visibility: Customer or Root.\") ] = None",
+            "modified_by_user_id: Annotated[ Optional[str], Field(default=None, description=\"Filter by the modifying user ID.\") ] = None page: Annotated[ Optional[int], Field(default=None, ge=0, description=\"Page number (0-based).\") ] = None",
+            "size: Annotated[ Optional[int], Field(default=None, ge=1, le=100, description=\"Page size (1-100).\") ] = None class AuditMetadataInput(BaseModel):",
+            "query_params=_body((\"page\", args.page), (\"size\", args.size)),"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zcell/_common.py",
+          "quotes": [
+            "so callers only need to say \"how far back\". \"\"\" days: Annotated[ int, Field( default=7, ge=1, le=365, description=( \"Lookback window in DAYS. Resolves to a [now - days, now] \" \"epoch-seconds range on the server. Default 7.\" ), ), ] = 7 def as_dict("
+          ]
+        }
+      ]
+    },
+    "audit-returns-full": {
+      "statement": "The audit search tool passes each `AuditDataHandling` entry the SDK's `list_audit_customers_search` returns to `shape_many` with no shaper, which preserves every attribute of every record, and the SDK audit model's request format includes `oldData` and `newData`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zcell/audit_data_handling.py",
+          "quotes": [
+            "entries, _, err = client.zcell.audit_data_handling.list_audit_customers_search(",
+            "return shape_many(as_dicts(entries))"
+          ],
+          "after": "def zcell_list_audit_customers_search("
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/shaping/helpers.py",
+          "quotes": [
+            "\"\"\"Shape a list, preserving every attribute of every record.",
+            "optional: when ``None`` the full record is returned unchanged (a plain"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcell/audit_data_handling.py",
+          "after": "def list_audit_customers_search(",
+          "quotes": [
+            "result.append(AuditDataHandling(self.form_response_body(item)))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcell/models/audit_data_handling.py",
+          "quotes": [
+            "\"oldData\": self.old_data, \"newData\": self.new_data,"
+          ]
+        }
+      ]
+    },
+    "logs-input": {
+      "statement": "The anomaly-policy logs tool's input model, `AnomalyPolicyLogsInput`, is a plain `BaseModel` (not a `WindowInput`) with only a policy ID, page and size, so it has no days window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zcell/anomaly_policy.py",
+          "quotes": [
+            "class AnomalyPolicyLogsInput(BaseModel): \"\"\"Inputs for listing an anomaly policy's activity logs.\"\"\" policy_id: Annotated[str, Field(description=\"Anomaly policy ID (string, even if numeric).\")]",
+            "page: Annotated[ Optional[int], Field(default=None, ge=0, description=\"Page number (0-based).\") ] = None size: Annotated[ Optional[int], Field(default=None, ge=1, le=100, description=\"Page size (1-100).\") ] = None class AnomalyPolicyViolationsInput(WindowInput):"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zcell/anomaly_policy.py",
+          "quotes": [
+            "policy_id=args.policy_id, query_params=_query((\"page\", args.page), (\"size\", args.size))"
+          ]
+        }
+      ]
+    },
+    "prompts": {
+      "statement": "Three ZCell prompts are registered: `zcell_investigate_sim` (an ICCID, and a lookback defaulting to 7 days), `zcell_audit_data_usage` (lookback default 30 days, optional country) and `zcell_review_anomaly_policies` (lookback default 30 days, optional policy type); the anomaly review's workflow inventories the policies, gets the location groups of geofencing policies and lists each policy's violations and logs with the read-only `zcell_*` tools.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/prompts/catalog/zcell/investigate_sim.py",
+          "quotes": [
+            "name=\"zcell_investigate_sim\",",
+            "def investigate_sim(iccid: str, since_days: str = \"7\") -> str:"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/prompts/catalog/zcell/audit_data_usage.py",
+          "quotes": [
+            "name=\"zcell_audit_data_usage\",",
+            "def audit_data_usage(since_days: str = \"30\", country: str = \"\") -> str:"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/prompts/catalog/zcell/review_anomaly_policies.py",
+          "quotes": [
+            "name=\"zcell_review_anomaly_policies\",",
+            "def review_anomaly_policies(since_days: str = \"30\", policy_type: str = \"\") -> str:",
+            "The agent drives the read-only ``zcell_*`` policy + location-group tools.",
+            "Step 1 — Inventory the policies",
+            "Step 2 — Location-group context (geofencing)",
+            "`zcell_get_sim_location_group(group_id=<id>)`",
+            "Step 3 — Violations",
+            "`zcell_list_anomaly_policy_violations(policy_id=<id>, days={since_days})`"
+          ]
+        }
+      ]
+    },
+    "prompt-gating": {
+      "statement": "The server offers a service's prompts when at least one of that service's tools survived tool filtering.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "quotes": [
+            "gated to # the services that actually survived tool filtering",
+            "visible_services = {spec.service for spec in selected}",
+            "prompt_specs = PROMPT_REGISTRY.select(visible_services=visible_services)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/prompts/registry.py",
+          "quotes": [
+            "return [spec for spec in self._specs.values() if spec.service in allowed]"
+          ]
+        }
+      ]
+    },
+    "partial-toolset-prompts": {
+      "statement": "With only some ZCell toolsets selected, a ZCell prompt can be offered whose steps call tools that are not registered, for example the anomaly review's location-group lookup when `zcell_sim_location_groups` is not selected.",
+      "tier": "B",
+      "derived_from": [
+        "prompt-gating",
+        "prompts"
+      ],
+      "conditions": "Follows from prompt-gating (per service, not per tool) and the prompt text naming specific tools."
+    },
+    "read-subset": {
+      "statement": "MCP exposes reads only: anomaly-policy create, update, delete and status changes, customer and region updates, SIM download, tag assignment, lock, status, eSIM assignment and eSIM state refresh, SIM location group writes, tag creation and tower-location history are reachable only through the SDK or raw API.",
+      "tier": "B",
+      "derived_from": [
+        "inventory",
+        "zscaler-cellular.api.wire-notes:tower-no-client"
+      ],
+      "conditions": "Rests on inventory (20 read-only tools) compared against the operations in the generated zcell surface."
+    }
+  },
+  "divergences": {
+    "days-computed-where": {
+      "summary": "The MCP field description says the days window resolves on the server; the SDK computes it on the client.",
+      "positions": [
+        {
+          "says": "`days` resolves to a [now - days, now] epoch-seconds range on the server.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zcell/_common.py",
+            "quotes": [
+              "\"Lookback window in DAYS. Resolves to a [now - days, now] \"",
+              "\"epoch-seconds range on the server. Default 7.\""
+            ]
+          }
+        },
+        {
+          "says": "The SDK computes start and end from the local clock before sending.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/utils.py",
+            "quotes": [
+              "now = int(time.time())",
+              "query_params.setdefault(start_key, now - int(days) * 86400)"
+            ],
+            "after": "def zcell_params("
+          }
+        }
+      ],
+      "impact": "The window follows the MCP host's clock; a skewed host shifts the window."
+    },
+    "audit-blobs": {
+      "summary": "The audit tool's description says before and after data is omitted; its code returns the full SDK record, which includes it.",
+      "positions": [
+        {
+          "says": "The before/after data blobs are omitted from the row.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zcell/audit_data_handling.py",
+            "quotes": [
+              "The before/after data blobs are omitted from the row."
+            ]
+          }
+        },
+        {
+          "says": "Rows are the SDK audit entries passed through the record-preserving shaper; the model's format carries oldData and newData.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zcell/audit_data_handling.py",
+            "quotes": [
+              "return shape_many(as_dicts(entries))"
+            ],
+            "after": "def zcell_list_audit_customers_search("
+          }
+        }
+      ],
+      "impact": "Audit rows can be larger than the description suggests and do include the change data an investigation needs."
+    },
+    "logs-days-doc": {
+      "summary": "The ZCell tool guide says anomaly-policy logs accept a days lookback; the tool has no days input.",
+      "positions": [
+        {
+          "says": "Time-bounded queries, including anomaly-policy logs, accept a days shorthand.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "docsrc/tools/zcell/index.rst",
+            "quotes": [
+              "anomaly-policy logs — accept a ``days`` lookback shorthand instead of raw"
+            ]
+          }
+        },
+        {
+          "says": "The logs tool input is policy ID, page and size.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zcell/anomaly_policy.py",
+            "quotes": [
+              "policy_id=args.policy_id, query_params=_query((\"page\", args.page), (\"size\", args.size))"
+            ]
+          }
+        }
+      ],
+      "impact": "Anomaly-policy logs cannot be time-bounded through MCP; page through them instead."
+    },
+    "audit-object-id": {
+      "summary": "MCP types the audit object ID as a string; the contract declares it int64.",
+      "positions": [
+        {
+          "says": "`object_id` is an optional string.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zcell/audit_data_handling.py",
+            "quotes": [
+              "object_id: Annotated[Optional[str], Field(default=None, description=\"Filter by object ID.\")] = ("
+            ]
+          }
+        },
+        {
+          "says": "`objectId` is an int64 integer.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcell.openapi.json",
+            "pointer": "/paths/~1api~1v1~1audit~1customers~1{id}~1search/post/requestBody/content/application~1json/schema/properties/objectId",
+            "expect": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        }
+      ],
+      "impact": "Whether the backend coerces a string object ID is unknown; the entry ID, root customer and sort filters cannot be used from MCP at all."
+    }
+  },
+  "gaps": {
+    "audit-request": {
+      "kind": "semantic",
+      "title": "Audit search typing and the filters MCP leaves out",
+      "status": "open",
+      "former_ids": [
+        "zscaler-cellular-04"
+      ],
+      "detail": "MCP sends object_id as a string and omits the contract's entry id, root customerId and sortBy/sortDir inputs. Whether the backend accepts the string form, and whether the omissions are intended narrowing, is not established.",
+      "blocks": "filtering ZCell audit entries by object through MCP",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ]
+    }
+  }
+}

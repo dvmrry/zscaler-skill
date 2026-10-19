@@ -1,0 +1,493 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.sdk-go",
+  "title": "Go SDK for ZIdentity (ziam services): name lookups, write models and where its paths depart from the contract",
+  "aliases": [
+    "zscaler/ziam",
+    "ziam services go",
+    "zidentity go sdk",
+    "GetByName zidentity",
+    "SetSkipMFA ResetPassword UpdatePassword path",
+    "ServiceEntitlement go"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.api.client-coverage"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.sdk-python"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.request-handling"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Go SDK reaches ZIdentity through the `zscaler/ziam/services` packages; their functions and endpoints are generated (`node scripts/kb.mjs surface zid`). Behavior shared by every Go product, retries and error decoding included, is in [[shared.sdk-go.retries]] and [[shared.sdk-go.request-handling]]."
+    },
+    {
+      "label": "Name lookups.",
+      "text": "{{getbyname-client-side}} {{getpage-metadata}} Why the API-client lookup avoids the server filter: [[zidentity.api.query-filters:go-getbyname-avoids-like]]. Paging is in [[zidentity.api.pagination:go-walk]]."
+    },
+    {
+      "label": "Writing.",
+      "text": "{{status-pointer}} The general reason a plain false is lost is in [[shared.sdk-go.zero-value-writes:omitempty-drops-zero-values]]. {{lifetime-always-sent}} {{update-nil-on-empty-body}} The secret calls are in [[zidentity.api-clients.secrets]]."
+    },
+    {
+      "label": "Groups.",
+      "text": "{{groups-update-int-id}} {{groups-update-no-nil-check}} {{groups-update-panics}} {{groups-create-log-verb}} {{add-user-to-group-response}} {{add-user-to-group-nil-response}} The same exact content-type test in the shared create helper is in [[shared.sdk-go.request-handling:zia-create-same-exact-content-type]]."
+    },
+    {
+      "label": "User actions.",
+      "text": "{{user-action-paths-go}} The contract writes these routes with a colon {{divergence:user-action-paths}}."
+    },
+    {
+      "label": "Entitlements.",
+      "text": "{{service-entitlement-envelope}} {{admin-scope-optional}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Go name lookup that returned several results was meant as an exact match; `GetByName` is a substring match, and for users it matches the display name.",
+      "uses": [
+        "getbyname-client-side"
+      ]
+    },
+    {
+      "do": "For a failed user action from Go, whether the slash-form path is what the tenant accepts, compared with the contract's colon form.",
+      "uses": [
+        "user-action-paths"
+      ]
+    }
+  ],
+  "claims": {
+    "getbyname-client-side": {
+      "statement": "The Go `GetByName` functions for API clients, groups, resource servers and users request pages of 100 records, moving the offset on by each page's record count until a page comes back short or with no next link, and keep the records whose name contains the search string, ignoring case; for users the compared field is the display name, not the login name; they return the matches collected with a nil error, so no match is not an error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/api_clients/api_clients.go",
+          "quotes": [
+            "func GetByName(ctx context.Context, service *zscaler.Service, name string) ([]APIClients, error) {",
+            "pageSize := 100 // Use a reasonable page size for searching",
+            "if strings.Contains(strings.ToLower(apiClient.Name), strings.ToLower(name)) {",
+            "return allAPIClients, nil"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/groups/groups.go",
+          "quotes": [
+            "pageSize := 100 // Use a reasonable page size for searching",
+            "if strings.Contains(strings.ToLower(group.Name), strings.ToLower(name)) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/resource_servers/resource_servers.go",
+          "quotes": [
+            "pageSize := 100 // Use a reasonable page size for searching",
+            "if strings.Contains(strings.ToLower(group.Name), strings.ToLower(name)) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/users/users.go",
+          "quotes": [
+            "func GetByName(ctx context.Context, service *zscaler.Service, name string) ([]Users, error) {",
+            "pageSize := 100 // Use a reasonable page size for searching",
+            "if strings.Contains(strings.ToLower(user.DisplayName), strings.ToLower(name)) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/api_clients/api_clients.go",
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, name string) ([]APIClients, error) {",
+          "quotes": [
+            "queryParams.WithOffset(currentOffset)",
+            "if len(pageResponse.Records) < pageSize || pageResponse.NextLink == \"\" {",
+            "currentOffset += len(pageResponse.Records)",
+            "return allAPIClients, nil"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/groups/groups.go",
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, name string) ([]Groups, error) {",
+          "quotes": [
+            "queryParams.WithOffset(currentOffset)",
+            "if len(pageResponse.Records) < pageSize || pageResponse.NextLink == \"\" {",
+            "currentOffset += len(pageResponse.Records)",
+            "return allGroups, nil"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/resource_servers/resource_servers.go",
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, name string) ([]ResourceServers, error) {",
+          "quotes": [
+            "queryParams.WithOffset(currentOffset)",
+            "if len(pageResponse.Records) < pageSize || pageResponse.NextLink == \"\" {",
+            "currentOffset += len(pageResponse.Records)",
+            "return allResources, nil"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/users/users.go",
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, name string) ([]Users, error) {",
+          "quotes": [
+            "queryParams.WithOffset(currentOffset)",
+            "if len(pageResponse.Records) < pageSize || pageResponse.NextLink == \"\" {",
+            "currentOffset += len(pageResponse.Records)",
+            "return allUsers, nil"
+          ]
+        }
+      ]
+    },
+    "getpage-metadata": {
+      "statement": "`GetPage` (API clients) returns one page together with its paging metadata, `results_total`, `next_link` and `prev_link`, for callers that page by hand or want the record count.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/api_clients/api_clients.go",
+          "quotes": [
+            "GetPage retrieves a single page of API clients along with the pagination",
+            "metadata — results_total, next_link, and prev_link."
+          ]
+        }
+      ]
+    },
+    "status-pointer": {
+      "statement": "The Go API client and user models hold `Status` as a pointer, because as a plain bool with `omitempty` a false was dropped from the request body, so a client or user could be enabled but never disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/api_clients/api_clients.go",
+          "quotes": [
+            "Status is a pointer so that disabling a client is expressible.",
+            "Status *bool `json:\"status,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/users/users.go",
+          "quotes": [
+            "Status is a pointer so that disabling a user is expressible.",
+            "and was dropped from the request body, which made it possible to enable a"
+          ]
+        }
+      ]
+    },
+    "lifetime-always-sent": {
+      "statement": "The Go model tags `accessTokenLifeTime` without `omitempty`; its comment says this is so that a caller who leaves it at zero gets the API's range error rather than have the field silently vanish and the server apply a default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/api_clients/api_clients.go",
+          "quotes": [
+            "AccessTokenLifeTime int32 `json:\"accessTokenLifeTime\"`",
+            "should get the API's range error rather than have the field silently",
+            "`omitempty`: a PUT is a full replace, so a caller that leaves it at zero",
+            "vanish and the server apply a default."
+          ]
+        }
+      ]
+    },
+    "update-nil-on-empty-body": {
+      "statement": "When an update's PUT answers with no body, the Go `Update` for API clients (and for users) returns a nil object and a nil error: the update succeeded and the caller has to read the record again to see it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/api_clients/api_clients.go",
+          "quotes": [
+            "nil error means the update succeeded but the endpoint reported no body",
+            "caller should re-read the client if it needs the current representation.",
+            "// Update replaces an API client via PUT.",
+            "func Update(ctx context.Context, service *zscaler.Service, clientID string, apiClient *APIClients) (*APIClients, *http.Response, error) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/users/users.go",
+          "quotes": [
+            "caller should re-read the user if it needs the current representation.",
+            "// Update replaces a user via PUT.",
+            "nil error means the update succeeded but the endpoint reported no body",
+            "if !ok || updatedUser == nil {"
+          ]
+        }
+      ]
+    },
+    "user-action-paths-go": {
+      "statement": "The Go user actions send POST to `/setskipmfa` and `/resetpassword`, and PUT to `/updatepassword`, appended to the user's path after a slash.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/users/users.go",
+          "quotes": [
+            "fmt.Sprintf(\"%s/%s/setskipmfa\", usersEndpoint, userID),",
+            "fmt.Sprintf(\"%s/%s/resetpassword\", usersEndpoint, userID),",
+            "fmt.Sprintf(\"%s/%s/updatepassword\", usersEndpoint, userID),",
+            "Note this is a PUT while the other two actions are POSTs."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/users/users.go",
+          "after": "func SetSkipMFA(ctx context.Context",
+          "quotes": [
+            "return executeUserAction(ctx, service, http.MethodPost,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/users/users.go",
+          "after": "func ResetPassword(ctx context.Context",
+          "quotes": [
+            "return executeUserAction(ctx, service, http.MethodPost,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/users/users.go",
+          "after": "func UpdatePassword(ctx context.Context",
+          "quotes": [
+            "return executeUserAction(ctx, service, http.MethodPut,"
+          ]
+        }
+      ]
+    },
+    "service-entitlement-envelope": {
+      "statement": "Go reads service entitlements as a list of objects that each wrap a `service`; the package's comment says it once read the array into bare service objects, which matched no keys and produced one zero-valued service per entitlement, losing the entire response without an error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/user_entitlement/user_entitlement.go",
+          "quotes": [
+            "The element is an object wrapping a `service` key rather than a bare service",
+            "the array straight into []Service — as this package used to — matched no keys",
+            "and produced one zero-valued Service per entitlement, losing the entire"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/user_entitlement/user_entitlement.go",
+          "after": "and produced one zero-valued Service per entitlement, losing the entire",
+          "quotes": [
+            "response without an error."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/user_entitlement/user_entitlement.go",
+          "after": "type ServiceEntitlement struct {",
+          "quotes": [
+            "Service *Service `json:\"service,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "groups-update-int-id": {
+      "statement": "The Go groups `Update` takes `groupID int` and builds its path with `%d`, while `Get`, `Delete` and the membership functions take the group ID as a `string` and the `Groups` struct types `ID` as a string, so an ID read from the API has to be converted to an integer to update the group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/groups/groups.go",
+          "quotes": [
+            "func Update(ctx context.Context, service *zscaler.Service, groupID int, groups *Groups) (*Groups, *http.Response, error) {",
+            "resp, err := service.Client.UpdateWithPut(ctx, fmt.Sprintf(\"%s/%d\", groupsEndpoint, groupID), *groups)",
+            "func Get(ctx context.Context, service *zscaler.Service, groupID string) (*Groups, error) {",
+            "func Delete(ctx context.Context, service *zscaler.Service, groupID string) (*http.Response, error) {",
+            "func AddUserListToGroup(ctx context.Context, service *zscaler.Service, groupID string, userIDs []string) (*Groups, *http.Response, error) {",
+            "func AddUserToGroup(ctx context.Context, service *zscaler.Service, groupID, userID string) (*http.Response, error) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/groups/groups.go",
+          "after": "type Groups struct {",
+          "quotes": [
+            "ID string `json:\"id,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "groups-update-no-nil-check": {
+      "statement": "The Go groups `Update` takes the result with `updatedGroup, _ := resp.(*Groups)` and logs `updatedGroup.ID` on the next statement, with no nil check between, while the shared PUT helper (`UpdateWithPut`) returns a nil object and no error for an empty response body; the users `Update` checks for nil because, its comment says, a `204 No Content` answer would otherwise dereference nil and panic the calling process.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/groups/groups.go",
+          "after": "func Update(ctx context.Context, service *zscaler.Service, groupID int, groups *Groups) (*Groups, *http.Response, error) {",
+          "quotes": [
+            "resp, err := service.Client.UpdateWithPut(ctx, fmt.Sprintf(\"%s/%d\", groupsEndpoint, groupID), *groups)",
+            "updatedGroup, _ := resp.(*Groups)\n\n\tservice.Client.GetLogger().Printf(\"[DEBUG]returning updates group from update: %d\", updatedGroup.ID)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "after": "func (c *Client) UpdateWithPut(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {",
+          "quotes": [
+            "return c.updateGeneric(ctx, endpoint, o, \"PUT\", contentTypeJSON)",
+            "// Check for an empty response body (e.g., 204 No Content)",
+            "return nil, nil // Return nil for responseObject and no error"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/users/users.go",
+          "quotes": [
+            "The response is nil-checked before use: the shared client returns a nil",
+            "object for an empty body, so a `204 No Content` answer to the PUT would",
+            "otherwise dereference nil and panic the calling process. A nil return with a",
+            "// Update replaces a user via PUT.",
+            "updatedUser, ok := resp.(*Users)",
+            "if !ok || updatedUser == nil {"
+          ]
+        }
+      ]
+    },
+    "groups-update-panics": {
+      "statement": "So a group update whose PUT answers with no body panics the calling process after the update has been applied, instead of returning the nil result the users and API-client updates return.",
+      "tier": "B",
+      "derived_from": [
+        "zidentity.sdk-go:groups-update-no-nil-check",
+        "zidentity.sdk-go:update-nil-on-empty-body"
+      ],
+      "conditions": "Follows from Go evaluating `updatedGroup.ID` on a nil pointer, the failure the users package's comment describes for its own function; whether the groups PUT ever answers without a body is not observed."
+    },
+    "groups-create-log-verb": {
+      "statement": "The Go groups `Create` logs the new group's string `ID` with a `%d` verb, while `Get` and the user-list functions `AddUserListToGroup` and `ReplaceUserListInGroup` log a group `ID` with `%s`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/groups/groups.go",
+          "quotes": [
+            "service.Client.GetLogger().Printf(\"[DEBUG]returning new group from create: %d\", createdGroup.ID)",
+            "service.Client.GetLogger().Printf(\"[DEBUG] Returning group from Get: %s\", group.ID)",
+            "func Create(ctx context.Context, service *zscaler.Service, groups *Groups) (*Groups, *http.Response, error) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/groups/groups.go",
+          "after": "func AddUserListToGroup(ctx context.Context",
+          "quotes": [
+            "service.Client.GetLogger().Printf(\"[DEBUG]returning new group from create: %s\", createdGroup.ID)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/groups/groups.go",
+          "after": "func ReplaceUserListInGroup(ctx context.Context",
+          "quotes": [
+            "service.Client.GetLogger().Printf(\"[DEBUG]returning updates group from update: %s\", updatedGroup.ID)"
+          ]
+        }
+      ]
+    },
+    "add-user-to-group-response": {
+      "statement": "The Go `AddUserToGroup` posts an empty struct through the shared `Create` helper and returns `httpResp, _ := resp.(*http.Response)`; `Create` returns the decoded payload when the response has a body and a `Content-Type` of `application/json`, and the `*http.Response` otherwise.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/groups/groups.go",
+          "quotes": [
+            "func AddUserToGroup(ctx context.Context, service *zscaler.Service, groupID, userID string) (*http.Response, error) {",
+            "emptyPayload := struct{}{}",
+            "resp, err := service.Client.Create(ctx, fmt.Sprintf(\"%s/%s/users/%s\", groupsEndpoint, groupID, userID), emptyPayload)",
+            "httpResp, _ := resp.(*http.Response)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "after": "func (c *Client) Create(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {",
+          "quotes": [
+            "if len(respBody) > 0 && strings.EqualFold(response.Header.Get(\"Content-Type\"), \"application/json\") {",
+            "return responseObject, nil",
+            "return response, nil"
+          ]
+        }
+      ]
+    },
+    "add-user-to-group-nil-response": {
+      "statement": "So when adding one user answers with a JSON body, `AddUserToGroup` returns a nil `*http.Response` with a nil error, and a caller that reads the status from the returned response dereferences nil.",
+      "tier": "B",
+      "derived_from": [
+        "zidentity.sdk-go:add-user-to-group-response"
+      ],
+      "conditions": "Follows from a failed Go type assertion yielding the zero value (nil) when `Create` returns the decoded struct; what the add-user response carries is not observed."
+    },
+    "admin-scope-optional": {
+      "statement": "The Go SDK's comment says an administrative entitlement for the ZIAM service carries no `scope` key at all, and the Go model holds `Scope` and `Service` as pointers because as value types the absence could not be told apart from `{\"id\": \"\"}`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/user_entitlement/user_entitlement.go",
+          "quotes": [
+            "Entitlements is one administrative entitlement record: a set of roles, the",
+            "Scope and Service are pointers because they are genuinely optional in the",
+            "response. A ZIAM-service entitlement carries no `scope` key at all, and as",
+            "Scope *common.IDNameDisplayName `json:\"scope,omitempty\"`",
+            "value types the absence was indistinguishable from `{\"id\": \"\"}`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/user_entitlement/user_entitlement.go",
+          "after": "type Entitlements struct {",
+          "quotes": [
+            "Service *Service `json:\"service,omitempty\"`"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "user-action-paths": {
+      "summary": "The contract writes the user actions as colon suffixes on the user path (`/users/{id}:setskipmfa`), while the Go SDK sends them as a further path segment after a slash.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zid.openapi.json",
+            "pointer": "/paths/~1users~1{id}:setskipmfa/post",
+            "expect": {
+              "operationId": "Users Ops Mfa"
+            }
+          },
+          "says": "Skip MFA is POST /users/{id}:setskipmfa; reset and update password take the same colon form."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/ziam/services/users/users.go",
+            "quotes": [
+              "fmt.Sprintf(\"%s/%s/setskipmfa\", usersEndpoint, userID),"
+            ]
+          },
+          "says": "Skip MFA is POST /users/<id>/setskipmfa."
+        }
+      ],
+      "impact": "If the API routes only the colon form, every Go user action fails; a raw caller should follow the contract until a trace shows which form a tenant accepts."
+    }
+  }
+}

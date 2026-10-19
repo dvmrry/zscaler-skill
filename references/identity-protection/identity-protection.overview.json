@@ -1,0 +1,336 @@
+{
+  "schema_version": 1,
+  "id": "identity-protection.overview",
+  "title": "Identity Protection (ITDR): how it reads identity stores and endpoints, what it needs, and what can be automated",
+  "aliases": [
+    "identity protection",
+    "itdr",
+    "identity threat detection and response",
+    "zscaler itdr",
+    "ad posture scan",
+    "entra id posture scan",
+    "credential exposure scan",
+    "identity threat detection",
+    "identity protection api"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "aem.secops-platform"
+    },
+    {
+      "rel": "see-also",
+      "to": "soc-workbench.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.overview"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{secops-part}}"
+    },
+    {
+      "label": "Features.",
+      "text": "{{features}}"
+    },
+    {
+      "heading": "Components and what each needs"
+    },
+    {
+      "text": "{{components}} {{zte-containment}} {{connectors}}"
+    },
+    {
+      "items": [
+        {
+          "label": "Active Directory.",
+          "text": "{{ad-posture}}"
+        },
+        {
+          "label": "Entra ID.",
+          "text": "{{entra-posture}}"
+        },
+        {
+          "label": "Okta.",
+          "text": "{{okta}}"
+        },
+        {
+          "label": "Change detection.",
+          "text": "{{change-detection}}"
+        },
+        {
+          "label": "Endpoints.",
+          "text": "{{credential-exposure}} Whether this scan needs Client Connector is not stated on the current page {{gap:credential-scan-agent}}. {{threat-detection}}"
+        }
+      ]
+    },
+    {
+      "label": "Current and legacy consoles.",
+      "text": "{{legacy-redirect}}"
+    },
+    {
+      "heading": "Automation"
+    },
+    {
+      "text": "{{no-client-surface}} Identity reports go through the platform's Reporting API ([[aem.secops-platform:reporting-api]]); any other API, and parity with legacy ITDR, is open {{gap:api-and-legacy-parity}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a missing AD posture result, whether Client Connector is installed on a domain-joined Windows machine for that domain.",
+      "uses": [
+        "ad-posture"
+      ]
+    },
+    {
+      "do": "For missing identity threat detections, whether the threat detection endpoint policy is applied to designated machines that run Client Connector, and which detectors it enables.",
+      "uses": [
+        "threat-detection"
+      ]
+    },
+    {
+      "do": "Whether a setting is configured in the current SecOps Settings page or in the legacy ITDR experience it links to.",
+      "uses": [
+        "legacy-redirect",
+        "api-and-legacy-parity"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Identity Protection detects anomalous activity such as compromised credentials, suspicious logins and sensitive data theft, and gives continuous, unified visibility into identity risks; its architecture page calls it an identity threat detection and response (ITDR) solution integrated with the SecOps platform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-what-identity-protection.json",
+          "quotes": [
+            "It detects anomalous activities such as compromised credentials, suspicious logins, sensitive data theft, etc., and provides continuous and unified visibility into identity risks."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-identity-protection-architecture.json",
+          "quotes": [
+            "Identity Protection is an effective identity threat detection and response solution (ITDR) integrated with the Zscaler Security Operations (SecOps) platform."
+          ]
+        }
+      ]
+    },
+    "secops-part": {
+      "statement": "It is part of the Zscaler SecOps platform and works alongside UVM, AEM and SOC Workbench.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-what-identity-protection.json",
+          "quotes": [
+            "Identity Protection is part of the Zscaler Security Operations (SecOps) platform and works alongside Unified Vulnerability Management (UVM), Asset Exposure Management (AEM), and Security Operations Center (SOC) Workbench"
+          ]
+        }
+      ]
+    },
+    "features": {
+      "statement": "Its listed features are detecting identity risks (compromised accounts, suspicious sign-ins, leaked credentials, authentication anomalies), containing identity attacks, fixing weak passwords, exposed credentials and excessive privileges, a single identity view across sources, and custom dashboards and reports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-what-identity-protection.json",
+          "quotes": [
+            "Detect Risks Associated with Identities: Detect compromised accounts, suspicious sign‑ins, leaked credentials, and anomalies in authentication activities",
+            "Mitigate Identity Attacks: Detect and contain identity-based attacks before they can cause harm.",
+            "Strengthen Identity Posture: Find and fix weak passwords, exposed credentials, and excessive privileges.",
+            "Single Identity View: Unify identity data from disparate sources into one view.",
+            "Reports and Dashboards: Custom dashboards and reports to view specific results as required."
+          ]
+        }
+      ]
+    },
+    "components": {
+      "statement": "Its key architecture components include an Identities App in the SecOps platform for management and analysis, an ITDR Connector that streams ITDR data into the data fabric, the Data Fabric Cluster that processes raw data, and the Zero Trust Exchange, whose access policy controls block compromised users when an identity attack is detected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-identity-protection-architecture.json",
+          "quotes": [
+            "Identities App: Built into the SecOps platform and serves as the central point of management and analysis for the Identity Protection service.",
+            "ITDR Connector: The data connector that serves as the source stream from the ITDR solution to the data fabric.",
+            "Data Fabric Cluster: The entire data fabric cluster responsible for processing raw data from various sources.",
+            "Zscaler Zero Trust Exchange (ZTE): Identity Protection leverages the ZTE platform to mitigate risk with access policy controls that block compromised users when an identity attack is detected."
+          ]
+        }
+      ]
+    },
+    "zte-containment": {
+      "statement": "Through the Zero Trust Exchange, access policy controls block compromised users when an identity attack is detected, and the ZIA and ZPA integration adds visibility, enrichment and containment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-identity-protection-architecture.json",
+          "quotes": [
+            "Identity Protection leverages the ZTE platform to mitigate risk with access policy controls that block compromised users when an identity attack is detected.",
+            "Integration with Internet & SaaS (ZIA) and Private Access (ZPA) provides better visibility, enrichment, and containment capabilities."
+          ]
+        }
+      ]
+    },
+    "connectors": {
+      "statement": "Connectors ingest posture scans, change detections, alerts and identity records, and integrate with identity providers such as Okta and Microsoft Entra to consume identity data directly from the customer's IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-what-identity-protection.json",
+          "quotes": [
+            "Identity Protection uses connectors to ingest data from sources such as posture scans, change detections, alerts, and identity records.",
+            "These connectors also integrate with identity providers like Okta and Microsoft Entra, enabling the system to consume identity data directly from the customer's IdP"
+          ]
+        }
+      ]
+    },
+    "ad-posture": {
+      "statement": "An AD posture scan targets a named AD domain and requires Zscaler Client Connector on a domain-joined Windows machine; it runs LDAP queries to map schema, users, computers, OUs and other objects, then checks them for misconfigurations and vulnerabilities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-identity-protection-architecture.json",
+          "quotes": [
+            "You can configure an AD scan by specifying the AD domain you want to assess. For assessing the AD domain, Zscaler Client Connector must be installed on a domain-joined Windows machine.",
+            "Identity Protection audits an AD domain by running LDAP queries to build a map of schema, users, computers, OUs, and other objects in your identity store.",
+            "It then runs checks against these objects to find misconfigurations and vulnerabilities that exist in your AD domains."
+          ]
+        }
+      ]
+    },
+    "entra-posture": {
+      "statement": "An Entra ID posture scan connects the Entra ID tenant and uses a deployment script that creates the needed resources there (resource group, app, storage account, service principal) and enables diagnostic settings to enable change detection using logs; the audit logs are analyzed and the results appear in the Identities app.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-identity-protection-architecture.json",
+          "quotes": [
+            "Identity Protection uses a deployment script to set up all necessary resources such as resource group, app, storage account, service principal, etc. in the Entra ID tenant.",
+            "Diagnostic settings are also enabled by the deployment script to enable change detection using logs.",
+            "The audit logs are analyzed, and the results are available in the Identities app."
+          ]
+        }
+      ]
+    },
+    "okta": {
+      "statement": "The Okta integration enriches identity metadata, detects real-time changes on an Okta identity, and can act on it, for example activate or suspend a user or clear its sessions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-identity-protection-architecture.json",
+          "quotes": [
+            "Identity Protection integrates with Okta to enrich the identity metadata, identify real-time changes on an Okta identity, and perform actions on an Okta identity like activate user, suspend user, clear user sessions, etc."
+          ]
+        }
+      ]
+    },
+    "change-detection": {
+      "statement": "Identity change detection monitors critical changes in AD domains and Entra ID tenants in real time; in addition to real-time alerting it gives remediation guidance as video tutorials, commands and scripts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-identity-protection-architecture.json",
+          "quotes": [
+            "Identity Protection provides real-time monitoring of critical changes in your AD domains and Entra ID tenants that introduce new risks",
+            "In addition to real-time alerting, you also get remediation guidance in the form of video tutorials, commands, and scripts that can be used to resolve issues."
+          ]
+        }
+      ]
+    },
+    "credential-exposure": {
+      "statement": "The credential exposure scan checks endpoints for identity material stored locally, such as usernames, passwords, API keys, SSH keys and certificate files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-identity-protection-architecture.json",
+          "quotes": [
+            "Credential Exposure Scan: Identity Protection scans endpoints to check for risky identity material, such as usernames, passwords, API keys, SSH keys, certificate files, and other credentials stored locally on endpoints."
+          ]
+        }
+      ]
+    },
+    "threat-detection": {
+      "statement": "Identity threat detection is enabled as an endpoint policy on designated machines with Zscaler Client Connector installed; detectors such as DCSync, DCShadow and Kerberoasting are enabled through policies, and Client Connector signals Identity Protection when it sees a pattern.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-identity-protection-architecture.json",
+          "quotes": [
+            "Identity threat detection is enabled as an endpoint policy on designated machines with Zscaler Client Connector installed.",
+            "Security teams can enable detectors (DCSync, DCShadow, Kerberoasting, etc.) via policies on designated endpoints.",
+            "If a pattern is noticed, Zscaler Client Connector sends signals to Identity Protection indicating that a threat has been detected."
+          ]
+        }
+      ]
+    },
+    "legacy-redirect": {
+      "statement": "Identity Protection is configured on the SecOps platform's Settings page; where deeper configuration is needed, some links redirect to the legacy ITDR experience.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-what-identity-protection.json",
+          "quotes": [
+            "Custom Configuration: Manage and fine-tune identity protection through the SecOps platform.",
+            "Within the Settings page, you can adjust scan configurations and review clear explanations for each option.",
+            "When deeper configuration is required, certain links redirect you to the legacy ITDR experience"
+          ]
+        }
+      ]
+    },
+    "no-client-surface": {
+      "statement": "No vendored client covers Identity Protection or ITDR: the Go and Python SDKs, the Terraform providers, the Ansible collections, the MCP server, the OneAPI Postman collection and the captured Automate contract have no such service; the MCP server's ZIdentity tools manage users and groups, not identity risk.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "used in your server-side code to interact with the Zscaler API platform across multiple products such as:"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. The Python README's product list (introduced by the quoted line) names no Identity Protection API, and at the pins `git grep -i -E 'itdr|identity.protection'` finds no such code in the Go or Python SDKs, the ZIA, ZPA, ZCC or ZTC providers, the Ansible collections or the MCP server (the only hits are base64 test data); the Postman collection has no match."
+    }
+  },
+  "gaps": {
+    "api-and-legacy-parity": {
+      "kind": "semantic",
+      "title": "Identity Protection's API and connector-configuration surface, and its parity with legacy ITDR",
+      "status": "open",
+      "former_ids": [
+        "identity-protection-01"
+      ],
+      "detail": "Unverified legacy statement: the help portal lists ITDR under Zscaler Legacy, Identity Protection in the SecOps UI is the current generation, and advanced tasks redirect to the legacy ITDR experience; the authoritative API surface, connector configuration API, report or export API, and exact parity between the two are not identified. The current page confirms only the redirect for deeper configuration (legacy-redirect).",
+      "blocks": "telling an operator whether identity findings or scan configuration can be automated, and which console holds a given setting",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "credential-scan-agent": {
+      "kind": "semantic",
+      "title": "Whether the credential exposure scan requires Zscaler Client Connector on the endpoint",
+      "status": "open",
+      "detail": "Unverified legacy statement: Credential Exposure Scan requires ZCC. The current architecture page describes the scan of endpoints but does not name the agent that runs it; the About Endpoint Credential Exposure Scan article it links is not captured.",
+      "blocks": "telling an operator what must be installed for endpoint credential findings to appear",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

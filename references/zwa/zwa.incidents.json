@@ -1,0 +1,315 @@
+{
+  "schema_version": 1,
+  "id": "zwa.incidents",
+  "title": "Workflow Automation incidents: where they come from, who gets them, statuses, search limits and closing or deleting",
+  "aliases": [
+    "workflow automation",
+    "zwa",
+    "dlp incident management",
+    "zwa incidents",
+    "incident groups",
+    "zwa incident status",
+    "zwa delete incident",
+    "zwa search limit",
+    "unassigned dlp incident",
+    "zscaler workflow automation"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.dlp.incident-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.workflows"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.api"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} Where its incidents come from is in [[zia.dlp.incident-forwarding:zwa-captures-incidents]]; how they are ingested is open there, [[zia.dlp.incident-forwarding:zwa-ingest-path]]."
+    },
+    {
+      "heading": "Ownership"
+    },
+    {
+      "text": "{{incident-groups}} {{assignment}} {{restricted-admin}} {{group-priority}}"
+    },
+    {
+      "heading": "Handling an incident"
+    },
+    {
+      "text": "{{manual-features}} {{close-semantics}} {{delete-permanent}} {{quarantine-release}}"
+    },
+    {
+      "text": "Automated handling is in [[zwa.workflows]]; the API equivalents are in [[zwa.api.incidents-wire]]."
+    },
+    {
+      "heading": "Finding incidents"
+    },
+    {
+      "text": "{{values}} {{status-widgets}} {{search}} {{date-range}} {{bulk-limit}} {{evidence-placeholder}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the incident's group is mapped to an admin, since incidents in unmapped groups are not assigned automatically.",
+      "uses": [
+        "assignment"
+      ]
+    },
+    {
+      "do": "Whether the search's date range reaches incidents older than six months or spans more than three months.",
+      "uses": [
+        "date-range"
+      ]
+    },
+    {
+      "do": "Whether an incident that seems missing was deleted, which cannot be undone, rather than closed.",
+      "uses": [
+        "delete-permanent",
+        "close-semantics"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "Workflow Automation lets governance admins automate the management and resolution of DLP incidents, through an Incidents page that lists all the Data Protection incidents with their details: the metadata for each incident and the data that triggered it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-workflow-automation.json",
+          "quotes": [
+            "Workflow Automation is an application that enables governance admins to automate the management and resolution of Data Loss Prevention (DLP) incidents that occur in their organization.",
+            "The Incidents page lists all the Data Protection incidents along with the details for each of those incidents.",
+            "The incident details include the metadata for the incident and the data that triggered the incident."
+          ]
+        }
+      ]
+    },
+    "incident-groups": {
+      "statement": "Individual incidents can be grouped into incident groups, the groups given priorities, and the groups assigned to different admins.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-workflow-automation.json",
+          "quotes": [
+            "Workflow Automation provides the capability to group individual incidents into incident groups and assign priorities to those incident groups. These incident groups can then be assigned to different admins."
+          ]
+        }
+      ]
+    },
+    "assignment": {
+      "statement": "Workflow Automation assigns an incident to an admin with edit access to its incident group; if the violated rules belong to an incident group not mapped to an admin, the incident is not assigned automatically and super admins assign it manually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incidents.json",
+          "quotes": [
+            "Workflow Automation assigns the transaction that violated the DLP policies of an organization (the incident) to an admin who has edit access to that incident group.",
+            "If the violated rules belong to an incident group that is not mapped to an admin, incidents are not auto-assigned to an admin. For those incidents, super admins can log in to the Incidents page and assign admins manually."
+          ]
+        }
+      ]
+    },
+    "restricted-admin": {
+      "statement": "A restricted admin can only assign an incident to a super admin, and only DLP admins with full access can assign incidents to DLP admins with restricted access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incidents.json",
+          "quotes": [
+            "A restricted admin can only assign an incident to a super admin.",
+            "Only DLP admins with full access to Workflow Automation can assign incidents to DLP admins with restricted access."
+          ],
+          "after": "The following is a primary process flow for incident resolution using the Zscaler Admin Console:"
+        }
+      ]
+    },
+    "group-priority": {
+      "statement": "An incident's priority is derived from its incident groups; when the groups have different priorities, the highest is used, so changing an incident's groups can change its priority.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incidents.json",
+          "quotes": [
+            "The Priority field might change on the incidents based on the final list of incident groups that you assigned to the incidents.",
+            "The priority for the incidents is derived from the incident groups assigned to the incidents. If the incident groups have different priorities, the highest priority is used."
+          ],
+          "after": "To manage incidents, you can perform various actions against them."
+        }
+      ]
+    },
+    "manual-features": {
+      "statement": "Admins can notify the end user and request justification, or escalate to the user's manager or another approver and request justification, and can also configure workflows that perform actions automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-workflow-automation.json",
+          "quotes": [
+            "Notify the end user involved in an incident and request justification for the incident.",
+            "Escalate the incident to an end user's manager or other approver and request justification.",
+            "Workflow Automation also enables you to configure workflows that automatically perform different actions to manage and remediate DLP incidents."
+          ]
+        }
+      ]
+    },
+    "close-semantics": {
+      "statement": "Closing an incident takes optional notes, a resolution label and a False Positive flag; after it is closed (status Resolved), every other action except Investigating and Escalate is still available, and the status stays Resolved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incidents.json",
+          "quotes": [
+            "Notes: (Optional) Enter additional notes for the action.",
+            "Resolution Label: Select a resolution label and values associated with the label.",
+            "False Positive: If the incident is a false positive, select the False Positive checkbox.",
+            "After an incident is closed (status is Resolved), you can still perform all the other actions against the incident except for the Investigating and Escalate actions, but the incident status remains at Resolved."
+          ],
+          "after": "The Close Incident window appears."
+        }
+      ]
+    },
+    "delete-permanent": {
+      "statement": "Incidents can be deleted in any status, only by admins whose role has delete access permission for the Incidents category, and deletion is permanent: deleted incidents cannot be recovered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incidents.json",
+          "quotes": [
+            "You can delete incidents in any status.",
+            "The delete action is only available for admins who are assigned to a role that has delete access permission for the Incidents category.",
+            "This action permanently deletes the incidents, and you can't recover the deleted incidents later."
+          ]
+        }
+      ]
+    },
+    "quarantine-release": {
+      "statement": "Release Email Quarantine releases quarantined emails to all recipients for Email incidents whose action is Quarantine; applied to other incidents, the action completes successfully but nothing is done to them, and an error details window lists why.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incidents.json",
+          "quotes": [
+            "For incidents with Source DLP type Email and a Quarantine action, the emails are released from quarantine and the emails are sent to all the email recipients.",
+            "the action completes successfully, but the action is not taken against those incidents",
+            "After the action is completed, an Error Details window appears, displaying those incidents and the reason why the action failed for each incident.",
+            "Quarantine action is not supported for the Source DLP Type: <Source DLP type>"
+          ]
+        }
+      ]
+    },
+    "values": {
+      "statement": "In the portal, priorities are Critical, High, Medium and Low; severities are High, Medium and Low; source DLP types are Inline, Email, Endpoint and SaaS Security; and statuses are New, Investigating, Validating with User, Justification Response Received, Escalated and Resolved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incidents.json",
+          "quotes": [
+            "Priorities are Critical, High, Medium, and Low.",
+            "Severities are High, Medium, and Low.",
+            "Source DLP types are Inline, Email, Endpoint, and SaaS Security."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incidents.json",
+          "quotes": [
+            "- New - Investigating - Validating with User - Justification Response Received - Escalated - Resolved"
+          ],
+          "after": "Status: The status of the incident. Statuses are:"
+        }
+      ]
+    },
+    "status-widgets": {
+      "statement": "The Open widget counts incidents with status New, Investigating or Received Justification Response; Waiting Feedback counts Validating with User or Escalated; Response Available counts Received Justification Response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incidents.json",
+          "quotes": [
+            "Open: Displays the number of open incidents (i.e., incidents with the status New, Investigating, or Received Justification Response).",
+            "Waiting Feedback: Displays the number of incidents awaiting justification from the end user or awaiting feedback from the approver after escalation (i.e., incidents with the status Validating with User or Escalated).",
+            "Response Available: Displays the number of incidents where a user has provided a response from a user notification,",
+            "or where a manager or approver has provided a response from an escalation notification (i.e., incidents with the status Received Justification Response)."
+          ]
+        }
+      ]
+    },
+    "search": {
+      "statement": "The All search takes free-form text, is not case sensitive, and ANDs the strings entered; incidents cannot be found by user attributes chosen for obfuscation; the Transaction ID search takes transaction IDs separated by commas, for up to 10 incidents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incidents.json",
+          "quotes": [
+            "All: This option allows you to enter free-form text that can match multiple incidents.",
+            "This search is not case sensitive.",
+            "each string is treated with an AND operation",
+            "If you choose user attributes for obfuscation, you cannot search for incidents using these obfuscated user attributes.",
+            "Transaction ID: This option allows you to search for one or more incidents by their transaction IDs. To search for multiple incidents, enter the transaction IDs separated by a comma.",
+            "You can search for up to 10 incidents."
+          ]
+        }
+      ]
+    },
+    "date-range": {
+      "statement": "The Incidents page searches by System Creation Date and sorts by Incident Date by default, shows the current calendar week (Sunday through Saturday) by default, and its custom date range supports only incidents up to 6 months old within a window of at most three months.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incidents.json",
+          "quotes": [
+            "Workflow Automation searches the incidents based on the System Creation Date, and by default it sorts the incidents based on the Incident Date.",
+            "By default, this page displays information about the incidents that occurred in the current calendar week (Sunday through Saturday).",
+            "The Custom Date Range option only supports incidents that are up to 6 months old, and you can only search for a maximum of a three-month window."
+          ]
+        }
+      ]
+    },
+    "bulk-limit": {
+      "statement": "At most three bulk activities, incident downloads and bulk actions together, can be in progress at once.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incidents.json",
+          "quotes": [
+            "Only a maximum of three bulk activities (download incidents and bulk actions) can be in progress concurrently."
+          ],
+          "after": "- Export Incidents"
+        }
+      ]
+    },
+    "evidence-placeholder": {
+      "statement": "If the evidence file for a DLP incident exceeds 100 MB, the service replaces it with a placeholder evidence file that keeps the original name with .txt appended.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incidents.json",
+          "quotes": [
+            "If an evidence file for a DLP incident exceeds 100 MB in size, the Zscaler service replaces the original file with a placeholder evidence file.",
+            "The placeholder file retains the original name with \".txt\" appended (e.g., attachment.pdf.txt and samplefile.xlsx.txt)"
+          ]
+        }
+      ]
+    }
+  }
+}

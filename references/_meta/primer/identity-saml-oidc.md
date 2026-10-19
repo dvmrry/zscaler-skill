@@ -104,7 +104,7 @@ For new integrations, OIDC is preferred. SAML persists for legacy enterprise app
 ### Where Zscaler uses OIDC
 
 - **OneAPI authentication** — Zscaler's API uses OAuth 2.0 client-credentials flow (a non-OIDC OAuth pattern, but same family). API clients get tokens from ZIdentity's `/oauth2/v1/token` endpoint.
-- **Step-up authentication** — Zscaler's step-up auth is **OIDC-only** — explicitly called out in `references/zidentity/step-up-authentication.md`. SAML IdPs cannot be used.
+- **Step-up authentication** — one Zscaler help page says step-up is supported only with OIDC IdPs, another only recommends OIDC; the two are recorded as a divergence (`node scripts/kb.mjs resolve zidentity.step-up`).
 - **`acr` (Authentication Context Class Reference)** value — OIDC's mechanism for indicating "this user authenticated at level X." Zscaler maps Authentication Levels to `acr` values for OIDC step-up flows.
 
 ## OAuth 2.0 — the authorization framework underneath
@@ -214,9 +214,9 @@ This makes ZIdentity a **federation hub** — one upstream IdP can serve all of 
 
 ## Cross-links
 
-- ZIdentity overview: [`../../zidentity/overview.md`](../../zidentity/overview.md)
-- Step-up authentication: [`../../zidentity/step-up-authentication.md`](../../zidentity/step-up-authentication.md)
-- API client (OAuth client credentials): [`../../zidentity/api-clients.md`](../../zidentity/api-clients.md)
+- ZIdentity overview: [`zidentity.overview`](kb:zidentity.overview)
+- Step-up authentication: [`zidentity.step-up`](kb:zidentity.step-up)
+- API client (OAuth client credentials): [`zidentity.api-clients`](kb:zidentity.api-clients)
 - OneAPI gateway and audience parameter: [`shared.oneapi`](kb:shared.oneapi)
 - SCIM provisioning: [`shared.scim`](kb:shared.scim)
 - Zero-trust mental model: [`./zero-trust.md`](./zero-trust.md)

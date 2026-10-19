@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.step-up",
+  "title": "Step-up authentication: when Authentication Service asks for a stronger login, and why a prompt may not appear",
+  "aliases": [
+    "step-up authentication",
+    "ZIdentity step-up",
+    "step-up not prompting",
+    "Conditional Access step-up",
+    "require authentication level",
+    "re-authenticate with MFA for sensitive app",
+    "step-up with SAML"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.step-up.levels"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.step-up"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering.actions"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.policy.actions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Step-up is configured in Authentication Service and demanded by ZIA and ZPA policy; the ZIA-side subject [[zia.authentication.step-up]] holds the core statements this one builds on."
+    },
+    {
+      "label": "What it is.",
+      "text": "[[zia.authentication.step-up:what-it-is]] {{use-cases}}"
+    },
+    {
+      "label": "The flow.",
+      "text": "[[zia.authentication.step-up:flow]] [[zpa.troubleshooting.authentication:verify-now-prompt]]"
+    },
+    {
+      "label": "Where policy asks for it.",
+      "text": "In ZIA, the URL Filtering Conditional action: [[zia.url-filtering.actions:conditional-prereqs]]. In ZPA, the Conditional Access action: [[zpa.policy.actions:conditional-access-step-up]], and for Privileged Remote Access [[zpa.pra.access-policy:step-up-level]]."
+    },
+    {
+      "label": "OIDC.",
+      "text": "[[zia.authentication.step-up:oidc-only]] Another help page puts it as a recommendation, because most IdPs support step-up only over OIDC {{divergence:oidc-strictness}}. What a SAML-only tenant sees when a rule demands a level is not documented {{gap:saml-outcome}}."
+    },
+    {
+      "label": "Levels.",
+      "text": "The levels a policy asks for, their tree, validity and acr mapping are in [[zidentity.step-up.levels]]."
+    },
+    {
+      "label": "When no prompt appears.",
+      "text": "What a user without a Client Connector channel gets is open beyond ZIA's documented case {{gap:no-client-connector}}. Whether risk signals can trigger step-up without a policy rule is open {{gap:risk-trigger}}. Whether SCIM-provisioned users without a mapped IdP identity can step up at all is open {{gap:scim-users}}."
+    },
+    {
+      "label": "Seeing it afterwards.",
+      "text": "Where a step-up elevation is logged is open {{gap:elevation-logging}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant authenticates users through an OIDC external IdP.",
+      "uses": [
+        "zia.authentication.step-up:oidc-only",
+        "oidc-strictness"
+      ]
+    },
+    {
+      "do": "For ZIA, whether the user forwards through Client Connector and not through a Private or Virtual Service Edge, where Conditional blocks instead.",
+      "uses": [
+        "zia.url-filtering.actions:conditional-prereqs",
+        "no-client-connector"
+      ]
+    },
+    {
+      "do": "For ZPA, whether the rule's action is Conditional Access with a defined level and the tenant subscribes to Authentication Service.",
+      "uses": [
+        "zpa.policy.actions:conditional-access-step-up"
+      ]
+    },
+    {
+      "do": "Whether the level the rule asks for exists, is mapped to its acr value in the IdP, and is still valid for the user's last authentication.",
+      "uses": [
+        "zia.authentication.step-up:oidc-only",
+        "zidentity.step-up.levels:level-fields"
+      ]
+    }
+  ],
+  "claims": {
+    "use-cases": {
+      "statement": "The help names three uses: access to critical applications as defined by ZIA and ZPA access policies, which integrate with Authentication Service to enforce them; increased risk, where unusual behavior or a changed environment such as an unrecognized device or location might trigger a request for a higher level; and compliance, where certain data must be protected with MFA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-step-up-authentication.json",
+          "quotes": [
+            "Sensitive Resource Access: When users attempt to access critical applications, step-up authentication prompts them to provide additional authentication, as defined by access policies configured in Internet & SaaS (ZIA) and Private Access (ZPA), which integrate with Authentication Service to enforce these policies.",
+            "Increased Risk Detected: If the system detects that a user’s behavior is unusual or the environment changes (e.g., accessing from an unrecognized device or location), step-up authentication might be triggered to request a higher authentication level.",
+            "Compliance Requirements: For regulatory reasons, certain data must be protected with MFA to ensure that only authorized users can access it."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "oidc-strictness": {
+      "summary": "Whether step-up works only with OIDC IdPs, or is merely recommended with OIDC because most IdPs support it only there.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-step-up-authentication.json",
+            "quotes": [
+              "Step-up authentication is supported only with OIDC-based external IdP integrations."
+            ]
+          },
+          "says": "Step-up is supported only with OIDC-based external IdP integrations."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-about-external-identity-providers.json",
+            "quotes": [
+              "If you want to leverage step-up authentication, it is recommended to use OIDC-based integrations as most IdPs support step-up authentication only with the OIDC protocol. SAML-based integration is recommended if you do not have an option to use any OIDC-based integration."
+            ]
+          },
+          "says": "OIDC is recommended for step-up because most IdPs support step-up only over OIDC; SAML is recommended where no OIDC integration is possible."
+        }
+      ],
+      "impact": "Trusting the first page, an agent says a SAML tenant can never step up; trusting the second, it may tell a SAML tenant step-up could work with their IdP. Neither page says what happens when a SAML-only tenant's rule demands a level."
+    }
+  },
+  "gaps": {
+    "saml-outcome": {
+      "kind": "semantic",
+      "title": "What a SAML-only tenant sees when a rule demands an authentication level",
+      "status": "open",
+      "detail": "Unverified legacy statement: with a SAML IdP integration, Conditional Access rules expecting step-up silently fail to escalate, with no error. No source states the outcome (block, allow, or an error) for a SAML-only tenant.",
+      "blocks": "diagnosing a Conditional rule that never prompts on a SAML tenant",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "no-client-connector": {
+      "kind": "semantic",
+      "title": "What a user without Client Connector gets when policy demands step-up",
+      "status": "open",
+      "detail": "Unverified legacy statement: step-up requires Client Connector; users forwarding over GRE, IPsec or PAC receive no prompt and are silently blocked or denied, with no remediation path, and the prompt never arrives as a browser redirect. The step-up article says the prompt comes typically through Client Connector, and ZIA's Conditional action needs Client Connector forwarding and blocks through Private or Virtual Service Edges; the outcome for other forwarding paths, and for ZPA clientless access, is not stated.",
+      "blocks": "explaining a denied request on a Conditional rule for users not on Client Connector",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "risk-trigger": {
+      "kind": "semantic",
+      "title": "Whether risk signals trigger step-up on their own",
+      "status": "open",
+      "detail": "Unverified legacy statement: the risk-signal sources for the increased-risk trigger are not enumerated, and whether step-up can be triggered passively by risk signals rather than only by an explicit policy rule is not documented; device and location changes are the examples given.",
+      "blocks": "explaining a step-up prompt that no rule asked for",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "scim-users": {
+      "kind": "semantic",
+      "title": "Step-up for SCIM users without a mapped external IdP identity",
+      "status": "open",
+      "former_ids": [
+        "zid-29"
+      ],
+      "detail": "Unverified legacy statement: how step-up interacts with SCIM-provisioned users who lack a mapped external IdP identity, and whether they can step up at all, is not addressed by the captured step-up material.",
+      "blocks": "predicting step-up for directory-only users",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "elevation-logging": {
+      "kind": "semantic",
+      "title": "Where a step-up elevation is recorded",
+      "status": "open",
+      "former_ids": [
+        "zid-31"
+      ],
+      "detail": "Unverified legacy statement: on success Authentication Service upgrades the authentication level recorded in the user's session token. Whether step-up elevation is recorded in ZIA transaction logs, ZPA user activity logs or Authentication Service logs, and with what field values, is not stated in the captured material.",
+      "blocks": "answering whether and when a user was challenged",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

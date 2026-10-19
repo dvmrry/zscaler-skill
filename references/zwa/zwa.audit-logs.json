@@ -1,0 +1,290 @@
+{
+  "schema_version": 1,
+  "id": "zwa.audit-logs",
+  "title": "Workflow Automation audit logs: the customer audit search, what it records, and how the SDKs read it",
+  "aliases": [
+    "zwa audit logs",
+    "workflow automation audit",
+    "customer audit",
+    "GetCustomerAudit",
+    "client.zwa.audit_logs",
+    "oldRowJson",
+    "zwa audit retention"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.api.incidents-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Workflow Automation's admin audit trail is a search API, listed with the other products' audit paths in [[shared.audit-logs]]. {{what-recorded}}"
+    },
+    {
+      "label": "Records.",
+      "text": "{{record-fields}} {{action-values}}"
+    },
+    {
+      "label": "Paging.",
+      "text": "{{page-params}} The Go client shares the incident pager, with its page-start and page-size differences: [[zwa.api.incidents-wire:page-start]], [[zwa.api.incidents-wire:page-size]]."
+    },
+    {
+      "label": "SDK models.",
+      "text": "{{python-model}} Go types the before and after values differently from the contract {{divergence:row-json-type}}."
+    },
+    {
+      "label": "Retention and export.",
+      "text": "Retention is not documented for Workflow Automation, as for several other products: [[shared.audit-logs:other-retention]]. Whether the log can be streamed anywhere is open {{gap:retention-and-streaming}}, and so are the module and resource values {{gap:filter-values}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Python caller needs changedAt, changedBy or the before and after values, which the Python model does not expose.",
+      "uses": [
+        "python-model"
+      ]
+    },
+    {
+      "do": "Whether a Go audit search error is a decode failure on oldRowJson or newRowJson.",
+      "uses": [
+        "row-json-type"
+      ]
+    }
+  ],
+  "claims": {
+    "what-recorded": {
+      "statement": "The audit log search filters by time range and field values and returns audit information for every action admins take in the Workflow Automation Admin Portal and every action made through the APIs; the supported filter fields are Action, Resource, Admin and Module.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1customer~1audit/post",
+          "expect": {
+            "description": "Filters audit logs based on the specified time period and field values. The result includes audit information for every action made by the admins in the Workflow Automation Admin Portal and the actions made through APIs. The supported field values are:<ul> <li>Action</li> <li>Resource</li> <li>Admin</li> <li>Module</li></ul> The supported time range values are:<ul> <li>Start date and time</li> <li>End date and time</li></ul>",
+            "operationId": "searchAuditLogs"
+          }
+        }
+      ]
+    },
+    "record-fields": {
+      "statement": "Each audit record has `action`, `module` (where the action was performed), `resource` (the audited entity) and `changedAt`, all required, and may carry `changedBy` (the admin), `oldRowJson` and `newRowJson` (the entity's previous and current values, typed as objects) and `changeNote`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSAuditLogResponse",
+          "expect": {
+            "required": [
+              "action",
+              "module",
+              "resource",
+              "changedAt"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSAuditLogResponse/properties/module",
+          "expect": {
+            "description": "The module where the action was performed"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSAuditLogResponse/properties/resource",
+          "expect": {
+            "description": "The audited entity within the module"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSAuditLogResponse/properties/changedBy",
+          "expect": {
+            "description": "The admin who performed the action"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSAuditLogResponse/properties/oldRowJson",
+          "expect": {
+            "type": "object",
+            "description": "The previous value of the audited entity"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSAuditLogResponse/properties/newRowJson",
+          "expect": {
+            "type": "object",
+            "description": "The current or the updated value of the audited entity"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSAuditLogResponse/properties/changeNote",
+          "expect": {
+            "description": "The metadata of the configuration changes that occurred"
+          }
+        }
+      ]
+    },
+    "action-values": {
+      "statement": "The action is one of INSERT, UPDATE, DELETE, CHECKPOINT and UNDEFINED.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSAuditAction/properties/action",
+          "expect": {
+            "enum": [
+              "INSERT",
+              "UPDATE",
+              "DELETE",
+              "CHECKPOINT",
+              "UNDEFINED"
+            ],
+            "description": "The action performed by the admin or APIs"
+          }
+        }
+      ]
+    },
+    "page-params": {
+      "statement": "The audit search takes `page` (minimum 0, default 0), `pageSize` (default 10, no stated maximum) and `pageId`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1customer~1audit/post/parameters/[name=page]",
+          "expect": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1customer~1audit/post/parameters/[name=pageSize]",
+          "expect": {
+            "description": "Specifies the page size (i.e., number of incidents per page).",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10
+            }
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1customer~1audit/post/parameters/[name=pageId]",
+          "expect": {
+            "description": "Specifies the page ID of the incident in a multi-paginated response. It is a unique identifier returned in the first search request. You can use the page ID instead of the page number in subsequent search requests for faster and more efficient results."
+          }
+        }
+      ]
+    },
+    "python-model": {
+      "statement": "Python's audit model keeps `cursor` and `logs`, and each log entry reads only `action`, `module` and `resource`, so `changedAt`, `changedBy`, `oldRowJson`, `newRowJson` and `changeNote` are not attributes of the parsed result; Go's `AuditLog` struct carries all eight.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zwa/models/audit_logs.py",
+          "quotes": [
+            "self.module = config[\"module\"] if \"module\" in config else None",
+            "self.resource = config[\"resource\"] if \"resource\" in config else None"
+          ],
+          "after": "class Logs(ZscalerObject):"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zwa/services/customeraudit/customeraudit.go",
+          "quotes": [
+            "ChangedAt  string `json:\"changedAt\"`",
+            "ChangeNote string `json:\"changeNote\"`"
+          ]
+        }
+      ],
+      "conditions": "Rests on the whole Logs class at the pin, whose __init__ sets only action, module and resource; the raw response object still holds the other members."
+    }
+  },
+  "divergences": {
+    "row-json-type": {
+      "summary": "The contract types `oldRowJson` and `newRowJson` as objects, while Go declares them as strings.",
+      "positions": [
+        {
+          "says": "oldRowJson is an object holding the previous value of the audited entity.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dlp-incidents-workflow-automation-api.json",
+            "pointer": "/spec/components/schemas/ZSAuditLogResponse/properties/oldRowJson",
+            "expect": {
+              "type": "object"
+            }
+          }
+        },
+        {
+          "says": "Go's AuditLog declares OldRowJSON and NewRowJSON as strings.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zwa/services/customeraudit/customeraudit.go",
+            "quotes": [
+              "OldRowJSON string `json:\"oldRowJson\"`",
+              "NewRowJSON string `json:\"newRowJson\"`"
+            ]
+          }
+        }
+      ],
+      "impact": "If the API sends objects, Go's decoding of an audit page fails with a type error, failing the whole GetCustomerAudit call; if it sends JSON text, Go works and the contract is wrong. Not observed."
+    }
+  },
+  "gaps": {
+    "retention-and-streaming": {
+      "kind": "semantic",
+      "status": "open",
+      "former_ids": [
+        "zwa-03"
+      ],
+      "title": "Retention of Workflow Automation audit logs and whether they can be streamed",
+      "detail": "The audit log is a pull search. No ZWA source states how long records are kept or whether they can be pushed to a SIEM; ZIA and ZPA audit behavior should not be assumed for it.",
+      "blocks": "planning audit collection for Workflow Automation",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "filter-values": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Values accepted by the Module, Resource and Admin audit filters",
+      "detail": "Unverified legacy statement (open question): the complete module and action value sets are not documented. The action values are now in the contract; the module, resource and admin values are not.",
+      "blocks": "writing an audit search filtered by module or resource",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    }
+  }
+}

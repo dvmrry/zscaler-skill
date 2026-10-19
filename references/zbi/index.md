@@ -12,7 +12,7 @@ verified-against:
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
   vendor/zscaler-api-specs: dd3f2f75286d09b6fc6fc6eb93ec7071733b3a90
-  vendor/zscaler-help: 8c34045056b952b46110bb934580b0e936fa3f05
+  vendor/zscaler-help: 33cf635389eef002483ac5afb33cb9e37310fe3f
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: high
 source-tier: mixed
@@ -67,10 +67,9 @@ Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-h
 
 | Topic | File | Status |
 |---|---|---|
-| Overview — traffic flow, container model, Turbo Mode vs pixel streaming, architecture components | [`./overview.md`](./overview.md) | draft |
-| Policy integration — how ZIA URL Filter `Isolate` action, ZPA Isolation Policy, and Smart Browser Isolation compose; isolation profiles; subscription tiers | [`./policy-integration.md`](./policy-integration.md) | draft |
-| **API surface** — Python and Go ZIA read surfaces, ZPA CBI profile/banner/certificate CRUD, read-only region/ZPA projection/profile surfaces, Terraform/Ansible/MCP/Postman coverage, Business Insights namespace caveat, and singular-vs-plural endpoint quirks | [`./api.md`](./api.md) | draft |
-| Claims ledger — claim-by-claim source map and open-question forcing function for this refresh | [`./_claims-ledger.md`](./_claims-ledger.md) | draft |
+| Overview — traffic flow, container model, Turbo Mode vs pixel streaming, architecture components | [`zbi.cloud-browser`](kb:zbi.cloud-browser) | draft |
+| Policy integration — how ZIA URL Filter `Isolate` action, ZPA Isolation Policy, and Smart Browser Isolation compose; isolation profiles; subscription tiers | [`zbi.policy`](kb:zbi.policy) | draft |
+| **API surface** — Python and Go ZIA read surfaces, ZPA CBI profile/banner/certificate CRUD, read-only region/ZPA projection/profile surfaces, Terraform/Ansible/MCP/Postman coverage, Business Insights namespace caveat, and singular-vs-plural endpoint quirks | [`zbi.api`](kb:zbi.api) | draft |
 
 ## Scope
 
@@ -100,7 +99,7 @@ Not in scope (explicitly deferred):
 
 Source: `vendor/zscaler-help/configuring-smart-browser-isolation-policy.json`; `vendor/zscaler-help/zpa-about-isolation-policy.json`; `vendor/zscaler-help/understanding-isolation-miscellaneous-unknown-category-zia.json`.
 
-- **"URL Filter Isolate action — what happens?"** → [`./policy-integration.md`](./policy-integration.md) for the ZIA side, then cross to [`zia.url-filtering`](kb:zia.url-filtering) for rule evaluation.
-- **"ZPA Isolation Policy — how does it evaluate?"** → [`./policy-integration.md`](./policy-integration.md), then cross to [`zpa.policy`](kb:zpa.policy) for the policy-family evaluation order.
+- **"URL Filter Isolate action — what happens?"** → [`zbi.policy`](kb:zbi.policy) for the ZIA side, then cross to [`zia.url-filtering`](kb:zia.url-filtering) for rule evaluation.
+- **"ZPA Isolation Policy — how does it evaluate?"** → [`zbi.policy`](kb:zbi.policy), then cross to [`zpa.policy`](kb:zpa.policy) for the policy-family evaluation order.
 - **"Why did the Isolate rule fail?"** → likely SSL Inspection gap (Smart Isolation requires decrypt) or Malware Protection inbound/outbound toggles off. Cross-product gate — see [`shared.integrations`](kb:shared.integrations).
-- **"Isolated session failed / timed out unexpectedly"** → container idle timeout is 10 minutes. ZPA Isolation timeout is the minimum across all configured ZPA timeout policies. See [`./overview.md`](./overview.md).
+- **"Isolated session failed / timed out unexpectedly"** → container idle timeout is 10 minutes. ZPA Isolation timeout is the minimum across all configured ZPA timeout policies. See [`zbi.cloud-browser`](kb:zbi.cloud-browser).

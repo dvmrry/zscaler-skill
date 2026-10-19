@@ -25,13 +25,13 @@ author-status: reviewed
 
 # Zscaler Deception reference hub
 
-Entry point for Zscaler Deception questions. The refreshed source-backed summary is [`./overview.md`](./overview.md); the per-claim forcing function is [`./_claims-ledger.md`](./_claims-ledger.md).
+Entry point for Zscaler Deception questions. The refreshed source-backed summary is [`deception.overview`](kb:deception.overview).
 
 ## Topics
 
 | Topic | File | Status |
 |---|---|---|
-| Decoys, strategy, ZPA integration, attacker-facing MCP server decoys, and audited management surface | [`./overview.md`](./overview.md) | draft |
+| Decoys, strategy, ZPA integration, attacker-facing MCP server decoys, and audited management surface | [`deception.overview`](kb:deception.overview) | draft |
 
 ## Scope boundary
 
@@ -43,7 +43,7 @@ decoy that speaks MCP to AI applications and serves fabricated tool responses
 (`vendor/zscaler-help/supported-mcp-server-decoy-applications-and-tools.json:12-17`,
 `:37-42`). That protocol decoy is not an administrative MCP integration. The
 distinction and adjacent programmable surfaces are documented in
-[`./overview.md`](./overview.md#mcp-server-decoys-attacker-facing) and the claims
+[`deception.mcp-server-decoys`](kb:deception.mcp-server-decoys) and the claims
 ledger.
 
 ## When to start here

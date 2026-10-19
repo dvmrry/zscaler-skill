@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "id": "zscaler-cellular.overview",
+  "title": "Zscaler Cellular: Zscaler SIM, Cellular Edge and how SIM traffic reaches ZIA and ZPA policy",
+  "aliases": [
+    "zscaler cellular",
+    "zcell",
+    "zscaler sim",
+    "cellular edge",
+    "iot sim zero trust",
+    "esim zscaler",
+    "cellular imei imsi policy"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.sims"
+    },
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.monitoring"
+    },
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.deployment-credentials"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler Cellular (ZCell) secures IoT and mobile devices through a Zscaler-issued SIM instead of an agent. This subject covers the architecture; SIMs, deployment credentials, monitoring and the API have their own subjects."
+    },
+    {
+      "label": "How traffic flows.",
+      "text": "{{what-it-is}} {{traffic-path}} {{sim-data-only}} {{edge-role}}"
+    },
+    {
+      "label": "Policy.",
+      "text": "{{policy-identifiers}} Which ZIA or ZPA objects carry those identifiers, and tenant entitlement, are open {{gap:entitlement-and-policy-mapping}}."
+    },
+    {
+      "label": "Offerings and admin tasks.",
+      "text": "{{service-motions}} {{help-topics}} Most of those task articles are not captured {{gap:uncaptured-articles}}."
+    },
+    {
+      "label": "Related.",
+      "text": "The SIM inventory is in [[zscaler-cellular.sims]], the Cloud & Branch Connector credentials Cellular deployment depends on in [[zscaler-cellular.deployment-credentials]], network events, anomaly detection and audit logs in [[zscaler-cellular.monitoring]], and the API, SDK and MCP surface in [[zscaler-cellular.api]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the device's traffic is reaching a Cellular Edge at all before looking at ZIA or ZPA policy.",
+      "uses": [
+        "traffic-path",
+        "edge-role"
+      ]
+    },
+    {
+      "do": "Which identifier (IP address, IMEI or IMSI) the policy is meant to match on.",
+      "uses": [
+        "policy-identifiers",
+        "entitlement-and-policy-mapping"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Zscaler Cellular provides connectivity for IoT and mobile devices on a Zero Trust architecture and is made up of two products, Zscaler SIM and Zscaler Cellular Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-what-zscaler-cellular.json",
+          "quotes": [
+            "Zscaler Cellular is a comprehensive solution designed to provide secure, scalable, and efficient connectivity for IoT and mobile devices on a Zero Trust architecture.",
+            "It includes two key products: Zscaler SIM and Zscaler Cellular Edge."
+          ]
+        }
+      ]
+    },
+    "traffic-path": {
+      "statement": "A device with a Zscaler SIM connects to public 4G/5G networks; the SIM routes its traffic to the nearest Cellular Edge, which forwards it to the Zero Trust Exchange for inspection and policy enforcement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-what-zscaler-cellular.json",
+          "quotes": [
+            "Zscaler's industry-leading Zero Trust Exchange (ZTE)",
+            "Device Connection: An IoT or mobile device equipped with Zscaler SIM connects to public 4G/5G networks.",
+            "Traffic Forwarding: Zscaler SIM routes cellular traffic to the nearest Zscaler Cellular Edge, which acts as the bridge between the telecom network and Zscaler. The Cellular Edge then forwards traffic to the ZTE, which inspects and enforces security policies."
+          ]
+        }
+      ]
+    },
+    "policy-identifiers": {
+      "statement": "Traffic is subject to ZIA or ZPA policy based on constructs such as IP address, IMEI and IMSI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-what-zscaler-cellular.json",
+          "quotes": [
+            "Policy Application: Traffic is subjected to ZIA or ZPA policies based on predefined constructs (e.g., IP address, IMEI, and IMSI)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cellular-architecture.json",
+          "quotes": [
+            "Policy Enforcement: Zscaler SIMs enable you to enforce security policies based on IP address, IMEI, or IMSI via Zscaler Internet Access (ZIA) and Zscaler Private Access (ZPA)."
+          ]
+        }
+      ]
+    },
+    "sim-data-only": {
+      "statement": "A Zscaler SIM is a data-only SIM that integrates directly with the Zero Trust Exchange, for IoT devices where agent-based solutions are not feasible; devices on it need no software agents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cellular-architecture.json",
+          "quotes": [
+            "It is a data-only SIM card that integrates directly with the ZTE, providing seamless security for IoT devices such as vending machines, EV chargers, machinery, and tablets/kiosks where agent-based solutions are not feasible.",
+            "Agentless Security: Devices connected via Zscaler SIMs do not require additional software agents, simplifying deployment and management."
+          ]
+        }
+      ]
+    },
+    "edge-role": {
+      "statement": "Cellular Edge forwards traffic from or to a Zscaler SIM to the Zero Trust Exchange as an egress point, and provides traffic aggregation (funnelling cellular traffic to the ZTE), bidirectional traffic control (secure communication between devices and their endpoints), high availability through failover infrastructure and telemetry on SIM traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cellular-architecture.json",
+          "quotes": [
+            "Cellular Edge is an intelligent mechanism to forward traffic from or to a Zscaler SIM to the ZTE. It is an egress point to funnel cellular traffic to the Zero Trust Exchange (ZTE) for inspection and policy enforcement.",
+            "Traffic Aggregation: Funnels cellular traffic to the ZTE for inspection and policy application.",
+            "Bidirectional Traffic Control: Ensures secure communication between devices and their endpoints.",
+            "High Availability: Supports continuous service delivery with its failover infrastructure.",
+            "Telemetry Insights: Delivers granular data on SIM traffic, enabling detailed analytics and reporting."
+          ]
+        }
+      ]
+    },
+    "service-motions": {
+      "statement": "The product page lists two deployment options: Zscaler Cellular Service, plug-and-play agentless security for cellular IoT devices, and Zscaler Cellular Partner Service, partner-managed SIM infrastructure integration with high availability and failover.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zscaler-cellular-marketing.md",
+          "quotes": [
+            "Zscaler Cellular Service — \"Plug-and-play agentless security for cellular IoT devices\"",
+            "Zscaler Cellular Partner Service — Partner-managed solution for SIM infrastructure integration with high availability/failover"
+          ]
+        }
+      ]
+    },
+    "help-topics": {
+      "statement": "The Cellular help index has articles on Cellular Edge deployment and monitoring, SIM status, IMEI association, eSIM assignment and activation, SIM tags, SIM location groups and geofence anomaly detection policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zscaler-cellular-help-index.json",
+          "quotes": [
+            "\"title\": \"Viewing and Monitoring Cellular Edge Deployments\"",
+            "\"title\": \"Deploying New Cellular Edges\"",
+            "\"title\": \"Changing the Status of Zscaler SIMs\"",
+            "\"title\": \"Changing the IMEI Association for Zscaler SIMs\"",
+            "\"title\": \"Assigning and Activating eSIMs\"",
+            "\"title\": \"Managing Tags for Zscaler SIMs\"",
+            "\"title\": \"About SIM Location Groups\"",
+            "\"title\": \"Configuring Geofence Anomaly Detection Policies\""
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "entitlement-and-policy-mapping": {
+      "kind": "semantic",
+      "title": "Tenant entitlement, live acceptance and the ZIA/ZPA objects behind IP, IMEI and IMSI policy",
+      "status": "partial",
+      "former_ids": [
+        "zscaler-cellular-01"
+      ],
+      "detail": "The help pages say policy can be based on IP address, IMEI or IMSI through ZIA and ZPA, and the API contract, Python SDK and MCP read tools establish the programmable surface. Still open: which ZIA or ZPA policy objects carry an IMEI or IMSI criterion, which tenants are entitled to which ZCell operations, and whether the backend accepts every published operation.",
+      "blocks": "answering how to write a ZIA or ZPA rule that targets a SIM, and whether a given tenant can call a ZCell endpoint",
+      "resolves_with": [
+        "source-read",
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
+    "uncaptured-articles": {
+      "kind": "data",
+      "title": "Fourteen Cellular help articles are not captured",
+      "status": "open",
+      "detail": "The help index lists 21 articles; seven are captured (What Is, Architecture, About SIMs, deployment credentials, About Network Events, Understanding Anomaly Detection, About Audit Logs). Not captured: the dashboard, the step-by-step SIM configuration guide, Cellular Edge deployment and monitoring, SIM details, status, IMEI and tag tasks, eSIM assignment, network event details, the anomaly dashboard, and the SIM location group and geofence policy tasks. Answers about those tasks should not be inferred from the titles.",
+      "blocks": "answering step-level questions about Cellular Edge deployment, eSIM activation and geofence policy setup",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "none"
+      ]
+    }
+  }
+}

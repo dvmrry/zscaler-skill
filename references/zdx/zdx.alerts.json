@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "id": "zdx.alerts",
+  "title": "ZDX alerts: how rules trigger, what an alert's status means, and reading alerts through the API",
+  "aliases": [
+    "zdx alerts",
+    "alert status",
+    "completed by modified rule",
+    "completed by exceeded time",
+    "alert rule throttling",
+    "alert only if repeated",
+    "ongoing alerts api",
+    "historical alerts api",
+    "affected devices",
+    "client.zdx.alerts",
+    "why did my zdx alert not fire"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.alerts.snapshot"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.api.conventions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "An alert is raised by a rule when a metric crosses a threshold under the rule's throttling criteria, and the API reads alerts but does not define rules. The alert endpoints and SDK functions are generated (`node scripts/kb.mjs surface zdx`)."
+    },
+    {
+      "label": "What alerts are.",
+      "text": "{{about}} {{display-delay}} {{history-window}}"
+    },
+    {
+      "label": "How a rule triggers.",
+      "text": "{{rule-types}} {{throttling}} {{incident-thresholds}} How often rules are evaluated is open {{gap:evaluation-cadence}}. Whether one transient probe failure can raise and clear an alert is unconfirmed {{gap:transient-flap}}."
+    },
+    {
+      "label": "Status.",
+      "text": "{{statuses}} Which thresholds a historical alert shows after its rule was modified is open {{gap:modified-rule-thresholds}}."
+    },
+    {
+      "label": "Reading alerts through the API.",
+      "text": "{{api-ongoing}} {{api-historical}} Some alert reads also take at most 2 hours per request, while the alert-detail and affected-devices reads need no range: [[shared.log-export.zdx:two-hour-window]]. How the 14-day limit and the 2-hour window relate is open {{gap:alert-window}}. Paging is in [[zdx.api.conventions]]; sharing one alert outside the console is in [[zdx.alerts.snapshot]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the rule's throttling criteria were met: the repeat count, the number of active devices and the minimum impacted devices in the chosen group.",
+      "uses": [
+        "throttling",
+        "incident-thresholds"
+      ]
+    },
+    {
+      "do": "Whether the alert is still inside the 30-minute display delay before concluding it did not fire.",
+      "uses": [
+        "display-delay"
+      ]
+    },
+    {
+      "do": "Whether a closed alert ended because its condition cleared or because its rule was deleted, modified or ran out of time.",
+      "uses": [
+        "statuses"
+      ]
+    },
+    {
+      "do": "Whether an API alert query asked for the ongoing or the historical list, which select on different dates, and whether its window stays within the documented limits.",
+      "uses": [
+        "api-ongoing",
+        "api-historical",
+        "shared.log-export.zdx:two-hour-window",
+        "alert-window"
+      ]
+    }
+  ],
+  "claims": {
+    "about": {
+      "statement": "ZDX alerts monitor device, application, network performance and ZDX Score; admins create alert rules that trigger when a preset threshold is reached, and triggered alert details are sent by email or webhook.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-alerts.json",
+          "quotes": [
+            "Digital Experience (ZDX) Alerts provide a primary and timely source of information to monitor device, application, network performance, and ZDX Score",
+            "- Create configurable alert rules that are triggered when a preset threshold is reached for different types of events.",
+            "- Receive triggered alert details that are sent via email or webhook."
+          ]
+        }
+      ]
+    },
+    "display-delay": {
+      "statement": "Triggered alerts have a display delay of 30 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-alerts.json",
+          "quotes": [
+            "The alerts triggered have a display delay of 30 minutes."
+          ]
+        }
+      ]
+    },
+    "history-window": {
+      "statement": "The console shows alerts triggered over the past two weeks, with a time range of 2 hours to 14 days on the Alert History tab and a default of 2 hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-alerts.json",
+          "quotes": [
+            "You can view alerts triggered over the past two weeks. You can select options from 2 hours to 14 days in the time range filter to view triggered alerts on the Alert History tab.",
+            "The default time range is 2 Hours."
+          ]
+        }
+      ]
+    },
+    "rule-types": {
+      "statement": "Each alert rule type (Application, Device, Incident, Network or Call Quality) has its own trigger criteria based on its metrics, and when they are met the alert triggers and sends an alert email.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "triggering-alert.json",
+          "quotes": [
+            "Each alert rule type (Application, Device, Incident, Network, or Call Quality) has different criteria for an alert rule to trigger based on their metrics. If the criteria are met, then the alert triggers and provides notification through an alert email."
+          ]
+        }
+      ]
+    },
+    "throttling": {
+      "statement": "Application, device and network rules add throttling criteria: Alert Only if Repeated (how many times the situation must repeat), the number of active devices, and the minimum number or percentage of devices impacted, the last two based on an In Group selection of departments, cities, organization, regions or Zscaler locations; a rule whose group has fewer active devices than required does not trigger.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "triggering-alert.json",
+          "quotes": [
+            "You can configure the following criteria for an application, device, or network rule type:",
+            "- Alert Only if Repeated: The number of times a situation should repeat for an alert to be triggered.",
+            "- Number of Active Devices is: The number of active devices impacted based on the In Group selection.",
+            "- Minimum Devices Impacted: The number or percentage of devices impacted based on the In Group selection.",
+            "- In Group: The departments, cities, organization, regions, or Zscaler locations.",
+            "- The alert won't trigger because there is only one active device in Cairo and therefore does not meet the Number of Active Devices: 5 condition."
+          ]
+        }
+      ]
+    },
+    "incident-thresholds": {
+      "statement": "An incident rule needs a minimum number of impacted devices globally (across the organization) or locally (per location) depending on the incident type, and incident types with both thresholds must meet both to trigger.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "triggering-alert.json",
+          "quotes": [
+            "- An incident requires a minimum number of devices impacted depending on if it is impacted globally (across an organization) or locally (per location).",
+            "An incident that requires both a global and local threshold (Intermediate ISP, Last Mile ISP - Brownout, ZIA Public Service Edge, ZPA Public Service Edge), must meet both requirements for the alert to trigger.",
+            "The minimum number of impacted devices depends on the incident type."
+          ]
+        }
+      ]
+    },
+    "statuses": {
+      "statement": "An alert's status is Started, Ongoing, Completed, Completed by Exceeded Time (it ended because a time duration expired), Completed by Rule Deletion or Completed by Modified Rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-alert-status.json",
+          "quotes": [
+            "- Started: The alert has started.",
+            "- Ongoing: The alert is ongoing.",
+            "- Completed: The alert is completed.",
+            "- Completed by Exceeded Time: The alert ended due to an expired time duration.",
+            "- Completed by Rule Deletion: The alert ended due to a rule deletion.",
+            "- Completed by Modified Rule: The alert ended due to a modification of the rule."
+          ]
+        }
+      ]
+    },
+    "api-ongoing": {
+      "statement": "The ongoing-alerts endpoint returns alerts that have no ended date, selected by their `started_on` time with the filters; it defaults to the last 2 hours and cannot exceed a 14-day API limit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1alerts~1ongoing/get",
+          "expect": {
+            "description": "Gets the ongoing alert rules defined across an organization. All ongoing alert rules are returned if the search filter is not specified. The endpoint defaults to the last 2 hours if not provided. Ongoing alerts are the alerts that don't have ended date. The alert started_on time in conjunction with provided filters will be used. Cannot exceed 14 days API limit."
+          }
+        }
+      ]
+    },
+    "api-historical": {
+      "statement": "The historical-alerts endpoint returns alerts that have an ended date, selected by that date with the filters; it also defaults to the last 2 hours and cannot exceed the 14-day API limit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1alerts~1historical/get",
+          "expect": {
+            "description": "Gets the historical alert rules defined across an organization. All historical alert rules are returned if the search filter is not specified. The endpoint defaults to the last 2 hours if not provided. Historical alerts have ended on date. The ended on date will used to pull alerts in conjunction the provided filters. Cannot exceed 14 days API limit."
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "alert-window": {
+      "kind": "semantic",
+      "title": "Whether the alert endpoints' 14-day limit is a look-back or a per-request range, and how it fits the 2-hour window",
+      "status": "open",
+      "detail": "The contract says the ongoing and historical alert endpoints cannot exceed a 14-day API limit; the API overview says some alert endpoints require 2-hour time ranges and longer periods take several requests; the Python SDK docstrings call the 14 days a time range limit. No source says which endpoints the 2-hour rule covers or whether a single request may span up to 14 days.",
+      "blocks": "building an alert query over more than two hours",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "evaluation-cadence": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-31"
+      ],
+      "title": "How often alert rules are evaluated",
+      "status": "open",
+      "detail": "Alerts fire when a rule's criteria are met, and the trigger article counts repetitions 'in a row', but no captured source states the evaluation interval (each probe result, each score update, or a fixed period). The 30-minute display delay is documented separately.",
+      "blocks": "estimating how soon an alert can fire after a degradation starts",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "transient-flap": {
+      "kind": "semantic",
+      "title": "Whether one failed probe can raise an alert that then clears",
+      "status": "open",
+      "detail": "Unverified legacy statement: alerts on availability may fire briefly on a transient network issue, because one failed probe makes availability 0 for that window, and alert duration minimums should be tuned to avoid flapping. The trigger article documents the Alert Only if Repeated criterion but says nothing about a single failed probe or a duration minimum.",
+      "blocks": "explaining a short-lived availability alert",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "modified-rule-thresholds": {
+      "kind": "semantic",
+      "title": "Which thresholds a historical alert shows after its rule was modified",
+      "status": "open",
+      "detail": "Unverified legacy statement: for a historical alert with status Completed by Modified Rule, the thresholds displayed may be the new rule's, not those active when the alert fired. The status article says only that the alert ended because the rule was modified.",
+      "blocks": "reading the trigger thresholds of a past alert",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    }
+  }
+}

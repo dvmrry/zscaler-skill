@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "id": "zdx.diagnostics.session-records",
+  "title": "Reading and deleting a deep trace through the API: the session record and its keys",
+  "aliases": [
+    "get deeptrace",
+    "list deeptraces",
+    "delete deeptrace",
+    "deep trace session record",
+    "session_length",
+    "cloud_path_nane",
+    "stop a deep trace",
+    "deeptrace metrics after completion"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.start-request"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.session-status"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "After a start, the session is read back per device and trace, and its metric readers become useful once it has run. The list, get, delete and metric endpoints are generated (`node scripts/kb.mjs surface zdx`)."
+    },
+    {
+      "label": "The record.",
+      "text": "{{record-shape}} The earlier question about the length key is closed by the contract {{gap:session-length-key}}. {{go-record-keys}} The Go probe-name key and the contract's differ {{divergence:probe-name-key}}."
+    },
+    {
+      "label": "Results.",
+      "text": "{{metric-readers}} The Python readers and their result shapes are in [[zdx.sdk-python.response-models]]."
+    },
+    {
+      "label": "Top processes.",
+      "text": "{{top-processes}} {{top-processes-needs-trace}} The Go function sits in the device reports package and expects another shape, [[zdx.sdk-go.service-defects:go-top-processes-shape]]."
+    },
+    {
+      "label": "Deleting.",
+      "text": "{{delete-semantics}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which key the client read for the session length: the record uses `session_length`, not the start request's `session_length_minutes`.",
+      "uses": [
+        "record-shape",
+        "go-record-keys"
+      ]
+    },
+    {
+      "do": "Whether the session had finished before its metric readers were called.",
+      "uses": [
+        "metric-readers"
+      ]
+    }
+  ],
+  "claims": {
+    "record-shape": {
+      "statement": "In the contract's session record, `trace_id` is an int64 integer, `status` has the same four-value enum as the start response's `status`, `created_at`, `started_at` and `ended_at` are epoch seconds, and `trace_details` holds the session's `session_name`, user, device and probe IDs, with the length under `session_length`, described as 'Session length in seconds (upto 60 seconds)', and the cloud-path probe's name under `cloud_path_nane`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces~1{traceId}/get/responses/200/content/application~1json/schema/properties",
+          "expect": {
+            "trace_id": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "created_at": {
+              "description": "Deep trace created time in epoch seconds",
+              "format": "int64",
+              "type": "integer"
+            },
+            "started_at": {
+              "description": "Deep trace start time in epoch seconds",
+              "format": "int64",
+              "type": "integer"
+            },
+            "ended_at": {
+              "description": "Deep trace end time in epoch seconds",
+              "format": "int64",
+              "type": "integer"
+            },
+            "status": {
+              "enum": [
+                "not_started",
+                "in_progress",
+                "error",
+                "done"
+              ],
+              "title": "StatusEnum",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces~1{traceId}/get/responses/200/content/application~1json/schema/properties/trace_details/properties",
+          "expect": {
+            "session_length": {
+              "description": "Session length in seconds (upto 60 seconds)",
+              "format": "int64",
+              "type": "integer"
+            },
+            "cloud_path_nane": {
+              "type": "string"
+            },
+            "session_name": {
+              "description": "Name of the deep tracing session",
+              "type": "string"
+            },
+            "user_id": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "device_id": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "web_probe_id": {
+              "description": "Web probe ID",
+              "format": "int64",
+              "type": "integer"
+            },
+            "cloudpath_probe_id": {
+              "description": "Cloudpath probe ID",
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces/post/responses/201/content/application~1json/schema/properties/status",
+          "expect": {
+            "enum": [
+              "not_started",
+              "in_progress",
+              "error",
+              "done"
+            ],
+            "title": "StatusEnum"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces/post/responses/202/content/application~1json/schema/properties/status",
+          "expect": {
+            "enum": [
+              "not_started",
+              "in_progress",
+              "error",
+              "done"
+            ],
+            "title": "StatusEnum"
+          }
+        }
+      ]
+    },
+    "go-record-keys": {
+      "statement": "The Go SDK's `TraceDetails` reads the length from `session_length` and the cloud-path probe from `cloudpath_probe_id` and `cloud_path_name`, and its `DeepTraceSession` types `TraceID` (`trace_id`) as a string.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go",
+          "quotes": [
+            "type DeepTraceSession struct {",
+            "TraceID string `json:\"trace_id\"`",
+            "CloudPathProbeID string `json:\"cloudpath_probe_id,omitempty\"`",
+            "CloudPathProbeName string `json:\"cloud_path_name,omitempty\"`",
+            "SessionLength int `json:\"session_length,omitempty\"`",
+            "type TraceDetails struct {"
+          ]
+        }
+      ]
+    },
+    "metric-readers": {
+      "statement": "The legacy ZDX getting-started guide says that after a successful start, GET requests retrieve Web probe metrics, Cloud Path probe metrics and health metrics from the completed deep tracing session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zdx-api.json",
+          "quotes": [
+            "After receiving a successful response, you can use the GET request to retrieve information such as Web probe metrics, Cloud Path probe metrics, and health metrics from the deep tracing session has been completed."
+          ]
+        }
+      ]
+    },
+    "delete-semantics": {
+      "statement": "Deleting a trace deletes the session and its associated data, and the legacy guide says a DELETE also stops a deep trace before its duration expires; the contract answers 200 with the `trace_id` or 204 with no content.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces~1{traceId}/delete",
+          "expect": {
+            "description": "Delete the deep trace session and the associated data"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces~1{traceId}/delete/responses/200/content/application~1json/schema/properties",
+          "expect": {
+            "trace_id": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces~1{traceId}/delete/responses/204",
+          "expect": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-zdx-api.json",
+          "quotes": [
+            "You can also submit a DELETE request to stop a deep trace before the duration expires."
+          ]
+        }
+      ]
+    },
+    "top-processes": {
+      "statement": "The contract's top-processes read gets the top processes from a deep tracing session, addressed by the device ID and the session's trace ID; it returns a `timestamp` in epoch seconds and `top_processes`, each a `category` of metrics (for example disk, memory, wifi, network) with its `processes`, each a process identifier and a process name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces~1{traceId}~1top-processes/get",
+          "expect": {
+            "description": "Get top processes from the deep tracing session"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces~1{traceId}~1top-processes/get/responses/200/content/application~1json/schema/properties/timestamp",
+          "expect": {
+            "description": "epoch seconds"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces~1{traceId}~1top-processes/get/responses/200/content/application~1json/schema/properties/top_processes/items/properties/category",
+          "expect": {
+            "description": "category of metrics, for example - disk, memory, wifi, network"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces~1{traceId}~1top-processes/get/responses/200/content/application~1json/schema/properties/top_processes/items/properties/processes/items/properties/id",
+          "expect": {
+            "description": "process identifier pid"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces~1{traceId}~1top-processes/get/responses/200/content/application~1json/schema/properties/top_processes/items/properties/processes/items/properties/name",
+          "expect": {
+            "description": "Process name. For example, 'Chrome'"
+          }
+        }
+      ]
+    },
+    "top-processes-needs-trace": {
+      "statement": "So top processes are read per deep trace, not per device: the trace ID comes from starting a session or listing the device's sessions, and a device with no session has none to read.",
+      "tier": "B",
+      "derived_from": [
+        "zdx.diagnostics.session-records:top-processes",
+        "zdx.diagnostics.session-records:record-shape"
+      ],
+      "conditions": "Follows from the read being addressed by a session's trace ID; no source describes a top-processes read outside a deep tracing session."
+    }
+  },
+  "divergences": {
+    "probe-name-key": {
+      "summary": "The key for the cloud-path probe's name in the session record: the contract spells it `cloud_path_nane`; the Go SDK reads `cloud_path_name`.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces~1{traceId}/get/responses/200/content/application~1json/schema/properties/trace_details/properties/cloud_path_nane",
+            "expect": {
+              "type": "string"
+            }
+          },
+          "says": "The record's key is `cloud_path_nane`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go",
+            "quotes": [
+              "CloudPathProbeName string `json:\"cloud_path_name,omitempty\"`"
+            ]
+          },
+          "says": "The Go SDK reads `cloud_path_name`."
+        }
+      ],
+      "impact": "If the live record uses the contract's spelling, the Go `CloudPathProbeName` stays empty; if the contract has a typo, a hand-written client that follows it reads nothing. A live response would settle it."
+    }
+  },
+  "gaps": {
+    "session-length-key": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-33"
+      ],
+      "title": "Whether the session length uses a different key in the request and the response",
+      "status": "resolved",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "The contract itself uses `session_length_minutes` in the start body (zdx.diagnostics.start-request:contract-request) and `session_length` in the session record (claim record-shape), so the two keys are intended. The record's description of the unit (seconds, up to 60) is not reconciled with the request's minutes by any source."
+    }
+  }
+}

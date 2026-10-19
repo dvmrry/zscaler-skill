@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "id": "zbi.isolation-profiles",
+  "title": "Isolation profiles: the object every isolation rule names, its defaults and the open lifecycle questions",
+  "aliases": [
+    "isolation profile",
+    "cbi profile",
+    "browser isolation profile",
+    "default isolation profile",
+    "defaultProfile",
+    "isDefault",
+    "cbiProfile",
+    "zpn_isolation_profile_id"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zbi.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.misc-unknown-subscription"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.cbi-appprotection-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{default-profiles}} {{per-profile-banner-cert}}"
+    },
+    {
+      "label": "Internet & SaaS side.",
+      "text": "{{zia-profile-list}} {{zia-default-flag}} Whether an Internet & SaaS profile and a Private Access profile with the same purpose are one object is open {{gap:zia-zpa-profile-identity}}."
+    },
+    {
+      "label": "Private Access side.",
+      "text": "Private Access profiles are written through the CBI configuration API, whose wire details are in [[zpa.api.cbi-appprotection-wire]]; the provider's constraints, including at least two regions, are in [[zpa.terraform.resource-constraints:cbi-profile-constraints]]. The provider's isolation profile data source can return a different profile than the ID given: [[zpa.terraform.data-source-selection:invalid-id-falls-back-to-name-isolation-profile]]."
+    },
+    {
+      "label": "Settings.",
+      "text": "The setting names are visible in the Miscellaneous & Unknown profile, [[zbi.misc-unknown-subscription:fixed-settings]], but what most of them do is not captured {{gap:setting-semantics}}. How region selection bears on data residency is open {{gap:region-residency}}."
+    },
+    {
+      "label": "Lifecycle.",
+      "text": "How default profiles are created and whether their default flag can change is open {{gap:default-lifecycle}}. What happens when a profile a rule still names is deleted is open {{gap:delete-referenced}}, and so is how a profile change reaches sessions already running {{gap:update-propagation}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the profile a rule names still exists, on the side (Internet & SaaS or Private Access) the rule belongs to.",
+      "uses": [
+        "zia-profile-list",
+        "zia-zpa-profile-identity",
+        "delete-referenced"
+      ]
+    },
+    {
+      "do": "Whether the profile's settings were changed while the user's session was running.",
+      "uses": [
+        "update-propagation"
+      ]
+    }
+  ],
+  "claims": {
+    "default-profiles": {
+      "statement": "Default isolation profiles are created automatically for every organization that has Cloud Browser, and admins can create multiple isolation profiles for both Internet & SaaS and Private Access in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-cloud-browser.json",
+          "quotes": [
+            "Default isolation profiles are automatically created for all organizations when they have Cloud Browser.",
+            "You can also manually create multiple isolation profiles for both Internet & SaaS and Private Access in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "per-profile-banner-cert": {
+      "statement": "Isolation profiles can be edited at any time, and each profile has a banner theme for the isolation end user notification and a choice of root certificates; the configuration guide gives these steps for Internet & SaaS and Private Access profiles alike.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "step-step-configuration-guide-cloud-browser.json",
+          "quotes": [
+            "Create an Internet & SaaS isolation profile. You can edit your isolation profiles at any time.",
+            "Choose banner themes for the isolation end user notification that appears for each isolation profile.",
+            "Choose the root certificates for each isolation profile."
+          ],
+          "after": "For Internet & SaaS isolation profiles:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "step-step-configuration-guide-cloud-browser.json",
+          "after": "For Private Access isolation profiles:",
+          "quotes": [
+            "Create a Private Access isolation profile. You can edit your isolation profiles at any time.",
+            "Choose banner themes for the isolation end user notification that appears for each isolation profile.",
+            "Choose the root certificates for each isolation profile."
+          ]
+        }
+      ]
+    },
+    "zia-profile-list": {
+      "statement": "The Internet & SaaS API lists the cloud browser isolation profiles offered in the Isolation Profile field of URL Filtering and Cloud App Control rules; each entry has an `id` (a UUID), a `name`, a `url` and a `defaultProfile` flag that marks a default profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1browserIsolation~1profiles/get",
+          "expect": {
+            "description": "<p>Gets a list of all the cloud browser isolation profiles in the Isolation Profile field for <a href=\"https://help.zscaler.com/zia/configuring-url-filtering-policy#Action\" target=\"_blank\">URL Filtering Policy</a> and <a href=\"https://help.zscaler.com/zia/adding-rules-cloud-app-control-policy\" target=\"_blank\">Cloud App Control Policy</a> rules.</p>",
+            "operationId": "Browser Isolation Resource Get Cloud Browser Isolation Profiles"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1browserIsolation~1profiles/get/responses/200/content/application~1json/schema/items/properties/id",
+          "expect": {
+            "description": "<p>The universally unique identifier (UUID) for the browser isolation profile</p>",
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1browserIsolation~1profiles/get/responses/200/content/application~1json/schema/items/properties/url",
+          "expect": {
+            "description": "<p>The browser isolation profile URL</p>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1browserIsolation~1profiles/get/responses/200/content/application~1json/schema/items/properties/name",
+          "expect": {
+            "description": "<p>Name of the browser isolation profile</p>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1browserIsolation~1profiles/get/responses/200/content/application~1json/schema/items/properties/defaultProfile",
+          "expect": {
+            "description": "<p>(Optional) Indicates whether this is a default browser isolation profile. Zscaler sets this field.</p>  ",
+            "type": "boolean"
+          }
+        }
+      ]
+    },
+    "zia-default-flag": {
+      "statement": "On the Internet & SaaS side, `defaultProfile` says whether a profile is a default profile, and the contract says Zscaler sets this field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1browserIsolation~1profiles/get/responses/200/content/application~1json/schema/items/properties/defaultProfile",
+          "expect": {
+            "description": "<p>(Optional) Indicates whether this is a default browser isolation profile. Zscaler sets this field.</p>  ",
+            "type": "boolean"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zia-zpa-profile-identity": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether Internet & SaaS and Private Access isolation profiles are the same objects",
+      "detail": "Unverified legacy statement: treat Internet & SaaS and Private Access profile identity as distinct unless a tenant-side comparison proves they map one to one. Admins create profiles for each service separately, the Internet & SaaS API lists profiles with a UUID id, and Private Access has its own CBI profile API; no source says whether one list holds the other's profiles.",
+      "blocks": "reusing a profile ID from one service's API in the other's rule",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "setting-semantics": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What each isolation profile setting does",
+      "detail": "Unverified legacy statement: the profile carries Turbo Mode, PAC File URL and Override PAC File (the cloud browser's outbound proxy), Debug Mode (end-user debug tools), Root Certificate (the authority the cloud browser trusts, Zscaler's by default), Copy and Paste, File Transfer and Print as independent per-direction controls, Read-Only Isolation (display only, scroll and navigation), View office files in Isolation, local browser rendering, Application Deep Linking (opening non-web apps on the endpoint), Votiro CDR, Region Selection (which region hosts the container), Isolation Banner, Persist Browser Isolation URL bar (showing the real URL), Isolation Experience, Watermarking (an overlay identifying user or session) and Persistent State (whether the session survives a browser close). Only Turbo Mode's meaning is captured; the profile-creation articles for Internet & SaaS and Private Access are not captured. Which API field carries each setting is in a separate gap of zbi.api.",
+      "blocks": "explaining what an isolated user can and cannot do under a given profile",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "region-residency": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether region selection confines containers to regions for data residency",
+      "detail": "Unverified legacy statement: region selection on the isolation profile controls which region hosts the container, so data-residency reviewers can confine containers to specific regions; the default is All. The Miscellaneous & Unknown profile shows Region Selection: All, and the Private Access API requires at least two regions, but no source describes the residency effect or the default for other profiles.",
+      "blocks": "answering data-residency questions about Cloud Browser",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "default-lifecycle": {
+      "kind": "semantic",
+      "status": "partial",
+      "former_ids": [
+        "zbi-03"
+      ],
+      "title": "How default profiles are created and whether the default flag can change",
+      "detail": "Default profiles are created automatically when an organization has Cloud Browser, and on the Internet & SaaS side the contract says Zscaler sets `defaultProfile`. The Private Access CBI API's examples show an `isDefault` flag on profiles and certificates without marking it read-only or describing create and update behavior. Still open: what triggers default profile creation and whether the Private Access flag can be set or cleared through profile writes.",
+      "blocks": "managing default profiles as code",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "delete-referenced": {
+      "kind": "semantic",
+      "status": "open",
+      "former_ids": [
+        "zbi-05"
+      ],
+      "title": "What happens when a profile that a rule still names is deleted",
+      "detail": "The Private Access CBI API, SDKs and Terraform provider expose profile delete, and isolation rules reference a profile by `zpnIsolationProfileId`. No source says whether deleting a referenced profile is refused, leaves a dangling reference, or changes runtime behavior; the same is unknown for an Internet & SaaS rule's profile.",
+      "blocks": "predicting the effect of deleting or recreating a profile",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "update-propagation": {
+      "kind": "semantic",
+      "status": "open",
+      "former_ids": [
+        "zbi-06"
+      ],
+      "title": "How a profile change reaches isolated sessions already running",
+      "detail": "Profiles can be edited at any time, but no source says whether running sessions keep the old settings, take the new ones live, restart, or fail when their profile changes.",
+      "blocks": "explaining why a profile change did not take effect for a user at once",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

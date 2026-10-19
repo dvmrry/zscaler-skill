@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.overview.external-idps",
+  "title": "External IdPs in Authentication Service: OIDC and SAML, primary and secondary, limits and retention",
+  "aliases": [
+    "ZIdentity external IdP",
+    "Authentication Service IdP",
+    "primary IdP",
+    "secondary IdP",
+    "OIDC or SAML for ZIdentity",
+    "64 IdPs",
+    "SAML certificate expiring ZIdentity",
+    "Entra ID with ZIdentity",
+    "Okta with ZIdentity"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.users.provisioning"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.step-up"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zidentity.overview"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Authentication Service can authenticate users against external IdPs and take users from them. {{protocols}}"
+    },
+    {
+      "label": "Primary and secondary.",
+      "text": "{{primary-secondary}} {{domains}} {{idp-removal-retention}}"
+    },
+    {
+      "label": "Which IdPs.",
+      "text": "{{example-idps}}"
+    },
+    {
+      "label": "OIDC and step-up.",
+      "text": "How strictly step-up authentication depends on OIDC, on which two help pages differ, is in [[zidentity.step-up]]."
+    },
+    {
+      "label": "Provisioning.",
+      "text": "Which provisioning to use, and what SCIM removals of admins do in each product: [[zidentity.users.provisioning]]."
+    },
+    {
+      "label": "Admin MFA and certificates.",
+      "text": "{{admin-mfa-per-idp}} {{cert-warnings}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the IdP in question is the primary or a secondary one before removing it, since only the primary's users and groups are kept.",
+      "uses": [
+        "idp-removal-retention"
+      ]
+    },
+    {
+      "do": "Whether Authentication Service MFA for admins is enabled on each IdP.",
+      "uses": [
+        "admin-mfa-per-idp"
+      ]
+    },
+    {
+      "do": "Whether an enabled SAML certificate is expired or within 90 days of expiry.",
+      "uses": [
+        "cert-warnings"
+      ]
+    }
+  ],
+  "claims": {
+    "protocols": {
+      "statement": "Authentication Service supports OIDC and SAML external IdP configurations and can support any IdP that follows a standard SAML, OIDC or SCIM implementation; it redirects users to different IdPs according to the configured IdP criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-external-identity-providers.json",
+          "quotes": [
+            "Authentication Service redirects users to different IdPs based on the configured IdP criteria for authenticating users. Authentication Service supports both OpenID Connect (OIDC) and Security Assertion Markup Language (SAML) configurations.",
+            "Authentication Service can support any IdP as long as they follow a standard SAML, OIDC, or SCIM implementation."
+          ]
+        }
+      ]
+    },
+    "primary-secondary": {
+      "statement": "IdPs are configured as a primary IdP and secondary IdPs, a primary IdP must be configured before any secondary IdP, and an organization can configure at most 64 IdPs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-external-identity-providers.json",
+          "quotes": [
+            "You can configure primary and secondary external identity providers (IdPs) in the Zscaler Admin Console based on your organization's requirements.",
+            "Authentication Service allows you to configure a maximum of 64 IdPs per organization.",
+            "You must configure a primary IdP before you configure secondary IdPs."
+          ]
+        }
+      ]
+    },
+    "domains": {
+      "statement": "IdPs can be configured for different user domains; each secondary IdP shows the domains assigned to it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-external-identity-providers.json",
+          "quotes": [
+            "Configure multiple IdPs for different user domains.",
+            "Domain: The domains assigned to the IdP."
+          ]
+        }
+      ]
+    },
+    "idp-removal-retention": {
+      "statement": "Users and groups from the primary IdP are kept in Authentication Service if the primary IdP is removed, to ease moving the primary IdP to another provider; users and groups from a secondary IdP are not kept when that IdP is removed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-external-identity-providers.json",
+          "quotes": [
+            "Users and groups from the primary IdP are stored in Authentication Service even if the primary IdP is removed from Authentication Service. This is maintained to enable an easy migration of the primary IdP from one IdP partner to another.",
+            "Users and groups from the secondary IdP are not retained in Authentication Service if the secondary IdP is removed."
+          ]
+        }
+      ]
+    },
+    "example-idps": {
+      "statement": "The help's table of example IdPs lists Microsoft Entra ID (OIDC via Gallery App), Okta (OIDC via OIN App and Custom App), Microsoft AD FS, PingOne, Auth0, OneLogin and PingFederate, each supported over both OIDC, which the table marks as recommended, and SAML.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-external-identity-providers.json",
+          "quotes": [
+            "| External IdP | OIDC (Recommended) | SAML |",
+            "| Microsoft Entra ID | Supported (via Gallery App) | Supported |",
+            "| Okta | Supported (via OIN App and Custom App) | Supported |",
+            "| Microsoft AD FS | Supported | Supported |",
+            "| PingOne | Supported | Supported |",
+            "| Auth0 | Supported | Supported |",
+            "| OneLogin | Supported | Supported |",
+            "| PingFederate | Supported | Supported |"
+          ]
+        }
+      ]
+    },
+    "admin-mfa-per-idp": {
+      "statement": "The External Identities page shows, for the primary IdP and for each secondary IdP, whether Authentication Service MFA is enabled or disabled for admins.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-external-identity-providers.json",
+          "quotes": [
+            "Zscaler Admin MFA: Whether multi-factor authentication (MFA) in Authentication Service is enabled or disabled for admins.",
+            "Zscaler Admin MFA: Whether MFA in Authentication Service is enabled or disabled for admins."
+          ]
+        }
+      ]
+    },
+    "cert-warnings": {
+      "statement": "The console shows a banner when an IdP certificate or SAML request signing and decryption certificate expires within 90 days or has expired, and marks enabled SAML certificates with a caution icon when expiry is within 90 days and a red exclamation mark once expired.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-external-identity-providers.json",
+          "quotes": [
+            "If any of the SAML certificates (IdP certificate, SAML Request Signing and Decryption Certificate) are about to expire within 90 days or have already expired, then the Zscaler Admin Console displays a banner."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-external-identity-providers.json",
+          "after": "View the configured primary IdP.",
+          "quotes": [
+            "Caution icon: Appears when the certificate is about to expire. This icon first appears when the certificate is about to expire within 90 days.",
+            "Red Exclamation Mark icon: Appears when the certificate is expired.",
+            "The alert icons only appear for enabled SAML certificates."
+          ]
+        }
+      ]
+    }
+  }
+}

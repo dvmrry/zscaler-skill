@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "id": "unified.zagent",
+  "title": "ZAgent: the Admin Console's conversational AI, its agents, entitlements and history retention",
+  "aliases": [
+    "zagent",
+    "zscaler ai agent",
+    "admin console ai assistant",
+    "digital experience agent",
+    "risk360 agent",
+    "data protection agent",
+    "zagent retention",
+    "zagent api"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "unified.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "risk360.overview"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{routing}}"
+    },
+    {
+      "label": "Agents and entitlement.",
+      "text": "{{agent-subscriptions}} Risk360 features that run through ZAgent are noted in [[risk360.overview:zagent-features]]. Whether ZAgent is still in Limited Availability is not stated by the current page {{gap:availability}}."
+    },
+    {
+      "label": "History.",
+      "text": "{{retention}}"
+    },
+    {
+      "label": "Where it runs.",
+      "text": "{{console-only}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which agent the question needs and whether the tenant has the subscription that includes it (for ZDX, Advanced Plus for more than the Knowledge Skill).",
+      "uses": [
+        "agent-subscriptions"
+      ]
+    },
+    {
+      "do": "Whether the conversation being asked about is older than 14 days, after which it is no longer in session history.",
+      "uses": [
+        "retention"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "ZAgent is Zscaler's AI framework for operating and managing its SASE platform, used as a unified conversational experience to understand, monitor, troubleshoot, configure and optimize the environment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-zagent.json",
+          "quotes": [
+            "ZAgent is Zscaler's AI framework for operating and managing Zscaler's Zero Trust Secure Access Service Edge (SASE) platform.",
+            "You can understand, monitor, troubleshoot, configure, and optimize your Zscaler environment by using ZAgent as a unified, conversational experience."
+          ]
+        }
+      ]
+    },
+    "routing": {
+      "statement": "ZAgent picks the appropriate agent for a request and can choose a skill, or the admin selects an agent and then a skill; typing @ selects an agent and / selects that agent's skill.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-zagent.json",
+          "quotes": [
+            "ZAgent determines the appropriate agent based on the request and can choose a skill to focus on based on its capability.",
+            "Select an agent and then select a skill to focus the prompt on.",
+            "Optionally, you can enter @ to select an agent and then enter / to select an agent's skill."
+          ]
+        }
+      ]
+    },
+    "agent-subscriptions": {
+      "statement": "An agent's availability depends on subscriptions: the Digital Experience Agent is complimentary with Digital Experience's Advanced Plus (without it, only that agent's Knowledge Skill is available), the Risk360 Agent with Risk360, and the Data Protection Agent with Data Protection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-zagent.json",
+          "quotes": [
+            "An agent's availability depends on your subscriptions.",
+            "| Digital Experience Agent | Complimentary with Digital Experience's Advanced Plus.If you do not have Advanced Plus, then you only have access to the Digital Experience Agent's Knowledge Skill. |",
+            "| Risk360 Agent | Complimentary with Risk360. |",
+            "| Data Protection Agent | Complimentary with Data Protection. |"
+          ]
+        }
+      ]
+    },
+    "retention": {
+      "statement": "ZAgent retains prompts and responses as session history for a rolling 14 days; the history shows nothing if there were no sessions in that period.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-zagent.json",
+          "quotes": [
+            "ZAgent retains prompts and responses for a rolling period of 14 days as part of the session history.",
+            "No data is shown if there were no chat sessions in the past 14 days."
+          ]
+        }
+      ]
+    },
+    "console-only": {
+      "statement": "The ZAgent article describes it only as a drawer in the Zscaler Admin Console; it documents no API, MCP access or per-agent permission scopes.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-zagent.json",
+          "quotes": [
+            "in your Zscaler Admin Console to open the ZAgent drawer."
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence in the captured article: none of its blocks mentions an API, MCP or permission scopes, and no vendored SDK, provider or MCP server names ZAgent (`git grep -i zagent` at the pins finds nothing)."
+    }
+  },
+  "gaps": {
+    "availability": {
+      "kind": "semantic",
+      "title": "ZAgent's availability status and enablement path",
+      "status": "open",
+      "detail": "Unverified legacy statement: ZAgent is marked Limited Availability and customers are directed to Zscaler Support for enablement; it is included with specified subscriptions. The current article no longer carries the Limited Availability note and instead lists three agents with their subscriptions.",
+      "blocks": "telling an operator whether ZAgent needs a support request to enable",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

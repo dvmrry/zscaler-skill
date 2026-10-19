@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "id": "deception.mcp-server-decoys",
+  "title": "Deception's MCP server decoy: an attacker-facing Gen AI service, not a management interface",
+  "aliases": [
+    "deception mcp",
+    "mcp server decoy",
+    "mcp decoy",
+    "gen ai decoy",
+    "ai decoy",
+    "llm decoy",
+    "deception gen ai service"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "deception.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.plans"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This MCP server is bait for attackers' AI tools; it is not a way to manage Deception. {{what-it-is}}"
+    },
+    {
+      "label": "How it deflects.",
+      "text": "{{fake-responses}} {{decoy-hostnames}}"
+    },
+    {
+      "label": "Configuration.",
+      "text": "{{configuration}} {{unencrypted-key}}"
+    },
+    {
+      "label": "Applications.",
+      "text": "{{applications}} {{new-apps-via-support}}"
+    },
+    {
+      "label": "Plan and limits.",
+      "text": "Gen AI decoys need the Advanced plan: [[deception.plans:decoy-limits]]. {{no-mcp-limit}}"
+    },
+    {
+      "label": "Not a management API.",
+      "text": "{{not-management}} The management API question is in [[deception.overview:admin-api]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "When a question mentions Deception and MCP, establish whether it means the decoy service offered to attackers' AI clients or a way to administer Deception; only the first is documented.",
+      "uses": [
+        "what-it-is",
+        "not-management",
+        "deception.overview:admin-api"
+      ]
+    },
+    {
+      "do": "Whether a custom certificate for the decoy uses an unencrypted PEM private key.",
+      "uses": [
+        "unencrypted-key"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "A network decoy's Gen AI service can be an MCP Server application: a decoy that mimics a standard MCP server, which any MCP-capable AI application or LLM chatbot (for example MCP Inspector) can connect to and invoke decoy tools on.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-services-network-decoy.json",
+          "quotes": [
+            "An MCP (Model Context Protocol) Server Gen AI application allows you to create an MCP server decoy that mimics a standard MCP server.",
+            "the MCP server decoy integrates an AI application or a Large Language Model (LLM) chatbot with various applications",
+            "Any AI application that works with the MCP protocol, such as the MCP Inspector, can interact with these decoy tools in the MCP server."
+          ]
+        }
+      ]
+    },
+    "fake-responses": {
+      "statement": "The AI application or LLM chatbot generates fake responses with the decoy tools.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-services-network-decoy.json",
+          "quotes": [
+            "The AI application or LLM chatbot generates fake responses using these decoy tools."
+          ]
+        }
+      ]
+    },
+    "decoy-hostnames": {
+      "statement": "The Deception Admin Portal supplies the hostnames of deployed decoys (for example Threat Intelligence and Zero Trust Network decoys) to the AI application, which embeds them in tool responses to send attackers to other decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-services-network-decoy.json",
+          "quotes": [
+            "The Deception Admin Portal automatically leverages the hostnames of the deployed decoys (e.g., Threat Intelligence (TI), Zero Trust Network) and provides this information to the AI application.",
+            "This allows the AI application to embed these hostnames into the tool's responses, thereby deflecting attackers to other decoys within the customer's environment."
+          ]
+        }
+      ]
+    },
+    "configuration": {
+      "statement": "An MCP server decoy is configured with a server name, a server version, one or more MCP applications, and ports with SSL enabled or disabled per port, plus an optional SSL certificate and unencrypted SSL private key, both in PEM format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-services-network-decoy.json",
+          "quotes": [
+            "MCP Server Name: Enter the MCP server name.",
+            "MCP Server Version: Enter the MCP server version.",
+            "MCP Server Applications: Select one or more MCP applications from the drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-services-network-decoy.json",
+          "after": "MCP Server Applications: Select one or more MCP applications from the drop-down menu.",
+          "quotes": [
+            "Under Ports, enter the port number and enable or disable SSL for each port per your requirement.",
+            "(Optional) Under Certificate Settings:",
+            "SSL Certificate: Upload an SSL certificate in the privacy-enhanced mail (PEM) format.",
+            "SSL Private Key: Upload an unencrypted SSL private key in the PEM format."
+          ]
+        }
+      ]
+    },
+    "unencrypted-key": {
+      "statement": "Custom SSL certificates take an unencrypted PEM private key; the Deception Admin Portal does not support encrypted private keys for them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-services-network-decoy.json",
+          "after": "MCP Server Name: Enter the MCP server name.",
+          "quotes": [
+            "SSL Private Key: Upload an unencrypted SSL private key in the PEM format.",
+            "The Deception Admin Portal doesn't support encrypted private keys for custom SSL certificates."
+          ]
+        }
+      ]
+    },
+    "applications": {
+      "statement": "The supported-applications article lists ten MCP application families, each with its own decoy tools: Bitbucket, Database (Cassandra, Elasticsearch, PostgreSQL), Confluence, GitHub, GitLab, Google, Jenkins, Jira, Slack and Salesforce.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-mcp-server-decoy-applications-and-tools.json",
+          "quotes": [
+            "The following tables show the supported MCP applications and tools:",
+            "- Bitbucket | Tool Name | Function |",
+            "- Database | Database | Tool Name | Function |",
+            "| Cassandra | list_keyspaces |",
+            "| Elasticsearch | list_indices |",
+            "| PostgreSQL | list_databases |",
+            "- Confluence | Tool Name | Function |",
+            "- GitHub | Tool Name | Function |",
+            "- GitLab | Tool Name | Function |",
+            "- Google | Tool Name | Function |",
+            "- Jenkins | Tool Name | Function |",
+            "- Jira | Tool Name | Function |",
+            "- Slack | Tool Name | Function |",
+            "- Salesforce | Tool Name | Function |"
+          ]
+        }
+      ]
+    },
+    "new-apps-via-support": {
+      "statement": "Adding an application or tool requires contacting Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-mcp-server-decoy-applications-and-tools.json",
+          "quotes": [
+            "To add a new application or tool, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "no-mcp-limit": {
+      "statement": "The ranges-and-limitations article gives no separate limit for MCP server decoys or MCP tool calls; they fall under the Gen AI decoy and overall decoy rows.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-ranges-and-limitations.json",
+          "quotes": [
+            "| Gen AI Decoys | Not supported | Supported |",
+            "| Decoys | 20 | 300 |"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence: no row or note in the captured article mentions MCP."
+    },
+    "not-management": {
+      "statement": "Neither the MCP decoy configuration article nor the supported-tools article documents an administrative MCP tool or a Deception management API; the MCP server is a service that adversaries interact with.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-mcp-server-decoy-applications-and-tools.json",
+          "quotes": [
+            "The Model Context Protocol (MCP) server decoy integrates an AI application or a Large Language Model (LLM) chatbot with decoy applications and tools."
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence in both captured articles: every listed tool is a decoy tool for an application family, and the configuration steps describe only the decoy service."
+    }
+  }
+}

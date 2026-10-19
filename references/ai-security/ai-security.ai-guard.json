@@ -1,0 +1,284 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard",
+  "title": "AI Guard: runtime guardrails on prompts and responses, its Proxy and DaaS modes, and where each part is documented",
+  "aliases": [
+    "ai guard",
+    "aiguard",
+    "zguard",
+    "what is ai guard",
+    "ai guard proxy mode",
+    "ai guard daas",
+    "ai guard das mode",
+    "detection as a service",
+    "ai guard deployment modes",
+    "ai guard configuration steps",
+    "llm guardrails",
+    "ai guard for users",
+    "ai guard apps and infrastructure"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.family"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.detectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.zia-integration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.ai-ml-rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "AI Guard inspects the prompts sent to large language models and the responses that come back. This subject covers what it is and how it is placed; its children cover each part."
+    },
+    {
+      "label": "What it does.",
+      "text": "{{runtime-protection}} {{policy-scope}} Its detectors are in [[ai-security.ai-guard.detectors]] and its policies in [[ai-security.ai-guard.policies]]."
+    },
+    {
+      "label": "Two modes.",
+      "text": "{{two-modes}} {{proxy-single-destination}} {{das-not-inline}} {{das-no-zia-dependency}} {{providers-proxy-only}} {{provider-objects}} The API side of providers and credentials is in [[ai-security.ai-guard.admin-api]]. A third, on-premises mode is a legacy statement no current page carries {{gap:onprem-mode}}."
+    },
+    {
+      "label": "Users' traffic through ZIA.",
+      "text": "For users of public AI apps, ZIA proxy-chains their traffic to AI Guard: [[ai-security.ai-guard.zia-integration]]."
+    },
+    {
+      "label": "Setting it up.",
+      "text": "{{config-sequence}} Tenant-wide settings are in [[ai-security.ai-guard.tenant-settings]] and administrator roles in [[ai-security.ai-guard.admin-access]]."
+    },
+    {
+      "label": "Watching it.",
+      "text": "Dashboards, Insights, Token Usage and log exports are in [[ai-security.ai-guard.observability]]."
+    },
+    {
+      "label": "Programming it.",
+      "text": "Runtime calls, the proxy endpoint and the DAS detection API, are in [[ai-security.ai-guard.runtime-api]]; the configuration API and what the Python SDK covers are in [[ai-security.ai-guard.admin-api]]; Zscaler's public integration examples are in [[ai-security.ai-guard.integrations]]."
+    },
+    {
+      "label": "Not settled.",
+      "text": "How detection runs (models, GPUs) and what latency it adds are open {{gap:inference-and-latency}}."
+    },
+    {
+      "label": "Adjacent ZIA controls.",
+      "text": "Access control for public AI apps, and ZIA's own prompt capture, belong to ZIA Cloud App Control: [[zia.cloud-app-control.ai-ml-rules]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which mode the tenant runs; Tenant Settings shows Proxy or DaaS, and the call path, the provider objects and the credentials differ between them.",
+      "uses": [
+        "two-modes",
+        "providers-proxy-only"
+      ]
+    },
+    {
+      "do": "For DaaS, that the application calls AI Guard on both the prompt and the response; AI Guard sees nothing the application does not send.",
+      "uses": [
+        "das-not-inline"
+      ]
+    }
+  ],
+  "claims": {
+    "runtime-protection": {
+      "statement": "AI Guard provides run-time protection for AI applications by enforcing enterprise policies on the prompts users enter and the responses they receive, using intent-based detectors on both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-what-is.json",
+          "quotes": [
+            "AI Guard is a service that provides run-time protection for your AI applications by enforcing enterprise policies that prevent prompt injections, block jailbreak attempts, and stop personal information leakage with guardrails around LLM interactions.",
+            "It secures these interactions by filtering harmful or inappropriate content from the prompts that users enter and the responses they receive in the AI application.",
+            "AI Guard enforces intent-based detectors on both prompts and responses."
+          ]
+        }
+      ]
+    },
+    "policy-scope": {
+      "statement": "AI Guard enforces policies on prompts and responses both between users and public AI apps (such as ChatGPT, Perplexity and Claude) and between private AI apps and foundation LLMs (such as OpenAI and Anthropic).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-add-and-manage-ai-guard-policies.json",
+          "quotes": [
+            "AI Guard works by enforcing enterprise policies on prompts and responses between users and public AI apps, such as ChatGPT, Perplexity, Claude, etc., and between private AI apps and foundational Large Language Models (LLMs), such as OpenAI, Anthropic, etc."
+          ]
+        }
+      ]
+    },
+    "two-modes": {
+      "statement": "AI Guard runs in one of two modes, shown on the Tenant Settings page: in Proxy mode it sits between the AI application and the LLM provider; in DaaS (Detection as a Service) mode it is an API endpoint that the application must call for every prompt and every response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-add-and-manage-ai-applications-ai-guard.md",
+          "quotes": [
+            "AI Guard comes in two modes that have different methods for adding an AI Application: Detection as a Service (DaaS) and Proxy.",
+            "With the Proxy mode, AI Guard is placed between the AI application and the Large Language Model (LLM) provider.",
+            "With the DaaS mode, AI Guard acts as an API endpoint the enterprise AI application or chatbot can access.",
+            "In DaaS mode, the AI application must make an API call to AI Guard for every prompt that you make and for every response you receive in the AI application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-tenant-settings.json",
+          "quotes": [
+            "Mode: Lists whether AI Guard is in Proxy or DaaS mode."
+          ]
+        }
+      ]
+    },
+    "proxy-single-destination": {
+      "statement": "In Proxy mode the application sends its model requests to AI Guard at `https://proxy.zseclipse.net` instead of to each provider, and AI Guard proxies them to the upstream LLM provider, sitting inline for routing, inspection and enforcement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-test-llm-providers-ai-guard-proxy-mode.md",
+          "quotes": [
+            "When configuring a proxy for Zscaler, use the following base URL endpoint: https://proxy.zseclipse.net",
+            "Instead, the application sends its model requests to Zscaler AI Guard as the single destination, and AI Guard then proxies that traffic to the appropriate upstream LLM provider on the application’s behalf.",
+            "This allows AI Guard to sit inline for routing, inspection, and policy enforcement"
+          ]
+        }
+      ]
+    },
+    "das-not-inline": {
+      "statement": "In DAS/API mode AI Guard is not inline: the application keeps calling the LLM directly and calls AI Guard before sending the prompt and again on the model's response before returning it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+          "quotes": [
+            "In DAS/API mode, AI Guard is not inline from a network-routing perspective.",
+            "The application still talks to the Large Language Model (LLM) directly, but the application code should be updated so that it calls AI Guard before sending the prompt to the model, and then calls AI Guard again on the model response before returning that response to the end user."
+          ]
+        }
+      ]
+    },
+    "das-no-zia-dependency": {
+      "statement": "A DaaS deployment does not depend on ZIA forwarding: the inspection happens because the application calls AI Guard, wherever the application runs.",
+      "tier": "B",
+      "derived_from": [
+        "das-not-inline"
+      ],
+      "conditions": "Follows from the DAS page (das-not-inline); no captured page ties DaaS mode to ZIA. Users' AI traffic through ZIA is the separate proxy-chaining path."
+    },
+    "providers-proxy-only": {
+      "statement": "LLM provider and provider-credential objects are a Proxy-mode requirement; no captured page asks for them in DaaS mode, where the application keeps its own provider connection.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-step-step-configuration-guide-ai-guard.md",
+          "quotes": [
+            "When using Proxy mode, ensure that you add Large Language Model (LLM) providers and their credentials."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-llm-providers-ai-guard.md",
+          "quotes": [
+            "Adding Large Language Model (LLM) providers in AI Guard is one of the necessary tasks when configuring AI Guard in Proxy mode."
+          ]
+        }
+      ],
+      "derived_from": [
+        "das-not-inline"
+      ],
+      "conditions": "The configuration guide and the provider page tie providers to Proxy mode (quoted); that DaaS needs none rests on their absence from the DaaS pages."
+    },
+    "provider-objects": {
+      "statement": "Adding LLM providers is a necessary task when configuring AI Guard in Proxy mode. Each provider has a name, a provider type, a Public or Private deployment and, for some types, a server; its credential has a name, names the provider, has an optional expiry date and holds, in its API Key field, the keys or IAM roles copied from the provider's dashboard, which AI Guard uses to authenticate to the provider.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-llm-providers-ai-guard.md",
+          "quotes": [
+            "Adding Large Language Model (LLM) providers in AI Guard is one of the necessary tasks when configuring AI Guard in Proxy mode.",
+            "Provider Name: Enter a name for the provider to identify the provider on our platform.",
+            "AI Guard uses these credentials to authenticate with the LLM provider.",
+            "Provider Type: From the drop-down menu, select your desired provider.",
+            "Deployment: Select if you want the deployment to be Public or Private.",
+            "Server: Depending on the Provider Type you selected, you may need to select your specific server from the drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-llm-provider-credentials-ai-guard.md",
+          "quotes": [
+            "Before managing LLM provider credentials, access your LLM provider and copy the keys or IAM roles from your LLM provider dashboard.",
+            "Name: Enter the name for the credential.",
+            "LLM Provider: From the drop-down menu, select the LLM provider to associate with this credential.",
+            "Expires At: (Optional) Select the date when the credential expires.",
+            "API Key: Enter the LLM provider credentials that you copied from your LLM provider dashboard."
+          ]
+        }
+      ]
+    },
+    "config-sequence": {
+      "statement": "The configuration guide's order is: provision end users by linking ZIA with AI Guard; in Proxy mode, add LLM providers and their credentials; add AI applications; configure policies; then, optionally, log exports and tenant settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-step-step-configuration-guide-ai-guard.md",
+          "quotes": [
+            "Link your Zscaler Internet Access (ZIA) account with AI Guard to automatically add your users and groups.",
+            "Step 2: Configure LLM Providers",
+            "Add your AI applications to AI Guard.",
+            "Step 4: Configure Policies",
+            "Step 5: (Optional) Configure Log Exports",
+            "Step 6: (Optional) Configure Tenant Settings",
+            "When using Proxy mode, ensure that you add Large Language Model (LLM) providers and their credentials."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "onprem-mode": {
+      "kind": "semantic",
+      "title": "Whether AI Guard has an on-premises (hybrid) deployment mode",
+      "status": "open",
+      "detail": "Unverified legacy statement: AI Guard offers three deployment options, Proxy (inline), DaaS, and OnPrem hybrid, on-premises AI Guard components with a cloud control plane for data-residency or compliance needs. The current What Is AI Guard capture, the mode pages and Tenant Settings name only Proxy and DaaS.",
+      "blocks": "deployment answers for data-residency requirements",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "inference-and-latency": {
+      "kind": "semantic",
+      "title": "How AI Guard runs its detectors and what latency inspection adds",
+      "status": "open",
+      "detail": "Unverified legacy statement: AI Guard detection uses GPU-based inference with classifier models, several detectors run per prompt and response, and no latency budget is published for an inline round trip. Insights reports a tenant's average prompt and response detection latency (ai-security.ai-guard.observability:insights), but no page states the inference design or an expected latency.",
+      "blocks": "latency and capacity answers for inline or DAS inspection",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

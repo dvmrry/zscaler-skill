@@ -1,0 +1,585 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.api-clients",
+  "title": "ZIdentity API clients: what one is, how it authenticates, its resources and scopes, and its token lifetime",
+  "aliases": [
+    "zidentity api client",
+    "oneapi api client",
+    "api client scopes",
+    "accessTokenLifeTime",
+    "access_token_life_time",
+    "clientResources selectedScopes",
+    "zs:config scope",
+    "ziam:0 scope",
+    "api client authType JWKS PUBKEYCERT SECRET",
+    "first api client bootstrap"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.oneapi.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.api-clients.secrets"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.api-clients.access-tokens"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.api-clients.access-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.resource-servers"
+    }
+  ],
+  "prose": [
+    {
+      "text": "An API client is the identity a script, SDK or provider uses to call any Zscaler API through OneAPI. {{definition}}"
+    },
+    {
+      "label": "Where clients come from.",
+      "text": "{{console-provisioning}} {{console-page}} Creating one through the API needs a token from an existing client, so the first one comes from the console: [[zidentity.api:bearer-on-every-operation]]. {{delete-unrecoverable}}"
+    },
+    {
+      "label": "Status.",
+      "text": "{{disabled-no-tokens}} Disabling or deleting a client also revokes its tokens: [[zidentity.api-clients.access-tokens]]."
+    },
+    {
+      "label": "How it authenticates.",
+      "text": "{{auth-type-enum}} {{go-auth-type-fields}} The methods and how each is used at the token endpoint are in [[shared.oneapi.authentication:client-auth-methods]]. A JWKS client's body has not been seen in a capture {{gap:jwks-body-unobserved}}, and the Python SDK sends the JWKS URL under a different key: [[zidentity.sdk-python:jwks-url-key]]. Secrets have their own lifecycle: [[zidentity.api-clients.secrets]]."
+    },
+    {
+      "label": "Resources and scopes.",
+      "text": "{{roles-define-access}} {{api-roles-first}} One resource per product: [[shared.oneapi.authentication:one-resource-per-product]]. {{resource-request-shape}} {{scope-id-composite}} {{scope-examples}} {{ziam-scope-for-self}} {{scope-checked-at-call}} The resources and scopes a client can select are listed by [[zidentity.resource-servers]]."
+    },
+    {
+      "label": "Writing a client.",
+      "text": "{{required-fields}} The Python SDK's docstring marks most of them optional {{divergence:required-fields-docstring}}. {{put-full-replace}}"
+    },
+    {
+      "label": "Token lifetime.",
+      "text": "{{lifetime-range}} {{console-lifetime}} The sources disagree on the unit, and the Python SDK describes the field as something else {{divergence:lifetime-unit}}; which unit the API applies is open {{gap:lifetime-unit-on-wire}}. The token's `expires_in` reflects the configured lifetime: [[shared.oneapi.authentication:expires-in-configured]]. A tenant-wide default lifetime is unconfirmed {{gap:tenant-default-lifetime}}."
+    },
+    {
+      "label": "Access policy.",
+      "text": "Rules that limit when a client may reach which resources are in [[zidentity.api-clients.access-policy]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the client is enabled; a disabled client gets no tokens and its issued tokens are revoked.",
+      "uses": [
+        "disabled-no-tokens",
+        "zidentity.api-clients.access-tokens:revoked-states"
+      ]
+    },
+    {
+      "do": "For a 403 after a successful token request, whether the client holds a resource for the product being called (for the ZIdentity API itself, a `ziam` resource).",
+      "uses": [
+        "scope-checked-at-call",
+        "ziam-scope-for-self",
+        "roles-define-access"
+      ]
+    },
+    {
+      "do": "Before creating a client through the API, whether the product's API role exists, since the resources come from those roles.",
+      "uses": [
+        "api-roles-first"
+      ]
+    },
+    {
+      "do": "When setting the token lifetime through the API, which unit the value was meant in; the update description says minutes and the create description seconds.",
+      "uses": [
+        "lifetime-unit",
+        "lifetime-unit-on-wire"
+      ]
+    },
+    {
+      "do": "For an update, whether the PUT body was built from a fresh read of the client, since omitted fields are dropped.",
+      "uses": [
+        "put-full-replace",
+        "required-fields"
+      ]
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "An API client is any application or service that wants to access Zscaler API resources; Authentication Service is the authorization server that validates the client's request and issues the access token used to reach the API resources through OneAPI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-api-clients.json",
+          "quotes": [
+            "An API client refers to any application or service that wants to access the Zscaler API resources and retrieve data.",
+            "Authentication Service is the authorization server that validates the API client's request and issues an access token that must be used to access the API resources via the OneAPI server."
+          ]
+        }
+      ]
+    },
+    "console-provisioning": {
+      "statement": "Any application or service that wants to access Zscaler API resources must have an API client created and provisioned in the Admin Console, and Authentication Service administrators with Full permission on the API Clients and API Resources modules can configure API clients.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-api-client.json",
+          "quotes": [
+            "Any application or service that wants to access the Zscaler API resources must have an API client created and provisioned in the Zscaler Admin Console.",
+            "Authentication Service administrators assigned with Full permission to access the API Clients and API Resources modules can configure API clients in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "console-page": {
+      "statement": "On the API Clients page an admin can search, download the list as CSV, add, edit, delete, and enable or disable API clients; the list shows each client's name, status (Active or Inactive) and client ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-api-clients.json",
+          "quotes": [
+            "Search for an API client.",
+            "Download the list of API clients as a CSV file.",
+            "Add an API client.",
+            "Name: The name of the API client.",
+            "Edit an API client.",
+            "Status: The status (Active or Inactive) of the API client.",
+            "Client ID: The unique identifier for the API client.",
+            "Delete an API client.",
+            "Enable or disable an API client."
+          ]
+        }
+      ]
+    },
+    "delete-unrecoverable": {
+      "statement": "A deleted API client cannot be recovered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/api_client.py",
+          "after": "def delete_api_client(self, client_id: str) -> APIResult[dict]:",
+          "quotes": [
+            "After deletion, the API client cannot be recovered."
+          ]
+        }
+      ]
+    },
+    "disabled-no-tokens": {
+      "statement": "An enabled status lets the API client authenticate and use the API resources; while the status is disabled, the client cannot get access tokens from Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-api-client.json",
+          "quotes": [
+            "Status: Enable the status. This allows the API client to authenticate and use the API resources.",
+            "When the status is disabled, the API client cannot get the access tokens issued by Authentication Service."
+          ]
+        }
+      ]
+    },
+    "auth-type-enum": {
+      "statement": "A client's `clientAuthentication.authType` is one of `SECRET`, `PUBKEYCERT` or `JWKS`, beside the fields `clientJWKsUrl`, `publicKeys` and `clientCertificates`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1api-clients/post/requestBody/content/application~1json/schema/properties/clientAuthentication/properties/authType",
+          "expect": {
+            "enum": [
+              "SECRET",
+              "PUBKEYCERT",
+              "JWKS"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1api-clients/post/requestBody/content/application~1json/schema/properties/clientAuthentication/properties/clientJWKsUrl",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1api-clients/post/requestBody/content/application~1json/schema/properties/clientAuthentication/properties/publicKeys",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1api-clients/post/requestBody/content/application~1json/schema/properties/clientAuthentication/properties/clientCertificates",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ]
+    },
+    "go-auth-type-fields": {
+      "statement": "The Go SDK documents the three values as mutually exclusive, each deciding which other fields the API expects: `SECRET` uses a secret managed through `AddSecret`, `GetSecrets` and `DeleteSecret`, `PUBKEYCERT` a certificate in `ClientCertificates` or `PublicKeys`, and `JWKS` keys published at `ClientJWKsURL` (wire key `clientJWKsUrl`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/api_clients/api_clients.go",
+          "quotes": [
+            "The three values are mutually exclusive and each one determines which of",
+            "the client authenticates with a secret, managed",
+            "through AddSecret / GetSecrets / DeleteSecret.",
+            "the client authenticates with a certificate, supplied",
+            "in ClientCertificates or PublicKeys.",
+            "the client authenticates with keys published at",
+            "ClientJWKsURL string `json:\"clientJWKsUrl,omitempty\"`",
+            "AuthTypeSecret     AuthType = \"SECRET\"",
+            "AuthTypePubKeyCert AuthType = \"PUBKEYCERT\"",
+            "AuthTypeJWKS       AuthType = \"JWKS\""
+          ]
+        }
+      ]
+    },
+    "roles-define-access": {
+      "statement": "Each API client is assigned one or more roles (API resources), which define the specific endpoints and operations the client is permitted to access; the resources selected decide its permissions (scope) for each Zscaler service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-api-resources.json",
+          "quotes": [
+            "Each API client is assigned one or more roles (API resources), which define the specific endpoints and operations that the API client is permitted to access.",
+            "While configuring the API client, you can select the API resources that determine the permissions (scope) the API client has to access the API resources of each Zscaler service."
+          ]
+        }
+      ]
+    },
+    "api-roles-first": {
+      "statement": "Before an API client can be given a product's resource, an API role has to exist in that Zscaler service; the roles are synced to Authentication Service, and assigning resources without them fails with an error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-api-client.json",
+          "quotes": [
+            "Before creating an API client, you must add an API role in the respective Zscaler service (e.g. Internet & SaaS, Private Access).",
+            "These API roles are synced to Authentication Service and are displayed on the Add API Client page.",
+            "If you do not configure the API roles, an error message is displayed when you try to assign the resources to the API client."
+          ]
+        }
+      ]
+    },
+    "resource-request-shape": {
+      "statement": "On create and update, each `clientResources` entry takes the resource `id` and `selectedScopes`, each scope given by `id`; the Go SDK notes that only `ID` and `SelectedScopes` are accepted on write, and that the name and `defaultApi` of a resource and the name of a scope are reported on read.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1api-clients/post/requestBody/content/application~1json/schema/properties/clientResources/items",
+          "expect": {
+            "required": [
+              "id",
+              "selectedScopes"
+            ]
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/api_clients/api_clients.go",
+          "quotes": [
+            "Only ID and SelectedScopes are accepted on write. Name and DefaultApi are",
+            "SelectedScope is one scope selected on a resource. Only ID is accepted on"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/api_clients/api_clients.go",
+          "after": "Only ID and SelectedScopes are accepted on write. Name and DefaultApi are",
+          "quotes": [
+            "// reported on read.",
+            "// write; Name is reported on read."
+          ]
+        }
+      ]
+    },
+    "scope-id-composite": {
+      "statement": "A selected scope's ID is the composite ID the resource servers report, passed through unchanged: its shape is `<serviceId>:<zpaScopeId>:<id>` with the middle segment empty for every service except ZPA. The Go SDK records, as confirmed against a tenant, that splitting it into separate fields is rejected with \"400 Invalid Input for clientResources\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/api_clients/api_clients.go",
+          "quotes": [
+            "ID is the composite id that resource_servers reports verbatim, and it is",
+            "passed through unchanged. Its internal shape is \"<serviceId>:<zpaScopeId>:<id>\"",
+            "with the middle segment empty for every service except ZPA",
+            "write; splitting it into separate tserviceId / zpaScopeId fields is rejected",
+            "with \"400 Invalid Input for clientResources\". Confirmed against a tenant."
+          ]
+        }
+      ]
+    },
+    "scope-examples": {
+      "statement": "The Python SDK's create example pairs scope IDs such as `hhlm44raf07ps::hpopqi71j075n` (ZIA) and `hhlm44rae07ib:mplm44rqi07jb:hplm44rqvg7n5` (ZPA) with scope names such as `zs:config:zia.zscalerbeta.net:8061240:config:33860:ZIA_API_Role01`, `zs:config:ziam:0:config:9h6p7ebv903k4:Super Admin` for ZIdentity itself, and `zs:config:zpa.zpabeta.net:72058304855015424:config:Default:Default:28:FullAccess` for ZPA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/api_client.py",
+          "after": "def add_api_client(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "\"id\": \"hhlm44raf07ps::hpopqi71j075n\",",
+            "\"name\": \"zs:config:zia.zscalerbeta.net:8061240:config:33860:ZIA_API_Role01\"",
+            "\"name\": \"zs:config:ziam:0:config:9h6p7ebv903k4:Super Admin\"",
+            "\"id\": \"hhlm44rae07ib:mplm44rqi07jb:hplm44rqvg7n5\",",
+            "\"name\": \"zs:config:zpa.zpabeta.net:72058304855015424:config:Default:Default:28:FullAccess\""
+          ]
+        }
+      ]
+    },
+    "ziam-scope-for-self": {
+      "statement": "To call the ZIdentity admin API itself, a client needs a ZIdentity resource among its selected resources (the `ziam` scope in the example); a client holding only other products' resources, such as ZPA, is not permitted those endpoints.",
+      "tier": "B",
+      "derived_from": [
+        "zidentity.api-clients:roles-define-access",
+        "zidentity.api-clients:scope-examples",
+        "shared.oneapi.authentication:one-resource-per-product"
+      ],
+      "conditions": "Inferred from resources defining the permitted endpoints per service and from the example's ZIdentity scope; no source names the ZIdentity resource as required for this API in so many words."
+    },
+    "scope-checked-at-call": {
+      "statement": "A client whose resources do not cover a product can still obtain a token, since the token request names no scope; the failure appears when the token is presented, as a 403 for a client without access to the resource.",
+      "tier": "B",
+      "derived_from": [
+        "shared.oneapi.authentication:jwt-assertion-request",
+        "shared.oneapi.authentication:token-validation",
+        "shared.oneapi.response-codes:common-codes"
+      ],
+      "conditions": "Inferred from the token request's parameters and the documented 403 meaning; no capture shows the token response for a client with no resource for the product."
+    },
+    "required-fields": {
+      "statement": "Creating and updating a client both require `name`, `accessTokenLifeTime`, `clientAuthentication` and `clientResources` in the body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1api-clients/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "required": [
+              "name",
+              "accessTokenLifeTime",
+              "clientAuthentication",
+              "clientResources"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1api-clients~1{id}/put/requestBody/content/application~1json/schema",
+          "expect": {
+            "required": [
+              "name",
+              "accessTokenLifeTime",
+              "clientAuthentication",
+              "clientResources"
+            ]
+          }
+        }
+      ]
+    },
+    "put-full-replace": {
+      "statement": "An update is a full replace: the Go SDK says to build the PUT body by reading the live client and overlaying the changes, because fields left out are dropped.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/api_clients/api_clients.go",
+          "quotes": [
+            "A PUT is a full replace, so build the payload by reading the live client and",
+            "overlaying the intended changes. Sending only the changed fields drops"
+          ]
+        }
+      ]
+    },
+    "lifetime-range": {
+      "statement": "`accessTokenLifeTime` is the lifetime of the access token issued to the client, between 60 and 86400; the create description gives it in seconds and its example as \"60 for 60 minutes\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1api-clients/post/requestBody/content/application~1json/schema/properties/accessTokenLifeTime",
+          "expect": {
+            "description": "The lifetime (in seconds) of the access token issued to this API client. Example: <code>60</code> for 60 minutes.",
+            "minimum": 60,
+            "maximum": 86400
+          }
+        }
+      ]
+    },
+    "console-lifetime": {
+      "statement": "In the Admin Console the Access Token Validity is entered in minutes, from 1 minute to 24 hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-api-client.json",
+          "quotes": [
+            "Access Token Validity: The validity of the access token that is used to access the API resource. Enter the time in minutes. The minimum and maximum validity periods are 1 minute and 24 hours, respectively."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "lifetime-unit": {
+      "summary": "What unit `accessTokenLifeTime` carries: the create and response schemas say seconds, the update schema says minutes, the console takes minutes, and the Python SDK's docstring describes the field as an active flag.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zid.openapi.json",
+            "pointer": "/paths/~1api-clients/post/requestBody/content/application~1json/schema/properties/accessTokenLifeTime",
+            "expect": {
+              "description": "The lifetime (in seconds) of the access token issued to this API client. Example: <code>60</code> for 60 minutes."
+            }
+          },
+          "says": "Seconds, 60 to 86400, with the example \"60 for 60 minutes\"."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zid.openapi.json",
+            "pointer": "/paths/~1api-clients~1{id}/put/requestBody/content/application~1json/schema/properties/accessTokenLifeTime",
+            "expect": {
+              "description": "Update the lifetime (in minutes) of the access token issued to this API client.\nExample: <code>60</code> for 60 minutes.",
+              "minimum": 60,
+              "maximum": 86400
+            }
+          },
+          "says": "Minutes, with the same 60 to 86400 range."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "adding-api-client.json",
+            "quotes": [
+              "Enter the time in minutes. The minimum and maximum validity periods are 1 minute and 24 hours, respectively."
+            ]
+          },
+          "says": "The console takes minutes, from 1 minute to 24 hours (the same span as 60 to 86400 seconds)."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/ziam/services/api_clients/api_clients.go",
+            "quotes": [
+              "The documented range is 60 to 86400. The unit is contradictory in the",
+              "Seconds is the reading consistent with the 86400 ceiling",
+              "the unit as unverified rather than relying on it."
+            ]
+          },
+          "says": "Seconds is the reading consistent with the range, but unverified against a tenant."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zid/api_client.py",
+            "quotes": [
+              "access_token_life_time (int, optional): Whether the client is active (true) or inactive (false)."
+            ]
+          },
+          "says": "The parameter is described as whether the client is active, which matches neither."
+        }
+      ],
+      "impact": "A caller that sends minutes where the API reads seconds gets a token sixty times shorter than intended (or a range error below 60); the Python docstring's description should be ignored, since every other source makes the field a token lifetime."
+    },
+    "required-fields-docstring": {
+      "summary": "The contract requires `accessTokenLifeTime`, `clientAuthentication` and `clientResources` on create and update, while the Python SDK's `add_api_client` docstring marks them optional.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zid.openapi.json",
+            "pointer": "/paths/~1api-clients/post/requestBody/content/application~1json/schema",
+            "expect": {
+              "required": [
+                "name",
+                "accessTokenLifeTime",
+                "clientAuthentication",
+                "clientResources"
+              ]
+            }
+          },
+          "says": "All four are required."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zid/api_client.py",
+            "quotes": [
+              "client_authentication (dict, optional): Configuration details for the client authentication.",
+              "client_resources (list, optional): A list of resources associated with the client,"
+            ]
+          },
+          "says": "Only `name` is unmarked; the other three are optional."
+        }
+      ],
+      "impact": "A Python call that follows the docstring and leaves these out is rejected by an API that enforces the contract; supply all four."
+    }
+  },
+  "gaps": {
+    "lifetime-unit-on-wire": {
+      "kind": "semantic",
+      "title": "Which unit the API applies to `accessTokenLifeTime`",
+      "status": "partial",
+      "former_ids": [
+        "zid-11"
+      ],
+      "detail": "Unverified legacy statement: whether `access_token_life_time` is a per-client token lifetime or an active flag is unresolved. The contract, the console and the Go SDK settle that it is the token lifetime (range 60 to 86400); the unit is still contradictory (seconds on create, minutes on update) and no capture shows the `expires_in` a given value produces.",
+      "blocks": "setting a precise token lifetime through the API",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "resolution": "Meaning settled by the contract and console: it is the access token lifetime, not an active flag; unit still open."
+    },
+    "tenant-default-lifetime": {
+      "kind": "semantic",
+      "title": "Whether a tenant-wide default access token lifetime exists beside the per-client one",
+      "status": "open",
+      "detail": "Unverified legacy statement: the tenant-wide default TTL is configurable via Authentication Session settings, and per-client lifetimes may override it. The captured API-client pages and the contract set the lifetime per client only; no captured page describes a tenant-wide token lifetime for API clients.",
+      "blocks": "explaining an `expires_in` that differs from the client's configured validity",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "jwks-body-unobserved": {
+      "kind": "data",
+      "title": "What a JWKS-configured API client's body looks like on the wire",
+      "status": "partial",
+      "former_ids": [
+        "zid-14"
+      ],
+      "detail": "Unverified legacy statement: the required fields of a `JWKS` client (for example `clientJWKsUrl` versus `publicKeys`) are inferred from the model. The contract now names `clientJWKsUrl` and the Go SDK ties `JWKS` to it, but the only vendored JWKS sample is a generated placeholder, and no captured response shows a JWKS client.",
+      "blocks": "creating a JWKS client through the API with confidence, and judging the Python key mismatch",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "id": "zbi.turbo-mode",
+  "title": "Turbo Mode: instruction-set rendering instead of pixel streaming, and what the endpoint needs",
+  "aliases": [
+    "turbo mode",
+    "pixel streaming",
+    "isolation rendering mode",
+    "webgl isolation",
+    "isolation slow",
+    "isolation frame rate",
+    "ie11 isolation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zbi.cloud-browser"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.isolation-profiles"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Turbo Mode changes how Cloud Browser delivers the rendered page, not what runs where. {{instruction-set}} {{no-local-code}}"
+    },
+    {
+      "label": "Requirements.",
+      "text": "{{requirements}} {{modern-devices}}"
+    },
+    {
+      "label": "Benefits.",
+      "text": "{{benefits}}"
+    },
+    {
+      "label": "Where it is set.",
+      "text": "{{per-profile}} The preconfigured Miscellaneous & Unknown profile has it on: [[zbi.misc-unknown-subscription:fixed-settings]]. What a user on an unsupported browser gets from a profile with Turbo Mode on is open {{gap:unsupported-fallback}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Turbo Mode is enabled in the isolation profile the user's rule names.",
+      "uses": [
+        "per-profile"
+      ]
+    },
+    {
+      "do": "Whether the endpoint has hardware acceleration with WebGL and WebGL2, and is not Internet Explorer 11.",
+      "uses": [
+        "requirements",
+        "unsupported-fallback"
+      ]
+    }
+  ],
+  "claims": {
+    "instruction-set": {
+      "statement": "Turbo Mode is an alternative to pixel streaming that transfers rendered information from the isolated browser to the local browser as an instruction set; Zscaler describes it as much faster and much less bandwidth intensive than pixel streaming.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-turbo-mode-isolation.json",
+          "quotes": [
+            "Turbo Mode is an alternative to pixel streaming. It allows the transfer of rendered information from an isolated browser to a local browser as an instruction set.",
+            "This method of rendering is much faster and much less bandwidth intensive than pixel streaming."
+          ]
+        }
+      ]
+    },
+    "no-local-code": {
+      "statement": "Enabling Turbo Mode on an isolation profile does not change security: web content is still processed on isolation containers, only rendered content reaches the user's browser, and no code is executed locally on the device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-turbo-mode-isolation.json",
+          "quotes": [
+            "There is no compromise to security if you enable Turbo Mode on an isolation profile.",
+            "Web content is processed on isolation containers, and only the rendered content appears in the end user's browser. As a result, no code is executed locally on the device."
+          ]
+        }
+      ]
+    },
+    "requirements": {
+      "statement": "Turbo Mode needs hardware acceleration enabled on the user's device with WebGL and WebGL2 support, and it is not supported for Internet Explorer 11.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-turbo-mode-isolation.json",
+          "quotes": [
+            "The user's device must have hardware acceleration enabled, with support for WebGL and WebGL2, in order to utilize Turbo Mode.",
+            "Turbo Mode is not supported for Internet Explorer 11."
+          ]
+        }
+      ]
+    },
+    "modern-devices": {
+      "statement": "Turbo Mode is fully functional on most modern desktops and mobile devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-turbo-mode-isolation.json",
+          "quotes": [
+            "Turbo Mode is fully functional on most modern desktops and mobile devices."
+          ]
+        }
+      ]
+    },
+    "benefits": {
+      "statement": "With Turbo Mode, web content renders at up to 50 frames per second, and rendering instructions are cached so that scrolling a page transfers minimal to no additional data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-turbo-mode-isolation.json",
+          "quotes": [
+            "Rendering of web content at up to 50 frames per second.",
+            "Caching of rendering instructions, which facilitates faster scrolling of a web page with the transfer of minimal to no additional data."
+          ]
+        }
+      ]
+    },
+    "per-profile": {
+      "statement": "Admins must enable Turbo Mode in the user's isolation profile, for Internet & SaaS and for Private Access profiles alike.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-turbo-mode-isolation.json",
+          "quotes": [
+            "Admins must enable this feature in the user's isolation profile.",
+            "To learn more, see Creating Isolation Profiles for Internet & SaaS and Creating Isolation Profiles for Private Access."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "unsupported-fallback": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What a profile with Turbo Mode on does for a browser that cannot use it",
+      "detail": "Unverified legacy statement: Turbo Mode is default-on-if-supported, and pixel streaming serves Internet Explorer 11 and WebGL-disabled endpoints. The capture says admins must enable Turbo Mode per profile and lists its requirements, but not whether an unsupported browser falls back to pixel streaming or fails.",
+      "blocks": "predicting the experience of a user without WebGL2 or hardware acceleration on a Turbo Mode profile",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

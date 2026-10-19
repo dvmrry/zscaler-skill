@@ -1,0 +1,342 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "About External Identity Providers",
+  "source": {
+    "url": "https://help.zscaler.com/authentication-service/about-external-identity-providers",
+    "node": "1499361",
+    "revision": "3240808",
+    "updated": "2026-10-01",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-10-19",
+  "blocks": [
+    {
+      "text": "You can configure primary and secondary external identity providers (IdPs) in the Zscaler Admin Console based on your organization's requirements. Authentication Service redirects users to different IdPs based on the configured IdP criteria for authenticating users. Authentication Service supports both OpenID Connect (OIDC) and Security Assertion Markup Language (SAML) configurations."
+    },
+    {
+      "item": "Authentication Service allows you to configure a maximum of 64 IdPs per organization.",
+      "depth": 0
+    },
+    {
+      "item": "Users and groups from the primary IdP are stored in Authentication Service even if the primary IdP is removed from Authentication Service. This is maintained to enable an easy migration of the primary IdP from one IdP partner to another.",
+      "depth": 0
+    },
+    {
+      "item": "Users and groups from the secondary IdP are not retained in Authentication Service if the secondary IdP is removed.",
+      "depth": 0
+    },
+    {
+      "text": "External IdPs provide the following benefits and enable you to:"
+    },
+    {
+      "item": "Provide a quick and simple way for admins to assign multiple users to an IdP.",
+      "depth": 0
+    },
+    {
+      "item": "Configure IdPs with different protocols, such as OIDC and SAML for authentication and SCIM for user provisioning.",
+      "depth": 0
+    },
+    {
+      "item": "Configure multiple IdPs for different user domains.",
+      "depth": 0
+    },
+    {
+      "heading": "Protocols Supported for External IdPs",
+      "level": 1
+    },
+    {
+      "text": "Zscaler supports various third-party IdP solutions across OIDC and SAML protocols. Authentication Service can support any IdP as long as they follow a standard SAML, OIDC, or SCIM implementation."
+    },
+    {
+      "text": "The following table lists some external IdPs along with the supported protocol:"
+    },
+    {
+      "table": [
+        [
+          "External IdP",
+          "OIDC (Recommended)",
+          "SAML"
+        ],
+        [
+          "Microsoft Entra ID",
+          "Supported (via Gallery App)",
+          "Supported"
+        ],
+        [
+          "Okta",
+          "Supported (via OIN App and Custom App)",
+          "Supported"
+        ],
+        [
+          "Microsoft AD FS",
+          "Supported",
+          "Supported"
+        ],
+        [
+          "PingOne",
+          "Supported",
+          "Supported"
+        ],
+        [
+          "Auth0",
+          "Supported",
+          "Supported"
+        ],
+        [
+          "OneLogin",
+          "Supported",
+          "Supported"
+        ],
+        [
+          "PingFederate",
+          "Supported",
+          "Supported"
+        ]
+      ]
+    },
+    {
+      "item": "If you want to leverage step-up authentication, it is recommended to use OIDC-based integrations as most IdPs support step-up authentication only with the OIDC protocol. SAML-based integration is recommended if you do not have an option to use any OIDC-based integration.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends using SCIM-based provisioning over Just-in-Time (JIT)-based provisioning, because SCIM has the ability to proactively synchronize identities via APIs at scheduled or on-demand intervals. In contrast, JIT updates identities reactively, relying on attributes received during user login sessions.",
+      "depth": 0
+    },
+    {
+      "heading": "Admin Management in Specific Scenarios",
+      "level": 1
+    },
+    {
+      "text": "When an admin group from the external IdP is removed, Authentication Service handles the operation depending on whether the organization used Authentication Service for Admins or Authentication Service for Admins and Users. The following table describes how Authentication Service handles the removal of an admin group from an external IdP if the user is part of both admin group and user group, and the groups are assigned to Authentication Service in the external IdP:"
+    },
+    {
+      "table": [
+        [
+          "Scenario",
+          "Entitlements",
+          "Authentication Service for Admins",
+          "Authentication Service for Admins and Users"
+        ],
+        [
+          "External IdP sends a deactivate or disable request via SCIM to Authentication Service (e.g., in the case Entra ID and Okta).",
+          "Authentication Service for Admins: Administrative entitlements for both Internet & SaaS (ZIA) and Private Access (ZPA) are present.Authentication Service for Admins and Users: Administrative and service entitlements for Internet & SaaS and Private Access are present.",
+          "Authentication Service: Admin is deactivated.Internet & SaaS: Admin continues to be enabled in admin and user management.Private Access: Admin is disabled in admin management only and continues to be enabled in user management.The admin is not disabled from Internet & SaaS and Private Access user management to prevent unintentional restriction of access to the internet and private applications to those admins.",
+          "Authentication Service: Admin is deactivated.Internet & SaaS: Admin is disabled in both admin management and user management.Private Access: Admin is disabled in both admin management and user management."
+        ],
+        [
+          "External IdP sends a delete request via SCIM to Authentication Service (e.g., in the case of Ping Identity).",
+          "Authentication Service for Admins: Administrative entitlements for both Internet & SaaS and Private Access are present.Authentication Service for Admins and Users: Administrative and service entitlements for Internet & SaaS and Private Access are present.",
+          "Authentication Service removes all administrative entitlements to all services (e.g, Internet & SaaS or Private Access) for the users part of the group.",
+          "Authentication Service: Admin is deleted.Internet & SaaS: Admin is deleted from admin management but continues to be enabled in user management.Private Access: Admin is deleted from admin management but continues to be enabled in user management.The admin entitlement is removed for users that are assigned services based in group entitlements. This results in the admin getting deleted from both Internet & SaaS and Private Access admin management."
+        ]
+      ]
+    },
+    {
+      "heading": "About the External Identities Page",
+      "level": 1
+    },
+    {
+      "text": "On the External Identities page (Administration > Authentication > External Identities), you can do the following:"
+    },
+    {
+      "item": "View the certificate expiration banner: If any of the SAML certificates (IdP certificate, SAML Request Signing and Decryption Certificate) are about to expire within 90 days or have already expired, then the Zscaler Admin Console displays a banner. Click the Click here link to manage your external IdP certificates.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          259,
+          269
+        ]
+      ]
+    },
+    {
+      "item": "View the configured primary IdP. For the primary IdP, you can see:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Name: The IdP's name.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Type: The type of authentication method used by the IdP.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Admin MFA: Whether multi-factor authentication (MFA) in Authentication Service is enabled or disabled for admins.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Status: Displays the following information:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Whether the IdP is enabled or disabled.",
+      "depth": 2
+    },
+    {
+      "item": "Whether the enabled IdP certificates are about to expire or have already expired.",
+      "depth": 2
+    },
+    {
+      "item": "Caution icon: Appears when the certificate is about to expire. This icon first appears when the certificate is about to expire within 90 days.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Red Exclamation Mark icon: Appears when the certificate is expired.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "The alert icons only appear for enabled SAML certificates.",
+      "depth": 2
+    },
+    {
+      "item": "If you haven't configured a primary IdP, click Add Primary IdP to proceed with the IdP configuration. See image.",
+      "depth": 0,
+      "strong": [
+        [
+          47,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Add a secondary IdP.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "You must configure a primary IdP before you configure secondary IdPs.",
+      "depth": 0
+    },
+    {
+      "item": "View the configured secondary IdPs. For each secondary IdP, you can see:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Name: The IdP's name.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Type: The type of authentication method used by the IdP.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Domain: The domains assigned to the IdP.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Admin MFA: Whether MFA in Authentication Service is enabled or disabled for admins.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Status: Displays the following information:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Whether the IdP is enabled or disabled.",
+      "depth": 2
+    },
+    {
+      "item": "Whether the enabled IdP certificates are about to expire or have already expired.",
+      "depth": 2
+    },
+    {
+      "item": "Caution icon: Appears when the certificate is about to expire. This icon first appears when the certificate is about to expire within 90 days.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Red Exclamation Mark icon: Appears when the certificate is expired.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "The alert icons only appear for enabled SAML certificates.",
+      "depth": 2
+    },
+    {
+      "item": "Edit or delete an IdP.",
+      "depth": 0,
+      "number": 5
+    }
+  ]
+}

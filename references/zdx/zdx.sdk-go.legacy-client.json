@@ -1,0 +1,324 @@
+{
+  "schema_version": 1,
+  "id": "zdx.sdk-go.legacy-client",
+  "title": "The Go SDK's direct (legacy) ZDX client: credentials, sign-in, retries and limits, and why the ZDX services do not use it",
+  "aliases": [
+    "zdx go legacy client",
+    "NewLegacyZdxClient",
+    "ZDX_API_KEY_ID",
+    "ZDX_API_SECRET",
+    "ZDX_CLOUD go",
+    "zdx v2_client",
+    "go zdx rate limiter",
+    "go zdx retries",
+    "legacy client is not set"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-go"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.api.hosts-and-auth"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.api.rate-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.retries"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Besides the OneAPI client, the Go SDK ships a ZDX client that signs in with a ZDX API key against the direct ZDX host. Its settings matter only for calls that actually go through it."
+    },
+    {
+      "label": "Configuration and sign-in.",
+      "text": "{{env-and-host}} {{token-request}} {{token-expiry}} {{partner-header}}"
+    },
+    {
+      "label": "Retries.",
+      "text": "{{reauth}} {{retry-defaults}} {{backoff}} {{retry-exhaustion}} The 5xx classification shared by all Go clients is in [[shared.sdk-go.retries:shared-5xx-classifier]]."
+    },
+    {
+      "label": "The fixed limiter.",
+      "text": "{{global-limiter}} {{limiter-auth-only}}"
+    },
+    {
+      "label": "Which calls use this client.",
+      "text": "{{service-routing}} {{services-not-routed}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the Go program built a OneAPI service or a legacy ZDX service: the ZDX service functions fail on a legacy service that has no ZPA client.",
+      "uses": [
+        "service-routing",
+        "services-not-routed"
+      ]
+    },
+    {
+      "do": "Whether request pacing was expected from the 100-per-minute limiter, which throttles only the sign-in call.",
+      "uses": [
+        "limiter-auth-only"
+      ]
+    }
+  ],
+  "claims": {
+    "env-and-host": {
+      "statement": "The Go ZDX client reads `ZDX_API_KEY_ID`, `ZDX_API_SECRET` and `ZDX_CLOUD`, and uses `https://api.zdxcloud.net` by default or the `https://api.%s.net` pattern filled with a named cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/v2_config.go",
+          "quotes": [
+            "ZDX_API_KEY_ID = \"ZDX_API_KEY_ID\"",
+            "ZDX_API_SECRET = \"ZDX_API_SECRET\"",
+            "ZDXCloud string `yaml:\"cloud\" envconfig:\"ZDX_CLOUD\"`",
+            "rawBaseURL = \"https://api.zdxcloud.net\" // Default base URL",
+            "rawBaseURL = fmt.Sprintf(\"https://api.%s.net\", cfg.ZDX.Client.ZDXCloud) // User-specified ZDXCloud"
+          ]
+        }
+      ]
+    },
+    "token-request": {
+      "statement": "It posts the sign-in to the base URL plus `/v1/oauth/token`, with the key ID, the current Unix timestamp and a key secret computed as the hex SHA-256 of the API secret, a colon and the timestamp.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/v2_client.go",
+          "quotes": [
+            "APIKeyID:     cfg.ZDX.Client.ZDXAPIKeyID,",
+            "data, _ := json.Marshal(authReq)",
+            "url := cfg.BaseURL.String() + \"/v1/oauth/token\"",
+            "req, err := http.NewRequest(\"POST\", url, strings.NewReader(string(data)))",
+            "currTimestamp := time.Now().Unix()",
+            "APIKeySecret: generateHash(cfg.ZDX.Client.ZDXAPISecret, currTimestamp),",
+            "hash := sha256.New()",
+            "hash.Write([]byte(apiSecret + \":\" + currTimestampStr))",
+            "return hex.EncodeToString(hash.Sum(nil))"
+          ]
+        }
+      ]
+    },
+    "token-expiry": {
+      "statement": "Before each request it signs in again when it has no token or the token has expired.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/v2_client.go",
+          "quotes": [
+            "if cfg.ZDX.Client.AuthToken == nil || cfg.ZDX.Client.AuthToken.AccessToken == \"\" || utils.IsTokenExpired(cfg.ZDX.Client.AuthToken.AccessToken) {",
+            "// Authenticate and log errors"
+          ]
+        }
+      ]
+    },
+    "partner-header": {
+      "statement": "A partner ID from `ZSCALER_PARTNER_ID` (or the setter) is sent on each request as the `x-partner-id` header.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/v2_config.go",
+          "quotes": [
+            "PartnerID string `yaml:\"partnerId\" envconfig:\"ZSCALER_PARTNER_ID\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/v2_client.go",
+          "quotes": [
+            "req.Header.Set(\"x-partner-id\", client.Config.ZDX.Client.PartnerID)"
+          ]
+        }
+      ]
+    },
+    "reauth": {
+      "statement": "On an unauthorized or forbidden response the client calls `Authenticate` again and retries the original request once; `Authenticate` requests a new token only when the cached one is missing, empty or expired, and otherwise returns the cached token.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/v2_client.go",
+          "quotes": [
+            "if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {",
+            "if _, err := Authenticate(ctx, config, config.Logger); err != nil { client.Config.Logger.Printf(\"[ERROR] Re-authentication failed: %v\", err)",
+            "// Retry the original request",
+            "resp, err = client.do(req, v, start, reqID)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/v2_client.go",
+          "after": "func Authenticate(ctx context.Context, cfg *Configuration, logger logger.Logger) (*AuthToken, error) {",
+          "quotes": [
+            "if cfg.ZDX.Client.AuthToken == nil || cfg.ZDX.Client.AuthToken.AccessToken == \"\" || utils.IsTokenExpired(cfg.ZDX.Client.AuthToken.AccessToken) {",
+            "return cfg.ZDX.Client.AuthToken, nil"
+          ]
+        }
+      ]
+    },
+    "retry-defaults": {
+      "statement": "Requests go through a retrying HTTP client whose defaults are 100 retries with waits of 5 to 20 seconds, and a maximum-retries setting of 0 means retrying without a practical limit (`math.MaxInt32`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/v2_config.go",
+          "quotes": [
+            "MaxNumOfRetries = 100",
+            "RetryWaitMaxSeconds = 20",
+            "RetryWaitMinSeconds = 5",
+            "cfg.ZDX.Client.RateLimit.MaxRetries = MaxNumOfRetries"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/v2_client.go",
+          "quotes": [
+            "if retryableClient.RetryMax == 0 {",
+            "retryableClient.RetryMax = math.MaxInt32"
+          ]
+        }
+      ]
+    },
+    "backoff": {
+      "statement": "Its backoff reads `X-Ratelimit-Remaining-Second` and `X-Ratelimit-Limit-Second`, waits 1 second plus jitter when fewer than the threshold (2 by default) requests remain, waits 2 seconds after a 429, and otherwise backs off exponentially.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/v2_client.go",
+          "quotes": [
+            "remaining := resp.Header.Get(\"X-Ratelimit-Remaining-Second\")",
+            "limit := resp.Header.Get(\"X-Ratelimit-Limit-Second\")",
+            "return time.Second + jitter",
+            "l.Printf(\"[WARN] 429 received, applying fallback retry delay (2s)\")",
+            "proactiveThreshold = 2",
+            "// Use exponential backoff for all retries"
+          ]
+        }
+      ]
+    },
+    "retry-exhaustion": {
+      "statement": "When the retry budget runs out without a transport error, the client returns the last API response instead of a bare give-up error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/v2_client.go",
+          "quotes": [
+            "// err is nil only when the retry budget ran out while CheckRetry still",
+            "// Any non-nil err is a genuine failure (transport error, cancelled or",
+            "if err == nil && resp != nil {",
+            "l.Printf(\"[WARN] giving up after %d attempt(s); surfacing API response status %d\", numTries, resp.StatusCode)",
+            "return resp, nil"
+          ],
+          "after": "retryableClient.ErrorHandler = func(resp *http.Response, err error, numTries int) (*http.Response, error) {"
+        }
+      ]
+    },
+    "global-limiter": {
+      "statement": "The client's configuration installs a global limiter of 100 requests per 60 seconds with an additional 5-second delay on `cfg.HTTPClient`, the client the sign-in request uses; each API request instead builds a fresh retrying client with `getHTTPClient` and no rate limiter, whose transport is a plain `http.Transport`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/v2_config.go",
+          "quotes": [
+            "globalLimiter := rl.NewGlobalRateLimiter(100, 60)",
+            "AdditionalDelay: 5 * time.Second,",
+            "cfg.HTTPClient = httpClient"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/v2_client.go",
+          "quotes": [
+            "resp, err := cfg.HTTPClient.Do(req)",
+            "httpClient := getHTTPClient(client.Config.Logger, nil, client.Config)",
+            "transport := &http.Transport{",
+            "retryableClient.HTTPClient.Transport = transport"
+          ]
+        }
+      ]
+    },
+    "limiter-auth-only": {
+      "statement": "So the fixed 100-per-60-seconds limiter paces only sign-in requests; API calls through this client are paced only by the header-driven backoff and the server's limits.",
+      "tier": "B",
+      "derived_from": [
+        "global-limiter",
+        "backoff"
+      ],
+      "conditions": "Read from where each HTTP client is used at the pin; `getHTTPClient` never references its rate-limiter argument."
+    },
+    "service-routing": {
+      "statement": "The ZDX service functions call `service.Client.NewRequestDo`, which on a service configured for legacy clients forwards to the legacy ZPA client and fails with 'legacy client is not set' when that client is nil; the function that forwards to the legacy ZDX client is `NewZdxRequestDo`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", path, nil, payload, &response)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "quotes": [
+            "if client.oauth2Credentials.LegacyClient == nil || client.oauth2Credentials.LegacyClient.ZpaClient == nil {",
+            "return client.oauth2Credentials.LegacyClient.ZpaClient.NewRequestDo(method, removeOneApiEndpointPrefix(endpoint), options, body, v)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "quotes": [
+            "var errLegacyClientNotSet = fmt.Errorf(\"legacy client is not set\")"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdxrequests.go",
+          "quotes": [
+            "func (client *Client) NewZdxRequestDo(ctx context.Context, method, endpoint string, options, body, v interface{}) (*http.Response, error) {",
+            "return client.oauth2Credentials.LegacyClient.ZdxClient.NewRequestDo(ctx, method, removeOneApiEndpointPrefix(endpoint), options, body, v)"
+          ]
+        }
+      ]
+    },
+    "services-not-routed": {
+      "statement": "So a service built with `NewLegacyZdxClient` cannot run the ZDX service functions: they reach the missing legacy ZPA client and return an error, and the direct ZDX client's sign-in, retries and limiter never apply to them; the SDK's ZDX example builds a OneAPI service instead.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/service.go",
+          "quotes": [
+            "func NewLegacyZdxClient(config *zdx.Configuration) (*Service, error) {",
+            "WithZdxLegacyClient(zdxClient),"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "examples/zdx/deeptrace/deep_trace_start/main.go",
+          "quotes": [
+            "service, err := zscaler.NewOneAPIClient(zdxCfg)"
+          ]
+        }
+      ],
+      "derived_from": [
+        "service-routing"
+      ],
+      "conditions": "A search of `zscaler/zdx/services` at the pin finds every ZDX service function calling `service.Client.NewRequestDo` and none calling `NewZdxRequestDo`, which only a unit test calls; not run against a tenant."
+    }
+  }
+}

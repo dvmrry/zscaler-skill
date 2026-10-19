@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "id": "zero-trust-branch.overview",
+  "title": "Zero Trust Branch: what it is, how it forwards and segments, and how it is deployed",
+  "aliases": [
+    "zero trust branch",
+    "ztb",
+    "what is zero trust branch",
+    "branch sd-wan zscaler",
+    "network of one",
+    "ztb device segmentation",
+    "ztb appliance",
+    "airgap"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdwan.device-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.cloud-names"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zero Trust Branch is a branch, factory and data-center product that combines SD-WAN forwarding with device segmentation. {{what-it-is}}"
+    },
+    {
+      "label": "Forwarding.",
+      "text": "{{zte-forwarding}} {{forwarding-policies}}"
+    },
+    {
+      "label": "Segmentation.",
+      "text": "{{network-of-one}} {{gateway-32}}"
+    },
+    {
+      "label": "Other features.",
+      "text": "{{ot-access-and-classification}}"
+    },
+    {
+      "label": "Deployment.",
+      "text": "{{deployment-components}} {{deployment-methods}} Which hardware models exist is not in the captured overview {{gap:appliance-models}}."
+    },
+    {
+      "label": "Neighbours.",
+      "text": "Zero Trust SD-WAN Devices, which the Cloud & Branch Connector help describes as using Zero Trust Branch Connectivity, are covered in [[cloud-connector.sdwan.device-modes]]. The Zero Trust Branch cloud domain is in [[shared.cloud-architecture.cloud-names:other-services]]. Automating it is in [[zero-trust-branch.api]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the question is about Zero Trust Branch appliances or about Cloud & Branch Connector (Branch Connector VMs and Zero Trust SD-WAN Devices), which have separate help, APIs and SDK packages.",
+      "uses": [
+        "what-it-is",
+        "cloud-connector.sdwan.device-modes",
+        "zero-trust-branch.api"
+      ]
+    },
+    {
+      "do": "Whether gateway mode is enabled when a device on the same VLAN cannot reach another directly: in that mode every endpoint gets a /32 mask and all traffic goes through the gateway.",
+      "uses": [
+        "gateway-32"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Zero Trust Branch protects branches, factories and data centers by combining SD-WAN capabilities with device segmentation, through Zero Trust Branch appliances deployed at the sites and the Zero Trust Exchange, without additional firewall appliances.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-what-zero-trust-branch.json",
+          "quotes": [
+            "it protects your branches, factories, and data centers by combining high-performance Software-Defined Wide Area Network (SD-WAN) capabilities with advanced device segmentation.",
+            "Zero Trust Branch leverages the power of the Zscaler Zero Trust Exchange (ZTE) and integrated Zero Trust Branch appliances deployed at your sites, establishing secure inbound and outbound networking without the need for additional firewall appliances."
+          ]
+        }
+      ]
+    },
+    "zte-forwarding": {
+      "statement": "The appliance terminates ISP connections directly and manages forwarding across multiple links; branch and cloud traffic is forwarded to the Zero Trust Exchange, where Internet & SaaS (ZIA) and Private Access (ZPA) policies are applied based on traffic destination and user identity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-what-zero-trust-branch.json",
+          "quotes": [
+            "It directly terminates ISP connections and manages traffic forwarding across multiple links for maximum availability and resiliency.",
+            "Cloud and branch traffic is securely forwarded directly to the ZTE, where Internet & SaaS (ZIA) and Private Access (ZPA) policies are applied based on traffic destination and user identity"
+          ]
+        }
+      ]
+    },
+    "forwarding-policies": {
+      "statement": "Forwarding policies for internet and non-internet traffic are enforced using Internet & SaaS or Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-what-zero-trust-branch.json",
+          "quotes": [
+            "Enforces finely grained forwarding policies for internet and non-internet traffic using Internet & SaaS or Private Access."
+          ]
+        }
+      ]
+    },
+    "network-of-one": {
+      "statement": "Device segmentation is agentless: the network-of-one technology automatically discovers, classifies and isolates each device on the branch or factory network, including IoT, OT, IoMT, headless devices and legacy systems.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-what-zero-trust-branch.json",
+          "quotes": [
+            "Zero Trust Branch extends the principles of zero trust into your internal network with agentless device segmentation.",
+            "Our innovative \"network-of-one\" technology automatically discovers, classifies, and isolates each device, including Internet of Things (IoT), Operational Technology (OT), Internet of Medical Things (IoMT), headless devices, and legacy systems connected to your branch or factory network."
+          ]
+        }
+      ]
+    },
+    "gateway-32": {
+      "statement": "When enabled, the Zero Trust Branch gateway becomes the default gateway for VLANs and gives every endpoint a /32 subnet mask (through its DHCP proxy, or by automation for static-IP devices), and all devices, even on the same VLAN, must communicate with each other through the gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-what-zero-trust-branch.json",
+          "quotes": [
+            "When enabled, the Zero Trust Branch gateway assumes the role of default gateway for VLANs and auto-provisions every endpoint with a /32 subnet mask through the intelligent Dynamic Host Configuration Protocol (DHCP) proxy or via automation for static IP address-enabled devices.",
+            "Requires all devices, even those within the same VLAN, to communicate with each other via the Zero Trust Branch gateway for maximum security."
+          ]
+        }
+      ]
+    },
+    "ot-access-and-classification": {
+      "statement": "The feature list includes automatic classification of shadow IoT devices based on traffic profiles, clientless browser-based access to SSH, RDP and VNC ports on OT assets, and Zero Touch Provisioning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-what-zero-trust-branch.json",
+          "quotes": [
+            "Enables organizations to discover and classify shadow IoT devices with automatic device classification based on traffic profiles.",
+            "Simplifies secure access to OT resources with clientless, browser-based access to Secure Shell (SSH), Remote Desktop Protocol (RDP), and virtual network computing (VNC) ports on OT assets.",
+            "Introduces plug-and-play deployment with Zero Touch Provisioning (ZTP)"
+          ]
+        }
+      ]
+    },
+    "deployment-components": {
+      "statement": "Zero Trust Branch has two components: Zero Trust Branch appliances (forwarding and network enforcement points in the customer environment, in physical and virtual options by throughput and scale) and the Zscaler Admin Console, which manages them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-deployment-overview.json",
+          "quotes": [
+            "Zscaler Zero Trust Branch has two components:",
+            "Zero Trust Branch appliances: Provide forwarding and network enforcement points deployed in the customer environments. Depending on the throughput and scale requirements, there are different physical and virtual options available.",
+            "Zscaler Admin Console: A centralized Software as a Service (SaaS) management portal used to manage Zero Trust Branch appliances."
+          ]
+        }
+      ]
+    },
+    "deployment-methods": {
+      "statement": "The deployment overview says there are several ways to deploy and lists two: an appliance through Zero Touch Provisioning, and Zero Trust Branch as a virtual machine on VMware ESXi.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-deployment-overview.json",
+          "quotes": [
+            "There are several ways to deploy Zero Trust Branch:",
+            "Deploying an Appliance Using Zero Touch Provisioning",
+            "Deploying Zero Trust Branch as a Virtual Machine on VMware ESXi"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "appliance-models": {
+      "kind": "semantic",
+      "title": "Which Zero Trust Branch hardware models and form factors exist",
+      "status": "open",
+      "detail": "Unverified legacy statement: the captured deployment options include Zero Touch Provisioning, VMware ESXi, and ZT800 hardware. The current deployment overview names only the two deployment methods and says physical and virtual options vary by throughput and scale; no captured page names a hardware model.",
+      "blocks": "sizing or naming a Zero Trust Branch appliance for a site",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

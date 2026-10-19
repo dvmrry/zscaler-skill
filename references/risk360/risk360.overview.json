@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "id": "risk360.overview",
+  "title": "Risk360: what it measures, which data it uses, how long it keeps logs, and what can be automated",
+  "aliases": [
+    "risk360",
+    "zscaler risk360",
+    "risk 360",
+    "cyber risk quantification",
+    "risk360 api",
+    "risk360 data sources",
+    "risk360 log retention",
+    "zra"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "risk360.scoring"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.zagent"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.cloud-names"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Risk360 quantifies cyber risk from data the tenant's other Zscaler services already produce. {{what-it-is}}"
+    },
+    {
+      "label": "Features.",
+      "text": "{{features}} How the scores, factors and financial estimates are computed is in [[risk360.scoring]]."
+    },
+    {
+      "heading": "Data it uses"
+    },
+    {
+      "text": "{{telemetry-sources}} {{crowdstrike}} {{logs-definition}} {{logs-retention}}"
+    },
+    {
+      "label": "ZAgent.",
+      "text": "{{zagent-features}} The Risk360 agent's entitlement is in [[unified.zagent:agent-subscriptions]]."
+    },
+    {
+      "heading": "Automation"
+    },
+    {
+      "text": "{{no-client-surface}} {{mcp-no-service}} {{zidentity-resource-server}} Whether a Risk360 API or export automation exists is open {{gap:api-surface}}. The Risk360 cloud domain is in [[shared.cloud-architecture.cloud-names:other-services]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Answer Risk360 automation questions as unsupported by any captured client or contract, and say the API question is open, rather than inferring endpoints from the ZIdentity resource-server entry.",
+      "uses": [
+        "no-client-surface",
+        "zidentity-resource-server",
+        "api-surface"
+      ]
+    },
+    {
+      "do": "Whether the tenant's Risk360 log storage region (United States or European Union) was chosen at deployment, for data-residency questions.",
+      "uses": [
+        "logs-retention"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Risk360 analyzes an organization's security data and provides real-time risk metrics at the organization level and for four attack stages: External Attack Surface, Compromise, Lateral Propagation and Data Loss.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-risk360.json",
+          "quotes": [
+            "Risk360 analyzes your organization's security data and provides real-time risk metrics to quantify the risk at the organization level and 4 major attack stages:",
+            "External Attack Surface: Analyzes external attack surfaces across a range of publicly discoverable variables",
+            "Compromise: Analyzes events, security configurations, and traffic flow attributes to compute the likelihood of a compromise.",
+            "Lateral Propagation: Analyzes various private access settings and metrics to compute lateral propagation risks.",
+            "Data Loss: Analyzes sensitive data attributes to determine potential data leakage risks."
+          ]
+        }
+      ]
+    },
+    "features": {
+      "statement": "Its listed features are holistic risk analysis with the factors driving risk, financial exposure through Monte Carlo simulation, risk reporting for stakeholders, peer benchmarking against industry peers, compliance support against major frameworks, and deployment through the Zero Trust Exchange without additional hardware upgrades.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-risk360.json",
+          "quotes": [
+            "Provides a holistic risk analysis and displays factors driving your organization's cyber risk with actionable insights to mitigate the risk.",
+            "Allows you to understand your organization's potential financial exposure using Monte Carlo simulation.",
+            "Facilitates risk reporting for various stakeholders.",
+            "Enables peer benchmarking to understand how your organization is addressing risk compared to industry peers.",
+            "Streamlines compliance efforts against major compliance frameworks.",
+            "Integrates with the Zscaler Zero Trust Exchange (ZTE) for seamless deployment and does not require additional hardware upgrades."
+          ]
+        }
+      ]
+    },
+    "telemetry-sources": {
+      "statement": "Zscaler's Risk360 product page says Risk360 ingests data from the existing Zscaler deployment, naming ZIA, ZPA, DLP policies, ThreatLabz security research and external attack surface metrics as the telemetry it uses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-product-marketing.md",
+          "quotes": [
+            "delivers powerful cyber risk quantification by ingesting data from your existing Zscaler deployment.",
+            "Risk360 leverages Zscaler telemetry, including data from **ZIA, ZPA, DLP policies, security research from ThreatLabz, and external attack surface metrics**, to quantify organizational risk."
+          ]
+        }
+      ]
+    },
+    "crowdstrike": {
+      "statement": "Risk360 supports integrations with other vendors, such as CrowdStrike, to gather risky events and activities and translate them into Risk360 factors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-about-factors.json",
+          "quotes": [
+            "The service also supports integration with other vendors like CrowdStrike to gather data for risky events and activities and translate them into Risk360 factors"
+          ]
+        }
+      ]
+    },
+    "logs-definition": {
+      "statement": "For Risk360, logs are duplicates of the configuration and transaction logs of other Zscaler SaaS products, such as ZIA or ZPA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-logs-retention.json",
+          "quotes": [
+            "Definition: For Risk360, logs are defined as duplicates of the configuration and transaction logs of other Zscaler SaaS products, such as Zscaler Internet Access (ZIA) or Zscaler Private Access (ZPA)."
+          ]
+        }
+      ]
+    },
+    "logs-retention": {
+      "statement": "Zscaler retains Risk360 logs on a rolling period of up to a year during the subscription term, depending on the subscription, deletes them by its retention cycles after the term ends, and stores them in the United States or the European Union as chosen during deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-logs-retention.json",
+          "quotes": [
+            "Retention: Zscaler retains the logs on a rolling period of up to a year during your subscription term, depending on your subscription.",
+            "When the subscription term ends or expires, the logs are deleted by Zscaler according to applicable retention cycles.",
+            "Storage: During the deployment process, you can choose to have the logs stored in either the United States or the European Union."
+          ]
+        }
+      ]
+    },
+    "zagent-features": {
+      "statement": "Certain Risk360 features operate through the ZAgent service, which may use one or more sub-agents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-logs-retention.json",
+          "quotes": [
+            "ZAgent: Certain Risk360 features operate through the ZAgent service, which may use one or more sub-agents."
+          ]
+        }
+      ]
+    },
+    "no-client-surface": {
+      "statement": "No vendored client covers Risk360: the Go and Python SDKs have no Risk360 service, and the Terraform providers, Ansible collections, MCP server, OneAPI Postman collection and captured Automate contract have no Risk360 resource, module, tool or operation.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "used in your server-side code to interact with the Zscaler API platform across multiple products such as:"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. The Python README's product list (introduced by the quoted line) names no Risk360 API. At the pins, `git grep -i risk360` finds no Risk360 code in the Go SDK, the ZIA, ZPA, ZCC or ZTC providers or the Ansible collections; in the Python SDK it finds only a recorded ZIdentity response (zidentity-resource-server); in the MCP server only the entitlement comment (mcp-no-service) and its test; the OneAPI Postman collection has no match."
+    },
+    "mcp-no-service": {
+      "statement": "The MCP server's entitlement filter, which maps the product codes in the OneAPI bearer token's service-info claim to its services, lists RISK360 among product codes with no MCP service: such codes are skipped, with a warning naming each one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/entitlements.py",
+          "quotes": [
+            "The OneAPI bearer token issued by ZIdentity carries a ``service-info`` claim",
+            "lifts each ``prd`` value, and maps known product codes to internal service identifiers",
+            "Product codes with no MCP service (RISK360, ZGUARD, BI, ...) are",
+            "skipped, but every skipped value is named in a WARN line"
+          ]
+        }
+      ]
+    },
+    "zidentity-resource-server": {
+      "statement": "A ZIdentity resource-server response recorded in the Python SDK's integration tests lists, under the Zscaler APIs resource server, a service named `ZRA` with display name Risk360 and the scopes Role:Risk360 Read-only Admin and Role:Risk360 Super Admin.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zid/cassettes/TestResourceServers.yaml",
+          "after": "interactions:",
+          "quotes": [
+            "\"displayName\":\"Zscaler APIs\"",
+            "\"name\":\"ZRA\",\"displayName\":\"Risk360\"",
+            "\"name\":\"Role:Risk360 Read-only Admin\"",
+            "\"name\":\"Role:Risk360 Super Admin\""
+          ]
+        }
+      ],
+      "conditions": "Rests on one recorded tenant response in a test cassette, not on vendor documentation; it shows Risk360 role scopes on the OneAPI resource server but no Risk360 endpoint."
+    }
+  },
+  "gaps": {
+    "api-surface": {
+      "kind": "semantic",
+      "title": "Whether Risk360 has a programmable API or export automation",
+      "status": "open",
+      "former_ids": [
+        "risk360-01"
+      ],
+      "detail": "Unverified legacy statement: Risk360 programmability and export automation are unresolved; the sources show a product UI and help surface and an incidental ZIdentity role fixture, but no Risk360 SDK service, Terraform resource, Ansible module, MCP tool or Postman endpoint family. The help pages describe only console CSV downloads (risk360.scoring:factor-csv-export). The ZRA resource-server scopes suggest a OneAPI service, but no endpoint is captured.",
+      "blocks": "telling an operator whether Risk360 scores, factors or financial estimates can be pulled programmatically",
+      "resolves_with": [
+        "source-read",
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,675 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.runtime-api",
+  "title": "Calling AI Guard at runtime: the proxy endpoint, the DAS detection API, its host, direction and policy ID, and throttling in the Python SDK",
+  "aliases": [
+    "execute-policy",
+    "resolve-and-execute-policy",
+    "ai guard detection api",
+    "ai guard das api",
+    "/v1/detection/execute-policy",
+    "api.zseclipse.net",
+    "proxy.zseclipse.net",
+    "LegacyAIGuardClient",
+    "policy_detection",
+    "ai guard direction IN OUT",
+    "ai guard policyId",
+    "ai guard throttling",
+    "retryAfterMillis",
+    "X-ApiKey",
+    "AIGUARD_CLOUD"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.admin-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terminology.product-names"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Applications reach AI Guard at runtime in one of two ways: as a proxy in front of the LLM provider, or by calling its detection API around their own LLM calls. These calls are not part of the OneAPI configuration API."
+    },
+    {
+      "label": "Proxy mode.",
+      "text": "{{proxy-paths}} {{proxy-key-header}} The mode itself is described in [[ai-security.ai-guard:proxy-single-destination]]."
+    },
+    {
+      "label": "DAS endpoints.",
+      "text": "{{two-endpoints}} {{resolve-requirements}} {{help-host}} {{both-directions}} {{failure-handling}}"
+    },
+    {
+      "label": "Where the sources disagree.",
+      "text": "The host differs between Help and the SDK {{divergence:das-host}}, which is open {{gap:host-selection}}. The direction values differ {{divergence:direction-literals}}, open {{gap:direction-aliases}}. Whether execute-policy needs a policy ID differs {{divergence:policy-id-required}}, open {{gap:execute-without-policy-id}}."
+    },
+    {
+      "label": "The Python SDK.",
+      "text": "{{sdk-legacy-client}} {{sdk-host}} {{sdk-bearer}} {{sdk-direction-doc}} {{sdk-policy-id-optional}} {{resolve-user-headers}} The deprecated `client.zguard` alias is in [[shared.terminology.product-names:zguard-alias]]."
+    },
+    {
+      "label": "Responses.",
+      "text": "{{response-fields}} {{resolve-policy-fields}}"
+    },
+    {
+      "label": "Throttling.",
+      "text": "{{throttle-metrics}} {{throttle-hook-name}} {{throttle-hook-skipped}} A test of it is open {{gap:throttle-handling}}."
+    },
+    {
+      "label": "Other entry points.",
+      "text": "The Anthropic inference-hook endpoint is in [[ai-security.ai-guard.tenant-settings:anthropic-webhook]], and Zscaler's integration examples in [[ai-security.ai-guard.integrations]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "That the application calls AI Guard on both the prompt and the response, and treats a failed inspection explicitly rather than passing content through.",
+      "uses": [
+        "both-directions",
+        "failure-handling"
+      ]
+    },
+    {
+      "do": "Which host the client uses: Help's global api.zseclipse.net or the SDK's api.<cloud>.zseclipse.net (cloud us1 unless set); pin it with the override when they differ.",
+      "uses": [
+        "das-host",
+        "sdk-host",
+        "host-selection"
+      ]
+    },
+    {
+      "do": "That direction is IN for prompts and OUT for responses when using the SDK, and that execute-policy calls carry a policy ID.",
+      "uses": [
+        "direction-literals",
+        "policy-id-required"
+      ]
+    },
+    {
+      "do": "That the caller reads throttlingDetails and waits retryAfterMillis itself; at the pin the SDK's helper does not act on it.",
+      "uses": [
+        "response-fields",
+        "throttle-hook-skipped"
+      ]
+    }
+  ],
+  "claims": {
+    "proxy-paths": {
+      "statement": "In proxy mode the application keeps each provider's own request path but sends it to `https://proxy.zseclipse.net`; the proxy page lists Anthropic (`/v1/messages`), AWS Bedrock Agent, AWS Bedrock Anthropic, AWS Bedrock Invoke, Azure Foundry (`/openai/v1/chat/completions`), Google Gemini, Google Vertex and OpenAI (`/v1/chat/completions`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-test-llm-providers-ai-guard-proxy-mode.md",
+          "quotes": [
+            "Anthropic Provider-specific upstream in AI Guard /v1/messages",
+            "AWS Bedrock Agent Provider-specific upstream in AI Guard /agents/<AGENT_ID>/agentAliases/<AGENT_ALIAS_ID>/sessions/<SESSION_ID>/text",
+            "AWS Bedrock Anthropic Provider-specific upstream in AI Guard /model/anthropic.<MODEL>/invoke",
+            "AWS Bedrock Invoke Provider-specific upstream in AI Guard /model/<MODEL>/converse",
+            "Azure Foundry <your-resource>.openai.azure.com /openai/v1/chat/completions",
+            "Google Gemini generativelanguage.googleapis.com /v1beta/models/<MODEL>:generateContent",
+            "Google Vertex aiplatform.googleapis.com /v1/projects/<PROJECT_ID>/locations/<REGION>/publishers/google/models/<MODEL>:generateContent",
+            "OpenAI Provider-specific upstream in AI Guard /v1/chat/completions",
+            "When configuring a proxy for Zscaler, use the following base URL endpoint: https://proxy.zseclipse.net"
+          ]
+        }
+      ]
+    },
+    "proxy-key-header": {
+      "statement": "A proxy-mode request authenticates to AI Guard with the AI Guard application key in an `X-ApiKey` header; the Anthropic example also sends an `anthropic-version` header giving the API version in use.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-api-user-guide.md",
+          "quotes": [
+            "X-ApiKey: The AI Guard application key which is mandatory for authentication.",
+            "--header 'anthropic-version: 2023-06-01'",
+            "Anthropic-version: API version in use (e.g., 2023-06-01)."
+          ],
+          "after": "curl --location 'https://proxy.zseclipse.net/v1/messages'"
+        }
+      ]
+    },
+    "two-endpoints": {
+      "statement": "DAS mode has two endpoints: `execute-policy` checks content against one specific policy ID, for deterministic use of a known policy; `resolve-and-execute-policy` sends no policy ID and lets AI Guard resolve and apply the matching policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+          "quotes": [
+            "There are two primary endpoints for DAS/API mode:",
+            "You want to explicitly reference a specific AI Guard policy.",
+            "You want AI Guard to resolve which policy should match.",
+            "policyId is not sent.",
+            "AI Guard resolves and applies the appropriate policy.",
+            "You want deterministic use of one exact policy.",
+            "Use execute-policy when:",
+            "Use resolve-and-execute-policy when:"
+          ]
+        }
+      ]
+    },
+    "resolve-requirements": {
+      "statement": "Resolve-and-execute needs DAS/API policies to exist in AI Guard; AI Guard evaluates them and determines the matching one, so several DAS/API policies may apply and the application should not hard-code a single policy ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+          "quotes": [
+            "DAS/API policies must exist in AI Guard.",
+            "AI Guard evaluates those policies and determines the matching policy.",
+            "Multiple DAS/API policies may apply.",
+            "The application should not hard-code a single policy ID."
+          ]
+        }
+      ]
+    },
+    "help-host": {
+      "statement": "The DAS page calls both endpoints on the host `https://api.zseclipse.net`, authenticating with the AI Guard API key as a Bearer token and sending `direction` and `content` in the body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+          "quotes": [
+            "https://api.zseclipse.net/v1/detection/execute-policy",
+            "self.zag_key = \"<insert-api-key-generated-in-aiguard>\"",
+            "\"Authorization\": f\"Bearer {self.zag_key}\",",
+            "\"direction\": direction,",
+            "\"content\": content or \"\","
+          ],
+          "after": "Option 1: Execute a specific policy"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+          "quotes": [
+            "https://api.zseclipse.net/v1/detection/resolve-and-execute-policy",
+            "self.zag_key = \"<insert-api-key-generated-in-aiguard>\"",
+            "\"Authorization\": f\"Bearer {self.zag_key}\",",
+            "\"direction\": direction,",
+            "\"content\": content or \"\","
+          ],
+          "after": "Option 2: Resolve and execute policy"
+        }
+      ]
+    },
+    "both-directions": {
+      "statement": "The application should inspect both sides: the prompt before it is sent to the model and the response before it is shown to the user; skipping the response call gives up output enforcement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+          "quotes": [
+            "The prompt before it is sent to the model.",
+            "The response before it is shown back to the user.",
+            "Do not bypass the response-side call if output enforcement is required."
+          ]
+        }
+      ]
+    },
+    "failure-handling": {
+      "statement": "The DAS page advises a short request timeout for the inspection call, explicit handling of AI Guard failures, error handling for failed inspections and return-message wording for blocked inspections in the application, and logging blocked events without exposing sensitive content broadly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+          "quotes": [
+            "Use a short request timeout for AI Guard inspection.",
+            "Handle AI Guard failures explicitly.",
+            "Error handling for failed inspections.",
+            "Log blocked events safely without exposing sensitive content broadly.",
+            "Return message verbiage for blocked inspections."
+          ]
+        }
+      ]
+    },
+    "sdk-legacy-client": {
+      "statement": "In the Python SDK the detection endpoints are not exposed through OneAPI: they are called with `LegacyAIGuardClient` and an AI Guard API key, while every other AI Guard resource is OneAPI-only through `ZscalerClient`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "docsrc/zs/aiguard/policy_detection.rst",
+          "quotes": [
+            "The policy detection endpoints (``/v1/detection/execute-policy`` and",
+            "``/v1/detection/resolve-and-execute-policy``) are **not** exposed through OneAPI.",
+            "They must be called with :class:`~zscaler.oneapi_client.LegacyAIGuardClient`, which",
+            "authenticates with an AI Guard API key against ``https://api.<cloud>.zseclipse.net``.",
+            "reached with ``ZscalerClient``.",
+            "Every other AI Guard resource -- detection policies, policy match rules, LLM",
+            "providers, LLM applications and their credentials -- is **OneAPI only** and is"
+          ]
+        }
+      ]
+    },
+    "sdk-host": {
+      "statement": "The SDK's legacy client sends detection calls to `https://api.<cloud>.zseclipse.net`, taking the cloud from the config's `cloud`, else `AIGUARD_CLOUD`, else `us1`; an `override_url` or `AIGUARD_OVERRIDE_URL` replaces the whole base URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "cloud = config.get(\"cloud\", os.getenv(\"AIGUARD_CLOUD\", \"us1\"))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/legacy.py",
+          "quotes": [
+            "kw.get(\"override_url\")",
+            "or os.getenv(f\"{self._env_base}_OVERRIDE_URL\")",
+            "or f\"https://api.{self.env_cloud}.zseclipse.net\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "docsrc/zs/aiguard/policy_detection.rst",
+          "quotes": [
+            "(``AIGUARD_CLOUD`` for the cloud, ``AIGUARD_OVERRIDE_URL`` to override the base URL).",
+            "authenticates with an AI Guard API key against ``https://api.<cloud>.zseclipse.net``."
+          ]
+        }
+      ]
+    },
+    "sdk-bearer": {
+      "statement": "The legacy helper sets an Authorization header carrying the API key as a Bearer token on each detection request; detection calls are dispatched through it since release 1.9.44, which fixed them falling through to the standard OneAPI session without the AI Guard API key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/legacy.py",
+          "quotes": [
+            "request.headers[\"Authorization\"] = f\"Bearer {self.api_key}\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_http_client.py",
+          "quotes": [
+            "response = self.aiguard_legacy_client.send("
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed AI Guard policy detection requests not being dispatched through the legacy AI Guard client. `execute_policy` and `resolve_and_execute_policy` fell through to the standard OneAPI session and were sent without the AI Guard API key."
+          ],
+          "after": "## 1.9.44 (September 1 2026)"
+        }
+      ]
+    },
+    "sdk-direction-doc": {
+      "statement": "The SDK documents `direction` as `IN` or `OUT` for both detection methods, and each method's minimal-payload example passes `direction=\"IN\"`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/policy_detection.py",
+          "quotes": [
+            "direction (str): The direction of the content ('IN' or 'OUT')",
+            "Minimal payload (content + direction):",
+            "direction=\"IN\""
+          ],
+          "after": "def execute_policy("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/policy_detection.py",
+          "quotes": [
+            "direction (str): The direction of the content ('IN' or 'OUT')",
+            "Minimal payload (content + direction):",
+            "direction=\"IN\""
+          ],
+          "after": "def resolve_and_execute_policy("
+        }
+      ]
+    },
+    "sdk-policy-id-optional": {
+      "statement": "`execute_policy` takes `policy_id` as optional and puts `policyId` in the body only when it is given; `transactionId` is likewise added only when given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/policy_detection.py",
+          "quotes": [
+            "policy_id: Optional[int] = None,",
+            "if policy_id is not None:",
+            "body[\"policyId\"] = policy_id",
+            "body[\"transactionId\"] = transaction_id",
+            "transaction_id: Optional[str] = None,",
+            "if transaction_id is not None:"
+          ],
+          "after": "def execute_policy("
+        }
+      ]
+    },
+    "resolve-user-headers": {
+      "statement": "`resolve_and_execute_policy` accepts an optional `user` since release 1.10.0, recorded on the detection event so the user appears on the dashboard, and optional extra `headers` since release 1.10.1, which are merged into the request and let a caller send the tenant's configured custom request headers, including the one AI Guard reads a conversation ID from to correlate multi-turn interactions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "argument to AI Guard `resolve_and_execute_policy`. The end-user identity is recorded on the",
+            "detection event so the user surfaces on the dashboard."
+          ],
+          "after": "## 1.10.0 (September 18 2026)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added an optional `headers` argument to AI Guard `resolve_and_execute_policy`.",
+            "merged into the request, which lets a caller send the tenant's configured custom request headers",
+            "including the one AI Guard reads the conversation ID from, so multi-turn interactions can be",
+            "correlated on the dashboard."
+          ],
+          "after": "## 1.10.1 (September 29 2026)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/policy_detection.py",
+          "quotes": [
+            "user: Optional[str] = None,",
+            "headers: Optional[dict] = None,"
+          ],
+          "after": "def resolve_and_execute_policy("
+        }
+      ]
+    },
+    "response-fields": {
+      "statement": "The SDK's response models read `transactionId`, `statusCode`, `errorMsg`, `detectorErrorCount`, `action`, `severity`, `direction`, a map of per-detector `detectorResponses` (each with `triggered`, `action`, `severity`, `latency` and an optional `contentHash`), and a list of `throttlingDetails` with `rlcId`, `metric` and `retryAfterMillis`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/models/policy_detection.py",
+          "quotes": [
+            "self.transaction_id = config[\"transactionId\"] if \"transactionId\" in config else None",
+            "self.status_code = config[\"statusCode\"] if \"statusCode\" in config else None",
+            "self.error_msg = config[\"errorMsg\"] if \"errorMsg\" in config else None",
+            "self.detector_error_count = config[\"detectorErrorCount\"] if \"detectorErrorCount\" in config else None",
+            "self.action = config[\"action\"] if \"action\" in config else None",
+            "self.severity = config[\"severity\"] if \"severity\" in config else None",
+            "self.direction = config[\"direction\"] if \"direction\" in config else None",
+            "if \"detectorResponses\" in config and config[\"detectorResponses\"]:",
+            "for key, value in config[\"detectorResponses\"].items():",
+            "config[\"throttlingDetails\"] if \"throttlingDetails\" in config else [], RateLimitThrottlingDetail"
+          ],
+          "after": "class ExecuteDetectionsPolicyResponse(ZscalerObject):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/models/policy_detection.py",
+          "quotes": [
+            "self.triggered = config[\"triggered\"] if \"triggered\" in config else None",
+            "self.latency = config[\"latency\"] if \"latency\" in config else None",
+            "self.action = config[\"action\"] if \"action\" in config else None",
+            "self.severity = config[\"severity\"] if \"severity\" in config else None",
+            "if isinstance(config[\"contentHash\"], ContentHash):"
+          ],
+          "after": "class DetectorResponse(ZscalerObject):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/models/policy_detection.py",
+          "quotes": [
+            "self.rlc_id = config[\"rlcId\"] if \"rlcId\" in config else None",
+            "self.metric = config[\"metric\"] if \"metric\" in config else None",
+            "self.retry_after_millis = config[\"retryAfterMillis\"] if \"retryAfterMillis\" in config else None"
+          ]
+        }
+      ]
+    },
+    "resolve-policy-fields": {
+      "statement": "The resolve-and-execute response model also reads `policyId`, `policyName` and `policyVersion`, naming the policy AI Guard resolved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/models/policy_detection.py",
+          "quotes": [
+            "self.policy_id = config[\"policyId\"] if \"policyId\" in config else None",
+            "self.policy_name = config[\"policyName\"] if \"policyName\" in config else None",
+            "self.policy_version = config[\"policyVersion\"] if \"policyVersion\" in config else None"
+          ],
+          "after": "class ResolveAndExecuteDetectionsPolicyResponse(ZscalerObject):"
+        }
+      ]
+    },
+    "throttle-metrics": {
+      "statement": "The legacy helper's throttling handler treats a `metric` of `rq` as a request-count limit and `cs` as a content-size limit, sleeps for the longest retry-after value when `auto_retry_on_rate_limit` is on (the default), and makes later requests wait until the recorded limit resets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/legacy.py",
+          "quotes": [
+            "auto_retry_on_rate_limit: bool = True,",
+            "if metric == \"rq\":",
+            "throttle_info.append(f\"Request rate limit (wait {wait_seconds:.1f}s)\")",
+            "elif metric == \"cs\":",
+            "throttle_info.append(f\"Content size limit (wait {wait_seconds:.1f}s)\")",
+            "if self.auto_retry_on_rate_limit and max_wait_seconds > 0:",
+            "self._wait_if_rate_limited()",
+            "wait_seconds = (retry_after_millis or 0) / 1000.0",
+            "max_wait_seconds = max(max_wait_seconds, wait_seconds)",
+            "time.sleep(max_wait_seconds)"
+          ]
+        }
+      ]
+    },
+    "throttle-hook-name": {
+      "statement": "The detection methods pass a response's throttling details to `_handle_throttling_details` on the request executor's `zguard_legacy_client` only if the request executor has an attribute of that name; the request executor stores the legacy helper as `aiguard_legacy_client`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/policy_detection.py",
+          "quotes": [
+            "if hasattr(self._request_executor, \"zguard_legacy_client\"):",
+            "legacy_client = self._request_executor.zguard_legacy_client",
+            "legacy_client._handle_throttling_details(result.throttling_details)"
+          ],
+          "after": "def execute_policy("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/policy_detection.py",
+          "quotes": [
+            "if hasattr(self._request_executor, \"zguard_legacy_client\"):",
+            "legacy_client = self._request_executor.zguard_legacy_client",
+            "legacy_client._handle_throttling_details(result.throttling_details)"
+          ],
+          "after": "def resolve_and_execute_policy("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "aiguard_legacy_client: LegacyZGuardClientHelper = None,",
+            "self.aiguard_legacy_client = aiguard_legacy_client"
+          ]
+        }
+      ]
+    },
+    "throttle-hook-skipped": {
+      "statement": "At the pin, a throttled detection response never reaches the helper's handler: the SDK neither sleeps on `retryAfterMillis` nor delays later requests, so a caller has to read `throttlingDetails` and wait itself.",
+      "tier": "B",
+      "derived_from": [
+        "throttle-hook-name",
+        "throttle-metrics"
+      ],
+      "conditions": "Follows from Python `hasattr` on an attribute the request executor never sets: a search of the package finds no other `zguard_legacy_client` and no `__getattr__` on the executor. Not exercised against a live endpoint."
+    }
+  },
+  "divergences": {
+    "das-host": {
+      "summary": "Which host serves the DAS detection endpoints.",
+      "positions": [
+        {
+          "says": "Help calls both endpoints on the global host api.zseclipse.net.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+            "quotes": [
+              "https://api.zseclipse.net/v1/detection/execute-policy"
+            ]
+          }
+        },
+        {
+          "says": "The Python SDK builds a per-cloud host, api.<cloud>.zseclipse.net, with cloud us1 unless configured.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/aiguard/legacy.py",
+            "quotes": [
+              "or f\"https://api.{self.env_cloud}.zseclipse.net\""
+            ]
+          }
+        }
+      ],
+      "impact": "A client following one source may call a host the other source does not use; no source says whether both hosts accept the calls or which is preferred. The SDK's override URL can pin the Help host."
+    },
+    "direction-literals": {
+      "summary": "Which values the direction field takes.",
+      "positions": [
+        {
+          "says": "The Python SDK documents IN or OUT.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/aiguard/policy_detection.py",
+            "quotes": [
+              "direction (str): The direction of the content ('IN' or 'OUT')"
+            ],
+            "after": "def execute_policy("
+          }
+        },
+        {
+          "says": "The DAS Help page's examples pass \"request\" and \"response\", and its prose speaks of the outbound prompt and the inbound response.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+            "quotes": [
+              "direction should indicate whether this is the outbound prompt or inbound response.",
+              "prompt_result = resolve_and_execute_policy(user_prompt, \"request\")",
+              "response_result = resolve_and_execute_policy(llm_response, \"response\")"
+            ]
+          }
+        }
+      ],
+      "impact": "A request built from the Help examples may send values the SDK does not document; whether the API accepts both sets is unknown."
+    },
+    "policy-id-required": {
+      "summary": "Whether execute-policy requires a policy ID.",
+      "positions": [
+        {
+          "says": "The DAS Help page says policyId is required for execute-policy.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+            "quotes": [
+              "policyId is required."
+            ]
+          }
+        },
+        {
+          "says": "The Python SDK makes policy_id optional and omits policyId when it is not given.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/aiguard/policy_detection.py",
+            "quotes": [
+              "policy_id: Optional[int] = None,",
+              "if policy_id is not None:"
+            ],
+            "after": "def execute_policy("
+          }
+        }
+      ],
+      "impact": "An SDK call to execute_policy without a policy ID sends a request Help calls invalid; resolve_and_execute_policy is the documented call when no ID is intended."
+    }
+  },
+  "gaps": {
+    "host-selection": {
+      "kind": "semantic",
+      "title": "Which DAS host to use: the global api.zseclipse.net or api.<cloud>.zseclipse.net",
+      "status": "open",
+      "former_ids": [
+        "ai-security-06"
+      ],
+      "about": [
+        "ai-security.ai-guard.runtime-api:das-host"
+      ],
+      "detail": "Static sources do not establish whether the global and regional hosts both work, whether one is preferred, or whether the regional form is stale. Unverified legacy statements: public integration examples in zguard-ai-integrations (Microsoft README, github-actions README and scan_policy.py) also describe region-derived hosts such as api.{cloud}.zseclipse.net; that repository is vendored but not a registered source. An upstream issue (zguard-ai-integrations#10) reports the regional policy-resolution host no longer working and the global host working; it is an issue report, not a specification.",
+      "blocks": "which host a DAS client should be configured with",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "direction-aliases": {
+      "kind": "semantic",
+      "title": "Whether the detection API accepts request and response as direction values",
+      "status": "open",
+      "former_ids": [
+        "ai-security-01"
+      ],
+      "about": [
+        "ai-security.ai-guard.runtime-api:direction-literals"
+      ],
+      "detail": "Whether the live API accepts both IN/OUT and request/response, normalizes one to the other, or treats the Help values as pseudocode is unverified.",
+      "blocks": "building a valid DAS request from the Help page",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "execute-without-policy-id": {
+      "kind": "semantic",
+      "title": "What execute-policy does without a policy ID",
+      "status": "open",
+      "former_ids": [
+        "ai-security-02"
+      ],
+      "about": [
+        "ai-security.ai-guard.runtime-api:policy-id-required"
+      ],
+      "detail": "It is unclear whether the server rejects execute-policy without policyId, falls back to resolution, or whether the SDK's optional parameter exists only for payload-building convenience.",
+      "blocks": "answers on SDK execute_policy calls that pass no policy_id",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "throttle-handling": {
+      "kind": "semantic",
+      "title": "Whether the SDK acts on detection throttling details",
+      "status": "partial",
+      "former_ids": [
+        "ai-security-09"
+      ],
+      "detail": "The former static concern had two halves. The dispatch and Bearer-header half is resolved in source (sdk-bearer, release 1.9.44). The throttling half remains: the detection methods look for zguard_legacy_client while the executor stores aiguard_legacy_client (throttle-hook-name), so the helper's handler looks unreachable (throttle-hook-skipped). No unit test or live call has confirmed it.",
+      "blocks": "whether SDK users get automatic back-off on detection throttling",
+      "resolves_with": [
+        "code-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "id": "zdx.alerts.snapshot",
+  "title": "Sharing a ZDX snapshot of an alert or a user: the contract, the Python client and the path question",
+  "aliases": [
+    "share_snapshot",
+    "zdx snapshot",
+    "share alert snapshot",
+    "snapshot obfuscation",
+    "snapshot expiry",
+    "user snapshot",
+    "snapshot/alert",
+    "client.zdx.snapshot"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.alerts"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.api.client-coverage"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A snapshot is a shareable, expiring view of one alert, or of one user's experience with an application on a device. Only the Python SDK calls the alert form, and only as a POST."
+    },
+    {
+      "label": "The contract.",
+      "text": "{{contract-alert-request}} {{contract-user-request}} {{contract-response}} Who can open that URL is open {{gap:share-url-access}}."
+    },
+    {
+      "label": "Where it lives.",
+      "text": "{{contract-path}} {{python-path}} The two prefixes differ {{divergence:snapshot-base-path}}, and which one a live tenant accepts is open {{gap:snapshot-path-live}}."
+    },
+    {
+      "label": "What the Python client sends.",
+      "text": "{{python-expiry-hours}} {{python-body}} {{obfuscation-not-sent}} The earlier question about obfuscation is closed by this reading {{gap:obfuscation-transmission}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a snapshot shared through the Python SDK was meant to mask fields: its obfuscation list is not sent, so the shared snapshot is unmasked unless the API defaults otherwise.",
+      "uses": [
+        "obfuscation-not-sent"
+      ]
+    },
+    {
+      "do": "Which path the client posted to, the SDK's `/zdx/v1/snapshot/alert` or the contract's `/snapshot/alert`, when a snapshot call fails with not-found.",
+      "uses": [
+        "snapshot-base-path",
+        "contract-path",
+        "python-path"
+      ]
+    }
+  ],
+  "claims": {
+    "contract-alert-request": {
+      "statement": "The contract's alert snapshot takes `name` and `alert_id` (required, both strings), `expiry` as a Unix epoch in seconds that defaults to 2 hours and must fall between 2 hours and 90 days, and `obfuscation`, a list of fields to mask drawn from `USER_NAME`, `LOCATION`, `DEVICE_NAME`, `IP_ADDRESS` and `WIFI_NAME`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1snapshot~1alert/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "required": [
+              "name",
+              "alert_id"
+            ],
+            "title": "AlertSnapshot"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1snapshot~1alert/post/requestBody/content/application~1json/schema/properties",
+          "expect": {
+            "alert_id": {
+              "description": "The alert ID to create a ZDX Snapshot for.",
+              "type": "string"
+            },
+            "expiry": {
+              "description": "The expiration time in Unix Epoch (seconds). The default is set to 2 hours. To configure, the expiration must be between 2 hours and 90 days.",
+              "format": "int64",
+              "type": "integer"
+            },
+            "name": {
+              "description": "The name of the ZDX Snapshot.",
+              "type": "string"
+            },
+            "obfuscation": {
+              "description": "Specifies the fields to obfuscate in ZDX snapshot.",
+              "items": {
+                "enum": [
+                  "USER_NAME",
+                  "LOCATION",
+                  "DEVICE_NAME",
+                  "IP_ADDRESS",
+                  "WIFI_NAME"
+                ],
+                "title": "ObfuscationEnum",
+                "type": "string"
+              },
+              "type": "array"
+            }
+          }
+        }
+      ]
+    },
+    "contract-user-request": {
+      "statement": "The contract also has a user snapshot for a given user, device and application, requiring `name`, `user_id`, `device_id` and `app_id`, whose 'from' must be no older than 14 days and whose 'from' to 'to' span must be between 15 minutes and 48 hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1snapshot~1user/post",
+          "expect": {
+            "description": "Share a ZDX Snapshot of user details for a given user, device and application. The 'from' timestamp must not be older than 14 days from the current time, and the duration between 'from' and 'to' must be between 15 minutes and 48 hours."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1snapshot~1user/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "required": [
+              "name",
+              "user_id",
+              "device_id",
+              "app_id"
+            ],
+            "title": "UserSnapshot"
+          }
+        }
+      ]
+    },
+    "contract-response": {
+      "statement": "A created snapshot answers with its `id`, `name`, `expiry`, `status` and the `url` to access it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1snapshot~1alert/post/responses/200/content/application~1json/schema/properties",
+          "expect": {
+            "id": {
+              "description": "The ZDX Snapshot ID.",
+              "format": "int64",
+              "type": "integer"
+            },
+            "url": {
+              "description": "The URL to access the created ZDX Snapshot.",
+              "type": "string"
+            },
+            "status": {
+              "description": "The status of the ZDX Snapshot.",
+              "type": "string"
+            },
+            "expiry": {
+              "description": "The expiration time in seconds.",
+              "format": "int64",
+              "type": "integer"
+            },
+            "name": {
+              "description": "The name of the ZDX Snapshot.",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "contract-path": {
+      "statement": "The contract places both snapshot operations at `/snapshot/alert` and `/snapshot/user` under the server `https://api.zsapi.net/zdx`, without the `/v1` segment its other ZDX paths carry; the capture's validation report flags both as path-prefix anomalies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1snapshot~1alert/post",
+          "expect": {
+            "operationId": "Snapshot Resource Create Alert Snapshot"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/servers/[description=Zdx Public Service]",
+          "expect": {
+            "url": "https://api.zsapi.net/zdx"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi-validation-report.md",
+          "quotes": [
+            "- `zdx` `path_prefix_anomaly` {\"expected_prefix\": \"/v1\", \"issue\": \"path_prefix_anomaly\", \"path\": \"/snapshot/alert\", \"product\": \"zdx\"}",
+            "- `zdx` `path_prefix_anomaly` {\"expected_prefix\": \"/v1\", \"issue\": \"path_prefix_anomaly\", \"path\": \"/snapshot/user\", \"product\": \"zdx\"}"
+          ]
+        }
+      ]
+    },
+    "python-path": {
+      "statement": "The Python `share_snapshot` posts to its ZDX base `/zdx/v1` plus `/snapshot/alert`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/snapshot.py",
+          "quotes": [
+            "self._zdx_base_endpoint = \"/zdx/v1\"",
+            "/snapshot/alert",
+            "http_method = \"post\".upper()",
+            "def share_snapshot(self, **kwargs) -> APIResult[dict]:"
+          ]
+        }
+      ]
+    },
+    "python-expiry-hours": {
+      "statement": "The Python `share_snapshot` takes `expiry` in hours (documented as defaulting to 2 and ranging from 2 hours to 90 days) and sends the absolute epoch time now plus that many hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/snapshot.py",
+          "quotes": [
+            "expiry (int): The expiry time in hours (will be converted to Unix epoch)",
+            "The default is set to 2 hours. To configure, the expiration",
+            "must be between 2 hours and 90 days",
+            "expiry_epoch = int(time.time()) + (expiry_hours * 3600)",
+            "body[\"expiry\"] = expiry_epoch",
+            "def share_snapshot(self, **kwargs) -> APIResult[dict]:"
+          ]
+        }
+      ]
+    },
+    "python-body": {
+      "statement": "The Python `share_snapshot` builds its body from `name`, `alert_id` and the converted `expiry` only; the decorator moves `expiry` into the query parameters first, and the method pops it back out.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/snapshot.py",
+          "quotes": [
+            "body[\"name\"] = kwargs[\"name\"]",
+            "body[\"alert_id\"] = kwargs[\"alert_id\"]",
+            "expiry_hours = query_params.pop(\"expiry\")  # Remove from query_params",
+            "expiry_epoch = int(time.time()) + (expiry_hours * 3600)",
+            "body[\"expiry\"] = expiry_epoch",
+            "obfuscation (list): Specifies the fields to obfuscate in ZDX snapshot",
+            "def share_snapshot(self, **kwargs) -> APIResult[dict]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "(\"expiry\", \"expiry\"),  # New: int"
+          ]
+        }
+      ],
+      "conditions": "The three quoted body assignments are every write to `body` in the method at the pin."
+    },
+    "obfuscation-not-sent": {
+      "statement": "So an `obfuscation` list passed to the Python `share_snapshot` never reaches the API: the method documents it but neither copies it into the body nor maps it through the decorator.",
+      "tier": "B",
+      "derived_from": [
+        "python-body"
+      ],
+      "conditions": "Read from the method and the `zdx_params` mapping list at the pin; no captured request shows it."
+    }
+  },
+  "divergences": {
+    "snapshot-base-path": {
+      "summary": "The alert snapshot's path: the contract has `/snapshot/alert` under the `/zdx` server root; the Python SDK posts to `/zdx/v1/snapshot/alert`.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1snapshot~1alert/post",
+            "expect": {
+              "operationId": "Snapshot Resource Create Alert Snapshot"
+            }
+          },
+          "says": "POST `/snapshot/alert` under `https://api.zsapi.net/zdx`, without `/v1`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zdx/snapshot.py",
+            "quotes": [
+              "self._zdx_base_endpoint = \"/zdx/v1\""
+            ]
+          },
+          "says": "POST `/zdx/v1/snapshot/alert`."
+        }
+      ],
+      "impact": "One of the two paths may not exist on the gateway; a hand-written client that copies the other source's path can get a not-found error. The capture's own validation flags the contract's path as an anomaly, so neither source settles it."
+    }
+  },
+  "gaps": {
+    "snapshot-path-live": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-44"
+      ],
+      "title": "Which base path a live tenant accepts for the snapshot routes",
+      "status": "open",
+      "detail": "The contract publishes the snapshot operations without the `/v1` segment and the Python SDK posts with it; no captured response shows which the gateway serves.",
+      "blocks": "telling a caller which snapshot path to use",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "obfuscation-transmission": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-35"
+      ],
+      "title": "Whether the Python client transmits the snapshot obfuscation list",
+      "status": "resolved",
+      "resolves_with": [
+        "code-read"
+      ],
+      "resolution": "It does not: the method builds the body from name, alert ID and expiry only (claims python-body and obfuscation-not-sent). The contract does define the field (claim contract-alert-request)."
+    },
+    "share-url-access": {
+      "kind": "semantic",
+      "title": "Who can open a snapshot's URL",
+      "status": "open",
+      "detail": "Unverified legacy statement: a snapshot lets an alert be handed to someone outside the ZDX console, such as an application owner or a vendor, without giving them tenant access. The contract says only that the response carries the URL to access the snapshot.",
+      "blocks": "advising whether a snapshot link can be shared outside the organization",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "id": "zwa.workflows",
+  "title": "Workflow Automation workflows: the nine templates, custom workflows, mappings and what the API does not cover",
+  "aliases": [
+    "zwa workflow",
+    "workflow templates",
+    "workflow mapping",
+    "auto notify",
+    "auto escalate",
+    "auto close incident",
+    "zwa automation api"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.api"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{manual-or-automatic}} {{same-responses}}"
+    },
+    {
+      "label": "Templates.",
+      "text": "{{predefined-templates}}"
+    },
+    {
+      "label": "Custom workflows and mappings.",
+      "text": "{{custom}} {{mapping-required}}"
+    },
+    {
+      "label": "Programmability.",
+      "text": "{{api-tags}} {{no-workflow-api}} Whether workflows can be configured through any API is open {{gap:workflow-api}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the workflow is mapped to attributes the incident actually carries, since an unmapped workflow never triggers.",
+      "uses": [
+        "mapping-required"
+      ]
+    },
+    {
+      "do": "Whether a request to automate workflow setup assumes an API that the sources do not show.",
+      "uses": [
+        "no-workflow-api",
+        "workflow-api"
+      ]
+    }
+  ],
+  "claims": {
+    "manual-or-automatic": {
+      "statement": "Admins remediate incidents either manually from the Incidents and Incident Details pages (for example investigate, notify user, escalate, create ticket, close) or through predefined and custom workflows that automatically perform actions such as notify user, escalate, create ticket and close incident, and can use both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workflows-workflow-automation.json",
+          "quotes": [
+            "Manually perform different actions (e.g., investigate, notify user, escalate, create ticket, and close incident) for one or more incidents using the Incidents page and Incident Details page.",
+            "Configure predefined and custom workflows that automatically perform the different actions (e.g., notify user, escalate, create ticket, and close incident) for one or more incidents.",
+            "Admins can use one or both of these methods to remediate the incidents."
+          ]
+        }
+      ]
+    },
+    "same-responses": {
+      "statement": "Users, managers and approvers respond to actions a workflow generates in the same way as to the same actions performed manually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workflows-workflow-automation.json",
+          "quotes": [
+            "The users, managers, and approvers respond to the actions that a workflow generates (e.g., notify user and escalate) in the same way as if an admin manually performed those actions on the Incidents page or Incident Details page."
+          ]
+        }
+      ]
+    },
+    "predefined-templates": {
+      "statement": "A predefined workflow is based on one of nine templates: Auto Close Data Protection Incident With Resolution Label, Auto Close Data Protection Incident (both set the status to Resolved, the first adding a resolution label), Auto Create Tickets (in a ticketing integration such as ServiceNow or Jira Software), Auto Escalate (to the user's manager, or an approver if no manager is found), Auto Notify (through email, Slack or Microsoft Teams), and four notify variants: notify and close if the user does not respond within a configured number of seconds, notify and escalate concurrently without waiting, notify then escalate to the manager or approver after a configured time, and notify then optionally escalate to the manager after a configured time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workflows-workflow-automation.json",
+          "quotes": [
+            "Auto Close Data Protection Incident With Resolution Label: This template automatically sets the status of the incident as Resolved and adds a resolution label for the closure.",
+            "Auto Close Data Protection Incident: This template automatically sets the status of the incident as Resolved.",
+            "Auto Create Tickets: This template automatically creates a ticket in the ticketing integration application (e.g., ServiceNow or Jira Software).",
+            "Auto Escalate: This template automatically escalates the incident to the user's manager or to an approver if the manager is not found in the system.",
+            "Auto Notify: This template automatically notifies the user who generated the incident, through the configured channel (i.e., email, Slack, or Microsoft Teams).",
+            "and closes the incident if a response is not received from the user after a configurable time period in seconds.",
+            "as well as automatically escalating the incident to the manager or approver without waiting for a response from the user.",
+            "and escalates to their manager or approver if the user doesn't respond after a configurable time period in seconds.",
+            "and optionally escalates to their manager if the user doesn't respond after a configurable time period in seconds."
+          ],
+          "after": "Workflow Automation provides the following workflow templates that you can use:"
+        }
+      ]
+    },
+    "custom": {
+      "statement": "A custom workflow is built by choosing and configuring its steps and actions without a template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workflows-workflow-automation.json",
+          "quotes": [
+            "When you configure a custom workflow, you choose and configure the different steps and actions required for the workflow without using one of the templates."
+          ]
+        }
+      ]
+    },
+    "mapping-required": {
+      "statement": "After configuring a predefined or custom workflow, the admin must map it to one or more incident transaction attributes; the workflow then triggers automatically for incidents with those attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-workflows-workflow-automation.json",
+          "quotes": [
+            "After you configure a predefined or custom workflow, you must specify the incidents that use this workflow by mapping the workflow to one or more of the attributes available in an incident transaction.",
+            "Then, when an incident occurs in your organization that contains those attributes, the workflow automatically triggers and performs those actions specified in the workflow."
+          ]
+        }
+      ]
+    },
+    "api-tags": {
+      "statement": "The Workflow Automation API reference groups its operations under DLP Incidents, API Authentication, Audit Logs, CSV User Attributes and Email Quarantine.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec",
+          "expect": {
+            "tags": [
+              {
+                "name": "DLP Incidents"
+              },
+              {
+                "name": "API Authentication"
+              },
+              {
+                "name": "Audit Logs"
+              },
+              {
+                "name": "CSV User Attributes"
+              },
+              {
+                "name": "Email Quarantine"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "no-workflow-api": {
+      "statement": "No captured API or SDK configures workflows, templates or mappings: the API reference has no workflow group, and the Python and Go SDKs expose only DLP incident and audit log services.",
+      "tier": "B",
+      "derived_from": [
+        "api-tags",
+        "zwa.api:python-services"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zwa/services/customeraudit/customeraudit.go",
+          "quotes": [
+            "customerAuditEndpoint = \"/dlp/v1/customer/audit\""
+          ]
+        }
+      ],
+      "conditions": "Rests on the API reference's tag list, the Python ZWAService's two properties, and the Go SDK's zwa/services tree holding only common, customeraudit and dlp_incidents at the pin. MCP, Terraform and Ansible were searched for workflow automation by the legacy reference and found nothing; a private or newer API is not ruled out."
+    }
+  },
+  "gaps": {
+    "workflow-api": {
+      "kind": "semantic",
+      "status": "open",
+      "former_ids": [
+        "zwa-01"
+      ],
+      "title": "Whether workflows, templates and mappings can be configured through an API",
+      "detail": "The help documents predefined and custom workflows and their mappings; the API reference and both SDKs cover only incidents, audit logs, CSV user attributes and email quarantine. Whether a vendor API for workflow configuration exists is not established.",
+      "blocks": "automating workflow and mapping setup",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

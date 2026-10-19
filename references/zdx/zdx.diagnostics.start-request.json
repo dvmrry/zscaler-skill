@@ -1,0 +1,545 @@
+{
+  "schema_version": 1,
+  "id": "zdx.diagnostics.start-request",
+  "title": "Starting a deep trace through the API: the read chain, the request body, and where the clients disagree",
+  "aliases": [
+    "start deeptrace",
+    "start_deeptrace",
+    "CreateDeepTraceSession",
+    "start a diagnostics session via api",
+    "deeptrace payload",
+    "cloud_path_probe_id",
+    "cloudpath_probe_id",
+    "session_length_minutes",
+    "deep trace session limit",
+    "how many deep traces at once",
+    "web_probe_id"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.session-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.mcp-tools"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A deep trace is started with one POST per device, and the request names an application and two probes that must be read first. The endpoint and the SDK functions are generated (`node scripts/kb.mjs surface zdx`); this subject holds the body and its pitfalls."
+    },
+    {
+      "label": "Limits.",
+      "text": "{{session-limits}}"
+    },
+    {
+      "label": "Reading the IDs first.",
+      "text": "{{read-chain}} {{probe-id-key}} Whether a probe ID read for one device and application is rejected when sent for another is open {{gap:probe-id-portability}}."
+    },
+    {
+      "label": "The body the contract defines.",
+      "text": "{{contract-request}} {{contract-response}} The earlier questions about the session-name key and about concurrent sessions are closed {{gap:session-name-key}} {{gap:concurrent-sessions}}."
+    },
+    {
+      "label": "What the clients send.",
+      "text": "{{python-body-passthrough}} {{go-payload}} {{go-payload-sends-all}} The cloud-path probe key differs {{divergence:cloudpath-key}}. {{python-id-types}} The Python docstring and the contract disagree on the ID type {{divergence:id-types}}."
+    },
+    {
+      "label": "Session length.",
+      "text": "{{sdk-session-lengths}} The contract describes a shorter maximum {{divergence:session-length-range}}."
+    },
+    {
+      "label": "What comes back.",
+      "text": "{{python-start-result}} {{python-start-loses-trace-id}} The Go start result is in [[zdx.sdk-go.service-defects:go-trace-id-string]]; reading the session afterwards is in [[zdx.diagnostics.session-records]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the device already has an active deep trace, and how many are active across the tenant, including sessions started from the console.",
+      "uses": [
+        "session-limits"
+      ]
+    },
+    {
+      "do": "Whether the web and cloud-path probe IDs were read for this same device and application, and taken from the probe record's `id`.",
+      "uses": [
+        "read-chain",
+        "probe-id-key",
+        "probe-id-portability"
+      ]
+    },
+    {
+      "do": "Which client built the body: a Go-built body carries `cloud_path_probe_id`, which the contract does not define.",
+      "uses": [
+        "cloudpath-key",
+        "go-payload"
+      ]
+    },
+    {
+      "do": "Whether the requested session length is within the contract's stated maximum.",
+      "uses": [
+        "session-length-range"
+      ]
+    },
+    {
+      "do": "Where the trace ID came from: the Python start result does not carry it, so list the device's traces to find it.",
+      "uses": [
+        "python-start-loses-trace-id"
+      ]
+    }
+  ],
+  "claims": {
+    "session-limits": {
+      "statement": "The contract limits deep traces to one active session per device at any time and 15 active sessions across all devices, counting sessions started from the UI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces/post",
+          "expect": {
+            "description": "Start deep trace on a device. Limited to 1 active session on a device at any time. Overall 15 active sessions at any point of time across all devices - includes sessions initiated from UI."
+          }
+        }
+      ]
+    },
+    "read-chain": {
+      "statement": "The MCP start tool tells callers to resolve `app_id`, `web_probe_id` and `cloudpath_probe_id` with `zdx_list_applications`, `zdx_get_web_probes` and `zdx_list_cloudpath_probes` first, and the Go SDK's start example asks for the device, application, web probe and cloud-path probe IDs in that order before calling `CreateDeepTraceSession`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zdx/deeptrace_manage.py",
+          "quotes": [
+            "Resolve `app_id` / `web_probe_id` / `cloudpath_probe_id` via",
+            "`zdx_list_applications`, `zdx_get_web_probes`, `zdx_list_cloudpath_probes`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "examples/zdx/deeptrace/deep_trace_start/main.go",
+          "quotes": [
+            "fmt.Print(\"Enter device ID: \")",
+            "fmt.Print(\"Enter app ID: \")",
+            "fmt.Print(\"Enter web probe ID: \")",
+            "fmt.Print(\"Enter cloud path probe ID: \")",
+            "createdSession, resp, err := deeptrace.CreateDeepTraceSession(ctx, service, deviceID, payload)"
+          ]
+        }
+      ]
+    },
+    "probe-id-key": {
+      "statement": "The probe records the web-probe and cloud-path-probe reads return carry the probe's ID under `id`, which the caller must pass on under the start request's `web_probe_id` or `cloudpath_probe_id` key.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/devices.py",
+          "after": "class DeviceAppWebProbes(ZscalerObject):",
+          "quotes": [
+            "self.id = config[\"id\"] if \"id\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/devices.py",
+          "after": "class DeviceAppCloudPathProbes(ZscalerObject):",
+          "quotes": [
+            "self.id = config[\"id\"] if \"id\" in config else None"
+          ]
+        }
+      ],
+      "derived_from": [
+        "read-chain",
+        "contract-request"
+      ],
+      "conditions": "Rests on the Python probe models reading `id` and on the start body's key names; no source states the hand-over in one place."
+    },
+    "contract-request": {
+      "statement": "The contract's start body carries `session_name` (a string), `app_id`, `web_probe_id` and `cloudpath_probe_id` (int64 integers), `session_length_minutes` (an integer described as the session length in minutes, up to 15) and `probe_device` (a boolean for device-level stats).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces/post/requestBody/content/application~1json/schema/properties",
+          "expect": {
+            "app_id": {
+              "description": "Application ID",
+              "format": "int64",
+              "type": "integer"
+            },
+            "cloudpath_probe_id": {
+              "description": "Cloudpath probe ID",
+              "format": "int64",
+              "type": "integer"
+            },
+            "probe_device": {
+              "description": "probe device for device level stats",
+              "type": "boolean"
+            },
+            "session_length_minutes": {
+              "description": "Session length in minutes (upto 15 mins)",
+              "format": "int64",
+              "type": "integer"
+            },
+            "session_name": {
+              "description": "Name of the deep tracing session",
+              "type": "string"
+            },
+            "web_probe_id": {
+              "description": "Web probe ID",
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    },
+    "contract-response": {
+      "statement": "A started trace answers 201 or 202 with `trace_id` (an int64 integer), `status` (one of `not_started`, `in_progress`, `error` and `done`) and `expected_time`, described as the expected completion time in epoch seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces/post/responses/201/content/application~1json/schema/properties",
+          "expect": {
+            "trace_id": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "status": {
+              "enum": [
+                "not_started",
+                "in_progress",
+                "error",
+                "done"
+              ],
+              "title": "StatusEnum",
+              "type": "string"
+            },
+            "expected_time": {
+              "description": "expected time of completion in epoch seconds",
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces/post/responses/202/content/application~1json/schema",
+          "expect": {
+            "title": "DeepTraceResponse"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces/post/responses/202/content/application~1json/schema/properties",
+          "expect": {
+            "trace_id": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "status": {
+              "enum": [
+                "not_started",
+                "in_progress",
+                "error",
+                "done"
+              ],
+              "title": "StatusEnum",
+              "type": "string"
+            },
+            "expected_time": {
+              "description": "expected time of completion in epoch seconds",
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    },
+    "python-body-passthrough": {
+      "statement": "The Python `start_deeptrace` sends its keyword arguments as the request body (`body = kwargs`), and the request executor leaves ZDX bodies in snake_case on both the OneAPI and the legacy client, so the keys go out as passed; its docstring names the probe keyword `cloudpath_probe_id`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/troubleshooting.py",
+          "after": "def start_deeptrace(self, device_id: str, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "cloudpath_probe_id (str): The unique ID for the Cloudpath probe.",
+            "body = kwargs"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "# Ensure ZDX remains snake_case without affecting other services",
+            "if self.use_legacy_client and self.zdx_legacy_client: return body  # Do not convert anything, just return as-is # Ensure ZTB remains snake_case",
+            "if \"/zdx/\" in endpoint:",
+            "return body  # Do not convert ZDX requests to camelCase"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/troubleshooting.py",
+          "quotes": [
+            "self._zdx_base_endpoint = \"/zdx/v1\""
+          ]
+        }
+      ]
+    },
+    "go-payload": {
+      "statement": "The Go SDK's `DeepTraceSessionPayload` serializes `session_name`, `app_id`, `web_probe_id`, `cloud_path_probe_id`, `session_length_minutes` and `probe_device`, with the three IDs and the length typed as Go `int`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go",
+          "after": "type DeepTraceSessionPayload struct {",
+          "quotes": [
+            "SessionName string `json:\"session_name\"`",
+            "AppID int `json:\"app_id\"`",
+            "WebProbeID int `json:\"web_probe_id\"`",
+            "CloudPathProbeID int `json:\"cloud_path_probe_id\"`",
+            "SessionLengthMinutes int `json:\"session_length_minutes\"`",
+            "ProbeDevice bool `json:\"probe_device\"`"
+          ]
+        }
+      ]
+    },
+    "python-id-types": {
+      "statement": "The Python `start_deeptrace` docstring types `app_id`, `web_probe_id` and `cloudpath_probe_id` as `str`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/troubleshooting.py",
+          "after": "def start_deeptrace(self, device_id: str, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "app_id (str): The unique ID for the application.",
+            "web_probe_id (str): The unique ID for the Web probe.",
+            "cloudpath_probe_id (str): The unique ID for the Cloudpath probe."
+          ]
+        }
+      ]
+    },
+    "sdk-session-lengths": {
+      "statement": "The Python SDK docstring and the MCP start tool describe `session_length_minutes` as defaulting to 5 minutes with supported values 5, 15, 30 and 60.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/troubleshooting.py",
+          "quotes": [
+            "session_length_minutes (int): The duration of the deeptrace session in minutes. Defaults to 5.",
+            "Supported values: `5`, `15`, `30`, `60`"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zdx/deeptrace_manage.py",
+          "quotes": [
+            "Field(default=5, description=\"Session duration in minutes. Supported: 5, 15, 30, 60.\"),"
+          ]
+        }
+      ]
+    },
+    "python-start-result": {
+      "statement": "The Python `start_deeptrace` builds its result as a `TraceDetails`, which reads only `session_name`, `user_id`, `username`, `device_id`, `device_name`, `session_length_minutes` and `probe_device` from the response; it has no trace ID or status attribute.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/troubleshooting.py",
+          "quotes": [
+            "def start_deeptrace(self, device_id: str, **kwargs) -> APIResult[dict]:",
+            "result = TraceDetails(self.form_response_body(response.get_body()))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/troubleshooting.py",
+          "after": "class TraceDetails(ZscalerObject):",
+          "quotes": [
+            "super().__init__(config)",
+            "if config:",
+            "self.session_name = config[\"session_name\"] if \"session_name\" in config else None",
+            "self.user_id = config[\"user_id\"] if \"user_id\" in config else None",
+            "self.username = config[\"username\"] if \"username\" in config else None",
+            "self.device_id = config[\"device_id\"] if \"device_id\" in config else None",
+            "self.device_name = config[\"device_name\"] if \"device_name\" in config else None",
+            "self.session_length_minutes = config[\"session_length_minutes\"] if \"session_length_minutes\" in config else None",
+            "self.probe_device = config[\"probe_device\"] if \"probe_device\" in config else None",
+            "def request_format(self) -> Dict[str, Any]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_object.py",
+          "after": "class ZscalerObject:",
+          "quotes": [
+            "def __init__(self, config: Optional[Any] = None) -> None: pass"
+          ]
+        }
+      ],
+      "conditions": "The seven quoted assignments are every attribute the `TraceDetails` constructor sets at the pin."
+    },
+    "python-start-loses-trace-id": {
+      "statement": "So the object the Python `start_deeptrace` returns does not carry the `trace_id` or `status` the contract's start response holds; the caller has to find the new trace by listing the device's traces.",
+      "tier": "B",
+      "derived_from": [
+        "python-start-result",
+        "contract-response"
+      ],
+      "conditions": "Follows from the model's attribute list against the contract's response fields; not observed against a live tenant."
+    },
+    "go-payload-sends-all": {
+      "statement": "None of the payload's fields is tagged `omitempty`, so a Go-built start body always carries all six keys, including a zero `session_length_minutes` and `probe_device` false when the caller leaves them unset.",
+      "tier": "B",
+      "derived_from": [
+        "go-payload",
+        "shared.sdk-go.zero-value-writes:omitempty-drops-zero-values"
+      ],
+      "conditions": "Follows from Go's encoding/json writing every field that lacks `omitempty`; not observed on the wire."
+    }
+  },
+  "divergences": {
+    "cloudpath-key": {
+      "summary": "The key for the cloud-path probe in the start body: the contract and the Python and MCP callers use `cloudpath_probe_id`; the Go payload struct sends `cloud_path_probe_id`.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces/post/requestBody/content/application~1json/schema/properties/cloudpath_probe_id",
+            "expect": {
+              "description": "Cloudpath probe ID"
+            }
+          },
+          "says": "The start body's cloud-path probe key is `cloudpath_probe_id`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go",
+            "quotes": [
+              "CloudPathProbeID int `json:\"cloud_path_probe_id\"`"
+            ]
+          },
+          "says": "The Go SDK serializes the cloud-path probe ID as `cloud_path_probe_id`."
+        }
+      ],
+      "impact": "A Go-built start request carries a key the contract does not define, so the cloud-path probe the caller chose may not reach the server; whether the API rejects the request, ignores the key or accepts it is not stated by any source."
+    },
+    "id-types": {
+      "summary": "The type of the start body's application and probe IDs: the contract defines int64 integers; the Python docstring documents strings.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces/post/requestBody/content/application~1json/schema/properties/app_id",
+            "expect": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          "says": "`app_id`, `web_probe_id` and `cloudpath_probe_id` are int64 integers."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zdx/troubleshooting.py",
+            "after": "def start_deeptrace(self, device_id: str, **kwargs) -> APIResult[dict]:",
+            "quotes": [
+              "app_id (str): The unique ID for the application."
+            ]
+          },
+          "says": "The Python docstring types the IDs as `str`; the method sends whatever type the caller passes."
+        }
+      ],
+      "impact": "A Python caller following the docstring sends the IDs as JSON strings where the contract expects integers; the MCP tool converts them to integers before calling the SDK ([[zdx.diagnostics.mcp-tools:start-tool-coerces]])."
+    },
+    "session-length-range": {
+      "summary": "The allowed session length: the contract describes up to 15 minutes; the Python docstring and the MCP tool list 5, 15, 30 and 60.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces/post/requestBody/content/application~1json/schema/properties/session_length_minutes",
+            "expect": {
+              "description": "Session length in minutes (upto 15 mins)"
+            }
+          },
+          "says": "`session_length_minutes` goes up to 15 minutes."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zdx/troubleshooting.py",
+            "quotes": [
+              "Supported values: `5`, `15`, `30`, `60`"
+            ]
+          },
+          "says": "Supported values are 5, 15, 30 and 60 minutes."
+        }
+      ],
+      "impact": "A 30- or 60-minute request that the SDK documents as supported may be refused or shortened by the API; no source shows which."
+    }
+  },
+  "gaps": {
+    "probe-id-portability": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-01"
+      ],
+      "title": "What the API does with a probe ID read for a different device or application",
+      "status": "open",
+      "detail": "Unverified legacy statement: web and cloud-path probe IDs are not portable across devices or applications, because both probe reads are nested under the device and the application. The nesting is in the paths; no source states a validation rule, and the API's answer to a mismatched probe ID (an error, an empty result or a cross-match) is not stated.",
+      "blocks": "telling a caller whether a probe ID can be reused across devices or applications",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "session-name-key": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-32"
+      ],
+      "title": "Which key the start request uses for the session name",
+      "status": "resolved",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "The contract's start body names it `session_name` (claim contract-request), which both SDKs send; the Python model's mapping of the session name to `name` is not used to build the start body (claim python-body-passthrough)."
+    },
+    "concurrent-sessions": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-02"
+      ],
+      "title": "How many deep-trace sessions may run at once, per tenant and per device",
+      "status": "resolved",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "The contract limits deep traces to one active session per device and 15 active sessions across all devices, UI sessions included (claim session-limits)."
+    }
+  }
+}

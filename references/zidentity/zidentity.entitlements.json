@@ -1,0 +1,406 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.entitlements",
+  "title": "Administrative and service entitlements: who administers and who may use each Zscaler service",
+  "aliases": [
+    "ZIdentity entitlements",
+    "administrative entitlements",
+    "admin entitlements",
+    "service entitlements",
+    "end user entitlements",
+    "admin-entitlements",
+    "service-entitlements",
+    "which services can this user use",
+    "is this user an admin of ZIA"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.admin-rbac"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Authentication Service keeps two kinds of entitlement per user, and they answer different questions. {{two-kinds}}"
+    },
+    {
+      "label": "Administrative entitlements.",
+      "text": "Users and groups are made service admins of a subscribed service, with a role created for that service: [[shared.admin-rbac:entitlement-assigns-service-admins]]. {{admin-page}}"
+    },
+    {
+      "label": "Service entitlements.",
+      "text": "{{service-page}}"
+    },
+    {
+      "label": "Reading them.",
+      "text": "{{read-only-api}} {{admin-shape}} {{service-shape}} {{roles-from-products}} {{documented-responses}} The Go SDK notes that an entitlement for the ZIAM service has no scope, [[zidentity.sdk-go:admin-scope-optional]]."
+    },
+    {
+      "label": "Open.",
+      "text": "What an entitlement's scope means is not documented {{gap:scope-meaning}}, and whether the results differ by how the user was provisioned is open {{gap:by-source}}."
+    },
+    {
+      "text": "How the SDKs model these responses is covered with the SDKs in [[zidentity.api.client-coverage]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a question about a user's admin access to a product, read the user's administrative entitlements and the role on each; for whether a user may sign in to a service as an end user, read the service entitlements.",
+      "uses": [
+        "two-kinds",
+        "admin-shape",
+        "service-shape"
+      ]
+    },
+    {
+      "do": "Whether the entitlement comes from a group assignment rather than the user directly, since both pages assign users and user groups.",
+      "uses": [
+        "admin-page",
+        "service-page"
+      ]
+    },
+    {
+      "do": "Whether the tenant is provisioned with Authentication Service for end users, without which the Service Entitlements page does not exist.",
+      "uses": [
+        "service-page"
+      ]
+    }
+  ],
+  "claims": {
+    "two-kinds": {
+      "statement": "A user can be given admin entitlements, which make them an administrator of a Zscaler service such as ZIA or ZPA, or service entitlements, which let them authenticate to a Zscaler service as an end user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-users.json",
+          "quotes": [
+            "In addition, you can assign them admin entitlements to make them administrators for a Zscaler service (e.g., Internet & SaaS (ZIA), Private Access (ZPA)) or you can assign them service entitlements so they are able to authenticate to a Zscaler service as an end user."
+          ]
+        }
+      ]
+    },
+    "admin-page": {
+      "statement": "The Administrative Entitlements page also controls which users in the organization have access to Authentication Service, shows the users and groups assigned as service admins of each service, and lists each subscribed service with its name, cloud name and organization name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-administrative-entitlements.json",
+          "quotes": [
+            "Control which user within your organization has access to Authentication Service.",
+            "View all the users and user groups assigned as service admins for a Zscaler service.",
+            "View a list of subscribed Zscaler services. For each service, you can view:",
+            "Name: The name of the Zscaler service.",
+            "Cloud Name: The Zscaler cloud name.",
+            "Organization Name: The name of your organization."
+          ]
+        }
+      ]
+    },
+    "service-page": {
+      "statement": "The Service Entitlements page lists the subscribed Zscaler services, each with its name, cloud name and organization name, and assigns end users and user groups to them; it is available only if the organization is provisioned with Authentication Service for end users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-service-entitlements.json",
+          "quotes": [
+            "The Service Entitlements page shows the list of Zscaler services that your organization is subscribed to. You can assign end users to these Zscaler services.",
+            "This page is available only if your organization is provisioned with Authentication Service for end users.",
+            "Assign users and user groups to the subscribed Zscaler services.",
+            "Name: The name of the Zscaler service.",
+            "Cloud Name: The Zscaler cloud name.",
+            "Organization Name: The name of your organization."
+          ]
+        }
+      ]
+    },
+    "read-only-api": {
+      "statement": "The API reference has only a GET operation for a user's administrative entitlements and for their service entitlements; neither path has a write operation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get",
+          "expect": {
+            "description": "Retrieves the administrative entitlements for a specific user by their user <code>ID</code>."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get",
+          "expect": {
+            "description": "Retrieves service entitlements for a specified user <code>ID</code>."
+          }
+        }
+      ]
+    },
+    "admin-shape": {
+      "statement": "A user's administrative entitlements come back as a list of records, each with the service (its ID, name, cloud name, cloud domain name, organization name and organization ID), one scope object and a list of role objects, each with an ID, a name and a display name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses/200/content/application~1json/schema/items",
+          "expect": {
+            "title": "AdminEntitlementsPubRespDto",
+            "required": [
+              "roles",
+              "scope",
+              "service"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses/200/content/application~1json/schema/items/properties/roles",
+          "expect": {
+            "type": "array",
+            "description": "An array of role objects assigned as administrative entitlements."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses/200/content/application~1json/schema/items/properties/roles/items",
+          "expect": {
+            "title": "RefPubRespDto",
+            "required": [
+              "name",
+              "displayName"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses/200/content/application~1json/schema/items/properties/roles/items/allOf/[title=RefPubReqDto]",
+          "expect": {
+            "required": [
+              "id"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses/200/content/application~1json/schema/items/properties/scope",
+          "expect": {
+            "type": "object",
+            "title": "RefPubRespDto",
+            "required": [
+              "name",
+              "displayName"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses/200/content/application~1json/schema/items/properties/service",
+          "expect": {
+            "title": "TserviceProfileRespDto",
+            "required": [
+              "id",
+              "serviceName",
+              "cloudName",
+              "cloudDomainName",
+              "orgName",
+              "orgId"
+            ]
+          }
+        }
+      ]
+    },
+    "service-shape": {
+      "statement": "A user's service entitlements come back as a list of records that each carry a service object (the same service fields), with no roles and no scope.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get/responses/200/content/application~1json/schema/items",
+          "expect": {
+            "title": "ServiceEntitlementsPubRespDto",
+            "required": [
+              "service"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get/responses/200/content/application~1json/schema/items/properties/service",
+          "expect": {
+            "title": "TserviceProfileRespDto",
+            "required": [
+              "id",
+              "serviceName",
+              "cloudName",
+              "cloudDomainName",
+              "orgName",
+              "orgId"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get/responses/200/content/application~1json/schema/items/properties",
+          "expect_absent": [
+            "roles",
+            "scope"
+          ]
+        }
+      ]
+    },
+    "roles-from-products": {
+      "statement": "So the role names in an administrative entitlement are the roles each product defines (a ZIA admin role is chosen when the Internet & SaaS entitlement is assigned), not a fixed list; the API reference gives the role objects no enumeration.",
+      "tier": "B",
+      "derived_from": [
+        "admin-shape",
+        "shared.admin-rbac:zia-admins-via-entitlement",
+        "shared.admin-rbac:entitlement-assigns-service-admins"
+      ],
+      "conditions": "Follows from entitlements being assigned with a role created for the product and from the role schema (ID, name, display name) carrying no enum. Which names a given tenant returns is tenant data."
+    },
+    "documented-responses": {
+      "statement": "The API reference documents a 200 and a 401 response for the administrative and the service entitlement reads, and no 400, 403, 404, 429 or 500.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses",
+          "expect_absent": [
+            "400",
+            "403",
+            "404",
+            "429",
+            "500"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses/401",
+          "expect": {
+            "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer token. However, either no token was provided, or the provided token is invalid or expired."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1admin-entitlements/get/responses/200",
+          "expect": {
+            "description": "The request was successful, and returns a list of administrative entitlement objects."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get/responses",
+          "expect_absent": [
+            "400",
+            "403",
+            "404",
+            "429",
+            "500"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get/responses/401",
+          "expect": {
+            "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer token. However, either no token was provided, or the provided token is invalid or expired."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get/responses/200",
+          "expect": {
+            "description": "The request was successful, and returns the service entitlements for the user."
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "scope-meaning": {
+      "kind": "semantic",
+      "title": "What the scope on an administrative entitlement means",
+      "status": "open",
+      "former_ids": [
+        "zid-05"
+      ],
+      "detail": "Unverified legacy statement: the scope field's meaning is undocumented; SDK test fixtures use values such as Global, Limited and AllResources. The API reference describes it only as the scope associated with the entitlement (an ID, name and display name). Whether it is the ZIA functional scope, a ZPA Microtenant or something else is not stated.",
+      "blocks": "telling from the API what part of a product an entitled admin can manage",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "by-source": {
+      "kind": "semantic",
+      "title": "Whether entitlement reads differ by how the user was provisioned",
+      "status": "open",
+      "former_ids": [
+        "zid-08"
+      ],
+      "detail": "Unverified legacy statement: whether the entitlement endpoints return different results for SCIM-provisioned users and users created in Authentication Service is not addressed. The user record carries its source (UI, API, SCIM, JIT); the entitlement endpoints take only the user ID and return no source.",
+      "blocks": "trusting an entitlement read for SCIM- or JIT-provisioned users",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    }
+  }
+}

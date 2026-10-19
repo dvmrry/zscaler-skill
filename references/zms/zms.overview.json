@@ -1,0 +1,334 @@
+{
+  "schema_version": 1,
+  "id": "zms.overview",
+  "title": "Zscaler Microsegmentation (ZMS): agents, local enforcement, region and provisioning",
+  "aliases": [
+    "zms",
+    "zscaler microsegmentation",
+    "zero trust microsegmentation",
+    "zpa microsegmentation",
+    "east-west segmentation",
+    "workload segmentation agents",
+    "microsegmentation agent nftables",
+    "microsegmentation windows filtering platform",
+    "microsegmentation client connector same host"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zms.portal"
+    },
+    {
+      "rel": "see-also",
+      "to": "zms.provisioning-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zms.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.microsegmentation-flow"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler Microsegmentation (ZMS) segments traffic between workloads inside private applications, with policy enforced by agents on each host. This subject covers what it is and how it is deployed; the admin portal, provisioning keys and the GraphQL API have their own subjects."
+    },
+    {
+      "label": "What it is.",
+      "text": "{{what-it-is}} {{east-west}} {{agents-hosts}} {{local-enforcement}} {{groupings}}"
+    },
+    {
+      "label": "Client Connector.",
+      "text": "{{zcc-incompatible}}"
+    },
+    {
+      "label": "Where it runs.",
+      "text": "{{region-and-retention}} {{provisioning}} Whether it requires ZPA is open {{gap:zpa-prerequisite}}."
+    },
+    {
+      "label": "Recommendations and deployment options.",
+      "text": "{{recommendations-marketing}} What window the recommendations learn from is open {{gap:recommendation-lookback}}. {{deployment-options-marketing}} What either option involves is open {{gap:deployment-options}}."
+    },
+    {
+      "label": "Open questions.",
+      "text": "Agent behavior without the cloud is open {{gap:offline-enforcement}}, as are coexistence with other host firewalls {{gap:host-firewall-conflicts}}, agent updates {{gap:agent-updates}}, Kubernetes granularity {{gap:kubernetes-granularity}}, cloud-native controls and workload identity {{gap:cloud-native-integration}}, the move from monitoring to enforcement {{gap:monitor-to-enforce}} and whether traffic is inspected {{gap:inspection}}."
+    },
+    {
+      "label": "Related.",
+      "text": "Portal pages are in [[zms.portal]] and agent provisioning keys in [[zms.provisioning-keys]]. The API is in [[zms.api]], and its MCP tools in [[zms.mcp]]. Flow records that ZPA log streaming delivers for Microsegmentation are described in [[zpa.logs.microsegmentation-flow]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Zscaler Client Connector is installed on a host that is meant to run a Microsegmentation agent.",
+      "uses": [
+        "zcc-incompatible"
+      ]
+    },
+    {
+      "do": "Which local enforcement point holds the agent's rules on the host (Windows Filtering Platform or nftables).",
+      "uses": [
+        "local-enforcement"
+      ]
+    },
+    {
+      "do": "Whether observed flows older than the 14-day retention matter to the question.",
+      "uses": [
+        "region-and-retention",
+        "recommendation-lookback"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Zscaler Microsegmentation is a platform in the Zscaler Admin Console for visualizing traffic flows within private applications and segmenting them, a multi-tenant SaaS divided into the Zscaler cloud and deployed agents that together collect and analyze application flow and telemetry data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-microsegmentation-zpa.json",
+          "quotes": [
+            "Zscaler Microsegmentation is a platform within the Zscaler Admin Console that provides the capability to visualize traffic flows within private applications and segment them on a fractional level",
+            "It is a multi-tenant Software as a Service solution optimized for security, reliability, and scale, using a system divided into the Zscaler cloud and deployed agents.",
+            "The Zscaler cloud and agents work together to collect and analyze application flow and telemetry data and also monitor the health of all managed systems."
+          ]
+        }
+      ]
+    },
+    "agents-hosts": {
+      "statement": "The agents sit on Windows or Linux hosts, virtual or physical, cloud based or in a data center, and collect information about application activity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-microsegmentation-zpa.json",
+          "quotes": [
+            "The deployed agents sit on Windows or Linux hosts in your environment and collect information about application activity.",
+            "Agents are deployed to your servers, whether they are virtual or physical, cloud based, or in your data center."
+          ]
+        }
+      ]
+    },
+    "local-enforcement": {
+      "statement": "Agents download the latest access policies from the Zscaler cloud and translate them into rules for local OS enforcement points, for example Windows Filtering Platform and Linux nftables.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-microsegmentation-zpa.json",
+          "quotes": [
+            "The agents are responsible for downloading the latest access policies from the Zscaler cloud and translating them to rules that are specific to local OS enforcement points (e.g., Windows Filtering Platform and Linux nftables)."
+          ]
+        }
+      ]
+    },
+    "groupings": {
+      "statement": "Agent Groups, Resource Groups and AppZones group machines and their applications to be monitored for certain data flows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-microsegmentation-zpa.json",
+          "quotes": [
+            "You can create Agent Groups, Resource Groups, and AppZones that group together specific machines and their applications that you want to monitor for certain data flows."
+          ]
+        }
+      ]
+    },
+    "zcc-incompatible": {
+      "statement": "Microsegmentation agents and Zscaler Client Connector are not compatible and should not be installed on the same host.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-microsegmentation-zpa.json",
+          "quotes": [
+            "Microsegmentation agents and Zscaler Client Connector are not compatible and should not be installed on the same host."
+          ]
+        }
+      ]
+    },
+    "region-and-retention": {
+      "statement": "The backend is hosted by the Zscaler cloud and available across the US region; data collection is localized to the administrator's region of choice, data retention is a 14-day rolling period, agents can be deployed to resources in any region, and installed agents operate in continuous mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-microsegmentation-zpa.json",
+          "quotes": [
+            "The backend application is hosted and managed by the Zscaler cloud and is available across the US region.",
+            "The data collection is localized to the region of choice of the administrator, and the data retention cycle is a 14-day rolling period.",
+            "You can deploy the agent to resources in any region. The installed agents operate in continuous mode."
+          ]
+        }
+      ]
+    },
+    "provisioning": {
+      "statement": "Microsegmentation is provisioned for an organization by contacting the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-microsegmentation-zpa.json",
+          "quotes": [
+            "If you want Microsegmentation provisioned for your organization, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "east-west": {
+      "statement": "The product page frames Microsegmentation as blocking east-west threat movement between workloads.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "microsegmentation-marketing.md",
+          "quotes": [
+            "The solution addresses visibility into resources, streamlined policy management, and blocking east-west threat movement through zero trust principles."
+          ]
+        }
+      ]
+    },
+    "recommendations-marketing": {
+      "statement": "The product page describes agent-based visibility, automated policy recommendations based on real-time traffic and workload insights, and host-based segmentation at the application level.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "microsegmentation-marketing.md",
+          "quotes": [
+            "\"Automated policy recommendations based on real-time traffic and workload insights\" with AI-assisted rule suggestions",
+            "providing visibility, AI-powered recommendations, and enforcement through an agent-based architecture designed for multi-cloud environments",
+            "Host-based segmentation creating \"granular segmentation policies for traffic at the application level\""
+          ]
+        }
+      ]
+    },
+    "deployment-options-marketing": {
+      "statement": "Zscaler's Zero Trust Microsegmentation product page says the platform offers flexible deployment options, letting organizations either maintain full infrastructure control or consume capabilities as a gateway service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-microsegmentation-marketing.md",
+          "quotes": [
+            "Zscaler's Zero Trust Cloud platform transforms workload security from traditional firewall-based approaches to a modern zero trust model.",
+            "The platform offers flexible deployment options, allowing organizations to either maintain full infrastructure control or consume capabilities as a gateway service."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zpa-prerequisite": {
+      "kind": "data",
+      "title": "Whether Microsegmentation requires ZPA",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'ZPA prerequisite: the help-portal capture says You can enable Microsegmentation for organizations that have Zscaler Private Access (ZPA). ZMS is not sold standalone.' The current What Is Microsegmentation capture (help revision updated 2026-09-04) no longer contains that sentence, and no other captured source states a ZPA prerequisite or packaging.",
+      "blocks": "answering whether a tenant without ZPA can get Microsegmentation, and how it is packaged or priced",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "resolvable_by": [
+        "none"
+      ]
+    },
+    "recommendation-lookback": {
+      "kind": "semantic",
+      "title": "What window the policy recommendations learn from",
+      "status": "open",
+      "detail": "Unverified legacy statement: recommendations are generated from observed flows, and flows that recur monthly or quarterly may fall outside a 14-day window. Help states only the 14-day rolling retention; it does not say the recommendation engine uses that lookback or how infrequent flows affect a generated policy.",
+      "blocks": "saying whether a generated policy will omit long-period flows before it is enforced",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "offline-enforcement": {
+      "kind": "semantic",
+      "title": "What an agent enforces when it loses the Zscaler cloud",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'A host that loses cloud connectivity continues to enforce its last-known policy via WFP / nftables; failure mode is fail-closed against unknown flows but allow-known.' No captured source describes agent behavior without cloud connectivity.",
+      "blocks": "predicting traffic on a host whose agent cannot reach the cloud",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "host-firewall-conflicts": {
+      "kind": "semantic",
+      "title": "How agent rules interact with other host firewall management",
+      "status": "open",
+      "detail": "Unverified legacy statement: conflicts with other firewall management (Windows Defender Firewall through GPO, other host-based firewalls, custom nftables rules) are real concerns, and the captured docs do not cover conflict resolution. No captured source describes precedence or coexistence with other rules in Windows Filtering Platform or nftables.",
+      "blocks": "answering whether a GPO or third-party firewall rule can override or be overwritten by Microsegmentation policy",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "agent-updates": {
+      "kind": "semantic",
+      "title": "How agents are updated and rolled back",
+      "status": "open",
+      "detail": "Unverified legacy statement: agents run in continuous mode and presumably auto-update; update cadence and rollback options are not captured. The SDK's agent-group query selects agentAutoUpgrade, upgradeDay and upgradeTime fields (see zms.api.queries), but no captured help page describes the update process.",
+      "blocks": "planning agent upgrade windows and rollback",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "kubernetes-granularity": {
+      "kind": "semantic",
+      "title": "Enforcement granularity on Kubernetes",
+      "status": "open",
+      "detail": "Unverified legacy statement: Kubernetes deployment is confirmed (Kubernetes Cluster agent groups install through a Helm chart) but whether enforcement is per pod, node, workload or host agent is not established, nor whether ZMS integrates with Kubernetes admission control or service-mesh sidecars.",
+      "blocks": "answering how fine-grained policy is for containerized workloads",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "cloud-native-integration": {
+      "kind": "semantic",
+      "title": "Interaction with cloud-native firewalls and workload identity",
+      "status": "open",
+      "detail": "Unverified legacy statement (open questions): whether ZMS hooks into AWS Security Groups, Azure NSGs or GCP firewall rules or enforces only at the OS level, and how a cloud workload's identity (IAM role, instance profile and their Azure and GCP equivalents) is represented in policy. No captured source addresses either.",
+      "blocks": "answering whether ZMS replaces or complements cloud-native network controls",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "monitor-to-enforce": {
+      "kind": "semantic",
+      "title": "How a deployment moves from observing flows to enforcing policy",
+      "status": "open",
+      "detail": "Unverified legacy statement: deployments start monitor-only and move to enforcement; the captured docs do not cover the cutover process. The SDK's PolicyAction enum includes SIM_BLOCK alongside ALLOW and BLOCK, but no source states what SIM_BLOCK does.",
+      "blocks": "describing a safe enforcement rollout",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "inspection": {
+      "kind": "semantic",
+      "title": "Whether Microsegmentation inspects traffic or only allows and blocks",
+      "status": "open",
+      "detail": "Unverified legacy statement: ZMS does no inspection, pure allow/deny enforcement, and its principal is a workload identity rather than a user. The captured sources describe policy translated into OS firewall rules and rule actions ALLOW, BLOCK and SIM_BLOCK, but do not state the absence of inspection.",
+      "blocks": "comparing ZMS with inline inspection products",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "deployment-options": {
+      "kind": "semantic",
+      "title": "What the two Microsegmentation deployment options involve",
+      "status": "open",
+      "detail": "The Zero Trust Microsegmentation product page names two deployment options (maintaining full infrastructure control, or consuming capabilities as a gateway service) in one sentence and nothing more. A search of vendor/zscaler-help for 'gateway service' and 'infrastructure control' finds only that page; no Help article, SDK, MCP server or API capture describes either option.",
+      "blocks": "telling an operator what infrastructure each Microsegmentation deployment option requires or how they differ",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

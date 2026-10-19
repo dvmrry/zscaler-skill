@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "id": "zscaler-cellular.monitoring",
+  "title": "Cellular monitoring: network events, geofence anomaly detection and audit logs",
+  "aliases": [
+    "cellular network events",
+    "sim session start end",
+    "cellular anomaly detection",
+    "geofence violation",
+    "sim location group",
+    "cellular audit logs"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.sdk-python.location-groups"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Three views cover what happens to SIMs after deployment: network events, anomaly detection and the audit log."
+    },
+    {
+      "label": "Network events.",
+      "text": "{{network-events}} {{network-event-fields}} Tower-location history built from network events is an API read: [[zscaler-cellular.api.wire-notes:tower-history]]."
+    },
+    {
+      "label": "Anomaly detection.",
+      "text": "{{geofence-detection}} {{location-groups}} Other anomaly types are open {{gap:non-geofence-anomalies}}."
+    },
+    {
+      "label": "Audit logs.",
+      "text": "{{audit-scope}} {{audit-fields}}"
+    },
+    {
+      "label": "Retention.",
+      "text": "How long either log is kept, and whether it can be exported, is open {{gap:retention-and-export}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a SIM going offline, the session and online/offline events around that time on the Network Events page.",
+      "uses": [
+        "network-events",
+        "network-event-fields"
+      ]
+    },
+    {
+      "do": "For a missing geofence violation, whether the SIM Location Group is linked to a policy and the policy is enabled.",
+      "uses": [
+        "geofence-detection",
+        "location-groups"
+      ]
+    }
+  ],
+  "claims": {
+    "network-events": {
+      "statement": "The Network Events page logs network and authorization events for all SIMs provisioned to the organization, with time filters, so SIM transitions between online and offline can be tracked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-network-events.json",
+          "quotes": [
+            "It provides detailed insights into network events and authorization events for each SIM.",
+            "View a list of records of network events for all SIMs provisioned to your organization.",
+            "Track SIM transitions between online and offline states to ensure consistent network availability and performance.",
+            "Apply time filters to view log entries specific to that period."
+          ]
+        }
+      ]
+    },
+    "network-event-fields": {
+      "statement": "Each network event shows ICCID, recorded time, EID (only when eSIMs are listed), IMSI, country, operator, a category of session start, session end, online/offline status or authorization, an event status and an event sub status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-network-events.json",
+          "quotes": [
+            "ICCID: The Integrated Circuit Card Identifier is a globally unique identifier assigned to each SIM card.",
+            "Recorded at: The date and time when the network event occurred.",
+            "IMSI: The International Mobile Subscriber Identity is a unique number assigned to each mobile subscriber.",
+            "Country: The geographical location (country) where the event was recorded.",
+            "EID: The Embedded Identity Document is a unique identifier for eSIMs. This is shown only if eSIMs are listed.",
+            "Operator: The network operator handling the connectivity.",
+            "Category: The type of event (session start, session end, online/offline status, or authorization).",
+            "Event Status: The status of the network event.",
+            "Event Sub Status: The additional status details of the network event."
+          ]
+        }
+      ]
+    },
+    "geofence-detection": {
+      "statement": "Anomaly detection uses metadata, geolocation and network usage patterns to detect when tracked devices move beyond a defined geofence; once a SIM Location Group's geofence is linked to an enabled policy, movement outside the boundary is flagged as a violation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-understanding-anomaly-detection.json",
+          "quotes": [
+            "The anomaly detection leverages metadata, geolocation insights, and network usage patterns to continuously monitor tracked devices and detect when they move beyond a defined geofence area.",
+            "Administrators configure SIM Location Groups to define geofences within each group. After being linked to a policy and enabled, Zscaler Cellular tracks the device's activity in real time and flags any movement outside the permitted boundary as a violation."
+          ]
+        }
+      ]
+    },
+    "location-groups": {
+      "statement": "A SIM Location Group defines a geofence and the SIM-enabled devices to be monitored within it, and these groups form the basis for network anomaly detection policies; the Anomaly Dashboard gives visibility into policy configurations and detects anomalies when devices operate beyond the designated geofence area.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-understanding-anomaly-detection.json",
+          "quotes": [
+            "Administrators set up SIM Location Groups by defining a specific geofence area for each group and assigning the number of SIM-enabled devices to be monitored within that boundary.",
+            "These groups form the basis for network anomaly detection policies",
+            "The Anomaly Dashboard provides detailed visibility into policy configurations.",
+            "It detects anomalies when devices operate beyond the designated geofence area"
+          ]
+        }
+      ]
+    },
+    "audit-scope": {
+      "statement": "Cellular audit logs record administrative actions in the Cellular configuration, under Data Explorer > Audit Logs > Cellular.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-audit-logs.json",
+          "quotes": [
+            "Zscaler Cellular audit logs allow you to view a record of all administrative actions performed in the Zscaler Cellular configurations.",
+            "On the Zscaler Cellular Audit Logs page (Data Explorer > Audit Logs > Cellular), you can do the following:"
+          ]
+        }
+      ]
+    },
+    "audit-fields": {
+      "statement": "Each audit entry shows timestamp, principal ID (the user or system that acted), action (for example Create or Update), resource type (for example Tag, SIM to Tag Mapping or Anomaly Policy), resource name, resource ID and a view of the changes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-audit-logs.json",
+          "quotes": [
+            "Timestamp: The date and time when the action occurred.",
+            "Principal ID: The user or system that performed the action.",
+            "Action: The type of operation performed, such as Create or Update.",
+            "Resource Type: The type of resource affected (for example, Tag, SIM to Tag Mapping, or Anomaly Policy).",
+            "Resource Name: The name of the affected resource.",
+            "Resource ID: The unique identifier of the resource.",
+            "View Changes: View details of the configuration changes."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "retention-and-export": {
+      "kind": "data",
+      "title": "Retention, export and streaming of network events and audit logs",
+      "status": "open",
+      "detail": "Unverified legacy statement: the captured articles state page-size controls but no retention period, and do not establish export or streaming behavior for network events or Cellular audit logs.",
+      "blocks": "answering how far back Cellular events can be investigated and whether they can reach a SIEM",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "none"
+      ]
+    },
+    "non-geofence-anomalies": {
+      "kind": "semantic",
+      "title": "Anomaly types other than geofence",
+      "status": "open",
+      "detail": "Unverified legacy statement: the captured anomaly article is geofence-oriented and does not document non-geofence anomaly types. It names metadata and network usage patterns as inputs but describes only geofence violations.",
+      "blocks": "answering whether usage spikes or other behavior raise Cellular anomalies",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

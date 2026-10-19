@@ -1,0 +1,404 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.resource-servers",
+  "title": "ZIdentity resource servers (API resources): a read-only registry of the scopes API clients can select",
+  "aliases": [
+    "zidentity resource servers",
+    "api resources zidentity",
+    "list_resource_servers",
+    "serviceScopes",
+    "defaultApi resource server",
+    "primaryAud",
+    "zapsOnboarded",
+    "create resource server"
+  ],
+  "binds": [
+    "zidentity/resource-servers#defaultApi",
+    "zidentity/resource-servers#serviceScopes",
+    "zidentity/resource-servers#primaryAud"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zidentity.api-clients"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.api"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Resource servers are what the console calls API resources: the scopes an API client can be given. {{definition}}"
+    },
+    {
+      "label": "Where they come from.",
+      "text": "{{auto-created}} {{linked-services}} {{read-only}} {{scopes-no-write-path}}"
+    },
+    {
+      "label": "The record.",
+      "text": "{{record-required}} {{primary-aud-and-default-api}} What `defaultApi` changes is open {{gap:default-api-behavior}}, as is what a resource server with no service scopes means {{gap:empty-service-scopes}}."
+    },
+    {
+      "label": "Services inside a record.",
+      "text": "{{service-cloud-org-required}} The Go SDK has seen services without those two fields {{divergence:service-cloud-org}}. {{go-extra-service-fields}} {{extra-fields-not-in-contract}}"
+    },
+    {
+      "label": "Linking to API clients.",
+      "text": "{{clients-reference-resources}} {{no-back-reference}} The scope IDs are passed to the client unchanged: [[zidentity.api-clients:scope-id-composite]]."
+    },
+    {
+      "label": "Listing them.",
+      "text": "Lists page like every ZIdentity list: [[zidentity.api.pagination]]. Whether the list shows every resource server or hides internal ones is open {{gap:enumerability}}. Go's name lookup filters on the client: [[zidentity.sdk-go:getbyname-client-side]]. Python's get method is annotated loosely: [[zidentity.sdk-python:annotation-mismatches]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a resource or scope missing when building an API client, whether the product is linked to Authentication Service and has an API role, since resources are created from those roles.",
+      "uses": [
+        "auto-created",
+        "linked-services",
+        "zidentity.api-clients:api-roles-first"
+      ]
+    },
+    {
+      "do": "Which API clients use a resource server, by reading the clients' `clientResources`, since the resource server lists none.",
+      "uses": [
+        "clients-reference-resources",
+        "no-back-reference"
+      ]
+    },
+    {
+      "do": "Whether code reading a service's `cloudName` or `orgName` tolerates them being absent for the ZIdentity and Z-Insights services.",
+      "uses": [
+        "service-cloud-org"
+      ]
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "API resources are the Zscaler APIs available through the OneAPI gateway: collections of Zscaler API endpoints representing data entities, services or functions that API clients can access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-api-resources.json",
+          "quotes": [
+            "API resources refer to the Zscaler APIs available via the OneAPI gateway.",
+            "The API resources are a collection of Zscaler API endpoints that represent various data entities, services, or functionalities that can be accessed by the API clients."
+          ]
+        }
+      ]
+    },
+    "auto-created": {
+      "statement": "API resources are created automatically, based on the RBAC roles applicable to the APIs within the various Zscaler services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-api-resources.json",
+          "quotes": [
+            "The API resources are automatically created in the Zscaler Admin Console based on the role-based access control (RBAC) roles applicable to the APIs within the various Zscaler services."
+          ]
+        }
+      ]
+    },
+    "linked-services": {
+      "statement": "API resources exist for the Zscaler services linked to Authentication Service, and an API client can access the API resources of those linked services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-api-resources.json",
+          "quotes": [
+            "The API resources are available for the Zscaler services (Internet & SaaS, Private Access, Zscaler Client Connector, etc.) that are linked to Authentication Service and the API client can access the API resources of the linked Zscaler services."
+          ]
+        }
+      ]
+    },
+    "scopes-no-write-path": {
+      "statement": "The contract has no operation to create, change or delete a resource server's scopes either.",
+      "tier": "B",
+      "derived_from": [
+        "zidentity.resource-servers:read-only"
+      ],
+      "conditions": "Rests on a search of every path in zid.openapi.json: the only paths naming resource servers or scopes are /resource-servers and /resource-servers/{id}, both GET-only; no scope path exists to check directly."
+    },
+    "read-only": {
+      "statement": "The contract offers only GET on the resource server collection and on a single resource server: neither path has an operation to create, change or delete a resource server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1resource-servers",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1resource-servers~1{id}",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1resource-servers/get",
+          "expect": {
+            "operationId": "Resource Servers Ops List"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1resource-servers~1{id}/get",
+          "expect": {
+            "operationId": "Resource Servers Ops Get"
+          }
+        }
+      ]
+    },
+    "record-required": {
+      "statement": "A resource server record carries `id`, `name`, `displayName`, `description`, `primaryAud`, `defaultApi` and `serviceScopes`, all marked required; each service scope pairs a `service` with its `scopes`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1resource-servers~1{id}/get/responses/200/content/application~1json/schema/items",
+          "expect": {
+            "required": [
+              "id",
+              "name",
+              "displayName",
+              "description",
+              "primaryAud",
+              "defaultApi",
+              "serviceScopes"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1resource-servers~1{id}/get/responses/200/content/application~1json/schema/items/properties/serviceScopes/items",
+          "expect": {
+            "required": [
+              "service",
+              "scopes"
+            ]
+          }
+        }
+      ]
+    },
+    "primary-aud-and-default-api": {
+      "statement": "The contract describes `primaryAud` as the resource server's primary audience, and `defaultApi` only as whether the resource server is set as the default API.",
+      "tier": "A",
+      "binds": [
+        "zidentity/resource-servers#primaryAud",
+        "zidentity/resource-servers#defaultApi"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1resource-servers~1{id}/get/responses/200/content/application~1json/schema/items/properties/primaryAud",
+          "expect": {
+            "description": "The primary audience of the resource server, identifying the primary entity or context for which the server is intended."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1resource-servers~1{id}/get/responses/200/content/application~1json/schema/items/properties/defaultApi",
+          "expect": {
+            "description": "Whether this resource server is set as the default API.",
+            "type": "boolean"
+          }
+        }
+      ]
+    },
+    "service-cloud-org-required": {
+      "statement": "The contract marks a service's `cloudName` (the cloud hosting it) and `orgName` (the organization associated with it) as required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1resource-servers~1{id}/get/responses/200/content/application~1json/schema/items/properties/serviceScopes/items/properties/service",
+          "expect": {
+            "required": [
+              "cloudName",
+              "orgName"
+            ]
+          }
+        }
+      ]
+    },
+    "go-extra-service-fields": {
+      "statement": "The Go SDK's service model also carries `externalName`, which has matched `name` in every response its authors observed, and `zapsOnboarded`, which is undocumented and was observed false for every service on the tenants examined.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/resource_servers/resource_servers.go",
+          "quotes": [
+            "ExternalName is the service's stable programmatic name. It has matched",
+            "Name in every response observed, but the API reports both, so both are",
+            "ZapsOnboarded is undocumented and has been observed as false for every",
+            "service on the tenants examined."
+          ]
+        }
+      ]
+    },
+    "extra-fields-not-in-contract": {
+      "statement": "Neither `externalName` nor `zapsOnboarded` is in the contract's service schema, and the Python service model reads only `id`, `name`, `displayName`, `cloudName` and `orgName`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1resource-servers~1{id}/get/responses/200/content/application~1json/schema/items/properties/serviceScopes/items/properties/service/properties",
+          "expect_absent": [
+            "externalName",
+            "zapsOnboarded"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/models/resource_servers.py",
+          "after": "class Service(ZscalerObject):",
+          "quotes": [
+            "super().__init__(config)\n\n        if config:",
+            "self.id = config[\"id\"] if \"id\" in config else None",
+            "self.name = config[\"name\"] if \"name\" in config else None",
+            "self.display_name = config[\"displayName\"] if \"displayName\" in config else None",
+            "self.cloud_name = config[\"cloudName\"] if \"cloudName\" in config else None",
+            "self.org_name = config[\"orgName\"] if \"orgName\" in config else None\n        else:\n            self.id = None"
+          ]
+        }
+      ],
+      "conditions": "The five reads quoted are every field the Python Service model reads at the pin."
+    },
+    "clients-reference-resources": {
+      "statement": "An API client's `clientResources` lists the resource servers it may reach and the scopes selected on each; the Go SDK says to resolve those resource and scope IDs with its resource servers package.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/api_clients/api_clients.go",
+          "quotes": [
+            "ClientResources is required, and lists the resource servers the client may",
+            "reach along with the scopes selected for each. Resolve the resource and",
+            "scope ids with the resource_servers package."
+          ]
+        }
+      ]
+    },
+    "no-back-reference": {
+      "statement": "A resource server record does not list the API clients that use it, so finding them means reading each client's `clientResources`.",
+      "tier": "B",
+      "derived_from": [
+        "zidentity.resource-servers:record-required",
+        "zidentity.resource-servers:clients-reference-resources"
+      ],
+      "conditions": "The record's required list is also its complete property list in the contract at the pin; no client field appears."
+    }
+  },
+  "divergences": {
+    "service-cloud-org": {
+      "summary": "The contract requires `cloudName` and `orgName` on every service in a resource server, while the Go SDK records that services that are not cloud-scoped, ZIAM and ZINSIGHTS, come without either.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zid.openapi.json",
+            "pointer": "/paths/~1resource-servers~1{id}/get/responses/200/content/application~1json/schema/items/properties/serviceScopes/items/properties/service",
+            "expect": {
+              "required": [
+                "cloudName",
+                "orgName"
+              ]
+            }
+          },
+          "says": "Both fields are always present."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/ziam/services/resource_servers/resource_servers.go",
+            "quotes": [
+              "CloudName and OrgName are absent for services that are not cloud-scoped —",
+              "ZIAM and ZINSIGHTS are reported without either."
+            ]
+          },
+          "says": "The ZIAM and ZINSIGHTS services carry neither field."
+        }
+      ],
+      "impact": "A strict client generated from the contract can fail to decode a resource server that includes the ZIdentity or Z-Insights service; treat both fields as optional."
+    }
+  },
+  "gaps": {
+    "default-api-behavior": {
+      "kind": "semantic",
+      "title": "What a resource server's `defaultApi` flag changes",
+      "status": "open",
+      "former_ids": [
+        "zid-24"
+      ],
+      "about": [
+        "zidentity/resource-servers#defaultApi"
+      ],
+      "detail": "Unverified legacy statement: when `defaultApi` is true the resource server is implicitly available. The contract says only that it marks the resource server as the default API, and the client-side `defaultApi` on `clientResources` is reported on read only; no source says which clients it applies to or what it overrides.",
+      "blocks": "explaining why a client reaches a resource it was not given explicitly",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "empty-service-scopes": {
+      "kind": "semantic",
+      "title": "What a resource server with an empty `serviceScopes` list means",
+      "status": "open",
+      "former_ids": [
+        "zid-23"
+      ],
+      "about": [
+        "zidentity/resource-servers#serviceScopes"
+      ],
+      "detail": "Unverified legacy statement: the meaning of an empty `serviceScopes` (no scopes available, all scopes, or scopes defined elsewhere) is undocumented. The contract requires the field but not that it be non-empty.",
+      "blocks": "building an API client from a resource server that lists no scopes",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "enumerability": {
+      "kind": "data",
+      "title": "Whether listing resource servers returns all of them, or hides Zscaler-internal ones",
+      "status": "open",
+      "former_ids": [
+        "zid-25"
+      ],
+      "detail": "Unverified legacy statement: whether `list_resource_servers` returns all resource servers including Zscaler-internal ones, or only tenant-visible ones, is unconfirmed. The list operation has no parameter separating system-provided from other entries, and no capture compares its output with the console's API Resources page.",
+      "blocks": "treating the API's list as the full set of selectable resources",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "live",
+        "operator"
+      ],
+      "live_command": "zscalerctl zidentity resource-servers list"
+    }
+  }
+}

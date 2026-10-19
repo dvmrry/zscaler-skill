@@ -1,0 +1,332 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.api",
+  "title": "The ZIdentity (Authentication Service) admin API from a client's side: route, coverage and wire notes",
+  "aliases": [
+    "zidentity api",
+    "ziam api",
+    "authentication service api",
+    "ziam admin api v1",
+    "how to automate zidentity",
+    "zidentity api divergences",
+    "client.zid"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.api.pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.api.query-filters"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.api.client-coverage"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.api-clients"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.resource-servers"
+    },
+    {
+      "rel": "depends-on",
+      "to": "shared.oneapi"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Endpoint lists, HTTP methods, request and response fields, and the Go and Python SDK functions for ZIdentity are generated from the captured contract and the SDKs: run `node scripts/kb.mjs surface zid` and read `vendor/zscaler-api-specs/automate-zscaler/openapi/zid.openapi.json`. This subject family holds only the behavior around them and the places where those sources disagree."
+    },
+    {
+      "label": "What the API manages.",
+      "text": "{{feature-areas}}"
+    },
+    {
+      "label": "Route.",
+      "text": "{{contract-server}} {{python-route}} {{go-route}} The Go client's routing of the `ziam` prefix is in [[shared.oneapi.base-urls:go-ziam-routing]], and the hosts for other clouds are in [[shared.oneapi.government-clouds]]. Whether tenants still answer the older Go releases' vanity-admin route is open {{gap:legacy-go-route}}."
+    },
+    {
+      "label": "Signing in.",
+      "text": "{{bearer-scheme}} {{bearer-on-every-operation}} Getting a token is shared with every OneAPI product: [[shared.oneapi.authentication]]. The API client object itself, its scopes and its token lifetime are in [[zidentity.api-clients]]."
+    },
+    {
+      "label": "Limits.",
+      "text": "No source gives rate limits for this API {{gap:rate-limits}}; the per-product limits that are documented are in [[shared.oneapi.rate-limits]]."
+    },
+    {
+      "label": "Surface boundaries.",
+      "text": "{{no-bulk-user-create}} {{no-token-or-policy-paths}} {{no-bulk-user-delete}}"
+    },
+    {
+      "label": "Wire notes.",
+      "text": "Paging and the list envelope: [[zidentity.api.pagination]]. Filter key spelling, where the Python SDK departs from the contract: [[zidentity.api.query-filters]]. Which client covers what, MCP included: [[zidentity.api.client-coverage]]. Resource servers: [[zidentity.resource-servers]]. SDK-specific defects: [[zidentity.sdk-python]] and [[zidentity.sdk-go]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the request goes to the `/ziam/admin/api/v1` base on the OneAPI gateway, not to a vanity-admin host an older Go release used.",
+      "uses": [
+        "contract-server",
+        "go-route",
+        "legacy-go-route"
+      ]
+    },
+    {
+      "do": "Whether the operation needed (token revocation, access policy, bulk user create) exists in the contract at all before looking for a client wrapper.",
+      "uses": [
+        "no-bulk-user-create",
+        "no-token-or-policy-paths"
+      ]
+    }
+  ],
+  "claims": {
+    "feature-areas": {
+      "statement": "The Authentication Service API manages API clients, users, groups and resource servers; resource servers (API resources) are the Zscaler APIs available through the OneAPI gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zidentity-apis.json",
+          "quotes": [
+            "The Authentication Service API gives you programmatic access to manage the following Authentication Service features:",
+            "An API client refers to any application or service that wants to access the Zscaler API resources and retrieve data.",
+            "You can add users to Authentication Service.",
+            "A group is a logical entity that includes several users.",
+            "Resource servers or API resources refer to the Zscaler APIs available via the OneAPI gateway."
+          ]
+        }
+      ]
+    },
+    "contract-server": {
+      "statement": "The ZIdentity contract declares the server https://api.zsapi.net/ziam/admin/api/v1, described as the Authentication Service endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/servers/[url=https:~1~1api.zsapi.net~1ziam~1admin~1api~1v1]",
+          "expect": {
+            "url": "https://api.zsapi.net/ziam/admin/api/v1",
+            "description": "Authentication Service Endpoint"
+          }
+        }
+      ]
+    },
+    "python-route": {
+      "statement": "The Python SDK's ZIdentity service classes set the base endpoint `/ziam/admin/api/v1`, and its request executor resolves the OneAPI gateway base URL to a dedicated gateway for a government (FedRAMP) cloud, otherwise to https://api.<cloud>.zsapi.net when a cloud other than `production` is configured, and to https://api.zsapi.net by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/users.py",
+          "quotes": [
+            "_zidentity_base_endpoint = \"/ziam/admin/api/v1\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/api_client.py",
+          "quotes": [
+            "_zidentity_base_endpoint = \"/ziam/admin/api/v1\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "BASE_URL = \"https://api.zsapi.net\"  # Default base URL for API calls",
+            "Resolves the OneAPI gateway base URL for the configured cloud.",
+            "Government (FedRAMP) clouds are isolated environments served by",
+            "gov_base_url = ONEAPI_GOV_API_BASE_URLS.get(self.cloud)",
+            "return self.BASE_URL",
+            "if self.cloud and self.cloud != \"production\":",
+            "return f\"https://api.{self.cloud}.zsapi.net\""
+          ]
+        }
+      ]
+    },
+    "go-route": {
+      "statement": "The Go SDK's `ziam` service packages for users, groups, API clients, resource servers and user entitlement each declare their endpoint under `/ziam/admin/api/v1`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/users/users.go",
+          "quotes": [
+            "usersEndpoint = \"/ziam/admin/api/v1/users\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/groups/groups.go",
+          "quotes": [
+            "groupsEndpoint = \"/ziam/admin/api/v1/groups\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/api_clients/api_clients.go",
+          "quotes": [
+            "apiClientsEndpoint = \"/ziam/admin/api/v1/api-clients\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/resource_servers/resource_servers.go",
+          "quotes": [
+            "resourceServerEndpoint = \"/ziam/admin/api/v1/resource-servers\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/user_entitlement/user_entitlement.go",
+          "quotes": [
+            "entitlementEndpoint = \"/ziam/admin/api/v1/users\""
+          ]
+        }
+      ]
+    },
+    "bearer-scheme": {
+      "statement": "The ZIdentity contract defines an HTTP bearer security scheme named `BearerAuth`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/components/securitySchemes/BearerAuth",
+          "expect": {
+            "scheme": "bearer",
+            "type": "http"
+          }
+        }
+      ]
+    },
+    "bearer-on-every-operation": {
+      "statement": "Creating an API client through the API (POST /api-clients) requires a bearer token, as do the contract's other API client, group, resource server and user operations, so the first API client cannot be created through the API and has to come from the Admin Console.",
+      "tier": "B",
+      "derived_from": [
+        "zidentity.api:bearer-scheme"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1api-clients/post",
+          "expect": {
+            "operationId": "Apiclient Ops Add",
+            "security": [
+              {
+                "BearerAuth": []
+              }
+            ]
+          }
+        }
+      ],
+      "conditions": "28 of the contract's 31 operations list BearerAuth under security (checked across the zid contract at the pin); the three user action routes (reset password, skip MFA, update password) declare no security, which the contract leaves unexplained. The bootstrap consequence is inferred, not stated by a source."
+    },
+    "no-bulk-user-create": {
+      "statement": "The contract has no bulk user-create or user-import operation: users are created one at a time with POST /users, and the only list-shaped writes are the group membership POST and PUT on /groups/{id}/users.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users",
+          "expect_absent": [
+            "put",
+            "patch"
+          ]
+        }
+      ],
+      "conditions": "Absence from the complete path list of the zid contract at the pin (18 paths, the same list `node scripts/kb.mjs surface zid` shows); SCIM provisioning is outside this API."
+    },
+    "no-token-or-policy-paths": {
+      "statement": "The contract has no operations for access tokens (listing or revoking them) or for API client access policy rules; those are managed only in the Admin Console as far as the captured sources show.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/tokens",
+            "/api-client-access-policy",
+            "/access-policy"
+          ]
+        }
+      ],
+      "conditions": "Absence from the complete path list of the zid contract at the pin: its 18 paths are under /api-clients, /groups, /resource-servers and /users only. The console pages are in zidentity.api-clients.access-tokens and zidentity.api-clients.access-policy."
+    },
+    "no-bulk-user-delete": {
+      "statement": "The contract has no bulk user delete: a user is deleted one at a time with DELETE on /users/{id}, and /users itself has no DELETE; the only users bulk delete in the OneAPI Postman collection is ZIA's (`{{ZIABaseUrl}}/users/bulkDelete`). The console's bulk delete has no API counterpart.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}/delete",
+          "expect": {
+            "operationId": "Users Ops Remove"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users",
+          "expect_absent": [
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "{{ZIABaseUrl}}/users/bulkDelete"
+          ]
+        }
+      ],
+      "derived_from": [
+        "zidentity.users:console-bulk"
+      ],
+      "conditions": "Absence from the complete path list of the zid contract at the pin (18 paths, as `node scripts/kb.mjs surface zid` shows) and from a search of the Postman collection for bulkDelete, which finds only ZIA and ZPA requests."
+    }
+  },
+  "gaps": {
+    "legacy-go-route": {
+      "kind": "data",
+      "title": "Whether tenants still answer the route older Go releases used",
+      "status": "open",
+      "former_ids": [
+        "zid-15",
+        "zid-16"
+      ],
+      "detail": "Unverified legacy statement: older Go SDK releases paired a bare `/admin/api/v1` prefix with a `{vanity}-admin.zslogin.net` host for ZIdentity, while current Go and Python both use `/ziam/admin/api/v1` on the OneAPI gateway. No source says whether the bare prefix on api.zsapi.net, or the vanity-admin host, is still accepted, or behaves the same.",
+      "blocks": "supporting a client pinned to an older Go release, or reading traffic from one",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "rate-limits": {
+      "kind": "data",
+      "title": "What rate limits apply to the Authentication Service API",
+      "status": "open",
+      "detail": "Unverified legacy statement: ZIdentity endpoints are subject to OneAPI gateway rate limiting consistent with other product APIs. Neither the OneAPI rate-limit pages nor the ZIdentity help captures give limits for this API, and neither SDK parses a ZIdentity rate-limit header.",
+      "blocks": "sizing bulk user or group automation against the API",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

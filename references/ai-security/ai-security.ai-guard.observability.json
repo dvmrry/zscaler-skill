@@ -1,0 +1,360 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.observability",
+  "title": "AI Guard dashboards, Insights, Token Usage and log exports (ADX, CrowdStrike, S3, Splunk)",
+  "aliases": [
+    "ai guard dashboard",
+    "ai guard insights",
+    "ai guard token usage",
+    "ai guard log export",
+    "ai guard siem",
+    "ai guard splunk",
+    "ai guard crowdstrike",
+    "ai guard s3 export",
+    "ai guard adx event hub",
+    "export tools field",
+    "ai guard conversation view",
+    "reveal prompt",
+    "ai guard detection latency"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.tenant-settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "AI Guard reports on its own console and exports events to SIEMs and storage. Help documents a Users version and an Apps and Infrastructure version of each page."
+    },
+    {
+      "label": "Dashboard.",
+      "text": "{{dashboard-users}} {{dashboard-apps}} {{users-no-conversations}} Which modes the conversation view covers is open {{gap:conversation-mode-scope}}."
+    },
+    {
+      "label": "Insights.",
+      "text": "{{insights}} {{security-posture}}"
+    },
+    {
+      "label": "Token Usage.",
+      "text": "{{token-usage}}"
+    },
+    {
+      "label": "Log exports.",
+      "text": "{{export-targets}} {{export-filters}} {{s3-export}} The exported record format is open {{gap:export-schema}}."
+    },
+    {
+      "label": "Release notes.",
+      "text": "Statements the legacy page took from the 2026 release summaries are not in the current captures {{gap:release-notes}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For missing events in a SIEM, that the export instance is enabled, its connection validates, and the allowed/detected and blocked prompt filters cover the events expected.",
+      "uses": [
+        "export-targets",
+        "export-filters"
+      ]
+    },
+    {
+      "do": "That an export which should carry tool data still has Export Tools Field enabled, the default.",
+      "uses": [
+        "export-filters"
+      ]
+    }
+  ],
+  "claims": {
+    "dashboard-users": {
+      "statement": "The dashboard's Users tab covers a date range of up to 90 days, counts users, LLMs, policy detections and transactions, can be exported to PDF, and lists each transaction with date and time, user, policy name, severity (Info, Low, Medium, High or Critical), prompt and response detections, LLM, and prompt and response actions (Allowed or Blocked); Details opens Overview, Detection Summary, Performance & Network Stats, Custom Request Headers and Prompt Details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-dashboard.json",
+          "quotes": [
+            "Select the Users tab.",
+            "Select the date range (up to 90 days) for your data.",
+            "Export a PDF copy of your dashboard for the selected date range.",
+            "Number of Users: The total number of users.",
+            "Number of LLMs: The total number of LLMs.",
+            "Number of Detections: The total number of policy detections.",
+            "Number of Transactions: The total number of transactions.",
+            "Date and Time: The date and time of the transaction.",
+            "User: The name of the user.",
+            "Policy Name: The name of the policy associated with this transaction.",
+            "Severity: The level of severity of the transaction. The severity can be Info, Low, Medium, High, and Critical.",
+            "Prompt Detections: The specific prompt detectors that the policy triggered.",
+            "Response Detections: The specific response detectors that the policy triggered.",
+            "LLM: The LLM used for this transaction.",
+            "Prompt Action: Displays whether the AI Guard policy transaction resulted in the prompt being Allowed or Blocked.",
+            "Response Action: Displays whether the AI Guard policy transaction resulted in the response being Allowed or Blocked.",
+            "Overview, Detection Summary, Performance & Network Stats, Custom Request Headers, and Prompt Details."
+          ]
+        }
+      ]
+    },
+    "dashboard-apps": {
+      "statement": "The Secure AI Apps and Infrastructure dashboard article's AI Applications tab counts applications and can show entries as individual prompt transactions or as connected multi-prompt conversation threads; a message icon gives a conversation's transaction count, Reveal Prompt shows the exchange in chat layout, and conversation grouping follows existing session boundary logic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-dashboard-20260909.json",
+          "quotes": [
+            "Select the AI Applications tab.",
+            "Number of Apps: The total number of applications.",
+            "View dashboard entries as individual prompt transactions, or view multi-prompt AI interactions as a single, connected conversation thread.",
+            "you will see a message icon next to a transaction's date, indicating the number of transactions in that conversation thread.",
+            "View prompt details by clicking Reveal Prompt, which shows a full back-and-forth, chat-style layout.",
+            "Conversation grouping respects existing session boundary logic."
+          ]
+        }
+      ]
+    },
+    "users-no-conversations": {
+      "statement": "The Users dashboard article documents no conversation view; only the Apps and Infrastructure article does.",
+      "tier": "B",
+      "derived_from": [
+        "dashboard-users",
+        "dashboard-apps"
+      ],
+      "conditions": "Rests on the Users article's step list, which goes from the counts to the transaction list without a conversation option; an absence in the article, not proof about the console."
+    },
+    "insights": {
+      "statement": "Insights reports total and blocked prompts and responses, approximate prompt and response tokens, average tokens per prompt and per response, average prompt and response detection latency in milliseconds, active users and LLMs, and graphs of trend over time, transactions by LLM, transactions by users, top detectors, PII detections by user or user group, and PII categories, plus the most common prompt categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-about-ai-guard-insights.json",
+          "quotes": [
+            "Total Prompts: Total number of prompts users have submitted.",
+            "Blocked Prompts: Total number of blocked prompts users tried to submit.",
+            "Prompt Tokens: Approximate number of input tokens consumed by users.",
+            "Average Prompt Tokens: Average number of tokens per prompt.",
+            "Average Prompt Detection Latency: Average time for prompt detection in milliseconds.",
+            "Total Responses: Total number of LLM responses.",
+            "Blocked Responses: Total number of LLM responses that AI Guard blocked.",
+            "Response Tokens: Approximate number of output tokens consumed by users.",
+            "Average Response Token: Average number of tokens per response.",
+            "Average Response Detection: Average time for response detection in milliseconds.",
+            "Active Users: Total number of active users.",
+            "Active LLMs: Total number of LLMs.",
+            "Trend Over Time: Daily transaction volume showing Blocked and Total counts.",
+            "Transactions by LLM: Displays the active LLMs",
+            "Top Detectors: Displays the detectors that have been triggered the most.",
+            "Transactions by Users: Displays the total number and percentage of transactions.",
+            "PII Detections by Users / Groups: Total number of personally identifiable information (PII) detections per user or user group.",
+            "PII Categories: Types of PII detected in AI traffic such as credit cards, emails, SSNs, and phone numbers.",
+            "View the most common prompt categories during the selected date range and the number of transactions for each category."
+          ]
+        }
+      ]
+    },
+    "security-posture": {
+      "statement": "The Security Posture chart shows the share of Allowed, Blocked and Passthrough transactions across all AI traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-about-ai-guard-insights.json",
+          "quotes": [
+            "Security Posture: Overview of transaction disposition which shows the proportion of Allowed, Blocked, and Passthrough transactions across all AI traffic."
+          ]
+        }
+      ]
+    },
+    "token-usage": {
+      "statement": "Token Usage shows prompt and response tokens across the tenant or for one user: total tokens, top user, busiest day, average per user, activity by day and hour (with hourly or 5-minute granularity), LLM provider distribution, the top 10 users, and exportable raw data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-about-ai-guard-usage.json",
+          "quotes": [
+            "Select to view token usage data across the entire tenant, or a single user",
+            "Total Tokens: All prompt and response tokens used by every user in your tenant during this period.",
+            "Top User: The user that used the most tokens.",
+            "Busiest Day: The day with the most token usage.",
+            "Avg. per User: Average tokens used by each user on the leaderboard.",
+            "LLM Provider Distribution: See LLM distribution information",
+            "Activity by day & hour: Requires Hourly or 5-min granularity to see hour-of-day patterns.",
+            "Top users by token usage: The 10 users that used the most tokens.",
+            "Raw Data: A quick total summary of prompts and responses by date. Data can be exported."
+          ]
+        }
+      ]
+    },
+    "export-targets": {
+      "statement": "Log exports go to Azure Data Explorer through Event Hubs (a metadata hub, and an optional content hub), CrowdStrike SIEM Direct Export (event metadata to the CrowdStrike HTTP Event Collector), CrowdStrike SIEM Export via S3 (metadata to the HEC, event contents to an S3 bucket), S3 (separate metadata and content buckets), and Splunk (a metadata HEC, and an optional content HEC).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-log-exports-20260909.json",
+          "quotes": [
+            "Meta Event Hub Connection String: Enter the SAS connection string for the meta Event Hub (e.g. aiguard-meta).",
+            "Content Event Hub Connection String: (Optional) Enter the SAS connection string for the content Event Hub (e.g. aiguard-content).",
+            "Use the CRWD integration to direct export event metadata to CrowdStrike HTTP Event Collector (HEC).",
+            "Use the CRWD integration to export event metadata to CrowdStrike HTTP Event Collector (HEC) and event contents to AWS S3.",
+            "AWS S3 Metadata Bucket: Enter the AWS S3 bucket location where the tenant's event metadata files will be stored.",
+            "AWS S3 Content Bucket: Enter the AWS S3 bucket where the tenant's event content files will be stored.",
+            "Splunk Metadata HEC URL: Enter the URL of the Splunk HEC (raw endpoint) where the tenant's events (metadata) will be posted.",
+            "Splunk Content HEC URL: (Optional) Enter the URL of the Splunk HEC (raw endpoint) where tenant's events (content) will be posted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-users-log-exports-20260909.json",
+          "quotes": [
+            "Use the CRWD integration to direct export event metadata to CrowdStrike HTTP Event Collector (HEC)."
+          ]
+        }
+      ]
+    },
+    "export-filters": {
+      "statement": "Each of the five export types (ADX, CrowdStrike direct, CrowdStrike via S3, S3, Splunk) has Export Allowed/Detected Prompts and Export Blocked Prompts options, an Export Tools Field option that is enabled by default and, when disabled, removes the Tools field from the exported metadata, and a Validate Connection check.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-log-exports-20260909.json",
+          "quotes": [
+            "Export Allowed/Detected Prompts: Select to export allowed and detected prompts.",
+            "Export Blocked Prompts: Select to export blocked prompts.",
+            "Export Tools Field: Enabled by default. Disable if you want to remove the Tools field from your event log metadata export.",
+            "Click Validate Connection to check whether the information you entered is accurate and working."
+          ],
+          "after": "# Azure Data Explorer (ADX) Event Export"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-log-exports-20260909.json",
+          "quotes": [
+            "Export Allowed/Detected Prompts: Select to export allowed and detected prompts.",
+            "Export Blocked Prompts: Select to export blocked prompts.",
+            "Export Tools Field: Enabled by default. Disable if you want to remove the Tools field from your event log metadata export.",
+            "Click Validate Connection to check whether the information you entered is accurate and working."
+          ],
+          "after": "# CRWD SIEM Direct Export"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-log-exports-20260909.json",
+          "quotes": [
+            "Export Allowed/Detected Prompts: Select to export allowed and detected prompts.",
+            "Export Blocked Prompts: Select to export blocked prompts.",
+            "Export Tools Field: Enabled by default. Disable if you want to remove the Tools field from your event log metadata export.",
+            "Click Validate Connection to check whether the information you entered is accurate and working."
+          ],
+          "after": "# CRWD SIEM Export (via S3)"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-log-exports-20260909.json",
+          "quotes": [
+            "Export Allowed/Detected Prompts: Select to export allowed and detected prompts.",
+            "Export Blocked Prompts: Select to export blocked prompts.",
+            "Export Tools Field: Enabled by default. Disable if you want to remove the Tools field from your event log metadata export.",
+            "Click Validate Connection to check whether the information you entered is accurate and working."
+          ],
+          "after": "# S3 Event Export"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-log-exports-20260909.json",
+          "quotes": [
+            "Export Allowed/Detected Prompts: Select to export allowed and detected prompts.",
+            "Export Blocked Prompts: Select to export blocked prompts.",
+            "Export Tools Field: Enabled by default. Disable if you want to remove the Tools field from your event log metadata export.",
+            "Click Validate Connection to check whether the information you entered is accurate and working."
+          ],
+          "after": "# Splunk Event Export"
+        }
+      ]
+    },
+    "s3-export": {
+      "statement": "The S3 export assumes an IAM cross-account role in the customer's AWS account (its external ID fills in automatically), object tags need the role to allow `s3:PutObjectTagging`, and the Apps and Infrastructure article points to a CloudFormation template in the AI Guard portal for the roles and policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-log-exports-20260909.json",
+          "quotes": [
+            "IAM Cross-Account Role ARN: Enter the ARN of the IAM cross-account role created in the tenant's AWS account.",
+            "IAM Cross-Account Role External ID: The external ID of the IAM cross-account role created in the tenant's AWS account. This field auto-populates.",
+            "A cloud formation template to set the right roles and policies can be found on the Zscaler AI Guard portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-log-exports-20260909.json",
+          "quotes": [
+            "To use this feature, the IAM role requires permissions for the \"s3:PutObjectTagging\" action."
+          ],
+          "after": "# S3 Event Export"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "conversation-mode-scope": {
+      "kind": "semantic",
+      "title": "Which modes the dashboard conversation view covers",
+      "status": "open",
+      "detail": "Unverified legacy statement: an earlier (2026-08-04) capture of the Apps and Infrastructure dashboard said conversation-thread viewing was exclusive to DAS/API mode and absent in Proxy mode, and the September 2, 2026 release entries announced Proxy-mode multi-turn conversation viewing. The current Apps article states no mode, and the Users article documents no conversation view (users-no-conversations).",
+      "blocks": "whether a Proxy or Users-mode administrator can expect conversation threads",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "export-schema": {
+      "kind": "data",
+      "title": "Field-level schema of exported AI Guard events",
+      "status": "open",
+      "detail": "The log export articles name destinations and filters but no event fields or wire keys; the legacy page noted the same, and a CrowdStrike parser named zscaler-aiguard appears only in release notes the current captures do not hold (release-notes).",
+      "blocks": "SIEM parsing and detection content built on AI Guard exports",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "release-notes": {
+      "kind": "data",
+      "title": "2026 release-summary statements absent from the current captures",
+      "status": "open",
+      "detail": "Unverified legacy statements from the AI Guard release summaries; the current captures of both release-upgrade-summary pages hold only their one-line introduction: September 2, 2026, Proxy-mode multi-turn conversation viewing, an Anthropic webhook connection test from the Anthropic console, a Policy Control Name column and resizable dashboard columns; CSV as well as PDF export of dashboard event tables; August 26, CrowdStrike Direct Export with a parser named zscaler-aiguard; Tools-field filtering enabled by default for new and existing exports; tenant restriction; Microsoft 365 Copilot streaming inspection; encrypted prompt allowlisting; custom RBAC; ADX and Splunk export; Codex request and response blocking; default-provider auto-provisioning; and support for applications such as GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma and Builder.io.",
+      "blocks": "dating a feature's availability, and the CrowdStrike parser name",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "none"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-release-20260909.json",
+          "quotes": [
+            "This article provides a summary of all new features and enhancements for Secure AI Apps & Infrastructure."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-users-release-20260909.json",
+          "quotes": [
+            "This article provides a summary of all new features and enhancements for Secure Access to AI Apps."
+          ]
+        }
+      ]
+    }
+  }
+}

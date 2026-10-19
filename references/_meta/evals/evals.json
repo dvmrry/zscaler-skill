@@ -190,28 +190,25 @@
         "not an average",
         "Diagnostics Session"
       ],
-      "must_cite_files": [
-        "references/zdx/overview.md"
-      ],
       "must_not_say": [
         "ZDX averages across the time range",
         "ZDX Score is just the mean"
+      ],
+      "must_cite": [
+        "zdx.score",
+        "zdx.score.calculation"
       ]
     },
     {
       "id": 10,
       "prompt": "I have a URL Filter rule with action Isolate targeting the Miscellaneous or Unknown category. SSL Inspection has a Do-Not-Inspect rule for that category. Users are reaching sites in the category directly without an isolated browser. Why isn't the Isolate action firing?",
-      "expected_output": "The Isolate action requires SSL Inspection to decrypt the HTTPS request in order to inject a 302 redirect pointing at the isolation profile URL. When SSL is bypassed for the category, ZIA can only match at the SNI layer pre-decrypt — URL Filter evaluation still happens (SNI is the URL for matching purposes), but the action that would fire a 302 redirect can't execute because there's no HTTP-layer request to intercept. The user's connection proceeds to the destination without isolation. Fix: remove the SSL bypass for the category, or narrow the bypass so it doesn't cover URLs the Isolate rule targets. This is part of the general SSL-bypass-as-cross-policy-gate pattern — DLP, Sandbox, Malware Protection, and Isolate all silently degrade when SSL is bypassed for the affected traffic.",
+      "expected_output": "The Isolate action requires SSL Inspection to decrypt the HTTPS request in order to redirect it to the isolation profile. When SSL is bypassed for the category, ZIA can only match at the SNI layer pre-decrypt — URL Filter evaluation still happens (SNI is the URL for matching purposes), but the redirect to isolation can't execute because there's no HTTP-layer request to intercept. The user's connection proceeds to the destination without isolation. Fix: remove the SSL bypass for the category, or narrow the bypass so it doesn't cover URLs the Isolate rule targets. This is part of the general SSL-bypass-as-cross-policy-gate pattern — DLP, Sandbox, Malware Protection, and Isolate all silently degrade when SSL is bypassed for the affected traffic.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
         "SSL",
         "decrypt",
-        "302",
         "silently"
-      ],
-      "must_cite_files": [
-        "references/zbi/overview.md"
       ],
       "must_not_say": [
         "Isolate action works regardless of SSL Inspection",
@@ -219,46 +216,44 @@
       ],
       "must_cite": [
         "zia.ssl-inspection.pipeline",
-        "zia.url-filtering.actions"
+        "zia.url-filtering.actions",
+        "zbi.cloud-browser"
       ]
     },
     {
       "id": 11,
       "prompt": "Our Conditional Access rule in ZIA URL Filtering matches traffic but no MFA prompt ever appears — users just get access denied. What should we check first?",
-      "expected_output": "Two silent-miss causes, both common. (1) **Step-up authentication is OIDC-only.** If the tenant's ZIdentity IdP integration is SAML-based, Conditional Access rules match but no step-up MFA prompt can be delivered — the rule's step-up action silently fails and the user sees deny. Migrate to OIDC IdP integration to enable step-up. (2) **Step-up prompts are delivered via Zscaler Client Connector.** Users on GRE/IPSec/PAC (non-ZCC) forwarding paths can't receive the prompt — ZCC is the only channel that carries the step-up challenge. Users on those forwarding paths hitting a Conditional rule will see deny without a prompt. Diagnosis order: IdP integration type first (SAML vs OIDC), then forwarding path (ZCC vs GRE/IPSec). Both constraints apply to ZPA's Require Approval action too.",
+      "expected_output": "Start with the IdP integration. Zscaler's help says step-up authentication is supported only with OIDC-based external IdP integrations, while another help page frames OIDC as a recommendation because most IdPs support step-up only over OIDC; either way, a SAML-only integration is the first suspect when a Conditional Access rule matches but no MFA prompt appears. What a SAML-only tenant sees in that case is not documented, and the older claim that the prompt is delivered only through Client Connector (so GRE/IPSec/PAC users get a deny) is unverified: check it against the tenant before relying on it.",
       "tenant_data_required": false,
-      "expected_confidence": "high",
+      "expected_confidence": "medium",
       "assertions": [
         "OIDC",
-        "SAML",
-        "Client Connector",
-        "GRE"
-      ],
-      "must_cite_files": [
-        "references/zidentity/step-up-authentication.md"
+        "SAML"
       ],
       "must_not_say": [
-        "SAML IdPs support step-up authentication",
-        "Conditional Access works over GRE tunnels"
+        "SAML IdPs support step-up authentication"
+      ],
+      "must_cite": [
+        "zidentity.step-up"
       ]
     },
     {
       "id": 12,
       "prompt": "I'm configuring an Authentication Level tree in ZIdentity. Parent AL1 is password-only with 8-hour validity. Child AL2 is password+TOTP with 1-hour validity. The system rejects the save with a validation error on the validity period. Why?",
-      "expected_output": "ZIdentity's Authentication Level rule is counter-intuitive: **parent validity must be LESS THAN child validity**. AL1 at 8 hours means AL2 must have validity >= 8 hours — likely 24 hours for a stronger-assurance child. The tree semantic is that a higher-assurance authentication demonstrates more about the user's identity and therefore persists longer; the parent's validity is the weakest guarantee in the branch and has to be the shortest. Most admins get this wrong on first attempt because the intuitive model is 'stronger auth → shorter session' (more sensitive = more frequent re-auth). ZIdentity enforces the opposite at save time. Flip the validities — AL1=8h (or less), AL2=24h (or more) — and the save will succeed.",
+      "expected_output": "The save rule is that a parent level's validity period must be less than the validity of every sub-level, and the tree runs from strong to weak: authenticating at a higher (parent) level satisfies policies that require its sub-levels. A tree with password-only AL1 as the parent (8 hours) and password+TOTP AL2 as its child (1 hour) is upside down on both counts, so the save fails on the validity check. Make the stronger level the parent: AL2 (password+TOTP) as the parent with the shorter validity, and the password-only level beneath it with a longer one.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
         "less than",
         "parent",
-        "counter-intuitive"
-      ],
-      "must_cite_files": [
-        "references/zidentity/step-up-authentication.md"
+        "sub-level"
       ],
       "must_not_say": [
         "parent validity must be longer than child",
-        "more sensitive levels require shorter sessions"
+        "the parent is the weakest level"
+      ],
+      "must_cite": [
+        "zidentity.step-up.levels"
       ]
     },
     {
@@ -293,12 +288,12 @@
         "integration",
         "SSL"
       ],
-      "must_cite_files": [
-        "references/zwa/overview.md"
-      ],
       "must_not_say": [
         "Check ZWA workflow mappings first",
         "ZWA ingests all ZIA security events automatically"
+      ],
+      "must_cite": [
+        "zwa.incidents"
       ]
     },
     {
@@ -426,7 +421,6 @@
         "open gap"
       ],
       "must_cite_files": [
-        "references/ai-security/ai-guard-coverage.md",
         "references/_meta/portfolio-map.md"
       ],
       "must_not_say": [
@@ -435,6 +429,9 @@
         "zia_aiguard",
         "captured Terraform resource exists",
         "AI Guard Terraform resource exists"
+      ],
+      "must_cite": [
+        "ai-security.ai-guard.admin-api"
       ]
     },
     {
@@ -451,14 +448,13 @@
         "AI Red Teaming",
         "distinct"
       ],
-      "must_cite_files": [
-        "references/ai-security/index.md",
-        "references/ai-security/overview.md"
-      ],
       "must_not_say": [
         "AI Guardrails is a separate runtime enforcement product",
         "merge all AI guardrail controls into AI Guard",
         "guardrails-only source proves AI Guard admin API coverage"
+      ],
+      "must_cite": [
+        "ai-security.family"
       ]
     },
     {
@@ -478,7 +474,6 @@
         "host-specific"
       ],
       "must_cite_files": [
-        "references/ai-security/ai-guard.md",
         "vendor/zguard-ai-integrations/github-actions/README.md",
         "vendor/zguard-ai-integrations/github-actions/scripts/scan_policy.py",
         "vendor/zguard-ai-integrations/github-actions/.github/workflows/model-security-scan.yml"
@@ -488,6 +483,9 @@
         "evidence that the AI Guard admin plane is programmable",
         "GitHub Actions configures AI Guard policy control",
         "Vertex deployment is required for AI Guard scanning"
+      ],
+      "must_cite": [
+        "ai-security.ai-guard.integrations"
       ]
     },
     {
@@ -507,7 +505,6 @@
         "distinct"
       ],
       "must_cite_files": [
-        "references/ai-security/overview.md",
         "vendor/zscaler-help/ai-security-marketing.md"
       ],
       "must_not_say": [
@@ -516,6 +513,9 @@
         "AI Red Teaming Terraform resource",
         "AI Red Teaming output automatically configures AI Guard policy",
         "AI Red Teaming is part of AI Guard"
+      ],
+      "must_cite": [
+        "ai-security.family"
       ]
     },
     {
@@ -535,7 +535,6 @@
         "instead"
       ],
       "must_cite_files": [
-        "references/ai-security/overview.md",
         "vendor/zscaler-help/ai-security-marketing.md"
       ],
       "must_not_say": [
@@ -544,6 +543,9 @@
         "AI Red Teaming output automatically configures AI Guard policy",
         "product-family adjacency proves integration",
         "AI Red Teaming is part of AI Guard"
+      ],
+      "must_cite": [
+        "ai-security.family"
       ]
     },
     {
@@ -627,8 +629,7 @@
         "Business Insights"
       ],
       "must_cite_files": [
-        "references/_meta/portfolio-map.md",
-        "references/business-insights/overview.md"
+        "references/_meta/portfolio-map.md"
       ],
       "must_not_say": [
         "AI Guard has no SDK module",
@@ -636,6 +637,9 @@
         "EASM is Tier 4",
         "Business Insights is portal-only",
         "Zscaler Cellular is Tier 3"
+      ],
+      "must_cite": [
+        "business-insights.api"
       ]
     },
     {
@@ -664,28 +668,28 @@
     {
       "id": 29,
       "prompt": "We have no ZIdentity API clients yet. Explain how to bootstrap the first client, how later clients and secrets are managed in Python, and whether either Python or Go can mutate resource servers. Include the exact Python accessor.",
-      "expected_output": "The first API client must be bootstrapped in the admin portal because no credential exists yet. With a sufficiently scoped client, later API clients and their secret lifecycle are full CRUD through singular `client.zid.api_client` (or raw REST). Go has no API-client service. Resource servers are a read-only registry in both Python and Go; neither SDK creates, updates, or deletes them.",
+      "expected_output": "The first API client must be bootstrapped in the admin portal because no credential exists yet. With a sufficiently scoped client, later API clients and their secrets are managed through the API: in Python through singular `client.zid.api_client`, and in Go through the `api_clients` package (create, read, update, delete, and adding, listing and deleting secrets), or raw REST. Resource servers are read-only: the contract has only GET operations for them, so neither SDK can create, update or delete one.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
         "first",
         "portal",
         "client.zid.api_client",
-        "full CRUD",
+        "api_clients",
         "secret",
-        "read-only",
-        "both"
-      ],
-      "must_cite_files": [
-        "references/zidentity/api-clients.md",
-        "references/zidentity/api.md",
-        "references/zidentity/api-divergences.md"
+        "read-only"
       ],
       "must_not_say": [
         "client.zid.api_clients",
         "all API clients must be created in the portal",
         "API client creation is not exposed via API",
+        "Go has no API-client service",
         "Go has full CRUD on resource servers"
+      ],
+      "must_cite": [
+        "zidentity.api-clients",
+        "zidentity.api-clients.secrets",
+        "zidentity.resource-servers"
       ]
     },
     {

@@ -1,0 +1,542 @@
+{
+  "schema_version": 1,
+  "id": "zdx.probes",
+  "title": "ZDX probes: Web and Cloud Path probes, what they measure and how they run",
+  "aliases": [
+    "zdx probe",
+    "zdx probes",
+    "web probe",
+    "cloud path probe",
+    "cloudpath probe",
+    "cloud path",
+    "page fetch time",
+    "server response time",
+    "ttfb",
+    "dns time",
+    "zdx availability metric",
+    "zdx probe ssl inspection",
+    "zdx probe frequency",
+    "zdx monitor",
+    "hop count",
+    "zdx packet loss",
+    "zscaler managed probe"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.probes.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.score.calculation"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Probes are the measurements behind most ZDX data. {{probe-types}} Which probes an application needs is in [[zdx.applications:probe-requirements]], and which users a probe runs for is in [[zdx.probes.criteria]]."
+    },
+    {
+      "heading": "Web probes"
+    },
+    {
+      "text": "{{web-no-cache}} {{web-metrics}}"
+    },
+    {
+      "label": "Policy.",
+      "text": "{{ssl-exempt}} SSL Inspection itself is in [[zia.ssl-inspection]]. How probe traffic shows in ZIA logs and what a blocking policy does to a probe's metrics is unverified {{gap:probe-policy-outcomes}}."
+    },
+    {
+      "label": "In the configuration API.",
+      "text": "{{web-monitor-defaults}}"
+    },
+    {
+      "heading": "Cloud Path probes"
+    },
+    {
+      "text": "{{cloud-path-shapes}} {{unreachable-hop}} {{cloud-path-metrics}}"
+    },
+    {
+      "label": "Per device.",
+      "text": "{{cloudpath-hop-data}} The latency segments the application metric trend offers are in [[zdx.applications:app-metrics]]."
+    },
+    {
+      "label": "Through a Service Edge or not.",
+      "text": "When the path goes through a Public Service Edge, and whether that follows the device's forwarding or the probe's configuration, is not documented {{gap:cloud-path-service-edge}}."
+    },
+    {
+      "label": "Trusted networks.",
+      "text": "Whether probes keep running when the forwarding profile's action on a trusted network is None is unverified {{gap:trusted-network-none}}; the forwarding actions themselves are in [[zcc.forwarding-profiles]]."
+    },
+    {
+      "label": "Cellular networks.",
+      "text": "Whether Cloud Path results on cellular networks are noisier is unverified {{gap:cellular-noise}}."
+    },
+    {
+      "heading": "How often probes run"
+    },
+    {
+      "text": "The score article's 5-minute cadence is in [[zdx.score.calculation:hourly-lowest]]. {{page-frequency}} {{monitor-frequency}}"
+    },
+    {
+      "label": "Adaptive.",
+      "text": "What an adaptive probing mode does, and whether scores stay comparable across cadences, is not documented {{gap:adaptive-mode}}."
+    },
+    {
+      "heading": "Probe kinds and views"
+    },
+    {
+      "text": "{{page-views}} {{monitor-types}} How the contract's monitor types and the Zscaler Managed probes map to the two probe types in the help is not stated {{gap:managed-and-monitor-types}}."
+    },
+    {
+      "label": "Retention.",
+      "text": "How long probe results are kept, and at what granularity, is not documented {{gap:result-retention}}."
+    },
+    {
+      "label": "Diagnostics Sessions.",
+      "text": "How often probes run during a Diagnostics Session is open, [[zdx.diagnostics.session-status:probe-cadence-during-session]]; the sessions themselves are in [[zdx.diagnostics]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the SSL Inspection policy explains a Web probe that succeeds while user traffic to the same URL fails, since SSL policies do not apply to Web probes.",
+      "uses": [
+        "ssl-exempt"
+      ]
+    },
+    {
+      "do": "Which hop or segment of the Cloud Path carries the loss or latency, before attributing a slow application to the network or to the application.",
+      "uses": [
+        "cloud-path-metrics",
+        "cloudpath-hop-data",
+        "zdx.applications:app-metrics"
+      ]
+    },
+    {
+      "do": "Whether the probe's configured frequency differs from the 300-second default before comparing its data with other probes.",
+      "uses": [
+        "page-frequency",
+        "monitor-frequency"
+      ]
+    }
+  ],
+  "claims": {
+    "probe-types": {
+      "statement": "The probe types ZDX supports are Web probes and Cloud Path probes; Web probes collect Page Fetch Time, DNS Time, Server Response Time and Availability, and Cloud Path probes give a summarized visualization between hop points of traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-probes.json",
+          "quotes": [
+            "The probe types ZDX supports are Web probes and Cloud Path probes.",
+            "Configure Web probes to collect metrics (i.e., Page Fetch Time, DNS Time, Server Response Time, Availability).",
+            "Configure Cloud Path probes to provide a summarized visualization between hop points of traffic."
+          ]
+        }
+      ]
+    },
+    "web-no-cache": {
+      "statement": "Web probes always pull objects from the server and do no local caching.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-probes.json",
+          "quotes": [
+            "Web probes always pull objects from the server and do not do any local caching."
+          ]
+        }
+      ]
+    },
+    "web-metrics": {
+      "statement": "A Web probe's Page Fetch Time is the network fetch time of the page at the probe's URL, requesting only the top-level page document and not its embedded links; DNS Time is the time to resolve the URL's hostname; Server Response Time is Time to First Byte; Availability is based on the HTTP response code: if a success code is returned it is either 1 or 0, and if the probe times out it defaults to 0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-probes.json",
+          "quotes": [
+            "This metric collects the network fetch time of the web page from the URL-specified Web probe. It requests only the top-level page document and does not request all embedded links within the web page.",
+            "DNS Time: This metric represents the time it took to resolve the DNS name for the hostname specified in the Web probe URL.",
+            "Server Response Time: Time to First Byte (TTFB).",
+            "Availability (based on the HTTP Response code): If a success code is returned, the availability is either 1 or 0. If the probe times out, the availability defaults to 0."
+          ]
+        }
+      ]
+    },
+    "ssl-exempt": {
+      "statement": "The organization's SSL policies do not apply to ZDX synthetic Web probes, while all other policies applicable to regular traffic do; the exception enables caching of responses, without which destination servers would see an excessive surge of probe requests.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-probes.json",
+          "quotes": [
+            "The Secure Sockets Layer (SSL) policies configured for your organization do not apply to ZDX synthetic Web probes, though all other policies applicable to regular traffic are applied.",
+            "This exception is to enable the caching of responses, without which the destination servers would experience an excessive surge of probe requests that might consume their resources."
+          ]
+        }
+      ]
+    },
+    "web-monitor-defaults": {
+      "statement": "In the API contract a WEB monitor defaults to the GET request method, response codes 200-299 and 304, redirect following off with a maximum of 5 redirects, 1 retry and a 60-second request timeout.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/discriminator/x-zscaler-inline-mapping/WEB/properties/requestMethods",
+          "expect": {
+            "default": [
+              "GET"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/discriminator/x-zscaler-inline-mapping/WEB/properties/responseCodes",
+          "expect": {
+            "default": [
+              "200-299",
+              "304"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/discriminator/x-zscaler-inline-mapping/WEB/properties/followRedirects",
+          "expect": {
+            "default": false
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/discriminator/x-zscaler-inline-mapping/WEB/properties/maxRedirects",
+          "expect": {
+            "default": 5
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/discriminator/x-zscaler-inline-mapping/WEB/properties/retries",
+          "expect": {
+            "default": 1
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/discriminator/x-zscaler-inline-mapping/WEB/properties/requestTimeoutSeconds",
+          "expect": {
+            "default": 60
+          }
+        }
+      ]
+    },
+    "cloud-path-shapes": {
+      "statement": "A Cloud Path gives a summarized path visualization between the hop points of traffic, either for a direct path (Client Connector to egress to destination) or for tunneling through a Public Service Edge for Internet & SaaS (Client Connector to egress to Public Service Edge to destination).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-probes.json",
+          "quotes": [
+            "A Cloud Path is used to provide a summarized path visualization between the hop points of traffic.",
+            "It can provide visualization for the case of a direct traffic path, as in Zscaler Client Connector to egress to destination, as well as tunneling through a Public Service Edge for Internet & SaaS (i.e., Zscaler Client Connector to egress to Public Service Edge to destination)."
+          ]
+        }
+      ]
+    },
+    "unreachable-hop": {
+      "statement": "An unreachable hop is considered unknown and shows in the path as a dotted arrow.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-probes.json",
+          "quotes": [
+            "If the hop is unreachable, it is considered unknown and shows in the path as a dotted arrow."
+          ]
+        }
+      ]
+    },
+    "cloud-path-metrics": {
+      "statement": "Cloud Path probes collect Hop Count (hops between each hop point on the path), Packet Loss (percentage at each hop point) and Latency (average, minimum, maximum and standard deviation of the round-trip time, in milliseconds).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-probes.json",
+          "quotes": [
+            "Hop Count: The number of hops between each hop point on the path.",
+            "Packet Loss: The % of packet loss at each hop point on the path.",
+            "Latency (Average, Minimum, Maximum, and Standard Deviation): The roundtrip path time measured in milliseconds."
+          ]
+        }
+      ]
+    },
+    "cloudpath-hop-data": {
+      "statement": "The API's Cloud Path read for an application on a device returns summary data for the whole path (total hops, packet loss, latency and tunnel type, if available) and a similar summary for each hop, defaulting to the last 2 hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1apps~1{appId}~1cloudpath-probes~1{probeId}~1cloudpath/get",
+          "expect": {
+            "description": "Gets the Cloud Path hop data for an application on a specific device. Includes the summary data for the entire path like the total number of hops, packet loss, latency, and tunnel type (if available). It also includes a similar summary of data for each individual hop. If the time range is not specified, the endpoint defaults to the last 2 hours."
+          }
+        }
+      ]
+    },
+    "page-frequency": {
+      "statement": "The Probes page lists each probe's type, name, status, protocol or methods, and frequency, the frequency of when the probe runs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-probes.json",
+          "quotes": [
+            "Type: The type of the probe.",
+            "Name: The name of the probe.",
+            "Status: The status of the probe.",
+            "Protocol/ Methods: The protocol or method of the probe.",
+            "Frequency: The frequency of when the probe runs."
+          ],
+          "after": "Search in the application for probe information."
+        }
+      ]
+    },
+    "monitor-frequency": {
+      "statement": "In the API contract WEB and TRACERT monitors take a `frequencyInSeconds` that defaults to 300, while a TRACERT_V2 monitor's is read-only with a default of 900.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/discriminator/x-zscaler-inline-mapping/WEB/properties/frequencyInSeconds",
+          "expect": {
+            "default": 300
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/discriminator/x-zscaler-inline-mapping/TRACERT/properties/frequencyInSeconds",
+          "expect": {
+            "default": 300
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/discriminator/x-zscaler-inline-mapping/TRACERT_V2/properties/frequencyInSeconds",
+          "expect": {
+            "default": 900,
+            "readOnly": true
+          }
+        }
+      ]
+    },
+    "page-views": {
+      "statement": "The Probes page has an End User view (the default) of configured applications and their probes, a Managed view of applications with Zscaler Managed probes, and a Top Private Apps view; depending on the ZDX role and subscription level, some views might not show.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-probes.json",
+          "quotes": [
+            "Switch between the views. The default view is End User.",
+            "End User: View all the collections of configured applications and their configured probes.",
+            "Managed: View all collections of applications with configured applications and their configured Zscaler Managed probes.",
+            "Top Private Apps: Search and configure for top private applications based on ports and protocol.",
+            "Depending on your ZDX role and subscription level, you might not see some of the views."
+          ]
+        }
+      ]
+    },
+    "monitor-types": {
+      "statement": "The API contract's monitor create request takes a `type` of TRACERT_V2, WEB, TRACERT or HIFI_MTR and a `class` of PREDEFINED, NETWORK or CUSTOM; TRACERT and HIFI_MTR monitors take a protocol of TCP, UDP, ICMP, ADAPTIVE or AUTO, defaulting to ICMP for TRACERT and TCP for HIFI_MTR.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/properties/type",
+          "expect": {
+            "enum": [
+              "TRACERT_V2",
+              "WEB",
+              "TRACERT",
+              "HIFI_MTR"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/properties/class",
+          "expect": {
+            "enum": [
+              "PREDEFINED",
+              "NETWORK",
+              "CUSTOM"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/discriminator/x-zscaler-inline-mapping/TRACERT/properties/protocol",
+          "expect": {
+            "default": "ICMP"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/discriminator/x-zscaler-inline-mapping/TRACERT/properties/protocol/allOf/[title=MonitorProtocol]",
+          "expect": {
+            "enum": [
+              "TCP",
+              "UDP",
+              "ICMP",
+              "ADAPTIVE",
+              "AUTO"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/discriminator/x-zscaler-inline-mapping/HIFI_MTR/properties/protocol",
+          "expect": {
+            "default": "TCP"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/discriminator/x-zscaler-inline-mapping/HIFI_MTR/properties/protocol/allOf/[title=MonitorProtocol]",
+          "expect": {
+            "enum": [
+              "TCP",
+              "UDP",
+              "ICMP",
+              "ADAPTIVE",
+              "AUTO"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "probe-policy-outcomes": {
+      "kind": "semantic",
+      "title": "How probe traffic appears in ZIA logs and how a blocking policy shows in probe metrics",
+      "status": "open",
+      "detail": "Unverified legacy statements: synthetic probe traffic appears in ZIA logs as regular web requests (minus SSL inspection detail); a probe blocked by URL Filtering reports low availability; a Web probe to a URL blocked at SNI before decryption returns 0 availability. The help says only that non-SSL policies apply to Web probes and that availability depends on the HTTP response code; what a block page's response code yields is not stated.",
+      "blocks": "reading a probe's availability drop as a policy block or an application outage",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "cloud-path-service-edge": {
+      "kind": "semantic",
+      "title": "When a Cloud Path goes through a Public Service Edge",
+      "status": "open",
+      "former_ids": [
+        "zdx-20"
+      ],
+      "detail": "The help says a Cloud Path can show a direct path or one tunneled through a Public Service Edge. The legacy doc read the direct shape as traffic bypassed from ZIA and the tunneled shape as traffic forwarded through ZIA; whether the shape follows the device's forwarding, the probe configuration or something else is not documented.",
+      "blocks": "attributing latency to the Zscaler tunnel or the local network",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "cellular-noise": {
+      "kind": "semantic",
+      "title": "Whether Cloud Path results on cellular networks are less stable",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Cloud Path probes on mobile networks (LTE/5G) may show highly variable hop counts and latency as the cellular backbone reroutes; look at standard deviation, not absolute values.\"",
+      "blocks": "interpreting Cloud Path data from devices on cellular links",
+      "resolves_with": [
+        "operator-experience",
+        "lab-test"
+      ]
+    },
+    "adaptive-mode": {
+      "kind": "semantic",
+      "title": "What adaptive probing does and whether scores stay comparable",
+      "status": "open",
+      "former_ids": [
+        "zdx-42"
+      ],
+      "detail": "Unverified legacy statement: Adaptive Mode, referenced in related help articles, dynamically adjusts probing behavior. The contract's TRACERT and HIFI_MTR monitors accept an ADAPTIVE protocol; no captured source says what it changes or whether scores taken at different cadences are comparable.",
+      "blocks": "comparing scores of probes with different cadences or modes",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "managed-and-monitor-types": {
+      "kind": "semantic",
+      "title": "How Zscaler Managed probes and the contract's monitor types map to Web and Cloud Path probes",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Zscaler Hosted Probes are a separate probe type where Zscaler runs the probe on its own infrastructure rather than the customer's ZCC; useful for apps users don't actively access.\" The Probes page shows a Managed view of Zscaler Managed probes, and the configuration contract has collections for Zscaler Hosted Monitoring and End User Monitoring and four monitor types (WEB, TRACERT, TRACERT_V2, HIFI_MTR), while the help names two probe types.",
+      "blocks": "answers about where a managed probe runs and which metrics it yields",
+      "resolves_with": [
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1collections/get",
+          "expect": {
+            "description": "Get Collections for Zscaler Hosted Monitoring and End User Monitoring"
+          }
+        }
+      ]
+    },
+    "result-retention": {
+      "kind": "semantic",
+      "title": "How long probe results are kept and at what granularity",
+      "status": "open",
+      "former_ids": [
+        "zdx-41"
+      ],
+      "detail": "No captured source states how long probe results are retained or whether older data is aggregated to coarser granularity.",
+      "blocks": "answers about how far back probe data can be read",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "trusted-network-none": {
+      "kind": "semantic",
+      "title": "Whether probes run while the forwarding profile's action is None",
+      "status": "open",
+      "detail": "Unverified legacy statement: when a device is on a trusted network whose forwarding profile action is NONE, ZDX probes still run, because Client Connector's probe path is independent of the forwarding-profile branch, which is why ZDX can show data on networks where ZIA sees no traffic. Searched: the forwarding-profile and app-profile help captures (configuring-forwarding-profiles-zscaler-client-connector.json, configuring-zscaler-client-connector-app-profiles.json) and the other help captures that mention both ZDX and trusted networks; none says how probes behave under a None action.",
+      "blocks": "explaining ZDX data, or its absence, for devices on trusted networks",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "id": "zscaler-cellular.sims",
+  "title": "Zscaler SIMs and eSIMs: inventory fields, status versus connection, and the Inventory state",
+  "aliases": [
+    "zscaler sim status",
+    "sim connection inventory",
+    "esim inventory state",
+    "sim offline online",
+    "iccid imei imsi msisdn",
+    "sim stale connection"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.api.wire-notes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The SIMs page is the inventory of every Zscaler SIM provisioned to the organization."
+    },
+    {
+      "label": "Inventory.",
+      "text": "{{sim-kinds}} {{inventory-columns}}"
+    },
+    {
+      "label": "Status and connection.",
+      "text": "{{status-vs-connection}} {{inventory-state}} {{stale-connection}}"
+    },
+    {
+      "label": "Actions.",
+      "text": "{{bulk-actions}} {{per-sim-edits}} The API equivalents (SIM search, lock and status update) are in [[zscaler-cellular.api.wire-notes]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the SIM is Inactive (status) or Offline (connection): they are separate fields.",
+      "uses": [
+        "status-vs-connection"
+      ]
+    },
+    {
+      "do": "For an eSIM showing an unexpected connection state after being returned to inventory, whether its details were opened to refresh it.",
+      "uses": [
+        "stale-connection",
+        "inventory-state"
+      ]
+    }
+  ],
+  "claims": {
+    "sim-kinds": {
+      "statement": "Zscaler SIMs include physical SIMs and eSIMs, and are viewed and managed in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-sims.json",
+          "quotes": [
+            "A Zscaler SIM—both physical SIMs and eSIMs—serves as the gateway for a cellular-connected device to access the Zero Trust Exchange (ZTE).",
+            "You can view essential details and statuses, and manage Zscaler SIMs provisioned to your organization, in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "inventory-columns": {
+      "statement": "The SIMs page lists, per SIM, ICCID, EID (for eSIMs), IMEI, IMSI, MSISDN, IP address, form factor, device manufacturer, model and type, operating system, usage, status, country, tags and connection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-sims.json",
+          "quotes": [
+            "ICCID: The Integrated Circuit Card Identifier is a globally unique identifier assigned to each SIM.",
+            "EID: The Embedded Identity Document for the eSIM.",
+            "IMEI: The International Mobile Equipment Identity is a unique identifier for the mobile device associated with the SIM.",
+            "IMSI: The International Mobile Subscriber Identity is a unique number assigned to each mobile subscriber.",
+            "MSISDN: The Mobile Station International Subscriber Directory Number is the associated mobile number of the SIM, if applicable.",
+            "IP Address: The IP address assigned to the device using the SIM",
+            "Form Factor: The type of SIM, indicating whether it is a physical SIM or an eSIM.",
+            "Device Manufacturer: The name of the company that produces the device associated with the SIM.",
+            "Device Model: The full official identifier of the type of device associated with the SIM.",
+            "Device Type: The category of the device associated with the SIM (e.g., router, modem, and IoT gateway).",
+            "Operating System: The operating system running on the device associated with the SIM.",
+            "Usage: The amount of data consumed during the session (the duration between the start of the network connection and its termination), displayed in MB or GB.",
+            "Status: The operational state of the SIM, either Active (available for use) or Inactive (not in use).",
+            "Country: The country where the SIM is located.",
+            "Tags: The tags associated with the SIM.",
+            "Connection: The connectivity state of the SIM."
+          ]
+        }
+      ]
+    },
+    "status-vs-connection": {
+      "statement": "Status and connection are separate: status is Active (available for use) or Inactive (not in use), while connection is Online, Offline or Inventory (ready for assignment or awaiting profile registration; eSIMs only).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-sims.json",
+          "quotes": [
+            "Status: The operational state of the SIM, either Active (available for use) or Inactive (not in use).",
+            "Online: The SIM is connected to the network.",
+            "Offline: The SIM is disconnected from the network.",
+            "Inventory: The SIM is ready for assignment, or if already assigned, awaiting profile registration on a device. This option applies only to eSIMs."
+          ]
+        }
+      ]
+    },
+    "inventory-state": {
+      "statement": "Inventory applies only to eSIMs and means the eSIM is ready for assignment, or assigned and awaiting profile registration on a device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-sims.json",
+          "quotes": [
+            "Inventory: The SIM is ready for assignment, or if already assigned, awaiting profile registration on a device. This option applies only to eSIMs."
+          ]
+        }
+      ]
+    },
+    "stale-connection": {
+      "statement": "When an eSIM assigned to a user is released back to inventory, its connection state may not update on the SIMs page; viewing the eSIM's details refreshes it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-sims.json",
+          "quotes": [
+            "If an eSIM was originally assigned to a user and then released back to the inventory, the connection state might not be updated on the SIMs page. You can refresh the connection state by viewing the eSIM details."
+          ]
+        }
+      ]
+    },
+    "bulk-actions": {
+      "statement": "Status or IMEI can be updated for several selected SIMs at once, and the current view (with its filters) can be downloaded as CSV; the Total Usage figure covers only SIMs matching the applied filters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-sims.json",
+          "quotes": [
+            "Update SIM Status or IMEI for multiple SIMs. This option is displayed only when a SIM is selected.",
+            "Download the list of all SIMs and their details as a CSV file for the current view.",
+            "If filters are applied, the Total Usage field shows only the data across the SIMs that match the applied filters."
+          ]
+        }
+      ]
+    },
+    "per-sim-edits": {
+      "statement": "A single SIM's status, IMEI and tags can be edited, and its detailed information viewed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-sims.json",
+          "quotes": [
+            "Edit status, update the IMEI, or update tags for a particular SIM.",
+            "View detailed information for each SIM."
+          ]
+        }
+      ]
+    }
+  }
+}

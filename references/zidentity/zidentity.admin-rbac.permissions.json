@@ -1,0 +1,303 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.admin-rbac.permissions",
+  "title": "Authentication Service permission modules and levels, and the cross-module dependencies",
+  "aliases": [
+    "ZIdentity permission matrix",
+    "Authentication Service permissions",
+    "Restricted Full",
+    "Restricted View",
+    "Restrictive View",
+    "admin cannot see sign-on policy",
+    "admin cannot change user email",
+    "admin cannot assign roles",
+    "ZIdentity module permissions"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zidentity.admin-rbac"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.entitlements"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Each Authentication Service role sets a permission level per module, and some modules only work when another module is granted too. {{multiple-roles}}"
+    },
+    {
+      "label": "Modules and levels.",
+      "text": "{{modules}} {{levels}}"
+    },
+    {
+      "heading": "Dependencies between modules"
+    },
+    {
+      "items": [
+        {
+          "label": "Sign-on policy.",
+          "text": "{{signon-needs-ip-locations}}"
+        },
+        {
+          "label": "User credentials.",
+          "text": "{{credentials-need-users}}"
+        },
+        {
+          "label": "Roles.",
+          "text": "{{roles-module}}"
+        },
+        {
+          "label": "Administrative entitlements.",
+          "text": "{{admin-entitlements-role-assignment}}"
+        }
+      ]
+    },
+    {
+      "heading": "What some modules cover"
+    },
+    {
+      "items": [
+        {
+          "label": "Users and Groups.",
+          "text": "{{users-and-groups-full}}"
+        },
+        {
+          "label": "Authentication Session.",
+          "text": "{{authentication-session}}"
+        },
+        {
+          "label": "API Clients & Resources.",
+          "text": "{{api-clients-module}} The API Client Access Policy itself is in [[zidentity.api-clients.access-policy]]."
+        },
+        {
+          "label": "Audit Logs.",
+          "text": "{{audit-logs-view-only}}"
+        }
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether every role the admin holds was considered, since the effective level of each permission is the highest across them.",
+      "uses": [
+        "multiple-roles"
+      ]
+    },
+    {
+      "do": "For an admin who cannot open the sign-on policy, whether they hold IP Locations Full or View.",
+      "uses": [
+        "signon-needs-ip-locations"
+      ]
+    },
+    {
+      "do": "For an admin who cannot change a user's credentials or emails, whether they also hold Users and Groups View or Full (Full for the email addresses).",
+      "uses": [
+        "credentials-need-users"
+      ]
+    },
+    {
+      "do": "For an admin who cannot assign roles on Administrative Entitlements, which level they hold there and which Roles level goes with it.",
+      "uses": [
+        "admin-entitlements-role-assignment"
+      ]
+    }
+  ],
+  "claims": {
+    "multiple-roles": {
+      "statement": "A user can hold one or several Authentication Service roles; with several, the permission levels are hierarchical and the effective level of each permission is the highest across the user's roles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-roles-and-permissions.json",
+          "quotes": [
+            "Authentication Service (formerly ZIdentity) provides a set of predefined roles and permissions that you can assign to users and groups.",
+            "You can assign a single or multiple roles to users. When a user is assigned multiple roles, the permission levels are hierarchical and the effective level of each permission is the highest from the user’s set of roles."
+          ]
+        }
+      ]
+    },
+    "modules": {
+      "statement": "The modules in the Admin Roles and Permissions matrix are Admin Sign on Policy, Authentication Methods, Users and Groups, User Credentials, Roles, External Identities, IP Locations & Groups, Authentication Session, Administrative Entitlements, Service Entitlements, Audit Logs, Guest Domain, Remote Assistance, Branding, API Clients & Resources, Executive Insights, Token Validators and Log Streaming.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-roles-and-permissions.json",
+          "quotes": [
+            "| Authentication Service Modules | Permission | Details |",
+            "| Admin Sign on Policy | Full |",
+            "| Authentication Methods | Full |",
+            "| Users and Groups | Full |",
+            "| User Credentials | Full |",
+            "| Roles | Full |",
+            "| External Identities | Full |",
+            "| IP Locations & Groups | Full |",
+            "| Authentication Session | Full |",
+            "| Administrative Entitlements | Full |",
+            "| Service Entitlements | Full |",
+            "| Audit Logs | View Only |",
+            "| Guest Domain | Full |",
+            "| Remote Assistance | Full |",
+            "| Branding | Full |",
+            "| API Clients & Resources | Full |",
+            "| Executive Insights | Full |",
+            "| Token Validators | Full |",
+            "| Log Streaming | Full |"
+          ]
+        }
+      ]
+    },
+    "levels": {
+      "statement": "The levels used in the matrix are Full, Restricted Full (Administrative Entitlements and API Clients & Resources), View Only and None, and the External Identities row also describes a Restricted View level that shows each IdP's configuration except the Bearer Token. The page's own example of combining roles names a Restrictive View level for External Identities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-roles-and-permissions.json",
+          "quotes": [
+            "| Admin Sign on Policy | Full | View sign-on policy.",
+            "|  | View Only | View sign-on policy and rules.",
+            "|  | None | Not allowed to view the contents of sign-on policy. |",
+            "|  | View Only | View external identities (both primary and secondary IdPs).View all configurations per IdP.Restricted ViewView external identities (both primary and secondary IdPs).View configuration per IdP except for Bearer Token.",
+            "|  | None | Not allowed to access or view external identities. |",
+            "one role has an External Identities permission of Restrictive View"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "admin-roles-and-permissions.json",
+          "after": "| Administrative Entitlements | Full |",
+          "quotes": [
+            "|  | Restricted Full | Access, view, and search administrative entitlements."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "admin-roles-and-permissions.json",
+          "after": "| API Clients & Resources | Full |",
+          "quotes": [
+            "|  | Restricted Full | Add API ClientsEdit or delete API Clients"
+          ]
+        }
+      ]
+    },
+    "signon-needs-ip-locations": {
+      "statement": "An admin without IP Locations Full or View permission is not allowed to access the sign-on policy, even with Admin Sign on Policy Full or View Only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-roles-and-permissions.json",
+          "quotes": [
+            "| Admin Sign on Policy | Full | View sign-on policy.Edit all configurations in sign-on policy.Exception: If the admin does not have the permission for “IP Locations - Full” or “IP Locations - View”, they are not allowed to access sign-on policy.",
+            "|  | View Only | View sign-on policy and rules.Exception: If the admin does not have the permission for “IP Locations - Full” or “IP Locations - View” they are not allowed to access sign-on policy."
+          ]
+        }
+      ]
+    },
+    "credentials-need-users": {
+      "statement": "User Credentials permissions (the users' security settings) apply only when the admin also has Users and Groups View or Full, and an admin without Users and Groups Full cannot change a user's primary and secondary email addresses even though they are used as credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-roles-and-permissions.json",
+          "quotes": [
+            "Access, view, and change security settings (all attributes and settings) only when admins have “Users and Groups - View” or “Users and Groups - Full” permissions.",
+            "Admins without the \"Users and Groups -Full\" permission cannot change a user's primary and secondary email address even though they are used as credentials."
+          ]
+        }
+      ]
+    },
+    "roles-module": {
+      "statement": "Roles Full allows viewing, adding, editing and deleting roles, and admins with Users and Groups Full or View permission can add or edit roles; Roles View Only shows roles and their configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-roles-and-permissions.json",
+          "quotes": [
+            "| Roles | Full | View, add, edit, and delete roles.Admins with “Users and Groups - Full or View” permission can add or edit roles. |",
+            "|  | View Only | View roles.View all configurations for roles. |"
+          ]
+        }
+      ]
+    },
+    "admin-entitlements-role-assignment": {
+      "statement": "At Administrative Entitlements Full an admin assigns and removes users and groups, and can assign roles with Roles Full or View Only. At Restricted Full an admin can assign roles only with Roles Full (not with View Only), and can assign or remove users and groups only in tenants where they have permission to manage administrators.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-roles-and-permissions.json",
+          "quotes": [
+            "Assign users, user groups.Delete user assignments and user group assignments.Admin with \"Roles - Full\" or \"Roles - View Only\" permission can assign roles",
+            "Admin with \"Roles - Full\" permission can assign roles.Admin with \"Roles - View Only\" permission cannot assign roles.",
+            "If an admin has permissions in individual tenants to manage administrators, they can:Assign users and user groups.Remove user assignments and user group assignments."
+          ]
+        }
+      ]
+    },
+    "users-and-groups-full": {
+      "statement": "Users and Groups Full covers viewing users and groups; adding, editing, deleting, activating and deactivating users; adding, editing and deleting groups; importing group details from CSV; renaming groups and assigning users to them; managing attributes; and submitting a Zscaler Support ticket from the Admin Console. View Only shows users, groups and their attributes and also allows a support ticket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-roles-and-permissions.json",
+          "quotes": [
+            "| Users and Groups | Full | View users and user groups.Add, edit, delete, activate, deactivate user.Add, edit, delete group.Import group details from a CSV file.Change group name, assign users to group.Add, edit, delete attribute.Submit Zscaler Support ticket from within the Zscaler Admin Console. |",
+            "|  | View Only | View users, user groups, user attributes, and group attributes.Submit Zscaler Support ticket from within the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "authentication-session": {
+      "statement": "The Authentication Session module covers the session timeout duration, the authentication session for service enrollment, and forced authentication for Private Access reauthentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-roles-and-permissions.json",
+          "quotes": [
+            "View and change session timeout duration.View and change authentication session for service enrollment.View and change force authentication for private access reauthentication."
+          ]
+        }
+      ]
+    },
+    "api-clients-module": {
+      "statement": "API Clients & Resources Full covers adding, editing and deleting API clients and the API Client Access Policy, managing resources and revoking access tokens. Restricted Full allows adding, editing and deleting API clients, but assigning and removing resources only for the Zscaler services the admin or API client is permitted for (for example only Internet & SaaS resources).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-roles-and-permissions.json",
+          "quotes": [
+            "| API Clients & Resources | Full | Add API Clients and API Client Access PolicyEdit or Delete API Clients and API Client Access PolicyManage ResourcesRevoke Access Tokens |",
+            "|  | Restricted Full | Add API ClientsEdit or delete API ClientsAssign resources to the permitted Zscaler service",
+            "Remove resource assignment of a permitted Zscaler service",
+            "Assign resources to the permitted Zscaler service (e.g. if the admin or API Client has permission to the Internet & SaaS (ZIA) service, then they can only assign Internet & SaaS resources in Authentication Service)"
+          ]
+        }
+      ]
+    },
+    "audit-logs-view-only": {
+      "statement": "Audit Logs has only View Only (view audit logs) and None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "admin-roles-and-permissions.json",
+          "quotes": [
+            "| Audit Logs | View Only | View audit logs |",
+            "|  | None | Not allowed to view audit logs |",
+            "Not allowed to view audit logs |\n| Guest Domain | Full |"
+          ]
+        }
+      ]
+    }
+  }
+}

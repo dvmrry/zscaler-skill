@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "id": "zdx.sdk-python.legacy-client",
+  "title": "The Python SDK's legacy ZDX client: credentials, host and paths, token caching, and what happens when the token expires",
+  "aliases": [
+    "LegacyZDXClient",
+    "LegacyZDXClientHelper",
+    "ZDX_CLIENT_ID",
+    "ZDX_CLIENT_SECRET",
+    "ZDX_CLOUD",
+    "python zdx legacy auth",
+    "python zdx 401 after an hour",
+    "zdxbeta"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-python"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.api.hosts-and-auth"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-go.legacy-client"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Python SDK's legacy ZDX client signs in with a ZDX API key against the direct ZDX host instead of using a ZIdentity OneAPI client. It is the one Python ZDX path whose host, paths and token handling differ from OneAPI."
+    },
+    {
+      "label": "Configuration.",
+      "text": "{{env-and-host}} {{partner-header}}"
+    },
+    {
+      "label": "Sign-in.",
+      "text": "{{token-request}}"
+    },
+    {
+      "label": "Paths.",
+      "text": "{{prefix-stripped}}"
+    },
+    {
+      "label": "Token lifetime.",
+      "text": "{{token-cache}} {{no-reauth}} {{stale-token}}"
+    },
+    {
+      "label": "Rate-limit headers.",
+      "text": "{{second-headers}} Retries for API calls follow the executor's general rule, [[zia.api.rate-limits:sdk-wait-from-headers]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a long-running Python process on the legacy ZDX client started getting 401 responses about an hour after its first sign-in; a new process signs in again.",
+      "uses": [
+        "token-cache",
+        "no-reauth",
+        "stale-token"
+      ]
+    }
+  ],
+  "claims": {
+    "env-and-host": {
+      "statement": "The legacy ZDX client takes `key_id` and `key_secret` (or `ZDX_CLIENT_ID` and `ZDX_CLIENT_SECRET`) and `ZDX_CLOUD` (default `zdxcloud`; `zdxbeta` is the other documented value), refuses to start without both credentials, and targets the host `https://api.{self._env_cloud}.net`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "client_id = config.get(\"key_id\", os.getenv(\"ZDX_CLIENT_ID\"))",
+            "client_secret = config.get(\"key_secret\", os.getenv(\"ZDX_CLIENT_SECRET\"))",
+            "cloud = config.get(\"cloud\", os.getenv(\"ZDX_CLOUD\", \"zdxcloud\"))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/legacy.py",
+          "quotes": [
+            "* ``zdxbeta``",
+            "self.url = f\"https://api.{self._env_cloud}.net\"",
+            "raise ValueError(\"Both client_id and client_secret are required for ZDX authentication.\")"
+          ]
+        }
+      ]
+    },
+    "partner-header": {
+      "statement": "A partner ID from the `partnerId` setting or `ZSCALER_PARTNER_ID` is added to every request as the `x-partner-id` header.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/legacy.py",
+          "quotes": [
+            "self.partner_id = partner_id or os.getenv(\"ZSCALER_PARTNER_ID\")",
+            "\"partnerId\": self.partner_id or \"\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "self._default_headers[\"x-partner-id\"] = self.partner_id"
+          ]
+        }
+      ]
+    },
+    "token-request": {
+      "statement": "It signs in by posting `key_id`, a `key_secret` equal to the hex SHA-256 of the client secret, a colon and the current epoch time, and that `timestamp`, to the host's `/v1/oauth/token`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/legacy.py",
+          "quotes": [
+            "api_secret_format = f\"{self._client_secret}:{epoch_time}\"",
+            "api_secret_hash = sha256(api_secret_format.encode(\"utf-8\")).hexdigest()",
+            "\"key_id\": self._client_id,",
+            "\"key_secret\": api_secret_hash,",
+            "\"timestamp\": epoch_time,",
+            "token_url = f\"{self.url}/v1/oauth/token\""
+          ]
+        }
+      ]
+    },
+    "prefix-stripped": {
+      "statement": "On the legacy client the request executor strips the leading `/zdx` from each endpoint (the services build `/zdx/v1` paths) and joins the rest to the host, so data calls go to the host under `/v1`, the same prefix as the sign-in.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def remove_oneapi_endpoint_prefix(self, endpoint: str) -> str:",
+          "quotes": [
+            "\"/zdx\", \"/zwa\",",
+            "return endpoint[len(prefix) :]"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def create_request(",
+          "quotes": [
+            "endpoint = self.remove_oneapi_endpoint_prefix(endpoint)",
+            "base_url = self.zdx_legacy_client.get_base_url(endpoint)",
+            "final_url = f\"{base_url}/{endpoint.lstrip('/')}\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/users.py",
+          "quotes": [
+            "self._zdx_base_endpoint = \"/zdx/v1\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/legacy.py",
+          "quotes": [
+            "token_url = f\"{self.url}/v1/oauth/token\"",
+            "def get_base_url(self, endpoint): return self.url"
+          ]
+        }
+      ]
+    },
+    "token-cache": {
+      "statement": "The client keeps tokens in a module-level `_token_cache` keyed by client ID and secret; its constructor builds the session, which calls `create_token`, and `create_token` reuses a cached token whenever one exists for the key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/legacy.py",
+          "quotes": [
+            "_token_cache = {}",
+            "cache_key = f\"{self._client_id}:{self._client_secret}\"",
+            "self.session = self._build_session()",
+            "token_data = self.create_token()",
+            "if cache_key in _token_cache:",
+            "logger.info(\"Using cached ZDX token.\")",
+            "token_data = self.create_token()"
+          ]
+        }
+      ]
+    },
+    "no-reauth": {
+      "statement": "The request executor creates no OAuth handler for legacy clients (a ZDX legacy client makes the executor a legacy one), and on a 401 it re-authenticates only when one exists, so a 401 on the legacy ZDX client is returned as an error ('401 Unauthorized - token refresh attempts exhausted or OAuth not available.').",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "or zdx_legacy_client is not None",
+            "# OAuth2 setup - only for OneAPI clients, not legacy clients",
+            "if not self.use_legacy_client: self._oauth = OAuth(self, self._config) self._access_token = None else: self._oauth = None",
+            "if attempts < max_retries and self._oauth is not None:",
+            "logger.error(\"401 Unauthorized - token refresh attempts exhausted or OAuth not available.\")",
+            "Exception(\"401 Unauthorized - token refresh attempts exhausted or OAuth not available.\"),"
+          ]
+        }
+      ]
+    },
+    "stale-token": {
+      "statement": "So once the cached token expires (ZDX tokens last 3,600 seconds), every request from that process, including from newly built legacy clients with the same credentials, gets a 401 until the process restarts.",
+      "tier": "B",
+      "derived_from": [
+        "token-cache",
+        "no-reauth",
+        "shared.legacy-api.auth-models:zdx-prereqs"
+      ],
+      "conditions": "Read from the code at the pin: `create_token` is called only from `_build_session`, and the cache check does not look at the token's age. Not observed against a tenant.",
+      "upstream": [
+        {
+          "status": "unfiled"
+        }
+      ]
+    },
+    "second-headers": {
+      "statement": "The client reads `X-Ratelimit-Remaining-Second` only on a 429 to its sign-in and in its JWKS fetch; its general rate-limited GET helper, which also reads `X-Ratelimit-Limit-Second`, is defined but not called.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/legacy.py",
+          "quotes": [
+            "def _get_with_rate_limiting(self, session, url):",
+            "limit = response.headers.get(\"X-Ratelimit-Limit-Second\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/legacy.py",
+          "after": "token_url = f\"{self.url}/v1/oauth/token\"",
+          "quotes": [
+            "if response.status_code == 429:",
+            "remaining = response.headers.get(\"X-Ratelimit-Remaining-Second\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/legacy.py",
+          "after": "jwks_url = f\"{self.url}/v1/oauth/jwks\"",
+          "quotes": [
+            "remaining = response.headers.get(\"X-Ratelimit-Remaining-Second\")"
+          ]
+        }
+      ],
+      "derived_from": [
+        "token-request"
+      ],
+      "conditions": "A search of `zscaler/` at the pin finds no call to `_get_with_rate_limiting`; data requests go through the client's `send`, which reads no rate-limit header."
+    }
+  }
+}

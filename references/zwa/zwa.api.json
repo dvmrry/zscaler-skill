@@ -1,0 +1,400 @@
+{
+  "schema_version": 1,
+  "id": "zwa.api",
+  "title": "The Workflow Automation API from a client's side: hosts, the Python and Go clients, and what neither SDK covers",
+  "aliases": [
+    "zwa api",
+    "workflow automation api",
+    "zsworkflow",
+    "client.zwa",
+    "LegacyZWAClient",
+    "ZWA_API_KEY_ID",
+    "ZWA_CLIENT_ID",
+    "zwa sdk"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.api.incidents-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.legacy-api.auth-models"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.retries"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Methods and paths of both SDKs are generated: `node scripts/kb.mjs surface zwa`; no OpenAPI capture of this API is in the generated layer, so the reference is the help API page. Signing in with an API key is in [[shared.legacy-api.auth-models:wa-token]], [[shared.legacy-api.auth-models:wa-key-expiry]] and [[shared.legacy-api.auth-models:wa-errors]]."
+    },
+    {
+      "heading": "Python"
+    },
+    {
+      "text": "{{python-services}} {{python-oneapi-paths}} {{python-legacy-client}} {{python-legacy-accessor}} {{python-docstring-accessor}} {{python-docstring-accessor-broken}}"
+    },
+    {
+      "heading": "Go"
+    },
+    {
+      "text": "{{go-client}} {{go-legacy-only}} {{env-names-differ}} {{go-env-typo}}"
+    },
+    {
+      "text": "The Go client's 5xx retry decision is shared with the other products: [[shared.sdk-go.retries:shared-5xx-classifier]]. {{go-exhaustion-returns-response}}"
+    },
+    {
+      "heading": "Coverage"
+    },
+    {
+      "text": "{{uncovered-operations}} Incident and audit wire behavior is in [[zwa.api.incidents-wire]] and [[zwa.audit-logs]]. Which credentials and host a tenant should use is open {{gap:auth-boundary}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the Python client is in legacy mode, which decides between the OneAPI path with the /zwa prefix and the legacy Workflow Automation host.",
+      "uses": [
+        "python-oneapi-paths",
+        "python-legacy-accessor",
+        "auth-boundary"
+      ]
+    },
+    {
+      "do": "Whether the environment variables set match the SDK in use, since Go and Python read different names.",
+      "uses": [
+        "env-names-differ"
+      ]
+    }
+  ],
+  "claims": {
+    "python-services": {
+      "statement": "The Python SDK's `ZWAService` exposes two services, `audit_logs` and `dlp_incidents`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zwa/zwa_service.py",
+          "quotes": [
+            "class ZWAService:",
+            "def audit_logs(self) -> AuditLogsAPI:",
+            "def dlp_incidents(self) -> DLPIncidentsAPI:"
+          ]
+        }
+      ],
+      "conditions": "The class body at the pin defines __init__ and these two properties only."
+    },
+    "python-oneapi-paths": {
+      "statement": "The Python ZWA modules build paths under `/zwa/dlp/v1`; in legacy mode the request executor strips the `/zwa` prefix and sends the request to the legacy helper's base URL, `https://api.{self._env_cloud}.zsworkflow.net`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zwa/dlp_incidents.py",
+          "quotes": [
+            "self._zwa_base_endpoint = \"/zwa/dlp/v1\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "endpoint = self.remove_oneapi_endpoint_prefix(endpoint)",
+            "base_url = self.zwa_legacy_client.get_base_url(endpoint)",
+            "\"/zdx\", \"/zwa\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zwa/legacy.py",
+          "quotes": [
+            "self.url = f\"https://api.{self._env_cloud}.zsworkflow.net\"",
+            "return self.url"
+          ],
+          "after": "def __init__("
+        }
+      ]
+    },
+    "python-legacy-client": {
+      "statement": "Python's `LegacyZWAClient` takes `key_id`, `key_secret` and `cloud` from its configuration or from `ZWA_CLIENT_ID`, `ZWA_CLIENT_SECRET` and `ZWA_CLOUD` (default `us1`) and passes them to its helper, which sets its URL to the `zsworkflow.net` API host for that cloud and posts the key ID and secret to `/v1/auth/api-key/token` on it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "class LegacyZWAClient(Client):",
+            "key_id = config.get(\"key_id\", os.getenv(\"ZWA_CLIENT_ID\"))",
+            "key_secret = config.get(\"key_secret\", os.getenv(\"ZWA_CLIENT_SECRET\"))",
+            "cloud = config.get(\"cloud\", os.getenv(\"ZWA_CLOUD\", \"us1\"))",
+            "legacy_helper = LegacyZWAClientHelper( key_id=key_id, key_secret=key_secret, cloud=cloud,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zwa/legacy.py",
+          "quotes": [
+            "self.url = f\"https://api.{self._env_cloud}.zsworkflow.net\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zwa/legacy.py",
+          "after": "def create_token(self):",
+          "quotes": [
+            "\"key_id\": self._key_id,",
+            "\"key_secret\": self._key_secret,",
+            "token_url = f\"{self.url}/v1/auth/api-key/token\"",
+            "response = requests.post( token_url, json=payload,"
+          ]
+        }
+      ]
+    },
+    "python-legacy-accessor": {
+      "statement": "With a legacy client, `client.zwa` returns the legacy helper itself, which has its own `audit_logs` and `dlp_incidents` properties; otherwise it returns a `ZWAService`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "return self._require_legacy_client(\"ZWA\", self.zwa_legacy_client)",
+            "self._zwa = ZWAService(self)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zwa/legacy.py",
+          "quotes": [
+            "def audit_logs(self) -> \"AuditLogsAPI\":",
+            "def dlp_incidents(self) -> \"DLPIncidentsAPI\":"
+          ]
+        }
+      ]
+    },
+    "python-docstring-accessor": {
+      "statement": "The docstring examples of `audit_logs` and `dlp_incident_search` call `client.zwa.incident_search`, while `ZWAService` defines the properties `audit_logs` and `dlp_incidents`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zwa/audit_logs.py",
+          "after": "Perform an audit log search with a severity filter:",
+          "quotes": [
+            "search, _, error = client.zwa.incident_search.audit_logs("
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zwa/audit_logs.py",
+          "quotes": [
+            "Examples: Perform an audit log search with a severity filter:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zwa/dlp_incidents.py",
+          "quotes": [
+            "Examples: Perform an incident search with a severity filter:",
+            "search, _, error = client.zwa.incident_search.dlp_incident_search("
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zwa/zwa_service.py",
+          "quotes": [
+            "class ZWAService:",
+            "@property def audit_logs(self) -> AuditLogsAPI:",
+            "@property def dlp_incidents(self) -> DLPIncidentsAPI:"
+          ]
+        }
+      ]
+    },
+    "python-docstring-accessor-broken": {
+      "statement": "So `incident_search` is not a `ZWAService` property and the docstring examples fail as written; the methods are reached through `client.zwa.audit_logs` and `client.zwa.dlp_incidents`.",
+      "tier": "B",
+      "derived_from": [
+        "python-docstring-accessor"
+      ],
+      "conditions": "Read from zscaler/zwa/zwa_service.py at the pin: the class defines only `__init__` and the two quoted properties. The failing call was not run."
+    },
+    "go-client": {
+      "statement": "The Go ZWA services take a `zwa.Client`, configured from `ZWA_API_KEY_ID`, `ZWA_API_SECRET` and `ZWA_CLOUD`, whose base URL is `https://api.%s.zsworkflow.net` for the configured cloud or `https://api.us1.zsworkflow.net` when none is set; it signs in at `/v1/auth/api-key/token` on that base.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zwa/services/service.go",
+          "quotes": [
+            "Client *zwa.Client"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zwa/v2_config.go",
+          "quotes": [
+            "ZWA_API_KEY_ID = \"ZWA_API_KEY_ID\"",
+            "ZWA_API_SECRET = \"ZWA_API_SECRET\"",
+            "envconfig:\"ZWA_CLOUD\"",
+            "if cfg.ZWA.Client.ZWACloud != \"\" {",
+            "rawBaseURL = fmt.Sprintf(\"https://api.%s.zsworkflow.net\", cfg.ZWA.Client.ZWACloud)",
+            "rawBaseURL = \"https://api.us1.zsworkflow.net\" // Default to \"us1\" if no cloud is specified"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zwa/v2_client.go",
+          "quotes": [
+            "authURL := fmt.Sprintf(\"%s/v1/auth/api-key/token\", cfg.BaseURL.String())"
+          ]
+        }
+      ]
+    },
+    "go-legacy-only": {
+      "statement": "So the Go SDK reaches Workflow Automation only through the API-key client on the Workflow Automation host; it has no OneAPI path for ZWA, unlike Python.",
+      "tier": "B",
+      "derived_from": [
+        "go-client",
+        "python-oneapi-paths"
+      ],
+      "conditions": "Rests on a search of the Go SDK at its pin: outside zscaler/zwa, only zscaler/jmespath.go mentions zwa, and the ZWA service struct holds only the zwa.Client."
+    },
+    "env-names-differ": {
+      "statement": "The two SDKs read different environment variables for the same API key: the Go client reads `ZWA_API_KEY_ID` and `ZWA_API_SECRET`, Python's legacy client `ZWA_CLIENT_ID` and `ZWA_CLIENT_SECRET`; both read `ZWA_CLOUD`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zwa/v2_config.go",
+          "quotes": [
+            "envconfig:\"ZWA_API_KEY_ID\"",
+            "envconfig:\"ZWA_API_SECRET\"",
+            "envconfig:\"ZWA_CLOUD\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "os.getenv(\"ZWA_CLIENT_ID\")",
+            "os.getenv(\"ZWA_CLIENT_SECRET\")",
+            "os.getenv(\"ZWA_CLOUD\", \"us1\")"
+          ],
+          "after": "class LegacyZWAClient(Client):"
+        }
+      ]
+    },
+    "go-env-typo": {
+      "statement": "The Go config's environment tag for the rate-limit maximum wait is `ZZWA_CLIENT_RATE_LIMIT_MAX_WAIT`, with a doubled Z, while its neighbours, such as `ZWA_CLIENT_RATE_LIMIT_MIN_WAIT`, use the `ZWA_` prefix.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zwa/v2_config.go",
+          "quotes": [
+            "envconfig:\"ZZWA_CLIENT_RATE_LIMIT_MAX_WAIT\"",
+            "envconfig:\"ZWA_CLIENT_RATE_LIMIT_MIN_WAIT\""
+          ]
+        }
+      ]
+    },
+    "go-exhaustion-returns-response": {
+      "statement": "When the Go ZWA client's retry budget runs out while the policy still wants to retry, its error handler returns the final response instead of retryablehttp's bare give-up error, so the request layer can build a structured error from the API's code and message; a transport error is still returned as an error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zwa/v2_client.go",
+          "quotes": [
+            "When the retry budget is exhausted, retryablehttp's default behaviour is to",
+            "drain the body and return a bare \"giving up after N attempt(s)\" error with a",
+            "response back instead so the request layer can build a structured",
+            "errorx.ErrorResponse carrying the API code and message."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zwa/v2_client.go",
+          "after": "retryableClient.ErrorHandler = func(resp *http.Response, err error, numTries int) (*http.Response, error) {",
+          "quotes": [
+            "// err is nil only when the retry budget ran out while CheckRetry still",
+            "// Any non-nil err is a genuine failure (transport error, cancelled or",
+            "if err == nil && resp != nil {",
+            "return resp, nil",
+            "return nil, err"
+          ]
+        }
+      ]
+    },
+    "uncovered-operations": {
+      "statement": "The API reference also documents releasing quarantined emails and reading the release status, importing CSV user attributes and downloading them, and a v2 triggers path; neither SDK calls any of them.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1incidents~1{dlpIncidentId}~1quarantine~1release/post",
+          "expect": {
+            "operationId": "releaseQuarantinedEmail",
+            "description": "Releases quarantined emails to specified recipients or all recipients for the DLP incident. This endpoint accepts a release request and processes it asynchronously and can mark an incident as a false positive if applicable."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1incidents~1{dlpIncidentId}~1quarantine~1status/get",
+          "expect": {
+            "operationId": "getRecipientStatus"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1csv-user-data~1import/post",
+          "expect": {
+            "operationId": "importCsvUserData",
+            "description": "Imports the end user attributes as a CSV file. Only a valid CSV file that is constructed based on one of the CSV template versions and the CSV template instructions can be imported."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1csv-user-data~1{csv_user_data_uuid}~1download/get",
+          "expect": {
+            "operationId": "getCsvUserDataDownloadUrl"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v2~1incidents~1{dlpIncidentId}~1triggers/get",
+          "expect": {
+            "operationId": "getDLPIncidentTriggerV2"
+          }
+        }
+      ],
+      "conditions": "Compared against the Python dlp_incidents and audit_logs modules and the Go dlp_incidents and customeraudit packages at their pins, whose paths are all under /dlp/v1/incidents and /dlp/v1/customer/audit."
+    }
+  },
+  "gaps": {
+    "auth-boundary": {
+      "kind": "semantic",
+      "status": "open",
+      "former_ids": [
+        "zwa-04"
+      ],
+      "title": "Which tenants use OneAPI and which use the Workflow Automation API key for ZWA",
+      "detail": "Python's OneAPI client routes /zwa paths through the OneAPI gateway with OAuth; Python's legacy client and the Go client use an API key against the Workflow Automation host, which is the only path the help documents. No source states which tenants can use the OneAPI path, or whether the two return the same data.",
+      "blocks": "choosing credentials and host for a Workflow Automation integration",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

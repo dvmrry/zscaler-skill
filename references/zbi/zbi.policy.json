@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "id": "zbi.policy",
+  "title": "What sends traffic to Cloud Browser: Internet & SaaS rules, Smart Isolation and the Private Access isolation policy",
+  "aliases": [
+    "isolate action",
+    "browser isolation policy",
+    "how to isolate traffic",
+    "zbi policy integration",
+    "cloud browser configuration",
+    "isolate rule not working",
+    "isolation prerequisites",
+    "enable cloud browser"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zbi.smart-isolation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.private-access-isolation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.isolation-profiles"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.url-filtering.actions"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.bypass-impact"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zero Trust Browser has no policy engine of its own in the captured sources: other products' rules send traffic to it, each naming an isolation profile. {{enable-prereqs}} {{policy-steps}}"
+    },
+    {
+      "heading": "Internet & SaaS"
+    },
+    {
+      "text": "URL Filtering's Isolate action: [[zia.url-filtering.actions:isolate-needs-zbi]], with the provider's checks on such a rule in [[zia.terraform.url-filtering-rules:isolate-validation]]. Cloud App Control's Isolate actions and their restriction: [[zia.cloud-app-control.actions:console-actions]], [[zia.cloud-app-control.actions:isolate-not-mixed]]. The Device Groups criterion has a Cloud Browser Isolation choice: [[zia.iot.policy-use:iot-device-group]]."
+    },
+    {
+      "text": "AI/ML-driven isolation of suspicious sites is in [[zbi.smart-isolation]]. Whether a manual Isolate rule needs SSL/TLS inspection on HTTPS is partly answered {{gap:manual-isolate-ssl}}."
+    },
+    {
+      "heading": "Private Access"
+    },
+    {
+      "text": "Private application requests are sent to isolation by the isolation policy, which also needs an access policy: [[zbi.private-access-isolation]]."
+    },
+    {
+      "heading": "Profiles and subscription"
+    },
+    {
+      "text": "The profile objects every rule names are in [[zbi.isolation-profiles]]; a tenant whose subscription covers only the Miscellaneous & Unknown category gets a fixed profile and rule, in [[zbi.misc-unknown-subscription]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Cloud Browser is enabled for the organization and an isolation profile exists for the rule to name.",
+      "uses": [
+        "enable-prereqs",
+        "zbi.isolation-profiles:default-profiles"
+      ]
+    },
+    {
+      "do": "Whether HTTPS traffic meant for isolation is decrypted, or matched a Do Not Inspect rule first.",
+      "uses": [
+        "manual-isolate-ssl",
+        "zia.ssl-inspection.bypass-impact:dependent-features"
+      ]
+    }
+  ],
+  "claims": {
+    "enable-prereqs": {
+      "statement": "The Cloud Browser configuration guide's prerequisites are access to an Internet & SaaS or Private Access tenant, a Zero Trust Browser subscription, supporting Private Access infrastructure such as App Connector, and an identity provider with conditional access capabilities; Cloud Browser is enabled for an organization by contacting Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "step-step-configuration-guide-cloud-browser.json",
+          "quotes": [
+            "Access to an Internet & SaaS or a Private Access tenant.",
+            "A subscription to Zero Trust Browser.",
+            "Supporting Private Access infrastructure (e.g., App Connector or Application Access).",
+            "An identity provider (IdP) with conditional access capabilities (e.g., IP restrictions or context-aware policy).",
+            "Contact Zscaler Support to get Cloud Browser enabled for your organization."
+          ]
+        }
+      ]
+    },
+    "policy-steps": {
+      "statement": "After creating isolation profiles, the guide maps policies to them: for Internet & SaaS, configuring Internet & SaaS for Cloud Browser, the Cloud App Control policy, the Smart Browser Isolation policy and the Sandbox integration; for Private Access, learning about the isolation policy, configuring isolation policies, the access policy for Cloud Browser and secure SaaS access from unmanaged devices through the User Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "step-step-configuration-guide-cloud-browser.json",
+          "quotes": [
+            "Configure policies to map to the isolation profiles:",
+            "Configure Internet & SaaS for Cloud Browser.",
+            "Configure the cloud app control policy.",
+            "Configure the Smart Browser Isolation policy.",
+            "Configure the Sandbox integration with Cloud Browser.",
+            "Learn about the isolation policy.",
+            "Configure isolation policies.",
+            "Configure the access policy for Cloud Browser.",
+            "Configure secure SaaS access from unmanaged devices via the User Portal."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "manual-isolate-ssl": {
+      "kind": "semantic",
+      "status": "partial",
+      "former_ids": [
+        "zbi-01"
+      ],
+      "title": "Whether a manual URL Filtering Isolate rule needs SSL/TLS inspection for HTTPS",
+      "about": [
+        "zia.ssl-inspection.bypass-impact:dependent-features",
+        "zbi.smart-isolation:purpose"
+      ],
+      "detail": "Smart Browser Isolation decrypts suspicious sites through SSL/TLS Inspection, and the SSL/TLS inspection guide lists Isolation among the features that need decrypted traffic to work on encrypted transactions. No source states what a manual URL Filtering or Cloud App Control Isolate rule does with HTTPS traffic that matched a Do Not Inspect rule: whether the redirect still happens on the domain, or the rule does not fire.",
+      "blocks": "saying whether an Isolate rule failing on HTTPS is caused by an SSL inspection bypass",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

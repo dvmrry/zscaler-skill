@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "id": "zms.mcp",
+  "title": "The Zscaler MCP server's ZMS tools: inventory, customer ID and known defects",
+  "aliases": [
+    "zms mcp tools",
+    "zms_list_app_catalog error",
+    "zms tools zscaler_customer_id",
+    "microsegmentation mcp"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zms.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.mcp-server.tool-inventory"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The MCP server wraps the Python SDK's ZMS queries as tools. Toolset selection and entitlement filtering are shared with other products: [[shared.mcp-server.tool-inventory]]."
+    },
+    {
+      "label": "Inventory and scoping.",
+      "text": "{{tool-count}} {{customer-id-env}} {{customer-id-not-argument}}"
+    },
+    {
+      "label": "Defects.",
+      "text": "{{app-catalog-import}} {{app-catalog-filter-fails}} The nonce tool's promised fields are in [[zms.provisioning-keys]]."
+    },
+    {
+      "label": "Writes.",
+      "text": "The ZMS audit skill names mutations that no client implements: [[zms.api]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether ZSCALER_CUSTOMER_ID is set in the MCP server environment when ZMS tools fail.",
+      "uses": [
+        "customer-id-env"
+      ]
+    },
+    {
+      "do": "For an app catalog call that errors, whether it passed a name or category filter.",
+      "uses": [
+        "app-catalog-filter-fails"
+      ]
+    }
+  ],
+  "claims": {
+    "tool-count": {
+      "statement": "The MCP server registers 20 ZMS tools in one `zms` toolset across nine domains, all read-only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "CLAUDE.md",
+          "quotes": [
+            "### ZMS Domains (9 domains, 20 tools)",
+            "All ZMS tools are **read-only** (queries only — no mutations)."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "docs/guides/toolsets.md",
+          "quotes": [
+            "### ZMS — Microsegmentation"
+          ]
+        }
+      ]
+    },
+    "customer-id-env": {
+      "statement": "ZMS tools take the tenant ID from `ZSCALER_CUSTOMER_ID` in the server environment: `require_customer_id` reads it and, when it is missing, raises an error naming that variable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zms/_common.py",
+          "quotes": [
+            "``ZSCALER_CUSTOMER_ID``. :func:`require_customer_id` reads it from the environment and raises a clear error if it is missing",
+            "customer_id = os.environ.get(\"ZSCALER_CUSTOMER_ID\", \"\")",
+            "if not customer_id: raise RuntimeError(",
+            "ZSCALER_CUSTOMER_ID is required for ZMS tools."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "rules/zms-graphql-conventions.mdc",
+          "quotes": [
+            "Every query requires `ZSCALER_CUSTOMER_ID`, automatically resolved from the environment."
+          ]
+        }
+      ]
+    },
+    "app-catalog-import": {
+      "statement": "The app catalog tool builds its name and category filter by importing `AppCatalogFilter` from `zscaler.zms.models.inputs`, and the import runs only when a name or category is given; the class that SDK module defines for app catalog filters is `AppCatalogQueryFilter`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zms/app_catalog.py",
+          "quotes": [
+            "if not any([name, category]): return None",
+            "from zscaler.zms.models.inputs import AppCatalogFilter, StringExpression"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/models/inputs.py",
+          "quotes": [
+            "class AppCatalogQueryFilter: \"\"\" Filter for app catalog queries."
+          ]
+        }
+      ]
+    },
+    "app-catalog-filter-fails": {
+      "statement": "A `zms_list_app_catalog` call with a name or category filter fails with an import error before any request is sent; an unfiltered call works.",
+      "tier": "B",
+      "derived_from": [
+        "app-catalog-import"
+      ],
+      "conditions": "Follows from app-catalog-import and a search of the SDK tree at the pin finding no AppCatalogFilter class; not observed on a running server."
+    },
+    "customer-id-not-argument": {
+      "statement": "Every ZMS tool calls `require_customer_id` for the tenant ID, and none takes the ID as a tool argument.",
+      "tier": "B",
+      "derived_from": [
+        "customer-id-env"
+      ],
+      "conditions": "Rests on a search of src/zscaler_mcp/tools/zms at the pin: each of the 20 tool functions sets customer_id from require_customer_id(), and no input model declares a customer_id field."
+    }
+  }
+}

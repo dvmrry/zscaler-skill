@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.api.client-coverage",
+  "title": "Which clients cover which parts of the ZIdentity API: Python, Go and the MCP server",
+  "aliases": [
+    "zidentity sdk coverage",
+    "zid mcp tools",
+    "zid_list_users",
+    "zidentity reset password sdk",
+    "zidentity automation options",
+    "zidentity terraform"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.sdk-python"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.sdk-go"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.mcp-server.tool-inventory"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZIdentity is automated through the Python SDK's `zid` package, the Go SDK's `ziam` services and, for reads, the MCP server. Each SDK's modules and functions are generated (`node scripts/kb.mjs surface zid`); this subject records the coverage differences an agent needs when choosing between them."
+    },
+    {
+      "label": "User actions.",
+      "text": "{{go-user-actions}} {{python-no-user-actions}} The Go paths for these actions differ from the contract's: [[zidentity.sdk-go:user-action-paths]]."
+    },
+    {
+      "label": "Python SDK line.",
+      "text": "{{python-no-legacy-client}} The Python v2 beta covers ZIdentity together with ZIA and ZDX: [[cloud-connector.api.client-coverage:python-v2-excludes-ztw]]."
+    },
+    {
+      "label": "MCP server.",
+      "text": "{{mcp-toolsets}} {{mcp-read-only}} {{mcp-lean-summaries}} {{mcp-no-admin-objects}} The MCP server keeps ZIdentity tools only when the token's service list maps `ZIAM` to them: [[shared.mcp-server.tool-inventory:entitlement-aliases]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the task needs a user action (password reset, skip MFA, password update), which only the Go SDK wraps.",
+      "uses": [
+        "go-user-actions",
+        "python-no-user-actions"
+      ]
+    },
+    {
+      "do": "Whether the task needs API clients, resource servers or entitlements, which no MCP tool reads.",
+      "uses": [
+        "mcp-no-admin-objects"
+      ]
+    }
+  ],
+  "claims": {
+    "go-user-actions": {
+      "statement": "The Go users package wraps three user actions: `SetSkipMFA`, `ResetPassword` and `UpdatePassword`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/users/users.go",
+          "quotes": [
+            "func SetSkipMFA(ctx context.Context, service *zscaler.Service, userID string, timestamp int64) (*http.Response, error) {",
+            "func ResetPassword(ctx context.Context, service *zscaler.Service, userID string) (*http.Response, error) {",
+            "func UpdatePassword(ctx context.Context, service *zscaler.Service, userID string, payload *UpdatePasswordRequest) (*http.Response, error) {"
+          ]
+        }
+      ]
+    },
+    "python-no-user-actions": {
+      "statement": "Besides `__init__`, the Python users module (`UsersAPI`) defines only `list_users`, `get_user`, `add_user`, `update_user`, `delete_user` and `list_user_group_details`; none of them is a user action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/users.py",
+          "quotes": [
+            "class UsersAPI(APIClient):",
+            "def __init__(self, request_executor: \"RequestExecutor\") -> None:",
+            "def list_users(self, query_params: Optional[dict] = None) -> APIResult[Users]:",
+            "def get_user(self, user_id: str) -> APIResult[dict]:",
+            "def add_user(self, **kwargs) -> APIResult[dict]:",
+            "def update_user(self, user_id: str, **kwargs) -> APIResult[dict]:",
+            "def delete_user(self, user_id: str) -> APIResult[dict]:",
+            "def list_user_group_details(self, user_id: str, query_params: Optional[dict] = None) -> APIResult[List[UserRecord]]:"
+          ]
+        }
+      ],
+      "conditions": "The seven def lines quoted are every method the module defines at the pin."
+    },
+    "mcp-toolsets": {
+      "statement": "The MCP server's ZIdentity toolsets are `zid_groups` and `zid_users`, five tools each: get, list and search for groups and users, plus the members of a group and the groups of a user, each by ID or by name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "docs/guides/toolsets.md",
+          "quotes": [
+            "| `zid_groups` | 5 | `zid_get_group`, `zid_get_group_users`, `zid_get_group_users_by_name`, `zid_list_groups`, `zid_search_groups` |",
+            "| `zid_users` | 5 | `zid_get_user`, `zid_get_user_groups`, `zid_get_user_groups_by_name`, `zid_list_users`, `zid_search_users` |"
+          ]
+        }
+      ]
+    },
+    "mcp-read-only": {
+      "statement": "The MCP tool catalog marks all ten ZIdentity tools Read-only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "docs/guides/supported-tools.md",
+          "quotes": [
+            "| `zid_get_group` | `zid_groups` | Read-only |",
+            "| `zid_get_group_users` | `zid_groups` | Read-only |",
+            "| `zid_get_group_users_by_name` | `zid_groups` | Read-only |",
+            "| `zid_get_user` | `zid_users` | Read-only |",
+            "| `zid_get_user_groups` | `zid_users` | Read-only |",
+            "| `zid_get_user_groups_by_name` | `zid_users` | Read-only |",
+            "| `zid_list_groups` | `zid_groups` | Read-only |",
+            "| `zid_list_users` | `zid_users` | Read-only |",
+            "| `zid_search_groups` | `zid_groups` | Read-only |",
+            "| `zid_search_users` | `zid_users` | Read-only |"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "docs/guides/supported-tools.md",
+          "after": "## ZIdentity",
+          "quotes": [
+            "All 10 tools are read-only."
+          ]
+        }
+      ]
+    },
+    "mcp-lean-summaries": {
+      "statement": "The MCP list tools return lean summaries rather than the full SDK record: users as id, login name, display name and primary email, groups as id, name, description, dynamic flag and source IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "docs/guides/supported-tools.md",
+          "quotes": [
+            "Returns lean user summaries (id, login name, display name, primary email) rather than the full SDK user record.",
+            "Returns lean group summaries (id, name, description, dynamic flag, source IdP) rather than the full SDK group record."
+          ]
+        }
+      ]
+    },
+    "mcp-no-admin-objects": {
+      "statement": "No MCP tool reads or writes ZIdentity API clients, resource servers or user entitlements, and none writes users or groups.",
+      "tier": "B",
+      "derived_from": [
+        "zidentity.api.client-coverage:mcp-toolsets",
+        "zidentity.api.client-coverage:mcp-read-only"
+      ],
+      "conditions": "The toolsets guide lists only these two ZIdentity toolsets, and the server's ZIdentity tool directory holds only groups.py and users.py at the pin."
+    },
+    "python-no-legacy-client": {
+      "statement": "The Python SDK's legacy (non-OneAPI) clients cover ZPA, ZIA, ZTW, ZCC, AI Guard, ZDX, ZWA and ZTB; there is none for ZIdentity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "class LegacyZPAClient(Client):",
+            "class LegacyZIAClient(Client):",
+            "class LegacyZTWClient(Client):",
+            "class LegacyZCCClient(Client):",
+            "class LegacyAIGuardClient(Client):",
+            "class LegacyZDXClient(Client):",
+            "class LegacyZWAClient(Client):",
+            "class LegacyZTBClient(Client):"
+          ]
+        }
+      ],
+      "conditions": "The eight classes quoted are every legacy client class in oneapi_client.py at the pin."
+    }
+  }
+}

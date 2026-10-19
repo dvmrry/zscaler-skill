@@ -982,7 +982,7 @@ test("render-soc-report with real repo root and a real file:line citation", () =
     const scopeFile = path.join(os.tmpdir(), `scope-${reviewSlug}.json`);
     writeJson(scopeFile, {
       description: "Test SOC review against real repo",
-      scope: { paths: ["references/zidentity/admin-rbac.md", "references/shared/admin-rbac.md"] },
+      scope: { paths: ["references/zidentity/zidentity.admin-rbac.json", "references/shared/shared.admin-rbac.json"] },
       threatModel: "compromised admin account",
       subtype: "access",
     });
@@ -993,7 +993,7 @@ test("render-soc-report with real repo root and a real file:line citation", () =
     writeJson(findingFile, {
       findingId: "SOC-001",
       title: "Test finding using real file",
-      source: "references/zidentity/admin-rbac.md:1",
+      source: "references/zidentity/zidentity.admin-rbac.json:1",
       severity: "Low",
       confidence: "medium",
       status: "Open",

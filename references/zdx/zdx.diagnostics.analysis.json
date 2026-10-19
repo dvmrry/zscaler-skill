@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "id": "zdx.diagnostics.analysis",
+  "title": "ZDX Score analysis jobs through the API: starting one, polling it, and what the clients return",
+  "aliases": [
+    "start_analysis",
+    "get_analysis",
+    "CreateAnalysis",
+    "score analysis",
+    "zdx analysis job",
+    "analysis_id",
+    "t0 t1"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A score analysis is an asynchronous job: one call starts it and returns an ID, and another reads its progress and result. The endpoints and client functions are generated (`node scripts/kb.mjs surface zdx`)."
+    },
+    {
+      "label": "The contract.",
+      "text": "{{contract-start}} {{contract-result}}"
+    },
+    {
+      "label": "Python.",
+      "text": "{{python-start}} {{python-start-loses-id}} {{python-get-raw}}"
+    },
+    {
+      "label": "Go and MCP.",
+      "text": "The Go start function returns no decoded body: [[zdx.sdk-go.service-defects:no-decode-functions]]. The MCP analysis reader is the only ZDX tool that converts timestamps: [[zdx.diagnostics.mcp-tools:timestamp-conversion]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Where the analysis ID came from: neither the Python start result nor the Go start function hands it back decoded.",
+      "uses": [
+        "python-start-loses-id",
+        "zdx.sdk-go.service-defects:no-decode-functions"
+      ]
+    }
+  ],
+  "claims": {
+    "contract-start": {
+      "statement": "The contract's analysis start takes `device_id`, `app_id` and `t0` (required) and `t1`, all int64 integers, for a score analysis of an app between t0 and t1, and answers with `analysis_id`, the ID used to track progress and get the result, and a `status`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1analysis/post",
+          "expect": {
+            "description": "Start Score Analysis for a given app between t0 and t1"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1analysis/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "required": [
+              "device_id",
+              "app_id",
+              "t0"
+            ],
+            "properties": {
+              "app_id": {
+                "format": "int64",
+                "type": "integer"
+              },
+              "device_id": {
+                "format": "int64",
+                "type": "integer"
+              },
+              "t0": {
+                "format": "int64",
+                "type": "integer"
+              },
+              "t1": {
+                "format": "int64",
+                "type": "integer"
+              }
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1analysis/post/responses/200/content/application~1json/schema/properties/analysis_id",
+          "expect": {
+            "description": "Score analysis ID. Use this ID for tracking the progress and get the result",
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1analysis/post/responses/200/content/application~1json/schema/properties/status",
+          "expect": {
+            "description": "Score analysis status"
+          }
+        }
+      ]
+    },
+    "contract-result": {
+      "statement": "Reading an analysis returns `analysis_id`, `status`, `err_msg` and a `result` holding `issue`, `confidence`, `message` and `times`, the time points where the issue is seen.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1analysis~1{id}/get",
+          "expect": {
+            "description": "Track the analysis progress and get results"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1analysis~1{id}/get/responses/200/content/application~1json/schema/properties/result/properties",
+          "expect": {
+            "confidence": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "issue": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "times": {
+              "description": "Time points where the issue is seen",
+              "items": {
+                "format": "int64",
+                "type": "integer"
+              },
+              "type": "array"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1analysis~1{id}/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "required": [
+              "analysis_id"
+            ],
+            "title": "YEngineAnalysisResult"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1analysis~1{id}/get/responses/200/content/application~1json/schema/properties",
+          "expect": {
+            "err_msg": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "analysis_id": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    },
+    "python-start": {
+      "statement": "The Python `start_analysis` sends its keyword arguments as the body and builds its result as a `DeviceApplicationAnalysis`, which reads only `device_id`, `app_id`, `t0` and `t1`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/troubleshooting.py",
+          "after": "def start_analysis(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "body = kwargs",
+            "result = DeviceApplicationAnalysis(self.form_response_body(response.get_body()))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/troubleshooting.py",
+          "after": "class DeviceApplicationAnalysis(ZscalerObject):",
+          "quotes": [
+            "self.device_id = config[\"device_id\"] if \"device_id\" in config else None",
+            "self.app_id = config[\"app_id\"] if \"app_id\" in config else None",
+            "self.t0 = config[\"t0\"] if \"t0\" in config else None",
+            "self.t1 = config[\"t1\"] if \"t1\" in config else None",
+            "current_obj_format = {\"device_id\": self.device_id, \"app_id\": self.app_id, \"t0\": self.t0, \"t1\": self.t1}"
+          ]
+        }
+      ],
+      "conditions": "The four quoted assignments are every attribute the model's constructor sets at the pin."
+    },
+    "python-start-loses-id": {
+      "statement": "So the object the Python `start_analysis` returns carries none of the `analysis_id` and `status` the contract's start response holds, and the ID needed to poll the job has to be read from the raw response.",
+      "tier": "B",
+      "derived_from": [
+        "python-start",
+        "contract-start"
+      ],
+      "conditions": "Follows from the model's attribute list against the contract's response fields; not observed against a live tenant."
+    },
+    "python-get-raw": {
+      "statement": "The Python `get_analysis` returns a one-element list holding `form_response_body` applied to the response body, with no model class around it; for a JSON object body `form_response_body` builds and returns a dict.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/troubleshooting.py",
+          "after": "def get_analysis(",
+          "quotes": [
+            ") -> APIResult[dict]:",
+            "response, error = self._request_executor.execute(request)",
+            "result = [self.form_response_body(response.get_body())]"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/api_client.py",
+          "after": "def form_response_body(",
+          "quotes": [
+            "if isinstance(body, dict):",
+            "result = {}",
+            "return result"
+          ]
+        }
+      ]
+    }
+  }
+}

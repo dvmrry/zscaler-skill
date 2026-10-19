@@ -1,0 +1,283 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.tenant-settings",
+  "title": "AI Guard tenant settings: prompt storage, encryption keys, ZIA sync, block messages, organization restrictions, Anthropic webhook",
+  "aliases": [
+    "ai guard tenant settings",
+    "store prompts responses",
+    "ai guard 90 days",
+    "ai guard prompt retention",
+    "ai guard customer managed key",
+    "ai guard kms",
+    "ai guard zia user sync",
+    "ai guard start sync",
+    "custom block message ai guard",
+    "delete conversation on response block",
+    "organization restrictions",
+    "tenancy restriction anthropic openai",
+    "enterprise personal account type",
+    "anthropic inference hooks",
+    "ai guard webhook"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.zia-integration"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Tenant Settings holds AI Guard's tenant-wide behavior. Each section below is one part of that page."
+    },
+    {
+      "label": "The tenant.",
+      "text": "{{basic-info}}"
+    },
+    {
+      "label": "Prompt storage and feedback.",
+      "text": "{{store-prompts}} {{history-opt-in}} {{detection-feedback}} ZIA's own prompt capture is a separate setting on a different product: [[zia.cloud-app-control.ai-ml-rules:capture-prompts]]."
+    },
+    {
+      "label": "Encryption.",
+      "text": "{{encryption}} {{reset-disables}}"
+    },
+    {
+      "label": "Users, groups and domains from ZIA.",
+      "text": "{{zia-sync}}"
+    },
+    {
+      "label": "Block messages.",
+      "text": "{{block-messages}} {{block-message-llm-caveat}}"
+    },
+    {
+      "label": "Organization restrictions.",
+      "text": "{{org-restrictions}} {{org-restrictions-account-type}}"
+    },
+    {
+      "label": "Anthropic webhook.",
+      "text": "{{anthropic-webhook}}"
+    },
+    {
+      "label": "Not in the current page.",
+      "text": "Network access control and the custom request header settings the legacy page described are open {{gap:access-and-headers}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Store Prompts/Responses is on before expecting prompt text in history; it keeps 90 days.",
+      "uses": [
+        "store-prompts",
+        "history-opt-in"
+      ]
+    },
+    {
+      "do": "For user or group policies, that ZIA user, group and domain sync is enabled and has run (Start Sync forces it).",
+      "uses": [
+        "zia-sync"
+      ]
+    },
+    {
+      "do": "With Organization Restrictions on, that the organization or workspace ID is listed, since unlisted organizations are denied; changes take up to five minutes.",
+      "uses": [
+        "org-restrictions"
+      ]
+    }
+  ],
+  "claims": {
+    "basic-info": {
+      "statement": "Tenant Settings shows the tenant name, the mode (Proxy or DaaS), the tenant UUID, and Zscaler's AWS account ID, which is used for optional AWS integrations such as log exports to S3 and customer-managed encryption keys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-tenant-settings.json",
+          "quotes": [
+            "Name: Name of the tenant.",
+            "Mode: Lists whether AI Guard is in Proxy or DaaS mode.",
+            "UUID: Universally unique identifier for your tenant.",
+            "Zscaler AWS Account ID: Displays Zscaler’s AWS Account ID. This is used for optional AWS integrations such as log exports to AWS S3 buckets or optional AWS customer-managed keys for encryption."
+          ]
+        }
+      ]
+    },
+    "store-prompts": {
+      "statement": "Store Prompts/Responses keeps a history of all prompts and responses for the last 90 days for auditing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-tenant-settings.json",
+          "quotes": [
+            "Store Prompts/Responses: Keep a history of all prompts and responses for the last 90 days for auditing."
+          ]
+        }
+      ]
+    },
+    "history-opt-in": {
+      "statement": "Prompt and response history is kept only when Store Prompts/Responses is enabled; with it off, prompt text should not be expected in AI Guard's history.",
+      "tier": "B",
+      "derived_from": [
+        "store-prompts"
+      ],
+      "conditions": "Rests on the setting being a toggle (store-prompts); the page does not say what is kept with it off. Exported events are configured separately (ai-security.ai-guard.observability:export-filters)."
+    },
+    "detection-feedback": {
+      "statement": "Event detection feedback, when enabled, may be used for local model training and is stored encrypted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-tenant-settings.json",
+          "quotes": [
+            "Enable Event Detection Feedback: Enable feedback submission on detection events. The feedback might be used for local model training. It will be securely stored with encryption."
+          ]
+        }
+      ]
+    },
+    "encryption": {
+      "statement": "Custom header encryption encrypts the contents of sensitive custom headers and content encryption uses customer-managed keys; enabling either requires a customer-managed key, given as a key ARN, and AWS is currently the only supported KMS provider type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-tenant-settings.json",
+          "quotes": [
+            "Enable Custom Header Encryption: Encrypt the contents of sensitive custom headers.",
+            "Enable Content Encryption: Use customer-managed keys for additional security.",
+            "If you enable any encryption, you must provide a customer-managed key.",
+            "KMS Provider Key: AWS is currently the only supported provider type.",
+            "Key ARN: Enter your Amazon Resource Name (ARN) encryption key."
+          ]
+        }
+      ]
+    },
+    "reset-disables": {
+      "statement": "Reset reverts changes to the customer key ID and disables both content and custom-header encryption.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-tenant-settings.json",
+          "quotes": [
+            "Click Reset to revert any changes to the customer key ID and disable both content and custom header encryption settings."
+          ]
+        }
+      ]
+    },
+    "zia-sync": {
+      "statement": "Policies by user or user group need ZIA synchronization of users, groups and domains, with the ZIA tenant already linked to AI Guard; sync is enabled by toggles under ZIA Information, Start Sync under Advanced Actions syncs immediately outside the scheduled batch window, and synced users and groups appear on the AI Users page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-users-and-user-groups.json",
+          "quotes": [
+            "If you want to create AI Guard policies that are configured on a user or user group basis, you will need to enable synchronization with ZIA to import users, groups, and domains for policy evaluation.",
+            "Your ZIA tenant should already be linked with your AI Guard tenant.",
+            "Under ZIA Information, click the Enable ZIA User and Group Sync toggle to sync users and groups from ZIA to AI Guard.",
+            "Click the Enable ZIA Domain Sync toggle to sync domains from ZIA to AI Guard.",
+            "To enable an immediate ZIA data sync outside the scheduled batch window, under Advanced Actions, click Start Sync.",
+            "After the sync is complete, go to the AI Users page. You will see your Users and User Groups in their associated tabs."
+          ]
+        }
+      ]
+    },
+    "block-messages": {
+      "statement": "Custom prompt and response block messages are shown in place of a blocked prompt or response, for example to link users to the AI usage policy, and Delete Conversation on Response Block automatically deletes the chat history for response blocks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-configuring-custom-block-messages.json",
+          "quotes": [
+            "Whenever a prompt or response is blocked by an AI Guard policy, a custom message can be shown in its place.",
+            "This custom block message can be used to provide a link to the user to notify them about AI usage policy of your organization.",
+            "Delete Conversation on Response Block: Select if you want to automatically delete chat history of response blocking cases for providers."
+          ]
+        }
+      ]
+    },
+    "block-message-llm-caveat": {
+      "statement": "AI Guard delivers a custom block message by sending it to the LLM with a request to return it to the user; some LLMs may treat that instruction as malicious and refuse or answer unexpectedly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-configuring-custom-block-messages.json",
+          "quotes": [
+            "When configuring a custom block message, the message will be sent to the LLM asking it to return the block message to the user. Certain LLMs may misinterpret the instructions as malicious and either refuse to answer or provide an unexpected response."
+          ]
+        }
+      ]
+    },
+    "org-restrictions": {
+      "statement": "Organization Restrictions, currently for Anthropic and OpenAI, tag requests matching a registered Anthropic org ID or OpenAI workspace ID as Enterprise and the rest as Personal; with a provider's toggle on, AI Guard permits the listed organizations and denies all others; with it off, all traffic passes and the list only marks Enterprise accounts; changes can take up to five minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-tenant-settings.json",
+          "quotes": [
+            "This feature is currently available for Anthropic and OpenAI.",
+            "Requests matching a registered ID are tagged as \"Enterprise,\" while unmatched requests are classified as \"Personal.\"",
+            "When enabled, AI Guard will permit the listed organizations and deny all others.",
+            "When disabled, AI Guard will allow all traffic through and treat the list of organizations as Enterprise accounts.",
+            "It may take up to five minutes for the changes to take effect."
+          ]
+        }
+      ]
+    },
+    "org-restrictions-account-type": {
+      "statement": "With Organization Restrictions enabled, policy controls can match on Account Type (Personal, Enterprise or Both), so personal accounts can get different policies from sanctioned workspaces.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-tenant-settings.json",
+          "quotes": [
+            "After enabling this functionality, within Policy Controls, administrators can select an \"Account Type\" (Personal, Enterprise, or Both) as a match criterion."
+          ]
+        }
+      ]
+    },
+    "anthropic-webhook": {
+      "statement": "AI Guard can evaluate prompts through Anthropic Claude's inference hooks and answer allow or deny: in Claude the hook endpoint is `https://api.zseclipse.net/v1/webhook/execute` with Enforce verdicts on and a 1000 ms prompt verdict timeout, and Claude's signing secret is added in AI Guard with the organization's Anthropic UUID; a policy and policy control must then target the webhook traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-tenant-settings.json",
+          "quotes": [
+            "AI Guard responds with an \"allow\" or \"deny\" verdict, which determines whether Claude proceeds to generate a response or the prompt is blocked.",
+            "Enforce verdicts: Enable.",
+            "Inference hooks endpoint: Set to https://api.zseclipse.net/v1/webhook/execute",
+            "Prompt verdict timeout (ms): 1000ms",
+            "Anthropic Org UUID: Enter your organization’s Anthropic UUID.",
+            "With the webhook integrated, create a policy to detect webhook traffic and create a policy control to set the match criteria so the policy applies to the traffic you intend."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "access-and-headers": {
+      "kind": "semantic",
+      "title": "Network access control and custom request header settings",
+      "status": "open",
+      "detail": "Unverified legacy statement: tenant controls include network access control using IPv4 CIDR ranges, and custom request headers including a conversation ID header and sensitive-header marking. The current Tenant Settings page has neither section; it only offers encryption of sensitive custom headers (encryption). The Python SDK changelog mentions tenant-configured custom request headers carrying a conversation ID (ai-security.ai-guard.runtime-api:resolve-user-headers).",
+      "blocks": "answers on restricting API access by source IP and on header-based policy design",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

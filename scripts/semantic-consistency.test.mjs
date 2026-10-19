@@ -44,8 +44,11 @@ test("root and runtime routers retain current SDK accessors", () => {
   assert.doesNotMatch(skill, /Python SDK has NO coverage/);
   assert.doesNotMatch(skill, /Go has full CRUD/);
   assert.doesNotMatch(skill, /API Client creation is NOT exposed via API/);
-  assert.match(skill, /first\*\* client is a portal bootstrap/);
-  assert.match(skill, /Resource Servers are read-only in \*\*both\*\* Python and Go/);
+  // The API-client bootstrap and resource-server facts live in the zidentity.* subjects.
+  const apiClients = read("references/zidentity/zidentity.api-clients.json");
+  const resourceServers = JSON.parse(read("references/zidentity/zidentity.resource-servers.json"));
+  assert.match(apiClients, /the first one comes from the console/);
+  assert.match(resourceServers.claims["read-only"].statement, /only GET on the resource server collection/);
   assert.match(skill, /2\.0\.0bN.*does \*\*not\*\* include ZTW/);
   assert.doesNotMatch(runbooks, /client\.zaiguard/);
   assert.match(runbooks, /Python `client\.aiguard` exposes configuration reads and writes/);

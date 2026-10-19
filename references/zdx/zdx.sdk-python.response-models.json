@@ -1,0 +1,531 @@
+{
+  "schema_version": 1,
+  "id": "zdx.sdk-python.response-models",
+  "title": "What the Python SDK's ZDX results contain: envelopes, missing fields and paging",
+  "aliases": [
+    "python zdx none fields",
+    "zdx model attributes none",
+    "form_response_body zdx",
+    "zdx next_offset python",
+    "zdx pagination python",
+    "call quality metrics python",
+    "MostImpactedRegion",
+    "python zdx as_dict"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-python"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-python.wire-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.api.conventions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Python ZDX methods turn each response into model objects whose attributes mirror the API's snake_case keys. How they get there decides which attributes survive."
+    },
+    {
+      "label": "Envelopes.",
+      "text": "{{list-envelopes}} {{single-in-list}}"
+    },
+    {
+      "label": "Multiword fields.",
+      "text": "The SDK-wide mechanism is [[zcc.sdk-python.wire-keys:response-keys-camel-cased]]. {{models-read-snake}} {{multiword-attrs-lost}} {{raw-exceptions}}"
+    },
+    {
+      "label": "Narrow models.",
+      "text": "{{most-impacted-region}} {{python-network-no-wifi}} The OS build goes the other way: [[zdx.sdk-go.service-defects:go-software-no-os-build]]. {{call-quality-strings}} The earlier question about the call-quality metric shape is settled by the contract except for a live check {{gap:call-quality-shape}}. Events and the device-application score follow the contract in Python: [[zdx.sdk-go.service-defects]]. {{python-device-list-fields}} {{python-network-list}}"
+    },
+    {
+      "label": "Paging.",
+      "text": "{{paging}} {{paging-reads-items}}"
+    },
+    {
+      "label": "Other readers.",
+      "text": "The analysis reader returns a plain dict: [[zdx.diagnostics.analysis:python-get-raw]]. The start methods' results are in [[zdx.diagnostics.start-request:python-start-result]] and [[zdx.diagnostics.analysis:python-start]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a field that comes back None from a Python ZDX object has a multiword key; read it from the raw response (`response.get_body()`) instead.",
+      "uses": [
+        "multiword-attrs-lost"
+      ]
+    },
+    {
+      "do": "Whether a paged Python ZDX listing was walked with the response object's `next()`, which yields no records; pass `next_offset` as `offset` by hand.",
+      "uses": [
+        "paging",
+        "paging-reads-items"
+      ]
+    }
+  ],
+  "claims": {
+    "list-envelopes": {
+      "statement": "List methods such as `list_ongoing`, `list_historical`, `list_devices` and `list_users` wrap the whole response body in one envelope object (`Alerts`, `Devices`, `ActiveUsers`) and return it as a one-element list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/alerts.py",
+          "after": "def list_ongoing(",
+          "quotes": [
+            "result = [Alerts(self.form_response_body(response.get_body()))]"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/alerts.py",
+          "after": "def list_historical(",
+          "quotes": [
+            "result = [Alerts(self.form_response_body(response.get_body()))]"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/devices.py",
+          "quotes": [
+            "def list_devices(self, query_params: Optional[dict] = None) -> APIResult[List[Devices]]:",
+            "result = [Devices(self.form_response_body(response.get_body()))]"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/users.py",
+          "quotes": [
+            "def list_users(self, query_params: Optional[dict] = None) -> APIResult[List[ActiveUsers]]:",
+            "result = [ActiveUsers(self.form_response_body(response.get_body()))]"
+          ]
+        }
+      ]
+    },
+    "models-read-snake": {
+      "statement": "The ZDX models look their fields up under the API's snake_case keys (for example `trace_id` in `DeviceDeepTraces`, `next_offset` in `Devices`, `total_users` in `ActiveApplications`), and methods such as `get_deeptrace` and `list_apps` build the models from `form_response_body` of the response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/troubleshooting.py",
+          "after": "class DeviceDeepTraces(ZscalerObject):",
+          "quotes": [
+            "self.trace_id = config[\"trace_id\"] if \"trace_id\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/devices.py",
+          "after": "class Devices(ZscalerObject):",
+          "quotes": [
+            "self.next_offset = config[\"next_offset\"] if \"next_offset\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/applications.py",
+          "quotes": [
+            "self.total_users = config[\"total_users\"] if \"total_users\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/troubleshooting.py",
+          "quotes": [
+            "def get_deeptrace(self, device_id: str, trace_id: str) -> APIResult[dict]:",
+            "result = [DeviceDeepTraces(self.form_response_body(response.get_body()))]"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/apps.py",
+          "quotes": [
+            "def list_apps(self, query_params: Optional[dict] = None) -> APIResult[List[ActiveApplications]]:",
+            "result.append(ActiveApplications(self.form_response_body(item)))"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces/get/responses/200/content/application~1json/schema/items/properties/trace_id",
+          "expect": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices/get/responses/200/content/application~1json/schema/properties/next_offset",
+          "expect": {
+            "description": "This value must be entered in the next request to get the next batch from the list.",
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps/get/responses/200/content/application~1json/schema/items/properties/total_users",
+          "expect": {
+            "format": "int64",
+            "type": "integer"
+          }
+        }
+      ]
+    },
+    "multiword-attrs-lost": {
+      "statement": "So on those methods every model attribute whose API key has more than one word (a deep trace's `trace_id`, a device list's `next_offset`, an application's `total_users`, and the like) comes back None, and the MCP tools that return these models' records omit those fields; single-word keys such as `id`, `name` and `score` survive.",
+      "tier": "B",
+      "derived_from": [
+        "models-read-snake",
+        "zcc.sdk-python.wire-keys:response-keys-camel-cased"
+      ],
+      "conditions": "Follows from the camel-casing helper and the models' snake_case lookups at the pin; no recorded ZDX response at the pin shows it, and the ZDX integration tests that would read these fields are commented out.",
+      "upstream": [
+        {
+          "status": "unfiled"
+        }
+      ]
+    },
+    "raw-exceptions": {
+      "statement": "A few methods skip that conversion: `list_deeptraces` and `get_call_quality_metrics` build their models from the raw response items, and `list_softwares` hands the raw body to its `SoftwareList` wrapper.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/troubleshooting.py",
+          "quotes": [
+            "def list_deeptraces(self, device_id: str) -> APIResult[List[DeviceDeepTraces]]:",
+            "results.append(DeviceDeepTraces(item))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/devices.py",
+          "quotes": [
+            "def get_call_quality_metrics(",
+            "result.append(CallQualityMetrics(item))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/inventory.py",
+          "quotes": [
+            "def list_softwares(self, query_params: Optional[dict] = None) -> APIResult[List[DeviceSoftwareInventory]]:",
+            "software_list_wrapper = SoftwareList(response.get_body())"
+          ]
+        }
+      ]
+    },
+    "most-impacted-region": {
+      "statement": "The Python `MostImpactedRegion` model reads only `id` and `country`, while the contract's `most_impacted_region` also carries `city`, `region`, `state`, `geo_type`, coordinates and detection details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/common.py",
+          "after": "class MostImpactedRegion(ZscalerObject):",
+          "quotes": [
+            "if config: self.id = config[\"id\"] if \"id\" in config else None self.country = config[\"country\"] if \"country\" in config else None else: self.id = None self.country = None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_object.py",
+          "after": "class ZscalerObject:",
+          "quotes": [
+            "def __init__(self, config: Optional[Any] = None) -> None: pass"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps/get/responses/200/content/application~1json/schema/items/properties/most_impacted_region/properties",
+          "expect": {
+            "city": {
+              "description": "The name of the city.",
+              "type": "string"
+            },
+            "region": {
+              "description": "The region information.",
+              "type": "string"
+            },
+            "state": {
+              "description": "The name of the state.",
+              "type": "string"
+            },
+            "geo_type": {
+              "description": "The type of location.",
+              "type": "string"
+            },
+            "geo_lat": {
+              "description": "The geo latitude of location.",
+              "format": "double",
+              "type": "number"
+            },
+            "geo_detection": {
+              "description": "The detection type of location.",
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "conditions": "The two quoted assignments are every attribute the model's constructor sets at the pin."
+    },
+    "call-quality-strings": {
+      "statement": "The Python `CallQualityMetrics` model forms its `metrics` as a list of `str`, which turns each metric object into its string form, while the contract defines each element as a `Series` object of `metric`, `unit` and `datapoints`.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/call_quality_metrics.py",
+          "quotes": [
+            "self.metrics = ZscalerCollection.form_list(config[\"metrics\"] if \"metrics\" in config else [], str)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_collection.py",
+          "quotes": [
+            "collection[index] = data_type(collection[index])"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1apps~1{appId}~1call-quality-metrics/get/responses/200/content/application~1json/schema/items/properties/metrics/items",
+          "expect": {
+            "title": "Series",
+            "type": "object"
+          }
+        }
+      ],
+      "derived_from": [
+        "raw-exceptions"
+      ],
+      "conditions": "Follows from `form_list` calling `str()` on each non-string element; the Go SDK's `[]common.Metric` matches the contract's object shape."
+    },
+    "paging": {
+      "statement": "The Python response object pages ZDX lists by `next_offset`: `has_next()` is true while a `next_offset` is present, the next request sends it as `offset`, and each page's records are read from the body's `items` key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "self._list = self._body.get(\"items\", [])",
+            "self._next_offset = self._body.get(\"next_offset\")",
+            "self._params[\"offset\"] = self._next_offset",
+            "has_next = self._next_offset is not None"
+          ]
+        }
+      ]
+    },
+    "paging-reads-items": {
+      "statement": "No paged ZDX list response in the contract has an `items` key (they hold `alerts`, `devices`, `users` or `software` beside `next_offset`), so `next()` on a ZDX response returns no records and callers have to pass `next_offset` back as `offset` themselves.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1alerts~1ongoing/get/responses/200/content/application~1json/schema/properties",
+          "expect": {
+            "next_offset": {
+              "description": "This value must be entered in the next request to get the next batch from the list.",
+              "type": "string"
+            }
+          },
+          "expect_absent": [
+            "items"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices/get/responses/200/content/application~1json/schema/properties",
+          "expect_absent": [
+            "items"
+          ]
+        }
+      ],
+      "derived_from": [
+        "paging"
+      ],
+      "conditions": "A search of the contract's ZDX responses that carry `next_offset` (ongoing and historical alerts, affected devices, devices, app users, users and both software inventory reads) finds none with `items`; not observed against a live tenant."
+    },
+    "python-network-no-wifi": {
+      "statement": "The Python `Network` model reads `net_type`, `status`, `ipv4`, `ipv6`, `dns_srvs`, `dns_suffix`, `gateway`, `mac` and `guid` but none of the Wi-Fi fields the contract defines for a device's network (`wifi_adapter`, `wifi_type`, `ssid`, `channel`, `bssid`), which the Go `Network` struct does read.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/devices.py",
+          "after": "class Network(ZscalerObject):",
+          "quotes": [
+            "self.net_type = config[\"net_type\"] if \"net_type\" in config else None",
+            "self.status = config[\"status\"] if \"status\" in config else None",
+            "self.ipv4 = config[\"ipv4\"] if \"ipv4\" in config else None",
+            "self.ipv6 = config[\"ipv6\"] if \"ipv6\" in config else None",
+            "self.dns_srvs = config[\"dns_srvs\"] if \"dns_srvs\" in config else None",
+            "self.dns_suffix = config[\"dns_suffix\"] if \"dns_suffix\" in config else None",
+            "self.gateway = config[\"gateway\"] if \"gateway\" in config else None",
+            "self.mac = config[\"mac\"] if \"mac\" in config else None",
+            "self.guid = config[\"guid\"] if \"guid\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/devices/devices.go",
+          "quotes": [
+            "WiFiAdapter string `json:\"wifi_adapter,omitempty\"`",
+            "SSID string `json:\"ssid,omitempty\"`",
+            "BSSID string `json:\"bssid,omitempty\"`"
+          ]
+        }
+      ],
+      "derived_from": [
+        "zdx.devices:network-wifi"
+      ],
+      "conditions": "The nine quoted assignments are every attribute the Python `Network` constructor sets at the pin."
+    },
+    "single-in-list": {
+      "statement": "Methods that read one record also return a one-element list: `get_app`, `get_device`, `get_device_apps`, `get_device_app` and `list_top_processes` each build one model from the response body (`ApplicationScore`, `DeviceModelInfo`, `DeviceActiveApplications`, `DeviceAppScoreTrend`, `DeviceTopProcesses`) and wrap it in a list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/apps.py",
+          "after": "def get_app(self, app_id: str, query_params: Optional[dict] = None) -> APIResult[dict]:",
+          "quotes": [
+            "result = [ApplicationScore(self.form_response_body(response.get_body()))]"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/devices.py",
+          "quotes": [
+            "result = [DeviceModelInfo(self.form_response_body(response.get_body()))]",
+            "result = [DeviceActiveApplications(self.form_response_body(response.get_body()))]",
+            "result = [DeviceAppScoreTrend(self.form_response_body(response.get_body()))]",
+            "def get_device(self, device_id: str, query_params: Optional[dict] = None) -> APIResult[dict]:",
+            "def get_device_apps(self, device_id: str, query_params: Optional[dict] = None) -> APIResult[dict]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/troubleshooting.py",
+          "after": "def list_top_processes(",
+          "quotes": [
+            "result = [DeviceTopProcesses(self.form_response_body(response.get_body()))]"
+          ]
+        }
+      ]
+    },
+    "python-device-list-fields": {
+      "statement": "The Python `list_devices` returns a `Devices` wrapper whose `devices` list is formed of `DeviceDetail` objects, which read only `id`, `name` and `userid`; the contract's device-list entries also carry fields such as `os`, `hw_model`, `private_ip` and `client_conn_ver`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/devices.py",
+          "after": "class DeviceDetail(ZscalerObject):",
+          "quotes": [
+            "if config: self.id = config[\"id\"] if \"id\" in config else None self.name = config[\"name\"] if \"name\" in config else None self.userid = config[\"userid\"] if \"userid\" in config else None else:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_object.py",
+          "after": "class ZscalerObject:",
+          "quotes": [
+            "def __init__(self, config: Optional[Any] = None) -> None: pass"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/devices.py",
+          "quotes": [
+            "self.devices = ZscalerCollection.form_list(config[\"devices\"] if \"devices\" in config else [], DeviceDetail)"
+          ],
+          "after": "class Devices(ZscalerObject):"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices/get/responses/200/content/application~1json/schema/properties/devices/items/properties",
+          "expect": {
+            "os": {
+              "type": "string"
+            },
+            "hw_model": {
+              "type": "string"
+            },
+            "private_ip": {
+              "type": "string"
+            },
+            "client_conn_ver": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/devices.py",
+          "quotes": [
+            "def list_devices(self, query_params: Optional[dict] = None) -> APIResult[List[Devices]]:",
+            "result = [Devices(self.form_response_body(response.get_body()))]"
+          ]
+        }
+      ]
+    },
+    "python-network-list": {
+      "statement": "The Python `DeviceModelInfo` model, which `get_device` returns, forms a device's `network` as a list of `Network` objects, and the contract's `network` is an array.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/devices.py",
+          "quotes": [
+            "self.network = ZscalerCollection.form_list(config[\"network\"] if \"network\" in config else [], Network)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/devices.py",
+          "quotes": [
+            "result = [DeviceModelInfo(self.form_response_body(response.get_body()))]",
+            "def get_device(self, device_id: str, query_params: Optional[dict] = None) -> APIResult[dict]:"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}/get/responses/200/content/application~1json/schema/properties/network",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "call-quality-shape": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-08"
+      ],
+      "title": "The live shape of each call-quality `metrics` element",
+      "status": "partial",
+      "detail": "The contract defines each element as a `Series` object, matching the Go SDK; the Python model stringifies the elements. No captured live response confirms the contract's shape.",
+      "blocks": "trusting Python call-quality metric values",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    }
+  }
+}

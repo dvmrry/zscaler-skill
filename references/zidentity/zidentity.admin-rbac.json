@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.admin-rbac",
+  "title": "Authentication Service admin roles: predefined and custom roles, and how they relate to product roles",
+  "aliases": [
+    "ZIdentity admin roles",
+    "Authentication Service admin roles",
+    "ZIdentity RBAC",
+    "Super Admin",
+    "View Only Admin",
+    "User Admin",
+    "CXO Insight User",
+    "ZIdentity custom roles",
+    "who can administer ZIdentity"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.admin-rbac.permissions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.entitlements"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This covers the admin roles of Authentication Service itself and where they stop. {{role-based-administration}}"
+    },
+    {
+      "label": "The roles.",
+      "text": "{{predefined-roles}} {{custom-roles}} Per-module permissions and how several roles combine are in [[zidentity.admin-rbac.permissions]]."
+    },
+    {
+      "label": "Order of operations.",
+      "text": "{{users-first}} {{support-ticket}}"
+    },
+    {
+      "label": "Unified RBAC.",
+      "text": "Where the limited-availability Unified RBAC feature is in use, roles are managed on a different page: [[shared.admin-rbac:unified-rbac]]."
+    },
+    {
+      "label": "Product roles.",
+      "text": "Admins of a product are assigned on the Administrative Entitlements page with a role created for that product: [[shared.admin-rbac:entitlement-assigns-service-admins]], [[shared.admin-rbac:identity-central-role-in-product]]. {{own-roles-not-product-scope}} Whether anything carries over automatically from an Authentication Service role to a product's scope is still open {{gap:product-scope}}."
+    },
+    {
+      "label": "Through the API.",
+      "text": "{{no-role-paths}} Whether an unpublished endpoint manages roles is open {{gap:role-api}}, and so is whether role assignments are recorded in the audit log {{gap:assignment-audit}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the question is about Authentication Service's own modules (its admin roles) or about what an admin can do in a product (the product role assigned with the administrative entitlement).",
+      "uses": [
+        "own-roles-not-product-scope",
+        "shared.admin-rbac:entitlement-assigns-service-admins"
+      ]
+    },
+    {
+      "do": "Whether the tenant uses Unified RBAC, which moves role management to a different page.",
+      "uses": [
+        "shared.admin-rbac:unified-rbac"
+      ]
+    },
+    {
+      "do": "Whether the user or group exists in Authentication Service before a role is assigned to it.",
+      "uses": [
+        "users-first"
+      ]
+    }
+  ],
+  "claims": {
+    "role-based-administration": {
+      "statement": "Role-based administration assigns Authentication Service users or user groups admin roles and permissions that control their level of access to the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zidentity-admin-roles.json",
+          "quotes": [
+            "Zscaler's role-based administration enables you to assign Authentication Service users or user groups with admin roles and permissions and control their level of access to the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "predefined-roles": {
+      "statement": "There are four predefined admin roles: Super Admin (full permissions, assignable to other admins), View Only Admin (view-only permissions), User Admin (user management permission) and CXO Insight User (CXO insight permission).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zidentity-admin-roles.json",
+          "quotes": [
+            "There are 4 predefined admin roles:",
+            "Super Admin: System role with full permissions. You can assign this role to other admins if required.",
+            "View Only Admin: System role view only permissions.",
+            "User Admin: System role with user management permission.",
+            "CXO Insight User: System role with CXO insight permission."
+          ]
+        }
+      ]
+    },
+    "custom-roles": {
+      "statement": "Admins can also add their own roles: the Roles page adds, edits and deletes roles, predefined roles cannot be deleted, and an admin cannot edit the custom role assigned to them individually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zidentity-admin-roles.json",
+          "quotes": [
+            "Add an admin role.",
+            "Edit or delete role.",
+            "You cannot delete predefined roles, and you cannot edit the custom role that is assigned to you individually."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "admin-roles-and-permissions.json",
+          "quotes": [
+            "| Roles | Full | View, add, edit, and delete roles."
+          ]
+        }
+      ]
+    },
+    "users-first": {
+      "statement": "Users and user groups must be added to Authentication Service before admin roles are assigned to them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zidentity-admin-roles.json",
+          "quotes": [
+            "Ensure that you have added users and user groups to Authentication Service before assigning necessary admin roles."
+          ]
+        }
+      ]
+    },
+    "support-ticket": {
+      "statement": "On Authentication Service tenants migrated to the Zscaler Admin Console, submitting a Zscaler Support ticket in the console needs at least View Only permission on the Users and User Groups modules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zidentity-admin-roles.json",
+          "quotes": [
+            "For Authentication Service tenants who have migrated to the Zscaler Admin Console, you must have at least the View Only permission for the Users and User Groups modules to submit a Zscaler Support ticket in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "own-roles-not-product-scope": {
+      "statement": "So an Authentication Service role, User Admin included, sets permissions on Authentication Service's own modules; access inside ZIA or ZPA comes from the product role chosen when the administrative entitlement is assigned.",
+      "tier": "B",
+      "derived_from": [
+        "zidentity.admin-rbac.permissions:modules",
+        "shared.admin-rbac:entitlement-assigns-service-admins"
+      ],
+      "conditions": "Read from the module list of the Authentication Service permission matrix, which names no ZIA or ZPA feature, and from the Administrative Entitlements page, which assigns admins with a role created for the product. No source states the separation in one sentence."
+    },
+    "no-role-paths": {
+      "statement": "The published Authentication Service API reference has paths for API clients, groups, resource servers and users and none for roles or role assignments, so roles are not managed through the published API.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/roles",
+            "/roles/{id}",
+            "/admin-roles",
+            "/role-assignments"
+          ]
+        }
+      ],
+      "conditions": "Rests on the complete path list of the reconstructed Automate contract (api-clients, groups, resource-servers and users paths only); a capture cannot show an unpublished endpoint."
+    }
+  },
+  "gaps": {
+    "product-scope": {
+      "kind": "semantic",
+      "title": "Whether an Authentication Service role or entitlement carries any product scope automatically",
+      "status": "partial",
+      "former_ids": [
+        "zid-02"
+      ],
+      "detail": "Unverified legacy statement: it is unclear whether a User Admin role combined with Full Administrative Entitlements inherits any ZIA admin scope, or whether that must be configured separately. The help separates the two (product roles are chosen on the Administrative Entitlements page and the ZIA scope is edited on the ZIA Administrators page, per shared.admin-rbac), which answers the role half; no source says what scope a newly entitled ZIA admin starts with.",
+      "blocks": "predicting what a newly entitled admin can reach in ZIA before anyone edits their scope",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "role-api": {
+      "kind": "semantic",
+      "title": "Whether roles can be managed through any API",
+      "status": "open",
+      "former_ids": [
+        "zid-03"
+      ],
+      "detail": "Unverified legacy statement: role management (listing role definitions, creating roles, assigning roles, changing permissions, reading the permission matrix) is not exposed by the SDKs or a documented API. The published path list confirms the absence for the documented API; whether the console uses an unpublished endpoint that a client could call is not known.",
+      "blocks": "automating role assignment or auditing role definitions from code",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "assignment-audit": {
+      "kind": "semantic",
+      "title": "Whether admin role assignments appear in the Authentication Service audit log",
+      "status": "open",
+      "former_ids": [
+        "zid-04"
+      ],
+      "detail": "Unverified legacy statement: no audit endpoint for role-assignment changes is documented. The help lists audit reports of configuration changes in Authentication Service and an Audit Logs permission module, but no source says whether role assignments and administrative-entitlement changes are among the recorded changes, or how they are read outside the console.",
+      "blocks": "answering who granted an admin role and when",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    }
+  }
+}

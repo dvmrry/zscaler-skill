@@ -1,0 +1,500 @@
+{
+  "schema_version": 1,
+  "id": "zero-trust-branch.api",
+  "title": "Automating Zero Trust Branch: the Python SDK client, its API-key sign-in, and what no other client covers",
+  "aliases": [
+    "ztb api",
+    "zero trust branch api",
+    "ztb python sdk",
+    "LegacyZTBClient",
+    "client.ztb",
+    "ztb api key",
+    "goairgap api",
+    "ztb terraform",
+    "ztb oneapi"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zero-trust-branch.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api.client-coverage"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.cloud-names"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Python SDK's `ztb` package is the only Zero Trust Branch client in the vendored sources; its modules, methods and paths are generated: run `node scripts/kb.mjs surface ztb`. This subject holds how that client signs in and where its own documentation and code disagree."
+    },
+    {
+      "label": "Which clients.",
+      "text": "{{no-other-clients}} {{go-branch-connector-is-zpa}} {{mcp-no-ztb}} The MCP server's own name for its `ztw` family is not settled {{gap:mcp-ztw-label}}. The SDK's 2.x beta leaves ZTB on 1.x: [[cloud-connector.api.client-coverage:python-v2-excludes-ztw]]."
+    },
+    {
+      "heading": "Signing in"
+    },
+    {
+      "text": "{{api-key-login}} {{base-url}} The Zero Trust Branch cloud domain is listed in [[shared.cloud-architecture.cloud-names:other-services]]."
+    },
+    {
+      "label": "OneAPI or legacy.",
+      "text": "{{oneapi-accessor}} {{service-docstring}} {{readme-legacy-only}} The two say different things {{divergence:oneapi-support}}, and which path the ZTB API accepts is open {{gap:auth-mode}}."
+    },
+    {
+      "label": "Client settings.",
+      "text": "{{cloud-required-in-code}} The README says otherwise {{divergence:override-without-cloud}}. {{legacy-config-keys}} The README's option names differ {{divergence:config-keys}}."
+    },
+    {
+      "heading": "Requests"
+    },
+    {
+      "text": "{{legacy-path-prefix}} {{snake-case-bodies}} {{retries}} {{rate-limit-assumption}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the script builds the client with `LegacyZTBClient` and an API key; the README says OneAPI is not supported for ZTB, although `client.ztb` also exists on the OneAPI client.",
+      "uses": [
+        "readme-legacy-only",
+        "oneapi-support",
+        "auth-mode"
+      ]
+    },
+    {
+      "do": "Whether `cloud` (or `ZTB_CLOUD`) is set even when an override URL is given, since the helper raises an error without it.",
+      "uses": [
+        "cloud-required-in-code",
+        "override-without-cloud"
+      ]
+    },
+    {
+      "do": "Whether a partner ID is passed as `partnerId` in the config or through `ZSCALER_PARTNER_ID`, and whether a custom retry count is expected to take effect.",
+      "uses": [
+        "legacy-config-keys",
+        "config-keys"
+      ]
+    },
+    {
+      "do": "Whether request bodies are written with the API's own (snake_case) keys, since the SDK does not convert them.",
+      "uses": [
+        "snake-case-bodies"
+      ]
+    }
+  ],
+  "claims": {
+    "no-other-clients": {
+      "statement": "Of the vendored clients, only the Python SDK covers the Zero Trust Branch API: no ZTB service was found in the Go SDK, the ZIA, ZPA, ZCC or ZTC Terraform providers, the ZIA or ZPA Ansible collections, the MCP server or the OneAPI Postman collection, and the captured Automate contract has no ZTB operations.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "after": "used in your server-side code to interact with the Zscaler API platform across multiple products such as:",
+          "quotes": [
+            "* [ZTB API (Zero Trust Branch)](https://help.zscaler.com/)"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. At the pins, `git grep -i -E 'ztb|zero.trust.branch|goairgap'` finds no Zero Trust Branch service in the Go SDK (only unrelated base64 test data), the four Terraform providers, the two Ansible collections or the MCP server, and the OneAPI Postman collection has no match. The generated surface for `ztb` has empty Go SDK, Terraform and API sections."
+    },
+    "go-branch-connector-is-zpa": {
+      "statement": "The Go SDK's `branch_connector` package is a ZPA service (it sits under `zscaler/zpa/services`): its endpoint is `/branchConnector` under the ZPA management path `/zpa/mgmtconfig/v1/admin/customers/`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/branch_connector/branch_connector.go",
+          "quotes": [
+            "package branch_connector",
+            "mgmtConfig              = \"/zpa/mgmtconfig/v1/admin/customers/\"",
+            "branchConnectorEndpoint = \"/branchConnector\""
+          ]
+        }
+      ]
+    },
+    "mcp-no-ztb": {
+      "statement": "The MCP server has no Zero Trust Branch tools: its OneAPI entitlement map has no ZTB product code, and its `ztw` tool family is documented as the Cloud & Branch Connector tools.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/entitlements.py",
+          "quotes": [
+            "PRD_TO_SERVICE: dict[str, str] = {",
+            "\"CLOUD_CONNECTOR\": \"ztw\","
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "docsrc/tools/ztw/index.rst",
+          "quotes": [
+            "Zscaler Cloud & Branch Connector (ZTW) Tools"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence: `PRD_TO_SERVICE` maps ZIA, ZPA, ZDX, ZCC, ZTW, ZIdentity, EASM, Z-Insights, ZMS and Cellular codes and has no ZTB key, and `git grep -i -E 'ztb|zero.trust.branch'` at the MCP pin finds nothing."
+    },
+    "api-key-login": {
+      "statement": "The SDK signs in to ZTB with an API key: it posts `{\"api_key\": \"...\"}` to `POST /api/v3/api-key-auth/login`, takes the `delegate_token` from the response, and sends it as a Bearer token on later requests; ZTB does not use JSESSIONID session cookies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "ZTB (Zero Trust Branch) authenticates via **API key**. The client calls",
+            "`POST /api/v3/api-key-auth/login` with `{\"api_key\": \"...\"}` and receives a",
+            "`delegate_token` used as `Authorization: Bearer <token>` for all subsequent requests.",
+            "Unlike ZIA/ZTW, ZTB does **not** use JSESSIONID session cookies."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztb/legacy.py",
+          "quotes": [
+            "_ZTB_LOGIN_PATH = \"/api/v3/api-key-auth/login\"",
+            "token = result[\"delegate_token\"]"
+          ]
+        }
+      ]
+    },
+    "base-url": {
+      "statement": "The legacy helper reads the key from `api_key` or `ZTB_API_KEY`, the cloud from `cloud` or `ZTB_CLOUD`, and builds the base URL `https://{cloud}.goairgap.com` unless `override_url` or `ZTB_OVERRIDE_URL` is set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztb/legacy.py",
+          "quotes": [
+            "self.api_key: Optional[str] = kw.get(\"api_key\") or os.getenv(f\"{self._env_base}_API_KEY\")",
+            "self.env_cloud = cloud or kw.get(\"cloud\") or os.getenv(f\"{self._env_base}_CLOUD\")",
+            "kw.get(\"override_url\") or os.getenv(f\"{self._env_base}_OVERRIDE_URL\") or f\"https://{self.env_cloud}.goairgap.com\"",
+            "_env_base = \"ZTB\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "| `ZTB_API_KEY` | Yes (or pass `api_key`) |",
+            "| `ZTB_CLOUD` | Yes* (or pass `cloud`) |",
+            "| `ZTB_OVERRIDE_URL` | No (or pass `override_url`) |"
+          ]
+        }
+      ]
+    },
+    "oneapi-accessor": {
+      "statement": "On the Python SDK's OneAPI client (`oneapi_client.py`), the `ztb` property creates a `ZTBService` once and returns it when `use_legacy_client` is off, and requires the ZTB legacy client when it is on.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "after": "def ztb(self):",
+          "quotes": [
+            "if self.use_legacy_client:",
+            "return self._require_legacy_client(\"ZTB\", self.ztb_legacy_client)",
+            "if self._ztb is None:",
+            "self._ztb = ZTBService(self)",
+            "return self._ztb"
+          ]
+        }
+      ]
+    },
+    "service-docstring": {
+      "statement": "The `ZTBService` docstring says the service is used through the OneAPI authentication path, and that standalone or legacy token-based access should use `LegacyZTBClient` or `LegacyZTBClientHelper`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztb/ztb_service.py",
+          "quotes": [
+            "class ZTBService:",
+            "This service is used via the OneAPI authentication path",
+            "For standalone / legacy token-based",
+            "access, use ``LegacyZTBClient`` or ``LegacyZTBClientHelper`` directly."
+          ]
+        }
+      ]
+    },
+    "readme-legacy-only": {
+      "statement": "The SDK README says ZTB is available only through the legacy client (`LegacyZTBClient`) and that OneAPI/OAuth2 is not supported for ZTB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "ZTB is available only via the **Legacy** client (`LegacyZTBClient`). OneAPI/OAuth2 is not supported for ZTB."
+          ]
+        }
+      ]
+    },
+    "cloud-required-in-code": {
+      "statement": "The legacy helper raises a `ValueError` when no cloud is given through `cloud` or `ZTB_CLOUD`; the check runs before the override URL is read, and `LegacyZTBClient` passes the config's `cloud` value (or `ZTB_CLOUD`) straight through.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztb/legacy.py",
+          "quotes": [
+            "self.env_cloud = cloud or kw.get(\"cloud\") or os.getenv(f\"{self._env_base}_CLOUD\")",
+            "if not self.env_cloud:",
+            "raise ValueError( f\"Cloud environment must be set via the 'cloud' argument or the \"",
+            "# --- URL construction ---"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "class LegacyZTBClient(Client):",
+            "cloud = config.get(\"cloud\", os.getenv(\"ZTB_CLOUD\"))"
+          ]
+        }
+      ]
+    },
+    "legacy-config-keys": {
+      "statement": "`LegacyZTBClient` reads `api_key`, `cloud`, `override_url`, `partnerId`, `timeout`, `cache`, `failSafe` and `requestExecutor` from its config and passes no retry count, so the helper keeps its default of 5 retries.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "after": "class LegacyZTBClient(Client):",
+          "quotes": [
+            "api_key = config.get(\"api_key\", os.getenv(\"ZTB_API_KEY\"))",
+            "override_url = config.get(\"override_url\", os.getenv(\"ZTB_OVERRIDE_URL\"))",
+            "partner_id = config.get(\"partnerId\", os.getenv(\"ZSCALER_PARTNER_ID\"))",
+            "timeout = config.get(\"timeout\", 240)",
+            "fail_safe = config.get(\"failSafe\", None)",
+            "request_executor_impl = config.get(\"requestExecutor\", None)",
+            "super().__init__(config, ztb_legacy_client=legacy_helper, use_legacy_client=True)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztb/legacy.py",
+          "quotes": [
+            "_DEFAULT_MAX_RETRIES = 5",
+            "max_retries: int = _DEFAULT_MAX_RETRIES,"
+          ]
+        }
+      ],
+      "conditions": "Rests on the complete `LegacyZTBClient.__init__` at the pin: the quoted config reads (plus `cloud` and `cache`) are every `config.get` it makes, and the helper call passes no `max_retries`."
+    },
+    "legacy-path-prefix": {
+      "statement": "With a legacy client the request executor strips a leading `/ztb` from the SDK's endpoint paths and sends the request to the ZTB helper's base URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "def remove_oneapi_endpoint_prefix(self, endpoint: str) -> str:",
+            "\"/zms\", \"/ztb\", \"/bi\",",
+            "endpoint = self.remove_oneapi_endpoint_prefix(endpoint)",
+            "base_url = self.ztb_legacy_client.get_base_url(endpoint)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztb/legacy.py",
+          "quotes": [
+            "\"\"\"Return the base URL for ZTB API requests.\"\"\"",
+            "return self.url"
+          ],
+          "after": "def get_base_url(self, endpoint: str = \"\") -> str:"
+        }
+      ]
+    },
+    "snake-case-bodies": {
+      "statement": "The request executor does not camel-case ZTB request bodies: `_prepare_body` returns the body unconverted when the ZTB legacy client is in use and when the endpoint contains `/ztb/`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def _prepare_body(self, endpoint, body):",
+          "quotes": [
+            "# Ensure ZTB remains snake_case without affecting other services",
+            "if self.use_legacy_client and self.ztb_legacy_client:",
+            "# Special handling for ZTB endpoints - keep snake_case format",
+            "if \"/ztb/\" in endpoint:",
+            "return body  # Do not convert ZTB requests to camelCase"
+          ]
+        }
+      ]
+    },
+    "retries": {
+      "statement": "The README says that on a 401 the client re-authenticates and retries once, and on a 429 or a 502, 503 or 504 it retries with exponential backoff, up to `max_retries` (default 5).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "after": "### Zero Trust Branch (ZTB) API",
+          "quotes": [
+            "- On **401 Unauthorized**, the client automatically re-authenticates and retries once.",
+            "- On **429** (rate limit) or **5xx** (502/503/504), the SDK retries with exponential backoff.",
+            "| `max_retries` | `5` | Max retry attempts for 429/5xx/network errors |"
+          ]
+        }
+      ]
+    },
+    "rate-limit-assumption": {
+      "statement": "The helper's client-side rate limits are an assumption, not published limits: the code says ZTB rate limits are unknown and sets conservative defaults of 5 requests per 1-second window for reads and for writes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztb/legacy.py",
+          "quotes": [
+            "# ASSUMPTION: ZTB rate limits are unknown.  We use conservative defaults.",
+            "_DEFAULT_GET_LIMIT = 5",
+            "_DEFAULT_POST_PUT_DELETE_LIMIT = 5",
+            "_DEFAULT_GET_FREQ = 1",
+            "_DEFAULT_POST_PUT_DELETE_FREQ = 1"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "oneapi-support": {
+      "summary": "The README says ZTB is reachable only through the legacy API-key client, while the main client exposes `client.ztb` on its OneAPI path and the service's docstring says that is how it is used.",
+      "positions": [
+        {
+          "says": "ZTB is available only through `LegacyZTBClient`; OneAPI/OAuth2 is not supported for ZTB.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "README.md",
+            "quotes": [
+              "ZTB is available only via the **Legacy** client (`LegacyZTBClient`). OneAPI/OAuth2 is not supported for ZTB."
+            ]
+          }
+        },
+        {
+          "says": "`ZTBService` is used through the OneAPI authentication path; the OneAPI client builds it for `client.ztb`.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/ztb/ztb_service.py",
+            "quotes": [
+              "This service is used via the OneAPI authentication path"
+            ]
+          }
+        }
+      ],
+      "impact": "A script that builds a OneAPI client and calls `client.ztb` gets a service object, but the README says the API does not accept OneAPI tokens; which one works is not shown by any source."
+    },
+    "override-without-cloud": {
+      "summary": "The README says `cloud` is not required when an override URL is set; the helper's code requires a cloud before it reads the override.",
+      "positions": [
+        {
+          "says": "If `ZTB_OVERRIDE_URL` is set, `cloud` is not required; when `override_url` is set, `cloud` is ignored.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "README.md",
+            "quotes": [
+              "Full base URL override (e.g. `https://zscalerbd-api.goairgap.com`). If set, `cloud` is not required.",
+              "\\* Either `ZTB_CLOUD` or `ZTB_OVERRIDE_URL` must be provided."
+            ]
+          }
+        },
+        {
+          "says": "Without `cloud` or `ZTB_CLOUD` the helper raises `ValueError` before the override URL is considered.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/ztb/legacy.py",
+            "quotes": [
+              "if not self.env_cloud:",
+              "f\"Cloud environment must be set via the 'cloud' argument or the \""
+            ]
+          }
+        }
+      ],
+      "impact": "A configuration that sets only `override_url`, as the README's override example does, fails at client construction unless `ZTB_CLOUD` happens to be set in the environment."
+    },
+    "config-keys": {
+      "summary": "The README's configuration table names `partner_id` and `max_retries`; `LegacyZTBClient` reads `partnerId` and never reads a retry count from the config.",
+      "positions": [
+        {
+          "says": "Configuration options include `partner_id` (for the `x-partner-id` header) and `max_retries` (default 5).",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "README.md",
+            "after": "### Zero Trust Branch (ZTB) API",
+            "quotes": [
+              "| `partner_id` | `None` | Partner ID for `x-partner-id` header |",
+              "| `max_retries` | `5` | Max retry attempts for 429/5xx/network errors |"
+            ]
+          }
+        },
+        {
+          "says": "The client reads the partner ID from the `partnerId` key (or `ZSCALER_PARTNER_ID`) and passes no `max_retries` to the helper.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/oneapi_client.py",
+            "after": "class LegacyZTBClient(Client):",
+            "quotes": [
+              "partner_id = config.get(\"partnerId\", os.getenv(\"ZSCALER_PARTNER_ID\"))"
+            ]
+          }
+        }
+      ],
+      "impact": "A config written from the README with `partner_id` sends no `x-partner-id` header, and a `max_retries` setting has no effect; the retry count stays 5."
+    }
+  },
+  "gaps": {
+    "auth-mode": {
+      "kind": "semantic",
+      "title": "Whether the ZTB API accepts OneAPI tokens or only its own API-key login",
+      "status": "open",
+      "former_ids": [
+        "zero-trust-branch-01"
+      ],
+      "detail": "Unverified legacy statement: the supported auth mode is unresolved because the README (legacy only) and the service docstring and OneAPI accessor (OneAPI path) disagree; whether non-Python surfaces are absent, private or pending is also unconfirmed. No vendor API documentation for ZTB is captured, and the Automate contract has no ZTB operations.",
+      "blocks": "telling an operator which credentials and client construction to use for Zero Trust Branch automation",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "mcp-ztw-label": {
+      "kind": "semantic",
+      "title": "The MCP server's product label for its `ztw` tool family",
+      "status": "open",
+      "former_ids": [
+        "zero-trust-branch-02"
+      ],
+      "detail": "Unverified legacy statement: the MCP server's generated catalog labels the `ztw` family Workload Segmentation while its module and docsrc call it Zscaler Cloud & Branch Connector; neither name establishes Zero Trust Branch coverage. Both labels are present at the pin (cited); which is canonical is for the MCP maintainers.",
+      "blocks": "matching an MCP tool family to the right product when a question mentions branch connectivity",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/common/docgen.py",
+          "quotes": [
+            "\"ztw\": \"ZTW — Workload Segmentation\","
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "docsrc/tools/ztw/index.rst",
+          "quotes": [
+            "The Zscaler Cloud & Branch Connector (ZTW) tools provide functionality for managing network resources, IP groups, and administrative functions."
+          ]
+        }
+      ]
+    }
+  }
+}

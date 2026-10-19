@@ -25,25 +25,25 @@ ZIA/ZPA/ZCC answers are about policy precedence and configuration — "what will
 
 | Topic | File | Status |
 |---|---|---|
-| Architecture and ZDX Score — components (CA, TPG, ZCC client-side), the 0-100 score, how scores aggregate across users/apps/locations | [`./overview.md`](./overview.md) | draft |
-| **ZDX Score** — 0-100 score model deep-dive: PFT input, regional baseline (7-day rolling), 5-minute probe cadence, lowest-value-wins hourly rollup, score-retrieval API endpoints | [`./score.md`](./score.md) | draft |
-| **Cloud architecture** — Central Authority, ZCC, TPG (multi-tenant RESTful gateway), ADX storage, Admin Portal; 20-minute reporting delay; OAuth 2.0 auth distinct from ZIdentity OneAPI | [`./cloud-architecture.md`](./cloud-architecture.md) | draft |
-| **Applications** — pre-defined apps (Zoom, Box, Salesforce, ServiceNow, M365), classification, read-only API surface, MostImpactedRegion field asymmetry between Python and Go | [`./applications.md`](./applications.md) | draft |
-| **Devices** — device inventory, hardware/network/software fields, Wi-Fi-specific Go-only fields (`wifi_adapter`, `ssid`, `bssid`), `os_build` Python-only | [`./devices.md`](./devices.md) | draft |
-| **Reports** — umbrella over apps/devices/**users** (NOT an aggregation engine); call-quality-metrics (Microsoft Teams/Zoom), top-processes, deeptrace endpoints. User lookups (`list_users` / `get_user`) live here | [`./reports.md`](./reports.md) | draft |
-| **Software inventory** — which software versions are present across the device fleet: `list_softwares` / `list_software_keys` over `/zdx/v1/inventory/software` (`vendor/zscaler-sdk-python/zscaler/zdx/inventory.py:36`) | [`./sdk.md`](./sdk.md) §`inventory`, [`./api.md`](./api.md) | draft |
-| **Alert snapshots** — generate a shareable point-in-time snapshot of a ZDX alert (`share_snapshot` → POST `/zdx/v1/snapshot/alert`); supports an `obfuscation` field list per API contract, but the current Python client does not transmit it in the POST body (see [`./sdk.md`](./sdk.md) §`snapshot`); Python-only, no Go equivalent | [`./sdk.md`](./sdk.md) §`snapshot` | draft |
-| **Administration** — SDK is misnamed: it's read-only filter helpers (departments + locations lookup), NOT admin user management | [`./administration.md`](./administration.md) | draft |
-| Probes — Web probes vs Cloud Path probes, what each measures, probe-criteria AND/OR logic | [`./probes.md`](./probes.md) | draft |
-| Diagnostics Sessions and Alerts — on-demand deep-investigation workflow (SDK calls these "deeptraces"; help site calls them Diagnostics Sessions), alert status lifecycle | [`./diagnostics-and-alerts.md`](./diagnostics-and-alerts.md) | draft |
-| ZDX API — SDK surface under `client.zdx.*`, wire terminology ("deeptrace" ≠ "Diagnostics Session") | [`./api.md`](./api.md) | draft |
-| **ZDX SDK** — Python and Go service catalog (`client.zdx.*`); method summary; "deeptrace" terminology map | [`./sdk.md`](./sdk.md) | draft |
-| **API source divergences** — where the Python SDK, Go SDK, and help reference disagree: two token hosts (`api.zdxcloud.net` vs `api.zsapi.net`), `X-Ratelimit-*-Second` vs `RateLimit-*` headers, hardcoded Go limiter vs tier-by-license, plus the per-resource Python-vs-Go field/shape splits | [`./api-divergences.md`](./api-divergences.md) | draft |
-| **API schemas** — endpoint catalog and response-shape reference derived from the ZDX SDK | [`./api-schemas.md`](./api-schemas.md) | draft |
+| Architecture and ZDX Score — components (CA, TPG, ZCC client-side), the 0-100 score, how scores aggregate across users/apps/locations | [`zdx.overview`](kb:zdx.overview) | draft |
+| **ZDX Score** — 0-100 score model deep-dive: PFT input, regional baseline (7-day rolling), 5-minute probe cadence, lowest-value-wins hourly rollup, score-retrieval API endpoints | [`zdx.score`](kb:zdx.score) | draft |
+| **Cloud architecture** — Central Authority, ZCC, TPG (multi-tenant RESTful gateway), ADX storage, Admin Portal; 20-minute reporting delay; OAuth 2.0 auth distinct from ZIdentity OneAPI | [`zdx.cloud-architecture`](kb:zdx.cloud-architecture) | draft |
+| **Applications** — pre-defined apps (Zoom, Box, Salesforce, ServiceNow, M365), classification, read-only API surface, MostImpactedRegion field asymmetry between Python and Go | [`zdx.applications`](kb:zdx.applications) | draft |
+| **Devices** — device inventory, hardware/network/software fields, Wi-Fi-specific Go-only fields (`wifi_adapter`, `ssid`, `bssid`), `os_build` Python-only | [`zdx.devices`](kb:zdx.devices) | draft |
+| **Reports** — umbrella over apps/devices/**users** (NOT an aggregation engine); call-quality-metrics (Microsoft Teams/Zoom), top-processes, deeptrace endpoints. User lookups (`list_users` / `get_user`) live here | [`zdx.reports`](kb:zdx.reports) | draft |
+| **Software inventory** — which software versions are present across the device fleet: `list_softwares` / `list_software_keys` over `/zdx/v1/inventory/software` (`vendor/zscaler-sdk-python/zscaler/zdx/inventory.py:36`) | [`zdx.sdk-python`](kb:zdx.sdk-python) §`inventory`, [`zdx.api`](kb:zdx.api) | draft |
+| **Alert snapshots** — generate a shareable point-in-time snapshot of a ZDX alert (`share_snapshot` → POST `/zdx/v1/snapshot/alert`); supports an `obfuscation` field list per API contract, but the current Python client does not transmit it in the POST body (see [`zdx.sdk-python`](kb:zdx.sdk-python) §`snapshot`); Python-only, no Go equivalent | [`zdx.sdk-python`](kb:zdx.sdk-python) §`snapshot` | draft |
+| **Administration** — SDK is misnamed: it's read-only filter helpers (departments + locations lookup), NOT admin user management | [`zdx.administration`](kb:zdx.administration) | draft |
+| Probes — Web probes vs Cloud Path probes, what each measures, probe-criteria AND/OR logic | [`zdx.probes`](kb:zdx.probes) | draft |
+| Diagnostics Sessions and Alerts — on-demand deep-investigation workflow (SDK calls these "deeptraces"; help site calls them Diagnostics Sessions), alert status lifecycle | [`zdx.diagnostics`](kb:zdx.diagnostics) | draft |
+| ZDX API — SDK surface under `client.zdx.*`, wire terminology ("deeptrace" ≠ "Diagnostics Session") | [`zdx.api`](kb:zdx.api) | draft |
+| **ZDX SDK** — Python and Go service catalog (`client.zdx.*`); method summary; "deeptrace" terminology map | [`zdx.sdk-python`](kb:zdx.sdk-python) | draft |
+| **API source divergences** — where the Python SDK, Go SDK, and help reference disagree: two token hosts (`api.zdxcloud.net` vs `api.zsapi.net`), `X-Ratelimit-*-Second` vs `RateLimit-*` headers, hardcoded Go limiter vs tier-by-license, plus the per-resource Python-vs-Go field/shape splits | [`zdx.api`](kb:zdx.api) | draft |
+| **API schemas** — endpoint catalog and response-shape reference derived from the ZDX SDK | [`zdx.api`](kb:zdx.api) | draft |
 
 ## Full SDK service set
 
-The Python SDK mounts eight services under `client.zdx.*`: `admin`, `alerts`, `apps`, `devices`, `inventory`, `snapshot`, `troubleshooting`, `users`. (`vendor/zscaler-sdk-python/zscaler/zdx/zdx_service.py:17-95`) Every topic above maps to one or more of these — `apps`/`devices`/`users` are documented under Applications/Devices/Reports, `troubleshooting` under Diagnostics, `admin` under Administration, and `inventory`/`snapshot` have their own rows above. The full per-method catalog is in [`./sdk.md`](./sdk.md).
+The Python SDK mounts eight services under `client.zdx.*`: `admin`, `alerts`, `apps`, `devices`, `inventory`, `snapshot`, `troubleshooting`, `users`. (`vendor/zscaler-sdk-python/zscaler/zdx/zdx_service.py:17-95`) Every topic above maps to one or more of these — `apps`/`devices`/`users` are documented under Applications/Devices/Reports, `troubleshooting` under Diagnostics, `admin` under Administration, and `inventory`/`snapshot` have their own rows above. The full per-method catalog is in [`zdx.sdk-python`](kb:zdx.sdk-python).
 
 ## Terminology watchout
 
@@ -59,6 +59,6 @@ The Python SDK mounts eight services under `client.zdx.*`: `admin`, `alerts`, `a
 
 ## When the question spans ZDX + another product
 
-- **"User's ZIA traffic is slow" → actually a ZPA issue, or vice versa.** Cloud Path can distinguish "client to Service Edge slow" from "Service Edge to destination slow" — the hop-by-hop visualization is the discriminator. Start at [`./probes.md § Cloud Path`](./probes.md).
+- **"User's ZIA traffic is slow" → actually a ZPA issue, or vice versa.** Cloud Path can distinguish "client to Service Edge slow" from "Service Edge to destination slow" — the hop-by-hop visualization is the discriminator. Start at [`zdx.probes`](kb:zdx.probes).
 - **"ZDX has no data for this user" → entitlement check.** ZDX requires the user to be entitled via `ZdxGroupEntitlements` on ZCC (see [`zcc.entitlements`](kb:zcc.entitlements)). Entitled-but-not-reporting is different from not-entitled.
 - **"ZDX collects location but it's wrong/missing" → two-flag dependency.** Requires `WebPrivacy.collect_zdx_location = true` AND `ZdxGroupEntitlements.collect_zdx_location = true`. See [`shared.integrations`](kb:shared.integrations).

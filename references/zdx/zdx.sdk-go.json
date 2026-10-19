@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "id": "zdx.sdk-go",
+  "title": "The Go SDK for ZDX: how it reaches the API and where its ZDX behavior is covered",
+  "aliases": [
+    "zdx go sdk",
+    "zscaler-sdk-go zdx",
+    "GetFromToFilters",
+    "go zdx time range"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-go.legacy-client"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-python"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.api"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Go SDK's ZDX packages (administration, alerts, inventory, reports and troubleshooting) and their functions and endpoints are generated: run `node scripts/kb.mjs surface zdx`. This subject points to the behavior around them."
+    },
+    {
+      "label": "Time ranges.",
+      "text": "{{epoch-filters}} The Python SDK's hours shorthand is in [[zdx.sdk-python.request-shaping:since-to-epoch]]."
+    },
+    {
+      "label": "Clients.",
+      "text": "The ZDX service functions work through the OneAPI client; the OneAPI client's ZDX limiter is in [[shared.oneapi.rate-limits:go-zdx-limiter-copies-zcc]] and its request handling in [[shared.sdk-go.request-handling]]. The separate direct ZDX client, and why the services do not reach it, is in [[zdx.sdk-go.legacy-client]]."
+    },
+    {
+      "label": "Defects.",
+      "text": "Structs and functions that disagree with the contract are in [[zdx.sdk-go.service-defects]]; the deep-trace start payload's probe key is in [[zdx.diagnostics.start-request:go-payload]]. Which ZDX operations Go covers is in [[zdx.api.client-coverage]]."
+    }
+  ],
+  "claims": {
+    "epoch-filters": {
+      "statement": "Go ZDX report and alert functions take the time range as `From` and `To` in Unix epoch seconds inside a `GetFromToFilters` struct, documented as returning the last 2 hours when not entered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/common/common.go",
+          "quotes": [
+            "type GetFromToFilters struct {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/common/common.go",
+          "quotes": [
+            "// The start time (in seconds) for the query. The value is entered in Unix Epoch. If not entered, returns the data for the last 2 hours.",
+            "From int `json:\"from,omitempty\" url:\"from,omitempty\"`",
+            "// The end time (in seconds) for the query. The value is entered in Unix Epoch. If not entered, returns the data for the last 2 hours.",
+            "To int `json:\"to,omitempty\" url:\"to,omitempty\"`"
+          ],
+          "after": "type GetFromToFilters struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/alerts/alerts.go",
+          "quotes": [
+            "func GetOngoingAlerts(ctx context.Context, service *zscaler.Service, filters common.GetFromToFilters) (*AlertsResponse, *http.Response, error) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/applications/applications.go",
+          "quotes": [
+            "func GetAllApps(ctx context.Context, service *zscaler.Service, filters common.GetFromToFilters) ([]Apps, *http.Response, error) {"
+          ]
+        }
+      ]
+    }
+  }
+}

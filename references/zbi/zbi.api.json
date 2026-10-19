@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "id": "zbi.api",
+  "title": "Automating browser isolation: where the API surface lives across Internet & SaaS and Private Access",
+  "aliases": [
+    "zbi api",
+    "cbi api",
+    "browser isolation api",
+    "isolation profile api",
+    "cbiconfig",
+    "cbizpaprofile",
+    "isolationprofile",
+    "zero trust browser sdk",
+    "browser isolation terraform",
+    "browser isolation ansible"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.api.cbi-appprotection-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.isolation-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terminology.product-names"
+    },
+    {
+      "rel": "see-also",
+      "to": "business-insights.api"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Browser isolation has no API of its own: profile lookup is an Internet & SaaS operation, profiles, banners, certificates and regions are Private Access CBI configuration operations, and isolation rules are Private Access policy rules. Paths, SDK functions and Terraform resources are generated: `node scripts/kb.mjs surface /browserIsolation/profiles` and `node scripts/kb.mjs surface cbiconfig`."
+    },
+    {
+      "label": "Naming.",
+      "text": "Python's `client.zbi` is not browser isolation: [[shared.terminology.product-names:zbi-is-business-insights]], covered in [[business-insights.api]]."
+    },
+    {
+      "label": "Wire behavior.",
+      "text": "Private Access CBI paths, list shapes and write handling are in [[zpa.api.cbi-appprotection-wire]], and the Go package layout in [[zpa.api.sdk-coverage:pra-cbi-layout]]. Internet & SaaS rule wiring of the isolate action is in [[zia.api.url-filtering-wire]]."
+    },
+    {
+      "label": "Two profile lists.",
+      "text": "{{two-profile-lists}} Which one an isolation rule's profile ID refers to, and whether the two can disagree, is open {{gap:profile-list-choice}}."
+    },
+    {
+      "label": "Fields.",
+      "text": "Which API field carries each console setting is open {{gap:feature-field-mapping}}, and the full value sets of the copy-paste and upload-download controls are open {{gap:control-value-sets}}."
+    },
+    {
+      "label": "Ansible.",
+      "text": "{{ansible-coverage}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a script that says zbi is calling Business Insights instead of isolation endpoints.",
+      "uses": [
+        "shared.terminology.product-names:zbi-is-business-insights"
+      ]
+    },
+    {
+      "do": "Which of the two Private Access profile lists an isolation rule's profile ID was read from.",
+      "uses": [
+        "two-profile-lists",
+        "profile-list-choice"
+      ]
+    }
+  ],
+  "claims": {
+    "two-profile-lists": {
+      "statement": "The Private Access contract has two documented profile lists: `Get All ZPA Profiles` under the CBI configuration path, whose entries carry `cbiProfileId` and `cbiUrl`, and `Get Profiles For Customer` under the management configuration path, a paged list whose entries carry `isolationProfileId` and `isolationUrl`; both accept `showDisabled`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1zpaprofiles/get",
+          "expect": {
+            "description": "Get all CBI Profiles in ZPA for the specified customer, can set show Disabled as true to see disabled profiles",
+            "operationId": "Get All ZPA Profiles"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1zpaprofiles/get/parameters/[name=showDisabled]",
+          "expect": {
+            "in": "query",
+            "name": "showDisabled"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1isolation~1profiles/get",
+          "expect": {
+            "description": "Gets all isolation profiles for the specified customer.",
+            "operationId": "Get Profiles For Customer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1isolation~1profiles/get/parameters/[name=showDisabled]",
+          "expect": {
+            "description": "Indicates whether the disabled isolation profiles are included in the response or not.",
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1isolation~1profiles/get/responses/200/content/*~1*/schema/properties/list/items/properties",
+          "expect": {
+            "isolationProfileId": {
+              "type": "string"
+            },
+            "isolationTenantId": {
+              "type": "string"
+            },
+            "isolationUrl": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1isolation~1profiles/get/responses/200/content/*~1*/schema",
+          "expect": {
+            "title": "PageListCbiProfile"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1isolation~1profiles/get/responses/200/content/*~1*/schema/properties/totalPages",
+          "expect": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "quotes": [
+            "\"cbiProfileId\": \"02d01988-1a6b-4863-bdbe-9081c3e2d790\"",
+            "\"cbiUrl\": \"https://sfb.deabd8c181cb.appsulate.com/profile/02d01988"
+          ]
+        }
+      ]
+    },
+    "ansible-coverage": {
+      "statement": "In the Ansible collections, the Internet & SaaS module for isolation profiles only lists them and filters by ID or name in memory, and the Private Access modules write CBI banners and certificates and isolation rules (v1 and v2) but only read CBI and isolation profiles.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "ansible-zia",
+          "path": "plugins/modules/zia_cloud_browser_isolation_profile_info.py",
+          "quotes": [
+            "result, _unused, error = client.cloud_browser_isolation.list_isolation_profiles()",
+            "# Apply in-memory filtering"
+          ]
+        },
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_cloud_browser_isolation_banner.py",
+          "quotes": [
+            "created, _unused, error = client.cbi_banner.add_cbi_banner(**create_banner)"
+          ]
+        },
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_cloud_browser_isolation_profile_info.py",
+          "quotes": [
+            "profile, _unused, error = client.cbi_profile.get_cbi_profile(profile_id)"
+          ]
+        },
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_isolation_profile_info.py",
+          "quotes": [
+            "lambda qp: client.cbi_zpa_profile.list_isolation_profiles(query_params=qp), {}"
+          ]
+        }
+      ],
+      "conditions": "Rests on the module file listing at the pins: the isolation-related modules are zia_cloud_browser_isolation_profile_info in ziacloud-ansible and, in zpacloud-ansible, zpa_cloud_browser_isolation_banner, _banner_info, _certificate, _certificate_info, _profile_info, zpa_isolation_profile_info and zpa_policy_access_isolation_rule and _v2; no module name or call writes a CBI profile."
+    }
+  },
+  "gaps": {
+    "profile-list-choice": {
+      "kind": "semantic",
+      "status": "partial",
+      "former_ids": [
+        "zbi-02"
+      ],
+      "title": "Which Private Access profile list policy workflows should use, and whether the two can diverge",
+      "about": [
+        "zpa.api.cbi-appprotection-wire:cbi-shared-base-path"
+      ],
+      "detail": "Both lists are documented contract operations, so neither is an SDK artifact. Still open: which one's identifier an isolation rule's `zpnIsolationProfileId` expects, which one the admin console uses, and whether their contents can differ at runtime.",
+      "blocks": "choosing the right lookup when writing an isolation rule",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "feature-field-mapping": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Which Private Access CBI profile field carries each console setting",
+      "detail": "Unverified legacy statement: userExperience.zgpu is GPU acceleration (Turbo Mode), securityControls.copyPaste the copy and paste control, securityControls.uploadDownload file transfer, allowPrinting print, restrictKeystrokes keystroke restriction, regionIds (create) or regions (update) region selection, userExperience.sessionPersistence persistence across browser restarts, userExperience.forwardToZia.pacFileUrl the PAC file, securityControls.watermark watermarking, documentViewer office file viewing, localRender local rendering, translate translation, browserInBrowser browser-in-browser, persistIsolationBar the isolation bar, securityControls.deepLink deep linking with URI schemes such as mailto: and ms-teams:, and debugMode debug mode. The SDK structs and the contract carry the field names but no source ties them to the console settings.",
+      "blocks": "translating a console profile setting into an API or Terraform field",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "control-value-sets": {
+      "kind": "semantic",
+      "status": "partial",
+      "former_ids": [
+        "zbi-04"
+      ],
+      "title": "Complete value sets of securityControls.copyPaste and uploadDownload",
+      "about": [
+        "zpa.terraform.resource-constraints:cbi-profile-constraints"
+      ],
+      "detail": "The Go struct types both as strings; the contract's examples show none and all, and the provider's documentation names upstream as an upload_download value. No source enumerates the full sets, including any directional copy-paste values.",
+      "blocks": "writing a profile with a directional copy-paste or file transfer setting",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

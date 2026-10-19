@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "id": "aem.overview",
+  "title": "Asset Exposure Management (AEM): the asset inventory, coverage gaps and policies, and what can be automated",
+  "aliases": [
+    "aem",
+    "asset exposure management",
+    "caasm",
+    "cyber asset attack surface management",
+    "golden record",
+    "asset inventory zscaler",
+    "cmdb hygiene",
+    "aem api"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "aem.secops-platform"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "risk360.overview"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{golden-record}}"
+    },
+    {
+      "label": "What it finds.",
+      "text": "{{coverage-and-cmdb}} {{remediation-actions}}"
+    },
+    {
+      "label": "Where its data goes.",
+      "text": "{{informs-risk360-uvm}} External attack surface findings merge into it through the platform's EASM integration: [[aem.secops-platform:easm-and-predr]]; EASM's own API is in [[easm.api]]."
+    },
+    {
+      "label": "Data sources and reports.",
+      "text": "AEM shares the platform's data sources, field mapping and Reporting API: [[aem.secops-platform]]."
+    },
+    {
+      "heading": "Automation"
+    },
+    {
+      "text": "{{no-client-surface}} Report export is the only programmatic path a source shows, through [[aem.secops-platform:reporting-api]], and its contract is open: [[aem.secops-platform:reporting-api-contract]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For automating AEM, use saved reports and the SecOps Reporting API; no captured source or client exposes AEM configuration or a query API.",
+      "uses": [
+        "no-client-surface",
+        "aem.secops-platform:reporting-api"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "AEM collects and manages asset data from various sources to track asset inventory and coverage, so that organizations can understand their attack surface, create policies, and track and remediate policy violations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-what-zscaler-security-operations.json",
+          "quotes": [
+            "Asset Exposure Management (AEM) enables organizations to collect and manage asset data from various sources to track asset inventory and coverage. It allows organizations to understand their attack surface, create policies, and track and remediate policy violations to reduce overall risk."
+          ]
+        }
+      ]
+    },
+    "golden-record": {
+      "statement": "Zscaler's AEM product page describes it as building a golden record, a unified, context-rich asset inventory, by correlating and deduplicating assets across sources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "asset-exposure-management-caasm-marketing.md",
+          "quotes": [
+            "Asset Exposure Management delivers comprehensive visibility into organizational assets by creating a \"golden record\" — a unified, accurate, context-rich asset inventory.",
+            "Multi-source entity deduplication",
+            "Golden Record creation by correlation"
+          ]
+        }
+      ]
+    },
+    "coverage-and-cmdb": {
+      "statement": "The product page lists coverage-gap analysis (for example missing EDR), inactive-asset recognition, and CMDB health checks such as assets seen in network traffic but missing from the CMDB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "asset-exposure-management-caasm-marketing.md",
+          "quotes": [
+            "Gap analysis (e.g., missing EDR)",
+            "Inactive asset recognition (decommissioning detection)",
+            "Missing-asset discovery (assets visible in network traffic but not in CMDB)"
+          ]
+        }
+      ]
+    },
+    "remediation-actions": {
+      "statement": "The product page lists remediation actions: CMDB enrichment with missing assets, triggering built-in or custom access policies, workflows through ticketing systems, and task assignment to owners.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "asset-exposure-management-caasm-marketing.md",
+          "quotes": [
+            "CMDB enrichment (auto-update with missing assets/elements)",
+            "Policy initiation (trigger built-in or custom access policies)",
+            "Workflow creation via ticketing systems",
+            "Task assignment to responsible owners"
+          ]
+        }
+      ]
+    },
+    "informs-risk360-uvm": {
+      "statement": "The product page says AEM's asset data feeds Risk360's risk quantification and UVM's vulnerability analysis.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "asset-exposure-management-caasm-marketing.md",
+          "quotes": [
+            "**Risk360**: AEM informs more accurate risk quantification.",
+            "**Unified Vulnerability Management (UVM)**: Accurate asset data enables vulnerability analysis with full context."
+          ]
+        }
+      ]
+    },
+    "no-client-surface": {
+      "statement": "No vendored client covers AEM: the Go and Python SDKs, the Terraform providers, the Ansible collections, the MCP server, the OneAPI Postman collection and the captured Automate contract have no AEM, Asset Exposure Management or CAASM service.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "used in your server-side code to interact with the Zscaler API platform across multiple products such as:"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. The Python README's product list (introduced by the quoted line) names no AEM API, and at the pins `git grep -i -E 'asset.exposure|caasm'` finds nothing in the Go or Python SDKs, the ZIA, ZPA, ZCC or ZTC providers, the Ansible collections or the MCP server; the Postman collection has no match. The MCP server's EASM tools and the generated `easm` surface cover External Attack Surface Management, not AEM."
+    }
+  }
+}

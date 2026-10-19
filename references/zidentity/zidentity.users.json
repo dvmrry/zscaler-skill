@@ -1,0 +1,348 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.users",
+  "title": "Authentication Service users: where they come from, status, bulk actions and admin-side actions",
+  "aliases": [
+    "ZIdentity users",
+    "Authentication Service users",
+    "user source",
+    "SCIM user",
+    "JIT user",
+    "deactivate user",
+    "disable user ZIdentity",
+    "skip MFA for user",
+    "reset user password ZIdentity",
+    "bulk delete users"
+  ],
+  "binds": [
+    "zidentity/users",
+    "zidentity/users#source",
+    "zidentity/users#status"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.users.provisioning"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.entitlements"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Authentication Service user directory is shared by every subscribed service. {{created-locally-or-idp}}"
+    },
+    {
+      "label": "Where a user came from.",
+      "text": "{{source-values}} Whether the idp field and the source track each other, and whether a source can change, is open {{gap:source-and-idp}}. Provisioning by JIT and SCIM, and what IdP removals do to users, is in [[zidentity.users.provisioning]]. Whether a SCIM-provisioned user can be edited here without the IdP undoing it is open {{gap:scim-user-mutation}}; the group question is [[zidentity.groups:scim-group-mutation]]."
+    },
+    {
+      "label": "What a user can be given.",
+      "text": "Admin and service entitlements: [[zidentity.entitlements:two-kinds]]. {{assign-services}} Group membership, up to 1,000 groups per user: [[zidentity.groups:membership-limit]]."
+    },
+    {
+      "label": "Active or inactive.",
+      "text": "{{status}}"
+    },
+    {
+      "label": "Bulk work in the console.",
+      "text": "{{console-bulk}}"
+    },
+    {
+      "label": "Creating one through the API.",
+      "text": "{{create-fields}} {{id-assigned}} What the service does with a caller-supplied ID is open {{gap:caller-id}}."
+    },
+    {
+      "label": "Admin-side actions.",
+      "text": "{{user-actions}} Which clients wrap these actions is in [[zidentity.api.client-coverage]]."
+    },
+    {
+      "text": "Endpoint, filter and SDK details are in the generated surface (`node scripts/kb.mjs surface zid`) and in [[zidentity.api.client-coverage]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the user's source is SCIM or JIT, in which case the IdP may change the record again.",
+      "uses": [
+        "source-values",
+        "zidentity.users.provisioning:jit-reactive"
+      ]
+    },
+    {
+      "do": "Whether the user is inactive rather than deleted.",
+      "uses": [
+        "status"
+      ]
+    },
+    {
+      "do": "Whether MFA was skipped for the user by an admin action.",
+      "uses": [
+        "user-actions"
+      ]
+    }
+  ],
+  "claims": {
+    "created-locally-or-idp": {
+      "statement": "Users are added to Authentication Service either by creating them locally in it or through an external identity provider.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-users.json",
+          "quotes": [
+            "You can add users to Authentication Service by creating them locally within Authentication Service or via an external identity provider (IdP) provider."
+          ]
+        }
+      ]
+    },
+    "source-values": {
+      "statement": "A user record's source says how it was created: UI (created or managed via a user interface), API (created or managed through API calls), SCIM (provisioned via SCIM) or JIT (created or updated via Just-in-Time).",
+      "tier": "A",
+      "binds": [
+        "zidentity/users#source"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/post/responses/202/content/application~1json/schema/properties/source/allOf/[title=SourceType]",
+          "expect": {
+            "enum": [
+              "UI",
+              "API",
+              "SCIM",
+              "JIT"
+            ],
+            "description": "The various sources from which an entity can originate.<li> <strong>UI</strong>: Resource was created or managed via a user interface. <li> <strong>API</strong>: Resource was created or managed through API calls.<li><strong>SCIM</strong>:  Resource was provisioned via System for Cross-domain Identity Management (SCIM). <li><strong>JIT</strong>: Resource was created or updated via Just-in-Time (JIT)."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/post/responses/202/content/application~1json/schema/properties/source",
+          "expect": {
+            "description": "The source type where the user was created."
+          }
+        }
+      ]
+    },
+    "assign-services": {
+      "statement": "A user can be assigned to one or several Zscaler services, and managing users in Authentication Service replaces keeping a separate user database in each subscribed service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-users.json",
+          "quotes": [
+            "Assign users to a single or multiple Zscaler services.",
+            "Manage all users in Authentication Service instead of maintaining individual user databases in each of the subscribed Zscaler services."
+          ]
+        }
+      ]
+    },
+    "status": {
+      "statement": "A user is Active or Inactive and is activated or deactivated from the console; in the API the status is a boolean, true for active and false for disabled.",
+      "tier": "A",
+      "binds": [
+        "zidentity/users#status"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-users.json",
+          "quotes": [
+            "Status: The status of the user (Active or Inactive).",
+            "Click the icon and activate or deactivate the user."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/post/requestBody/content/application~1json/schema/properties/status",
+          "expect": {
+            "type": "boolean",
+            "description": "Whether the API user needs to be active <code>true</code> or disabled <code>false</code>."
+          }
+        }
+      ]
+    },
+    "console-bulk": {
+      "statement": "The Users page imports new users or modifies existing ones from a CSV file, resets the password of several selected users at once, and activates, deactivates or deletes several selected users in one bulk action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-users.json",
+          "quotes": [
+            "Import new users, or modify existing users, using a CSV file.",
+            "Reset the password for multiple users. This option is visible only when you select more than one user.",
+            "Perform a bulk action on the users, like activate, deactivate, or delete them."
+          ]
+        }
+      ]
+    },
+    "create-fields": {
+      "statement": "Creating a user through the API requires `loginName`, `displayName`, `primaryEmail` and `status`; the create request has no `id` field, which appears in the response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "required": [
+              "loginName",
+              "displayName",
+              "primaryEmail",
+              "status"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/post/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "id"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/post/responses/202/content/application~1json/schema/properties/id",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "id-assigned": {
+      "statement": "So the service assigns the user's ID when the user is created.",
+      "tier": "B",
+      "derived_from": [
+        "create-fields"
+      ],
+      "conditions": "Inferred from the API reference: the create request has no ID and the response carries one. No source states it, and the Python SDK's create example still passes an ID."
+    },
+    "user-actions": {
+      "statement": "Besides create, read, update and delete, the API can initiate a password reset for a user, set a flag to skip MFA for a user (the request carries a timestamp of when the skip was set), and set a user's password, optionally requiring the user to reset it at the next login.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}:resetpassword/post",
+          "expect": {
+            "description": "Initiates a password reset for a specific user <code>ID</code>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}:setskipmfa/post",
+          "expect": {
+            "description": "Sets a flag to skip Multi-Factor Authentication (MFA) for a specified user <code>ID</code>."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}:setskipmfa/post/requestBody/content/application~1json/schema/properties/timestamp",
+          "expect": {
+            "description": "The timestamp indicating when the MFA skip action was set, usually represented in epoch time."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}:updatepassword/put",
+          "expect": {
+            "description": "Updates the password for a specific user <code>ID</code>. Optionally, a boolean flag can be set to require the user to reset their password during next login."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/post",
+          "expect": {
+            "description": "Creates a new user using the provided details."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/get",
+          "expect": {
+            "description": "Retrieves a list of users with optional query parameters for pagination and filtering.\n\n To learn more, see <a href=\"https://help.zscaler.com/authentication-service/about-users\">About Users</a>."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}/get",
+          "expect": {
+            "description": "Retrieves detailed information about a specific user using the provided user <code>ID</code>."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}/put",
+          "expect": {
+            "description": "Updates the details of an existing user based on the provided user <code>ID</code>."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}/delete",
+          "expect": {
+            "description": "Deletes an existing user from the system by the provided user <code>ID</code>."
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "caller-id": {
+      "kind": "semantic",
+      "title": "What happens when a user create carries an ID",
+      "status": "partial",
+      "former_ids": [
+        "zid-32"
+      ],
+      "detail": "Unverified legacy statement: the Python SDK's add_user example passes id explicitly, and whether omitting it makes the server generate one or returns an error was unverified. The API reference answers the omission side (the create request has no id and the response has one); whether a supplied id is ignored, honored or rejected is not stated.",
+      "blocks": "reproducing user IDs across tenants or re-creating a deleted user with its old ID",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "source-and-idp": {
+      "kind": "semantic",
+      "title": "When a user's IdP is filled in, and whether its source can change",
+      "status": "open",
+      "detail": "Unverified legacy statement: the idp field is populated for SCIM- and JIT-provisioned users and may be null for users created in the console or through the API; the source field is readable but not changeable after creation. The API reference describes idp only as identity provider information and source as where the user was created; neither rule is stated.",
+      "blocks": "telling IdP-owned users from local ones by the idp field, and repairing a user's recorded source",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    },
+    "scim-user-mutation": {
+      "kind": "semantic",
+      "title": "Whether SCIM-provisioned users can be changed in Authentication Service",
+      "status": "open",
+      "detail": "Unverified legacy statement: whether updating or deleting a user whose source is SCIM in Authentication Service is rejected by the server, on the principle that the IdP owns the record, is undocumented, as is whether an accepted change is overwritten at the next SCIM push. Searched: the user update and delete operations of the zid contract, which state no source-based rule, and the provisioning help, which covers what IdP-side SCIM requests do, not edits made in Authentication Service.",
+      "blocks": "deciding whether to change a SCIM-provisioned user in Authentication Service or in the IdP",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

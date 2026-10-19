@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "id": "zdx.devices.call-quality",
+  "title": "ZDX call-quality metrics per device and meeting",
+  "aliases": [
+    "zdx call quality",
+    "call quality metrics",
+    "cqm",
+    "zdx teams call quality",
+    "zdx zoom call quality",
+    "call-quality-metrics",
+    "meet_id"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zdx.devices"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.cloud-architecture"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Call quality comes from the meeting platforms rather than from probes, [[zdx.cloud-architecture:call-quality]], once a tenant is onboarded, [[zdx.applications:uc-tenant-onboarding]]. {{cqm-read}}"
+    },
+    {
+      "label": "Per meeting.",
+      "text": "{{meeting-fields}}"
+    },
+    {
+      "label": "Open.",
+      "text": "Which applications populate this read and which metric names appear in its series are not enumerated {{gap:cqm-scope}}. How each SDK types the metrics is in [[zdx.sdk-python.response-models]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the application is a call-quality (CQM) application with its tenant onboarded before expecting meeting data.",
+      "uses": [
+        "cqm-read",
+        "zdx.applications:uc-tenant-onboarding"
+      ]
+    }
+  ],
+  "claims": {
+    "cqm-read": {
+      "statement": "The call-quality read returns the Call Quality metric trend for a device for a CQM application, for the last 2 hours if no time range is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1apps~1{appId}~1call-quality-metrics/get",
+          "expect": {
+            "description": "Gets the Call Quality metric trend for a device for a CQM application. If the time range is not specified, the endpoint defaults to the last 2 hours."
+          }
+        }
+      ]
+    },
+    "meeting-fields": {
+      "statement": "Each entry is a meeting, with its meeting ID, meeting session ID and subject, and a `metrics` array of series.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1apps~1{appId}~1call-quality-metrics/get/responses/200/content/application~1json/schema/items/properties/meet_id",
+          "expect": {
+            "description": "The meeting ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1apps~1{appId}~1call-quality-metrics/get/responses/200/content/application~1json/schema/items/properties/meet_session_id",
+          "expect": {
+            "description": "The meeting session ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1apps~1{appId}~1call-quality-metrics/get/responses/200/content/application~1json/schema/items/properties/meet_subject",
+          "expect": {
+            "description": "The subject of the meeting."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1apps~1{appId}~1call-quality-metrics/get/responses/200/content/application~1json/schema/items/properties/metrics",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1apps~1{appId}~1call-quality-metrics/get/responses/200/content/application~1json/schema/items/properties/metrics/items",
+          "expect": {
+            "title": "Series"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "cqm-scope": {
+      "kind": "semantic",
+      "title": "Which applications have call-quality data and which metrics it carries",
+      "status": "open",
+      "former_ids": [
+        "zdx-28"
+      ],
+      "detail": "The contract says the read is for a CQM application; the help names Microsoft Teams, Webex and Zoom call-quality onboarding and the architecture page Microsoft Graph and Zoom. Which applications populate the read and which metric labels appear in its series are not enumerated.",
+      "blocks": "call-quality answers for a given application",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

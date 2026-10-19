@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.api-clients.access-policy",
+  "title": "The API Client Access Policy: rules that allow or block a client's resources within time frames",
+  "aliases": [
+    "api client access policy",
+    "api client access policy rule",
+    "restrict api client by time",
+    "api client source ip restriction",
+    "oneapi client time window"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zidentity.api-clients"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.api-clients.access-tokens"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Beyond the resources a client holds, a tenant can limit when a client may use them. {{purpose}}"
+    },
+    {
+      "label": "A rule.",
+      "text": "{{criteria-time-resources}} {{action-and-status}} {{one-rule-per-client}}"
+    },
+    {
+      "label": "Who and where.",
+      "text": "{{full-permission}} The contract has no access-policy operation, so rules are managed in the console only: [[zidentity.api:no-token-or-policy-paths]]."
+    },
+    {
+      "label": "Changing rules.",
+      "text": "{{edit-updates-token}} {{no-delete-while-assigned}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a client that fails only at certain times or for certain products, whether an access policy rule is assigned to it, and its criteria and action.",
+      "uses": [
+        "criteria-time-resources",
+        "action-and-status",
+        "one-rule-per-client"
+      ]
+    },
+    {
+      "do": "After a rule assigned to a client was edited, whether the client is using a newly issued token.",
+      "uses": [
+        "edit-updates-token"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "API client access policies determine an API client's access to specific API resources within set time frames; administrators define the rules and assign them to API clients.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-api-client-access-policy.json",
+          "quotes": [
+            "The API client access policies determine the API client's access to specific API resources within set time frames.",
+            "Administrators can define the policy rules and assign them to the required API clients to prevent unauthorized activity and control access to API resources."
+          ]
+        }
+      ]
+    },
+    "criteria-time-resources": {
+      "statement": "A rule's criteria are Time (a repeating behavior, start and end date and time, and a time zone) and Resources (the API resources, that is the scope per Zscaler service); when both are set, the rule applies either one (Any) or both (All).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-api-client-access-policy-rule.json",
+          "quotes": [
+            "Select Any from the drop-down menu to apply either Time or Resources criteria or select All to apply both (Time and Resources) criteria.",
+            "Select the repeating behavior for the rule.",
+            "Select a start date and time. The rule is valid from this date and time.",
+            "Select an end date and time. The rule ends on this date and time.",
+            "Select the time zone in which the rule should be valid.",
+            "Select the API resources that determine the permissions (scope) the API client has to access the API resources of each Zscaler service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-api-client-access-policy.json",
+          "quotes": [
+            "Criteria: The API resources and time parameters defined in the policy rule."
+          ]
+        }
+      ]
+    },
+    "action-and-status": {
+      "statement": "A rule's action is Allow or Block, and its status is Active or Expired.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-api-client-access-policy.json",
+          "quotes": [
+            "Rule Action: The action (Allow or Block) that is defined for the policy rule.",
+            "Rule Status: The status (Active or Expired) of the policy rule."
+          ]
+        }
+      ]
+    },
+    "one-rule-per-client": {
+      "statement": "Only one policy rule can be assigned to an API client at a time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-api-client-access-policy.json",
+          "quotes": [
+            "Only one policy rule can be assigned to an API client at a time."
+          ]
+        }
+      ]
+    },
+    "full-permission": {
+      "statement": "Authentication Service administrators with Full permission on the API clients and API resources modules can configure a rule; rules are added under Administration > API > API Client Access Policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-api-client-access-policy-rule.json",
+          "quotes": [
+            "Authentication Service administrators assigned with Full permission to access the API clients and API resources modules can configure an API client access policy rule.",
+            "Go to Administration > API > API Client Access Policy."
+          ]
+        }
+      ]
+    },
+    "edit-updates-token": {
+      "statement": "Editing a rule that is assigned to an API client also updates that client's access token, and the client has to use a valid token.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-api-client-access-policy.json",
+          "quotes": [
+            "If you update the policy rule that is associated with the API client, then the access token is also updated. Ensure to use a valid access token."
+          ]
+        }
+      ]
+    },
+    "no-delete-while-assigned": {
+      "statement": "A rule cannot be deleted while any API client is associated with it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-api-client-access-policy.json",
+          "quotes": [
+            "You cannot delete the policy rule if any API client is associated with it."
+          ]
+        }
+      ]
+    }
+  }
+}

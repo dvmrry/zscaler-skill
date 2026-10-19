@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "id": "zbi.private-access-isolation",
+  "title": "Private Access isolation policy: when private application requests go to isolation, and what else they need",
+  "aliases": [
+    "zpa isolation policy",
+    "isolation policy rule",
+    "zpa cloud browser isolation",
+    "isolate private app",
+    "bypass isolation",
+    "zpa isolation timeout",
+    "zpa_policy_isolation_rule"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zbi.policy"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.policy.evaluation-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.rule-fields"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} {{clientless-access}}"
+    },
+    {
+      "label": "Two policies.",
+      "text": "{{access-policy-too}} What a user sees when the isolation rule matches but access policy denies the application is open {{gap:isolated-but-denied}}."
+    },
+    {
+      "label": "Rules.",
+      "text": "{{criteria-logic}} {{rule-order}} {{rule-action}} {{default-rule}} The default rule's place in Private Access evaluation: [[zpa.policy.evaluation-order:default-isolation]]. The wire actions are ISOLATE and BYPASS_ISOLATE: [[zpa.terraform.policy-rule-resources:inspection-profile-required-for-inspect]]."
+    },
+    {
+      "label": "Criteria.",
+      "text": "Whether a posture profile can be a criterion is disputed between sources: [[zpa.posture-profiles.policy-operand:posture-isolation]]. Whether SCIM operands are accepted is open: [[zpa.scim.policy-criteria:zpa-68-isolation-scim]]."
+    },
+    {
+      "label": "Session timeout.",
+      "text": "{{session-timeout}} How this interacts with the container idle timeout is open {{gap:timeout-vs-idle}}. {{maintenance}}"
+    },
+    {
+      "label": "Automation.",
+      "text": "The Python SDK requires a profile ID only for the isolate action: [[zpa.policy.rule-fields:isolation-profile-required-for-isolate]]. {{mcp-create-requires-profile}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an access policy rule allows the application as well as the isolation rule sending it to isolation.",
+      "uses": [
+        "access-policy-too"
+      ]
+    },
+    {
+      "do": "Which isolation rule matched first in rule order, or whether the uneditable default rule applied.",
+      "uses": [
+        "rule-order",
+        "default-rule",
+        "zpa.policy.evaluation-order:default-isolation"
+      ]
+    },
+    {
+      "do": "Whether the shortest configured timeout policy explains an unexpected reauthentication.",
+      "uses": [
+        "session-timeout",
+        "timeout-vs-idle"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "Private Access isolation policy rules define when application requests are redirected to isolation; they require isolation to be enabled for the organization and an isolation profile to exist before the rule is set up.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "you can create rules that define when application requests are redirected to isolation. This requires having isolation enabled for your organization and creating an isolation profile prior to setting up the isolation policy rule."
+          ]
+        }
+      ]
+    },
+    "clientless-access": {
+      "statement": "Zscaler describes isolation policy as giving clientless access to critical applications through a containerized isolated browser so that the posture of the user's machine does not affect the applications, and as enforcing exfiltration controls that stop copy, paste, upload and download between the user's computer and the application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "Define policies to provide secure clientless access to critical applications via a containerized isolated browser on the Zscaler cloud, ensuring the posture of a user's machine doesn't affect the related applications.",
+            "Enforce data exfiltration controls by ensuring users are unable to copy, paste, upload, or download files between their computers and the applications they are accessing."
+          ]
+        }
+      ]
+    },
+    "access-policy-too": {
+      "statement": "Besides an isolation policy, an access policy must be defined for the application to be reachable from within the isolation environment; requests not directed to isolation are reviewed against access policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "Along with defining an isolation policy, you also need to define an access policy for the application to be accessible from within the browser isolation environment. Application requests not directed to isolation are reviewed based on access policies."
+          ]
+        }
+      ]
+    },
+    "criteria-logic": {
+      "statement": "A request must match all the conditions within an isolation rule, and isolation rules use only the AND and OR operators.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "A user's application request must match all the conditions within a policy rule.",
+            "Isolation policy rules use AND and OR operators only."
+          ]
+        }
+      ]
+    },
+    "rule-order": {
+      "statement": "Private Access applies isolation rules in the order listed on the Isolation Policy page, and the rule order can be changed by entering a new number.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "Private Access applies policy rules based on the order they are listed here. Change the rule order by clicking on the number and manually entering in a new value."
+          ]
+        }
+      ]
+    },
+    "rule-action": {
+      "statement": "An isolation rule's action either allows or bypasses isolation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "Rule Action: Indicates if the rule is to allow or bypass isolation."
+          ]
+        }
+      ]
+    },
+    "default-rule": {
+      "statement": "The isolation policy has a default rule that cannot be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "Review the default rule. This rule cannot be edited."
+          ]
+        }
+      ]
+    },
+    "session-timeout": {
+      "statement": "Once the user is authenticated, the isolation session timeout is the minimum timeout across all configured timeout policies, after which the user must reauthenticate with Private Access to reach applications through isolation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "When the user is authenticated, the session timeout value is the minimum timeout across all configured timeout policies. After the timeout happens, the user needs to reauthenticate with Private Access to access applications via isolation."
+          ]
+        }
+      ]
+    },
+    "maintenance": {
+      "statement": "During a Private Access maintenance period, isolation might not be available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-isolation-policy.json",
+          "quotes": [
+            "If Private Access is undergoing a maintenance period, isolation might not be available."
+          ]
+        }
+      ]
+    },
+    "mcp-create-requires-profile": {
+      "statement": "The MCP server's isolation rule create tool raises an error when `action_type` is isolate and no `zpn_isolation_profile_id` is given, and creates the rule through the Python SDK's `add_isolation_rule_v2`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/access_isolation_rules.py",
+          "quotes": [
+            "if args.action_type.lower() == \"isolate\" and not args.zpn_isolation_profile_id:",
+            "raise ValueError(\"zpn_isolation_profile_id is required when action_type is 'isolate'\")",
+            "client.zpa.policies.add_isolation_rule_v2(**payload)"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "isolated-but-denied": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What the user sees when isolation policy matches but access policy denies the application",
+      "detail": "Unverified legacy statement: a user can pass the isolation policy (the session is isolated) but fail access policy, so the isolated session loads but the application inside it is denied. The help says only that an access policy is needed for the application to be accessible from within isolation.",
+      "blocks": "telling an access-policy denial from a broken isolation session",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "timeout-vs-idle": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "How the Private Access timeout and the container idle timeout combine",
+      "detail": "Unverified legacy statement: Private Access isolation uses the minimum timeout across configured timeout policies in addition to the 10-minute container idle timeout, and the lower of the two wins. The sources state each separately but not how they interact.",
+      "blocks": "predicting when a Private Access isolated session ends",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

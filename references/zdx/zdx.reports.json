@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "id": "zdx.reports",
+  "title": "Reading ZDX report data: time ranges, paging, users and what the reads return",
+  "aliases": [
+    "zdx reports",
+    "zdx reports api",
+    "zdx report endpoints",
+    "zdx time range",
+    "zdx last 2 hours",
+    "zdx 2 hour limit",
+    "next_offset",
+    "zdx pagination",
+    "zdx page size",
+    "zdx users api",
+    "zdx user score",
+    "list_users",
+    "zdx api delay",
+    "zdx aggregation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.devices"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.administration"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.log-export.zdx"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The report reads cover applications, devices and users; this subject holds the rules they share and the user reads. The help's summary of the area is in [[shared.log-export.zdx:api-scope]]."
+    },
+    {
+      "heading": "Time ranges"
+    },
+    {
+      "text": "{{default-window}} Most report reads also take at most 2 hours per request, while the device events read needs no range, [[shared.log-export.zdx:two-hour-window]]. Data lags collection by an estimated 20 minutes, [[shared.log-export.zdx:reporting-delay]], and API values can differ slightly from the UI, with -1 meaning no data, [[shared.log-export.zdx:api-vs-ui]]."
+    },
+    {
+      "heading": "Paging"
+    },
+    {
+      "text": "{{paging}}"
+    },
+    {
+      "heading": "Users"
+    },
+    {
+      "text": "{{users-list}} {{user-score}} {{user-detail}} The users of one application are in [[zdx.applications:app-users]]."
+    },
+    {
+      "heading": "What the reads return"
+    },
+    {
+      "text": "Per-application scores, most impacted locations, impacted-user counts and per-category user counts come from the application reads, [[zdx.applications:apps-list]] and [[zdx.applications:app-stats]]. {{no-ranked-reports}} {{config-counts}}"
+    },
+    {
+      "label": "Other report reads.",
+      "text": "Devices, their health, events, geolocations and call quality are in [[zdx.devices]]; the Diagnostics Session reads, including top processes, are in [[zdx.diagnostics]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the request's range is within 2 hours, or is split into 2-hour windows, before reading a longer period.",
+      "uses": [
+        "default-window",
+        "shared.log-export.zdx:two-hour-window"
+      ]
+    },
+    {
+      "do": "Whether the read followed `next_offset` until it was empty before treating a list as complete.",
+      "uses": [
+        "paging"
+      ]
+    },
+    {
+      "do": "Whether the most recent 20 minutes are excluded or allowed for before concluding data is missing.",
+      "uses": [
+        "shared.log-export.zdx:reporting-delay"
+      ]
+    }
+  ],
+  "claims": {
+    "default-window": {
+      "statement": "The contract's report reads default to the last 2 hours when no time range is given; the descriptions say so for, among others, the device list, the device applications, the health metrics, the user list and the active geolocations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices/get",
+          "expect": {
+            "description": "Gets the list of all active devices and its basic details. The JSON must contain the user’s ID and email address to associate the device to the user. If the time range is not specified, the endpoint defaults to the last 2 hours."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1apps/get",
+          "expect": {
+            "description": "Gets the list all active applications for a device. The endpoint gets the ZDX score each application. If the time range is not specified, the endpoint defaults to the last 2 hours."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1health-metrics/get",
+          "expect": {
+            "description": "Gets the health metrics trend for a device. If the time range is not specified, the endpoint defaults to the last 2 hours. The health metrics include CPU, Memory, Disk I/O, Network I/O, Wi-Fi, Network Bandwidth, etc."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get",
+          "expect": {
+            "description": "Gets the list of all active users, their devices, active geolocations, and Zscaler locations. If the time range is not specified, the endpoint defaults to the last 2 hours."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1active_geo/get",
+          "expect": {
+            "description": "Gets the list of all active geolocations for the time range specified. If not specified, the endpoint defaults to the last 2 hours. The state and city data is retrieved only for the US."
+          }
+        }
+      ]
+    },
+    "paging": {
+      "statement": "The device list, user list and application-user list take an `offset` and a `limit` that defaults to 1000, and return a `next_offset` that must be entered in the next request to get the next batch.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices/get/parameters/[name=limit]",
+          "expect": {
+            "schema": {
+              "default": 1000,
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices/get/parameters/[name=offset]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get/parameters/[name=limit]",
+          "expect": {
+            "schema": {
+              "default": 1000,
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get/parameters/[name=offset]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}~1users/get/parameters/[name=offset]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}~1users/get/parameters/[name=limit]",
+          "expect": {
+            "schema": {
+              "default": 1000,
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices/get/responses/200/content/application~1json/schema/properties/next_offset",
+          "expect": {
+            "description": "This value must be entered in the next request to get the next batch from the list."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get/responses/200/content/application~1json/schema/properties/next_offset",
+          "expect": {
+            "description": "This value must be entered in the next request to get the next batch from the list."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}~1users/get/responses/200/content/application~1json/schema/properties/next_offset",
+          "expect": {
+            "description": "This value must be entered in the next request to get the next batch from the list."
+          }
+        }
+      ]
+    },
+    "users-list": {
+      "statement": "The user list returns all active users with their devices, active geolocations and Zscaler locations, for the last 2 hours if no time range is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get",
+          "expect": {
+            "description": "Gets the list of all active users, their devices, active geolocations, and Zscaler locations. If the time range is not specified, the endpoint defaults to the last 2 hours."
+          }
+        }
+      ]
+    },
+    "user-score": {
+      "statement": "Each user in the user list carries a `score`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get/responses/200/content/application~1json/schema/properties/users/items/properties/score",
+          "expect": {
+            "format": "double",
+            "type": "number"
+          }
+        }
+      ]
+    },
+    "user-detail": {
+      "statement": "The single-user read returns the user's details with device information, active geolocations and Zscaler locations, for the last 2 hours if no time range is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users~1{id}/get",
+          "expect": {
+            "description": "Gets user details including the device information, active geolocations, and Zscaler locations. If the time range is not specified, the endpoint defaults to the last 2 hours."
+          }
+        }
+      ]
+    },
+    "no-ranked-reports": {
+      "statement": "Apart from each application's most impacted location, no report read in the contract returns a ranked or top-N list across applications, users or locations.",
+      "tier": "B",
+      "derived_from": [
+        "zdx.applications:apps-list"
+      ],
+      "conditions": "Rests on a reading of the 21 operations tagged Reports in the captured contract at the pin: they are lists, single-object reads and trends; the only ranked output is the most impacted location of an application. The Diagnostics Session top-processes read is outside the Reports tag."
+    },
+    "config-counts": {
+      "statement": "The configuration area of the contract has count and summary reads: a device count, an application's configured-monitor counts, and lighter summary lists of applications and of departments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1devices~1count/get",
+          "expect": {
+            "description": "Get Devices Count"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors~1count/get",
+          "expect": {
+            "description": "Get Configured Monitor Counts"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1summary/get",
+          "expect": {
+            "description": "Retrieves a summary list of configured applications. This is a lighter version of the main get applications endpoint."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1departments~1summary/get",
+          "expect": {
+            "description": "Gets a summarized list of departments, returning only ID and name. Can be filtered by various parameters."
+          }
+        }
+      ]
+    }
+  }
+}

@@ -250,7 +250,7 @@ Start
 │  │      x-ratelimit-* headers indicate remaining budget. Backoff strategy is product-specific;
 │  │      see oneapi.md § Rate limits — different model per product.
 │  ├─ ZPA → Per-IP rate limit. RateLimit-* headers (different naming!).
-│  ├─ ZDX → Tier-based by license count. RateLimit-* headers (OneAPI gateway, help-documented; direct-cloud SDK path uses X-Ratelimit-*-Second — host-coupling inferred, see zdx/api-divergences.md).
+│  ├─ ZDX → Tier-based by license count. RateLimit-* headers (OneAPI gateway, help-documented; direct-cloud SDK path uses X-Ratelimit-*-Second — host-coupling inferred, see `zdx.api.rate-limits`).
 │  ├─ ZCC → Flat tenant-wide. X-Rate-Limit-* headers (note the dashes — different again!).
 │  └─ ZTW (Cloud Connector) → Same as ZIA weight model.
 │
@@ -410,7 +410,7 @@ Reversibility differs sharply by product. Pick the right pattern for the product
 | **AI Guard** | Python `client.aiguard` exposes configuration reads and writes; no activation/commit operation appears in the captured service | No staged rollback window established | Snapshot the resource before a write and prepare the corresponding inverse update/delete. Validate tenant behavior before relying on the API as a rollback mechanism. |
 | **Deception / Risk360 / AI Security beyond AI Guard / ZMS** | No verified SDK/TF configuration rollback path | N/A | Use the product-specific reference boundary; ZMS configuration changes remain portal-only. |
 
-> Note: ZMS exposes a **read-only** GraphQL API (`client.zms.*`). AI Guard is different: Python `client.aiguard` exposes six OneAPI configuration resources, while `LegacyAIGuardClient(...).aiguard.policy_detection` is the separately routed runtime-detection surface. The documented dispatch fix for `execute_policy` and `resolve_and_execute_policy` is in Python SDK v1.9.44; before that fix, these methods fell through to the standard OneAPI session without the AI Guard API key (`vendor/zscaler-sdk-python/CHANGELOG.md:3-11`). See [`../zms/api.md`](../zms/api.md) and [`../ai-security/api-divergences.md`](../ai-security/api-divergences.md#runtime-api-surface).
+> Note: ZMS exposes a **read-only** GraphQL API (`client.zms.*`). AI Guard is different: Python `client.aiguard` exposes six OneAPI configuration resources, while `LegacyAIGuardClient(...).aiguard.policy_detection` is the separately routed runtime-detection surface. The documented dispatch fix for `execute_policy` and `resolve_and_execute_policy` is in Python SDK v1.9.44; before that fix, these methods fell through to the standard OneAPI session without the AI Guard API key (`vendor/zscaler-sdk-python/CHANGELOG.md:3-11`). See [`zms.api`](kb:zms.api) and [`ai-security.ai-guard.runtime-api`](kb:ai-security.ai-guard.runtime-api).
 
 ### Pattern: ZIA staged-and-revert (the activation-gate workflow)
 

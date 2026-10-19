@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "id": "zdx.diagnostics.mcp-tools",
+  "title": "The MCP server's ZDX deep-trace tools and troubleshooting prompt: inputs, results and mismatches",
+  "aliases": [
+    "zdx_start_deeptrace",
+    "zdx_delete_deeptrace",
+    "zdx_list_device_deep_traces",
+    "zdx_get_device_deep_trace",
+    "zdx_troubleshoot_user_experience",
+    "mcp zdx deep trace",
+    "mcp zdx prompt"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.start-request"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.mcp-server"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The MCP server wraps the Python SDK's ZDX troubleshooting calls as tools and ships a guided prompt that chains them. Its general behavior is in [[shared.mcp-server]]; this subject covers the ZDX deep-trace tools."
+    },
+    {
+      "label": "Starting.",
+      "text": "{{start-tool-inputs}} {{start-tool-coerces}} {{start-tool-trace-id}}"
+    },
+    {
+      "label": "Writes are gated.",
+      "text": "{{write-gating}} {{delete-requires-ids}}"
+    },
+    {
+      "label": "Reading.",
+      "text": "{{list-tool-records}} {{timestamp-conversion}} {{probe-since}}"
+    },
+    {
+      "label": "The guided prompt.",
+      "text": "{{prompt-search-arg}} {{prompt-string-ids}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the started trace's ID came from the tool result, which comes back empty, or from a follow-up listing.",
+      "uses": [
+        "start-tool-trace-id"
+      ]
+    },
+    {
+      "do": "Whether the server was started with write tools enabled before a start or delete was attempted.",
+      "uses": [
+        "write-gating"
+      ]
+    },
+    {
+      "do": "Whether calls built from the guided prompt use the registered tool arguments rather than the prompt's `search` and string IDs.",
+      "uses": [
+        "prompt-search-arg",
+        "prompt-string-ids"
+      ]
+    }
+  ],
+  "claims": {
+    "start-tool-inputs": {
+      "statement": "The MCP start tool takes `device_id` as a string, `app_id`, `web_probe_id` and `cloudpath_probe_id` as integers, `session_length_minutes` defaulting to 5 and `probe_device` defaulting to true.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zdx/deeptrace_manage.py",
+          "after": "class StartDeepTraceInput(BaseModel):",
+          "quotes": [
+            "device_id: Annotated[str, Field(description=\"ZDX device ID (string, even if numeric).\")]",
+            "int, Field(description=\"Application ID as an INTEGER (from zdx_list_applications).\")",
+            "int, Field(description=\"Web probe ID as an INTEGER (from zdx_get_web_probes).\")",
+            "Field(description=\"Cloud-path probe ID as an INTEGER (from zdx_list_cloudpath_probes).\"),",
+            "Field(default=5, description=\"Session duration in minutes. Supported: 5, 15, 30, 60.\"),",
+            "Field(default=True, description=\"Probe the device for CPU/memory/disk/network metrics.\"),",
+            "app_id: Annotated[",
+            "web_probe_id: Annotated[",
+            "cloudpath_probe_id: Annotated[",
+            "session_length_minutes: Annotated[",
+            "probe_device: Annotated["
+          ]
+        }
+      ]
+    },
+    "start-tool-coerces": {
+      "statement": "The start tool converts the three IDs to integers and passes `session_name`, `app_id`, `web_probe_id`, `cloudpath_probe_id`, `session_length_minutes` and `probe_device` to the Python `start_deeptrace`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zdx/deeptrace_manage.py",
+          "quotes": [
+            "\"session_name\": args.session_name,",
+            "\"app_id\": int(args.app_id),",
+            "\"web_probe_id\": int(args.web_probe_id),",
+            "\"cloudpath_probe_id\": int(args.cloudpath_probe_id),",
+            "\"session_length_minutes\": args.session_length_minutes,",
+            "\"probe_device\": args.probe_device,",
+            "result, _, err = client.zdx.troubleshooting.start_deeptrace(args.device_id, **sdk_kwargs)"
+          ]
+        }
+      ]
+    },
+    "start-tool-trace-id": {
+      "statement": "The tool reads the trace ID from the SDK result's `trace_id`, `traceId` or `id` and falls back to `started` for the status; since the Python start result carries none of those keys, the tool returns no trace ID and the status `started` whatever the API answered.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zdx/deeptrace_manage.py",
+          "quotes": [
+            "trace_id=_opt_str(pick(raw, \"trace_id\", \"traceId\", \"id\")),",
+            "status=pick(raw, \"status\", \"state\") or \"started\","
+          ]
+        }
+      ],
+      "derived_from": [
+        "zdx.diagnostics.start-request:python-start-result"
+      ],
+      "conditions": "Follows from the tool's key lookup against the attributes the Python result model exposes; not observed against a live tenant."
+    },
+    "write-gating": {
+      "statement": "The start and delete tools are disabled unless the operator passes `--write-tools`, and the server bridge confirms a delete before the tool body runs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zdx/deeptrace_manage.py",
+          "quotes": [
+            "zdx_start_deeptrace   (CREATE)",
+            "zdx_delete_deeptrace  (DELETE — HMAC-confirmed)",
+            "These are the write half of the read-heavy ZDX troubleshooting surface.",
+            "The delete is confirmed by the server bridge BEFORE the tool body runs;",
+            "Write tools are disabled unless the operator passes ``--write-tools``.",
+            "troubleshooting. Requires `--write-tools`.",
+            "Gated by `--write-tools`."
+          ]
+        }
+      ]
+    },
+    "delete-requires-ids": {
+      "statement": "The delete tool refuses a call without both `device_id` and `trace_id`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zdx/deeptrace_manage.py",
+          "quotes": [
+            "raise ValueError(\"device_id and trace_id are required for delete\")"
+          ]
+        }
+      ]
+    },
+    "list-tool-records": {
+      "statement": "The deep-trace list tool returns each trace's SDK record (`as_dict()`) as one row, and the get tool returns the first element of the SDK's result, so their fields are whatever the Python models expose.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zdx/list_deep_traces.py",
+          "quotes": [
+            "rows.extend(t.as_dict() for t in traces)",
+            "raw = result[0].as_dict() if result and len(result) > 0 else {}",
+            "return shape_one(raw)"
+          ]
+        }
+      ]
+    },
+    "timestamp-conversion": {
+      "statement": "Among the ZDX tools, only the analysis reader converts epoch timestamps to ISO strings (`convert_timestamps`); the deep-trace get tool's docstring says its timestamps are ISO-normalized, but its body passes the SDK record through unconverted.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zdx/deeptrace_analysis.py",
+          "quotes": [
+            "data=convert_timestamps(first) if first else {},"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zdx/list_deep_traces.py",
+          "quotes": [
+            "unwrapped, timestamps ISO-normalized, and shaped to the identity fields.",
+            "raw = result[0].as_dict() if result and len(result) > 0 else {}"
+          ]
+        }
+      ],
+      "conditions": "A search of `src/zscaler_mcp/` at the pin finds `convert_timestamps(` called only in `deeptrace_analysis.py`."
+    },
+    "probe-since": {
+      "statement": "The device and probe tools take `since` as an optional look-back in hours of at least 1, described as defaulting to 2 hours in ZDX.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zdx/_common.py",
+          "after": "class ProbeInput(BaseModel):",
+          "quotes": [
+            "since: Annotated[",
+            "Field(default=None, ge=1, description=\"Look-back window in HOURS (ZDX default 2h).\"),"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zdx/active_devices.py",
+          "after": "class ListDevicesInput(BaseModel):",
+          "quotes": [
+            "since: Annotated[",
+            "Field(default=None, ge=1, description=\"Look-back window in HOURS (ZDX default 2h).\"),"
+          ]
+        }
+      ]
+    },
+    "prompt-search-arg": {
+      "statement": "The ZDX troubleshooting prompt tells the agent to call `zdx_list_devices(search=...)`, but the device-list tool's input has no `search` field; it filters by emails, user IDs, MAC address, private IPv4, location, department, geolocation, `since` and `offset`.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/prompts/catalog/zdx/troubleshoot_user_experience.py",
+          "quotes": [
+            "`zdx_list_devices(search=\"{user_or_device}\")` to locate the device."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zdx/active_devices.py",
+          "after": "class ListDevicesInput(BaseModel):",
+          "quotes": [
+            "emails: Annotated[",
+            "user_ids: Annotated[",
+            "mac_address: Annotated[",
+            "private_ipv4: Annotated[",
+            "location_id: Annotated[",
+            "department_id: Annotated[",
+            "geo_id: Annotated[",
+            "since: Annotated[",
+            "offset: Annotated["
+          ]
+        }
+      ],
+      "conditions": "The nine quoted fields are every field `ListDevicesInput` declares at the pin; how the server treats an undeclared argument was not traced."
+    },
+    "prompt-string-ids": {
+      "statement": "The prompt also says to pass all IDs as strings, which disagrees with the start tool's integer application and probe IDs.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/prompts/catalog/zdx/troubleshoot_user_experience.py",
+          "quotes": [
+            "- Pass all IDs as strings."
+          ]
+        }
+      ],
+      "derived_from": [
+        "start-tool-inputs"
+      ],
+      "conditions": "A comparison of the prompt text with the start tool's input model."
+    }
+  }
+}

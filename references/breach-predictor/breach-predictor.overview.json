@@ -1,0 +1,385 @@
+{
+  "schema_version": 1,
+  "id": "breach-predictor.overview",
+  "title": "Breach Predictor: what it predicts, which data it reads, how it maps attacks, and what it integrates with",
+  "aliases": [
+    "breach predictor",
+    "zscaler breach predictor",
+    "breach probability score",
+    "overall breach probability",
+    "breach predictor siem",
+    "breach predictor splunk",
+    "breach predictor integrations",
+    "breach predictor api",
+    "predr"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "aem.secops-platform"
+    },
+    {
+      "rel": "see-also",
+      "to": "risk360.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.overview"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{supplements}}"
+    },
+    {
+      "label": "Data it reads.",
+      "text": "{{data-sources}} {{generative-ai}}"
+    },
+    {
+      "heading": "How it shows risk"
+    },
+    {
+      "text": "{{mitre-mapping}} {{stage-mapping}} {{breach-probability}} {{sankey}} {{attack-path}}"
+    },
+    {
+      "label": "Acting on it.",
+      "text": "{{pages}} {{policy-context}} {{remediation-workflow}}"
+    },
+    {
+      "heading": "Integrations"
+    },
+    {
+      "items": [
+        {
+          "label": "SIEM.",
+          "text": "{{siem-forwarding}} {{splunk-json}} {{crowdstrike-retention}}"
+        },
+        {
+          "label": "Ticketing.",
+          "text": "{{ticketing}}"
+        },
+        {
+          "label": "Zscaler Sandbox.",
+          "text": "{{sandbox}}"
+        }
+      ]
+    },
+    {
+      "text": "It is part of the SecOps platform's preemptive detection strategy with Deception: [[aem.secops-platform:easm-and-predr]]."
+    },
+    {
+      "heading": "Automation"
+    },
+    {
+      "text": "{{no-client-surface}} Any API beyond these push integrations is open {{gap:api-surface}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For Breach Predictor events in a SIEM, use the SIEM integration (CrowdStrike Next-Gen SIEM or Splunk HEC), which pushes every new event; no pull API is documented.",
+      "uses": [
+        "siem-forwarding",
+        "api-surface"
+      ]
+    },
+    {
+      "do": "When older Breach Predictor events are missing from CrowdStrike Next-Gen SIEM, compare their age with that SIEM's retention period.",
+      "uses": [
+        "crowdstrike-retention"
+      ]
+    },
+    {
+      "do": "Whether the Splunk URL in the integration ends with a JSON event endpoint such as /services/collector/event.",
+      "uses": [
+        "splunk-json"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Breach Predictor anticipates threats, provides context about them, and helps prevent threat actors from accessing sensitive data; its benefits are listed as Enhanced Attack Visibility, Proactive Breach Risk Reduction and Improved Security Posture.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "bp-what-zscaler-breach-predictor.json",
+          "quotes": [
+            "anticipating threats, providing you context about those threats, and helping prevent threat actors from accessing sensitive data in your organization.",
+            "- Enhanced Attack Visibility",
+            "- Proactive Breach Risk Reduction",
+            "- Improved Security Posture"
+          ]
+        }
+      ]
+    },
+    "supplements": {
+      "statement": "It is designed to supplement, rather than replace, reactive security tools.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-breach-predictor.json",
+          "quotes": [
+            "Breach Predictor is designed to supplement, rather than replace, reactive security tools."
+          ]
+        }
+      ]
+    },
+    "data-sources": {
+      "statement": "Its data sources are logs from ZIA, Zscaler Sandbox and CrowdStrike, ThreatLabz threat intelligence focused on attack indicators, and existing policy recommendations based on peers and best practices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-breach-predictor.json",
+          "quotes": [
+            "Breach Predictor examines a large amount of data from an array of sources:",
+            "Logs from Zscaler Internet Access (ZIA), Zscaler Sandbox, and CrowdStrike",
+            "Threat intelligence from Zscaler ThreatLabz that is focused on building attack indicators",
+            "Existing policy recommendations based on peers and best practices"
+          ]
+        }
+      ]
+    },
+    "generative-ai": {
+      "statement": "It uses generative AI to find patterns, new threats and indicators of compromise, and gives a probability for where threats will move.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-breach-predictor.json",
+          "quotes": [
+            "Breach Predictor uses generative AI to analyze vast amounts of data to determine patterns and behaviors, recognizing new threats and Indicators of Compromise (IoCs) emerging in your environment.",
+            "It also provides probability for where threats will move"
+          ]
+        }
+      ]
+    },
+    "mitre-mapping": {
+      "statement": "It uses machine learning to give real-time insight into threat activity affecting users, mapped to MITRE ATT&CK techniques, from Zscaler and third-party data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "bp-what-zscaler-breach-predictor.json",
+          "quotes": [
+            "Breach Predictor leverages the power of machine learning to bring real-time insights into threat activity impacting users in your organization, mapped to the MITRE Adversarial Tactics, Techniques, and Common Knowledge (ATT&CK) framework techniques.",
+            "Breach Predictor ingests and analyzes vast amounts of Zscaler and third-party data to provide actionable insights."
+          ]
+        }
+      ]
+    },
+    "stage-mapping": {
+      "statement": "MITRE ATT&CK techniques map to four attack stages: Discover Attack (Reconnaissance, Resource Development), Compromise (Initial Access, Execution, Persistence, Privilege Escalation, Defense Evasion), Lateral Movement (Credential Access, Discovery, Lateral Movement, Collection) and Data Loss (Command and Control, Exfiltration, Impact).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "bp-what-zscaler-breach-predictor.json",
+          "quotes": [
+            "| Discover Attack | ReconnaissanceResource Development |",
+            "| Compromise | Initial AccessExecutionPersistencePrivilege EscalationDefense Evasion |",
+            "| Lateral Movement | Credential AccessDiscoveryLateral MovementCollection |",
+            "| Data Loss | Command and ControlExfiltrationImpact |"
+          ]
+        }
+      ]
+    },
+    "breach-probability": {
+      "statement": "The Dashboard's Overall Breach Probability score takes into account the number of observed malware families, their position on the MITRE ATT&CK matrix and the number of affected users; a higher score means a higher probability of a breach.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "bp-what-zscaler-breach-predictor.json",
+          "quotes": [
+            "The score takes into account the number of observed malware families, their location on the MITRE ATT&CK matrix, and the number of affected users. A higher score indicates a higher probability that a breach will occur in your organization."
+          ]
+        }
+      ]
+    },
+    "sankey": {
+      "statement": "The Dashboard's main Sankey chart shows how many users are at risk, which threats affect them, and which attack stage they are likely in.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "bp-what-zscaler-breach-predictor.json",
+          "quotes": [
+            "The main Sankey chart focuses on how many of your users are at risk, and tells you which threats are affecting them and which stage of an attack they are likely in (Discover Attack, Compromise, Lateral Movement, or Data Loss)."
+          ]
+        }
+      ]
+    },
+    "attack-path": {
+      "statement": "It focuses on the attack path instead of on individual users and individual alerts; for example, it aggregates all users exposed at a suspect URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "bp-what-zscaler-breach-predictor.json",
+          "quotes": [
+            "the interface lets you address the issue more effectively by focusing on the attack path instead of on individual users.",
+            "Instead of focusing on individual data because of individual alerts, Breach Predictor identifies the attack path and aggregates all users impacted by the attack and exposed at a particular URL."
+          ]
+        }
+      ]
+    },
+    "policy-context": {
+      "statement": "It provides threat context and information about the specific policies that enabled the activity, so that problem policies can be fixed before threats move to the next stage.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-breach-predictor.json",
+          "quotes": [
+            "With Breach Predictor’s predictive intelligence, you can shore up your problem policies now so that threats don't move to the next stage.",
+            "Breach Predictor provides threat context and information about the specific policies that enabled the activity to occur"
+          ]
+        }
+      ]
+    },
+    "remediation-workflow": {
+      "statement": "Findings may call for policy remediation (for example File Type Control, SSL Inspection, URL Filtering), planned from right to left in the MITRE ATT&CK matrix, and the policy recommendations can be logged as Jira tickets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-zscaler-breach-predictor.json",
+          "quotes": [
+            "you might need to remediate policies (e.g., File Type Control, SSL Inspection, URL Filtering, etc.).",
+            "As you plan for remediation, you should always work from right to left in the MITRE ATT&CK matrix.",
+            "Use the policy recommendations provided by Breach Predictor to log Jira tickets for policy updates."
+          ]
+        }
+      ]
+    },
+    "siem-forwarding": {
+      "statement": "Event data can be sent to CrowdStrike Next-Gen SIEM or Splunk; once the integration is configured, every new event on the tenant is sent automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "integrating-applications-zscaler-breach-predictor.json",
+          "quotes": [
+            "You can share Breach Predictor data with the following SIEM applications:",
+            "- CrowdStrike Next-Gen SIEM",
+            "- Splunk",
+            "With the integration configured, every new event that occurs on the tenant is sent automatically to your SIEM application."
+          ]
+        }
+      ]
+    },
+    "splunk-json": {
+      "statement": "The Splunk integration uses an HTTP Event Collector token and an index; because events are shared as JSON, the Splunk URL must include an endpoint parameter such as /services/collector/event, and without a specified index Splunk uses a pre-existing one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "integrating-applications-zscaler-breach-predictor.json",
+          "quotes": [
+            "you need to create a custom index and an HTTP Event Collector (HEC) token to allow Breach Predictor to share event data.",
+            "If you don't create and specify an index, Splunk will use a pre-existing index to hold Breach Predictor data.",
+            "Because Breach Predictor shares event data in JSON format, you must append an endpoint parameter to the URL so that Splunk can properly receive JSON-formatted events (e.g., /services/collector/event)."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-retention": {
+      "statement": "On integration Breach Predictor sends all available event data to CrowdStrike Next-Gen SIEM, but events older than that SIEM's default retention (7 to 14 days) are not available there; the CrowdStrike side uses a connector with a JSON parser, whose generated API key and API URL are entered in Breach Predictor.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "integrating-applications-zscaler-breach-predictor.json",
+          "quotes": [
+            "Upon successful integration, Breach Predictor sends all available event data to your SIEM provider.",
+            "Because the default data-retention period for CrowdStrike Next-Gen SIEM ranges from 7 to 14 days, any event data sent from Breach Predictor that is outside of the retention period will not be available in CrowdStrike Next-Gen SIEM.",
+            "you need to create a connector with a JSON parser that allows Breach Predictor to share event data:",
+            "Select Generate API key from the list.",
+            "URL: Enter the API URL value you copied earlier.",
+            "Token: Enter the API key value you copied earlier."
+          ]
+        }
+      ]
+    },
+    "ticketing": {
+      "statement": "Ticketing integrations are Jira and ServiceNow, each configured with a Domain Key and Token Key that the Zscaler account team provides.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "integrating-applications-zscaler-breach-predictor.json",
+          "quotes": [
+            "Token Key: Enter the Jira token that allows Breach Predictor to access the Jira domain assigned to your organization.",
+            "Token Key: Enter the ServiceNow token that allows Breach Predictor to access the ServiceNow domain assigned to your organization.",
+            "To receive the Domain Key and Token Key for your organization, contact your Zscaler Account team."
+          ],
+          "after": "- Ticketing Integrations"
+        }
+      ]
+    },
+    "sandbox": {
+      "statement": "The Zscaler Sandbox integration takes a Secret Key, provided by the account team, that lets Breach Predictor access the organization's Sandbox tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "integrating-applications-zscaler-breach-predictor.json",
+          "quotes": [
+            "In the Integrate Sandbox window, enter the Secret Key. This token allows Breach Predictor to access the Zscaler Sandbox tenant assigned to your organization.",
+            "To receive the Secret Key for your organization, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "no-client-surface": {
+      "statement": "No vendored client covers Breach Predictor: the Go and Python SDKs, the Terraform providers, the Ansible collections, the MCP server, the OneAPI Postman collection and the captured Automate contract have no Breach Predictor service.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "used in your server-side code to interact with the Zscaler API platform across multiple products such as:"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. The Python README's product list (introduced by the quoted line) names no Breach Predictor API, and at the pins `git grep -i -E 'breach.?predictor'` finds nothing in the Go or Python SDKs, the ZIA, ZPA, ZCC or ZTC providers, the Ansible collections or the MCP server; the Postman collection has no match."
+    },
+    "pages": {
+      "statement": "The portal's pages include the Dashboard (Overall Breach Probability score and a list of the highest-value policy updates), Findings (malware families and affected users, with attack-path data), Users (by department, threat type and region) and Threat Landscape (ThreatLabz data about the biggest current security threats).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-zscaler-breach-predictor.json",
+          "quotes": [
+            "On the Dashboard page, use the Overall Breach Probability score for an instant determination of the overall likelihood of a breach in your environment.",
+            "Breach Predictor provides a list of the highest-value policy updates based on imminent threats to your organization.",
+            "Also on the Findings page, use attack-path data to help you interpret what your threat placement means",
+            "On the Findings page, you can see information about the malware families affecting your organization, as well as information about each user affected by each family.",
+            "On the Users page, you can see the overall user information by department, threat type, and region.",
+            "On the Threat Landscape page, view cutting-edge data from Zscaler ThreatLabz about the biggest current security threats affecting customers across the globe."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "api-surface": {
+      "kind": "semantic",
+      "title": "Whether Breach Predictor has an API beyond its push integrations",
+      "status": "partial",
+      "former_ids": [
+        "breach-predictor-01"
+      ],
+      "detail": "Unverified legacy statement: Breach Predictor's data-source enumeration, API or integration surface, and endpoint or schema details are unresolved. Now known: its data sources (data-sources) and its SIEM, ticketing and Sandbox integrations (integrating-applications-zscaler-breach-predictor.json). Still open: whether any API exists to read scores, findings or events, and the schema of the events it pushes to a SIEM.",
+      "blocks": "pulling breach probability or findings programmatically, or parsing its SIEM events",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

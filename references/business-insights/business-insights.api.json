@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "id": "business-insights.api",
+  "title": "The Business Insights API: custom applications, report configurations and report downloads",
+  "aliases": [
+    "business insights api",
+    "client.zbi",
+    "zbi python sdk",
+    "bi api",
+    "custom apps api",
+    "customapps",
+    "report configs",
+    "bi report download"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "business-insights.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terminology.product-names"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.analytics.graphql"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.api"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Paths and Python methods are generated: `node scripts/kb.mjs surface bi`; the Go SDK and the Terraform providers have no Business Insights entries there. In the Python SDK this API is `client.zbi`, which is not browser isolation: [[shared.terminology.product-names:zbi-is-business-insights]]."
+    },
+    {
+      "label": "Host.",
+      "text": "{{base-url}} {{python-routing}}"
+    },
+    {
+      "label": "Custom applications.",
+      "text": "{{custom-app-limits}} {{custom-app-get-by-id}} {{custom-app-delete-cascade}}"
+    },
+    {
+      "label": "Reports.",
+      "text": "{{report-type-customapps}} {{report-list-types}} {{report-download}}"
+    },
+    {
+      "label": "Z-Insights.",
+      "text": "{{zins-separate}} {{mcp-licensing-message}} The Analytics API itself is in [[shared.analytics.graphql]]."
+    },
+    {
+      "text": "Whether other Business Insights functions have public APIs is open {{gap:api-coverage}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a custom application uses only HOST signatures and stays within 50 per app and 1000 apps in all.",
+      "uses": [
+        "custom-app-limits"
+      ]
+    },
+    {
+      "do": "Whether deleting a custom application will also delete a scheduled report tied to it.",
+      "uses": [
+        "custom-app-delete-cascade"
+      ]
+    }
+  ],
+  "claims": {
+    "base-url": {
+      "statement": "The contract's server URL for the Business Insights public API is `https://api.zsapi.net/bi`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/bi.openapi.json",
+          "pointer": "/servers/[description=BI Public API url]",
+          "expect": {
+            "url": "https://api.zsapi.net/bi",
+            "description": "BI Public API url"
+          }
+        }
+      ]
+    },
+    "python-routing": {
+      "statement": "The Python SDK sends `/bi` requests to the OneAPI gateway base URL: the dedicated gateway for a government cloud, `https://api.{self.cloud}.zsapi.net` for any other non-production cloud, and `https://api.zsapi.net` (the default `BASE_URL`) otherwise.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "# Special handling for Business Insights (ZBI) API\n        if \"/bi\" in endpoint:\n            return self._resolve_api_base_url()",
+            "Resolves the OneAPI gateway base URL for the configured cloud.",
+            "BASE_URL = \"https://api.zsapi.net\"  # Default base URL for API calls",
+            "return self.BASE_URL",
+            "gov_base_url = ONEAPI_GOV_API_BASE_URLS.get(self.cloud)",
+            "if self.cloud and self.cloud != \"production\":",
+            "return f\"https://api.{self.cloud}.zsapi.net\""
+          ]
+        }
+      ]
+    },
+    "custom-app-limits": {
+      "statement": "Only HOST-based custom applications are supported through the public API, not URL-based ones; each needs at least 1 and at most 50 HOST signatures with valid hostnames, a name unique across custom apps, and a required description of at most 1024 characters without < or >, and there is a global limit of 1000 host-based custom apps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/bi.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customapps/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "description": "Only HOST-based custom applications are supported via the Public API. URL-based custom applications are not supported at this time. Limits: - Per custom app: up to 50 HOST signatures. - Must include at least 1 HOST signature. - Name must be unique across all custom apps. - Description is required, max 1024 chars, no < or > allowed. - Signature values must be valid hostnames. - Global limit: 1000 host-based custom apps.\n",
+            "required": [
+              "name",
+              "description",
+              "signatures"
+            ]
+          }
+        }
+      ]
+    },
+    "custom-app-get-by-id": {
+      "statement": "Listing custom applications with the `id` query parameter returns only that application, still in an array, and Python's `get_custom_app` uses this form and takes the first element.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/bi.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customapps/get",
+          "expect": {
+            "description": "Retrieves all custom applications. If id query parameter is provided, returns only that specific application in the array."
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zbi/custom_apps.py",
+          "quotes": [
+            "params={\"id\": app_id}",
+            "result = CustomApp(self.form_response_body(result_list[0]))"
+          ],
+          "after": "def get_custom_app("
+        }
+      ]
+    },
+    "custom-app-delete-cascade": {
+      "statement": "Deleting a custom application also deletes any scheduled report associated with it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/bi.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customapps~1{id}/delete",
+          "expect": {
+            "description": "Deletes a custom application by its unique identifier (id). If there is any scheduled report associated with the custom app ID then that particular report will also be deleted.\n"
+          }
+        }
+      ]
+    },
+    "report-type-customapps": {
+      "statement": "Report configurations support only the `customapps` report type, which is also the Python SDK's default `report_type`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/bi.openapi.json",
+          "pointer": "/paths/~1api~1v1~1reports~1{report_type}/get",
+          "expect": {
+            "description": "Get Report Configurations along with their associated Custom Apps. Currently only report_type \"customapps\" is supported.\n"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/bi.openapi.json",
+          "pointer": "/paths/~1api~1v1~1reports~1{report_type}/post",
+          "expect": {
+            "description": "Create a Report Configuration associated with Custom Applications. Please note that currently, only the customapps report_type is supported.\n"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zbi/report_configs.py",
+          "quotes": [
+            "report_type: str = \"customapps\","
+          ],
+          "after": "def list_report_configs("
+        }
+      ]
+    },
+    "report-list-types": {
+      "statement": "Listing reports takes a reportType of APPLICATION, WORKPLACE or DATA_EXPLORER and an optional subType that defaults to CustomDataFeed (custom app lists), with ScheduledReports and SaveAndSchedule (data explorer) as the other values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/bi.openapi.json",
+          "pointer": "/paths/~1api~1v1~1report~1all/get",
+          "expect": {
+            "description": "List all the reports based on provided details.\n\n**reportType**:\n- APPLICATION - For Application Reports\n- WORKPLACE - For Workplace Reports\n- DATA_EXPLORER - For Data Explorer Reports\n\n**subType** helps to filter only certain types of reports. Default it's optional and pointing to \"CustomDataFeed\".\n- CustomDataFeed - For custom Apps list and download\n- ScheduledReports - For scheduled reports list and download\n- SaveAndSchedule - For data explorer save and schedule reports list and download\n"
+          }
+        }
+      ]
+    },
+    "report-download": {
+      "statement": "Downloading a report returns text/csv by default, or application/octet-stream when gzip compression is requested.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/bi.openapi.json",
+          "pointer": "/paths/~1api~1v1~1report~1download/post",
+          "expect": {
+            "description": "Download a particular report file. Returns text/csv by default, or application/octet-stream when gzip compression is requested."
+          }
+        }
+      ]
+    },
+    "zins-separate": {
+      "statement": "The Python SDK keeps Z-Insights, the GraphQL Analytics API, as a separate `zins` service that does not support legacy client authentication, next to the Business Insights REST service `zbi`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "self._zins = None  # Z-Insights (GraphQL Analytics API)",
+            "self._zbi = None  # Zscaler Business Insights (REST API)",
+            "\"Z-Insights (zins) does not support legacy client authentication. \""
+          ]
+        }
+      ]
+    },
+    "mcp-licensing-message": {
+      "statement": "The MCP server's Z-Insights tools explain a GraphQL INTERNAL_ERROR as possibly meaning no data for the query type or that Z-Insights or Business Insights is not licensed on the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zins/_common.py",
+          "quotes": [
+            "if \"INTERNAL_ERROR\" in classifications:",
+            "\"The Z-Insights API returned an internal error. This typically means no \"",
+            "\"data is available for this query type, or Z-Insights / Business Insights \"",
+            "\"is not licensed on this tenant.\""
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "api-coverage": {
+      "kind": "semantic",
+      "status": "open",
+      "former_ids": [
+        "business-insights-01"
+      ],
+      "title": "Business Insights functions with no public API",
+      "detail": "The contract and the Python SDK cover custom applications, report configurations, report listing and report download. Whether SaaS connector setup, subscription metadata, workplace dashboards or portal administration have public APIs is not established.",
+      "blocks": "automating Business Insights beyond custom apps and reports",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

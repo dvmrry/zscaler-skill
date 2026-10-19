@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "id": "uvm.overview",
+  "title": "Unified Vulnerability Management (UVM): what it does with findings, and what can be automated",
+  "aliases": [
+    "uvm",
+    "unified vulnerability management",
+    "vulnerability management zscaler",
+    "uvm api",
+    "risk-based vulnerability prioritization",
+    "ctem"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "aem.secops-platform"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.anysource"
+    },
+    {
+      "rel": "see-also",
+      "to": "aem.overview"
+    }
+  ],
+  "prose": [
+    {
+      "text": "UVM manages vulnerability findings that other tools produce; ingestion is covered in [[uvm.anysource]]. {{what-it-is}}"
+    },
+    {
+      "label": "Prioritization.",
+      "text": "{{prioritization}} {{correlation}}"
+    },
+    {
+      "label": "Workflows and reporting.",
+      "text": "{{workflows}} Saved reports and their export, including the Reporting API, are platform-wide: [[aem.secops-platform:report-schedule]], [[aem.secops-platform:reporting-api]]."
+    },
+    {
+      "heading": "Automation"
+    },
+    {
+      "text": "{{no-client-surface}} Ingestion has an Upload File API whose contract is open ([[uvm.anysource]]), and export goes through the platform's Reporting API ([[aem.secops-platform:reporting-api-contract]])."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For automating UVM, separate ingestion (AnySource, including the Upload File API) from export (saved reports and the Reporting API); no client covers either.",
+      "uses": [
+        "no-client-surface",
+        "uvm.anysource:retrieval-methods",
+        "aem.secops-platform:reporting-api"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "UVM provides a single place for managing vulnerabilities, simplifying the process of identifying and remediating security risks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-what-zscaler-security-operations.json",
+          "quotes": [
+            "Unified Vulnerability Management (UVM) provides a single place for managing vulnerabilities, simplifying the process of identifying and remediating security risks."
+          ]
+        }
+      ]
+    },
+    "prioritization": {
+      "statement": "Zscaler's UVM product page describes risk prioritization with contextual insight into risk factors and mitigating controls, out-of-the-box multifactor scoring, and adjustable factors and weights.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-unified-vulnerability-management-marketing.md",
+          "quotes": [
+            "Identify your biggest risks with contextual insights into your risk factors and mitigating controls.",
+            "Out-of-the-box multifactor scoring (prebuilt risk calculation considering risk factors AND mitigating controls)",
+            "Customizable factors and weights"
+          ]
+        }
+      ]
+    },
+    "correlation": {
+      "statement": "The product page says UVM is powered by the Data Fabric for Security, correlating findings across identity, assets, user behavior, mitigating controls, business processes and organizational hierarchy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-unified-vulnerability-management-marketing.md",
+          "quotes": [
+            "UVM is powered by the **Data Fabric for Security**",
+            "correlating security findings across:",
+            "- Identity - Assets - User behavior - Mitigating controls - Business processes - Organizational hierarchy"
+          ]
+        }
+      ]
+    },
+    "workflows": {
+      "statement": "The product page lists prebuilt and custom dashboards, custom routing workflows, two-way ticketing integration with automatic reconciliation, and exception management for remediation extensions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-unified-vulnerability-management-marketing.md",
+          "quotes": [
+            "Prebuilt dashboards and reports (risk posture, remediation history, asset coverage)",
+            "Custom dashboards (SLA performance, KPI status)",
+            "Custom workflows matching organizational structure to route information",
+            "Two-way ticketing integration (automatic reconciliation including close/reopen)",
+            "Exception management (request and approve remediation extensions)"
+          ]
+        }
+      ]
+    },
+    "no-client-surface": {
+      "statement": "No vendored client covers UVM: the Go and Python SDKs, the Terraform providers, the Ansible collections, the MCP server, the OneAPI Postman collection and the captured Automate contract have no UVM service.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "used in your server-side code to interact with the Zscaler API platform across multiple products such as:"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. The Python README's product list (introduced by the quoted line) names no UVM API, and at the pins `git grep -i -E 'unified.vulnerability|\\buvm\\b'` finds no UVM code in the Go or Python SDKs, the ZIA, ZPA, ZCC or ZTC providers, the Ansible collections or the MCP server; the Postman collection has no match. The MCP server's EASM and ZMS tools are separate products."
+    }
+  }
+}

@@ -1,0 +1,482 @@
+{
+  "schema_version": 1,
+  "id": "zms.api",
+  "title": "The ZMS GraphQL API: one endpoint, read-only clients, customer scoping and pagination",
+  "aliases": [
+    "zms graphql",
+    "/zms/graphql",
+    "zms api",
+    "client.zms",
+    "zmicroseg",
+    "zms pagination pagenum",
+    "zms fetchall",
+    "eyezid",
+    "zms mutations"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zms.api.queries"
+    },
+    {
+      "rel": "see-also",
+      "to": "zms.api.enums-and-filters"
+    },
+    {
+      "rel": "see-also",
+      "to": "zms.mcp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zms.overview"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZMS is programmed through GraphQL. The generated surface lists the Python SDK modules and methods (run `node scripts/kb.mjs surface zms`); this subject holds the conventions every query shares."
+    },
+    {
+      "label": "Endpoint and clients.",
+      "text": "{{graphql-endpoint}} {{oneapi-only}} {{python-only}}"
+    },
+    {
+      "label": "Reads only.",
+      "text": "{{clients-read-only}} Whether the API itself has mutations is disputed {{divergence:mutations}} and open {{gap:write-api}}. The portal's writes are in [[zms.portal:portal-no-contract]]."
+    },
+    {
+      "label": "Arguments.",
+      "text": "{{customer-id}} {{eyez-id}} The types come only from the SDK's query strings {{gap:schema}}."
+    },
+    {
+      "label": "Pagination.",
+      "text": "{{pagination-dialects}} {{page-info}} {{fetch-all}} {{fetch-all-policy-rules-only}} Whether the server accepts fetchAll elsewhere is open {{gap:fetch-all-server}}."
+    },
+    {
+      "label": "Results.",
+      "text": "{{raw-dicts}} {{typed-models-unused}}"
+    },
+    {
+      "label": "What is not implemented.",
+      "text": "{{recommended-groups-docstring}} {{unused-enums}} {{unused-enums-unreferenced}} The ML and Kubernetes query surfaces are open {{gap:ml-surfaces}}."
+    },
+    {
+      "label": "More.",
+      "text": "Per-domain query notes are in [[zms.api.queries]], enum values and filter inputs in [[zms.api.enums-and-filters]], and the MCP tools in [[zms.mcp]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which pagination pair the domain uses (page or pageNum) before paging a ZMS query.",
+      "uses": [
+        "pagination-dialects"
+      ]
+    },
+    {
+      "do": "Whether an expected field is in the module's query selection, since the methods return the raw GraphQL dict.",
+      "uses": [
+        "raw-dicts",
+        "typed-models-unused"
+      ]
+    },
+    {
+      "do": "Whether a write is needed at all: no client implements ZMS mutations.",
+      "uses": [
+        "clients-read-only",
+        "mutations",
+        "write-api"
+      ]
+    }
+  ],
+  "claims": {
+    "graphql-endpoint": {
+      "statement": "The SDK's ZMS modules send every query as a POST to the single endpoint `/zms/graphql`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/agents.py",
+          "quotes": [
+            "_zms_base_endpoint = \"/zms/graphql\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/agents.py",
+          "quotes": [
+            "http_method = \"POST\" api_url = format_url(self._zms_base_endpoint)"
+          ],
+          "after": "def list_agents("
+        },
+        {
+          "source": "mcp-server",
+          "path": "rules/zms-graphql-conventions.mdc",
+          "quotes": [
+            "All ZMS operations use GraphQL queries via `POST /zms/graphql`."
+          ]
+        }
+      ]
+    },
+    "clients-read-only": {
+      "statement": "ZMS is read-only: the MCP conventions say there are no mutations, and the release notes that added the SDK's ZMS service (1.9.18) describe its nine modules with list operations plus a few gets (agent group TOTP secrets, a nonce by ID, resource group members).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "rules/zms-graphql-conventions.mdc",
+          "quotes": [
+            "There are no mutations — ZMS is read-only."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added new ZMS (Zscaler Microsegmentation) GraphQL service:",
+            "`agents` - List agents, agent connection status statistics, agent version statistics",
+            "`agent_groups` - List agent groups, get agent group TOTP secrets",
+            "`nonces` - List nonces (provisioning keys), get nonce by ID",
+            "`resources` - List resources, resource protection status, event metadata",
+            "`resource_groups` - List resource groups, get members, protection status",
+            "`policy_rules` - List policy rules, list default policy rules",
+            "`app_zones` - List app zones with filtering and pagination",
+            "`app_catalog` - List app catalog entries with filtering and ordering",
+            "`tags` - List tag namespaces, tag keys, and tag values"
+          ],
+          "after": "## 1.9.18 (March 26, 2026)"
+        }
+      ]
+    },
+    "oneapi-only": {
+      "statement": "The service is reached as `client.zms` or `client.zmicroseg` and uses OneAPI authentication only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Access via `client.zms` or `client.zmicroseg` (OneAPI authentication only)"
+          ],
+          "after": "## 1.9.18 (March 26, 2026)"
+        }
+      ]
+    },
+    "python-only": {
+      "statement": "The Go SDK has no ZMS service, and no Terraform provider or Ansible collection manages ZMS; the Python SDK and the MCP server are the only clients.",
+      "tier": "B",
+      "derived_from": [
+        "oneapi-only"
+      ],
+      "conditions": "Rests on the generated surface for zms, which lists Python modules and no Go packages or Terraform resources, and on a grep of the Go SDK's zscaler/ tree (packages zcc, zdx, zia, ziam, zpa, ztw, zwa) and of the ZIA and ZPA Ansible plugins at their pins for microseg and /zms/ found nothing."
+    },
+    "customer-id": {
+      "statement": "The queries take a required `customerId` variable, typed `ID!` in, for example, `ListAgents`, `ListResources` and `GetNonce`, and `String!` in `GetMetadata`; SDK methods such as `list_agents`, `get_nonce` and `get_metadata` take it as `customer_id`, the first argument after `self`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/agents.py",
+          "quotes": [
+            "query ListAgents( $customerId: ID!, $page: Int, $pageSize: Int,",
+            "def list_agents( self, customer_id: str,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/nonces.py",
+          "quotes": [
+            "query GetNonce($customerId: ID!, $eyezId: String!) {",
+            "def get_nonce( self, customer_id: str,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/resources.py",
+          "quotes": [
+            "query ListResources( $customerId: ID!, $pageNum: Int, $pageSize: Int,",
+            "query GetMetadata($customerId: String!) { metadata(customerId: $customerId) }",
+            "def get_metadata( self, customer_id: str,"
+          ]
+        }
+      ]
+    },
+    "pagination-dialects": {
+      "statement": "Two pagination argument pairs exist: agents, agent groups and nonces take `page` and `pageSize`, while resources, resource groups, policy rules, app zones, app catalog and tags take `pageNum` and `pageSize`; the SDK defaults are page 1 and page size 20.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "rules/zms-graphql-conventions.mdc",
+          "quotes": [
+            "Two pagination patterns exist: some domains use `page`/`pageSize` (agents, agent_groups, nonces), others use `pageNum`/`pageSize` (resources, resource_groups, policy_rules, app_zones, app_catalog, tags)."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/agents.py",
+          "quotes": [
+            "page: int = 1, page_size: int = 20,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/resources.py",
+          "quotes": [
+            "page_num: int = 1, page_size: int = 20,"
+          ],
+          "after": "def list_resources("
+        }
+      ]
+    },
+    "page-info": {
+      "statement": "List queries return a connection of `nodes` plus `pageInfo` with `pageNumber`, `pageSize`, `totalCount` and `totalPages`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "CLAUDE.md",
+          "quotes": [
+            "**Paginated responses**: Results use `nodes[]` + `pageInfo { pageNumber, pageSize, totalCount, totalPages }`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/agents.py",
+          "quotes": [
+            "pageInfo { pageNumber pageSize totalCount totalPages }"
+          ],
+          "after": "query ListAgents("
+        }
+      ]
+    },
+    "raw-dicts": {
+      "statement": "The SDK's ZMS methods return the raw dictionary under the query's name in the GraphQL response's `data` member, rather than a typed model.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/agents.py",
+          "quotes": [
+            "result = response.get_body().get(\"data\", {}).get(\"agents\", {})"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/nonces.py",
+          "quotes": [
+            "result = response.get_body().get(\"data\", {}).get(\"nonces\", {})"
+          ]
+        }
+      ]
+    },
+    "typed-models-unused": {
+      "statement": "The typed classes in `zscaler/zms/models/common.py` (for example `AgentEntry`, which maps only part of the agents selection) are not what the query methods return, so the selection set in each module, not those classes, shows which fields come back.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/models/common.py",
+          "quotes": [
+            "self.private_ips: Optional[List[str]] = config.get(\"privateIps\")"
+          ]
+        }
+      ],
+      "derived_from": [
+        "raw-dicts"
+      ],
+      "conditions": "Rests on raw-dicts and a search of the SDK tree at the pin: no ZMS module imports `AgentEntry`; only `zscaler/zms/models/__init__.py` re-exports `common`."
+    },
+    "fetch-all": {
+      "statement": "`policyRules` takes a `fetchAll` flag (`fetch_all`, default False) that bypasses pagination; the MCP notes say to use it sparingly on large tenants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/policy_rules.py",
+          "quotes": [
+            "fetch_all: bool = False,",
+            "$fetchAll: Boolean"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "CLAUDE.md",
+          "quotes": [
+            "**Policy rules have `fetchAll` flag** which bypasses pagination. Use sparingly on large tenants."
+          ]
+        }
+      ]
+    },
+    "fetch-all-policy-rules-only": {
+      "statement": "No other ZMS list method in the SDK carries a `fetchAll` argument.",
+      "tier": "B",
+      "derived_from": [
+        "fetch-all"
+      ],
+      "conditions": "Rests on a search of the nine zscaler/zms modules at the pin for fetchAll and fetch_all: only policy_rules.py has it.",
+      "gaps": [
+        "fetch-all-server"
+      ]
+    },
+    "eyez-id": {
+      "statement": "Agents, agent groups and nonces are identified by a non-numeric `eyezId`, which the single-item queries type as `String!`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "rules/zms-graphql-conventions.mdc",
+          "quotes": [
+            "`eyez_id` is the unique identifier for agents, agent groups, and nonces — not a numeric ID."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/agent_groups.py",
+          "quotes": [
+            "query GetAgentGroupTotpSecrets($customerId: ID!, $eyezId: String!)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/nonces.py",
+          "quotes": [
+            "query GetNonce($customerId: ID!, $eyezId: String!)"
+          ]
+        }
+      ]
+    },
+    "recommended-groups-docstring": {
+      "statement": "The resource-groups module's docstring lists getting recommended resource groups (ML-based), but the module defines only `list_resource_groups`, `get_resource_group_members` and `get_resource_group_protection_status`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/resource_groups.py",
+          "quotes": [
+            "- Get recommended resource groups (ML-based)",
+            "def __init__(self, request_executor: RequestExecutor) -> None:",
+            "def list_resource_groups(",
+            "def get_resource_group_members(",
+            "def get_resource_group_protection_status("
+          ]
+        }
+      ],
+      "conditions": "The four def lines quoted are every def resource_groups.py has at the pin."
+    },
+    "unused-enums": {
+      "statement": "The SDK's ZMS enums module defines enums such as `RecommendedResourceGroupUserActionType`, `RecommendedTagUserActionType`, `MLRunStatus`, `MLRunType`, `AgentManagerStatus`, `PodPhase`, `TagScope` and `TagAssignmentUserAction`; the release notes count 35 enums and 17 input filter types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/models/enums.py",
+          "quotes": [
+            "class RecommendedResourceGroupUserActionType(str, Enum):",
+            "class RecommendedTagUserActionType(str, Enum):",
+            "class MLRunStatus(str, Enum):",
+            "class MLRunType(str, Enum):",
+            "class AgentManagerStatus(str, Enum):",
+            "class PodPhase(str, Enum):",
+            "class TagScope(str, Enum):",
+            "class TagAssignmentUserAction(str, Enum):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Includes 35 enums, 17 input filter types, and 9 common response models"
+          ],
+          "after": "## 1.9.18 (March 26, 2026)"
+        }
+      ]
+    },
+    "unused-enums-unreferenced": {
+      "statement": "No implemented ZMS query uses these enums: `RecommendedResourceGroupUserActionType`, `RecommendedTagUserActionType`, `MLRunStatus`, `MLRunType`, `AgentManagerStatus`, `PodPhase`, `TagScope` and `TagAssignmentUserAction`.",
+      "tier": "B",
+      "derived_from": [
+        "unused-enums"
+      ],
+      "conditions": "Rests on a search of the SDK's zscaler/zms tree at the pin for each of the eight names: none occurs outside zscaler/zms/models/enums.py, so no query module or its selection set refers to them."
+    }
+  },
+  "divergences": {
+    "mutations": {
+      "summary": "Two MCP sources disagree on whether the ZMS API has mutations.",
+      "positions": [
+        {
+          "says": "ZMS has no mutations and is read-only.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "rules/zms-graphql-conventions.mdc",
+            "quotes": [
+              "There are no mutations — ZMS is read-only."
+            ]
+          }
+        },
+        {
+          "says": "The API supports create, update and delete mutations (for example policyRuleCreate, managedResourceGroupCreate, managedRecommendedResourceGroupUpdate) and a recommendedResourceGroups query, not yet exposed as MCP tools.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "skills/zms/audit-microsegmentation-posture/SKILL.md",
+            "quotes": [
+              "These operations are available in the API but are not yet exposed through MCP tools.",
+              "The ZMS API supports full CRUD for policy rules via mutations (`policyRuleCreate`, `policyRuleUpdate`, `policyRuleDelete`), but current MCP tools are read-only.",
+              "The API provides a `recommendedResourceGroups` query and `managedRecommendedResourceGroupUpdate` mutation for acting on these recommendations."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether ZMS policy can be automated through the API is unsettled: no SDK, schema or Help page names the mutations, while the portal does perform writes."
+    }
+  },
+  "gaps": {
+    "fetch-all-server": {
+      "kind": "semantic",
+      "title": "Whether the server accepts fetchAll on queries other than policyRules",
+      "status": "open",
+      "former_ids": [
+        "zms-01"
+      ],
+      "detail": "The SDK implements fetchAll only on policyRules; no source states whether the GraphQL server accepts it on resources, resource groups, app zones, app catalog, tags, agents, agent groups or nonces, so this may be an SDK gap or a server constraint. There is no Go ZMS service to cross-check.",
+      "blocks": "answering how to fetch a complete list without paging on other ZMS queries",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "write-api": {
+      "kind": "semantic",
+      "title": "Which GraphQL mutations ZMS accepts",
+      "status": "open",
+      "detail": "Unverified legacy statement: write mutations are unverified; a separate MCP skill names managedResourceGroupCreate/Update, unmanagedResourceGroupCreate/Update and managedRecommendedResourceGroupUpdate plus a recommendedResourceGroups query, but those names appear only in skill prose and the Python SDK implements none of them. Help confirms portal writes for ML recommendations, tags and provisioning keys without publishing operations or payloads.",
+      "blocks": "automating ZMS policy, resource groups or tags",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "schema": {
+      "kind": "data",
+      "title": "No authoritative GraphQL schema for ZMS",
+      "status": "open",
+      "detail": "Unverified legacy statement: no .graphql or SDL file for ZMS exists in the vendor sources; argument and input types (ID!, String!, the filter and orderBy inputs, SortDirection, NamespaceOrigin) are recoverable only from the SDK's query strings and dataclasses, and the server's types could differ.",
+      "blocks": "trusting argument types and filter inputs beyond what the SDK sends",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "none"
+      ]
+    },
+    "ml-surfaces": {
+      "kind": "semantic",
+      "title": "Query names and shapes for recommended resource groups and ML runs",
+      "status": "open",
+      "detail": "Unverified legacy statement: enums for recommended resource groups, recommended tags and ML runs exist and Help confirms an ML recommendation workflow, but no SDK query consumes those enums, so the query names and shapes are unknown. Likewise AgentManagerStatus, PodPhase, TagScope and TagAssignmentUserAction may belong to deeper selections (for example Kubernetes resource detail) that no implemented query requests.",
+      "blocks": "reading ML recommendation runs or Kubernetes detail through the API",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

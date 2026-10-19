@@ -19,7 +19,7 @@ sources:
   - "kb:shared.admin-rbac"
   - "kb:shared.audit-logs"
   - "kb:shared.siem-mapping"
-  - "references/zidentity/admin-rbac.md"
+  - "kb:zidentity.admin-rbac"
   - "kb:zia.ssl-inspection"
   - "kb:zia.cloud-app-control"
 dependencies: []
@@ -78,10 +78,10 @@ When instructions are ambiguous, bias toward:
 
 ### `access`
 
-- [`references/zidentity/admin-rbac.md`](../../../references/zidentity/admin-rbac.md)
-- [`references/zidentity/api-clients.md`](../../../references/zidentity/api-clients.md)
-- [`references/zidentity/user-entitlements.md`](../../../references/zidentity/user-entitlements.md)
-- [`references/zidentity/step-up-authentication.md`](../../../references/zidentity/step-up-authentication.md)
+- [`zidentity.admin-rbac`](kb:zidentity.admin-rbac)
+- [`zidentity.api-clients`](kb:zidentity.api-clients)
+- [`zidentity.entitlements`](kb:zidentity.entitlements)
+- [`zidentity.step-up`](kb:zidentity.step-up)
 
 ### `policy`
 
@@ -96,7 +96,7 @@ When instructions are ambiguous, bias toward:
 - [`shared.siem-mapping`](kb:shared.siem-mapping)
 - [`zia.audit-logs`](kb:zia.audit-logs)
 - [`zpa.audit-logs`](kb:zpa.audit-logs)
-- [`references/zwa/audit-logs.md`](../../../references/zwa/audit-logs.md)
+- [`zwa.audit-logs`](kb:zwa.audit-logs)
 
 ## Discipline
 

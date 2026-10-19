@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "id": "zdx.cloud-architecture.module-upgrades",
+  "title": "ZDX Module upgrades: automatic, delayed, frozen and manual rollout",
+  "aliases": [
+    "zdx module",
+    "zdx module upgrade",
+    "zdx module version",
+    "delay zdx rollout",
+    "freeze zdx rollout",
+    "zdx module mdm",
+    "zdx module app store"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.cloud-architecture"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZDX runs on the device as a ZDX Module inside Client Connector, with its own release and rollout controls. {{auto-rollout}}"
+    },
+    {
+      "label": "What the App Store shows.",
+      "text": "{{version-fields}}"
+    },
+    {
+      "label": "Delaying a version.",
+      "text": "{{delayed-rollout}} {{auto-at-180}}"
+    },
+    {
+      "label": "Holding it longer.",
+      "text": "{{freeze}} {{unfreeze}}"
+    },
+    {
+      "label": "Deploying it yourself.",
+      "text": "{{manual-package}}"
+    },
+    {
+      "label": "Open.",
+      "text": "Which ZDX cloud component targets a delayed version to its user groups is not documented {{gap:rollout-orchestration}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the device's ZDX Module version is held back by a delayed or frozen rollout, from the module version's Status and Auto Rollout In values.",
+      "uses": [
+        "auto-at-180",
+        "freeze"
+      ]
+    },
+    {
+      "do": "Whether the device can take a manual package at all: Windows with Client Connector 4.7 or later.",
+      "uses": [
+        "manual-package"
+      ]
+    }
+  ],
+  "claims": {
+    "auto-rollout": {
+      "statement": "Zscaler regularly releases new versions of the base ZDX Module, compatible with Client Connector for Windows and for macOS, and Client Connector automatically rolls out the latest version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-and-configuring-zdx-module-upgrades.json",
+          "quotes": [
+            "Zscaler regularly releases new versions of the base ZDX Module that are compatible with Zscaler Client Connector for Windows and Zscaler Client Connector for macOS. Zscaler Client Connector automatically rolls out the latest version."
+          ]
+        }
+      ]
+    },
+    "version-fields": {
+      "statement": "For each platform (Windows or macOS) the App Store shows the rolled-out ZDX Module version, the earliest and latest Client Connector versions it is compatible with, and the number of devices using it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-and-configuring-zdx-module-upgrades.json",
+          "quotes": [
+            "From the navigation menu, go to Infrastructure > Client Connector > App Store.",
+            "Select the platform (Windows or macOS) and view the fields:",
+            "ZDX Module Version: The ZDX Module version that has been rolled out.",
+            "Zscaler Client Connector Min-Max Version: The earliest and latest versions of Zscaler Client Connector that the ZDX Module version is compatible with.",
+            "Devices: The number of devices using the ZDX Module version."
+          ],
+          "after": "View Auto Rollout Information"
+        }
+      ]
+    },
+    "delayed-rollout": {
+      "statement": "A delayed rollout applies a version to selected user groups, for testing, for up to 180 days; Zscaler Support enables the feature.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-and-configuring-zdx-module-upgrades.json",
+          "quotes": [
+            "You can configure a delayed rollout to apply a version to selected user groups for testing purposes for up to 180 days.",
+            "Contact Zscaler Support to enable this feature."
+          ]
+        }
+      ]
+    },
+    "auto-at-180": {
+      "statement": "A delayed version shows Status Pending and an Auto Rollout In count of days; when the 180-day maximum from the version's release is reached, Client Connector rolls it out to all users unless the rollout is frozen.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-and-configuring-zdx-module-upgrades.json",
+          "quotes": [
+            "you can select all user groups and enter a date up to 180 days from the day the ZDX Module version was released.",
+            "Zscaler Client Connector automatically rolls out the ZDX Module version to all users when the 180-day maximum is reached unless you freeze the rollout.",
+            "The ZDX Module version Status is changed to Pending and the Auto Rollout In value is changed to the number of days before Zscaler Client Connector automatically rolls out the version."
+          ]
+        }
+      ]
+    },
+    "freeze": {
+      "statement": "Freezing a delayed rollout holds it beyond the 180-day maximum: the request takes a case number, if known, and a reason, and the version's Status changes to Frozen with the Auto Rollout In field cleared.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-and-configuring-zdx-module-upgrades.json",
+          "quotes": [
+            "If you want to delay a rollout beyond the 180-day maximum",
+            "Enter the case number (e.g., the Salesforce case number) if you know it and the reason you are freezing the rollout.",
+            "The Status changes to Frozen and the Auto Rollout In field is cleared."
+          ]
+        }
+      ]
+    },
+    "unfreeze": {
+      "statement": "Unfreezing returns the rollout to Pending if fewer than 180 days have passed since the version's release, and rolls it out immediately at 180 days or more.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-and-configuring-zdx-module-upgrades.json",
+          "quotes": [
+            "The rollout returns to a Status of Pending (if you unfreeze it fewer than 180 days after it was released) or is immediately rolled out (if you unfreeze it 180 or more days after it was released)."
+          ]
+        }
+      ]
+    },
+    "manual-package": {
+      "statement": "An upgrade package can be downloaded (32-bit or 64-bit ZIP, Windows) and deployed with the organization's MDM, a Group Policy Object or the CLI; this is available only with Client Connector 4.7 and later for Windows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-and-configuring-zdx-module-upgrades.json",
+          "quotes": [
+            "You can download an upgrade package and manually deploy with the Mobile Device Management (MDM) used by your organization or with the CLI. This feature is available only with Zscaler Client Connector version 4.7 and later for Windows.",
+            "Select Windows and select the ZIP URL (32 bit) or ZIP URL (64 bit) download link for the ZDX Module Version package.",
+            "You can use the downloaded package with your MDM or Group Policy Object (GPO) to upgrade the ZDX Module"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "rollout-orchestration": {
+      "kind": "semantic",
+      "title": "Which ZDX cloud component targets delayed module versions",
+      "status": "open",
+      "detail": "The legacy doc noted that the module-upgrade article does not say whether the Central Authority, the Telemetry and Policy Gateway or another service delivers a delayed version to the selected user groups.",
+      "blocks": "answers about how quickly a rollout change reaches devices",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    }
+  }
+}

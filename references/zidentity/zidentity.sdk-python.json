@@ -1,0 +1,525 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.sdk-python",
+  "title": "Python SDK for ZIdentity (client.zid): where its models and keys depart from the API",
+  "aliases": [
+    "client.zid",
+    "zscaler.zid",
+    "zid python sdk",
+    "zidentity python results_total None",
+    "get_api_client_secret empty",
+    "get_service_entitlement None",
+    "client_jw_ks_url",
+    "group source MANUAL"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.api.client-coverage"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.api.query-filters"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.sdk-go"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Python SDK reaches ZIdentity as `client.zid.<service>`; its modules and methods are generated (`node scripts/kb.mjs surface zid`). The defects below come from how it converts keys and which model it builds from each response."
+    },
+    {
+      "label": "Key conversion.",
+      "text": "{{form-response-camel}} Request bodies and query keys are camel-cased the same way: [[zidentity.api.query-filters:python-params-camel-cased]] and [[zidentity.api.query-filters:python-camel-rule]]."
+    },
+    {
+      "label": "List paging fields.",
+      "text": "{{models-read-snake-envelope}} {{envelope-meta-lost}} How Python pages is in [[zidentity.api.pagination]]."
+    },
+    {
+      "label": "Array responses read as one object.",
+      "text": "{{secrets-response-array}} {{secrets-get-builds-one}} {{secrets-list-into-object}} {{service-entitlement-builds-one}} {{service-entitlement-into-object}} The administrative read is wrapped instead: {{admin-entitlement-wrapper}}"
+    },
+    {
+      "label": "JWKS clients.",
+      "text": "{{jwks-docstring-key}} {{jwks-url-key}}"
+    },
+    {
+      "label": "Groups.",
+      "text": "A group's source takes the values in [[zidentity.groups:source-values]]. The SDK's docstring offers a value outside them and fields the create body does not define {{divergence:group-source-manual}} {{divergence:add-group-body}}. {{membership-id-transform}}"
+    },
+    {
+      "label": "Return shapes and annotations.",
+      "text": "{{user-group-details-list}} {{annotation-mismatches}} {{group-users-as-group-records}} {{custom-attrs-whole-record}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether code reads `results_total` or `next_link` from a Python list object; they are always None, so count `records` or use the response object's paging.",
+      "uses": [
+        "envelope-meta-lost",
+        "zidentity.api.pagination:python-next"
+      ]
+    },
+    {
+      "do": "Whether an empty result from `get_api_client_secret` or `get_service_entitlement` comes from the parsing defect rather than the tenant, by reading the raw response body.",
+      "uses": [
+        "secrets-list-into-object",
+        "service-entitlement-into-object"
+      ]
+    },
+    {
+      "do": "For a JWKS client created through Python, whether the stored client shows the JWKS URL, since the SDK sends it under `clientJwKsUrl`.",
+      "uses": [
+        "jwks-url-key",
+        "zidentity.api-clients:jwks-body-unobserved"
+      ]
+    }
+  ],
+  "claims": {
+    "form-response-camel": {
+      "statement": "Before a ZIdentity model such as `Users` is built, `form_response_body` passes every key of the response, at every level, through the camel-casing helper, skipping keys whose value is None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/api_client.py",
+          "after": "def form_response_body(body: Union[Dict[str, Any], List[Any], Any])",
+          "quotes": [
+            "if val is None:\n                    continue",
+            "result[_to_camel(key)] = APIClient.form_response_body(val)",
+            "result[_to_camel(key)] = processed_list",
+            "result[_to_camel(key)] = val"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/users.py",
+          "quotes": [
+            "result = Users(self.form_response_body(response.get_body()))"
+          ]
+        }
+      ]
+    },
+    "models-read-snake-envelope": {
+      "statement": "The ZIdentity list models read the paging fields under the API's own snake_case names: `results_total`, `next_link` and `prev_link`, beside `pageOffset`, `pageSize` and `records`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/models/users.py",
+          "quotes": [
+            "self.results_total = config[\"results_total\"] if \"results_total\" in config else None",
+            "self.page_offset = config[\"pageOffset\"] if \"pageOffset\" in config else None",
+            "self.next_link = config[\"next_link\"] if \"next_link\" in config else None",
+            "self.prev_link = config[\"prev_link\"] if \"prev_link\" in config else None",
+            "self.page_size = config[\"pageSize\"] if \"pageSize\" in config else None",
+            "self.records = ZscalerCollection.form_list(config[\"records\"] if \"records\" in config else [], UserRecord)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/models/api_client.py",
+          "quotes": [
+            "self.results_total = config[\"results_total\"] if \"results_total\" in config else None",
+            "self.next_link = config[\"next_link\"] if \"next_link\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/models/groups.py",
+          "quotes": [
+            "self.results_total = config[\"results_total\"] if \"results_total\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/models/resource_servers.py",
+          "quotes": [
+            "self.results_total = config[\"results_total\"] if \"results_total\" in config else None"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/get/responses/200/content/application~1json/schema/items",
+          "expect": {
+            "required": [
+              "results_total",
+              "pageOffset",
+              "pageSize",
+              "next_link",
+              "prev_link",
+              "records"
+            ]
+          }
+        }
+      ]
+    },
+    "envelope-meta-lost": {
+      "statement": "So on the Python list objects (`Users`, `Groups`, `APIClients`, `ResourceServers`) `results_total`, `next_link` and `prev_link` are always None: the keys reach the model as `resultsTotal`, `nextLink` and `prevLink`. `page_offset`, `page_size` and `records` are filled, since those keys have no underscore.",
+      "tier": "B",
+      "derived_from": [
+        "zidentity.sdk-python:form-response-camel",
+        "zidentity.sdk-python:models-read-snake-envelope",
+        "zidentity.api.query-filters:python-camel-rule",
+        "zidentity.api.pagination:envelope-required"
+      ],
+      "conditions": "Follows from the code path at the pin; none of the three keys is in the helper's exceptions table (searched). The response object's own paging (`has_next`, `next`) reads the raw body and is not affected."
+    },
+    "secrets-response-array": {
+      "statement": "Listing an API client's secrets returns a JSON array of secret objects.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1api-clients~1{id}~1secrets/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1api-clients~1{id}~1secrets/get/responses/200/content/application~1json/schema/items",
+          "expect": {
+            "title": "ClientSecretRespDto",
+            "required": [
+              "id",
+              "createdAt",
+              "value"
+            ]
+          }
+        }
+      ]
+    },
+    "secrets-get-builds-one": {
+      "statement": "`get_api_client_secret` builds a single `APIClientSecrets` object from the whole response body, and that model reads each of its four fields (`expiresAt`, `id`, `createdAt`, `value`) only if its key is `in` the configuration it was given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/api_client.py",
+          "after": "def get_api_client_secret(self, client_id: str) -> APIResult[dict]:",
+          "quotes": [
+            "result = APIClientSecrets(self.form_response_body(response.get_body()))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/models/api_client.py",
+          "after": "class APIClientSecrets(ZscalerObject):",
+          "quotes": [
+            "if config:",
+            "self.expires_at = config[\"expiresAt\"] if \"expiresAt\" in config else None",
+            "self.id = config[\"id\"] if \"id\" in config else None",
+            "self.created_at = config[\"createdAt\"] if \"createdAt\" in config else None",
+            "self.value = config[\"value\"] if \"value\" in config else None\n        else:"
+          ]
+        }
+      ]
+    },
+    "secrets-list-into-object": {
+      "statement": "So `get_api_client_secret` returns one secret object whose `id`, `created_at`, `expires_at` and `value` are all None, with no error, instead of the client's secrets: on a list, the key tests never match.",
+      "tier": "B",
+      "derived_from": [
+        "zidentity.sdk-python:secrets-get-builds-one",
+        "zidentity.sdk-python:secrets-response-array",
+        "zidentity.api-clients.secrets:go-secrets-array"
+      ],
+      "conditions": "Follows from Python membership tests on a list of dicts; not exercised by an SDK test at the pin."
+    },
+    "service-entitlement-builds-one": {
+      "statement": "`get_service_entitlement` builds a single `Service` model from the whole response body, and the contract returns service entitlements as an array of objects that each wrap a `service`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/user_entitlement.py",
+          "quotes": [
+            "def get_service_entitlement(self, user_id: str) -> APIResult[dict]:",
+            "result = Service(self.form_response_body(response.get_body()))"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1service-entitlements/get/responses/200/content/application~1json/schema/items",
+          "expect": {
+            "title": "ServiceEntitlementsPubRespDto",
+            "required": [
+              "service"
+            ]
+          }
+        }
+      ]
+    },
+    "service-entitlement-into-object": {
+      "statement": "So `get_service_entitlement` returns one `Service` whose fields are all None, with no error, for a user who has service entitlements; the Go SDK's comment describes the same loss when it once read the array into bare service objects.",
+      "tier": "B",
+      "derived_from": [
+        "zidentity.sdk-python:service-entitlement-builds-one",
+        "zidentity.sdk-go:service-entitlement-envelope"
+      ],
+      "conditions": "Follows from the code path at the pin and the contract's array shape; not exercised by an SDK test."
+    },
+    "jwks-docstring-key": {
+      "statement": "The Python `add_api_client` docstring takes the JWKS URL as `client_jw_ks_url` in the list under `client_authentication`, and the method sends its keyword arguments as the request body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/api_client.py",
+          "after": "def add_api_client(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "client_authentication (dict, optional): Configuration details for the client authentication.\n\n                - auth_type (str, optional): The method of client authentication (e.g., \"SECRET\", \"PUBKEYCERT\", \"JWKS\").\n                - client_jw_ks_url (str, optional): URL for the JSON Web Keys used for authentication.",
+            "body = kwargs"
+          ]
+        }
+      ]
+    },
+    "jwks-url-key": {
+      "statement": "So a Python client created as documented sends the JWKS URL as `clientJwKsUrl`, not the contract's `clientJWKsUrl`; the model reads `clientJWKsUrl` back correctly.",
+      "tier": "B",
+      "derived_from": [
+        "zidentity.sdk-python:jwks-docstring-key",
+        "zidentity.api.query-filters:python-camel-rule",
+        "zidentity.api-clients:auth-type-enum"
+      ],
+      "conditions": "Follows from the helper's rule; `client_jw_ks_url` is not in its exceptions table (searched at the pin). Whether the API matches the key case-insensitively is not shown by any source."
+    },
+    "membership-id-transform": {
+      "statement": "`add_users_to_group` and `replace_users_groups` turn an `id` list of user IDs into a body of objects that each hold one `id`; without an `id` list they send the keyword arguments as given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/groups.py",
+          "after": "def add_users_to_group(self, group_id: str, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "if \"id\" in kwargs and isinstance(kwargs[\"id\"], list):",
+            "transformed_ids.append({\"id\": user_id})",
+            "body = kwargs"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/groups.py",
+          "after": "def replace_users_groups(self, group_id: str, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "if \"id\" in kwargs and isinstance(kwargs[\"id\"], list):",
+            "transformed_ids.append({\"id\": user_id})",
+            "body = transformed_ids",
+            "body = kwargs"
+          ]
+        }
+      ]
+    },
+    "user-group-details-list": {
+      "statement": "`list_user_group_details` returns a plain list it fills item by item, building a `UserRecord` (not a group record) from each item of the response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/users.py",
+          "after": "def list_user_group_details(self, user_id: str, query_params: Optional[dict] = None) -> APIResult[List[UserRecord]]:",
+          "quotes": [
+            "result = []",
+            "for item in response.get_results():",
+            "result.append(UserRecord(self.form_response_body(item)))",
+            "return (result, response, None)"
+          ]
+        }
+      ]
+    },
+    "annotation-mismatches": {
+      "statement": "Several signatures and docstrings disagree on ID types: `get_group` annotates `group_id` as int, and the docstrings of `get_api_client` and `get_resource_server` call the ID an int while their signatures take str; `get_resource_server` is annotated `APIResult[dict]` but returns a `ResourceServersRecord`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/groups.py",
+          "quotes": [
+            "def get_group(self, group_id: int) -> APIResult[dict]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/api_client.py",
+          "quotes": [
+            "def get_api_client(self, client_id: str) -> APIResult[dict]:",
+            "client_id (int): Unique identifier of the API client to be retrieved."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/resource_servers.py",
+          "quotes": [
+            "def get_resource_server(self, resource_id: str) -> APIResult[dict]:",
+            "resource_id (int): Unique identifier of the resource server to retrieve.",
+            "result = ResourceServersRecord(self.form_response_body(response.get_body()))"
+          ]
+        }
+      ]
+    },
+    "custom-attrs-whole-record": {
+      "statement": "The Python `UserRecord` and `GroupRecord` models set `custom_attrs_info` to the whole record they are built from, not to its `customAttrsInfo` value, and write that attribute back out as `customAttrsInfo`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/models/users.py",
+          "after": "class UserRecord(ZscalerObject):",
+          "quotes": [
+            "self.custom_attrs_info = config if isinstance(config, dict) else {}",
+            "\"customAttrsInfo\": self.custom_attrs_info,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/models/groups.py",
+          "after": "class GroupRecord(ZscalerObject):",
+          "quotes": [
+            "self.custom_attrs_info = config if isinstance(config, dict) else {}",
+            "\"customAttrsInfo\": self.custom_attrs_info,"
+          ]
+        }
+      ]
+    },
+    "admin-entitlement-wrapper": {
+      "statement": "`get_admin_entitlement` returns one `Entitlements` object built from the whole response; its `entitlements` attribute holds an `Entitlement` per item when the body is a list, and is empty otherwise.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/user_entitlement.py",
+          "after": "def get_admin_entitlement(self, user_id: str) -> APIResult[dict]:",
+          "quotes": [
+            "tuple: A tuple containing Entitlements collection, Response, error).",
+            "result = Entitlements(self.form_response_body(response.get_body()))",
+            "return (result, response, None)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/models/user_entitlement.py",
+          "quotes": [
+            "self.entitlements = ZscalerCollection.form_list(config if isinstance(config, list) else [], Entitlement)"
+          ]
+        }
+      ]
+    },
+    "group-users-as-group-records": {
+      "statement": "`list_group_users_details` reads a group's users into a `Groups` paging object, so each member comes back as a `GroupRecord`, a model that also reads the user fields `loginName`, `displayName`, `primaryEmail` and `status`; its docstring calls the result a 'list of Groups instances'.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/groups.py",
+          "after": "def list_group_users_details(self, group_id: str, query_params: Optional[dict] = None) -> APIResult[Groups]:",
+          "quotes": [
+            "tuple: A tuple containing (list of Groups instances, Response, error)",
+            "/groups/{group_id}/users",
+            "result = Groups(self.form_response_body(response.get_body()))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/models/groups.py",
+          "quotes": [
+            "self.records = ZscalerCollection.form_list(config[\"records\"] if \"records\" in config else [], GroupRecord)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/models/groups.py",
+          "after": "class GroupRecord(ZscalerObject):",
+          "quotes": [
+            "self.login_name = config[\"loginName\"] if \"loginName\" in config else None",
+            "self.display_name = config[\"displayName\"] if \"displayName\" in config else None",
+            "self.primary_email = config[\"primaryEmail\"] if \"primaryEmail\" in config else None",
+            "self.status = config[\"status\"] if \"status\" in config else None"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "group-source-manual": {
+      "summary": "The Python SDK's group docstrings give `MANUAL` as an example group source, which is not in the contract's source values.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zid.openapi.json",
+            "pointer": "/paths/~1groups/get/responses/200/content/application~1json/schema/items/properties/records/items/properties/source/allOf/[title=SourceType]",
+            "expect": {
+              "enum": [
+                "UI",
+                "API",
+                "SCIM",
+                "JIT"
+              ]
+            }
+          },
+          "says": "A group's source is UI, API, SCIM or JIT."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zid/groups.py",
+            "quotes": [
+              "source (str): The source type of the group (e.g., 'SCIM', 'MANUAL', etc.)."
+            ]
+          },
+          "says": "Group sources include 'SCIM' and 'MANUAL', among others."
+        }
+      ],
+      "impact": "Code that filters or branches on a `MANUAL` group source never matches; groups made in the console or through the API report `UI` or `API`."
+    },
+    "add-group-body": {
+      "summary": "The contract's create-group body defines only `name` and `description`, while the Python `add_group` docstring offers `id`, `source`, `is_dynamic_group`, the two entitlement flags and `idp` as well.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zid.openapi.json",
+            "pointer": "/paths/~1groups/post/requestBody/content/application~1json/schema/properties",
+            "expect_absent": [
+              "source",
+              "isDynamicGroup",
+              "adminEntitlementEnabled",
+              "serviceEntitlementEnabled",
+              "idp",
+              "id"
+            ]
+          },
+          "says": "A group is created from a name and a description."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zid/groups.py",
+            "quotes": [
+              "is_dynamic_group (bool): Boolean flag indicating if the group is dynamic.",
+              "admin_entitlement_enabled (bool): Whether the group supports admin entitlements."
+            ]
+          },
+          "says": "A group can be created with a source, a dynamic flag, entitlement flags and an IdP."
+        }
+      ],
+      "impact": "Setting those fields through `add_group` may be ignored or rejected by the API; no source shows which, so read the group back after creating it."
+    }
+  }
+}

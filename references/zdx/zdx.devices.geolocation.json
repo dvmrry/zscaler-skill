@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "id": "zdx.devices.geolocation",
+  "title": "ZDX geolocations: active geolocations, geo filters and coordinates",
+  "aliases": [
+    "zdx geolocation",
+    "active_geo",
+    "zdx geo filter",
+    "geo_id",
+    "parent_geo_id",
+    "zdx geo_lat",
+    "geo_detection",
+    "list_geolocations",
+    "GetGeoLocations"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zdx.devices"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.score.calculation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Geolocation reaches ZDX from Client Connector, [[zdx.cloud-architecture:client-connector]]. {{active-geo}}"
+    },
+    {
+      "label": "Filtering by geolocation.",
+      "text": "{{geo-filters}} How the nested geolocations are walked, level by level, is not documented {{gap:hierarchy-traversal}}."
+    },
+    {
+      "label": "Coordinates and their source.",
+      "text": "{{coordinates}} {{geo-detection}} How a region for the score baseline relates to these is open, [[zdx.score.calculation:region-definition]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a state or city is expected at all, since state and city data is returned only for the US.",
+      "uses": [
+        "active-geo"
+      ]
+    },
+    {
+      "do": "Whether a location came from the device or from an IP lookup before trusting its city.",
+      "uses": [
+        "geo-detection"
+      ]
+    }
+  ],
+  "claims": {
+    "active-geo": {
+      "statement": "The active-geolocations read lists all active geolocations for the time range, the last 2 hours if none is given; state and city data is retrieved only for the US.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1active_geo/get",
+          "expect": {
+            "description": "Gets the list of all active geolocations for the time range specified. If not specified, the endpoint defaults to the last 2 hours. The state and city data is retrieved only for the US."
+          }
+        }
+      ]
+    },
+    "geo-filters": {
+      "statement": "The report reads filter by geolocation with a `geo` parameter, an array of strings, and the device list also takes `exclude_geo`; the active-geolocations read takes `parent_geo_id` and `q`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices/get/parameters/[name=geo]/schema",
+          "expect": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices/get/parameters/[name=exclude_geo]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1active_geo/get/parameters/[name=parent_geo_id]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1active_geo/get/parameters/[name=q]",
+          "expect": {
+            "in": "query"
+          }
+        }
+      ]
+    },
+    "coordinates": {
+      "statement": "The user reads return each device's geolocations with a latitude (`geo_lat`) and longitude (`geo_long`) beside city, state, country and region.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get/responses/200/content/application~1json/schema/properties/users/items/properties/devices/items/properties/geo_locations/items/properties/geo_lat",
+          "expect": {
+            "description": "The geo latitude of location."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get/responses/200/content/application~1json/schema/properties/users/items/properties/devices/items/properties/geo_locations/items/properties/geo_long",
+          "expect": {
+            "description": "The geo longitude of location."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get/responses/200/content/application~1json/schema/properties/users/items/properties/devices/items/properties/geo_locations/items/properties/city",
+          "expect": {
+            "description": "The name of the city."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get/responses/200/content/application~1json/schema/properties/users/items/properties/devices/items/properties/geo_locations/items/properties/state",
+          "expect": {
+            "description": "The name of the state."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get/responses/200/content/application~1json/schema/properties/users/items/properties/devices/items/properties/geo_locations/items/properties/country",
+          "expect": {
+            "description": "The country of the location."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1users/get/responses/200/content/application~1json/schema/properties/users/items/properties/devices/items/properties/geo_locations/items/properties/region",
+          "expect": {
+            "description": "The region information."
+          }
+        }
+      ]
+    },
+    "geo-detection": {
+      "statement": "In the application-users read, a device location's `geo_detection` is described as ip_geo_lookup or device_geo_lookup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}~1users/get/responses/200/content/application~1json/schema/properties/users/items/properties/devices/items/properties/geo_loc/items/properties/geo_detection",
+          "expect": {
+            "description": "ip_geo_lookup or device_geo_lookup"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "hierarchy-traversal": {
+      "kind": "semantic",
+      "title": "How the geolocation hierarchy is traversed",
+      "status": "open",
+      "former_ids": [
+        "zdx-26"
+      ],
+      "detail": "Each active geolocation carries `children` (ID, description, type), and the read takes `parent_geo_id`. Whether children nest more than one level and whether deeper levels need repeated `parent_geo_id` calls is implied, not stated.",
+      "blocks": "building a complete geolocation filter list",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

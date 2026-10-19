@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "id": "aem.secops-platform",
+  "title": "The Agentic SecOps Platform under AEM, UVM, Agentic SOC and Identity Protection: data fabric, data sources and the Reporting API",
+  "aliases": [
+    "agentic secops platform",
+    "security operations platform",
+    "secops platform",
+    "data fabric for security",
+    "secops data sources",
+    "secops reporting api",
+    "secops report export",
+    "report export via api",
+    "secops graphql"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "aem.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "soc-workbench.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "breach-predictor.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.overview"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Asset Exposure Management, Unified Vulnerability Management, Agentic SOC and Identity Protection are applications on one platform that shares ingestion, data model and reporting. {{four-apps}}"
+    },
+    {
+      "label": "Neighbouring products.",
+      "text": "{{easm-and-predr}} Each application: [[aem.overview]], [[uvm.overview]], [[soc-workbench.overview]], [[identity-protection.overview]]; Breach Predictor and Deception: [[breach-predictor.overview]], [[deception.overview]]."
+    },
+    {
+      "heading": "Data in"
+    },
+    {
+      "text": "{{data-fabric}} {{data-sources}} {{anysource}} {{field-mapping}} The per-source catalog of connectors is not captured {{gap:connector-catalog}}."
+    },
+    {
+      "heading": "Data out"
+    },
+    {
+      "text": "{{report-export}} {{report-schedule}} {{reporting-api}} {{reporting-api-credentials}} The API's endpoint, schema and token request are not in the capture {{gap:reporting-api-contract}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a request to pull SecOps data programmatically (vulnerabilities, assets, identities, SOC incidents), point to a saved report exported through the GraphQL Reporting API or a scheduled export, and say that the endpoint details are not captured.",
+      "uses": [
+        "reporting-api",
+        "report-schedule",
+        "reporting-api-contract"
+      ]
+    },
+    {
+      "do": "Whether the Reporting API credentials were obtained from Zscaler Support or the account team; they are not OneAPI or ZIdentity API clients according to any captured source.",
+      "uses": [
+        "reporting-api-credentials"
+      ]
+    },
+    {
+      "do": "When newly ingested data is missing, whether the source's fields were mapped and whether the next data run has happened (or Process Now was used).",
+      "uses": [
+        "data-sources",
+        "field-mapping"
+      ]
+    }
+  ],
+  "claims": {
+    "four-apps": {
+      "statement": "The Agentic SecOps Platform has four applications: Asset Exposure Management (AEM), Unified Vulnerability Management (UVM), Agentic SOC and Identity Protection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-what-zscaler-security-operations.json",
+          "quotes": [
+            "There are 4 applications in the Agentic SecOps Platform:",
+            "Asset Exposure Management (AEM) enables organizations to collect and manage asset data",
+            "Unified Vulnerability Management (UVM) provides a single place for managing vulnerabilities",
+            "Agentic SOC uses multi-agentic AI to unify and enrich alerts with deep context",
+            "Identity Protection detects anomalous activities such as compromised credentials"
+          ]
+        }
+      ]
+    },
+    "easm-and-predr": {
+      "statement": "The platform natively integrates External Attack Surface Management, whose scanned assets and findings are merged into AEM and UVM, and integrates with Zscaler Deception and Breach Predictor for Preemptive Detection and Response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-what-zscaler-security-operations.json",
+          "quotes": [
+            "The Agentic SecOps Platform natively integrates External Attack Surface Management (EASM) capabilities to automatically discover, inventory, and monitor internet-facing assets and detect their associated risk findings.",
+            "Scanned asset and finding information is automatically merged with the context-rich data and capabilities of AEM and UVM",
+            "embeds Zscaler's Preemptive Detection and Response (PreDR) strategy by integrating with the Zscaler Deception and Zscaler Breach Predictor capabilities"
+          ]
+        }
+      ]
+    },
+    "data-fabric": {
+      "statement": "The platform runs on a data fabric for security that centralizes, harmonizes, deduplicates, correlates and enriches data from Zscaler telemetry and third-party tools.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-what-zscaler-security-operations.json",
+          "quotes": [
+            "The Agentic SecOps Platform operates on a robust data fabric for security that centralizes and transforms disparate security data.",
+            "the fabric harmonizes, deduplicates, correlates, and enriches information from various sources, including Zscaler telemetry and third-party tools."
+          ]
+        }
+      ]
+    },
+    "data-sources": {
+      "statement": "Data from external tools (vulnerability scanners, asset inventories, cloud providers) is ingested by creating a data source from a tile on the Sources page; its setup has Details, Retrieval, Scheduling, Remediation Detection Settings and Suppression Rules sections and an optional connectivity Test, and data is retrieved on the next data run unless Process Now is used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-creating-data-sources.json",
+          "quotes": [
+            "collects and correlates security data and business context from a wide range of external tools, such as vulnerability scanners, asset inventories, and cloud providers.",
+            "In the left-side navigation, click Sources.",
+            "Select a source from the available tiles.",
+            "On the source setup page, configure the setup in the following sections: - Details - Retrieval - Scheduling - Remediation Detection Settings - Suppression Rules",
+            "(Optional) Click Test to verify the source's authentication and connectivity.",
+            "Your new data is retrieved on the next data run. To retrieve the data immediately, hover over the source and click the Process Now icon."
+          ]
+        }
+      ]
+    },
+    "anysource": {
+      "statement": "A generic AnySource connector can upload or extract files from data storage platforms such as GCP and AWS S3.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-creating-data-sources.json",
+          "quotes": [
+            "You can connect a generic AnySource connector, which allows you to upload or extract files from data storage platforms such as Google Cloud Platform (GCP) and AWS S3."
+          ]
+        }
+      ]
+    },
+    "field-mapping": {
+      "statement": "Field mappings must be configured (Map Data on the source) for ingested data to be processed and used across the platform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-creating-data-sources.json",
+          "quotes": [
+            "To ensure the data can be correctly processed and used across the Agentic SecOps Platform, you must configure field mappings.",
+            "click Map Data to map source fields to the corresponding Agentic SecOps Platform fields."
+          ]
+        }
+      ]
+    },
+    "report-export": {
+      "statement": "A saved report can be exported in CSV, JSONL or Excel format from its Reports page, manually for small (up to 100K rows) or large (more than 100K rows) datasets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "secops-managing-reports.json",
+          "quotes": [
+            "After creating a report, you can export it in CSV, JSONL, or Excel format from the appropriate Reports page",
+            "Manually Export Reports",
+            "Exporting Reports for Small Datasets (up to 100K rows)",
+            "Downloading Reports for Large Datasets (more than 100K rows)"
+          ]
+        }
+      ]
+    },
+    "report-schedule": {
+      "statement": "A saved report can be scheduled for delivery by email, to an AWS S3 bucket or to Slack, daily, weekly, monthly or on a custom schedule; reports are reachable from Explore > Reports and from My Reports under Vulnerabilities, Assets, Identities and SOC Workbench, and each scheduled run is listed on the report's Runs page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "secops-managing-reports.json",
+          "quotes": [
+            "You must save the newly created reports before they can be scheduled.",
+            "In the Agentic SecOps Platform Admin Portal, go to Explore > Reports.",
+            "Assets > My Reports",
+            "Vulnerabilities > My Reports",
+            "Identities > My Reports",
+            "SOC Workbench > My Reports",
+            "Email: Enter one or more recipient email addresses",
+            "S3 - AWS S3: Enter your connection credentials and destination path.",
+            "Slack: Configure delivery settings",
+            "Frequency and Time: Set how often and when the report should run (Daily, Weekly, Monthly, or Custom).",
+            "The report's Runs page appears, where each row represents an individual report run."
+          ]
+        }
+      ]
+    },
+    "reporting-api": {
+      "statement": "A saved report can be exported programmatically through the Reporting API, a GraphQL-based interface that exports the data to an AWS S3 bucket or returns a downloadable link; the client authenticates for an access token, submits a request to start the report and polls for its status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "secops-managing-reports.json",
+          "quotes": [
+            "After creating a report, you can trigger it to be exported programmatically using the Reporting API.",
+            "The Reporting API is a GraphQL-based interface to export data from the platform to an AWS S3 bucket, or to retrieve a downloadable link to the report data.",
+            "Use the client ID and client secret you obtained earlier to request an access token and authenticate your API client.",
+            "After authentication, you can submit API requests to initiate a report and poll for its status."
+          ]
+        }
+      ]
+    },
+    "reporting-api-credentials": {
+      "statement": "Before using the Reporting API, the data must be defined as a new or existing report, and the API credentials (client ID and client secret) are obtained from Zscaler Support or the Zscaler account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "secops-managing-reports.json",
+          "quotes": [
+            "Before using the Reporting API, you must define the data you want to export by creating a new report or using an existing report.",
+            "you must also contact Zscaler Support or your Zscaler Account team to obtain the API credentials (client ID and client secret)."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "reporting-api-contract": {
+      "kind": "semantic",
+      "title": "The SecOps Reporting API's endpoint, token request, GraphQL schema and response shape",
+      "status": "partial",
+      "former_ids": [
+        "soc-workbench-01",
+        "aem-01"
+      ],
+      "detail": "Unverified legacy statements: SOC Workbench's report-export API endpoint, schema, authentication scope and response shape are not captured; AEM's AnySource upload contract, report-export API, query or configuration API, and whether they are public OneAPI surfaces are unresolved. Now known (secops-managing-reports.json): report export is the platform's GraphQL Reporting API with Support-issued client credentials. Still open: the host and token endpoint, the GraphQL schema, the polling contract, and whether any configuration or query API beyond report export exists. The capture's Generating a Token and Making an API Request sections render as headings only, and no vendored SDK, provider, MCP server or Postman collection names this API.",
+      "blocks": "writing a client for SecOps report export, or telling an operator whether AEM, UVM, SOC or identity data can be queried other than through saved reports",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "connector-catalog": {
+      "kind": "data",
+      "title": "Which source connectors and outbound integrations the SecOps platform offers",
+      "status": "open",
+      "detail": "Unverified legacy statements: the captured AEM and SOC Workbench connector lists included Azure Blob, Azure Cloud Assets, CrowdStrike, CrowdStrike Identity Protection, Microsoft Defender for Cloud and for Endpoint, Microsoft Entra ID, SentinelOne, Snyk, Wiz, Zscaler Client Connector Devices, ZIA Devices and Users, and AnySource (via AWS S3, GCP, webhook or upload-file API); outbound integrations (written Outegrations in the source) were Jira, ServiceNow and Azure DevOps with webhooks; the UVM AnySource page listed partial vendor-connector examples (Veracode, Apiiro, Aqua Security, Armis, AWS, Azure Blob, Azure Cloud Assets, CrowdStrike, Dragos, GitHub Advanced Security, Mandiant ASM, Microsoft Defender, Prisma Cloud, Tenable). The current help pages point to a per-data-source configurations article that is not captured; the UVM AnySource page names CrowdStrike Managed Hosts and ServiceNow Assets as vendor connectors, and Zscaler's UVM page claims 150+ prebuilt integrations (uvm.anysource:integration-count).",
+      "blocks": "telling an operator whether a given tool can feed, or receive tickets from, the SecOps applications",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

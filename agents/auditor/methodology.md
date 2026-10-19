@@ -164,9 +164,9 @@ Finding: confidence calibration seems off in some files
 ```
 Better:
 ```
-Finding: confidence: high in references/zdx/api.md without sources
+Finding: confidence: high in references/zdx/index.md without sources
          field populated (sources: empty)
-Source: references/zdx/api.md:6 (frontmatter)
+Source: references/zdx/index.md:6 (frontmatter)
 Severity: High
 Remediation: Either populate sources (Tier A vendor docs) or downgrade
              to medium

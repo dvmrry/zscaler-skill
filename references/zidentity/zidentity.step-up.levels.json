@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.step-up.levels",
+  "title": "Authentication levels: the level tree, validity periods, acr mapping and the message to users",
+  "aliases": [
+    "authentication levels",
+    "AL1",
+    "AL2",
+    "AL4",
+    "authentication level tree",
+    "authentication level validity",
+    "sub-level validity must be greater",
+    "acr mapping",
+    "message to the user step-up"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zidentity.step-up"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.step-up"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Policies ask for a level, and a level sits in a tree. {{al-naming}}"
+    },
+    {
+      "label": "What a level holds.",
+      "text": "{{level-fields}}"
+    },
+    {
+      "label": "Limits.",
+      "text": "[[zia.authentication.step-up:level-limits]] {{parent-stronger}} Whether the console rejects a tree that breaks these limits at save is not documented {{gap:save-validation}}."
+    },
+    {
+      "label": "After the levels.",
+      "text": "{{policies-next}} With an OIDC external IdP each level is mapped to its acr value in the IdP: [[zia.authentication.step-up:oidc-only]]. What happens when the IdP's acr values and the mapping disagree is open {{gap:acr-mismatch}}."
+    },
+    {
+      "label": "One tree or several.",
+      "text": "Whether levels are one tenant-wide tree shared by every product is open {{gap:per-product}}, and whether the message to users can be localized is open {{gap:message-localization}}."
+    },
+    {
+      "label": "From the ZPA API.",
+      "text": "ZPA's SDKs can only read the levels: [[zpa.api.legacy-endpoints:stepup-no-writes]], with a shape disagreement in [[zpa.api.policy-wire]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "When a tree will not save, whether each parent's validity is shorter than every sub-level's, the tree has at most 32 levels and no branch is deeper than 4.",
+      "uses": [
+        "zia.authentication.step-up:level-limits",
+        "parent-stronger"
+      ]
+    },
+    {
+      "do": "Whether each level is mapped to the acr value the IdP actually issues.",
+      "uses": [
+        "zia.authentication.step-up:oidc-only",
+        "acr-mismatch"
+      ]
+    }
+  ],
+  "claims": {
+    "al-naming": {
+      "statement": "The help gives AL1 to AL4 as an example of authentication levels, representing increasing strength; each level's name is entered by the admin when the level is created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-step-up-authentication.json",
+          "quotes": [
+            "Step-up authentication is configured using authentication levels (e.g., AL1 to AL4), representing increasing authentication strength."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-authentication-levels.json",
+          "quotes": [
+            "Level Name: Enter a name for the level."
+          ]
+        }
+      ]
+    },
+    "level-fields": {
+      "statement": "A level has a name, a validity period, a description and an optional message shown to users through Zscaler Client Connector notifications when they access resources that require the level; sub-levels are created beneath a level with the same fields, and several sub-levels form a tree.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-authentication-levels.json",
+          "after": "Click New Authentication Level.",
+          "quotes": [
+            "Level Name: Enter a name for the level.",
+            "Validity: Enter a validity period for this level of authentication.",
+            "Description: Enter a description for the level.",
+            "Message to the user (optional): Enter a message that you want to be shown to the users via Zscaler Client Connector notifications while accessing resources that require this level of authentication.",
+            "Click Create level beneath the level you want to add a sub-level.",
+            "Sub-Level Name: Enter a name for the sub-level.",
+            "Description: Enter a description for the sub-level.",
+            "You can create multiple sub-levels forming a tree hierarchy."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-authentication-levels.json",
+          "after": "Sub-Level Name: Enter a name for the sub-level.",
+          "quotes": [
+            "Validity: Enter a validity period for this level of authentication.",
+            "Message to the user (optional): Enter a message that you want to be shown to the users via Zscaler Client Connector notifications"
+          ]
+        }
+      ]
+    },
+    "parent-stronger": {
+      "statement": "So in the tree a parent level is the stronger one: authenticating at it satisfies policies that require its sub-levels, and its validity must be shorter than theirs. A tree whose root is the weakest level, with longer validity on the stronger levels beneath it, reads the help the wrong way round.",
+      "tier": "B",
+      "derived_from": [
+        "zia.authentication.step-up:what-it-is",
+        "zia.authentication.step-up:level-limits"
+      ],
+      "conditions": "The help does not say in one sentence that a parent is stronger than its sub-levels. It says authenticating at a higher level satisfies policies that require a sub-level, and that a parent's validity must be less than its sub-levels'; read together they put the stronger, shorter-lived level above."
+    },
+    "policies-next": {
+      "statement": "After the levels are configured, access policies that use them have to be created in the supported Zscaler services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-authentication-levels.json",
+          "quotes": [
+            "After configuring authentication levels, you need to create access policies in the supported Zscaler services."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "save-validation": {
+      "kind": "semantic",
+      "title": "Whether the console rejects a level tree that breaks the limits",
+      "status": "open",
+      "detail": "Unverified legacy statement: saving a parent with a longer validity than its child, a fifth level of depth, or a 33rd level fails with a validation error. The help states the limits but not how the console enforces them.",
+      "blocks": "explaining a failed save of authentication levels",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "acr-mismatch": {
+      "kind": "semantic",
+      "title": "What happens when the IdP's acr value does not match the level mapping",
+      "status": "open",
+      "detail": "Unverified legacy statement: Authentication Service translates the acr claim in the IdP token to its level; if the IdP's acr values do not match the mapping (for example after the IdP team changes them), the user re-authenticates but the elevation is not recognized. No source describes the failure; the help only requires the mapping.",
+      "blocks": "diagnosing a user who completes MFA but is still denied",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "per-product": {
+      "kind": "semantic",
+      "title": "Whether authentication levels are one tenant-wide tree or can differ per product",
+      "status": "open",
+      "former_ids": [
+        "zid-28"
+      ],
+      "detail": "Unverified legacy statement: ZIA and ZPA rules both draw on the same tenant-wide tree, so a level created for ZPA is available to ZIA and vice versa. The help configures levels in Authentication Service and maps them to access policies in supported services, but does not say whether per-product trees or overrides exist.",
+      "blocks": "designing levels for ZIA and ZPA separately",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "message-localization": {
+      "kind": "semantic",
+      "title": "Whether the message to users can be localized",
+      "status": "open",
+      "former_ids": [
+        "zid-30"
+      ],
+      "detail": "Unverified legacy statement: whether the per-level message to the user supports several languages or only a single string is not stated.",
+      "blocks": "planning step-up notifications for a multilingual workforce",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "id": "zdx.score",
+  "title": "The ZDX Score: scale, bands, score types and what lowers it",
+  "aliases": [
+    "zdx score",
+    "digital experience score",
+    "zdx score meaning",
+    "good okay poor",
+    "zdx score buckets",
+    "zdx score bands",
+    "rum score",
+    "synthetic probe score",
+    "combined score",
+    "low zdx score",
+    "zdx score -1",
+    "real user monitoring score"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.score.calculation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.applications"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The ZDX Score is the headline number of ZDX; the underlying probe metrics are the drill-down. {{represents}}"
+    },
+    {
+      "label": "Scale and bands.",
+      "text": "{{scale}} {{bands}} The MCP server's troubleshooting prompt uses other bands {{divergence:mcp-prompt-bands}}."
+    },
+    {
+      "label": "Score types.",
+      "text": "{{score-types}} {{score-type-metrics}} An application's Real User Monitoring settings are part of its configuration, [[zdx.applications:rum-config]]."
+    },
+    {
+      "label": "How it is calculated.",
+      "text": "The 5-minute values, the hourly lows and the rollups per application, place, organization and user are in [[zdx.score.calculation]]."
+    },
+    {
+      "label": "Low scores.",
+      "text": "{{low-score-causes}} A Diagnostics Session can be started to troubleshoot a low score, [[zdx.diagnostics:low-scores]]."
+    },
+    {
+      "label": "Through the API.",
+      "text": "An API score of -1 means no data, not a bad score, and API values can differ slightly from the UI: [[shared.log-export.zdx:api-vs-ui]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which score type the application is configured for (synthetic probes, Real User Monitoring or both) before comparing its score with another's.",
+      "uses": [
+        "score-types",
+        "score-type-metrics"
+      ]
+    },
+    {
+      "do": "Whether an API score of -1 is a no-data value rather than a poor score.",
+      "uses": [
+        "shared.log-export.zdx:api-vs-ui"
+      ]
+    }
+  ],
+  "claims": {
+    "represents": {
+      "statement": "A ZDX Score represents all users in the organization, across all applications, locations and cities; it appears on the Admin Console dashboards that show Digital Experience metrics and adjusts to the time period and filters selected there.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zdx-score.json",
+          "quotes": [
+            "A ZDX Score represents all users in your organization, across all applications, all locations, and all cities.",
+            "You can see the score on the Zscaler Admin Console dashboards that capture Digital Experience (ZDX) metrics.",
+            "Depending on the time period and filters selected within the dashboards, the score adjusts accordingly."
+          ]
+        }
+      ]
+    },
+    "scale": {
+      "statement": "The ZDX Score runs from 0 (lowest) to 100 (highest); the lowest numbers indicate a Poor score and the highest a Good score.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zdx-score.json",
+          "quotes": [
+            "The ZDX Score is based on a scale of 0 (lowest) to 100 (highest) with the lowest numbers indicating a Poor score and the highest numbers indicating a Good score."
+          ]
+        }
+      ]
+    },
+    "bands": {
+      "statement": "A score falls in one of three categories: Good, 66 to 100, green; Okay, 34 to 65, amber; Poor, 0 to 33, red.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zdx-score.json",
+          "quotes": [
+            "Good: The score is above an acceptable threshold and ranges from 66-100. The color for this range is green.",
+            "Okay: The score is acceptable and ranges from 34-65. The color for this range is amber.",
+            "Poor: The score is below an acceptable threshold and ranges from 0-33. The color for this range is red."
+          ]
+        }
+      ]
+    },
+    "low-score-causes": {
+      "statement": "The help attributes low scores often to the network or local environment, listing device issues (restarts, CPU in use), connection issues (Wi-Fi signal strength), slow applications and high network latency (Wi-Fi, home network, ISP) as potential reasons.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zdx-score.json",
+          "quotes": [
+            "Low scores can often be attributed to underlying issues related to the network or local environment.",
+            "Issues with a user's device (e.g., restarts, amount of CPU in use, etc.).",
+            "Issues with the connection (e.g., Wi-Fi signal strength).",
+            "- Slow applications.",
+            "High latency on the network (e.g., Wi-Fi, home network, ISP)."
+          ]
+        }
+      ]
+    },
+    "score-types": {
+      "statement": "There are two ZDX Score types and one combined type, depending on how applications are configured: the Synthetic Probe Score measured with Cloud Path or Web probes, the RUM Score measured with Real User Monitoring, and the Combined Score of both; they can differ because they use different configurations and metrics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zdx-score.json",
+          "quotes": [
+            "There are two different ZDX Score types and one combined ZDX Score type depending on how you configure your applications to measure ZDX Score:",
+            "Synthetic Probe Score: The score is measured using probes (i.e., Cloud Path probe or Web probe).",
+            "RUM Score: The score is measured using Real User Monitoring (RUM).",
+            "Combined Score: The score is a combination of both Synthetic Probe Score and RUM Score.",
+            "These scores can differ from each other as they use different application configurations and use different metrics"
+          ]
+        }
+      ]
+    },
+    "score-type-metrics": {
+      "statement": "In the help's table, Web probe metrics (Page Fetch Time, Server Response Time, DNS Time, Availability) and Cloud Path metrics (End-to-End latency, Packet Loss, Hops, Packet Count) count toward the Synthetic Probe Score with a probe-only configuration, the RUM Score with a RUM-only configuration and both scores with combined configurations; web browser metrics (Page Views, Route Changes, Page Load Time, Core Web Vitals) are not used with a probe-only configuration and otherwise count toward the RUM Score.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zdx-score.json",
+          "quotes": [
+            "| Metrics | Synthetic Probe Configuration Only | RUM Configuration Only | Combined Configurations |",
+            "| Web probe metrics:Page Fetch TimeServer Response TimeDNS TimeAvailability | Synthetic Probe Score | RUM Score | Both Scores |",
+            "| Cloud Path probe metrics for network performance:End-to-End latencyPacket LossHopsPacket Count | Synthetic Probe Score | RUM Score | Both Scores |",
+            "| Web browser metrics:Page ViewsRoute ChangesPage Load TimeCore Web Vitals | N/A | RUM Score | RUM Score |"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "mcp-prompt-bands": {
+      "summary": "The score bands: the help and the Python SDK's `score_bucket` docstring use Good 66-100, Okay 34-65 and Poor 0-33; the MCP server's ZDX troubleshooting prompt tells the agent 80-100 Good, 50-79 Degraded and 0-49 Poor.",
+      "positions": [
+        {
+          "says": "Good 66-100, Okay 34-65, Poor 0-33.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-zdx-score.json",
+            "quotes": [
+              "Good: The score is above an acceptable threshold and ranges from 66-100. The color for this range is green.",
+              "Okay: The score is acceptable and ranges from 34-65. The color for this range is amber.",
+              "Poor: The score is below an acceptable threshold and ranges from 0-33. The color for this range is red."
+            ]
+          }
+        },
+        {
+          "says": "The `score_bucket` values map to poor 0-33, okay 34-65 and good 66-100.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zdx/apps.py",
+            "quotes": [
+              "* `poor` - 0-33",
+              "* `okay` - 34-65",
+              "* `good` - 66-100"
+            ]
+          }
+        },
+        {
+          "says": "Good 80-100, Degraded 50-79, Poor 0-49.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/prompts/catalog/zdx/troubleshoot_user_experience.py",
+            "quotes": [
+              "- Score bands: 80-100 = Good, 50-79 = Degraded, 0-49 = Poor."
+            ]
+          }
+        }
+      ],
+      "impact": "An agent following the MCP prompt calls a score of 70 Degraded where the console shows Good, and a 40 Poor where the console shows Okay, and its bands do not line up with the `score_bucket` filter."
+    }
+  }
+}

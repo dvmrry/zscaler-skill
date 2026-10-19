@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "id": "zscaler-cellular.sdk-python.location-groups",
+  "title": "Python SDK SIM location group writes: the geofence is dropped on create and snake_case keys are ignored",
+  "aliases": [
+    "add_location_group geofence",
+    "zcell sim location group create",
+    "geo_fence_details dropped",
+    "update_sim_location_group tracked_devices",
+    "zcell geofence sdk"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zscaler-cellular.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.monitoring"
+    }
+  ],
+  "prose": [
+    {
+      "text": "SIM location groups hold the geofences that anomaly detection checks ([[zscaler-cellular.monitoring:location-groups]]). The SDK reads them correctly but writes them incompletely."
+    },
+    {
+      "label": "Reading.",
+      "text": "{{fix-1940}} {{get-model}}"
+    },
+    {
+      "label": "Creating.",
+      "text": "{{create-contract}} {{create-old-model}} {{create-drops-geofence}}"
+    },
+    {
+      "label": "Key names.",
+      "text": "{{wire-case-keys}} {{snake-kwargs-empty}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a geofenced group created through the SDK, whether the outgoing body carried geoFenceDetails; if not, send the documented array body with a raw API call.",
+      "uses": [
+        "create-drops-geofence"
+      ]
+    },
+    {
+      "do": "For an SDK update, whether the keyword arguments used the wire names trackedDevices and geoFenceData.",
+      "uses": [
+        "snake-kwargs-empty"
+      ]
+    }
+  ],
+  "claims": {
+    "fix-1940": {
+      "statement": "Python SDK 1.9.40 fixed the ZCell `sim_location_groups` model to parse the geofence block.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed ZCELL Model `sim_location_groups` to properly parse the `GeoFence` block attribute."
+          ],
+          "after": "## 1.9.40 (August 4 2026)"
+        }
+      ]
+    },
+    "get-model": {
+      "statement": "The get-by-ID model reads `geoFenceData`, `linkedPolicies` and the inside-and-tracked, inside-and-untracked and outside-and-tracked ICCID lists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcell/models/sim_location_groups.py",
+          "quotes": [
+            "if \"geoFenceData\" in config:",
+            "config[\"linkedPolicies\"] if \"linkedPolicies\" in config else []",
+            "config[\"insideAndTrackedIccids\"] if \"insideAndTrackedIccids\" in config else []",
+            "config[\"insideAndUntrackedIccids\"] if \"insideAndUntrackedIccids\" in config else []",
+            "config[\"outsideAndTrackedIccids\"] if \"outsideAndTrackedIccids\" in config else []"
+          ],
+          "after": "class GetSimLocationGroup(ZscalerObject):"
+        }
+      ]
+    },
+    "create-contract": {
+      "statement": "Create takes an array of groups, each requiring `name` and `geoFenceDetails` (with required `lat`, `lng` and `radius`); update takes `geoFenceData` and `trackedDevices`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sim-location-groups/post/requestBody/content/application~1json/schema/items",
+          "expect": {
+            "required": [
+              "name",
+              "geoFenceDetails"
+            ],
+            "title": "CreateSimLocationGroupDto"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sim-location-groups/post/requestBody/content/application~1json/schema/items/properties/geoFenceDetails",
+          "expect": {
+            "required": [
+              "lat",
+              "lng",
+              "radius"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sim-location-groups~1{simLocationGroupId}/put/requestBody/content/application~1json/schema",
+          "expect": {
+            "title": "UpdateSimLocationGroupDto"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sim-location-groups~1{simLocationGroupId}/put/requestBody/content/application~1json/schema/properties/geoFenceData",
+          "expect": {
+            "title": "GeoFenceDto"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sim-location-groups~1{simLocationGroupId}/put/requestBody/content/application~1json/schema/properties/trackedDevices",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ]
+    },
+    "create-old-model": {
+      "statement": "`add_location_group` wraps the keyword arguments in `SimLocationGroups`, whose request format emits only `id`, `name` and `trackedDevices`, and the service does not import the `ApiCreateSimLocationGroupRequestBody` model that carries `geoFenceDetails`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcell/sim_location_groups.py",
+          "quotes": [
+            "def add_location_group(self, id: str = None, query_params=None, **kwargs)",
+            "body = [SimLocationGroups(kwargs).request_format()]",
+            "from zscaler.zcell.models.sim_location_groups import ( GetSimLocationGroup, ResponseMessage, SimLocationGroups, UpdateSimLocationGroup, )"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcell/models/sim_location_groups.py",
+          "quotes": [
+            "\"id\": self.id, \"name\": self.name, \"trackedDevices\": self.tracked_devices, }"
+          ],
+          "after": "class SimLocationGroups(ZscalerObject):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcell/models/sim_location_groups.py",
+          "quotes": [
+            "\"geoFenceDetails\": self.geo_fence_details,"
+          ],
+          "after": "class ApiCreateSimLocationGroupRequestBody(ZscalerObject):"
+        }
+      ]
+    },
+    "create-drops-geofence": {
+      "statement": "Creating a SIM location group through the SDK sends no geofence, even with the docstring's `geo_fence_details` argument, so the request lacks a field the contract requires.",
+      "tier": "B",
+      "derived_from": [
+        "create-old-model",
+        "create-contract"
+      ],
+      "conditions": "Follows from create-old-model and create-contract; the server's response to the incomplete body is not observed.",
+      "upstream": [
+        {
+          "status": "unfiled"
+        }
+      ]
+    },
+    "wire-case-keys": {
+      "statement": "The create model (`SimLocationGroups`) reads only `id`, `name` and the wire-case key `trackedDevices` from its config, and the update model (`UpdateSimLocationGroup`) reads only the wire-case keys `trackedDevices` and `geoFenceData`; the update method builds its model from the keyword arguments before the request is created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcell/models/sim_location_groups.py",
+          "quotes": [
+            "if config: self.id = config[\"id\"] if \"id\" in config else None self.name = config[\"name\"] if \"name\" in config else None self.tracked_devices = ZscalerCollection.form_list( config[\"trackedDevices\"] if \"trackedDevices\" in config else [], str ) else:",
+            "else: self.id = None self.name = None self.tracked_devices = [] def request_format(self):"
+          ],
+          "after": "class SimLocationGroups(ZscalerObject):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcell/models/sim_location_groups.py",
+          "quotes": [
+            "if config: self.tracked_devices = ZscalerCollection.form_list( config[\"trackedDevices\"] if \"trackedDevices\" in config else [], str ) if \"geoFenceData\" in config: if isinstance(config[\"geoFenceData\"], sim_location_groups.GeoFence): self.geo_fence_data = config[\"geoFenceData\"] elif",
+            "config[\"geoFenceData\"] is not None: self.geo_fence_data = sim_location_groups.GeoFence(config[\"geoFenceData\"]) else: self.geo_fence_data = None else: self.geo_fence_data = None else: self.tracked_devices = [] self.geo_fence_data = None"
+          ],
+          "after": "class UpdateSimLocationGroup(ZscalerObject):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcell/sim_location_groups.py",
+          "quotes": [
+            "body = UpdateSimLocationGroup(kwargs).request_format()"
+          ]
+        }
+      ]
+    },
+    "snake-kwargs-empty": {
+      "statement": "Passing Python-style `tracked_devices` or `geo_fence_data` to the create or update methods yields empty tracked devices and no geofence; the wire-case names `trackedDevices` and `geoFenceData` work.",
+      "tier": "B",
+      "derived_from": [
+        "wire-case-keys"
+      ],
+      "conditions": "Follows from wire-case-keys: the model is built from the raw kwargs, so the request executor's camel-casing of the body never sees the snake_case names.",
+      "upstream": [
+        {
+          "status": "unfiled"
+        }
+      ]
+    }
+  }
+}

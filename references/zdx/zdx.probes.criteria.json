@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "id": "zdx.probes.criteria",
+  "title": "Who a ZDX probe runs for: probing and exclusion criteria",
+  "aliases": [
+    "probing criteria",
+    "exclusion criteria",
+    "zdx probe criteria",
+    "probe and or logic",
+    "probe targeting",
+    "zdx probe no data",
+    "onUsers",
+    "excludedUsers"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zdx.probes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A probe runs only for the users its criteria select, and the two criteria sets use opposite logic. {{inclusion-and}} {{exclusion-or}}"
+    },
+    {
+      "label": "Several items in one field.",
+      "text": "{{multi-item-or}}"
+    },
+    {
+      "label": "Both sets together.",
+      "text": "{{exclusion-first}} {{worked-example}}"
+    },
+    {
+      "label": "Operating system.",
+      "text": "{{os-selection}}"
+    },
+    {
+      "label": "Narrowing and widening.",
+      "text": "{{using-criteria}}"
+    },
+    {
+      "label": "In the configuration API.",
+      "text": "{{contract-criteria-fields}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the exclusion criteria, evaluated first, remove the users the probe was meant for when a probe returns no data.",
+      "uses": [
+        "exclusion-first",
+        "exclusion-or",
+        "using-criteria"
+      ]
+    },
+    {
+      "do": "Whether every populated inclusion field matches the user, since inclusion fields combine with AND.",
+      "uses": [
+        "inclusion-and",
+        "multi-item-or"
+      ]
+    }
+  ],
+  "claims": {
+    "inclusion-and": {
+      "statement": "Probing (inclusion) criteria use AND logic across fields: a probe for user John Doe, user group Group B and department Finance has the expression John Doe AND Group B AND Finance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-probing-criteria-logic.json",
+          "quotes": [
+            "When you want to include criteria for a probe, the probe uses the AND logic.",
+            "Expression: John Doe AND Group B AND Finance"
+          ]
+        }
+      ]
+    },
+    "exclusion-or": {
+      "statement": "Exclusion criteria use OR logic and stop probing data from being gathered for what they select: excluding user group Group C and department Finance gives NOT (Group C OR Finance).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-probing-criteria-logic.json",
+          "quotes": [
+            "When you want to exclude criteria for a probe, the probe uses the OR logic. The Exclusion Criteria avoids gathering probing data for the selected criteria.",
+            "Exclusion Criteria: - User Group: Group C - Department: Finance - Expression: NOT (Group C OR Finance)"
+          ]
+        }
+      ]
+    },
+    "multi-item-or": {
+      "statement": "Several items selected within one field combine with OR, in both probing and exclusion criteria: locations San Jose and Los Angeles with user groups Group B and Group C give (San Jose OR Los Angeles) AND (Group B OR Group C), and excluding locations Sacramento and San Francisco and departments Engineering and Finance gives NOT (Sacramento OR San Francisco) AND NOT (Engineering OR Finance).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-probing-criteria-logic.json",
+          "quotes": [
+            "You can select multiple items within the field criteria that uses the OR Logic. This is applicable to both the Probing and Exclusion Criteria.",
+            "Expression: (San Jose OR Los Angeles) AND (Group B OR Group C)",
+            "Expression: NOT (Sacramento OR San Francisco) AND NOT (Engineering OR Finance)"
+          ]
+        }
+      ]
+    },
+    "exclusion-first": {
+      "statement": "When probing and exclusion criteria are combined, the exclusion criteria are evaluated first and then the probing criteria: probing Group B in California while excluding Finance and San Jose gives NOT (Finance OR San Jose) AND (Group B AND California).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-probing-criteria-logic.json",
+          "quotes": [
+            "The Exclusion Criteria is evaluated first and then the Probing Criteria.",
+            "Expression: NOT (Finance OR San Jose) AND (Group B AND California)"
+          ]
+        }
+      ]
+    },
+    "worked-example": {
+      "statement": "Under that combined example, a Group B user in California in the Finance department is not probed, a Group B user in San Jose is not probed, and a Group B user elsewhere in California outside Finance is probed.",
+      "tier": "B",
+      "derived_from": [
+        "exclusion-first"
+      ],
+      "conditions": "Applies the help's expression NOT (Finance OR San Jose) AND (Group B AND California); assumes, as the example implies, that the California location contains San Jose. The help does not walk through individual users."
+    },
+    "os-selection": {
+      "statement": "OS selection is supported for end user probe configurations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-probing-criteria-logic.json",
+          "quotes": [
+            "The OS selection is supported for end user probe configurations."
+          ]
+        }
+      ]
+    },
+    "using-criteria": {
+      "statement": "OR expands results, AND reduces them, and combining inclusion with exclusion criteria decreases probe results; if no results are found, Zscaler recommends reducing the amount of criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-probing-criteria-logic.json",
+          "quotes": [
+            "Using OR can expand your results.",
+            "Using AND reduces your results.",
+            "Combining inclusion and exclusion criteria decreases the amount of your probe results.",
+            "If you do not find any results, Zscaler recommends reducing the amount of criteria."
+          ]
+        }
+      ]
+    },
+    "contract-criteria-fields": {
+      "statement": "In the API contract a monitor carries inclusion lists `onUsers`, `onGroups`, `onDepartments`, `onLocations`, `onLocationGroups`, `onGeolocations` and `onDevices`, and matching exclusion lists `excludedUsers`, `excludedGroups`, `excludedDepartments`, `excludedLocations`, `excludedLocationGroups`, `excludedGeolocations` and `excludedDevices`, each an array of at most 100 items.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/properties/onUsers",
+          "expect": {
+            "type": "array",
+            "maxItems": 100
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/properties/excludedUsers",
+          "expect": {
+            "type": "array",
+            "maxItems": 100
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/properties/onGroups",
+          "expect": {
+            "type": "array",
+            "maxItems": 100
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/properties/excludedGroups",
+          "expect": {
+            "type": "array",
+            "maxItems": 100
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/properties/onDepartments",
+          "expect": {
+            "type": "array",
+            "maxItems": 100
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/properties/excludedDepartments",
+          "expect": {
+            "type": "array",
+            "maxItems": 100
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/properties/onLocations",
+          "expect": {
+            "type": "array",
+            "maxItems": 100
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/properties/excludedLocations",
+          "expect": {
+            "type": "array",
+            "maxItems": 100
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/properties/onLocationGroups",
+          "expect": {
+            "type": "array",
+            "maxItems": 100
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/properties/excludedLocationGroups",
+          "expect": {
+            "type": "array",
+            "maxItems": 100
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/properties/onGeolocations",
+          "expect": {
+            "type": "array",
+            "maxItems": 100
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/properties/excludedGeolocations",
+          "expect": {
+            "type": "array",
+            "maxItems": 100
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/properties/onDevices",
+          "expect": {
+            "type": "array",
+            "maxItems": 100
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/properties/excludedDevices",
+          "expect": {
+            "type": "array",
+            "maxItems": 100
+          }
+        }
+      ]
+    }
+  }
+}

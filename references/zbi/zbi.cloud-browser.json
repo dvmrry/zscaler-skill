@@ -1,0 +1,336 @@
+{
+  "schema_version": 1,
+  "id": "zbi.cloud-browser",
+  "title": "How Cloud Browser isolates a page: remote browser, traffic flow, containers and the idle timeout",
+  "aliases": [
+    "zero trust browser architecture",
+    "cloud browser",
+    "cloud browser isolation",
+    "cbi traffic flow",
+    "isolation container",
+    "isolation idle timeout",
+    "how browser isolation works",
+    "zscaler isolation",
+    "zbi overview",
+    "ztb browser isolation",
+    "isolated session timed out"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zbi.turbo-mode"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.isolation-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terminology.product-names"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Cloud Browser is the part of Zero Trust Browser that renders web pages away from the endpoint; the product names are in [[shared.terminology.product-names:zero-trust-browser]]. {{components}} {{use-cases}}"
+    },
+    {
+      "heading": "Rendering away from the endpoint"
+    },
+    {
+      "text": "{{remote-render}} {{air-gap}} {{file-view}} How the rendered stream is encoded is in [[zbi.turbo-mode]]."
+    },
+    {
+      "heading": "Traffic flow"
+    },
+    {
+      "text": "{{zia-redirect}} The exact form of the redirect is open {{gap:redirect-form}}. {{egress-evaluated}} {{exfiltration-controls}}"
+    },
+    {
+      "text": "For traffic processed through isolation the web log records the origin separately: [[zia.logs.web-field-semantics:isolation-location]]. How a block on the egress leg shows up otherwise is open {{gap:second-leg-logging}}, and so is which address the destination sees {{gap:egress-source-address}}. Whether the endpoint must resolve and reach the isolation profile URL directly is open {{gap:profile-url-reachability}}."
+    },
+    {
+      "text": "Which rules send traffic to Cloud Browser is in [[zbi.policy]]; the profiles they name are in [[zbi.isolation-profiles]]."
+    },
+    {
+      "heading": "Containers"
+    },
+    {
+      "text": "{{container-engines}} {{container-reuse-timeout}} How precisely the idle timeout is enforced is open {{gap:idle-timeout-precision}}, as are container resources and separation {{gap:container-internals}} and what state a new container starts with {{gap:session-state-after-timeout}}."
+    },
+    {
+      "heading": "What is not captured"
+    },
+    {
+      "text": "Whether isolation itself reports blocked active content is open {{gap:detection-signal}}. Several features the legacy reference named have no captured article {{gap:uncaptured-features}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the request matched an Internet & SaaS URL Filtering rule built to isolate it, since only that redirect sends the request to Cloud Browser.",
+      "uses": [
+        "zia-redirect",
+        "zia.url-filtering.actions:isolate-needs-zbi"
+      ]
+    },
+    {
+      "do": "Whether a block seen inside the isolated session came from the user's own Internet & SaaS policies applied to the remote browser's request.",
+      "uses": [
+        "egress-evaluated",
+        "zia.logs.web-field-semantics:isolation-location"
+      ]
+    },
+    {
+      "do": "Whether the session was idle for the default 10 minutes or the user logged out, either of which destroys the container.",
+      "uses": [
+        "container-reuse-timeout"
+      ]
+    }
+  ],
+  "claims": {
+    "components": {
+      "statement": "The Zero Trust Browser platform consists of Cloud Browser, which delivers internet and application access in isolation; Browser Extension, which adds browser detection and response (BDR), DLP and posture-based application access to existing browsers; and Enterprise Browser, a dedicated, hardened Chromium browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-zero-trust-browser.json",
+          "quotes": [
+            "The platform consists of the following components:",
+            "| Cloud Browser | Delivers secure internet and application access in isolation, preventing data from reaching managed and unmanaged devices.",
+            "| Browser Extension | Enhances existing browsers with browser detection and response (BDR), DLP, and posture-based application access.",
+            "| Enterprise Browser | Standardizes security, access, and data protection through a dedicated, hardened Chromium browser."
+          ]
+        }
+      ]
+    },
+    "use-cases": {
+      "statement": "Zscaler lists protecting against sophisticated phishing attacks, controlling sensitive data exposure to generative AI platforms and securing access from unmanaged devices as Zero Trust Browser use cases.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-zero-trust-browser.json",
+          "quotes": [
+            "Protecting against sophisticated phishing attacks",
+            "Controlling sensitive data exposure to generative AI platforms",
+            "Securing access from unmanaged devices"
+          ]
+        }
+      ]
+    },
+    "remote-render": {
+      "statement": "Cloud Browser loads the accessed web page on a remote browser in one of Zscaler's data centers and streams the rendered content to the user's native browser as a stream of pixels of WebGL instructions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-cloud-browser.json",
+          "quotes": [
+            "This is done by loading the accessed web page on a remote browser in any one of the many Zscaler data centers across the globe, and streaming the rendered content as a stream of pixels of Web Graphic Library (WebGL) instructions to the user's native browser."
+          ]
+        }
+      ]
+    },
+    "air-gap": {
+      "statement": "The HTML, CSS and JavaScript files and any other active content served by the isolated page never reach the user's machine or the corporate network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-cloud-browser.json",
+          "quotes": [
+            "the HTML files, CSS files, JavaScript files, and any other active content served by the accessed web page never reach the user's machine or the corporate network, thus ensuring an air gap"
+          ]
+        }
+      ]
+    },
+    "file-view": {
+      "statement": "Cloud Browser also lets the user view file types in isolation without downloading the files to the local machine.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-cloud-browser.json",
+          "quotes": [
+            "allows the user to view file types in isolation without requiring a download of the files to their local machine."
+          ]
+        }
+      ]
+    },
+    "zia-redirect": {
+      "statement": "Internet traffic reaches a Public Service Edge through GRE, Client Connector or another forwarding method; if the URL qualifies for an Internet & SaaS URL Filtering policy the admin created to isolate traffic, the service redirects the HTTP or HTTPS request to the isolation profile, the user's browser follows the redirect to Cloud Browser, and Cloud Browser assigns the user a temporary remote browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-cloud-browser.json",
+          "quotes": [
+            "The internet-bound web traffic is forwarded to the Public Service Edge using a GRE tunnel, Zscaler Client Connector, or any of the other Zscaler-recommended traffic-forwarding methods.",
+            "If the accessed URL meets the qualifications for a URL filtering policy in Internet & SaaS created by the admin to isolate the traffic, the Zscaler service redirects the HTTP/HTTPS request to the isolation profile.",
+            "The user's browser follows the redirect and forwards the request to Cloud Browser based on the isolation profile configured in the policy.",
+            "Cloud Browser accepts the request and assigns a temporary, remote browser for the user."
+          ]
+        }
+      ]
+    },
+    "egress-evaluated": {
+      "statement": "The remote browser's request to the original page is routed through the nearest Public Service Edges and evaluated against all the Internet & SaaS policies the admin defined for the user, so traffic leaving the isolation browser passes through Public Service Edges before it reaches the page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-cloud-browser.json",
+          "quotes": [
+            "This request to the original web page is also routed through the nearest Public Service Edges, and the traffic is evaluated against all the policies defined for the user in Internet & SaaS by the admin.",
+            "The traffic egressing the isolation browser is also passed through the Public Service Edges for Internet & SaaS before reaching the internet web page being accessed."
+          ]
+        }
+      ]
+    },
+    "exfiltration-controls": {
+      "statement": "In addition to the security policies Internet & SaaS enforces, Cloud Browser has data exfiltration controls that set how much the user can interact with the isolated page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-cloud-browser.json",
+          "quotes": [
+            "In addition to the security policies enforced by Internet & SaaS, Cloud Browser provides additional data exfiltration security controls, which enable an organization to control the level of interaction the user can have with the isolated web page."
+          ]
+        }
+      ]
+    },
+    "container-engines": {
+      "statement": "When the user's traffic reaches Cloud Browser it creates an endpoint container for the user; a Chromium rendering engine loads and renders the page, and a proprietary experience engine converts the rendered page into a stream of images and WebGL instructions delivered to the user's browser over HTTPS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-cloud-browser.json",
+          "quotes": [
+            "When the user's traffic reaches the Cloud Browser, it creates an endpoint container for the user on the cloud.",
+            "The Chromium rendering engine makes a connection to the web page that the user has requested, and renders the content of that web page.",
+            "processed by the proprietary experience engine, which then converts it into a stream of images and WebGL instructions that are delivered to the user's native browser over a secure HTTPS connection."
+          ]
+        }
+      ]
+    },
+    "container-reuse-timeout": {
+      "statement": "Each user redirected to Cloud Browser gets one endpoint container that all later requests using the isolation profile share; the container is destroyed when the user logs out of the isolation session or after the default idle timeout of 10 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-cloud-browser.json",
+          "quotes": [
+            "Each user redirected to Cloud Browser is allocated an endpoint container, and all subsequent requests that utilize the isolation profile use the same container.",
+            "The containers are destroyed if a user manually logs out of the isolation session, or if the default idle timeout of 10 minutes is reached."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "redirect-form": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Status code and URL form of the redirect to the isolation profile",
+      "detail": "Unverified legacy statement: the URL Filtering Isolate action returns a 302 redirect to the isolation profile URL with the original URL in the query string. The current Understanding Cloud Browser article says only that the request is redirected to the isolation profile; the status code and how the original URL is carried are not in any captured source.",
+      "blocks": "reading a proxy or browser trace of an isolated request, and telling a broken redirect from a broken Cloud Browser session",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "second-leg-logging": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "How a policy action on the remote browser's request appears in the logs",
+      "detail": "Unverified legacy statement: specific log shapes and user-visible failure modes for blocks on the second Public Service Edge pass need tenant evidence. The web log records the isolation location separately from the user's origin, but no source says whether a block on the egress leg is a separate record, which user it carries, or what the user sees inside the session.",
+      "blocks": "tying an isolated user's complaint to the web log record of the egress-leg decision",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    },
+    "egress-source-address": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Which source address and location a destination sees for an isolated page",
+      "detail": "Unverified legacy statement: the cloud browser's egress is a Zscaler-owned IP, not the user's egress IP, so destinations that geolocate by source IP see the user wherever the container is, and the profile's region selection decides which region hosts the container. No captured source states the egress address or how region selection affects it.",
+      "blocks": "explaining geolocation or IP-allowlist differences between isolated and direct access to the same site",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "profile-url-reachability": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether the endpoint must resolve and reach the isolation profile URL directly",
+      "detail": "Unverified legacy statement: the isolation profile URL is a publicly routable Zscaler-managed URL, and a strict endpoint DNS allowlist that drops the isolation hostname silently breaks isolation (the redirect happens, then the page never loads). The captured article says only that the user's browser follows the redirect to Cloud Browser.",
+      "blocks": "diagnosing an isolated page that never loads after the redirect",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "idle-timeout-precision": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "How soon after 10 idle minutes a container is destroyed",
+      "detail": "Unverified legacy statement (open question): whether the container is destroyed exactly at 10 minutes of idle time or after some grace period is not documented numerically.",
+      "blocks": "matching a reported session loss to the idle timeout by timestamp",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "container-internals": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Container resource limits and separation between customers' containers",
+      "detail": "Unverified legacy statement (open questions): container memory and CPU limits are not in customer-facing documentation, and separation between containers of different tenants is implied by the architecture but not described.",
+      "blocks": "answering performance-ceiling and multi-tenant separation questions about Cloud Browser",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "session-state-after-timeout": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What a new container keeps from the previous session",
+      "detail": "Unverified legacy statement: a user returning after more than 10 idle minutes gets a fresh, cold container with no cookies, form state or cache, so sites ask the user to sign in again. No source states what a new container starts with, and the isolation profile has a Persistent State setting (disabled on the Miscellaneous & Unknown profile) whose effect is not captured.",
+      "blocks": "explaining repeated sign-in prompts in isolated sessions",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "detection-signal": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether isolation reports the malicious content it kept off the endpoint",
+      "detail": "Unverified legacy statement: isolation is a prevention control, not a detection control; a malicious page rendered in the container is not reported as blocked, and detection comes only from the policies applied to the remote browser's egress (URL Filtering, Sandbox, ATP). No source describes an isolation-side detection or alert.",
+      "blocks": "saying where a SOC would see that an isolated page was malicious",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "uncaptured-features": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Cloud Browser features with no captured article",
+      "detail": "Unverified legacy statement: Cloud Browser offers language translation of isolated content, mobile support, a debug mode, multiple simultaneous isolated sessions per user, Votiro content disarm and reconstruction for files, Sandbox scanning of isolated downloads and local browser rendering. Only the names appear in captured sources (the Miscellaneous & Unknown profile fields and the configuration guide's Sandbox integration step); their behavior is not captured.",
+      "blocks": "describing what these features do or require",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

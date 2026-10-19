@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "id": "zdx.devices.health-and-events",
+  "title": "ZDX device health metrics and device events",
+  "aliases": [
+    "zdx health metrics",
+    "device health metrics",
+    "zdx cpu memory metrics",
+    "zdx wifi metrics",
+    "zdx device events",
+    "zdx events",
+    "device event categories",
+    "zdx network change event"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zdx.devices"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.reports"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Health metrics show what the device itself was doing; events show what changed on it. {{health-metrics}} The complete category list is not published {{gap:health-category-list}}."
+    },
+    {
+      "label": "Events.",
+      "text": "{{events}} {{event-categories}} {{event-values}} The Go SDK's comment describes the same four categories, [[shared.audit-logs:zdx-device-events]]."
+    },
+    {
+      "label": "Time ranges.",
+      "text": "Unlike most report reads, the device events read does not require a time range, [[shared.log-export.zdx:two-hour-window]]."
+    },
+    {
+      "label": "Response key.",
+      "text": "The contract puts the events list under `events`, while the Go SDK reads `instances`, [[zdx.sdk-go.service-defects:events-key]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a device change (Client Connector, hardware, software or network) coincides with the score drop, from the device's events.",
+      "uses": [
+        "events",
+        "event-values"
+      ]
+    },
+    {
+      "do": "Whether CPU, memory, disk or Wi-Fi health on the device explains the drop before blaming the network.",
+      "uses": [
+        "health-metrics"
+      ]
+    }
+  ],
+  "claims": {
+    "health-metrics": {
+      "statement": "The device health-metrics read returns a device's health metrics trend, including CPU, Memory, Disk I/O, Network I/O, Wi-Fi and Network Bandwidth among others, for the last 2 hours if no time range is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1health-metrics/get",
+          "expect": {
+            "description": "Gets the health metrics trend for a device. If the time range is not specified, the endpoint defaults to the last 2 hours. The health metrics include CPU, Memory, Disk I/O, Network I/O, Wi-Fi, Network Bandwidth, etc."
+          }
+        }
+      ]
+    },
+    "events": {
+      "statement": "The device events read returns a device's events trend, covering Zscaler, Hardware, Software and Network event changes, and defaults to the last 2 hours if no time range is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1events/get",
+          "expect": {
+            "description": "Gets the Events metrics trend for a device. If the time range is not specified, the endpoint defaults to the last 2 hours. The event metrics include Zscaler, Hardware, Software and Network event changes."
+          }
+        }
+      ]
+    },
+    "event-categories": {
+      "statement": "Each event's category is one of Zscaler, Network, Software or Hardware.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1events/get/responses/200/content/application~1json/schema/properties/events/items/properties/category",
+          "expect": {
+            "description": "The Event category - Zscaler, Network, Software, or Hardware."
+          }
+        }
+      ]
+    },
+    "event-values": {
+      "statement": "Each event gives the name of the attribute, the event that occurred, and the attribute's previous and current values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1events/get/responses/200/content/application~1json/schema/properties/events/items/properties/name",
+          "expect": {
+            "description": "The name of the attribute."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1events/get/responses/200/content/application~1json/schema/properties/events/items/properties/display_name",
+          "expect": {
+            "description": "The event that occurred."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1events/get/responses/200/content/application~1json/schema/properties/events/items/properties/prev",
+          "expect": {
+            "description": "The previous value."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1events/get/responses/200/content/application~1json/schema/properties/events/items/properties/curr",
+          "expect": {
+            "description": "The current value."
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "health-category-list": {
+      "kind": "semantic",
+      "title": "The complete list of device health-metric categories",
+      "status": "open",
+      "former_ids": [
+        "zdx-24"
+      ],
+      "detail": "The contract lists CPU, Memory, Disk I/O, Network I/O, Wi-Fi and Network Bandwidth followed by \"etc.\", and the Go SDK comment repeats the list. No source enumerates every category the read returns.",
+      "blocks": "complete device-health answers",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

@@ -63,10 +63,9 @@ Source: `vendor/zscaler-help/what-workflow-automation.json`; `vendor/zscaler-hel
 
 | Topic | File | Status |
 |---|---|---|
-| Overview - product model, incident lifecycle, portal actions, workflow templates and mappings | [`./overview.md`](./overview.md) | draft |
-| API surface - Python/Go incident services, audit logs, current-vs-legacy auth, explicit non-surfaces | [`./api.md`](./api.md) | draft |
-| Audit logs - customer audit query shape, SDK models, open retention/streaming questions | [`./audit-logs.md`](./audit-logs.md) | draft |
-| Claims ledger - claim-by-claim source map and open-question forcing function for this refresh | [`./_claims-ledger.md`](./_claims-ledger.md) | draft |
+| Overview - product model, incident lifecycle, portal actions, workflow templates and mappings | [`zwa.incidents`](kb:zwa.incidents) | draft |
+| API surface - Python/Go incident services, audit logs, current-vs-legacy auth, explicit non-surfaces | [`zwa.api`](kb:zwa.api) | draft |
+| Audit logs - customer audit query shape, SDK models, open retention/streaming questions | [`zwa.audit-logs`](kb:zwa.audit-logs) | draft |
 
 ## Scope
 
@@ -83,7 +82,7 @@ In scope:
 
 Not in scope or explicitly absent from this source pass:
 
-- No SDK/MCP/Postman/Terraform/Ansible workflow template or workflow mapping create/update/delete/list operation was found; treat workflow configuration programmability as unresolved, not as a supported automation target. See [clarification zwa-01](../_meta/clarifications.md#zwa-01-workflow-configuration-programmability).
+- No SDK/MCP/Postman/Terraform/Ansible workflow template or workflow mapping create/update/delete/list operation was found; treat workflow configuration programmability as unresolved, not as a supported automation target. See [clarification zwa-01](kb:zwa.workflows:workflow-api).
 - No ZWA Workflow Automation MCP tool was found in the inspected MCP server source. Current discovery imports the complete tool tree, and the generated service inventory contains no ZWA family (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/discovery.py:1-35`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:11-22`). This is an audit-scoped absence, not proof about future/private tools.
 - No ZWA Workflow Automation Postman surface was found in the inspected OneAPI Postman collection. The lone "DLP Incident Receiver" hit is a ZIA ICAP/DLP Incident Receiver configuration area (`vendor/zscaler-api-specs/oneapi-postman-collection.json:1928-1955`).
 - Terraform and Ansible hits in this pass are ZIA DLP Incident Receiver lookup surfaces, not ZWA incident lifecycle or workflow automation surfaces (`vendor/terraform-provider-zia/zia/data_source_zia_dlp_incident_receiver_servers.go:10`, `:51-64`; `vendor/ziacloud-ansible/plugins/modules/zia_dlp_incident_receiver_info.py:31`, `:119-124`).

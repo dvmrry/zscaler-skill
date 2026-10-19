@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.admin-access",
+  "title": "Who administers AI Guard: system users and RBAC roles",
+  "aliases": [
+    "ai guard rbac",
+    "ai guard roles",
+    "ai guard system users",
+    "ai guard admin roles",
+    "ai guard viewer editor administrator",
+    "ai guard view prompts permission"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.tenant-settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "AI Guard administrators are system users; what each may do is set by an RBAC role."
+    },
+    {
+      "label": "System users.",
+      "text": "{{system-users}}"
+    },
+    {
+      "label": "Roles.",
+      "text": "{{rbac-scope}} {{rbac-permissions}} {{templates}} {{view-prompts-separate}} {{assign}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "The administrator's role in System User Management and that role's scope on the module in question, including whether it can view prompts.",
+      "uses": [
+        "rbac-permissions",
+        "view-prompts-separate",
+        "assign"
+      ]
+    }
+  ],
+  "claims": {
+    "system-users": {
+      "statement": "System users are managed through the Authentication Service admin portal and can be viewed in AI Guard: the System Users page under System User Management shows each user's name, email, login type, role, creation date and last-updated date, and system users can be added and edited (name, email and role) from it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-ai-guard-users.json",
+          "quotes": [
+            "System users are managed through the Authentication Service Admin Portal, but you can view them within AI Guard.",
+            "Name: Name of the system user.",
+            "Email: Email address of the system user.",
+            "Login Type: Displays the method of user login.",
+            "Role: Role of the system user such as Administrator or Editor.",
+            "Created At: Date that the system user was created.",
+            "Last Updated At: Date that the system user's information was last updated.",
+            "Enter the Name, Email, and Role for the system user and click Submit.",
+            "Under the Action column, click Edit. The Edit System User window appears.",
+            "Edit the Name, Email, or Role for the system user and click Update."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-ai-guard-users.json",
+          "after": "# Viewing System Users",
+          "quotes": [
+            "In the AI Guard left-side navigation, go to System User Management. The System Users page appears."
+          ]
+        }
+      ]
+    },
+    "rbac-scope": {
+      "statement": "AI Guard RBAC applies to system users managed through Authentication Service and to system users hosted locally in AI Guard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-role-based-access-control-ai-guard.json",
+          "quotes": [
+            "System users provisioned/managed through Zscaler Authentication (Authentication Service).",
+            "Local hosted system users in AI Guard."
+          ]
+        }
+      ]
+    },
+    "rbac-permissions": {
+      "statement": "A role combines per-module permissions with scopes: most modules (Policies, LLMs, Private AI Apps, Log Exports, User Management, RBAC Management) take None, View, Create, Edit or Delete; Dashboard, Insights, Topology and Audit Log take None or View; Policy Testing None, View or Create; Tenant Settings None, View or Edit; API Clients None, View or Delete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-role-based-access-control-ai-guard.json",
+          "quotes": [
+            "| Default Access (applies permissions to all modules) | None \\| View \\| Create \\| Edit \\| Delete |",
+            "| Dashboard | None \\| View |",
+            "| Topology | None \\| View |",
+            "| Policies | None \\| View \\| Create \\| Edit \\| Delete |",
+            "| Policy Testing | None \\| View \\| Create |",
+            "| Audit Log | None \\| View |",
+            "| Tenant Settings | None \\| View \\| Edit |",
+            "| API Clients | None \\| View \\| Delete |",
+            "| Insights | None \\| View |",
+            "| LLMs | None \\| View \\| Create \\| Edit \\| Delete |",
+            "| Private AI Apps | None \\| View \\| Create \\| Edit \\| Delete |",
+            "| Log Exports | None \\| View \\| Create \\| Edit \\| Delete |",
+            "| User Management | None \\| View \\| Create \\| Edit \\| Delete |",
+            "| RBAC Management | None \\| View \\| Create \\| Edit \\| Delete |"
+          ]
+        }
+      ]
+    },
+    "templates": {
+      "statement": "Role templates are Viewer (read-only access to all modules), Editor (read, create and update, no delete) and Administrator (full access to all modules).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-role-based-access-control-ai-guard.json",
+          "quotes": [
+            "Viewer: Read-only access to all modules.",
+            "Editor: Read, create, and update access. No delete access.",
+            "Administrator: Full access to all modules."
+          ]
+        }
+      ]
+    },
+    "view-prompts-separate": {
+      "statement": "The page's example roles give Dashboard and Insights View while leaving Events (View Prompts) unchecked, so seeing prompt content is a permission of its own.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-role-based-access-control-ai-guard.json",
+          "quotes": [
+            "Dashboard: View",
+            "Events (View Prompts): None (unchecked)",
+            "Insights: View"
+          ],
+          "after": "Customer Service Role:"
+        }
+      ]
+    },
+    "assign": {
+      "statement": "Roles are assigned to system users from System User Management, by editing or adding a system user and picking the role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-role-based-access-control-ai-guard.json",
+          "quotes": [
+            "In the Edit System User or Add System User window, click the Role drop-down menu and select the role you want to assign."
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "id": "unified.overview",
+  "title": "Zscaler Experience Center: the unified admin console, what it consolidates, and how it is automated",
+  "aliases": [
+    "experience center",
+    "zscaler experience center",
+    "unified console",
+    "unified admin console",
+    "experience center api",
+    "help.zscaler.com/unified",
+    "zscaler copilot"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "unified.zagent"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.cloud-names"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terminology"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Experience Center is the console, not a separate service with its own data plane or API. {{what-it-is}}"
+    },
+    {
+      "label": "How it works.",
+      "text": "{{orchestration-layer}} {{features}}"
+    },
+    {
+      "label": "Its assistant.",
+      "text": "The conversational assistant in the Admin Console is ZAgent: [[unified.zagent]]."
+    },
+    {
+      "heading": "Automation"
+    },
+    {
+      "text": "{{no-client-surface}} {{mcp-cross-product}} Whether Experience Center has an API of its own is open {{gap:api-surface}}."
+    },
+    {
+      "heading": "The /unified help path"
+    },
+    {
+      "text": "{{unified-path-shared-pages}} The cloud-name map published there is held in [[shared.cloud-architecture.cloud-names]], and the Agentic SecOps Platform pages in [[aem.secops-platform]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For automation, use the API and client of the product being configured (ZIA, ZPA, ZDX, ZCC); no source shows an Experience Center API.",
+      "uses": [
+        "no-client-surface",
+        "api-surface"
+      ]
+    },
+    {
+      "do": "Before treating a help.zscaler.com/unified article as an Experience Center feature, check what product it describes.",
+      "uses": [
+        "unified-path-shared-pages"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Zscaler Experience Center is a unified, AI-powered administrative and operations console that consolidates management, configuration and monitoring of the Zero Trust Exchange into a single interface, and is the hub for services including ZIA, ZPA, ZDX and Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-what-zscaler-experience-center.json",
+          "quotes": [
+            "Zscaler Experience Center is a unified, AI-powered administrative and operations console that consolidates the management, configuration, and monitoring of the Zscaler Zero Trust Exchange (ZTE) platform into a single interface",
+            "It serves as the central hub for managing Zscaler's core security and networking services, including, but not limited to, Internet & SaaS (ZIA), Private Access (ZPA), Digital Experience (ZDX), Zscaler Client Connector, etc."
+          ]
+        }
+      ]
+    },
+    "orchestration-layer": {
+      "statement": "It acts as an orchestration layer over a shared data and identity architecture: a unified identity layer (users, groups and roles with RBAC applied across services), an integrated interface with shared global search, a common policy framework, Zscaler Copilot generative-AI assistance, and a unified analytics engine that aggregates logs and telemetry from Internet & SaaS, Private Access and ZDX.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-what-zscaler-experience-center.json",
+          "quotes": [
+            "Experience Center acts as an orchestration layer, connecting Zscaler's platform components through a shared data and identity architecture, enabling:",
+            "Unified Identity Layer: Provides a single source of truth for users, groups, and roles with granular role-based access control (RBAC), that are applied consistently across all Zscaler services.",
+            "Simplified, Integrated Experience: Consolidates Zscaler services into a unified interface for consistent navigation, shared global search",
+            "Common Policy Framework: Allows the creation of global policies",
+            "Generative AI Interactions: Leverages Zscaler Copilot for generative AI-driven assistance",
+            "Unified Data and Analytics: Aggregates logs and telemetry from Internet & SaaS, Private Access, and ZDX into a unified analytics engine"
+          ]
+        }
+      ]
+    },
+    "features": {
+      "statement": "Its listed capabilities are unified management of all Zscaler offerings, guided onboarding and configuration walkthroughs (users, traffic forwarding, security policies), Copilot-assisted troubleshooting with natural-language questions, and persona-focused views for executives and practitioners.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-what-zscaler-experience-center.json",
+          "quotes": [
+            "Unified Management: Experience Center provides a centralized hub to manage all Zscaler offerings.",
+            "Experience Center features guided onboarding and configuration walkthroughs.",
+            "help you rapidly onboard users, configure traffic forwarding, and deploy security policies",
+            "Copilot accelerates troubleshooting by allowing natural language questions to identify the root cause of connectivity or security issues",
+            "Experience Center delivers high-level summaries for executives and deep-dive technical data for practitioners."
+          ]
+        }
+      ]
+    },
+    "no-client-surface": {
+      "statement": "No vendored client has an Experience Center or unified-console service: nothing in the Go or Python SDKs, the Terraform providers, the Ansible collections, the MCP server, the OneAPI Postman collection or the captured Automate contract.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "used in your server-side code to interact with the Zscaler API platform across multiple products such as:"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. The Python README's product list (introduced by the quoted line) names no Experience Center API, and at the pins `git grep -i 'experience.center'` finds nothing in the Go or Python SDKs, the ZIA, ZPA, ZCC or ZTC providers, the Ansible collections or the MCP server; the OneAPI Postman collection has no match."
+    },
+    "mcp-cross-product": {
+      "statement": "The MCP server's cross-product connectivity workflow works across ZPA, ZIA, ZDX and ZCC by using each product's own tools.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/cross-product/troubleshoot-user-connectivity/SKILL.md",
+          "quotes": [
+            "Cross-product troubleshooting of user connectivity issues spanning ZPA, ZIA, ZDX, and ZCC. Investigates end-to-end: (1) ZCC client status and enrollment, (2) ZDX digital experience scores and metrics, (3) ZPA application segment and access policy configuration, (4) ZIA URL filtering and SSL inspection policies."
+          ]
+        }
+      ]
+    },
+    "unified-path-shared-pages": {
+      "statement": "The help site's /unified path holds pages beyond Experience Center itself, among them the cloud-name map, the Agentic SecOps Platform overview and the SecOps Managing Reports page.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zscaler-cloud-names.json",
+          "pointer": "/source",
+          "expect": {
+            "url": "https://help.zscaler.com/unified/understanding-zscaler-cloud-names"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "aem-what-zscaler-security-operations.json",
+          "pointer": "/source",
+          "expect": {
+            "url": "https://help.zscaler.com/unified/what-security-operations-platform"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "secops-managing-reports.json",
+          "pointer": "/source",
+          "expect": {
+            "url": "https://help.zscaler.com/unified/managing-reports"
+          }
+        }
+      ],
+      "conditions": "Rests on the captured URLs of three pages and their titles; the help site does not state what the /unified path is for."
+    }
+  },
+  "gaps": {
+    "api-surface": {
+      "kind": "semantic",
+      "title": "Whether Experience Center has a standalone public API",
+      "status": "open",
+      "former_ids": [
+        "unified-01"
+      ],
+      "detail": "Unverified legacy statement: for automation, prefer the underlying product APIs (ZIA, ZPA, ZDX, ZCC) unless a vendor source exposes an Experience Center API; static sources support only that no separate programmable surface was found, not that none can exist.",
+      "blocks": "telling an operator whether console-level objects (global policies, shared identity, analytics) can be automated as such",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

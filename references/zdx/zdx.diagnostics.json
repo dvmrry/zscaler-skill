@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "id": "zdx.diagnostics",
+  "title": "ZDX Diagnostics Sessions (deep traces): what they are and where each part is covered",
+  "aliases": [
+    "diagnostics session",
+    "deep trace",
+    "deeptrace",
+    "deep tracing",
+    "zdx troubleshooting",
+    "client.zdx.troubleshooting",
+    "when to start a diagnostics session"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.session-status"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.start-request"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.session-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.analysis"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.mcp-tools"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.alerts"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A Diagnostics Session is an on-demand, per-device investigation that Client Connector runs. This subject places the term and points to the parts."
+    },
+    {
+      "label": "What it is for.",
+      "text": "{{low-scores}} The API's troubleshooting area is deep tracing on a user's device ([[shared.log-export.zdx:api-scope]]). {{api-scope}}"
+    },
+    {
+      "label": "One thing, two names.",
+      "text": "{{same-sessions}}"
+    },
+    {
+      "label": "Where each part is.",
+      "text": "Statuses: [[zdx.diagnostics.session-status]]. Starting one through the API, with its limits: [[zdx.diagnostics.start-request]]. Reading, deleting and the session record: [[zdx.diagnostics.session-records]]. Score analysis jobs: [[zdx.diagnostics.analysis]]. The MCP tools: [[zdx.diagnostics.mcp-tools]]."
+    },
+    {
+      "label": "Live troubleshooting.",
+      "text": "{{live-troubleshooting-api}} How these sessions relate to Diagnostics Sessions is not documented {{gap:live-vs-deep-trace}}. No SDK calls them, [[zdx.applications:config-no-sdk]]."
+    }
+  ],
+  "claims": {
+    "low-scores": {
+      "statement": "The ZDX Score article says a Diagnostics session can be started to help evaluate and troubleshoot issues related to low scores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zdx-score.json",
+          "quotes": [
+            "You can start a Diagnostics session to help evaluate and troubleshoot issues related to low scores."
+          ]
+        }
+      ]
+    },
+    "api-scope": {
+      "statement": "The Automate guide describes a deep tracing session as gathering comprehensive diagnostics about a specific device that is having trouble connecting to the network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "Starting a deep tracing session allows you to gather comprehensive diagnostics details about a specific device that is having trouble connecting to the network."
+          ]
+        }
+      ]
+    },
+    "same-sessions": {
+      "statement": "The console's Diagnostics Sessions and the API's deep traces are one pool of sessions: the API's session limit counts sessions started from the UI.",
+      "tier": "B",
+      "derived_from": [
+        "zdx.diagnostics.start-request:session-limits"
+      ],
+      "conditions": "No source names both terms together; inferred from the contract counting UI-initiated sessions in the deep-trace limit and from both describing an on-demand session on one device."
+    },
+    "live-troubleshooting-api": {
+      "statement": "The contract's `/v1/config/tracing` operations manage live troubleshooting sessions: create and start one, list them (filterable by IDs, search term, states, session types and active status), count them, read, update, stop and delete one, read its state and its status (active/inactive), and validate a PCAP filter expression. Reads need the `zdx-ltsession:read` permission and writes `zdx-ltsession:write`; creating, updating, stopping and deleting a session also need `zdx-user-device-name-access:read`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing/post",
+          "expect": {
+            "description": "Creates and starts a new live troubleshooting session with the specified parameters. Requires 'zdx-ltsession:write' and 'zdx-user-device-name-access:read' permissions."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing/get",
+          "expect": {
+            "description": "Retrieves a paginated list of live troubleshooting sessions with optional filtering and sorting. Results can be filtered by IDs, search term, states, session types, and active status. Requires 'zdx-ltsession:read' permission."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing~1count/get",
+          "expect": {
+            "description": "Retrieves the count of live troubleshooting sessions based on optional filtering criteria. Requires 'zdx-ltsession:read' permission."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing~1{id}/get",
+          "expect": {
+            "description": "Retrieves detailed information about a specific live troubleshooting session by its ID. Requires 'zdx-ltsession:read' permission."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing~1{id}/put",
+          "expect": {
+            "description": "Updates an existing live troubleshooting session with the provided parameters. Requires 'zdx-ltsession:write' and 'zdx-user-device-name-access:read' permissions."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing~1{id}~1stop/put",
+          "expect": {
+            "description": "Stops a running live troubleshooting session by its ID. Requires 'zdx-ltsession:write' and 'zdx-user-device-name-access:read' permissions."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing~1{id}/delete",
+          "expect": {
+            "description": "Deletes a specific live troubleshooting session by its ID. Requires 'zdx-ltsession:write' and 'zdx-user-device-name-access:read' permissions."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing~1{id}~1state/get",
+          "expect": {
+            "description": "Retrieves the current state of a specific live troubleshooting session. Requires 'zdx-ltsession:read' permission."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing~1{id}~1status/get",
+          "expect": {
+            "description": "Retrieves the status (active/inactive) of a specific live troubleshooting session. Requires 'zdx-ltsession:read' permission."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing~1validatePcapExpression/post",
+          "expect": {
+            "description": "Validates a PCAP filter expression for live troubleshooting sessions. This ensures the filter syntax is correct before applying it to a session. Requires 'zdx-ltsession:write' permission."
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "live-vs-deep-trace": {
+      "kind": "semantic",
+      "title": "How live troubleshooting sessions relate to Diagnostics Sessions",
+      "status": "open",
+      "detail": "The contract's /v1/config/tracing area manages live troubleshooting sessions with their own permissions and a PCAP filter, while the deep-trace operations under /v1/devices/{id}/deeptraces start Diagnostics Sessions. No captured source says whether the two are one feature, whether a live session appears among a device's deep traces, or what a live session captures. Searched: the help captures for 'live troubleshooting' and 'ltsession' (no match) and the contract's operation descriptions.",
+      "blocks": "choosing between a live troubleshooting session and a deep trace, and finding a session's results",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

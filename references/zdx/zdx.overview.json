@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "id": "zdx.overview",
+  "title": "ZDX at a glance: what it measures and which subject answers each question",
+  "aliases": [
+    "zdx",
+    "zscaler digital experience",
+    "digital experience",
+    "zdx overview",
+    "what does zdx measure",
+    "zdx monitoring",
+    "end user experience monitoring"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.cloud-architecture"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.score"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.devices"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.reports"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zcc.entitlements.zdx"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZDX is the Zscaler product that observes user experience; this subject says what it measures and links the subject for each question. {{monitors}} {{measurement-areas}}"
+    },
+    {
+      "label": "Architecture.",
+      "text": "The components and the path telemetry takes are in [[zdx.cloud-architecture]], and ZDX Module releases and rollouts on Client Connector are in [[zdx.cloud-architecture.module-upgrades]]."
+    },
+    {
+      "label": "Score.",
+      "text": "What the score and its bands mean, and the score types, are in [[zdx.score]]; how it rolls up per application, place, organization and user is in [[zdx.score.calculation]]."
+    },
+    {
+      "label": "Probes.",
+      "text": "Web and Cloud Path probes and what each measures are in [[zdx.probes]], and which users a probe runs for is in [[zdx.probes.criteria]]."
+    },
+    {
+      "label": "Applications and devices.",
+      "text": "Predefined, custom and network applications and the application reads are in [[zdx.applications]]. Device lists and details are in [[zdx.devices]], with health metrics and events in [[zdx.devices.health-and-events]], geolocations in [[zdx.devices.geolocation]] and call quality in [[zdx.devices.call-quality]]."
+    },
+    {
+      "label": "Reading data through the API.",
+      "text": "Time ranges, paging and the user reads are in [[zdx.reports]], and the department and location lookups are in [[zdx.administration]]. Sign-in, rate limits and the SDKs are in [[zdx.api]] and [[zdx.sdk-python]]."
+    },
+    {
+      "label": "Diagnostics and alerts.",
+      "text": "Diagnostics Sessions, which the API calls deep traces ([[shared.terminology.product-names:zdx-deep-trace]]), are in [[zdx.diagnostics]], and alerts are in [[zdx.alerts]]."
+    },
+    {
+      "label": "Who reports data.",
+      "text": "Which users and devices run ZDX at all is set by the Client Connector entitlement, [[zcc.entitlements.zdx]]. Location collection is a separate User Privacy switch, [[zcc.web-privacy.collection:zdx-location]], and whether both are needed is open, [[zcc.entitlements.zdx:location-both-required]]."
+    },
+    {
+      "label": "Unverified.",
+      "text": "A separate ZIA Private Service Edge dashboard beside the ZDX dashboards is unverified {{gap:pse-dashboard}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the user or device is entitled to ZDX before treating missing data as a ZDX fault.",
+      "uses": [
+        "zcc.entitlements.zdx:configurations",
+        "zcc.entitlements.zdx:default-for-all"
+      ]
+    }
+  ],
+  "claims": {
+    "monitors": {
+      "statement": "ZDX monitors the cloud application experience from the end-user perspective, with application performance monitoring for customer-defined applications and for predefined ones such as Zoom, Box, Salesforce, ServiceNow and the Microsoft 365 applications, including Microsoft Teams, SharePoint Online, OneDrive for Business and Outlook.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zdx-cloud-architecture.json",
+          "quotes": [
+            "organizations can fully monitor the cloud application experience simply and intuitively from the end user perspective",
+            "ZDX provides application performance monitoring for customer-defined applications and predefined applications such as Zoom, Box, Salesforce, ServiceNow, and Microsoft 365 applications, including Microsoft Teams, SharePoint Online, OneDrive for Business, and Outlook."
+          ]
+        }
+      ]
+    },
+    "measurement-areas": {
+      "statement": "The architecture page groups what ZDX measures into end-user device performance (resource utilization, health metrics and events such as CPU and memory use, including Wi-Fi connectivity issues), Cloud Path performance (hop-by-hop network path metrics from every user device to the application), application performance (response time, DNS resolution and availability) and the ZDX Score, an aggregated score tracked over time at the user, application, location, department and organizational level.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zdx-cloud-architecture.json",
+          "quotes": [
+            "The service continuously gathers and analyzes data on end user devices, resource utilization, health metrics, and multiple events such as CPU and memory usage, including Wi-Fi connectivity issues",
+            "Hop-by-hop network path metrics are measured and analyzed from end-to-end over time, from every user device to the application.",
+            "ZDX continuously monitors and measures application metrics such as response time and DNS resolution, as well as broader availability metrics of the application.",
+            "An aggregated user experience performance score is tracked over time at the user, application, location, department, and organizational level."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "pse-dashboard": {
+      "kind": "semantic",
+      "title": "Whether a separate Private Service Edge dashboard sits beside the ZDX dashboards",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"ZIA Private Service Edge dashboard exists separately from the standard ZDX dashboards; for tenants running PSE/VSE, a separate view monitors the on-prem edge health. Noted in the Related Articles of the Score doc.\" The captured About ZDX Score article carries no related-articles list, so the statement could not be checked.",
+      "blocks": "answers about where Private or Virtual Service Edge health is monitored",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

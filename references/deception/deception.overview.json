@@ -1,0 +1,313 @@
+{
+  "schema_version": 1,
+  "id": "deception.overview",
+  "title": "Zscaler Deception: decoys and lures, the Private Access integration, roles, and what can be automated",
+  "aliases": [
+    "deception",
+    "zscaler deception",
+    "decoys",
+    "lures",
+    "landmine",
+    "zero trust network decoys",
+    "ztn decoys",
+    "decoy connector",
+    "threatparse",
+    "miragemaker",
+    "deception api",
+    "zscaler deception rule"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "deception.mcp-server-decoys"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.plans"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.policy.access-rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.passwords-and-otp.otp"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Deception is an active-defense product with its own admin portal; it touches Private Access and Client Connector but is managed separately. {{what-it-is}} {{zte-response}}"
+    },
+    {
+      "label": "Deployment.",
+      "text": "{{deployment}} {{decoy-connectors}}"
+    },
+    {
+      "label": "Decoys.",
+      "text": "{{decoy-types}} {{strategy}} The attacker-facing MCP server decoy is in [[deception.mcp-server-decoys]]; what each plan includes is in [[deception.plans]]."
+    },
+    {
+      "label": "Detection and response.",
+      "text": "{{detect}} {{threatparse}} {{orchestrate-remediate}}"
+    },
+    {
+      "label": "Roles.",
+      "text": "{{roles}}"
+    },
+    {
+      "heading": "What it changes in Private Access"
+    },
+    {
+      "text": "{{zpa-integration}} Objects Deception creates in Private Access are locked in the console: a Deception access rule's order cannot be updated and regular rules must order after it ([[zpa.policy.access-rule-order:deception-order-constraint]]), and Deception segment groups, connector groups, provisioning keys and log receivers cannot be edited or deleted ([[zpa.segment-groups.scope:deception-locked]], [[zpa.app-connectors.connector-groups:managed-read-only]], [[zpa.app-connectors.provisioning-keys:deception-managed-read-only]], [[zpa.log-receivers.admin-console:deception-readonly]]). {{mcp-zpa-skill}} The ZPA Terraform provider's handling of the rule named Zscaler Deception is in [[zpa.terraform.rule-order:configured-deception-rule-treated-as-unmanaged]] and [[zpa.terraform.rule-order:deception-offset-drift]]."
+    },
+    {
+      "heading": "What it changes in Client Connector"
+    },
+    {
+      "text": "Deception is a Client Connector service entitlement ([[zcc.entitlements:services-gated]]); a device's Deception settings OTP is `deceptionSettingsOtp` ([[zcc.passwords-and-otp.otp:otp-field-mapping]]), and the password that disables Deception is `zdpDisablePass` ([[zcc.passwords-and-otp.password-api:zad-zdp-names]]). {{mcp-zcc-otp}}"
+    },
+    {
+      "heading": "Automation"
+    },
+    {
+      "text": "{{no-client-surface}} API access exists in the product (Super admin manages APIs, and only the Advanced plan includes it: [[deception.plans:enterprise]]), but its endpoints and the lifecycle of the Private Access objects Deception owns are open {{gap:admin-api}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before changing Private Access policy order, segment groups, connector groups, provisioning keys or log receivers, whether the object was created by Deception, which the console treats as read-only.",
+      "uses": [
+        "zpa-integration",
+        "zpa.policy.access-rule-order:deception-order-constraint"
+      ]
+    },
+    {
+      "do": "For a Terraform plan that keeps renumbering access rules, whether a rule named Zscaler Deception sits at order 1.",
+      "uses": [
+        "zpa.terraform.rule-order:deception-offset-drift"
+      ]
+    },
+    {
+      "do": "Answer Deception automation questions as unsupported by any vendored client, and say that the product's API needs the Advanced plan and is not documented in any capture.",
+      "uses": [
+        "no-client-surface",
+        "deception.plans:enterprise",
+        "admin-api"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Zscaler Deception is a targeted threat detection solution that uses lures and decoys to detect and disrupt threats that bypass traditional defenses, such as APTs, exploits, reconnaissance, lateral movement, Active Directory and supply-chain attacks, human-operated ransomware, and SCADA and ICS attacks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-zscaler-deception.json",
+          "quotes": [
+            "Zscaler Deception is a simple, faster, and more effective targeted threat detection solution built on the Zscaler Zero Trust architecture.",
+            "Deception uses advanced lures and decoys to detect and disrupt sophisticated threats that consistently bypass traditional defenses, such as advanced persistent threats (APT), exploits, reconnaissance, lateral movement, active directory, supply chain,",
+            "human-operated ransomware, supervisory control and data acquisition (SCADA), and industrial control system (ICS) attacks."
+          ]
+        }
+      ]
+    },
+    "zte-response": {
+      "statement": "As an integral part of the Zscaler Zero Trust Exchange, Deception tracks the full attack sequence and initiates automated response actions across the Zscaler platform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-zscaler-deception.json",
+          "quotes": [
+            "As an integral part of the Zscaler Zero Trust Exchange, Deception integrates with Zero Trust, tracking the full attack sequence and initiating automated response actions across the Zscaler platform."
+          ]
+        }
+      ]
+    },
+    "deployment": {
+      "statement": "Deception is cloud-delivered, needs minimal on-premises computing and no additional hardware upgrades.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-zscaler-deception.json",
+          "quotes": [
+            "Deception is cloud-delivered and scalable, and requires minimal on-premises computing. It does not require additional hardware upgrades."
+          ]
+        }
+      ]
+    },
+    "decoy-connectors": {
+      "statement": "Network decoys are placed through Decoy Connectors connected to the Deception Admin Portal, with VLANs configured in the environment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-zscaler-deception.json",
+          "quotes": [
+            "To place decoys on your network, Deception allows you to configure Decoy Connectors and connect them to the Zscaler Deception Admin Portal. You can configure virtual LANs (VLANs) in your environment to deploy network decoys."
+          ]
+        }
+      ]
+    },
+    "zpa-integration": {
+      "statement": "Where Private Access (ZPA) is deployed, Deception can integrate with it to deploy Zero Trust Network decoys without installing additional network components or changing the network configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-zscaler-deception.json",
+          "quotes": [
+            "If you have deployed Private Access (ZPA) for Zero Trust Network Access, you can integrate Deception with Private Access to deploy Zero Trust Network decoys without installing any additional network components or making any changes to your network configurations."
+          ]
+        }
+      ]
+    },
+    "decoy-types": {
+      "statement": "Decoy types are network, Threat Intelligence (TI), Active Directory (AD), endpoint and cloud decoys; Miragemaker datasets make them more realistic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-zscaler-deception.json",
+          "quotes": [
+            "You can configure and deploy network decoys, Threat Intelligence (TI) decoys, Active Directory (AD) decoys, endpoint decoys, and cloud decoys.",
+            "you can use the extensive datasets in Miragemaker to make decoys more realistic-looking and scalable."
+          ]
+        }
+      ]
+    },
+    "strategy": {
+      "statement": "A Deception Strategy configures Network, TI and AD decoys and Landmine policies on one page from predefined personalities (built-in or custom strategies), and is deployed as Internal or Zero Trust Network (ZTN) decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-deception-strategy.json",
+          "quotes": [
+            "The Deception Strategy feature allows you to quickly configure Network decoys, Threat Intelligence (TI) decoys, Active Directory (AD) decoys, and Landmine policies on a single page.",
+            "A strategy consists of predefined personalities that are built based on different types of servers, applications, IT infrastructure, users, etc.",
+            "By default, Zscaler Deception provides built-in strategies that cover various business use cases to detect threats. You can create a custom strategy for your business needs.",
+            "After you create a strategy, you can deploy it using Internal or Zero Trust Network (ZTN) decoys."
+          ]
+        }
+      ]
+    },
+    "detect": {
+      "statement": "When an attacker interacts with decoys, Deception collects the attacker's actions and intentions and generates high-fidelity, real-time alerts; because no legitimate traffic goes to decoys, any interaction is a high-confidence signal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-zscaler-deception.json",
+          "quotes": [
+            "When an attacker infiltrates your network and interacts with the decoys, Deception detects threats, collects information on the attackers' actions and intentions, and generates high-fidelity and real-time alerts.",
+            "There is no legitimate business traffic to decoys, so any interaction with them is an immediate high-confidence signal of an ongoing breach"
+          ]
+        }
+      ]
+    },
+    "threatparse": {
+      "statement": "ThreatParse reconstructs attacks in natural language, summarizing log information in plain English to help the SOC and analysts understand what the attacker is trying to accomplish.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-zscaler-deception.json",
+          "quotes": [
+            "ThreatParse conducts natural language reconstruction of attacks, summarizes log information, and translates it into plain English to help the security operation center (SOC) and analysts understand what the attacker is trying to accomplish."
+          ]
+        }
+      ]
+    },
+    "orchestrate-remediate": {
+      "statement": "Orchestration rules take immediate automated actions when events are discovered, and once an attacker's targets are known Deception deploys additional decoys to validate remediation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-zscaler-deception.json",
+          "quotes": [
+            "Deception lets you orchestrate (automate) and build rules to take immediate actions when events are discovered to contain threats.",
+            "When the attacker's intended targets are uncovered, Deception deploys additional decoys to validate remediation."
+          ]
+        }
+      ]
+    },
+    "roles": {
+      "statement": "Roles are Administrator (configures Decoy Connectors, deploys decoys, analyzes events, orchestrates actions), Analyst (investigates, blocks attackers, exports logs), Responder (analyzes events, orchestrates actions), Super admin (manages all features, including user roles, APIs, decoys and audit logs), and custom roles with chosen read and write permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-zscaler-deception.json",
+          "quotes": [
+            "Administrator: Administrators can configure Decoy Connector (virtual machines), deploy decoys, view and analyze events, and orchestrate actions.",
+            "Analyst: Analysts can investigate events, block the attackers, and export logs.",
+            "Responder: Responders can analyze events and orchestrate actions.",
+            "Super admin: Super admins can view and manage all features and configurations of Deception, such as configuring user roles, APIs, decoys, audit logs, etc.",
+            "You can create a custom role with specific read and write permissions based on the requirements."
+          ]
+        }
+      ]
+    },
+    "mcp-zpa-skill": {
+      "statement": "The MCP server's access-policy skill places a licensed Deception rule first in the order, as an auto-provisioned tenant feature whose default rule must not be modified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-access-policy-rule/SKILL.md",
+          "quotes": [
+            "| 1 | **A. Deception** (if licensed) | `ALLOW` | Predefined criteria | Tenant feature — auto-provisioned. Do **not** modify the default rule. |"
+          ]
+        }
+      ]
+    },
+    "mcp-zcc-otp": {
+      "statement": "The MCP server's ZCC OTP skill describes `deception_settings_otp` as the OTP that modifies Deception settings on the device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zcc/generate-logout-otp/SKILL.md",
+          "quotes": [
+            "| `deception_settings_otp` | Modify Deception settings on the device |"
+          ]
+        }
+      ]
+    },
+    "no-client-surface": {
+      "statement": "No vendored client manages Deception itself: the Go and Python SDKs, the Terraform providers, the Ansible collections, the MCP server and the OneAPI Postman collection mention Deception only through Private Access and Client Connector objects, not through decoys, strategies or alerts.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "used in your server-side code to interact with the Zscaler API platform across multiple products such as:"
+          ]
+        }
+      ],
+      "conditions": "Rests on an absence. The Python README's product list (introduced by the quoted line) names no Deception API. At the pins, `git grep -i deception` finds only Client Connector OTP and password fields (Go, Python, ZCC provider), ZPA policy-order handling of the rule named Zscaler Deception (ZPA provider), and MCP skill text; the Postman matches are an EASM finding type (`DECEPTION_ENGAGED_CVE`) and a deception-method filter and field unrelated to the Deception product. No decoy, strategy, alert or orchestration endpoint appears."
+    }
+  },
+  "gaps": {
+    "admin-api": {
+      "kind": "semantic",
+      "title": "The Deception admin API, and the lifecycle of the Private Access objects Deception creates",
+      "status": "open",
+      "former_ids": [
+        "deception-01"
+      ],
+      "detail": "Unverified legacy statement: the public captures do not identify the Deception admin API endpoints, its authentication model, the audit-log export contract, or the exact ownership boundary for Private Access objects created by Deception. Known: Super admin manages APIs (roles), API Access is an Advanced-plan feature (deception.plans:enterprise), and Private Access marks Deception-created objects read-only in the console. What the Private Access API does when such an object is changed is a separate gap: zpa.segment-groups.scope:deception-api-effect.",
+      "blocks": "automating decoys or alerts, and predicting what Private Access automation may change on Deception-owned objects",
+      "resolves_with": [
+        "source-read",
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

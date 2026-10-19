@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "id": "zms.portal",
+  "title": "The Microsegmentation portal: Application Catalog, ML tag recommendations, tags and AppZones",
+  "aliases": [
+    "microsegmentation application catalog",
+    "ml tag recommendations",
+    "zms tag management",
+    "zms namespaces keys values",
+    "zms appzones",
+    "app zones microsegmentation",
+    "zms ignored recommendations"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zms.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zms.api.queries"
+    },
+    {
+      "rel": "see-also",
+      "to": "zms.provisioning-keys"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Microsegmentation pages of the Zscaler Admin Console manage the application catalog, tag recommendations, tags and AppZones. Provisioning keys are in [[zms.provisioning-keys]]."
+    },
+    {
+      "label": "Application Catalog.",
+      "text": "{{catalog-purpose}} {{catalog-filters}} The GraphQL catalog filter is narrower: [[zms.api.enums-and-filters:app-catalog-filter]]."
+    },
+    {
+      "label": "ML tag recommendations.",
+      "text": "{{ml-recommendations}} {{ml-ignored-list}} {{ml-schedule}}"
+    },
+    {
+      "label": "Tags.",
+      "text": "{{tag-model}} How the API walks the same hierarchy is in [[zms.api.queries:tag-hierarchy]]."
+    },
+    {
+      "label": "AppZones.",
+      "text": "{{app-zones}}"
+    },
+    {
+      "label": "Programmatic writes.",
+      "text": "{{portal-no-contract}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the recommendation was accepted with every resource selected, since unselected resources become ignored.",
+      "uses": [
+        "ml-recommendations",
+        "ml-ignored-list"
+      ]
+    },
+    {
+      "do": "Whether ML tag recommendations are enabled for the organization (Zscaler Support toggles it) and when the next check runs.",
+      "uses": [
+        "ml-schedule"
+      ]
+    }
+  ],
+  "claims": {
+    "catalog-purpose": {
+      "statement": "The Application Catalog lists the applications and application categories that machine learning uses to recommend resource tags, which can be applied to resource groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-application-catalog-microsegmentation.json",
+          "quotes": [
+            "The Application Catalog gives admins insight into the applications used to generate the machine-learning (ML) tags that you can apply to resource groups.",
+            "Review the list of applications and application categories used by ML to recommend resource tags."
+          ]
+        }
+      ]
+    },
+    "catalog-filters": {
+      "statement": "The Application Catalog page filters by Application Name, Application Category, Process, Protocol and Port, and lists for each application its name, category, process name, protocol, and port start and end.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-application-catalog-microsegmentation.json",
+          "quotes": [
+            "Filter the information by Application Name, Application Category, Process, Protocol, and Port.",
+            "Application Name: The name of the application.",
+            "Application Category: The type of application.",
+            "Process Name: The name of the process file.",
+            "Protocol: The protocol type (UDP, TCP, etc.).",
+            "Port Start: The port starting number.",
+            "Port End: The port ending number."
+          ]
+        }
+      ]
+    },
+    "ml-recommendations": {
+      "statement": "The ML Tag Recommendations page shows which Application Catalog applications were detected running on managed resources; a recommendation can be reviewed and accepted, edited, ignored or deleted, and resources left unselected when accepting are treated as ignored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ml-tag-recommendations-page.json",
+          "quotes": [
+            "The machine learning (ML) Tag Recommendations page shows which applications from the Applications Catalog have been detected running on managed resources in the environment.",
+            "Review a recommendation to view its complete information and accept, edit, or ignore it. Any resources that are not selected while accepting the recommendation are considered ignored.",
+            "Delete a recommendation."
+          ]
+        }
+      ]
+    },
+    "ml-ignored-list": {
+      "statement": "Previously ignored recommendations are reviewed from a separate ignored list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ml-tag-recommendations-page.json",
+          "quotes": [
+            "If the user wants to review the previously ignored recommendations, they must check that list.",
+            "Show or hide the ignored list of ML tag recommendations."
+          ]
+        }
+      ]
+    },
+    "ml-schedule": {
+      "statement": "The page shows when a recommendations check last ran and when the next is scheduled, and Zscaler Support enables or disables ML tag recommendations for an organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ml-tag-recommendations-page.json",
+          "quotes": [
+            "View the last time a recommendations check was run, and when the next check is scheduled.",
+            "View instructions to have Zscaler Support enable or disable ML tag recommendations for your organization."
+          ]
+        }
+      ]
+    },
+    "tag-model": {
+      "statement": "Tags are configured as namespaces, keys and values; a fully configured tag can be assigned to resource groups, and the Tag Management page adds namespaces and tags and edits and deletes tags.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-tags.json",
+          "quotes": [
+            "The Tag Management page allows you to configure tag data, such as namespaces, keys, and values. After a tag is fully configured with those data components, you can assign the tag to resource groups.",
+            "Add a namespace.",
+            "Add a tag.",
+            "Edit a tag.",
+            "Delete a tag."
+          ]
+        }
+      ]
+    },
+    "app-zones": {
+      "statement": "AppZones group applications into zones based on the applications' topology and their network connectivity with each other; the AppZones page adds, edits and deletes AppZones and lists each one's name, member count (resources connected to it) and description.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-appzones-20260909.json",
+          "quotes": [
+            "AppZones in Microsegmentation are applications grouped together into zones based on the applications' topology and their underlying network connectivity with each other.",
+            "Name: The name of the AppZone.",
+            "Member Count: The number of resources connected to the AppZone.",
+            "Description: Contextual information about the AppZone.",
+            "Add an AppZone.",
+            "Edit an AppZone.",
+            "Delete an AppZone."
+          ]
+        }
+      ]
+    },
+    "portal-no-contract": {
+      "statement": "The portal's write actions (accepting, editing, ignoring or deleting recommendations; adding, editing and deleting namespaces, tags and AppZones) have no published programmatic operation: the captured pages describe only the UI, and the Python SDK and MCP clients implement reads only.",
+      "tier": "B",
+      "derived_from": [
+        "ml-recommendations",
+        "tag-model",
+        "app-zones",
+        "zms.api:clients-read-only"
+      ],
+      "conditions": "Rests on reading the five captured portal pages, which describe UI actions with no API operation, enum or payload, and on zms.api:clients-read-only."
+    }
+  }
+}

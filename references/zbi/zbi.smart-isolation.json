@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "id": "zbi.smart-isolation",
+  "title": "Smart Browser Isolation: AI/ML isolation of suspicious sites, its SSL/TLS rule and its Malware Protection prerequisite",
+  "aliases": [
+    "smart browser isolation",
+    "smart isolation",
+    "ai ml isolation",
+    "smart isolate",
+    "smart isolation not working",
+    "smart isolation ssl rule"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zbi.policy"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.bypass-impact"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}}"
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{malware-toggles}} {{ssl-rule-created}} Features that need decryption are listed in [[zia.ssl-inspection.bypass-impact:dependent-features]]. What an admin sees when either prerequisite is missing or the created rule is changed is open {{gap:failure-signals}}."
+    },
+    {
+      "label": "Scope and profile.",
+      "text": "{{scope-limits}} {{empty-criteria}} {{profile-choice}}"
+    },
+    {
+      "label": "Automation.",
+      "text": "The Terraform provider writes Smart Isolation through a second endpoint, [[zia.terraform.multi-step-writes:browser-control-two-endpoint-write]], and sends a profile only when it holds a real value, [[zia.terraform.settings:profile-needs-real-value]]. The Python SDK names its user and group keyword arguments two ways: [[zia.sdk-python.service-behaviors:smart-isolation-kwarg-names]]."
+    },
+    {
+      "text": "Whether the classifier is the one Advanced Threat Protection uses is open {{gap:classifier-identity}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Inspect Inbound Traffic and Inspect Outbound Traffic are both on in the Malware Protection policy.",
+      "uses": [
+        "malware-toggles"
+      ]
+    },
+    {
+      "do": "Whether the SSL/TLS Inspection rule created when Smart Isolation was enabled still decrypts suspicious sites.",
+      "uses": [
+        "ssl-rule-created",
+        "failure-signals"
+      ]
+    },
+    {
+      "do": "Whether the user or one of the user's groups is in the policy's scope, or the scope is empty.",
+      "uses": [
+        "scope-limits",
+        "empty-criteria"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "A Smart Browser Isolation policy automatically isolates potentially malicious web content using AI/ML models: it identifies suspicious websites, decrypts them using SSL/TLS Inspection, and shows the user a rendition of the site in a remote browser through Zero Trust Browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-smart-browser-isolation-policy.json",
+          "quotes": [
+            "You can configure a Smart Browser Isolation policy that automatically isolates potentially malicious web content using the AI/ML models.",
+            "This policy identifies suspicious websites and decrypts them using SSL/TLS Inspection and presents the users with a rendition of the actual websites in a remote browser using Zero Trust Browser (formerly Isolation)."
+          ]
+        }
+      ]
+    },
+    "malware-toggles": {
+      "statement": "For the Smart Browser Isolation policy to work, the Inspect Inbound Traffic and Inspect Outbound Traffic toggles must be enabled on the Malware Protection page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-smart-browser-isolation-policy.json",
+          "quotes": [
+            "Enable the Inspect Inbound Traffic and Inspect Outbound Traffic toggles on the Malware Protection page",
+            "for the Smart Browser Isolation policy to work."
+          ]
+        }
+      ]
+    },
+    "ssl-rule-created": {
+      "statement": "Enabling AI/ML based Smart Browser Isolation automatically creates an editable SSL/TLS Inspection rule to decrypt suspicious websites.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-smart-browser-isolation-policy.json",
+          "quotes": [
+            "Enable AI/ML based Smart Browser Isolation: Enable this option to protect users from suspicious websites hosting malicious active content using AI/ML models, which continually identify suspicious domains. Enabling this option automatically creates an editable SSL/TLS Inspection rule to decrypt suspicious websites."
+          ]
+        }
+      ]
+    },
+    "scope-limits": {
+      "statement": "The policy can be scoped to up to 32 users and up to 32 groups; Zscaler Support can raise either limit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-smart-browser-isolation-policy.json",
+          "quotes": [
+            "You can select up to 32 users.",
+            "You can select up to 32 groups.",
+            "Contact Zscaler Support to increase the limit of Users or Groups."
+          ]
+        }
+      ]
+    },
+    "empty-criteria": {
+      "statement": "If no users are selected, policy evaluation ignores the Users criterion, and likewise for Groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-smart-browser-isolation-policy.json",
+          "quotes": [
+            "If you select no values, policy evaluation ignores this criterion."
+          ],
+          "after": "Users: Select the users to which the policy applies."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-smart-browser-isolation-policy.json",
+          "quotes": [
+            "If you select no values, policy evaluation ignores this criterion."
+          ],
+          "after": "Groups: Select the groups to which the policy applies."
+        }
+      ]
+    },
+    "profile-choice": {
+      "statement": "The policy names one isolation profile, chosen from the profiles already created for the organization in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-smart-browser-isolation-policy.json",
+          "quotes": [
+            "Browser Isolation Profile: You can choose the isolation profile to which the policy applies.",
+            "Ensure to create isolation profiles for your organization in the Zscaler Admin Console for them to be available in this field."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "failure-signals": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What an admin sees when Smart Isolation's prerequisites are missing or its SSL rule is changed",
+      "detail": "Unverified legacy statement: with the Malware Protection inspection toggles off, Smart Isolation silently does not fire (explicit Isolate rules still isolate, AI/ML-driven isolation never happens); and if an admin later changes the auto-created SSL/TLS Inspection rule to Do Not Inspect, Smart Isolation stops intercepting suspicious traffic while its toggle still shows enabled. The capture says only that the toggles are needed for the policy to work and that the created rule is editable.",
+      "blocks": "diagnosing a tenant where Smart Isolation is enabled but never isolates",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "classifier-identity": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether Smart Isolation uses the same AI/ML classifier as Advanced Threat Protection",
+      "detail": "Unverified legacy statement (open question): whether Smart Isolation's AI/ML classifier is the one ATP uses for its AI/ML recategorization or a separate model is not stated in any captured source.",
+      "blocks": "predicting whether a site ATP flags will also be smart-isolated",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

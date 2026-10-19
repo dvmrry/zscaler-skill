@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.api.pagination",
+  "title": "Paging ZIdentity lists: offset and limit, the list envelope, and how each SDK walks pages",
+  "aliases": [
+    "zidentity pagination",
+    "ziam offset limit",
+    "next_link prev_link results_total",
+    "zidentity list only returns first page",
+    "ReadAllPagesWithPagination",
+    "zid list_users pagination"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.api.query-filters"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.sdk-python"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZIdentity lists page by offset and limit rather than by page number. {{offset-limit}}"
+    },
+    {
+      "label": "The envelope.",
+      "text": "{{envelope-required}} {{next-link-string}} The contract and both SDKs disagree on whether that envelope arrives as an object or inside an array {{divergence:list-response-shape}}. No source gives the page size the API uses when `limit` is omitted {{gap:default-page-size}}."
+    },
+    {
+      "label": "Go.",
+      "text": "{{go-walk}} {{go-limit-clamp}} The Go name lookups page the same way and filter on the client: [[zidentity.sdk-go:getbyname-client-side]]."
+    },
+    {
+      "label": "Python.",
+      "text": "{{python-single-page}} {{python-next}} {{python-empty-next-link}} What the last page carries in `next_link` is open {{gap:last-page-next-link}}. The paging fields on the Python list objects themselves come back empty: [[zidentity.sdk-python:envelope-meta-lost]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Python caller pages at all: a `list_*` call returns one page, so a count that stops at the first page's size points at a missing loop.",
+      "uses": [
+        "python-single-page",
+        "default-page-size"
+      ]
+    },
+    {
+      "do": "Whether a Python loop over `has_next()` ends, by checking what `next_link` the last page returns.",
+      "uses": [
+        "python-empty-next-link",
+        "last-page-next-link"
+      ]
+    },
+    {
+      "do": "Whether a Go caller's limit was silently ignored because it was outside 1 to 1000.",
+      "uses": [
+        "go-limit-clamp"
+      ]
+    }
+  ],
+  "claims": {
+    "offset-limit": {
+      "statement": "List operations take `offset`, the number of records to skip (minimum 0), and `limit`, the records returned per request (minimum 0, maximum 1000).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/get/parameters/[name=offset]/schema",
+          "expect": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/get/parameters/[name=limit]/schema",
+          "expect": {
+            "minimum": 0,
+            "maximum": 1000,
+            "type": "integer"
+          }
+        }
+      ]
+    },
+    "envelope-required": {
+      "statement": "A list response object carries `results_total`, `pageOffset`, `pageSize`, `next_link`, `prev_link` and `records`, all marked required; the paging keys mix snake_case and camelCase.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/get/responses/200/content/application~1json/schema/items",
+          "expect": {
+            "required": [
+              "results_total",
+              "pageOffset",
+              "pageSize",
+              "next_link",
+              "prev_link",
+              "records"
+            ]
+          }
+        }
+      ]
+    },
+    "next-link-string": {
+      "statement": "`next_link` is typed as a string: the URL of the next page of records, if available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1resource-servers/get/responses/200/content/application~1json/schema/items/properties/next_link",
+          "expect": {
+            "type": "string",
+            "description": "URL link to the next page of resource servers, if available. Helps to navigate through paginated results."
+          }
+        }
+      ]
+    },
+    "go-walk": {
+      "statement": "The Go SDK's list helper `ReadAllPagesWithPagination` requests 100 records per page when the caller passes no parameters, stops at the first page shorter than the limit or with an empty `NextLink`, advances the offset by the number of records received, and applies any JMESPath filter only after collecting every page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/common/common.go",
+          "quotes": [
+            "DefaultPageSize: 100,",
+            "if len(response.Records) < queryParams.Limit || response.NextLink == \"\" {",
+            "currentOffset += len(response.Records)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/common/common.go",
+          "after": "func ReadAllPagesWithPagination[T any]",
+          "quotes": [
+            "Limit: DefaultPaginationOptions.DefaultPageSize,",
+            "filtered, err := zscaler.ApplyJMESPathFromContext(ctx, allRecords)"
+          ]
+        }
+      ]
+    },
+    "go-limit-clamp": {
+      "statement": "The Go parameter builder turns a page size of 0 or less into 100 and caps one above 1000 at 1000; `WithLimit` keeps the previous limit when given a value outside 1 to 1000, and `WithOffset` ignores a negative offset, both without an error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/common/common.go",
+          "quotes": [
+            "func NewPaginationQueryParams(pageSize int) PaginationQueryParams {",
+            "if pageSize <= 0 {",
+            "MaxPageSize:     1000,",
+            "pageSize = DefaultPaginationOptions.DefaultPageSize",
+            "DefaultPageSize: 100,",
+            "if pageSize > DefaultPaginationOptions.MaxPageSize {",
+            "if limit > 0 && limit <= DefaultPaginationOptions.MaxPageSize {",
+            "if offset >= 0 {",
+            "func (p *PaginationQueryParams) WithLimit(limit int) *PaginationQueryParams {",
+            "func (p *PaginationQueryParams) WithOffset(offset int) *PaginationQueryParams {"
+          ]
+        }
+      ]
+    },
+    "python-single-page": {
+      "statement": "The Python SDK's `list_users`, `list_groups`, `list_api_clients` and `list_resource_servers` each execute one request and wrap that one response body in a typed object (`Users`, `Groups`, `APIClients`, `ResourceServers`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/users.py",
+          "after": "def list_users(self, query_params: Optional[dict] = None) -> APIResult[Users]:",
+          "quotes": [
+            "response, error = self._request_executor.execute(request)",
+            "result = Users(self.form_response_body(response.get_body()))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/groups.py",
+          "after": "def list_groups(self, query_params: Optional[dict] = None) -> APIResult[Groups]:",
+          "quotes": [
+            "response, error = self._request_executor.execute(request)",
+            "result = Groups(self.form_response_body(response.get_body()))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/api_client.py",
+          "after": "def list_api_clients(self, query_params: Optional[dict] = None) -> APIResult[APIClients]:",
+          "quotes": [
+            "response, error = self._request_executor.execute(request)",
+            "result = APIClients(self.form_response_body(response.get_body()))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/resource_servers.py",
+          "after": "def list_resource_servers(self, query_params: Optional[dict] = None) -> APIResult[ResourceServers]:",
+          "quotes": [
+            "response, error = self._request_executor.execute(request)",
+            "result = ResourceServers(self.form_response_body(response.get_body()))"
+          ]
+        }
+      ]
+    },
+    "python-next": {
+      "statement": "For ZIdentity responses the Python response object keeps the body's `records` and `next_link`; `has_next()` is true whenever `next_link` is not None, and `next()` copies the query string of `next_link` into the request parameters, points the request at `next_link`'s scheme, host and path, and sends a GET.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "# ZIAM (ZIdentity Admin) uses \"records\" field for paginated responses",
+            "self._next_link = self._body.get(\"next_link\")",
+            "has_next = self._next_link is not None",
+            "parsed_url = urlparse(self._next_link)",
+            "self._list = self._body.get(\"records\", [])",
+            "query_params = parse_qs(parsed_url.query)",
+            "self._params[key] = value[0] if len(value) == 1 else value",
+            "self._url = f\"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}\"",
+            "\"method\": \"GET\","
+          ]
+        }
+      ]
+    },
+    "python-empty-next-link": {
+      "statement": "If the last page carries `next_link` as an empty string rather than omitting it, Python's `has_next()` stays true and `next()` repeats the request for the same page, so a loop that runs while `has_next()` never ends; the Go helper treats an empty `next_link` as the end.",
+      "tier": "B",
+      "derived_from": [
+        "zidentity.api.pagination:python-next",
+        "zidentity.api.pagination:envelope-required",
+        "zidentity.api.pagination:next-link-string",
+        "zidentity.api.pagination:go-walk"
+      ],
+      "conditions": "Conditional on the last-page value of `next_link`, which no source shows; the contract's marking it as a required string makes an empty string plausible but does not show it. `next()` changes the URL only when `next_link` is non-empty."
+    }
+  },
+  "divergences": {
+    "list-response-shape": {
+      "summary": "The contract types every list (and get-by-ID) 200 response as an array whose items are the envelope, while both SDKs decode a single envelope object.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zid.openapi.json",
+            "pointer": "/paths/~1users/get/responses/200/content/application~1json/schema",
+            "expect": {
+              "type": "array"
+            }
+          },
+          "says": "GET /users returns an array of objects, each carrying the paging fields and `records`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/ziam/services/api_clients/api_clients.go",
+            "quotes": [
+              "The endpoint answers with a bare JSON array rather than",
+              "paginated envelope the rest of this package uses, so there is no page"
+            ]
+          },
+          "says": "List endpoints answer with one paginated envelope object, which Go decodes into `PaginationResponse`; the secrets list is the exception that answers a bare array."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/oneapi_response.py",
+            "quotes": [
+              "# ZIAM (ZIdentity Admin) uses \"records\" field for paginated responses"
+            ]
+          },
+          "says": "Python reads `records` and the paging keys from a ZIdentity body that is an object."
+        }
+      ],
+      "impact": "A client generated from the contract would expect a top-level array for lists and single reads and fail to decode what the SDKs decode; hand-written callers should follow the SDKs' object envelope until a capture shows otherwise."
+    }
+  },
+  "gaps": {
+    "default-page-size": {
+      "kind": "data",
+      "title": "How many records a ZIdentity list returns when `limit` is omitted",
+      "status": "open",
+      "detail": "Unverified legacy statement: the default page size is 100 and the maximum 1000. The maximum is in the contract; 100 is only the Go SDK's own default. The contract gives no server default, and a Python `list_*` call without `limit` returns whatever that default is as its only page.",
+      "blocks": "telling whether a Python list result is complete",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "last-page-next-link": {
+      "kind": "data",
+      "title": "What `next_link` holds on the last page of a ZIdentity list",
+      "status": "open",
+      "detail": "Unverified legacy statement: an empty string in `next_link` signals the last page. The contract marks `next_link` as a required string but no source shows a last page; whether it is empty, null or absent decides whether Python's `has_next()` loop terminates.",
+      "blocks": "relying on the Python response object's `next()` to read a whole list",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

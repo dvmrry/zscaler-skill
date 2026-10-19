@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "id": "zdx.api.rate-limits",
+  "title": "ZDX API rate limits: the license tiers, the headers, and how the clients pace themselves",
+  "aliases": [
+    "zdx rate limit",
+    "zdx 429",
+    "x-ratelimit-remaining-second",
+    "zdx rate limit headers",
+    "zdx api tier",
+    "zdx throttling sdk"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.rate-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-go.legacy-client"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-python.legacy-client"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZDX limits requests per tenant tier, and each client paces itself in its own way. The server side is documented once for all OneAPI products."
+    },
+    {
+      "label": "The server's limits.",
+      "text": "The tier table is [[shared.oneapi.rate-limits:zdx-tiers]], the windows start with the first call ([[shared.oneapi.rate-limits:window-starts-first-call]]), and rate-limited clients must back off exponentially ([[shared.oneapi.rate-limits:back-off-exponentially]])."
+    },
+    {
+      "label": "Headers.",
+      "text": "The documented headers are [[shared.oneapi.rate-limits:zdx-headers]]. The SDKs' direct clients read differently named per-second headers {{divergence:header-names}}, and which family each host sends is open {{gap:header-family-per-host}}."
+    },
+    {
+      "label": "How the clients pace.",
+      "text": "The Go OneAPI client's ZDX limiter is [[shared.oneapi.rate-limits:go-zdx-limiter-copies-zcc]]. The Go direct client's fixed limiter paces only its sign-in ([[zdx.sdk-go.legacy-client:limiter-auth-only]]) and its backoff follows the per-second headers ([[zdx.sdk-go.legacy-client:backoff]]). The Python executor's wait on a 429 comes from `Retry-After` or the reset header ([[zia.api.rate-limits:sdk-wait-from-headers]]), and its legacy ZDX client reads the per-second headers only around sign-in ([[zdx.sdk-python.legacy-client:second-headers]]). {{no-tier-awareness}} The earlier question about reconciling the client limiters with the tier is closed by this reading {{gap:tier-vs-client-limiter}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which tier the tenant's license count puts it in, and which window (second, minute, hour or day) a 429 came from.",
+      "uses": [
+        "shared.oneapi.rate-limits:zdx-tiers"
+      ]
+    },
+    {
+      "do": "Which header a hand-written client reads for its remaining budget, and whether that header is present on the host it calls.",
+      "uses": [
+        "header-names",
+        "header-family-per-host"
+      ]
+    }
+  ],
+  "claims": {
+    "no-tier-awareness": {
+      "statement": "Neither SDK reads the tenant's tier: the Go limiters are fixed constants (100 calls per hour on the OneAPI client, 100 per 60 seconds on the direct client's sign-in) and the other pacing reacts only to response headers and 429s.",
+      "tier": "B",
+      "derived_from": [
+        "shared.oneapi.rate-limits:go-zdx-limiter-copies-zcc",
+        "zdx.sdk-go.legacy-client:global-limiter",
+        "zdx.sdk-go.legacy-client:backoff",
+        "zia.api.rate-limits:sdk-wait-from-headers"
+      ],
+      "conditions": "A reading of the limiter and backoff code at the pin; neither SDK has a setting for the license tier."
+    }
+  },
+  "divergences": {
+    "header-names": {
+      "summary": "The rate-limit header names: the ZDX rate-limiting page documents `x-ratelimit-limit`, `x-ratelimit-remaining` and `x-ratelimit-reset`; the SDKs' direct clients read `X-Ratelimit-Remaining-Second` and `X-Ratelimit-Limit-Second`.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "automate-zscaler/rate-limiting-zdx.json",
+            "quotes": [
+              "- x-ratelimit-remaining: The number of API requests remaining for the current rate limit window."
+            ]
+          },
+          "says": "The remaining budget is in `x-ratelimit-remaining`, for the current window."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zdx/v2_client.go",
+            "quotes": [
+              "remaining := resp.Header.Get(\"X-Ratelimit-Remaining-Second\")"
+            ]
+          },
+          "says": "The Go direct client reads the remaining budget from `X-Ratelimit-Remaining-Second`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zdx/legacy.py",
+            "after": "token_url = f\"{self.url}/v1/oauth/token\"",
+            "quotes": [
+              "remaining = response.headers.get(\"X-Ratelimit-Remaining-Second\")"
+            ]
+          },
+          "says": "The Python legacy client reads `X-Ratelimit-Remaining-Second` on a sign-in 429."
+        }
+      ],
+      "impact": "If the server sends only the documented headers, the SDKs' proactive per-second backoff never engages and they fall back to their 429 handling; a hand-written client that reads the SDKs' names would see nothing."
+    }
+  },
+  "gaps": {
+    "header-family-per-host": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-04"
+      ],
+      "title": "Which rate-limit header family each ZDX host sends",
+      "status": "open",
+      "detail": "The rate-limiting page names `x-ratelimit-limit`, `x-ratelimit-remaining` and `x-ratelimit-reset` without saying which host; the SDKs' direct clients read `X-Ratelimit-*-Second` headers. An earlier note that the gateway sends a `RateLimit-*` family has no source at the pin. Only a captured response from each host would settle which headers arrive where.",
+      "blocks": "writing client-side pacing that reads the right header",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "tier-vs-client-limiter": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-05"
+      ],
+      "title": "Whether the SDKs' client limiters are reconciled with the tenant's tier",
+      "status": "resolved",
+      "resolves_with": [
+        "code-read"
+      ],
+      "resolution": "They are not: the limiters are fixed constants and the direct Go client's limiter paces only sign-in (claim no-tier-awareness; zdx.sdk-go.legacy-client:limiter-auth-only)."
+    }
+  }
+}

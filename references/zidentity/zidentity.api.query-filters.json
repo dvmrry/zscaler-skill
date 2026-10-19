@@ -1,0 +1,418 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.api.query-filters",
+  "title": "ZIdentity list filters on the wire: key spelling, [like] matching and list values",
+  "aliases": [
+    "excludedynamicgroups",
+    "excludeDynamicGroups",
+    "loginname[like]",
+    "zidentity filter not working",
+    "zid list_users login_name filter",
+    "zidentity query parameter spelling"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.api.pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.sdk-python"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.sdk-go"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The filter names are generated with each list operation; what matters here is how each client spells them on the wire. {{contract-keys}}"
+    },
+    {
+      "label": "Go.",
+      "text": "{{go-keys}}"
+    },
+    {
+      "label": "Python.",
+      "text": "{{python-docstring-keys}} {{python-params-camel-cased}} {{python-camel-rule}} {{python-wire-keys}} The Python keys therefore differ from the contract's {{divergence:filter-key-spelling}}, and whether the server accepts them anyway is open {{gap:filter-key-case}}. {{python-contract-spelling-passes}}"
+    },
+    {
+      "label": "List-valued filters.",
+      "text": "The contract and Go encode several login names, domains or identity providers differently {{divergence:array-encoding}}."
+    },
+    {
+      "label": "Partial matches.",
+      "text": "{{like-descriptions}} {{go-getbyname-avoids-like}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Python filter on users or groups was passed with the contract's spelling (`loginname`, `excludedynamicgroups`) rather than the SDK docstring's snake_case, which goes out camel-cased.",
+      "uses": [
+        "python-wire-keys",
+        "python-contract-spelling-passes",
+        "filter-key-case"
+      ]
+    },
+    {
+      "do": "Whether a filter on several login names, domains or identity providers matched only one value, which points at the list encoding.",
+      "uses": [
+        "array-encoding"
+      ]
+    }
+  ],
+  "claims": {
+    "contract-keys": {
+      "statement": "The contract spells the user filters in run-together lowercase (`loginname`, `loginname[like]`, `displayname[like]`, `primaryemail[like]`, `domainname`, `idpname`) and the group filter as `excludedynamicgroups`; `name[like]` filters API clients, groups and resource servers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/get/parameters/[name=excludedynamicgroups]",
+          "expect": {
+            "in": "query",
+            "description": "Excludes dynamic groups from the results."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/get/parameters/[name=loginname]",
+          "expect": {
+            "in": "query",
+            "description": "Filters results by one or multiple login names."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/get/parameters/[name=loginname[like]]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/get/parameters/[name=displayname[like]]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/get/parameters/[name=primaryemail[like]]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/get/parameters/[name=domainname]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/get/parameters/[name=idpname]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1api-clients/get/parameters/[name=name[like]]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/get/parameters/[name=name[like]]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1resource-servers/get/parameters/[name=name[like]]",
+          "expect": {
+            "in": "query"
+          }
+        }
+      ]
+    },
+    "go-keys": {
+      "statement": "The Go SDK sets the query keys `excludedynamicgroups`, `loginname`, `loginname[like]`, `displayname[like]`, `primaryemail[like]`, `domainname`, `idpname` and `name[like]`, written with the brackets in the key string.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/common/common.go",
+          "quotes": [
+            "values.Set(\"name[like]\", p.NameLike)",
+            "values.Set(\"excludedynamicgroups\", \"true\")",
+            "values.Add(\"loginname\", loginName)",
+            "values.Set(\"loginname[like]\", p.LoginNameLike)",
+            "values.Set(\"displayname[like]\", p.DisplayNameLike)",
+            "values.Set(\"primaryemail[like]\", p.PrimaryEmailLike)",
+            "values.Add(\"domainname\", domainName)",
+            "values.Add(\"idpname\", idpName)"
+          ]
+        }
+      ]
+    },
+    "python-docstring-keys": {
+      "statement": "The Python SDK's docstrings name the filters in snake_case: `login_name`, `login_name[like]`, `display_name[like]`, `primary_email[like]`, `domain_name` and `idp_name` for users, and `exclude_dynamic_groups` for groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/users.py",
+          "quotes": [
+            "``[query_params.login_name]`` {str}: Filters results by one or multiple login",
+            "``[query_params.login_name[like]]`` {str}: Filters results by group name using a",
+            "``[query_params.display_name[like]]`` {str}: Filters results by display name",
+            "``[query_params.primary_email[like]]`` {str}: Filter results by primary email",
+            "``[query_params.domain_name]`` {[str]list}: Filter results by primary email",
+            "``[query_params.idp_name]`` {[str]list}: Filters results by one or more"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/groups.py",
+          "quotes": [
+            "``[query_params.exclude_dynamic_groups]`` {bool}: Excludes dynamic groups from the results."
+          ]
+        }
+      ]
+    },
+    "python-params-camel-cased": {
+      "statement": "The Python request executor classifies any URL containing `/ziam/admin/api/v1` as the `ziam` service, and for every service other than ZPA it camel-cases the query parameter keys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def get_service_type(self, url):",
+          "quotes": [
+            "if \"/ziam/admin/api/v1\" in url:",
+            "return \"ziam\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "# Normal param conversion if not ZPA",
+            "params = convert_keys_to_camel_case(params)"
+          ]
+        }
+      ]
+    },
+    "python-camel-rule": {
+      "statement": "The camel-casing helper returns a key from its exceptions table as mapped and leaves a key without an underscore unchanged; otherwise it splits on underscores, lowercases the first part, capitalizes every later part and joins them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "after": "def to_lower_camel_case(string):",
+          "quotes": [
+            "if string in FIELD_EXCEPTIONS:",
+            "if not string or \"_\" not in string:",
+            "components = string.split(\"_\")",
+            "for i, comp in enumerate(components):",
+            "lower = comp.lower()",
+            "if i == 0:\n            converted.append(lower)\n        else:\n            converted.append(comp.capitalize())",
+            "return \"\".join(converted)"
+          ]
+        }
+      ]
+    },
+    "python-wire-keys": {
+      "statement": "So a Python caller using the docstring names sends `loginName`, `loginName[like]`, `displayName[like]`, `primaryEmail[like]`, `domainName`, `idpName` and `excludeDynamicGroups`; only `name[like]`, `offset` and `limit` go out as the contract spells them.",
+      "tier": "B",
+      "derived_from": [
+        "zidentity.api.query-filters:python-docstring-keys",
+        "zidentity.api.query-filters:python-params-camel-cased",
+        "zidentity.api.query-filters:python-camel-rule"
+      ],
+      "conditions": "Follows from applying the helper's rule to the docstring keys; none of these keys appears in the exceptions table at the pin (searched)."
+    },
+    "python-contract-spelling-passes": {
+      "statement": "A Python caller can send the contract's spelling by passing it as the key (`loginname`, `excludedynamicgroups`), since a key without an underscore is not changed.",
+      "tier": "B",
+      "derived_from": [
+        "zidentity.api.query-filters:python-camel-rule",
+        "zidentity.api.query-filters:contract-keys"
+      ],
+      "conditions": "Follows from the helper's rule; not exercised by an SDK test or example."
+    },
+    "like-descriptions": {
+      "statement": "The contract describes the user (`loginname[like]`, `displayname[like]`, `primaryemail[like]`), group and resource-server `[like]` filters as case-insensitive partial matches, but the API-client `name[like]` only as a partial match.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/get/parameters/[name=name[like]]",
+          "expect": {
+            "description": "Filters results by group name using a case-insensitive partial match."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/get/parameters/[name=loginname[like]]",
+          "expect": {
+            "description": "Filter results by login name using a case-insensitive partial match."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/get/parameters/[name=displayname[like]]",
+          "expect": {
+            "description": "Filters results by display name using a case-insensitive partial match."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/get/parameters/[name=primaryemail[like]]",
+          "expect": {
+            "description": "Filter results by primary email using a case-insensitive partial match."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1resource-servers/get/parameters/[name=name[like]]",
+          "expect": {
+            "description": "Filters resource servers by name using a case-insensitive partial match."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1api-clients/get/parameters/[name=name[like]]",
+          "expect": {
+            "description": "Filters results by name using a partial match."
+          }
+        }
+      ]
+    },
+    "go-getbyname-avoids-like": {
+      "statement": "The Go API-client `GetByName` does not use the server-side `name[like]` filter because its matching semantics are undocumented; it pages through all clients and matches on the client instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/api_clients/api_clients.go",
+          "quotes": [
+            "The endpoint does accept a server-side `name[like]` filter, reachable through",
+            "because its matching semantics are undocumented, and a filter that turned out",
+            "common.PaginationQueryParams.WithNameFilter on GetAll. It is not used here",
+            "This is a case-insensitive substring match applied client-side, so a search",
+            "pageResponse, err := common.ReadPageWithPagination[APIClients](ctx, service.Client, apiClientsEndpoint, &queryParams)",
+            "if strings.Contains(strings.ToLower(apiClient.Name), strings.ToLower(name)) {",
+            "if len(pageResponse.Records) < pageSize || pageResponse.NextLink == \"\" {",
+            "func GetByName(ctx context.Context, service *zscaler.Service, name string) ([]APIClients, error) {"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "filter-key-spelling": {
+      "summary": "The contract and Go spell the user and group filters in run-together lowercase, while the Python SDK, called with its documented snake_case names, sends camelCase keys.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zid.openapi.json",
+            "pointer": "/paths/~1groups/get/parameters/[name=excludedynamicgroups]",
+            "expect": {
+              "in": "query"
+            }
+          },
+          "says": "The query keys are `excludedynamicgroups`, `loginname`, `domainname`, `idpname` and the lowercase `[like]` forms."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/ziam/services/common/common.go",
+            "quotes": [
+              "values.Set(\"excludedynamicgroups\", \"true\")"
+            ]
+          },
+          "says": "Go sends the contract's spellings."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zid/groups.py",
+            "quotes": [
+              "``[query_params.exclude_dynamic_groups]`` {bool}: Excludes dynamic groups from the results."
+            ]
+          },
+          "says": "Python documents `exclude_dynamic_groups`, which its executor sends as `excludeDynamicGroups`."
+        }
+      ],
+      "impact": "If the server matches query keys exactly, a Python filter written as documented is ignored and the call returns the unfiltered list, with no error; a Go call and a raw call following the contract filter as intended."
+    },
+    "array-encoding": {
+      "summary": "For list-valued filters the contract sets `explode` to false, which in OpenAPI's default form style means one comma-separated value, while the Go SDK repeats the key once per value.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zid.openapi.json",
+            "pointer": "/paths/~1users/get/parameters/[name=loginname]",
+            "expect": {
+              "explode": false,
+              "in": "query"
+            }
+          },
+          "says": "`loginname` (and `domainname`, `idpname`) is an array parameter with `explode` false."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/ziam/services/common/common.go",
+            "quotes": [
+              "values.Add(\"loginname\", loginName)",
+              "values.Add(\"domainname\", domainName)"
+            ]
+          },
+          "says": "Go adds one `loginname` (or `domainname`, `idpname`) pair per value."
+        }
+      ],
+      "impact": "With more than one value, a server that follows the contract may read only one of Go's repeated keys, and a server that expects repeated keys may read a comma-separated value as one name. A single value is sent the same way by both."
+    }
+  },
+  "gaps": {
+    "filter-key-case": {
+      "kind": "data",
+      "title": "Whether the ZIdentity API accepts camelCase or snake_case filter keys",
+      "status": "open",
+      "detail": "Unverified legacy statement: a raw-HTTP caller may send either Python's camelCase keys (`loginName`, `excludeDynamicGroups`) or Go's run-together keys. Only the run-together spelling is in the contract; no capture shows how the server treats the camelCase keys Python sends.",
+      "blocks": "trusting a filtered Python list result",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

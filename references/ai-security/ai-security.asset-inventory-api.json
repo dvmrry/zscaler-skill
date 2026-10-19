@@ -1,0 +1,567 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.asset-inventory-api",
+  "title": "The AI Security inventory API (AI Infrastructure, AI-SPM): read-only assets and issues, cursor paging, filters and limits",
+  "aliases": [
+    "ai security api",
+    "ai infrastructure api",
+    "aispm",
+    "ai-spm",
+    "/aisecurity/aispm",
+    "ai asset inventory api",
+    "ai agents inventory",
+    "mcp servers inventory",
+    "ai security issues api",
+    "ai datastores api",
+    "next_cursor",
+    "total_count zero",
+    "ai security rate limit"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.family"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.base-urls"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The AI Infrastructure part of the AI Security API lists the AI assets and issues Zscaler's scanners have discovered: agents, code repositories, data stores, guardrails, identities, MCP servers and their tools, workloads and issues. Its paths, filters and response fields are generated: run `node scripts/kb.mjs surface aisec` and read `vendor/zscaler-api-specs/automate-zscaler/openapi/ai-security.openapi.json`."
+    },
+    {
+      "label": "What it is.",
+      "text": "{{purpose}} {{read-only}} {{no-client}} It is a different API from AI Guard's, which evaluates prompts and manages policy: [[ai-security.ai-guard.admin-api]]. Both families of the AI Security specification are in [[ai-security.family:api-families]]."
+    },
+    {
+      "label": "Paging.",
+      "text": "{{cursor-paging}} {{total-count}}"
+    },
+    {
+      "label": "Filters and sorting.",
+      "text": "{{filters}} {{validation}}"
+    },
+    {
+      "label": "Limits.",
+      "text": "{{rate-limit}} Whether the window is a second or a minute is open {{gap:rate-window}}."
+    },
+    {
+      "label": "Not settled.",
+      "text": "Entitlement and what data a tenant returns are open {{gap:entitlement}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Follow next_cursor until it is empty, with the same filters, sort and page size throughout; do not stop on total_count, which is 0 after the first page.",
+      "uses": [
+        "cursor-paging",
+        "total-count"
+      ]
+    },
+    {
+      "do": "On a 400, an undocumented query parameter, a misspelled (case-sensitive) parameter or sort field, or an invalid risk_level.",
+      "uses": [
+        "validation"
+      ]
+    },
+    {
+      "do": "On an empty result, a filter value that matched nothing; filters other than risk_level and sort do not error on unknown values.",
+      "uses": [
+        "validation"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "The AI Infrastructure endpoints expose AI asset inventory, resource metadata and governance data collected by Zscaler's scanning and discovery engines, for consumers such as SIEM, SOAR and ITSM systems, dashboards and partners; every endpoint requires a bearer token issued by Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/understanding-ai-security-api.json",
+          "quotes": [
+            "The AI Infrastructure endpoints within the AI Security API expose AI asset inventory, resource metadata, and governance data collected by Zscaler scanning and discovery engines.",
+            "All endpoints require a bearer token issued by Authentication Service.",
+            "This data is available to external consumers such as security information and event management systems (SIEMs), security orchestration, automation, and response systems (SOARs), Information Technology Service Management (ITSM) platforms, dashboards, and partners."
+          ]
+        }
+      ]
+    },
+    "read-only": {
+      "statement": "All 17 AI Infrastructure operations are GET operations, one per path; the API lists and reads assets and issues but has no operation to create, change, sanction or remediate them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/info/x-zscaler-source-info/[title=AI Infrastructure]",
+          "expect": {
+            "operation_count": 17
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1assets~1agents/get",
+          "expect": {
+            "operationId": "Agents List Agents"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1assets~1agents~1{id}/get",
+          "expect": {
+            "operationId": "Agents Get Agent"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1assets~1identities/get",
+          "expect": {
+            "operationId": "Identities List Identities"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1assets~1identities~1{id}/get",
+          "expect": {
+            "operationId": "Identities Get Identity"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1assets~1mcpservers/get",
+          "expect": {
+            "operationId": "Mcp Servers List Mcp Servers"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1assets~1mcpservers~1{id}/get",
+          "expect": {
+            "operationId": "Mcp Servers Get Mcp Server"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1assets~1mcpservers~1{id}~1tools/get",
+          "expect": {
+            "operationId": "Mcp Servers Get Mcp Server Tools"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1issues/get",
+          "expect": {
+            "operationId": "Issues List Issues"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1issues~1{id}/get",
+          "expect": {
+            "operationId": "Issues Get Issue"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1resources~1coderepositories/get",
+          "expect": {
+            "operationId": "Code Repositories List Code Repositories"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1resources~1coderepositories~1{id}/get",
+          "expect": {
+            "operationId": "Code Repositories Get Code Repository"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1resources~1datastores/get",
+          "expect": {
+            "operationId": "Datastores List Datastores"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1resources~1datastores~1{id}/get",
+          "expect": {
+            "operationId": "Datastores Get Datastore"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1resources~1guardrails/get",
+          "expect": {
+            "operationId": "Guardrails List Guardrails"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1resources~1guardrails~1{id}/get",
+          "expect": {
+            "operationId": "Guardrails Get Guardrail"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1resources~1workloads/get",
+          "expect": {
+            "operationId": "Workloads List Workloads"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1resources~1workloads~1{id}/get",
+          "expect": {
+            "operationId": "Workloads Get Workload"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1assets~1agents",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1assets~1agents~1{id}",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1assets~1identities",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1assets~1identities~1{id}",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1assets~1mcpservers",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1assets~1mcpservers~1{id}",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1assets~1mcpservers~1{id}~1tools",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1issues",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1issues~1{id}",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1resources~1coderepositories",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1resources~1coderepositories~1{id}",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1resources~1datastores",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1resources~1datastores~1{id}",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1resources~1guardrails",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1resources~1guardrails~1{id}",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1resources~1workloads",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1resources~1workloads~1{id}",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        }
+      ]
+    },
+    "no-client": {
+      "statement": "No vendored SDK, Terraform provider, Ansible collection or MCP server tool calls the AI Infrastructure API.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/servers/[description=Production]",
+          "expect": {
+            "url": "https://api.zsapi.net/aisecurity/aispm"
+          }
+        }
+      ],
+      "conditions": "Rests on a search: the generated aisec surface has empty Python and Go SDK sections, and a search of the Python and Go SDKs, the MCP server, the ZIA, ZPA and ZTC Terraform providers and both Ansible collections at their pins finds no aispm or aisecurity reference. Absence in vendored clients says nothing about private or future ones."
+    },
+    "cursor-paging": {
+      "statement": "Every collection endpoint uses cursor paging: `cursor` takes the previous response's `next_cursor`, passed back exactly as received, and `page_size` defaults to 25 with a maximum of 200; filters, sort and page size must not change within one sequence (changing them can skip or duplicate records), a new sequence starts by omitting the cursor, and a cursor the server cannot decode restarts paging from the first page without an error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/understanding-ai-security-api.json",
+          "quotes": [
+            "All collection endpoints use cursor-based pagination",
+            "cursor: An opaque string returned in the previous response's next_cursor field that indicates where to resume in the dataset on the subsequent request.",
+            "page_size: The number of records to return per page. The default value is 25, and the maximum value is 200.",
+            "Cursors are opaque and must be passed back exactly as received",
+            "when using a cursor, clients must not change filter, sort, or page size parameters between successive requests in the same pagination sequence.",
+            "Changing these parameters while reusing a cursor can lead to inconsistent results, such as skipped or duplicated records.",
+            "start a new pagination sequence by omitting the cursor parameter",
+            "If the server cannot decode a cursor (for example, if the cursor was tampered with or corrupted), it automatically restarts pagination from the first page without returning an error."
+          ]
+        }
+      ]
+    },
+    "total-count": {
+      "statement": "A list's `total_count` is filled only on the first page and is 0 on later pages; the first-page value is an estimate that concurrent changes can make drift, so paging continues until `next_cursor` is empty rather than by count.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1assets~1agents/get",
+          "expect": {
+            "description": "Returns a paginated list of AI agents discovered across cloud environments\nand source code repositories.\n\n**Note on `total_count`:** The `total_count` field is populated only on the\nfirst page of results. Subsequent pages return `total_count` as `0` to avoid\nthe performance cost of counting on every request. Treat the first-page value\nas an **estimate** — concurrent changes (creates, deletes, status transitions)\nmay cause it to drift. Do not use `total_count` to control pagination; instead,\ncontinue fetching pages until `next_cursor` is empty."
+          }
+        }
+      ]
+    },
+    "filters": {
+      "statement": "Filters use field=value query parameters combined with AND, and `sort` takes a field name, prefixed with a minus sign for descending order.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/understanding-ai-security-api.json",
+          "quotes": [
+            "Use the field=value syntax in the query string to filter results. Multiple filters are combined with logical AND.",
+            "sort=field: Sort in ascending order by field",
+            "sort=-field: Sort in descending order by field"
+          ]
+        }
+      ]
+    },
+    "validation": {
+      "statement": "Parameter names and sort fields are case-sensitive while filter and enum values are not; an undocumented parameter is rejected with 400; a repeated parameter keeps only its first value, and several values go in a comma-separated list instead; an empty value means no filter; invalid `risk_level` and `sort` values are rejected with 400, while other filters are normalized and unmatched values return an empty result.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/understanding-ai-security-api.json",
+          "quotes": [
+            "| Parameter names | Parameter names are case sensitive.",
+            "| Unrecognized parameters | Any query parameter that is not documented for an endpoint is rejected with 400 Bad Request. |",
+            "| Filter and enum values | Filter and enum values are case insensitive.",
+            "| Repeated parameters | If the same parameter appears more than once (e.g., severity=high&severity=critical), only the first value is used.",
+            "| Sort field names | Sort field names are case sensitive",
+            "To specify multiple values, use a comma-separated list instead (e.g., severity=high,critical).",
+            "| Empty values | A parameter with an empty value (e.g., environment=) is treated as if the parameter were not provided.",
+            "| Invalid filter values | The risk_level and sort parameters are strictly validated. Invalid values for these parameters are rejected with 400 Bad Request.",
+            "Other filter parameters are normalized and forwarded; values that do not match any known records result in empty result sets rather than an error."
+          ]
+        }
+      ]
+    },
+    "rate-limit": {
+      "statement": "The AI Security API allows 100 requests per second per tenant; beyond that it answers 429 Too Many Requests with rate-limit headers, and clients should back off exponentially; `x-ratelimit-reset` is a Unix epoch timestamp in seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-aisecurity-api-rate-limits.json",
+          "quotes": [
+            "All endpoints within the AI Security API are subject to a rate limit of 100 requests per second, per tenant.",
+            "When the rate limit is exceeded, a 429 Too Many Requests response along with rate limit headers is returned.",
+            "Clients should inspect the response headers and implement exponential backoff.",
+            "x-ratelimit-reset: The Unix epoch timestamp (in seconds) when the rate limit resets."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "rate-window": {
+      "kind": "semantic",
+      "title": "Whether the AI Security rate limit is per second or per minute",
+      "status": "open",
+      "detail": "The rate-limit page states 100 requests per second per tenant but describes the x-ratelimit-limit header as the maximum number of requests allowed per minute. The page alone does not say which window the header reports.",
+      "blocks": "client throttling for bulk inventory reads",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-aisecurity-api-rate-limits.json",
+          "quotes": [
+            "subject to a rate limit of 100 requests per second, per tenant.",
+            "x-ratelimit-limit: The maximum number of requests allowed per minute."
+          ]
+        }
+      ]
+    },
+    "entitlement": {
+      "kind": "data",
+      "title": "Entitlement, scopes and data availability for the AI Infrastructure API",
+      "status": "open",
+      "detail": "Unverified legacy statement: the contract documents resource shape and routing, not tenant entitlement, authentication scopes or data availability; confirm those against an entitled tenant before depending on the API.",
+      "blocks": "whether a tenant can call the inventory API and what it returns",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

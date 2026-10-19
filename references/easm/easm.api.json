@@ -1,0 +1,465 @@
+{
+  "schema_version": 1,
+  "id": "easm.api",
+  "title": "The EASM (ZEASM) API: organization scoping, clients, paging and the Postman collection",
+  "aliases": [
+    "easm api",
+    "zeasm",
+    "client.zeasm",
+    "easm org_id",
+    "easm organizations",
+    "easm assets api",
+    "easm postman",
+    "external attack surface management api"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "easm.findings"
+    },
+    {
+      "rel": "see-also",
+      "to": "easm.lookalike-domains"
+    },
+    {
+      "rel": "see-also",
+      "to": "easm.mcp"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.base-urls"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Paths and methods are generated: run `node scripts/kb.mjs surface easm`, and read field descriptions and enums in `vendor/zscaler-api-specs/automate-zscaler/openapi/easm.openapi.json`. This subject holds how calls are scoped and paged and where the clients fall short."
+    },
+    {
+      "label": "What it is.",
+      "text": "{{name}} The OneAPI base path is in [[shared.oneapi.base-urls:base-path-table]], and the guide's example that drops the `/easm` prefix in [[shared.oneapi.base-urls:easm-example-path]]."
+    },
+    {
+      "label": "Organization first.",
+      "text": "{{org-scoping}} {{org-model}} Whether tenants normally have several organizations is open {{gap:multi-org}}."
+    },
+    {
+      "label": "Clients.",
+      "text": "{{sdk-resources}} {{assets-api-only}} {{python-only}} The MCP tools are in [[easm.mcp]]."
+    },
+    {
+      "label": "Paging.",
+      "text": "{{list-paging}} {{sdk-no-list-args}} {{client-search}}"
+    },
+    {
+      "label": "Postman.",
+      "text": "{{postman-asset-params}} {{postman-lookalike-params}} {{divergence:list-query-params}} {{postman-url-defects}}"
+    },
+    {
+      "label": "Resources.",
+      "text": "Findings are in [[easm.findings]] and lookalike domains in [[easm.lookalike-domains]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which organization ID the call uses: list organizations first and take the id.",
+      "uses": [
+        "org-scoping",
+        "org-model"
+      ]
+    },
+    {
+      "do": "For an asset inventory, whether a raw API call is needed, since no SDK or MCP client lists assets.",
+      "uses": [
+        "assets-api-only"
+      ]
+    },
+    {
+      "do": "When copying a Postman EASM request, whether its raw URL is one of the three malformed ones.",
+      "uses": [
+        "postman-url-defects"
+      ]
+    }
+  ],
+  "claims": {
+    "name": {
+      "statement": "The API is the External Attack Surface Management API; the Python SDK calls the product ZEASM and serves it at `/easm/easm-ui/v1`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/info",
+          "expect": {
+            "title": "External Attack Surface Management API"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zeasm/findings.py",
+          "quotes": [
+            "_zeasm_base_endpoint = \"/easm/easm-ui/v1\""
+          ]
+        }
+      ]
+    },
+    "sdk-resources": {
+      "statement": "The SDK's `ZEASMService` exposes three resources, `organizations`, `findings` and `lookalike_domains`, added in release 1.9.6.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zeasm/zeasm_service.py",
+          "quotes": [
+            "class ZEASMService:",
+            "def organizations(self) -> OrganizationsAPI:",
+            "def findings(self) -> FindingsAPI:",
+            "def lookalike_domains(self) -> LookALikeDomainsAPI:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added External Attach Surface Management(EASM) Endpoints"
+          ],
+          "after": "## 1.9.6 (December 2, 2025)"
+        }
+      ]
+    },
+    "assets-api-only": {
+      "statement": "The asset endpoints (list assets, and an asset's certificates, services and technologies) are in the API contract but no SDK resource or MCP tool calls them.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "docs/guides/toolsets.md",
+          "quotes": [
+            "| `zeasm_lookalike_domains` | 2 | `zeasm_get_lookalike_domain`, `zeasm_list_lookalike_domains` |"
+          ]
+        }
+      ],
+      "derived_from": [
+        "sdk-resources"
+      ],
+      "conditions": "Rests on the generated surface for easm: the four /assets paths map to no Python method, and the MCP EASM toolsets list only organization, finding and lookalike tools."
+    },
+    "python-only": {
+      "statement": "No Go SDK package, Terraform resource or Ansible module covers EASM; the Python SDK and the MCP server are its only clients.",
+      "tier": "B",
+      "derived_from": [
+        "sdk-resources"
+      ],
+      "conditions": "Rests on the generated surface for easm, which lists Python modules and no Go packages or Terraform resources, and on a grep of the Go SDK's zscaler/ tree (packages zcc, zdx, zia, ziam, zpa, ztw, zwa) and of the ZIA and ZPA Ansible plugins at their pins for easm and zeasm found nothing."
+    },
+    "org-scoping": {
+      "statement": "Organizations are listed with no arguments; the finding and lookalike methods take the organization ID first and build URLs under `/organizations/{org_id}`, using the `id` of an organization from that list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zeasm/organizations.py",
+          "quotes": [
+            "def list_organizations(self) -> APIResult[Organizations]:",
+            "...     org_id = orgs.results[0].id"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zeasm/findings.py",
+          "quotes": [
+            "def list_findings(self, org_id: str) -> APIResult[Findings]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zeasm/findings.py",
+          "quotes": [
+            "{self._zeasm_base_endpoint} /organizations/{org_id}/findings"
+          ],
+          "after": "def list_findings("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zeasm/lookalike_domains.py",
+          "quotes": [
+            "def list_lookalike_domains(self, org_id: str) -> APIResult[LookALikeDomains]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zeasm/lookalike_domains.py",
+          "quotes": [
+            "{self._zeasm_base_endpoint} /organizations/{org_id}/lookalike-domains"
+          ],
+          "after": "def list_lookalike_domains("
+        }
+      ]
+    },
+    "org-model": {
+      "statement": "An organization carries only `id` and `name` (both strings); the organizations response also has `next_page`, `prev_page` and `total_results`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations/get/responses/200/content/application~1json/schema/properties/results/items/properties/id",
+          "expect": {
+            "description": "The unique identifier of an organization",
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations/get/responses/200/content/application~1json/schema/properties/results/items",
+          "expect": {
+            "properties": {
+              "id": {
+                "description": "The unique identifier of an organization",
+                "example": "12345",
+                "type": "string"
+              },
+              "name": {
+                "description": "The name of an organization",
+                "example": "Default",
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations/get/responses/200/content/application~1json/schema/properties/next_page",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations/get/responses/200/content/application~1json/schema/properties/total_results",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations/get/responses/200/content/application~1json/schema/properties/prev_page",
+          "expect": {
+            "type": "integer"
+          }
+        }
+      ]
+    },
+    "list-paging": {
+      "statement": "Finding and lookalike list responses carry a results list and a total count (`results`, `total_results`) and no page fields, while the assets list returns `next_link` and `prev_link` URLs carrying a page offset.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1findings/get/responses/200/content/application~1json/schema/properties",
+          "expect_absent": [
+            "next_page",
+            "prev_page",
+            "next_link",
+            "prev_link"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1findings/get/responses/200/content/application~1json/schema/properties/total_results",
+          "expect": {
+            "description": "The total number of findings in the response",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1findings/get/responses/200/content/application~1json/schema/properties/results",
+          "expect": {
+            "description": "The list of findings detected for an organization"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1lookalike-domains/get/responses/200/content/application~1json/schema/properties",
+          "expect_absent": [
+            "next_page",
+            "prev_page",
+            "next_link",
+            "prev_link"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1lookalike-domains/get/responses/200/content/application~1json/schema/properties/total_results",
+          "expect": {
+            "description": "The total number of lookalike domains present in the response",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1lookalike-domains/get/responses/200/content/application~1json/schema/properties/results",
+          "expect": {
+            "description": "The list of lookalike domains identified for the seed domains configured for an organization"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1assets/get/responses/200/content/application~1json/schema/properties/next_link",
+          "expect": {
+            "description": "The URL with a page offset to access the subsequent set of assets"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/easm.openapi.json",
+          "pointer": "/paths/~1organizations~1{orgId}~1assets/get/responses/200/content/application~1json/schema/properties/prev_link",
+          "expect": {
+            "description": "The URL with a page offset to access the previous set of assets"
+          }
+        }
+      ]
+    },
+    "sdk-no-list-args": {
+      "statement": "The SDK's findings and lookalike-domains list methods take only the organization ID: their signatures have no paging, sorting or filter arguments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zeasm/findings.py",
+          "quotes": [
+            "def list_findings(self, org_id: str) -> APIResult[Findings]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zeasm/lookalike_domains.py",
+          "quotes": [
+            "def list_lookalike_domains(self, org_id: str) -> APIResult[LookALikeDomains]:"
+          ]
+        }
+      ]
+    },
+    "client-search": {
+      "statement": "SDK responses support client-side filtering and projection with `resp.search(expression)` in JMESPath syntax.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zeasm/findings.py",
+          "quotes": [
+            "The response object supports client-side filtering and projection via ``resp.search(expression)``.",
+            "`JMESPath documentation <https://jmespath.org/>`_ for"
+          ],
+          "after": "def list_findings("
+        }
+      ]
+    },
+    "postman-asset-params": {
+      "statement": "The OneAPI Postman collection documents list-assets query parameters: `limit` (default 100, max 1000), `offset`, `sort`, `search`, `riskLevel`, `status`, `country`, `state`, `type`, `lastSeen`, `firstSeen` and `certificateExpiration`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "{{EASMBaseUrl}}}}/organizations/:orgId/assets?limit=9464&offset=9464&sort=string&search=string&riskLevel=string&status=string&country=string&state=string&type=string&lastSeen=9464&firstSeen=9464&certificateExpiration=string"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"description\": \"Number of assets to return per page (default 100, max 1000)\"",
+            "\"description\": \"Filter by asset state. Comma-separated values. (e.g., 'ACTIVE,STALE')\"",
+            "\"description\": \"Filter by certificate expiration date (used when type is 'CERTIFICATE').\""
+          ],
+          "after": "{{EASMBaseUrl}}}}/organizations/:orgId/assets?limit=9464&offset=9464&sort=string&search=string&riskLevel=string&status=string&country=string&state=string&type=string&lastSeen=9464&firstSeen=9464&certificateExpiration=string"
+        }
+      ]
+    },
+    "postman-lookalike-params": {
+      "statement": "The Postman list-lookalike-domains request carries `limit`, `offset`, `sort`, `search`, `status`, `riskLevel`, `riskCategory` and `deceptionMethods` query parameters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "{{EASMBaseUrl}}organizations/:orgId/lookalike-domains?limit=9464&offset=9464&sort=string&search=string&status=string&riskLevel=string&riskCategory=string&deceptionMethods=string"
+          ]
+        }
+      ]
+    },
+    "postman-url-defects": {
+      "statement": "Three Postman EASM requests have malformed raw URLs: list assets appends an extra `}}` to `{{EASMBaseUrl}}`, get lookalike-domain details an extra `}`, and list lookalike domains omits the slash before `organizations`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"raw\": \"{{EASMBaseUrl}}}}/organizations/:orgId/assets?",
+            "\"raw\": \"{{EASMBaseUrl}}}/organizations/:orgId/lookalike-domains/:lookalikeRaw/details\"",
+            "\"raw\": \"{{EASMBaseUrl}}organizations/:orgId/lookalike-domains?"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "list-query-params": {
+      "summary": "The API contract lists no query parameters for the asset and lookalike lists; the Postman collection documents paging and filters for both.",
+      "positions": [
+        {
+          "says": "List assets takes only the Authorization header and the orgId path parameter.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/easm.openapi.json",
+            "pointer": "/paths/~1organizations~1{orgId}~1assets/get/parameters/[name=orgId]",
+            "expect": {
+              "in": "path",
+              "required": true
+            }
+          }
+        },
+        {
+          "says": "List assets takes limit, offset, sort, search and filter query parameters.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "oneapi-postman-collection.json",
+            "quotes": [
+              "\"description\": \"Number of assets to return per page (default 100, max 1000)\""
+            ],
+            "after": "{{EASMBaseUrl}}}}/organizations/:orgId/assets?limit=9464&offset=9464&sort=string&search=string&riskLevel=string&status=string&country=string&state=string&type=string&lastSeen=9464&firstSeen=9464&certificateExpiration=string"
+          }
+        }
+      ],
+      "impact": "Large inventories may need limit and offset, which only Postman documents and no SDK method sends; test them against a tenant before relying on them."
+    }
+  },
+  "gaps": {
+    "multi-org": {
+      "kind": "semantic",
+      "title": "How tenants use more than one EASM organization",
+      "status": "open",
+      "detail": "Unverified legacy statement: normal multi-org tenancy is not established. The organizations response is a list with paging fields and the SDK and MCP return a list, but no source says when a tenant has more than one organization (for example per business unit).",
+      "blocks": "answering which organization's findings a question is about",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    }
+  }
+}

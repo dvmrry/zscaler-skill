@@ -1,0 +1,604 @@
+{
+  "schema_version": 1,
+  "id": "zscaler-cellular.api.wire-notes",
+  "title": "ZCell wire notes: paging, time windows, SIM search, violations, audit search, SIM lock and tower history",
+  "aliases": [
+    "zcell pagination",
+    "zcell sims search page size",
+    "zcell violations empty",
+    "zcell tower locations",
+    "tower-location history",
+    "zcell days parameter",
+    "zcell sim lock imei",
+    "zcell audit search body"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zscaler-cellular.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.mcp"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are the ZCell request and response details that decide whether a call returns what was asked for; field lists are in the contract."
+    },
+    {
+      "label": "Paging.",
+      "text": "{{paging-contract}} {{sdk-paging}} {{next-page-get}} {{next-page-post-search}}"
+    },
+    {
+      "label": "Time windows.",
+      "text": "{{time-window-helper}}"
+    },
+    {
+      "label": "SIM search.",
+      "text": "{{sim-search-body}} The contract and the clients disagree on where paging goes {{divergence:sim-search-pagination}}, and what the backend accepts is open {{gap:sim-search-paging}}."
+    },
+    {
+      "label": "Anomaly violations.",
+      "text": "{{violations-content-strings}} {{sdk-drops-non-dict}} {{violations-lost}} {{divergence:violation-items}} What a live response holds is open {{gap:violation-shape}}."
+    },
+    {
+      "label": "Audit search.",
+      "text": "{{audit-search-contract}} How the MCP audit tool narrows this is in [[zscaler-cellular.mcp]]."
+    },
+    {
+      "label": "SIM lock.",
+      "text": "{{sim-lock}}"
+    },
+    {
+      "label": "Tower-location history.",
+      "text": "{{tower-history}} {{tower-no-client}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For an SDK or MCP SIM search that keeps returning the same 10 SIMs, whether the page and size reached the query string.",
+      "uses": [
+        "sim-search-pagination",
+        "sim-search-paging"
+      ]
+    },
+    {
+      "do": "For an empty violations list, whether the raw API response has ICCID strings that the SDK dropped.",
+      "uses": [
+        "violation-items",
+        "violations-lost"
+      ]
+    },
+    {
+      "do": "For tower history, whether startDate and endDate are epoch seconds while the returned timestamps are milliseconds.",
+      "uses": [
+        "tower-history"
+      ]
+    }
+  ],
+  "claims": {
+    "paging-contract": {
+      "statement": "Paginated ZCell operations take `page` (0-based, default 0) and `size` (1 to 100, default 10) as query parameters, and return an envelope of `content`, `size`, `totalElements` and `totalPages`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sims~1search/post/parameters/[name=page]",
+          "expect": {
+            "in": "query",
+            "description": "Page number (0-based)"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sims~1search/post/parameters/[name=page]/schema",
+          "expect": {
+            "default": 0,
+            "minimum": 0
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sims~1search/post/parameters/[name=size]/schema",
+          "expect": {
+            "default": 10,
+            "maximum": 100,
+            "minimum": 1
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1anomaly-policy~1{policyId}~1violations/get/responses/200/content/application~1json/schema/properties",
+          "expect": {
+            "content": {
+              "description": "The page of items (may be empty).",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "size": {
+              "description": "Number of items per page.",
+              "format": "int32",
+              "type": "integer"
+            },
+            "totalElements": {
+              "description": "Total number of elements across all pages.",
+              "format": "int64",
+              "type": "integer"
+            },
+            "totalPages": {
+              "description": "Total number of pages.",
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    },
+    "sdk-paging": {
+      "statement": "The SDK limits ZCell page size to 1 through 100 (default 10) and, for the next page, sends a `page` one less than its 1-based counter, since ZCell pages are 0-based.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "\"zcell\": {\"default\": 10, \"max\": 100, \"min\": 1},",
+            "# ZCell pages are 0-based: the first (un-paginated) request returns",
+            "self._params[\"page\"] = self._page - 1"
+          ]
+        }
+      ]
+    },
+    "next-page-get": {
+      "statement": "The SDK's next-page request is always a GET built from the response's URL, headers and query parameters (with the page advanced); the request it builds has no body key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "req = { \"method\": \"GET\", \"url\": self._url, \"headers\": self._headers, \"params\": self._params, \"uuid\": uuid.uuid4(), }"
+          ],
+          "after": "def _fetch_next_page(self)"
+        }
+      ]
+    },
+    "next-page-post-search": {
+      "statement": "Paging forward through a ZCell POST search (SIM search, audit search) with the SDK response's next-page helper sends a GET without the search body, which is not the documented method for those paths.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sims~1search",
+          "expect_absent": [
+            "get"
+          ]
+        }
+      ],
+      "derived_from": [
+        "next-page-get"
+      ],
+      "conditions": "Follows from next-page-get and the contract listing those searches as POST only; not observed against a tenant."
+    },
+    "sim-search-body": {
+      "statement": "The SDK's `create_sims_search` has no query-parameter argument and sends every keyword argument as the request body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcell/sim_handling.py",
+          "quotes": [
+            "def create_sims_search(self, id: str = None, **kwargs) -> APIResult[SimDataResponse]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcell/sim_handling.py",
+          "quotes": [
+            "body = kwargs"
+          ],
+          "after": "def create_sims_search("
+        }
+      ]
+    },
+    "violations-content-strings": {
+      "statement": "The anomaly-policy violations operation returns `content` as an array of strings, and requires `startDateTime` and `endDateTime` query parameters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1anomaly-policy~1{policyId}~1violations/get/responses/200/content/application~1json/schema/properties/content/items",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1anomaly-policy~1{policyId}~1violations/get/parameters/[name=startDateTime]",
+          "expect": {
+            "required": true,
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1anomaly-policy~1{policyId}~1violations/get/parameters/[name=endDateTime]",
+          "expect": {
+            "required": true,
+            "in": "query"
+          }
+        }
+      ]
+    },
+    "sdk-drops-non-dict": {
+      "statement": "The SDK's ZCell response handling takes a page's items from `content` and keeps only dictionary items, logging and skipping anything else, and the violations method builds an `AnomalyPolicy` from each kept item.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "elif self._service_type == \"zcell\": # ZCell wraps paginated list responses in a {\"totalElements\", \"totalPages\", # \"size\", \"content\": [...]} envelope.",
+            "if isinstance(self._body, dict) and \"content\" in self._body and isinstance(self._body[\"content\"], list): self._list = self._body[\"content\"]"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "for item in self._list: if isinstance(item, dict): cleaned_list.append(item) else: logger.warning(\"Non-dict item found in response list, skipping: %s\", item)"
+          ],
+          "after": "# Only apply cleaning logic if we haven't already handled it above"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcell/anomaly_policy.py",
+          "quotes": [
+            "result.append(AnomalyPolicy(self.form_response_body(item)))"
+          ],
+          "after": "def list_anomaly_policy_violations("
+        }
+      ]
+    },
+    "violations-lost": {
+      "statement": "If the server returns violations as the contract documents, a list of ICCID strings, the SDK's `list_anomaly_policy_violations` returns an empty list, and so does the MCP tool built on it.",
+      "tier": "B",
+      "derived_from": [
+        "violations-content-strings",
+        "sdk-drops-non-dict"
+      ],
+      "conditions": "Follows from violations-content-strings and sdk-drops-non-dict; not confirmed against a live or mocked response.",
+      "gaps": [
+        "violation-shape"
+      ]
+    },
+    "time-window-helper": {
+      "statement": "The SDK's `days` shorthand for ZCell sets the window to now minus `days` times 86400 through now, in epoch seconds computed on the client; an explicit start or end value wins, and the helper places the window in the query, the body or the path depending on the endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "query_params.setdefault(start_key, now - int(days) * 86400)",
+            "query_params.setdefault(end_key, now)",
+            "if target in (\"body\", \"path\"):",
+            "# Window fields belong in the JSON request body or the URL path;",
+            "# setdefault so an explicit window param wins over the shorthand",
+            "def zcell_params(func=None, *, start_key=\"startDateTime\", end_key=\"endDateTime\", target=\"query\"):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "now = int(time.time())"
+          ],
+          "after": "def zcell_params("
+        }
+      ]
+    },
+    "audit-search-contract": {
+      "statement": "Audit search is a POST whose body carries `startDate`/`endDate` (epoch), `operationType` (Create, Update, Delete, Export), `objectId` (int64), `id` for a single entry, `visibility` (Customer, Root) and a `customerId` filter that applies only to root tenants; sorting is by query `sortBy` (default creationTime) and `sortDir` (default DESC).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1audit~1customers~1{id}~1search/post/requestBody/content/application~1json/schema/properties/objectId",
+          "expect": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1audit~1customers~1{id}~1search/post/requestBody/content/application~1json/schema/properties/customerId",
+          "expect": {
+            "description": "Customer ID filter (ROOT only); ignored for non-root tenants"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1audit~1customers~1{id}~1search/post/requestBody/content/application~1json/schema/properties/operationType",
+          "expect": {
+            "enum": [
+              "Create",
+              "Update",
+              "Delete",
+              "Export"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1audit~1customers~1{id}~1search/post/parameters/[name=sortDir]",
+          "expect": {
+            "description": "ASC or DESC. Default: DESC."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1audit~1customers~1{id}~1search/post/parameters/[name=sortBy]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1audit~1customers~1{id}~1search/post/parameters/[name=sortBy]/schema",
+          "expect": {
+            "default": "creationTime"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1audit~1customers~1{id}~1search/post/requestBody/content/application~1json/schema/properties/id",
+          "expect": {
+            "description": "ID of the audit entry, to retrieve a single object."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1audit~1customers~1{id}~1search/post/requestBody/content/application~1json/schema/properties/startDate",
+          "expect": {
+            "description": "Start of the audit range (epoch time)"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1audit~1customers~1{id}~1search/post/requestBody/content/application~1json/schema/properties/endDate",
+          "expect": {
+            "description": "End of the audit range (epoch time)"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1audit~1customers~1{id}~1search/post/requestBody/content/application~1json/schema/properties/visibility",
+          "expect": {
+            "enum": [
+              "Customer",
+              "Root"
+            ]
+          }
+        }
+      ]
+    },
+    "tower-history": {
+      "statement": "Tower-location history (`/sims/{iccid}/tower-locations`) returns a SIM's cell-tower points sourced from network events, newest first; its `days` lookback (1 to 60, default 30) is deprecated and ignored when `startDate` and `endDate` (epoch seconds) are given, while each point's `timestamp` is in Unix epoch milliseconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sims~1{iccid}~1tower-locations/get/parameters/[name=days]",
+          "expect": {
+            "deprecated": true,
+            "description": "Deprecated. Lookback window in days (1-60). Defaults to 30. Ignored if startDate and endDate are provided."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sims~1{iccid}~1tower-locations/get/parameters/[name=startDate]",
+          "expect": {
+            "description": "Start date in epoch seconds format"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sims~1{iccid}~1tower-locations/get/parameters/[name=endDate]",
+          "expect": {
+            "description": "End date in epoch seconds format"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sims~1{iccid}~1tower-locations/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "description": "Location history for a single SIM, sourced from network events."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sims~1{iccid}~1tower-locations/get/responses/200/content/application~1json/schema/properties/history",
+          "expect": {
+            "description": "Ordered list of location history points, newest first."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sims~1{iccid}~1tower-locations/get/responses/200/content/application~1json/schema/properties/history/items/properties/timestamp",
+          "expect": {
+            "description": "Unix epoch milliseconds of the network event."
+          }
+        }
+      ]
+    },
+    "tower-no-client": {
+      "statement": "Neither the Python SDK nor the MCP server calls tower-location history; it is reachable only by a raw API call.",
+      "tier": "B",
+      "derived_from": [
+        "tower-history"
+      ],
+      "conditions": "Rests on the generated surface for zcell, whose Python sim_handling methods do not map to the tower-locations path, and on the MCP toolsets table listing no tower tool."
+    },
+    "sim-lock": {
+      "statement": "SIM lock takes `simLockDetails` entries with required `iccid` and `imei` (one or more 15-digit IMEIs as a comma-separated string) and an optional per-SIM `locked`; the top-level `dataAuthorize` is deprecated in favor of `locked`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sims~1lock/patch/requestBody/content/application~1json/schema/properties/dataAuthorize",
+          "expect": {
+            "deprecated": true,
+            "description": "[Deprecated] Use 'locked' in each simLockDetail instead."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sims~1lock/patch/requestBody/content/application~1json/schema/properties/simLockDetails/items",
+          "expect": {
+            "required": [
+              "imei",
+              "iccid"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1sims~1lock/patch/requestBody/content/application~1json/schema/properties/simLockDetails/items/properties/imei",
+          "expect": {
+            "description": "One or more 15-digit IMEIs as a single comma-separated string"
+          }
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "sim-search-pagination": {
+      "summary": "The contract puts SIM search paging and sorting in the query string; the SDK and MCP put page and size in the POST body.",
+      "positions": [
+        {
+          "says": "`page`, `size`, `sortBy` and `sortDir` are query parameters of the SIM search.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcell.openapi.json",
+            "pointer": "/paths/~1api~1v1~1customers~1{id}~1sims~1search/post/parameters/[name=sortBy]",
+            "expect": {
+              "in": "query"
+            }
+          }
+        },
+        {
+          "says": "The SDK sends every keyword argument of `create_sims_search` as the body.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zcell/sim_handling.py",
+            "quotes": [
+              "body = kwargs"
+            ],
+            "after": "def create_sims_search("
+          }
+        },
+        {
+          "says": "The MCP SIM list tool passes page and size into that body.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zcell/sim_handling.py",
+            "quotes": [
+              "(\"page\", args.page), (\"size\", args.size), )",
+              "result, _, err = client.zcell.sim_handling.create_sims_search(**body)"
+            ]
+          }
+        }
+      ],
+      "impact": "Through the SDK or MCP, SIM search may ignore the requested page and size and return the first page of 10; sorting cannot be requested at all."
+    },
+    "violation-items": {
+      "summary": "The contract returns violation items as ICCID strings; the SDK keeps only dictionary items.",
+      "positions": [
+        {
+          "says": "Violations `content` is an array of strings.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcell.openapi.json",
+            "pointer": "/paths/~1api~1v1~1customers~1{id}~1anomaly-policy~1{policyId}~1violations/get/responses/200/content/application~1json/schema/properties/content/items",
+            "expect": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "says": "Non-dictionary page items are skipped.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/oneapi_response.py",
+            "quotes": [
+              "logger.warning(\"Non-dict item found in response list, skipping: %s\", item)"
+            ],
+            "after": "# Only apply cleaning logic if we haven't already handled it above"
+          }
+        }
+      ],
+      "impact": "The offending ICCIDs of an anomaly policy may never reach an SDK or MCP caller; read the raw response to see them."
+    }
+  },
+  "gaps": {
+    "violation-shape": {
+      "kind": "semantic",
+      "title": "What the violations endpoint returns in practice",
+      "status": "open",
+      "former_ids": [
+        "zscaler-cellular-02"
+      ],
+      "detail": "The contract says the violations content is an array of ICCID strings, the SDK cleaner drops non-dictionary items and the method models each item as an anomaly policy, and the MCP tool passes through whatever survives. Whether a live response is strings (lost) or objects (kept) is not confirmed.",
+      "blocks": "trusting an empty violations list from the SDK or MCP",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "sim-search-paging": {
+      "kind": "semantic",
+      "title": "Whether SIM search honors page and size in the body",
+      "status": "open",
+      "former_ids": [
+        "zscaler-cellular-03"
+      ],
+      "detail": "The contract places SIM search page, size, sortBy and sortDir in query parameters; the SDK and the MCP tool send page and size in the POST body and expose no sorting. Whether the backend accepts body pagination or silently ignores it is not established.",
+      "blocks": "paging a SIM inventory larger than one page through the SDK or MCP",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

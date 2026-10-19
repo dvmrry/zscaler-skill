@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "id": "dspm.scanning",
+  "title": "How DSPM scans: onboarding scope, the in-account orchestrator, data stores, authentication, classification and data residency",
+  "aliases": [
+    "dspm onboarding",
+    "dspm orchestrator",
+    "dspm scanner",
+    "dspm supported data stores",
+    "dspm scan types",
+    "dspm in-region scanning",
+    "dspm ocr",
+    "dspm authentication",
+    "dspm posture labels"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "dspm.overview"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{scope}} {{onboarding-types}}"
+    },
+    {
+      "label": "Where scanning runs.",
+      "text": "{{agentless}} {{orchestrator}} {{in-region}}"
+    },
+    {
+      "label": "What it scans.",
+      "text": "{{store-categories}} {{file-types-not-databases}} {{ocr}}"
+    },
+    {
+      "label": "Access.",
+      "text": "{{authentication}}"
+    },
+    {
+      "label": "Posture checks.",
+      "text": "{{posture-labels}}"
+    },
+    {
+      "label": "Classification.",
+      "text": "{{classification}} {{database-sampling}} {{overlapping-rules}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the data store's region is one that supports in-region scanning, for questions about data leaving a region.",
+      "uses": [
+        "in-region"
+      ]
+    },
+    {
+      "do": "Whether a relational database was scanned in full or sampled, before concluding sensitive data is absent.",
+      "uses": [
+        "database-sampling"
+      ]
+    },
+    {
+      "do": "Whether two scan rules cover the same resources when scans or compute costs double.",
+      "uses": [
+        "overlapping-rules"
+      ]
+    }
+  ],
+  "claims": {
+    "scope": {
+      "statement": "DSPM scans AWS, Azure and GCP data stores (storage services, virtual machines with their disks, and databases) and on-premises databases for sensitive data, vulnerabilities and misconfigurations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-data-stores-file-types-and-regions.json",
+          "quotes": [
+            "DSPM supports the scanning of AWS, Azure, GCP data stores (storage services, virtual machines, and their associated disks and databases), and on-premises databases for sensitive data, vulnerabilities, and misconfigurations."
+          ]
+        }
+      ]
+    },
+    "onboarding-types": {
+      "statement": "The models that can be onboarded are an AWS Organization or Standalone Account, an Azure Tenant or Management Group, and a GCP Organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-data-stores-file-types-and-regions.json",
+          "quotes": [
+            "Onboarding Types: The following models can be onboarded:",
+            "AWS: Organization or Standalone Account",
+            "Azure: Tenant or Management Group",
+            "GCP: Organization"
+          ]
+        }
+      ]
+    },
+    "agentless": {
+      "statement": "DSPM works with minimal access to resources and scans agentlessly and continuously across cloud storage, databases, virtual machines and on-premises data centers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-what-data-security-posture-management.json",
+          "quotes": [
+            "Works with minimal access to resources in cloud environments (AWS, Azure, and GCP), on-premises data centers, and discovers sensitive data.",
+            "Uses an agentless approach to continuously scan resources (cloud storage, databases, virtual machines, on-premises data centers)."
+          ]
+        }
+      ]
+    },
+    "orchestrator": {
+      "statement": "Scans are performed by a local scan orchestrator deployed in the customer's AWS, Azure, GCP or on-premises data center account during onboarding; resources are scanned against a set of standard security policies and a scan schedule, and scan rules select the resources, the scan type and the scan frequency.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-scan-settings.json",
+          "quotes": [
+            "DSPM performs the scan by leveraging the local scan orchestrator that is deployed in your AWS, Azure, Google Cloud Platform (GCP), or On-Premises Data Centers account during the onboarding process.",
+            "The resources are scanned against a set of standard security policies and a scan schedule.",
+            "In the scan rules, you can select the resources you want to scan, the scan type, and set the scan frequency."
+          ]
+        }
+      ]
+    },
+    "in-region": {
+      "statement": "For listed regions, DSPM supports in-region scanning to meet data residency requirements such as GDPR: data is processed within the region and only metadata is sent to the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-data-stores-file-types-and-regions.json",
+          "quotes": [
+            "For the following regions listed, DSPM supports in‑region scanning to meet data residency requirements such as GDPR. Data is processed within the region, only metadata is sent to the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "store-categories": {
+      "statement": "Supported stores fall into managed data stores, managed AI services, unmanaged databases, Snowflake and Databricks, on-premises data stores, and Microsoft Information Protection (MIP) labels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-data-stores-file-types-and-regions.json",
+          "quotes": [
+            "- Managed Data Stores",
+            "- Managed AI Services",
+            "- Unmanaged Databases, Snowflake, and Databricks",
+            "- On-Premises Data Stores",
+            "- Microsoft Information Protection (MIP) Labels"
+          ]
+        }
+      ]
+    },
+    "file-types-not-databases": {
+      "statement": "DSPM scans its supported file types in storage services and virtual machines, but not in databases.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-data-stores-file-types-and-regions.json",
+          "quotes": [
+            "DSPM scans the following file types in storage services and virtual machines, but not in databases:"
+          ]
+        }
+      ]
+    },
+    "ocr": {
+      "statement": "DSPM uses OCR to find sensitive data in image files and in images embedded in PDF or Microsoft Office documents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-data-stores-file-types-and-regions.json",
+          "quotes": [
+            "DSPM uses Optical Character Recognition (OCR) to identify sensitive data in image files and in images that are embedded within PDF or Microsoft Office documents."
+          ]
+        }
+      ]
+    },
+    "authentication": {
+      "statement": "Scans authenticate either cloud-natively (cross-account IAM roles in AWS, service principals or managed identities in Azure, service accounts in GCP) or by bring-your-own identity: credentials (username or password or access keys stored in the vault, mostly for unmanaged databases) or certificate-based mutual TLS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-data-stores-file-types-and-regions.json",
+          "quotes": [
+            "Cloud Native: Cross‑account IAM roles (AWS), service principals or managed identities (Azure), or service accounts (GCP).",
+            "Bring Your Own Identity:",
+            "Credential-Based: Requires username or password or access keys stored in the vault. This is mostly required for unmanaged databases.",
+            "Certificate-Based: Mutual TLS (mTLS) authentication."
+          ]
+        }
+      ]
+    },
+    "posture-labels": {
+      "statement": "Posture labels describe the checks run on a store: Public Exposure, Encryption (customer-managed or platform-managed key), Logging, Backup Recovery, Access Control (IAM policies and ACLs), Guardrails (for AI services), Has AI/ML Package and Has AI/ML Model (on compute instances).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-data-stores-file-types-and-regions.json",
+          "quotes": [
+            "Posture Labels: Labels describe the security and configuration checks performed on the data store:",
+            "Public Exposure: Indicates the resource is accessible from the public internet.",
+            "Encryption: The type of encryption (customer‑managed key or platform‑managed key) applied to the resource.",
+            "Logging: Confirms access logs and audit trails are enabled.",
+            "Backup Recovery: Checks backup and retention policies.",
+            "Access Control: Validates IAM policies and ACL configurations.",
+            "Guardrails: Indicates that guardrails are enabled for an AI service.",
+            "Has AI/ML Package: Checks if AI or ML packages are installed on a compute instance.",
+            "Has AI/ML Model: Checks if AI or ML models are present on a compute instance."
+          ]
+        }
+      ]
+    },
+    "classification": {
+      "statement": "Data is classified with Zscaler's DLP engines and dictionaries, through full, incremental, historical or sampling scans.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-data-stores-file-types-and-regions.json",
+          "quotes": [
+            "Data is classified with Zscaler's DLP engines and dictionaries. Data classification is performed via full, incremental, historical, or sampling scans."
+          ]
+        }
+      ]
+    },
+    "database-sampling": {
+      "statement": "For relational databases such as PostgreSQL, Oracle, SQL Server and MySQL, DSPM scans a sample of the data instead of the whole database, to avoid affecting database operations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-scan-settings.json",
+          "quotes": [
+            "When scanning relational databases such as PostgreSQL, Oracle, SQL Server, and MySQL, DSPM uses the data sampling technique to scan a subset of data, instead of scanning the entire database. This helps to avoid a full data scan and ensures the database operations are not impacted."
+          ]
+        }
+      ]
+    },
+    "overlapping-rules": {
+      "statement": "Overlapping scan rules are allowed but can cause duplicate scans and higher compute costs; DSPM warns during rule creation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-scan-settings.json",
+          "quotes": [
+            "Although overlapping scan rules are allowed, they can lead to duplicate scans and increased compute costs. DSPM displays warnings during rule creation to help you avoid redundant configurations."
+          ]
+        }
+      ]
+    }
+  }
+}

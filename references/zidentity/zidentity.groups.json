@@ -1,0 +1,465 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.groups",
+  "title": "Authentication Service user groups: predefined and custom groups, dynamic groups, membership and limits",
+  "aliases": [
+    "ZIdentity groups",
+    "Authentication Service groups",
+    "user groups",
+    "dynamic group",
+    "isDynamicGroup",
+    "dynamicGroup",
+    "Zscaler Global Administrators",
+    "Zscaler Emergency Access group",
+    "Dynamic Group Guest Domains",
+    "1000 groups per user",
+    "replace group members"
+  ],
+  "binds": [
+    "zidentity/groups",
+    "zidentity/groups#isDynamicGroup",
+    "zidentity/groups#dynamicGroup",
+    "zidentity/groups#source"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.users"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.entitlements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.emergency-access.identity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Groups are how users are handed entitlements and roles in bulk. {{what-groups-are}}"
+    },
+    {
+      "label": "Predefined groups.",
+      "text": "{{predefined-groups}} The Zscaler Emergency Access and Dynamic Group Guest Domains groups are prerequisites for ZPA emergency access users: [[zpa.emergency-access.identity:auth-service-prerequisites]]."
+    },
+    {
+      "label": "How many groups a user can be in.",
+      "text": "{{membership-limit}}"
+    },
+    {
+      "label": "Where a group comes from.",
+      "text": "{{source-values}} Whether a SCIM-provisioned group can be changed through the console or API is open {{gap:scim-group-mutation}}."
+    },
+    {
+      "label": "Dynamic groups.",
+      "text": "{{dynamic-flag}} {{create-fields}} {{dynamic-not-creatable}} Why the SDKs also carry a second dynamic flag, and what happens when the two disagree, is open {{gap:dual-flag}}, as is a manual add to a dynamic group {{gap:dynamic-manual-add}}."
+    },
+    {
+      "label": "Entitlement flags.",
+      "text": "{{entitlement-flags}} {{no-status-flag}} A user record does carry one: [[zidentity.users:status]]."
+    },
+    {
+      "label": "Membership.",
+      "text": "{{membership-ops}} {{console-ops}} What a bulk add does with a repeated user ID is open {{gap:bulk-add-duplicates}}."
+    },
+    {
+      "label": "In product policy.",
+      "text": "How a change in Authentication Service group membership reaches ZIA and ZPA policy, and how fast, is open {{gap:policy-effect}}; the provisioning side is in [[zidentity.users.provisioning]]."
+    },
+    {
+      "label": "Not stated anywhere.",
+      "text": "Several group behaviors the legacy reference listed have no source {{gap:unstated-behaviors}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the user is in more groups than the target service's per-user limit, in which case only the first assignments up to that limit count there.",
+      "uses": [
+        "membership-limit"
+      ]
+    },
+    {
+      "do": "Before a replace, whether the new list is the complete membership, since the replace removes every user not in it.",
+      "uses": [
+        "membership-ops"
+      ]
+    },
+    {
+      "do": "Whether the group is predefined (not editable or deletable) or dynamic (not created through the API) before planning a change to it.",
+      "uses": [
+        "predefined-groups",
+        "dynamic-not-creatable"
+      ]
+    },
+    {
+      "do": "Whether the group came from SCIM, in which case the IdP may own its membership.",
+      "uses": [
+        "source-values",
+        "scim-group-mutation"
+      ]
+    }
+  ],
+  "claims": {
+    "what-groups-are": {
+      "statement": "A group is a logical entity of several users, created to assign many users to Zscaler services quickly; groups can be assigned to administrative entitlements, service entitlements and admin roles, and there are custom and predefined groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-user-groups.json",
+          "quotes": [
+            "Group is a logical entity that includes several users. Creating user groups helps in assigning multiple users to the Zscaler services quickly.",
+            "You can create user groups to categorize users for various services and assign these user groups to administrative entitlements, service entitlements, admin roles, etc.",
+            "You can create custom groups and use the predefined groups for a set of users."
+          ]
+        }
+      ]
+    },
+    "predefined-groups": {
+      "statement": "The predefined groups are Dynamic Group Administrators (administrative entitlements), Zscaler Global Administrators (the initial group, with global administrative entitlements), Zscaler Emergency Access (the Private Access emergency access entitlement), Dynamic Group Guest Domains (users from guest domains) and Dynamic Group Registered Domains (users from registered domains). Predefined groups cannot be edited or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-user-groups.json",
+          "quotes": [
+            "The predefined groups are:",
+            "Dynamic Group Administrators: User group with administrative entitlements.",
+            "Zscaler Global Administrators: Initial user group with global administrative entitlements.",
+            "Zscaler Emergency Access: User group that has Private Access (ZPA) emergency access entitlement.",
+            "Dynamic Group Guest Domains: Group of users from guest domains.",
+            "Dynamic Group Registered Domains: Group of users from registered domains.",
+            "You cannot edit or delete predefined groups."
+          ]
+        }
+      ]
+    },
+    "membership-limit": {
+      "statement": "A user can be in up to 1,000 groups. Each service needs a matching limit; where a service's per-user limit is lower, it counts the user's group assignments only up to that limit (the help's example: a user in 500 groups on a Private Access subscription for 128 groups per user has only the first 128 assignments considered there).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-user-groups.json",
+          "quotes": [
+            "A user can be part of up to 1,000 groups. You must have similar limits on the respective services to support the 1,000 group assignments per user.",
+            "If you don't have enough limits on the service side, the respective service considers group assignments up to the service limit for a user.",
+            "For example, if you assign a user to 500 groups, but you have a Private Access service subscription for only 128 groups per user, then only the first 128 group assignment for the user is considered on the Private Access service."
+          ]
+        }
+      ]
+    },
+    "source-values": {
+      "statement": "A group record's source is one of UI (created or managed in a user interface), API (through API calls), SCIM (provisioned by SCIM) or JIT (created or updated by just-in-time provisioning).",
+      "tier": "A",
+      "binds": [
+        "zidentity/groups#source"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/post/responses/201/content/application~1json/schema/properties/source/allOf/[title=SourceType]",
+          "expect": {
+            "enum": [
+              "UI",
+              "API",
+              "SCIM",
+              "JIT"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/post/responses/201/content/application~1json/schema/properties/source",
+          "expect": {
+            "description": "The source type of the group."
+          }
+        }
+      ]
+    },
+    "dynamic-flag": {
+      "statement": "A group record carries `isDynamicGroup`, which says whether the group is dynamic, and the group list can exclude dynamic groups.",
+      "tier": "A",
+      "binds": [
+        "zidentity/groups#isDynamicGroup"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/post/responses/201/content/application~1json/schema/properties/isDynamicGroup",
+          "expect": {
+            "type": "boolean",
+            "description": "Boolean flag indicating if the group is dynamic."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/get/parameters/[name=excludedynamicgroups]",
+          "expect": {
+            "description": "Excludes dynamic groups from the results."
+          }
+        }
+      ]
+    },
+    "create-fields": {
+      "statement": "Creating a group through the API takes a name (required, at most 128 characters) and a description (at most 256 characters); the request has no source, dynamic flag, entitlement flags or IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "title": "GroupProfilePubReqDto",
+            "required": [
+              "name"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/post/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "source",
+            "isDynamicGroup",
+            "dynamicGroup",
+            "adminEntitlementEnabled",
+            "serviceEntitlementEnabled",
+            "idp"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/post/requestBody/content/application~1json/schema/properties/name",
+          "expect": {
+            "maxLength": 128
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/post/requestBody/content/application~1json/schema/properties/description",
+          "expect": {
+            "maxLength": 256
+          }
+        }
+      ]
+    },
+    "dynamic-not-creatable": {
+      "statement": "So the published API creates only static groups and neither reads nor writes the rules that decide a dynamic group's members.",
+      "tier": "B",
+      "derived_from": [
+        "create-fields",
+        "dynamic-flag"
+      ],
+      "conditions": "Follows from the create request having only a name and a description, and from the group schemas in the API reference carrying no membership-rule field. The console's handling of dynamic groups is not captured."
+    },
+    "entitlement-flags": {
+      "statement": "A group record says whether the group supports admin entitlements (`adminEntitlementEnabled`) and whether it supports service entitlements (`serviceEntitlementEnabled`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/post/responses/201/content/application~1json/schema/properties/adminEntitlementEnabled",
+          "expect": {
+            "description": "Whether the group supports admin entitlements."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/post/responses/201/content/application~1json/schema/properties/serviceEntitlementEnabled",
+          "expect": {
+            "description": "Whether the group supports service entitlements."
+          }
+        }
+      ]
+    },
+    "membership-ops": {
+      "statement": "Membership is changed by adding one user, adding a list of users, replacing the group's user list (which completely replaces all existing users in the group) or removing one user, and the group's users can be listed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups~1{id}~1users~1{userId}/post",
+          "expect": {
+            "description": "Adds a specific user to an existing group using the group <code>ID</code> and the user <code>ID</code>."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups~1{id}~1users/post",
+          "expect": {
+            "description": "Adds users to an existing group using the unique identifier <code>ID</code> of the group."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups~1{id}~1users/put",
+          "expect": {
+            "description": "<p>Replaces the list of users in a specific group using the group <code>ID</code>.</p><p><strong>NOTE:</strong> This operation completely replaces all existing users in the group.</p>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups~1{id}~1users~1{userId}/delete",
+          "expect": {
+            "description": "Removes a specific user from an existing group using the group <code>ID</code> and the user <code>ID</code>."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups~1{id}~1users/get",
+          "expect": {
+            "description": "Retrieves the list of users details for a specific group using the group <code>ID</code>."
+          }
+        }
+      ]
+    },
+    "console-ops": {
+      "statement": "In the console, the User Groups page imports new groups or modifies existing ones from a CSV file and bulk-deletes several selected groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-user-groups.json",
+          "quotes": [
+            "Import new user group, or modify existing user group, using a CSV file.",
+            "Bulk delete user groups. This option is visible only when you select more than one user group."
+          ]
+        }
+      ]
+    },
+    "no-status-flag": {
+      "statement": "The group record in the API reference has no status or enabled field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/post/responses/201/content/application~1json/schema/properties",
+          "expect_absent": [
+            "status",
+            "enabled",
+            "disabled",
+            "isEnabled"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "dual-flag": {
+      "kind": "semantic",
+      "title": "What the SDKs' second dynamic-group flag is",
+      "status": "partial",
+      "former_ids": [
+        "zid-17"
+      ],
+      "detail": "Unverified legacy statement: groups carry two booleans, isDynamicGroup and dynamicGroup, whose distinction and behavior when they disagree are undocumented. The API reference's group record defines isDynamicGroup only; the Go and Python SDK models also carry dynamicGroup. Whether the service ever returns dynamicGroup, and what it means, is not known.",
+      "blocks": "deciding which flag to trust when classifying a group as dynamic",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/post/responses/201/content/application~1json/schema/properties",
+          "expect_absent": [
+            "dynamicGroup"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziam/services/groups/groups.go",
+          "quotes": [
+            "json:\"dynamicGroup,omitempty\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zid/models/groups.py",
+          "quotes": [
+            "self.dynamic_group = config[\"dynamicGroup\"] if \"dynamicGroup\" in config else None"
+          ]
+        }
+      ]
+    },
+    "dynamic-manual-add": {
+      "kind": "semantic",
+      "title": "What a manual membership change does to a dynamic group",
+      "status": "open",
+      "former_ids": [
+        "zid-18"
+      ],
+      "detail": "Unverified legacy statement: the SDKs allow adding a user to a group whose isDynamicGroup is true; whether the server rejects the add or accepts it (and whether the rule later overrides it) is undocumented.",
+      "blocks": "predicting the result of scripted membership changes on dynamic groups",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "bulk-add-duplicates": {
+      "kind": "semantic",
+      "title": "How a bulk add treats a repeated user ID",
+      "status": "open",
+      "former_ids": [
+        "zid-19"
+      ],
+      "detail": "Unverified legacy statement: whether duplicate user IDs in a bulk add are rejected, deduplicated or silently ignored is unknown.",
+      "blocks": "predicting a bulk membership call built from unsanitized input",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "scim-group-mutation": {
+      "kind": "semantic",
+      "title": "Whether SCIM-provisioned groups can be changed in Authentication Service",
+      "status": "open",
+      "former_ids": [
+        "zid-20"
+      ],
+      "detail": "Unverified legacy statement: whether create, update, delete or membership changes on a group whose source is SCIM are rejected by the server, on the principle that the IdP owns the record, is undocumented; and whether a change that is accepted is overwritten at the next SCIM push.",
+      "blocks": "deciding whether to change a SCIM group in Authentication Service or in the IdP",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "policy-effect": {
+      "kind": "semantic",
+      "title": "How Authentication Service group changes reach ZIA and ZPA policy",
+      "status": "open",
+      "detail": "Unverified legacy statement: groups are first-class policy principals that ZIA and ZPA rules reference by ID; group IDs are immutable, so a rename does not affect rules; membership changes take effect immediately, with no activation step or publish cycle; groups are tenant-wide with no product or region scoping. No captured source states how an Authentication Service group appears in ZIA or ZPA policy (as the group itself, or through the product's SCIM groups), whether a rename changes what rules show, or how long a membership change takes to apply.",
+      "blocks": "predicting when a group membership change starts or stops matching a ZIA or ZPA rule",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "unstated-behaviors": {
+      "kind": "semantic",
+      "title": "Group behaviors no source states",
+      "status": "open",
+      "detail": "Unverified legacy statement: deleting a group is undocumented as to members; whether deleted users are removed from groups automatically is undocumented; there is no documented cap on the user list of a bulk add or replace; there are no nested or parent-child groups, no member count without listing members, no batch read of groups by ID, no membership-change history and no per-group owner. The API reference shows no parent, owner or count field and no batch-read path, which is consistent with the absences but does not show what the console offers or what a large bulk call does.",
+      "blocks": "planning bulk membership changes and cleanup after user deletion",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

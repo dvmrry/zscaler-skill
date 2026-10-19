@@ -1,0 +1,342 @@
+{
+  "schema_version": 1,
+  "id": "zdx.score.calculation",
+  "title": "How the ZDX Score is calculated: 5-minute values, hourly lows and rollups per scope",
+  "aliases": [
+    "zdx score calculation",
+    "lowest value within an hour",
+    "zdx hourly score",
+    "zdx application score",
+    "zdx organization score",
+    "zdx user score",
+    "zdx location score",
+    "zdx department score",
+    "divided by 25",
+    "page fetch time baseline",
+    "zdx regional baseline",
+    "zdx 7 day baseline",
+    "zdx score dropped",
+    "regions by zdx score"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zdx.score"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.devices.geolocation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Every scope of the score starts from the same per-hour values and then takes a different low or average. {{hourly-lowest}}"
+    },
+    {
+      "label": "One bad sample.",
+      "text": "{{one-bad-sample}} Whether a failed probe enters this as a zero, and so always sets the hour, is not stated {{gap:zero-value-handling}}."
+    },
+    {
+      "heading": "Per scope"
+    },
+    {
+      "label": "Application.",
+      "text": "{{application-score}}"
+    },
+    {
+      "label": "Departments, locations and cities.",
+      "text": "{{place-score}}"
+    },
+    {
+      "label": "Organization.",
+      "text": "{{organization-score}}"
+    },
+    {
+      "label": "User.",
+      "text": "{{user-score}} What a user who accessed no application gets is unverified {{gap:no-application-user}}."
+    },
+    {
+      "label": "Rounding.",
+      "text": "{{rounding}}"
+    },
+    {
+      "heading": "What an application's value rests on"
+    },
+    {
+      "text": "{{pft-baseline}} {{availability-impact}} The relative weight of Page Fetch Time and availability is not published {{gap:pft-availability-weighting}}, and which other metrics enter the value is only partly documented {{gap:metrics-in-score}}."
+    },
+    {
+      "label": "Regions.",
+      "text": "{{regions-by-country}} What a region is for the Page Fetch Time baseline, and how devices without location data are placed, is not defined {{gap:region-definition}}."
+    },
+    {
+      "label": "New applications, users and devices.",
+      "text": "Whether a newly added application scores against an unstable baseline in its first week is unverified {{gap:new-app-baseline}}, and so is how long a new user or device takes to appear in scores {{gap:new-entity-lag}}. Whether values are kept per device or per user across devices is not stated {{gap:device-vs-user}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a low hourly value comes from a single 5-minute sample, by reading the application's metric trend for that hour.",
+      "uses": [
+        "one-bad-sample",
+        "zdx.applications:app-metrics"
+      ]
+    },
+    {
+      "do": "Which scope the score was read at, since application, place, organization and user scores roll up differently.",
+      "uses": [
+        "application-score",
+        "place-score",
+        "organization-score",
+        "user-score"
+      ]
+    }
+  ],
+  "claims": {
+    "hourly-lowest": {
+      "statement": "Client Connector sends a probe to an application every 5 minutes; each 5-minute period's measurements are given a value from 0 to 100, and the lowest value within an hour becomes that hour's value. This is done for every defined application across all users, their devices and their locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zdx-score.json",
+          "quotes": [
+            "Zscaler sends a probe from Zscaler Client Connector to an application every 5 minutes. For each 5-minute period, measurements are taken and given a numerical value from 0 to 100. The lowest value within an hour becomes the value for that hour.",
+            "This is done for every defined application in the Zscaler Admin Console across all users, their devices, and their locations."
+          ]
+        }
+      ]
+    },
+    "one-bad-sample": {
+      "statement": "Because an hour takes its lowest 5-minute value, one poor 5-minute measurement sets the hour's value regardless of the other measurements in that hour, so a sharp drop in an hourly value can come from a single sample.",
+      "tier": "B",
+      "derived_from": [
+        "hourly-lowest"
+      ],
+      "conditions": "Arithmetic consequence of the hourly-lowest rule; no source discusses single-sample drops."
+    },
+    "application-score": {
+      "statement": "An application's score takes, for every user who accessed it in the selected period, the lowest value that user experienced, and divides the sum of those lowest values by the number of users; three users with lowest values of 42, 76 and 62 give a score of 60.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zdx-score.json",
+          "quotes": [
+            "To determine the score for an application, Zscaler takes all the users that accessed the application for the selected time period and finds the lowest value each user would have experienced for the application. The lowest values for each user are added together and divided by the number of users.",
+            "For example, three users accessed an application during a 24-hour period. The lowest values for the users are: 42, 76, and 62. When calculated, the application's score is 60."
+          ]
+        }
+      ]
+    },
+    "place-score": {
+      "statement": "For departments, locations and cities, the score for each time interval is the lowest value among users accessing applications from that place or group, and the score for the range is the average of the intervals; for a 24-hour range the interval is one hour and the sum of the hourly scores is divided by 25 (24 hours plus 1 for the starting score).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zdx-score.json",
+          "quotes": [
+            "The ZDX Score, for departments, locations, and cities, identifies the lowest value for users accessing the applications from those places and groups during time intervals based on the selected time range.",
+            "The lowest value represents the department's, location's, or city's score for each time interval.",
+            "An average of all the time intervals for the selected time period is calculated to provide the score for the time range.",
+            "For example, the time interval for the 24-hour time range is one hour.",
+            "Each hour's score is added together and divided by 25 (24 hours + 1 for the starting score) to provide the ZDX Score."
+          ],
+          "after": "- Departments, Locations, and Cities"
+        }
+      ]
+    },
+    "organization-score": {
+      "statement": "For the organization, the application with the lowest value in each time interval sets the organization's score for that interval, and the intervals are averaged; for a 24-hour range the hourly scores are summed and divided by 25.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zdx-score.json",
+          "quotes": [
+            "To find the ZDX Score for your organization, Zscaler identifies the lowest value for each application for time intervals based on the selected time range. The application with the lowest value represents your organization's score for that time interval.",
+            "An average of all the time intervals for the selected time period is calculated to provide your organization's ZDX Score.",
+            "For example, the time interval for the 24-hour time range is one hour. The application with the lowest value represents your organization's score for that hour. Each hour's score is added together and divided by 25"
+          ]
+        }
+      ]
+    },
+    "user-score": {
+      "statement": "A user's score is the value of the application with the lowest value among those the user accessed in the period, as it represents the user's poorest digital experience.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zdx-score.json",
+          "quotes": [
+            "For a user's ZDX Score, a comparison of the values across each application they accessed is done for the selected time period. The application with the lowest value is the user's score, since it represents the user's poorest Digital Experience for the selected time range."
+          ]
+        }
+      ]
+    },
+    "rounding": {
+      "statement": "All scores are rounded to the nearest whole number.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zdx-score.json",
+          "quotes": [
+            "All scores are rounded to the nearest whole number."
+          ]
+        }
+      ]
+    },
+    "pft-baseline": {
+      "statement": "For applications the score is based primarily on Page Fetch Time compared with the weighted average Page Fetch Time of others in the same region; there is a baseline for any region with at least one active device, and baseline metrics are calculated daily for each application on a rolling timeline of the previous 7 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zdx-score.json",
+          "quotes": [
+            "The ZDX Score, for applications, is based primarily on the Page Fetch Time of an application, which is then compared to the weighted average of the Page Fetch of others in the same region.",
+            "Page Fetch Time includes a baseline for any given region with at least one active device, and baseline metrics are calculated daily for each application on a rolling timeline of the previous 7 days."
+          ]
+        }
+      ]
+    },
+    "availability-impact": {
+      "statement": "An application's availability can also affect its score, for example when probes fail because the network is down.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zdx-score.json",
+          "quotes": [
+            "In addition, availability of an application can also impact the score (e.g., probes fail because the network is down)."
+          ]
+        }
+      ]
+    },
+    "regions-by-country": {
+      "statement": "Regions by ZDX Score assesses the country locations of all users accessing a selected application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zdx-score.json",
+          "quotes": [
+            "Regions by ZDX Score assesses the country locations of all users accessing a selected application."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zero-value-handling": {
+      "kind": "semantic",
+      "title": "Whether failed probes count as zero in the hourly lowest value",
+      "status": "open",
+      "former_ids": [
+        "zdx-37"
+      ],
+      "detail": "The help says the lowest 5-minute value becomes the hour's value and that failed probes can lower an application's score, but not whether a failed or timed-out probe enters the hourly selection as 0, is excluded, or is weighted separately. A zero that is included would make any failed probe set the hour.",
+      "blocks": "how much one failed probe lowers an hourly or daily score",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "pft-availability-weighting": {
+      "kind": "semantic",
+      "title": "How Page Fetch Time and availability are weighted in the score",
+      "status": "open",
+      "former_ids": [
+        "zdx-36"
+      ],
+      "detail": "The help names Page Fetch Time against a regional baseline as the primary input and says availability can also affect the score; it gives no formula or relative weight.",
+      "blocks": "predicting the score from probe metrics",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "metrics-in-score": {
+      "kind": "semantic",
+      "title": "Which metrics enter the application score",
+      "status": "partial",
+      "former_ids": [
+        "zdx-38"
+      ],
+      "detail": "The score-type table lists Web probe metrics (Page Fetch Time, Server Response Time, DNS Time, Availability) and Cloud Path metrics (End-to-End latency, Packet Loss, Hops, Packet Count) as feeding the Synthetic Probe Score, while the application calculation names only Page Fetch Time and availability. Whether DNS Time, Server Response Time or the Cloud Path metrics change an application's value, and how, is not stated; the API returns each of them as a separate trend.",
+      "blocks": "explaining a score change from the individual metric trends",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "region-definition": {
+      "kind": "semantic",
+      "title": "What a region is for the baseline and how devices without location data are placed",
+      "status": "open",
+      "former_ids": [
+        "zdx-16"
+      ],
+      "detail": "The help compares Page Fetch Time with the weighted average of others in the same region, and says Regions by ZDX Score uses users' country locations, but defines neither the region used for the baseline (country, state, city, geolocation ID) nor the weighting. Client Connector supplies coordinates only when the OS location services are on, and the API marks a location as an IP or device geolocation lookup. Unverified legacy statements: devices with location services off still report metrics without coordinates and appear in department and city rollups but not on the map; moving a user to another region may shift their scores through a different baseline.",
+      "blocks": "comparing scores across regions and explaining scores of users who move",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "new-app-baseline": {
+      "kind": "semantic",
+      "title": "How a newly added application scores before 7 days of baseline exist",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"a newly-added application has no baseline for its first week; scores during that window compare against a shifting baseline. Expect noisy scores during app onboarding.\" The help says only that the baseline is calculated daily over the previous 7 days for regions with an active device.",
+      "blocks": "interpreting scores of an application onboarded in the last week",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "new-entity-lag": {
+      "kind": "semantic",
+      "title": "How long a new user or device takes to appear in scores",
+      "status": "open",
+      "former_ids": [
+        "zdx-39"
+      ],
+      "detail": "No source states how long after a user or device first reports it appears in user or device scores.",
+      "blocks": "answers about a new user or device with no score yet",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "device-vs-user": {
+      "kind": "semantic",
+      "title": "Whether values are calculated per device or per user across devices",
+      "status": "open",
+      "former_ids": [
+        "zdx-40"
+      ],
+      "detail": "The help says values are taken across all users, their devices and their locations, but not whether a user with two devices has one value per device or one combined value before the application and user rollups.",
+      "blocks": "scores of users with several devices",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "no-application-user": {
+      "kind": "semantic",
+      "title": "What score a user who accessed no application gets",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"a user who accessed no applications during the time range does not have a calculated score and will not appear in per-user roll-ups; this is distinct from a user with score 0.\" The help defines the user score only over applications the user accessed.",
+      "blocks": "telling a missing user score from a poor one",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

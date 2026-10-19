@@ -1,0 +1,357 @@
+{
+  "schema_version": 1,
+  "id": "zdx.sdk-python.request-shaping",
+  "title": "How the Python SDK turns ZDX arguments into query parameters and bodies",
+  "aliases": [
+    "zdx_params",
+    "since hours",
+    "zdx since parameter",
+    "location_id loc",
+    "score_bucket",
+    "exclude_loc",
+    "user_ids userids",
+    "zdx query parameters camelcase",
+    "python zdx filters not applied"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-python"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.api.conventions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-python.response-models"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Most Python ZDX list and report methods carry the `zdx_params` decorator, which renames a few shorthand arguments to the API's query names before the request executor applies its own key conversion. The methods and their endpoints are generated (`node scripts/kb.mjs surface zdx`)."
+    },
+    {
+      "label": "The decorator.",
+      "text": "{{decorator-mapping}} {{since-to-epoch}} {{score-bucket-check}}"
+    },
+    {
+      "label": "Query names on the wire.",
+      "text": "{{params-conversion}} {{filter-names-camel-cased}} The user-ID filter's name differs across all three sources {{divergence:user-ids-param}}. Whether the API accepts the camel-cased names is open {{gap:camel-params-accepted}}."
+    },
+    {
+      "label": "Bodies.",
+      "text": "Request bodies stay in snake_case: [[zdx.diagnostics.start-request:python-body-passthrough]]."
+    },
+    {
+      "label": "Methods without time ranges, and inventory.",
+      "text": "{{no-query-methods}} {{inventory-decorated}} Whether the inventory endpoint honors a time range is open {{gap:inventory-time-range}}. {{software-key}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which client the Python program uses: on the OneAPI client, multiword filter names the decorator does not rename go out camel-cased.",
+      "uses": [
+        "params-conversion",
+        "filter-names-camel-cased"
+      ]
+    },
+    {
+      "do": "Whether a filter was passed under a shorthand the decorator renames (`location_id`, `department_id`, `geo_id`, `search`, `since`) or under a name it leaves alone.",
+      "uses": [
+        "decorator-mapping"
+      ]
+    }
+  ],
+  "claims": {
+    "decorator-mapping": {
+      "statement": "`zdx_params` turns `since` into `from` and `to`, `search` into `q`, `location_id` into `loc`, `department_id` into `dept` and `geo_id` into `geo`, and passes `exclude_dept`, `exclude_loc`, `exclude_geo`, `score_bucket`, `limit`, `offset` and `expiry` under their own names, whether they come as keyword arguments or inside `query_params`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "after": "def zdx_params(func):",
+          "quotes": [
+            "(\"since\", (\"from\", \"to\")),",
+            "(\"search\", \"q\"),",
+            "(\"location_id\", \"loc\"),",
+            "(\"department_id\", \"dept\"),",
+            "(\"geo_id\", \"geo\"),",
+            "(\"exclude_dept\", \"exclude_dept\"),  # New: array[integer]",
+            "(\"exclude_loc\", \"exclude_loc\"),  # New: array[integer]",
+            "(\"exclude_geo\", \"exclude_geo\"),  # New: array[str]",
+            "(\"score_bucket\", \"score_bucket\"),  # New: str (poor, okay, good)",
+            "(\"limit\", \"limit\"),  # New: int",
+            "(\"offset\", \"offset\"),  # New: str (API-defined pagination)",
+            "(\"expiry\", \"expiry\"),  # New: int",
+            "# Then, process shorthand parameters if provided within query_params itself."
+          ]
+        }
+      ]
+    },
+    "since-to-epoch": {
+      "statement": "A `since` value is a number of hours: the decorator sets `to` to the current Unix time and `from` to that time minus the hours times 3,600, unless the caller already set `from` or `to`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "past_time = int(current_time - (hours * 3600))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "after": "def zdx_params(func):",
+          "quotes": [
+            "(\"since\", (\"from\", \"to\")),",
+            "current_time, past_time = calculate_epoch(value)",
+            "if \"from\" not in query_params:",
+            "query_params[\"from\"] = past_time",
+            "if \"to\" not in query_params:",
+            "query_params[\"to\"] = current_time"
+          ]
+        }
+      ]
+    },
+    "score-bucket-check": {
+      "statement": "The `zdx_params` decorator rejects a `score_bucket` other than `poor`, `okay` or `good` with a ValueError before it calls the decorated method.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "raise ValueError(\"Invalid value for score_bucket. Supported values: 'poor', 'okay', 'good'.\")",
+            "kwargs[\"query_params\"] = query_params",
+            "return func(self, *args, **kwargs)"
+          ],
+          "after": "def zdx_params(func):"
+        }
+      ]
+    },
+    "params-conversion": {
+      "statement": "The request executor passes ZDX query parameters unchanged on the legacy ZDX client; otherwise, for any non-ZPA service, it runs every parameter name through `convert_keys_to_camel_case`, which maps each key with `to_lower_camel_case`: a name in `FIELD_EXCEPTIONS` takes its mapped value, any other name with an underscore is split on underscores, its first part lowercased and each later part capitalized.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def _prepare_params(self, service_type, endpoint, params, body):",
+          "quotes": [
+            "if self.use_legacy_client and self.zdx_legacy_client:",
+            "return params"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def _prepare_params(self, service_type, endpoint, params, body):",
+          "quotes": [
+            "if service_type.lower() == \"zpa\":"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "else: # Normal param conversion if not ZPA",
+            "params = convert_keys_to_camel_case(params)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "result[to_lower_camel_case(k)] = convert_keys_to_camel_case(v)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "after": "def to_lower_camel_case(string):",
+          "quotes": [
+            "if string in FIELD_EXCEPTIONS: return FIELD_EXCEPTIONS[string]",
+            "if not string or \"_\" not in string: return string",
+            "components = string.split(\"_\")",
+            "if i == 0: converted.append(lower)",
+            "converted.append(comp.capitalize())"
+          ]
+        }
+      ]
+    },
+    "filter-names-camel-cased": {
+      "statement": "So on the OneAPI client, multiword ZDX filter names that the decorator does not rename, such as `exclude_loc`, `exclude_dept`, `exclude_geo`, `score_bucket`, `user_ids`, `mac_address`, `private_ipv4` and `parent_geo_id`, reach the API camel-cased, while the contract names these parameters in snake_case (`exclude_loc`, `score_bucket`, `private_ipv4`, `mac_address`, `parent_geo_id`, and `userids` for user IDs).",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices/get/parameters/[name=exclude_loc]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices/get/parameters/[name=private_ipv4]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}~1users/get/parameters/[name=score_bucket]",
+          "expect": {
+            "in": "query"
+          }
+        }
+      ],
+      "derived_from": [
+        "decorator-mapping",
+        "params-conversion"
+      ],
+      "conditions": "Follows from the executor's conversion and the helper's camel-casing rule; none of these names is in the helper's exceptions map at the pin. No captured request shows the wire names.",
+      "upstream": [
+        {
+          "status": "unfiled"
+        }
+      ]
+    },
+    "no-query-methods": {
+      "statement": "The Python deep-trace list takes only the device ID, and the deep-trace get and metric readers (`get_deeptrace`, `get_deeptrace_webprobe_metrics`, `get_deeptrace_cloudpath_metrics`, `get_deeptrace_cloudpath`, `get_deeptrace_health_metrics`, `get_deeptrace_events`) only the device and trace IDs; none takes query parameters, so they accept no time range.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/troubleshooting.py",
+          "quotes": [
+            "def list_deeptraces(self, device_id: str) -> APIResult[List[DeviceDeepTraces]]:",
+            "def get_deeptrace(self, device_id: str, trace_id: str) -> APIResult[dict]:",
+            "def get_deeptrace_webprobe_metrics(self, device_id: str, trace_id: str) -> APIResult[dict]:",
+            "def get_deeptrace_cloudpath_metrics(self, device_id: str, trace_id: str) -> APIResult[dict]:",
+            "def get_deeptrace_cloudpath(self, device_id: str, trace_id: str) -> APIResult[dict]:",
+            "def get_deeptrace_health_metrics(self, device_id: str, trace_id: str) -> APIResult[dict]:",
+            "def get_deeptrace_events(self, device_id: str, trace_id: str) -> APIResult[dict]:"
+          ]
+        }
+      ]
+    },
+    "inventory-decorated": {
+      "statement": "The Python `list_softwares` carries `zdx_params`, so a `since` passed to it is sent as `from` and `to`, although the contract lists no time-range parameters for the software inventory endpoint.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/inventory.py",
+          "quotes": [
+            "@zdx_params\n    def list_softwares(self, query_params: Optional[dict] = None) -> APIResult[List[DeviceSoftwareInventory]]:",
+            "software_list, _, err = client.zdx.inventory.list_softwares(query_params={\"since\": 24})"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1inventory~1software/get/parameters/[name=deviceids]",
+          "expect": {
+            "in": "query"
+          }
+        }
+      ],
+      "derived_from": [
+        "since-to-epoch"
+      ],
+      "conditions": "The contract's parameter list for the endpoint at the pin is `loc`, `dept`, `geo`, `userids`, `deviceids`, `offset` and `limit`; a list cannot be pinned by pointer as complete, so the absence of `from` and `to` rests on that reading."
+    },
+    "software-key": {
+      "statement": "The software-key read lists all users and devices for a given software name and version, and the Python SDK's example passes a key such as `screencaptureui2` to `list_software_keys`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1inventory~1software~1{softwareKey}/get",
+          "expect": {
+            "description": "The endpoint allows you to view the list of all users and devices for a given software name and version."
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/inventory.py",
+          "quotes": [
+            "software_key='screencaptureui2')",
+            "def list_software_keys("
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "user-ids-param": {
+      "summary": "The device list's user-ID filter: the contract and the Go SDK call it `userids`; the Python SDK documents `user_ids`, which the decorator does not rename.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1devices/get/parameters/[name=userids]",
+            "expect": {
+              "in": "query"
+            }
+          },
+          "says": "The query parameter is `userids`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zdx/services/reports/devices/types.go",
+            "quotes": [
+              "UserIDs []int `json:\"userids,omitempty\" url:\"userids,omitempty\"`"
+            ]
+          },
+          "says": "The Go filter struct sends `userids`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zdx/devices.py",
+            "quotes": [
+              "``[query_params.user_ids]`` {list}: List of user IDs."
+            ]
+          },
+          "says": "The Python SDK takes `user_ids`, sent as written on the legacy client and camel-cased on the OneAPI client."
+        }
+      ],
+      "impact": "A Python device list filtered by user ID may come back unfiltered or rejected, because neither form it sends is the contract's name."
+    }
+  },
+  "gaps": {
+    "camel-params-accepted": {
+      "kind": "semantic",
+      "title": "Whether the ZDX API honors camel-cased or underscored query names it does not define",
+      "status": "open",
+      "detail": "The Python OneAPI client camel-cases multiword ZDX filter names, and documents `user_ids` where the contract has `userids`. Whether the gateway or the ZDX API matches these names leniently, ignores them (returning unfiltered data) or rejects the request is not stated by any source.",
+      "blocks": "trusting Python ZDX queries that use exclusion, score-bucket, user, MAC, IP or parent-geolocation filters",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "inventory-time-range": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-43"
+      ],
+      "title": "Whether the software inventory endpoint honors a time range",
+      "status": "partial",
+      "detail": "The Python `list_softwares` attaches `from` and `to` when given `since`; the contract lists no time-range parameters for the endpoint, which suggests the server ignores them, but no captured response confirms it.",
+      "blocks": "answering whether an inventory listing reflects a time window",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,645 @@
+{
+  "schema_version": 1,
+  "id": "zdx.applications",
+  "title": "ZDX applications: predefined, custom and network applications, and the application API",
+  "aliases": [
+    "zdx application",
+    "zdx applications",
+    "zdx apps",
+    "predefined applications zdx",
+    "custom application zdx",
+    "network application zdx",
+    "zdx app score api",
+    "zdx app metrics",
+    "metric_name",
+    "most impacted region",
+    "zdx application configuration api",
+    "zdx application users",
+    "pending onboard",
+    "unified communication applications",
+    "teams transport relay"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.probes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.score"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.reports"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.devices"
+    }
+  ],
+  "prose": [
+    {
+      "text": "An application is the unit ZDX probes and scores. {{app-kinds}}"
+    },
+    {
+      "heading": "Kinds of application"
+    },
+    {
+      "label": "Probes each needs.",
+      "text": "{{probe-requirements}}"
+    },
+    {
+      "label": "Predefined.",
+      "text": "{{predefined-auto}} {{predefined-not-deletable}}"
+    },
+    {
+      "label": "Unified communication.",
+      "text": "{{uc-tenant-onboarding}} {{teams-transport-relay}} The call-quality data itself is read per device: [[zdx.devices.call-quality]]."
+    },
+    {
+      "label": "Status.",
+      "text": "{{pending-onboard}}"
+    },
+    {
+      "label": "Discovery.",
+      "text": "Whether ZDX discovers applications by itself, beyond the predefined catalog and the Top Private Apps view, is only partly documented {{gap:auto-detection}}."
+    },
+    {
+      "heading": "Reading application scores"
+    },
+    {
+      "text": "{{apps-list}} Whether configured applications with no recent data are left out of that list is not stated {{gap:inactive-app-listing}}. {{app-detail}} {{app-stats}}"
+    },
+    {
+      "label": "Trends.",
+      "text": "{{app-score-trend}} {{app-metrics}} Which `metric_name` value selects which metric is not settled by the contract {{divergence:metric-name-enum}}, and the full value set is open {{gap:metric-name-values}}. {{python-metric-name-doc}}"
+    },
+    {
+      "label": "Users of an application.",
+      "text": "{{app-users}} {{app-user-detail}} Paging and the shared time-range rules are in [[zdx.reports]]."
+    },
+    {
+      "heading": "Configuring applications through the API"
+    },
+    {
+      "text": "{{config-api}} {{app-class}} {{rum-config}} {{config-no-sdk}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a custom application has the Web probe it needs to be enabled, or a network application its Cloud Path probe.",
+      "uses": [
+        "probe-requirements"
+      ]
+    },
+    {
+      "do": "Whether a unified communication application has its tenant onboarded before expecting probe or call-quality data.",
+      "uses": [
+        "uc-tenant-onboarding",
+        "pending-onboard"
+      ]
+    },
+    {
+      "do": "Whether an application missing from the score list is merely inactive in the time range rather than deleted, by reading the configured applications.",
+      "uses": [
+        "apps-list",
+        "config-api",
+        "inactive-app-listing"
+      ]
+    }
+  ],
+  "claims": {
+    "app-kinds": {
+      "statement": "The service provides predefined applications, or a customized application can be configured; the console configures Custom Applications (customizable SaaS or web applications created and onboarded for the organization) and Network Applications (network applications whose Cloud Path is monitored), and each application is designed to have probes associated with it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-applications.json",
+          "quotes": [
+            "The Zscaler service provides predefined applications, or you can configure a customized application. Each application is designed to have corresponding probes associated with it.",
+            "You can configure the following applications in the Zscaler Admin Console:",
+            "Custom Application: Customizable SaaS or web applications that you can create and onboard in the Zscaler Admin Console for your organization.",
+            "Network Application: Network applications where you can monitor their Cloud Path."
+          ]
+        }
+      ]
+    },
+    "probe-requirements": {
+      "statement": "A custom application must have a Web probe created to be enabled; most applications have at least one Web probe and one Cloud Path probe, while network applications need only a single Cloud Path probe. Predefined applications have probes preconfigured by default, while custom applications need probes created manually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-applications.json",
+          "quotes": [
+            "If you create a custom application, you must create a Web probe to enable it. Most applications have at least one Web probe and one Cloud Path probe to monitor the application's URL. Network applications are the exception, since they require only a single Cloud Path probe for monitoring."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-probes.json",
+          "quotes": [
+            "Predefined applications have preconfigured probes onboarded with them by default, while custom applications require you to manually create probes."
+          ]
+        }
+      ]
+    },
+    "predefined-auto": {
+      "statement": "Predefined applications are SaaS applications with predefined paths; Zscaler recommends configuring these paths to the organization's SaaS tenant for applications that require a tenant ID, and by default every predefined application has preconfigured Web and Cloud Path probes and is enabled automatically when onboarded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-applications.json",
+          "quotes": [
+            "Predefined applications are SaaS applications provided by the Zscaler Admin Console for you to configure for your organization. There are predefined paths for each application.",
+            "Zscaler recommends that you configure these paths to a SaaS tenant for your organization for applications that require a tenant ID.",
+            "By default, all predefined applications have preconfigured Web and Cloud Path probes and are automatically enabled when onboarded."
+          ]
+        }
+      ]
+    },
+    "predefined-not-deletable": {
+      "statement": "Predefined applications cannot be deleted: the help says so, and the API contract's delete-by-ID is for custom applications, while deleting a predefined application by name is generally not allowed and results in 403 Forbidden.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-probes.json",
+          "quotes": [
+            "You cannot delete predefined applications."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}/delete",
+          "expect": {
+            "description": "Deletes a custom application by its ID. Predefined applications cannot be deleted."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{app}/delete",
+          "expect": {
+            "description": "Deletes a predefined application by its name. This is generally not allowed and will result in a 403 Forbidden error."
+          }
+        }
+      ]
+    },
+    "uc-tenant-onboarding": {
+      "statement": "For unified communication applications a tenant must be onboarded before their probes can be configured; the onboarding articles cover Microsoft Teams, Webex and Zoom call quality.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-applications.json",
+          "quotes": [
+            "For unified communication applications, you must onboard a tenant for them in order to configure probes for the application.",
+            "Configuring Microsoft Teams Call Quality for ZDX",
+            "Configuring Webex Call Quality for ZDX",
+            "Configuring Zoom Call Quality for ZDX"
+          ]
+        }
+      ]
+    },
+    "teams-transport-relay": {
+      "statement": "For Microsoft Teams, besides the application URL that monitors client connectivity and call signaling (teams.microsoft.com), an additional Cloud Path monitors the Teams Transport Relay service that handles media (world.tr.teams.microsoft.com).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-applications.json",
+          "quotes": [
+            "For Microsoft Teams, in addition to the application's URL for monitoring the Teams client connectivity and call signaling (teams.microsoft.com), an additional Cloud Path is created to monitor the Teams Transport Relay service for handling media communication (world.tr.teams.microsoft.com)."
+          ]
+        }
+      ]
+    },
+    "pending-onboard": {
+      "statement": "An application that is not yet fully activated shows the Status Pending Onboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-applications.json",
+          "quotes": [
+            "The Status for applications that are not yet fully activated appears as Pending Onboard."
+          ]
+        }
+      ]
+    },
+    "apps-list": {
+      "statement": "The API's application list returns all active applications configured for the tenant, with each one's ZDX score (by default for the last 2 hours), its most impacted location and the total number of users impacted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps/get",
+          "expect": {
+            "description": "Lists all active applications configured for a tenant. The endpoint gets each application’s ZDX score (default for the last 2 hours), most impacted location, and the total number of users impacted."
+          }
+        }
+      ]
+    },
+    "app-detail": {
+      "statement": "The single-application read returns the application's ZDX score for the last 2 hours, its most impacted locations and the total number of users impacted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}/get",
+          "expect": {
+            "description": "Gets the application’s ZDX score (for the last 2 hours), most impacted locations, and the total number of users impacted."
+          }
+        }
+      ]
+    },
+    "app-stats": {
+      "statement": "An application's stats count active users, active devices, and users with poor, okay and good scores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}/get/responses/200/content/application~1json/schema/properties/stats/properties/active_users",
+          "expect": {
+            "description": "The number of active users."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}/get/responses/200/content/application~1json/schema/properties/stats/properties/active_devices",
+          "expect": {
+            "description": "The number number of active devices."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}/get/responses/200/content/application~1json/schema/properties/stats/properties/num_poor",
+          "expect": {
+            "description": "The number of users with poor scores."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}/get/responses/200/content/application~1json/schema/properties/stats/properties/num_okay",
+          "expect": {
+            "description": "The number of users with okay scores."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}/get/responses/200/content/application~1json/schema/properties/stats/properties/num_good",
+          "expect": {
+            "description": "The number of users with good scores."
+          }
+        }
+      ]
+    },
+    "app-score-trend": {
+      "statement": "The application score read returns the application's ZDX score trend, for the last 2 hours if no time range is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}~1score/get",
+          "expect": {
+            "description": "Gets the application’s ZDX score trend. If the time range is not specified, the endpoint defaults to the last 2 hours."
+          }
+        }
+      ]
+    },
+    "app-metrics": {
+      "statement": "The application metric read returns a metric trend: for Web probes Page Fetch Time, Server Response Time, DNS Time or Availability, defaulting to Page Fetch Time; for Cloud Path probes the latency for End to End, Client - Egress, Egress - Application, ZIA Service Edge - Egress and ZIA Service Edge - Application, defaulting to End to End; and the last 2 hours if no time range is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}~1metrics/get",
+          "expect": {
+            "description": "Gets the application’s metric trend. For Web Probes, you can access Page Fetch Time, Server Response Time, DNS Time or Availability. If not specified, it defaults to Page Fetch Time (PFT). <p>For CloudPath Probes, you can access latency metrics for End to End, Client - Egress, Egress - Application, ZIA Service Edge - Egress, and ZIA Service Edge - Application. If not specified, it defaults to End to End latency.</p> <p>If the time range is not specified, the endpoint defaults to the last 2 hours.</p>"
+          }
+        }
+      ]
+    },
+    "app-users": {
+      "statement": "The application-users read lists the users, and the devices they used, that accessed an application, filterable by score category (Poor, Okay or Good), location, department or geolocation, for the last 2 hours if no time range is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}~1users/get",
+          "expect": {
+            "description": "Gets the list of all users and their devices that were used to access an application. The endpoint allows to get the list of users based on the score category (i.e., Poor, Okay, or Good), location, department, or geoloaction. If the time range is not specified, the endpoint defaults to the last 2 hours."
+          }
+        }
+      ]
+    },
+    "app-user-detail": {
+      "statement": "The application-user detail read returns the user's details with device information, active geolocations and Zscaler locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}~1users~1{userid}/get",
+          "expect": {
+            "description": "Gets user details including the device information, active geolocations, and Zscaler locations. If the time range is not specified, the endpoint defaults to the last 2 hours."
+          }
+        }
+      ]
+    },
+    "config-api": {
+      "statement": "The API contract has an Application Management area under /v1/config/applications: it lists configured applications, creates applications (the type decides the required fields), reads, updates and deletes one, activates and deactivates it, and lists and creates its monitors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications/get",
+          "expect": {
+            "description": "Retrieves a list of configured applications. The results can be paginated, filtered, and sorted."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications/post",
+          "expect": {
+            "description": "Creates a new application. The type of application determines the required fields in the request body."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}/get",
+          "expect": {
+            "description": "Retrieves detailed information for a specific application by its ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}/put",
+          "expect": {
+            "description": "Updates the configuration of a specific application. The request body will vary based on the application type."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}/delete",
+          "expect": {
+            "description": "Deletes a custom application by its ID. Predefined applications cannot be deleted."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1activate/put",
+          "expect": {
+            "description": "Activates a specific application by its ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1deactivate/put",
+          "expect": {
+            "description": "Deactivates a specific application by its ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/get",
+          "expect": {
+            "description": "Get Configured Monitors"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post",
+          "expect": {
+            "description": "Creates a new monitor for a specific application."
+          }
+        }
+      ]
+    },
+    "app-class": {
+      "statement": "In the contract an application's `type` is CUSTOM, NETWORK or PREDEFINED and acts as the discriminator that decides which other fields the request needs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications/post/requestBody/content/application~1json/schema/properties/type",
+          "expect": {
+            "description": "The type of the application. This field acts as a discriminator for the request object, determining which other fields are required."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications/post/requestBody/content/application~1json/schema/properties/type/allOf/[title=ApplicationResponseTypeEnum]",
+          "expect": {
+            "enum": [
+              "CUSTOM",
+              "NETWORK",
+              "PREDEFINED"
+            ]
+          }
+        }
+      ]
+    },
+    "rum-config": {
+      "statement": "The contract's application request carries `rumDetails`, the configuration for Real User Monitoring, with `rumEnabled`, `rumDomain` and `rumTimeout`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications/post/requestBody/content/application~1json/schema/properties/rumDetails",
+          "expect": {
+            "description": "Configuration details for Real User Monitoring (RUM)."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications/post/requestBody/content/application~1json/schema/properties/rumDetails/allOf/[title=RUMDetails]",
+          "expect": {
+            "properties": {
+              "rumDomain": {
+                "type": "string"
+              },
+              "rumEnabled": {
+                "type": "boolean"
+              },
+              "rumTimeout": {
+                "format": "int32",
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "config-no-sdk": {
+      "statement": "Neither SDK calls any /v1/config path: the configuration, monitor, collection and directory operations of the contract are reachable only by direct API calls.",
+      "tier": "B",
+      "derived_from": [
+        "config-api"
+      ],
+      "conditions": "Absence by search: `git grep config/` over zscaler/zdx in zscaler-sdk-go and zscaler-sdk-python at the pin finds nothing, and the generated surface (`node scripts/kb.mjs surface /v1/config/applications`) lists no SDK reaching those paths."
+    },
+    "python-metric-name-doc": {
+      "statement": "The Python `get_app_metrics` docstring lists `pft`, `dns` and `availability` as the available `metric_name` values, as the contract's enum does, while the Go `GetAppMetrics` comment repeats the operation description's longer list (Server Response Time and the Cloud Path latency segments).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/apps.py",
+          "after": "def get_app_metrics(self, app_id: str, query_params: Optional[dict] = None) -> APIResult[dict]:",
+          "quotes": [
+            "``[query_params.metric_name]`` {str}: The name of the metric to return. Available values are:",
+            "* `pft` - Page Fetch Time",
+            "* `dns` - DNS Time",
+            "* `availability`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/applications/application_score_metrics.go",
+          "quotes": [
+            "Gets the application's metric trend. For Web Probes, you can access Page Fetch Time, Server Response Time, DNS Time or Availability.",
+            "For CloudPath Probes, you can access latency metrics for End to End, Client - Egress, Egress - Application, ZIA Service Edge - Egress, and ZIA Service Edge - Application.",
+            "func GetAppMetrics(ctx context.Context, service *zscaler.Service, appID int, filters common.GetFromToFilters) ([]common.Metric, *http.Response, error) {"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}~1metrics/get/parameters/[name=metric_name]",
+          "expect": {
+            "schema": {
+              "enum": [
+                "pft",
+                "dns",
+                "availability"
+              ],
+              "title": "Metric_nameEnum",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}~1metrics/get",
+          "expect": {
+            "description": "Gets the application’s metric trend. For Web Probes, you can access Page Fetch Time, Server Response Time, DNS Time or Availability. If not specified, it defaults to Page Fetch Time (PFT). <p>For CloudPath Probes, you can access latency metrics for End to End, Client - Egress, Egress - Application, ZIA Service Edge - Egress, and ZIA Service Edge - Application. If not specified, it defaults to End to End latency.</p> <p>If the time range is not specified, the endpoint defaults to the last 2 hours.</p>"
+          }
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "metric-name-enum": {
+      "summary": "The application metric operation's `metric_name` enum and its own description disagree on which metrics can be requested.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1apps~1{id}~1metrics/get/parameters/[name=metric_name]/schema",
+            "expect": {
+              "enum": [
+                "pft",
+                "dns",
+                "availability"
+              ]
+            }
+          },
+          "says": "`metric_name` takes only pft, dns or availability."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1apps~1{id}~1metrics/get",
+            "expect": {
+              "description": "Gets the application’s metric trend. For Web Probes, you can access Page Fetch Time, Server Response Time, DNS Time or Availability. If not specified, it defaults to Page Fetch Time (PFT). <p>For CloudPath Probes, you can access latency metrics for End to End, Client - Egress, Egress - Application, ZIA Service Edge - Egress, and ZIA Service Edge - Application. If not specified, it defaults to End to End latency.</p> <p>If the time range is not specified, the endpoint defaults to the last 2 hours.</p>"
+            }
+          },
+          "says": "Web probe trends include Server Response Time, and Cloud Path probe trends include five latency segments, without naming the values that select them."
+        }
+      ],
+      "impact": "A caller cannot tell from the contract which `metric_name` selects Server Response Time or a Cloud Path segment, or whether the enum rejects them; a strict client built from the enum cannot request them."
+    }
+  },
+  "gaps": {
+    "metric-name-values": {
+      "kind": "semantic",
+      "title": "The complete set of metric_name values",
+      "status": "open",
+      "former_ids": [
+        "zdx-11"
+      ],
+      "detail": "The contract's enum lists pft, dns and availability, while the operation description (and the Go SDK comment on GetAppMetrics) also lists Server Response Time and the Cloud Path latency segments End to End, Client - Egress, Egress - Application, ZIA Service Edge - Egress and ZIA Service Edge - Application. The tokens for those, and whether the server accepts them, are not documented.",
+      "blocks": "requesting a specific metric trend",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "inactive-app-listing": {
+      "kind": "semantic",
+      "title": "Whether the application list includes configured applications with no recent data",
+      "status": "open",
+      "former_ids": [
+        "zdx-12"
+      ],
+      "detail": "The report list returns active applications configured for the tenant. Whether an application with no probe data in the range is left out was unverified in the legacy doc; the configuration area's list of configured applications is the contract's other listing.",
+      "blocks": "telling an inactive application from a deleted one",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "auto-detection": {
+      "kind": "semantic",
+      "title": "Whether ZDX discovers applications automatically",
+      "status": "partial",
+      "former_ids": [
+        "zdx-14"
+      ],
+      "detail": "Applications are predefined or configured; the Probes page also offers a Top Private Apps view to search and configure top private applications based on ports and protocol. Whether ZDX adds or proposes any other application without configuration is not documented.",
+      "blocks": "answers about why an application is or is not monitored",
+      "resolves_with": [
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-applications.json",
+          "quotes": [
+            "Manage the top private applications from Private Access based on port usage."
+          ]
+        }
+      ]
+    }
+  }
+}

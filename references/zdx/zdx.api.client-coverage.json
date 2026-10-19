@@ -1,0 +1,286 @@
+{
+  "schema_version": 1,
+  "id": "zdx.api.client-coverage",
+  "title": "Which ZDX API operations the Python and Go SDKs cover, and the configuration API neither calls",
+  "aliases": [
+    "zdx config api",
+    "zdx /v1/config",
+    "zdx configuration endpoints",
+    "create zdx application api",
+    "zdx monitors api",
+    "zdx sdk coverage",
+    "zdx python only",
+    "zdx is read only",
+    "can i create a zdx probe via api"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-python"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-go"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Each SDK's ZDX functions and the contract's operations are generated side by side by `node scripts/kb.mjs surface zdx`. This subject records the coverage differences that change what a caller can automate."
+    },
+    {
+      "label": "Configuration.",
+      "text": "The application management operations are in [[zdx.applications:config-api]]. {{config-family}} No SDK calls any of them: [[zdx.applications:config-no-sdk]]."
+    },
+    {
+      "label": "Snapshots.",
+      "text": "{{snapshots-python-alert-only}}"
+    },
+    {
+      "label": "Python-only reads.",
+      "text": "{{go-deeptrace-functions}} {{python-deeptrace-readers}} {{app-users-python-only}} {{go-device-filters}}"
+    },
+    {
+      "label": "Writes the SDKs do cover.",
+      "text": "Starting and deleting deep traces: [[zdx.diagnostics.start-request]] and [[zdx.diagnostics.session-records]]. Score analysis: [[zdx.diagnostics.analysis]]. Alert snapshots: [[zdx.alerts.snapshot]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the task needs the `/v1/config` operations (applications, monitors, collections, tracing), which have to be called directly because no SDK wraps them.",
+      "uses": [
+        "config-family",
+        "zdx.applications:config-no-sdk"
+      ]
+    },
+    {
+      "do": "Whether a Go integration needs deep-trace metrics, app users or snapshots, which only the Python SDK wraps.",
+      "uses": [
+        "go-deeptrace-functions",
+        "python-deeptrace-readers",
+        "app-users-python-only",
+        "snapshots-python-alert-only"
+      ]
+    }
+  ],
+  "claims": {
+    "config-family": {
+      "statement": "Besides application management, the contract's `/v1/config` family writes monitors, collections and tracing sessions (updating monitors, creating collections, creating and starting tracing sessions) and reads users, devices, departments, groups and locations as configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications/post",
+          "expect": {
+            "operationId": "Application Resource Create Application"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1monitors~1{mid}/put",
+          "expect": {
+            "operationId": "Monitor Resource Update Monitor"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1collections/post",
+          "expect": {
+            "operationId": "Collection Resource Create Collection"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1tracing/post",
+          "expect": {
+            "operationId": "Tracing Resource Create And Start Tracing Session"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1users/get",
+          "expect": {
+            "operationId": "Config User Resource List Config Users"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1groups/get",
+          "expect": {
+            "operationId": "Group Resource List Groups"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1devices/get",
+          "expect": {
+            "operationId": "Config Device Resource List Config Devices"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1departments/get",
+          "expect": {
+            "operationId": "Config Department Resource List Departments"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1locations/get",
+          "expect": {
+            "operationId": "Location Resource List Locations"
+          }
+        }
+      ]
+    },
+    "snapshots-python-alert-only": {
+      "statement": "Only the Python SDK wraps a snapshot operation, the alert snapshot; no Go package covers snapshots, and neither SDK calls the contract's user snapshot.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/snapshot.py",
+          "quotes": [
+            "def share_snapshot(self, **kwargs) -> APIResult[dict]:"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1snapshot~1user/post",
+          "expect": {
+            "operationId": "Snapshot Resource Create User Snapshot"
+          }
+        }
+      ],
+      "conditions": "Rests on the generated surface: the Go SDK's ZDX packages are administration, alerts, common, inventory, reports and troubleshooting, and no SDK endpoint matches `/snapshot/user`."
+    },
+    "go-deeptrace-functions": {
+      "statement": "The Go `deeptrace` package has four functions, `GetDeepTraces`, `GetDeepTraceSession`, `CreateDeepTraceSession` and `DeleteDeepTraceSession`; the deep trace's top processes are read by `GetDeviceTopProcesses` in the `reports/devices` package.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go",
+          "quotes": [
+            "func GetDeepTraces(ctx context.Context,",
+            "func GetDeepTraceSession(ctx context.Context,",
+            "func CreateDeepTraceSession(ctx context.Context,",
+            "func DeleteDeepTraceSession(ctx context.Context,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/devices/device_top_process.go",
+          "quotes": [
+            "func GetDeviceTopProcesses(ctx context.Context, service *zscaler.Service, deviceID int, traceID string, filters common.GetFromToFilters) ([]DeviceTopProcesses, *http.Response, error) {",
+            "path := fmt.Sprintf(\"%v/%v/deeptraces/%v/%v\", devicesEndpoint, deviceID, traceID, deviceTopProcessEndpoint)"
+          ]
+        }
+      ],
+      "conditions": "The four quoted functions are every function `deeptrace.go` defines at the pin."
+    },
+    "python-deeptrace-readers": {
+      "statement": "So the deep trace's web-probe metrics, cloud-path metrics, cloud path, health metrics and events are readable through the Python SDK (`get_deeptrace_webprobe_metrics`, `get_deeptrace_cloudpath_metrics`, `get_deeptrace_cloudpath`, `get_deeptrace_health_metrics`, `get_deeptrace_events`) but have no Go function; the Go device report functions read the device's own paths, not a trace's.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/troubleshooting.py",
+          "quotes": [
+            "def get_deeptrace_webprobe_metrics(self, device_id: str, trace_id: str) -> APIResult[dict]:",
+            "def get_deeptrace_cloudpath_metrics(self, device_id: str, trace_id: str) -> APIResult[dict]:",
+            "def get_deeptrace_cloudpath(self, device_id: str, trace_id: str) -> APIResult[dict]:",
+            "def get_deeptrace_health_metrics(self, device_id: str, trace_id: str) -> APIResult[dict]:",
+            "def get_deeptrace_events(self, device_id: str, trace_id: str) -> APIResult[dict]:"
+          ]
+        }
+      ],
+      "derived_from": [
+        "go-deeptrace-functions"
+      ],
+      "conditions": "Rests on the generated surface: no Go endpoint matches a `/deeptraces/` metric path other than top processes."
+    },
+    "app-users-python-only": {
+      "statement": "Listing an application's users and reading one user's experience with it (`list_app_users`, `get_app_user`) are Python-only; the Go `reports/applications` package has `GetAllApps`, `GetApp`, `GetAppScores` and `GetAppMetrics`.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/apps.py",
+          "quotes": [
+            "def list_app_users(self, app_id: str, query_params: Optional[dict] = None) -> APIResult[List[ApplicationActiveUsers]]:",
+            "def get_app_user(self, app_id: str, user_id: str, query_params: Optional[dict] = None) -> APIResult[dict]:"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/applications/applications.go",
+          "quotes": [
+            "func GetAllApps(ctx context.Context,",
+            "func GetApp(ctx context.Context,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/applications/application_score_metrics.go",
+          "quotes": [
+            "func GetAppScores(ctx context.Context,",
+            "func GetAppMetrics(ctx context.Context,"
+          ]
+        }
+      ],
+      "conditions": "Rests on the generated surface: the Go package's functions map to no `/apps/{id}/users` path."
+    },
+    "go-device-filters": {
+      "statement": "The Go device list cannot filter by MAC address or private IPv4: its `GetDevicesFilters` carries user IDs, emails, location, department, geolocation, offset and limit beside the shared time filters, while the contract and the Python `list_devices` offer `mac_address` and `private_ipv4`.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/reports/devices/types.go",
+          "after": "type GetDevicesFilters struct {",
+          "quotes": [
+            "common.GetFromToFilters",
+            "UserIDs []int `json:\"userids,omitempty\" url:\"userids,omitempty\"`",
+            "Emails []string `json:\"emails,omitempty\" url:\"emails,omitempty\"`",
+            "Loc []int `json:\"loc,omitempty\" url:\"loc,omitempty\"`",
+            "Dept []int `json:\"dept,omitempty\" url:\"dept,omitempty\"`",
+            "Geo []string `json:\"geo,omitempty\" url:\"geo,omitempty\"`",
+            "Offset string `json:\"offset,omitempty\" url:\"offset,omitempty\"`",
+            "Limit int `json:\"limit,omitempty\" url:\"limit,omitempty\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices/get/parameters/[name=mac_address]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/devices.py",
+          "quotes": [
+            "``[query_params.mac_address]`` {str}: MAC address of the device.",
+            "``[query_params.private_ipv4]`` {str}: Private IPv4 address of the device."
+          ]
+        }
+      ],
+      "conditions": "The quoted fields are the whole `GetDevicesFilters` struct, and the embedded `GetFromToFilters` has no MAC or IPv4 field at the pin. How Python sends these names is in zdx.sdk-python.request-shaping."
+    }
+  }
+}

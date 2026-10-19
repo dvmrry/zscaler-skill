@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "id": "zdx.cloud-architecture",
+  "title": "ZDX cloud architecture: components, the telemetry path and what is undocumented",
+  "aliases": [
+    "zdx architecture",
+    "zdx central authority",
+    "zdx ca",
+    "telemetry and policy gateway",
+    "tpg",
+    "zdx analytics",
+    "azure data explorer",
+    "adx",
+    "zdx admin portal",
+    "call quality monitoring",
+    "zdx data residency",
+    "zdx data retention",
+    "zdx telemetry path"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.cloud-architecture.module-upgrades"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.central-authority"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.log-export.zdx"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject lists the ZDX cloud's components as the vendor's architecture page describes them, and what is still open about each."
+    },
+    {
+      "label": "Central Authority.",
+      "text": "{{central-authority}} The page does not say whether the ZDX CA runs active and passive servers like the Internet & SaaS CA, [[shared.cloud-architecture.central-authority:zia-ca-active-passive]], or some other way {{gap:ca-topology}}."
+    },
+    {
+      "label": "Client Connector.",
+      "text": "{{client-connector}} Whether it buffers metrics while it cannot reach the gateway, and for how long, is not documented {{gap:zcc-buffering}}. Which users run ZDX at all is the entitlement in [[zcc.entitlements.zdx]]."
+    },
+    {
+      "label": "Users, departments and locations.",
+      "text": "{{zte-integration}}"
+    },
+    {
+      "label": "Telemetry and Policy Gateway.",
+      "text": "{{tpg}} {{telemetry-path}} How the gateway is deployed across regions and fails over is not documented {{gap:tpg-failover}}."
+    },
+    {
+      "label": "Analytics.",
+      "text": "{{analytics-adx}} Tenant isolation inside the analytics service is not documented {{gap:adx-isolation}}, and neither are retention periods or data-residency options {{gap:data-retention-residency}}."
+    },
+    {
+      "label": "Admin portal.",
+      "text": "{{admin-portal}} Which sign-in protocol that single sign-on uses is not stated {{gap:admin-sso-protocol}}."
+    },
+    {
+      "label": "Call quality.",
+      "text": "{{call-quality}} Unified communication applications need a tenant onboarded before their probes can be configured, [[zdx.applications:uc-tenant-onboarding]], and the per-meeting data is read per device, [[zdx.devices.call-quality]]. How often the integration reads and how it fails is not documented {{gap:call-quality-data-flow}}."
+    },
+    {
+      "label": "Reading the data.",
+      "text": "The API's estimated collection-to-reporting delay and its small difference from the UI are in [[shared.log-export.zdx:reporting-delay]] and [[shared.log-export.zdx:api-vs-ui]]. API sign-in is in [[shared.legacy-api.auth-models:zdx-prereqs]] and [[zdx.api.hosts-and-auth]]."
+    },
+    {
+      "label": "Module upgrades.",
+      "text": "The ZDX Module that Client Connector runs is released and rolled out as described in [[zdx.cloud-architecture.module-upgrades]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the device is entitled to ZDX and its Client Connector is reporting, before suspecting the ZDX cloud.",
+      "uses": [
+        "client-connector",
+        "zcc.entitlements.zdx:configurations"
+      ]
+    },
+    {
+      "do": "Whether the period asked about is older than the estimated collection-to-reporting delay before concluding that data is missing.",
+      "uses": [
+        "shared.log-export.zdx:reporting-delay"
+      ]
+    }
+  ],
+  "claims": {
+    "central-authority": {
+      "statement": "The ZDX Central Authority monitors the cloud and provides a central location for software and database updates as well as policy and configuration settings; the vendor says its design is similar to that of the Internet & SaaS CA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zdx-cloud-architecture.json",
+          "quotes": [
+            "The ZDX CA is the brain and nervous system of ZDX. It monitors the cloud and provides a central location for software and database updates as well as policy and configuration settings.",
+            "The design is similar to that of the Internet & SaaS CA."
+          ]
+        }
+      ]
+    },
+    "client-connector": {
+      "statement": "Client Connector provides the device metrics at negligible additional CPU consumption, exchanges information with the Telemetry and Policy Gateway to receive ZDX configuration and report metrics, and provides latitude and longitude for geolocation if the operating system's location services are enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zdx-cloud-architecture.json",
+          "quotes": [
+            "The Zscaler Client Connector provides device metrics at negligible additional CPU consumption.",
+            "The Zscaler Client Connector exchanges information with the telemetry and policy gateway to receive configuration from ZDX and reports metrics to the cloud service for consumption.",
+            "The service also provides latitude and longitude coordinates for geolocation if the operating system location services are enabled."
+          ]
+        }
+      ]
+    },
+    "zte-integration": {
+      "statement": "The ZDX cloud connects and authenticates to the Internet & SaaS and Private Access clouds to retrieve users, departments and locations, connects to the Client Connector Portal for integrated management of Client Connector and ZIA definitions, and includes user-definition infrastructure for standalone ZDX deployments without ZIA or ZPA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zdx-cloud-architecture.json",
+          "quotes": [
+            "The ZDX cloud connects and authenticates to Internet & SaaS and Private Access clouds to retrieve users, departments, and locations.",
+            "It also connects to the Zscaler Client Connector Portal for integrated management of Zscaler Client Connector and ZIA definitions.",
+            "User-definition infrastructure and integration for ZDX standalone deployments without ZIA/ZPA services are also included."
+          ]
+        }
+      ]
+    },
+    "tpg": {
+      "statement": "The Telemetry and Policy Gateway is a multi-tenant RESTful application that acts as a gateway for monitoring metrics, policies and the data lake: Client Connector metrics are sent to Microsoft Azure Data Explorer (ADX) and policies are sent to Client Connector, with a stateless design for scalability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zdx-cloud-architecture.json",
+          "quotes": [
+            "This is a multi-tenant RESTFUL application for traffic control. The TPG acts as a gateway for monitoring metrics, policies, and data lake.",
+            "Zscaler Client Connector metrics are sent to Microsoft Azure Data Explorer (ADX) and policies are sent to the Zscaler Client Connector.",
+            "This also includes a stateless design for scalability."
+          ]
+        }
+      ]
+    },
+    "telemetry-path": {
+      "statement": "On the architecture page the metric path runs from Client Connector through the Telemetry and Policy Gateway to Microsoft Azure Data Explorer; the Internet & SaaS and Private Access clouds appear only as the source of users, departments and locations.",
+      "tier": "B",
+      "derived_from": [
+        "client-connector",
+        "tpg",
+        "zte-integration"
+      ],
+      "conditions": "Rests on the architecture page naming no ZIA or ZPA component between Client Connector and the analytics store; an absence in one article, not a vendor statement that ZDX telemetry never crosses those clouds."
+    },
+    "admin-portal": {
+      "statement": "The ZDX Admin Portal gives administrators configuration, reporting, alerting and analysis, integrates with ZIA and ZPA management for centralized configuration, and provides granular role-based access control with single sign-on in the Client Connector Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zdx-cloud-architecture.json",
+          "quotes": [
+            "With administrator access for configuration, reporting, alerting, and analysis, the ZDX Admin Portal integrates with ZIA/ZPA management to provide a centralized configuration.",
+            "ZDX provides granular role-based access control with single sign-on (SSO) in the Zscaler Client Connector Portal for administrators."
+          ]
+        }
+      ]
+    },
+    "analytics-adx": {
+      "statement": "The ZDX cloud uses the Microsoft Azure Data Explorer (ADX) analytics service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zdx-cloud-architecture.json",
+          "quotes": [
+            "The ZDX cloud leverages the Microsoft ADX analytics service."
+          ]
+        }
+      ]
+    },
+    "call-quality": {
+      "statement": "The ZDX cloud integrates with the Microsoft Graph API or Zoom to read meeting and call quality data, and customer-specific onboarding is needed before ZDX can read it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-zdx-cloud-architecture.json",
+          "quotes": [
+            "The ZDX cloud integrates with Microsoft Graph API or Zoom to read meetings and call quality data.",
+            "Customer-specific onboarding is needed so that ZDX can read call quality data."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ca-topology": {
+      "kind": "semantic",
+      "title": "Whether the ZDX Central Authority is active-passive or active-active",
+      "status": "open",
+      "former_ids": [
+        "zdx-15"
+      ],
+      "detail": "The architecture page says only that the ZDX CA's design is similar to that of the Internet & SaaS CA. The legacy doc read this as implying the ZIA model of one active server with passive standbys; no source states the ZDX CA's server topology or failover. Unverified legacy statements: the ZDX CA distributes policy and configuration to Client Connector through the TPG, orchestrates ZDX Module updates, and is a control plane only that does not handle customer traffic.",
+      "blocks": "answers about ZDX control-plane availability and failover",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "zcc-buffering": {
+      "kind": "semantic",
+      "title": "Whether Client Connector buffers ZDX metrics while the gateway is unreachable",
+      "status": "open",
+      "former_ids": [
+        "zdx-19"
+      ],
+      "detail": "Legacy open question: metrics are presumably buffered on the device and sent on reconnect, but no source states whether Client Connector buffers ZDX metrics when it cannot reach the Telemetry and Policy Gateway, how much it keeps or how it flushes.",
+      "blocks": "whether a gap in a device's ZDX data after an outage is lost data or delayed data",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "tpg-failover": {
+      "kind": "semantic",
+      "title": "How the Telemetry and Policy Gateway is deployed and fails over",
+      "status": "open",
+      "former_ids": [
+        "zdx-18"
+      ],
+      "detail": "The architecture page documents a stateless, multi-tenant gateway. Its regional footprint, service level and failure-domain handling are not documented.",
+      "blocks": "answers about ZDX data loss or delay during a gateway outage",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "adx-isolation": {
+      "kind": "semantic",
+      "title": "How tenants are isolated in the ZDX analytics store",
+      "status": "open",
+      "former_ids": [
+        "zdx-22"
+      ],
+      "detail": "Unverified legacy statement: customer metrics land in Zscaler-owned ADX clusters. The architecture page says only that the ZDX cloud uses the Microsoft ADX analytics service and that the gateway is multi-tenant; cluster ownership and the isolation mechanism (partitioning, access control, encryption) are not documented.",
+      "blocks": "data-protection and tenancy answers for ZDX telemetry",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "data-retention-residency": {
+      "kind": "semantic",
+      "title": "ZDX data retention, purge and data residency",
+      "status": "open",
+      "former_ids": [
+        "zdx-17"
+      ],
+      "detail": "No captured source gives a retention period, a purge policy or a data-residency option for ZDX telemetry. The legacy doc flagged the Microsoft ADX dependency as material for customers with cloud-provider constraints.",
+      "blocks": "retention, GDPR and data-residency answers for ZDX",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "admin-sso-protocol": {
+      "kind": "semantic",
+      "title": "Which protocol the ZDX admin single sign-on uses",
+      "status": "open",
+      "detail": "The architecture page says ZDX provides role-based access control with single sign-on in the Client Connector Portal; the legacy doc noted that the protocol (OIDC, SAML or OAuth) is not documented.",
+      "blocks": "answers about how ZDX administrators sign in",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "call-quality-data-flow": {
+      "kind": "semantic",
+      "title": "How the call-quality integrations read data",
+      "status": "open",
+      "former_ids": [
+        "zdx-21"
+      ],
+      "detail": "The architecture page says ZDX reads meeting and call quality data through the Microsoft Graph API or Zoom after customer-specific onboarding. Polling frequency, latency and failure behavior of these integrations are not documented.",
+      "blocks": "answers about missing or late call-quality data",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

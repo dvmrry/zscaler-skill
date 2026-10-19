@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "id": "zdx.api.conventions",
+  "title": "ZDX API conventions: time ranges, paging, reporting delay and how API numbers differ from the console",
+  "aliases": [
+    "zdx time range",
+    "zdx from to",
+    "zdx 2 hour window",
+    "zdx next_offset",
+    "zdx pagination",
+    "zdx score -1",
+    "zdx api data delay",
+    "zdx api does not match ui",
+    "zdx look-back"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-python.request-shaping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.sdk-python.response-models"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.alerts"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Most ZDX report and alert endpoints take a time window as `from` and `to` in epoch seconds and page with an opaque offset. The per-endpoint parameters are in the contract (`vendor/zscaler-api-specs/automate-zscaler/openapi/zdx.openapi.json`); this subject gathers the rules that apply across them."
+    },
+    {
+      "label": "Time ranges.",
+      "text": "The 2-hour default is [[zdx.reports:default-window]], and most report reads take at most 2 hours per request while a few need no range, [[shared.log-export.zdx:two-hour-window]]. The alert endpoints' limits are in [[zdx.alerts]]. How far back a request may reach, and whether probe IDs age out, is open {{gap:look-back-limit}}. The Python `since` shorthand is [[zdx.sdk-python.request-shaping:since-to-epoch]] and the Go filter struct [[zdx.sdk-go:epoch-filters]]."
+    },
+    {
+      "label": "Paging.",
+      "text": "Paged lists return a `next_offset` to send back as `offset`, [[zdx.reports:paging]]. The Python response object's own paging does not return ZDX records: [[zdx.sdk-python.response-models:paging-reads-items]]."
+    },
+    {
+      "label": "Reading the numbers.",
+      "text": "The reporting delay is [[shared.log-export.zdx:reporting-delay]]; how API values relate to the console, and what a score of -1 means, is [[shared.log-export.zdx:api-vs-ui]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a report request's window is 2 hours or less, or was split into 2-hour requests.",
+      "uses": [
+        "shared.log-export.zdx:two-hour-window"
+      ]
+    },
+    {
+      "do": "Whether the most recent 20 minutes are missing because of the reporting delay rather than a fault.",
+      "uses": [
+        "shared.log-export.zdx:reporting-delay"
+      ]
+    },
+    {
+      "do": "Whether a paged list was followed to a null `next_offset` by hand rather than with the Python response object's `next()`.",
+      "uses": [
+        "zdx.reports:paging",
+        "zdx.sdk-python.response-models:paging-reads-items"
+      ]
+    }
+  ],
+  "gaps": {
+    "look-back-limit": {
+      "kind": "semantic",
+      "former_ids": [
+        "zdx-34"
+      ],
+      "title": "How far back a ZDX report request may reach, and whether probe IDs expire",
+      "status": "open",
+      "detail": "The 2-hour default, the 2-hour window for most report endpoints and a 14-day limit on the alert endpoints are documented; no source states the oldest `from` a report endpoint accepts, or whether a web or cloud-path probe ID read in one window remains valid later. Unverified legacy statement: no maximum is stated for device and application metric endpoints, and in practice large ranges may time out.",
+      "blocks": "planning historical report pulls and reusing probe IDs",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

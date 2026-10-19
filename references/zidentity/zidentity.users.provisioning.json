@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.users.provisioning",
+  "title": "Getting users into and out of Authentication Service: JIT, SCIM, and what IdP removals do to admins",
+  "aliases": [
+    "ZIdentity SCIM",
+    "ZIdentity JIT",
+    "just-in-time provisioning",
+    "SCIM vs JIT",
+    "SCIM deprovisioning admin",
+    "admin removed from IdP group",
+    "user sync lag ZIdentity",
+    "user not in policy dropdown"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zidentity.users"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview.external-idps"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.provisioning-timing"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This covers how users arrive from an external IdP and what removals in the IdP do to them. {{jit-or-scim}}"
+    },
+    {
+      "label": "Which to use.",
+      "text": "{{scim-recommended}} {{jit-reactive}}"
+    },
+    {
+      "label": "When an IdP is removed.",
+      "text": "Users and groups of the primary IdP stay, those of a secondary IdP do not: [[zidentity.overview.external-idps:idp-removal-retention]]."
+    },
+    {
+      "heading": "When the IdP removes an admin"
+    },
+    {
+      "text": "{{scim-scope}}"
+    },
+    {
+      "items": [
+        {
+          "label": "Deactivate or disable.",
+          "text": "{{scim-deactivate}}"
+        },
+        {
+          "label": "Delete.",
+          "text": "{{scim-delete}}"
+        }
+      ]
+    },
+    {
+      "label": "Reaching the products.",
+      "text": "How long a provisioning or deprovisioning change in Authentication Service takes to show in ZIA and ZPA is open {{gap:propagation}}; ZPA's own SCIM timing is in [[zpa.scim.provisioning-timing]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the user exists yet: a JIT-only user appears after their first login.",
+      "uses": [
+        "jit-reactive"
+      ]
+    },
+    {
+      "do": "For an admin removed in the IdP, whether the IdP sent a deactivate or a delete, and whether the tenant uses Authentication Service for admins only or for admins and users; with admins only and a deactivate, ZIA and ZPA user access stays enabled.",
+      "uses": [
+        "scim-deactivate",
+        "scim-delete"
+      ]
+    },
+    {
+      "do": "Whether the change has had time to reach the product before concluding it failed.",
+      "uses": [
+        "propagation",
+        "zpa.scim.provisioning-timing:several-days"
+      ]
+    }
+  ],
+  "claims": {
+    "jit-or-scim": {
+      "statement": "Authentication Service synchronizes users with identity providers automatically through SAML just-in-time (JIT) provisioning or SCIM provisioning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-zidentity.json",
+          "quotes": [
+            "Automatically synchronize users with identity providers through SAML just-in-time (JIT) provisioning or SCIM provisioning."
+          ]
+        }
+      ]
+    },
+    "scim-recommended": {
+      "statement": "Zscaler recommends SCIM over JIT provisioning: SCIM synchronizes identities proactively through APIs at scheduled or on-demand intervals, while JIT updates identities reactively from the attributes received during login.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-external-identity-providers.json",
+          "quotes": [
+            "Zscaler recommends using SCIM-based provisioning over Just-in-Time (JIT)-based provisioning, because SCIM has the ability to proactively synchronize identities via APIs at scheduled or on-demand intervals.",
+            "In contrast, JIT updates identities reactively, relying on attributes received during user login sessions."
+          ]
+        }
+      ]
+    },
+    "jit-reactive": {
+      "statement": "So a user provisioned only by JIT is created or updated when they log in, and does not exist in Authentication Service before their first login; SCIM is the path that puts users there ahead of login and removes them without one.",
+      "tier": "B",
+      "derived_from": [
+        "scim-recommended"
+      ],
+      "conditions": "Follows from JIT updating identities from attributes received at login and SCIM synchronizing on a schedule or on demand; no source states the before-first-login case."
+    },
+    "scim-scope": {
+      "statement": "The help's table covers removal of an admin group in the external IdP, for a user in both an admin group and a user group that are assigned to Authentication Service in the IdP, and splits the outcome by Authentication Service for Admins versus for Admins and Users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-external-identity-providers.json",
+          "quotes": [
+            "When an admin group from the external IdP is removed, Authentication Service handles the operation depending on whether the organization used Authentication Service for Admins or Authentication Service for Admins and Users.",
+            "if the user is part of both admin group and user group, and the groups are assigned to Authentication Service in the external IdP"
+          ]
+        }
+      ]
+    },
+    "scim-deactivate": {
+      "statement": "When the IdP sends a SCIM deactivate or disable request (the help's examples are Entra ID and Okta): with Authentication Service for Admins, the admin is deactivated in Authentication Service but stays enabled in ZIA admin and user management, and in ZPA is disabled in admin management only, so their internet and private-application access is not cut; with Authentication Service for Admins and Users, the admin is disabled in both admin and user management in ZIA and ZPA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-external-identity-providers.json",
+          "quotes": [
+            "External IdP sends a deactivate or disable request via SCIM to Authentication Service (e.g., in the case Entra ID and Okta).",
+            "Authentication Service: Admin is deactivated.Internet & SaaS: Admin continues to be enabled in admin and user management.Private Access: Admin is disabled in admin management only and continues to be enabled in user management.",
+            "The admin is not disabled from Internet & SaaS and Private Access user management to prevent unintentional restriction of access to the internet and private applications to those admins.",
+            "Authentication Service: Admin is deactivated.Internet & SaaS: Admin is disabled in both admin management and user management.Private Access: Admin is disabled in both admin management and user management."
+          ]
+        }
+      ]
+    },
+    "scim-delete": {
+      "statement": "When the IdP sends a SCIM delete request (the help's example is Ping Identity): with Authentication Service for Admins, all administrative entitlements to all services are removed for the group's users; with Authentication Service for Admins and Users, the admin is deleted in Authentication Service and from ZIA and ZPA admin management but stays enabled in their user management.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-external-identity-providers.json",
+          "quotes": [
+            "External IdP sends a delete request via SCIM to Authentication Service (e.g., in the case of Ping Identity).",
+            "Authentication Service removes all administrative entitlements to all services (e.g, Internet & SaaS or Private Access) for the users part of the group.",
+            "Authentication Service: Admin is deleted.Internet & SaaS: Admin is deleted from admin management but continues to be enabled in user management.Private Access: Admin is deleted from admin management but continues to be enabled in user management."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "propagation": {
+      "kind": "semantic",
+      "title": "How long Authentication Service user and group changes take to reach ZIA and ZPA",
+      "status": "open",
+      "detail": "Unverified legacy statement: Authentication Service is the source of truth for user, group, department and location data across ZIA, ZPA, ZDX and Business Insights, which pull from it at regular sync intervals; a new user takes minutes to hours to appear in ZIA and ZPA policy pickers; a user removed from a group may keep ZPA access until the next sync plus their current session timeout; a renamed department may persist under the old name in logs until resync; users added by SCIM or the API do not propagate immediately, although user and group writes need no activation step in Authentication Service itself; whether SCIM deprovisioning reaches ZIA and ZPA at once or at the next sync is not documented. No captured source states a sync mechanism or interval between Authentication Service and the products.",
+      "blocks": "predicting when a joiner can be named in policy and when a leaver loses access",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

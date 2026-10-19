@@ -28,14 +28,13 @@ author-status: draft
 
 # Risk360 reference hub
 
-Risk360 is the Zscaler risk-quantification reference area. Start with [`./overview.md`](./overview.md) for the current audit-scoped summary of its risk model, dashboard, factors, Monte Carlo financial modeling, and source-family coverage. The product-help capture says Risk360 provides real-time risk metrics at the organization level and across four attack stages (`vendor/zscaler-help/what-risk360.json:8-13`), while the marketing capture emphasizes cyber risk posture, actionable insights, and financial exposure framing (`vendor/zscaler-help/risk360-product-marketing.md:8-24`).
+Risk360 is the Zscaler risk-quantification reference area. Start with [`risk360.overview`](kb:risk360.overview) for the current audit-scoped summary of its risk model, dashboard, factors, Monte Carlo financial modeling, and source-family coverage. The product-help capture says Risk360 provides real-time risk metrics at the organization level and across four attack stages (`vendor/zscaler-help/what-risk360.json:8-13`), while the marketing capture emphasizes cyber risk posture, actionable insights, and financial exposure framing (`vendor/zscaler-help/risk360-product-marketing.md:8-24`).
 
 ## Topics
 
 | Topic | File | Status |
 |---|---|---|
-| Risk model, telemetry/log sources, dashboard, factors, Monte Carlo, and API-surface audit | [`./overview.md`](./overview.md) | draft |
-| Claim-by-claim ledger for this refresh | [`./_claims-ledger.md`](./_claims-ledger.md) | draft |
+| Risk model, telemetry/log sources, dashboard, factors, Monte Carlo, and API-surface audit | [`risk360.overview`](kb:risk360.overview) | draft |
 
 ## Use This Reference For
 
@@ -46,8 +45,8 @@ Risk360 is the Zscaler risk-quantification reference area. Start with [`./overvi
 
 ## Current Limits
 
-- The full current factor catalog, factor weights, and peer-benchmark methodology are not captured. See [clarification risk360-02](../_meta/clarifications.md#risk360-02-risk360-factor-catalog-weighting-and-peer-benchmark-methodology).
-- Risk360 programmable API or export automation is unresolved. See [clarification risk360-01](../_meta/clarifications.md#risk360-01-risk360-programmable-api-and-export-surface).
+- The full current factor catalog, factor weights, and peer-benchmark methodology are not captured. See [clarification risk360-02](kb:risk360.scoring:factor-methodology).
+- Risk360 programmable API or export automation is unresolved. See [clarification risk360-01](kb:risk360.overview:api-surface).
 
 ## Cross-Links
 

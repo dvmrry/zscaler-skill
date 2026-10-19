@@ -1,0 +1,796 @@
+{
+  "schema_version": 1,
+  "id": "zwa.api.incidents-wire",
+  "title": "DLP incident API wire behavior: list envelopes, paging, close, delete, triggers and evidence, and where the SDKs part from the contract",
+  "aliases": [
+    "zwa incident search",
+    "dlp incident api",
+    "FilterIncidentSearch",
+    "dlp_incident_search",
+    "zwa pagination",
+    "fetchTriggerContext",
+    "zwa evidence url",
+    "DeleteDLPIncident",
+    "incident_close",
+    "zwa go sdk empty results"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zwa.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "zwa.audit-logs"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are the incident operations' behaviors beyond the generated paths and methods. The reference is the help API page; both SDKs call the same /dlp/v1/incidents family."
+    },
+    {
+      "heading": "Lists and paging"
+    },
+    {
+      "text": "{{list-envelopes}} {{go-pager}} The Go pager reads the wrong member for incident lists {{divergence:go-list-member}}. {{python-transactions-envelope}}"
+    },
+    {
+      "text": "{{search-page-params}} The Go pager starts at a different page number {{divergence:page-start}} and asks for more per page than the documented maximum {{divergence:page-size}}."
+    },
+    {
+      "heading": "Search"
+    },
+    {
+      "text": "{{search-fields}} {{status-values}}"
+    },
+    {
+      "heading": "Paths"
+    },
+    {
+      "text": "Go puts the incident ID in a different place for notes and tickets {{divergence:go-path-order}}."
+    },
+    {
+      "heading": "Closing and deleting"
+    },
+    {
+      "text": "{{close-request}} {{python-close}} {{go-close}} {{go-close-empty-members}}"
+    },
+    {
+      "text": "{{delete-operation}} {{python-no-delete}} The portal's deletion is permanent and permission-gated, [[zwa.incidents:delete-permanent]]; whether the API delete is the same is open {{gap:delete-semantics}}."
+    },
+    {
+      "heading": "Triggers and evidence"
+    },
+    {
+      "text": "{{triggers-v1-v2}} {{sdk-triggers-no-context}} {{sdk-triggers-no-context-param}} How a client should get trigger context is open {{gap:trigger-context}}."
+    },
+    {
+      "text": "{{evidence}} Go types its `additionalInfo` differently from the contract {{divergence:evidence-additional-info}}. Oversized evidence files are replaced by placeholders: [[zwa.incidents:evidence-placeholder]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an empty Go incident search or transaction lookup is the pager reading `logs` while the response carries `incidents`.",
+      "uses": [
+        "go-list-member",
+        "go-pager",
+        "list-envelopes"
+      ]
+    },
+    {
+      "do": "Whether a Go list call skipped the first page, by comparing with a raw request that starts at page 0.",
+      "uses": [
+        "page-start"
+      ]
+    },
+    {
+      "do": "Whether a Go close request carried an empty resolution code the API might reject.",
+      "uses": [
+        "go-close-empty-members",
+        "close-request"
+      ]
+    }
+  ],
+  "claims": {
+    "list-envelopes": {
+      "statement": "In the API reference, incident search and the transaction lookup return an incident list whose members are `cursor` and `incidents`, the tickets operation returns `cursor` and `tickets`, and the audit log search returns `cursor` and `logs`; the getting-started example reads `data[\"incidents\"]` from a transaction lookup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1incidents~1search/post/responses/200/content/application~1json/schema",
+          "expect": {
+            "$ref": "#/components/schemas/ZSDLPIncidentList"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1incidents~1transactions~1{transactionId}/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "$ref": "#/components/schemas/ZSDLPIncidentList"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSDLPIncidentList",
+          "expect": {
+            "required": [
+              "cursor",
+              "incidents"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1incidents~1{dlpIncidentId}~1tickets/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "$ref": "#/components/schemas/ZSDLPIncidentTicketList"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSDLPIncidentTicketList/properties/cursor",
+          "expect": {
+            "$ref": "#/components/schemas/Cursor"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSDLPIncidentTicketList/properties/tickets",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1customer~1audit/post/responses/200/content/application~1json/schema",
+          "expect": {
+            "$ref": "#/components/schemas/ZSAuditLogResponseList"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSAuditLogResponseList/properties/cursor",
+          "expect": {
+            "$ref": "#/components/schemas/Cursor"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSAuditLogResponseList/properties/logs",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-workflow-automation-api.json",
+          "quotes": [
+            "url = \"https://api.us1.zsworkflow.net/dlp/v1/incidents/transactions/{transactionId}\"",
+            "for incident in data[\"incidents\"]: print(incident)"
+          ]
+        }
+      ]
+    },
+    "go-pager": {
+      "statement": "The Go `ReadAllPages` helper decodes each page's items from a `logs` member, and the Go incident search, transaction lookup and ticket lookup use it, as does the audit log search.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zwa/services/common/common.go",
+          "quotes": [
+            "Items  []T    `json:\"logs\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zwa/services/dlp_incidents/dlp_incidents.go",
+          "quotes": [
+            "allResults, cursor, err := common.ReadAllPages[common.IncidentDetails](ctx, service.Client, http.MethodPost, path, paginationParams, filters)",
+            "allResults, cursor, err := common.ReadAllPages[common.IncidentDetails](ctx, service.Client, http.MethodGet, endpoint, paginationParams, nil)",
+            "allResults, cursor, err := common.ReadAllPages[Ticket](ctx, service.Client, http.MethodGet, path, paginationParams, nil)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zwa/services/customeraudit/customeraudit.go",
+          "quotes": [
+            "common.ReadAllPages[AuditLog](ctx, service.Client, http.MethodPost, endpoint, paginationParams, filters)"
+          ]
+        }
+      ]
+    },
+    "python-transactions-envelope": {
+      "statement": "Python's `get_incident_transactions` builds one `IncidentDLPDetails` from the whole response body and returns it in a one-element list, while the reference returns an incident list envelope; the model reads incident fields such as `internalId` from the top level, so the incidents are not in the parsed result and must be read from the raw response.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zwa/dlp_incidents.py",
+          "quotes": [
+            "result = [IncidentDLPDetails(self.form_response_body(response.get_body()))]"
+          ],
+          "after": "def get_incident_transactions("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zwa/models/incident_details.py",
+          "quotes": [
+            "self.internal_id = config[\"internalId\"] if \"internalId\" in config else None"
+          ]
+        }
+      ],
+      "derived_from": [
+        "list-envelopes"
+      ],
+      "conditions": "Follows from the model reading per-incident keys at the top level of a body whose top level holds only cursor and incidents per the reference; not observed against a live response."
+    },
+    "search-page-params": {
+      "statement": "Incident search takes `page` (minimum 0, default 0, not needed when `pageId` is used), `pageSize` (default 10, maximum 100) and `pageId`, a page identifier returned by the first search that later requests can use instead of the page number.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1incidents~1search/post/parameters/[name=page]",
+          "expect": {
+            "description": "Specifies the page number of the incident in a multi-paginated response. This field is not required if page ID field is used.",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1incidents~1search/post/parameters/[name=pageSize]",
+          "expect": {
+            "description": "Specifies the page size (i.e., number of incidents per page). The maximum page size is 100.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10
+            }
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1incidents~1search/post/parameters/[name=pageId]",
+          "expect": {
+            "description": "Specifies the page ID of the incident in a multi-paginated response. It is a unique identifier returned in the first search request. You can use the page ID instead of the page number in subsequent search requests for faster and more efficient results."
+          }
+        }
+      ]
+    },
+    "search-fields": {
+      "statement": "Incident search filters by exact field value or by time range; the searchable fields are severity, priority, transactionId, status, sourceDLPType, labels, incidentGroupIds and engine, the source DLP types are SaaS Security API, Email, INLINE and ENDPOINT, and a labels filter takes label names with their values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSDLPIncidentSearchableFields",
+          "expect": {
+            "enum": [
+              "severity",
+              "priority",
+              "transactionId",
+              "status",
+              "sourceDLPType",
+              "labels",
+              "incidentGroupIds",
+              "engine"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1incidents~1search/post",
+          "expect": {
+            "description": "Filters DLP incidents based on the given time range and the field values. The supported field values are:<ul> <li>Severity</li> <li>Priority</li> <li>Transaction ID</li> <li>Status</li> <li>Source DLP Type</li>The source DLP types that that you can use to filter and search an incident are SaaS Security API, Email, INLINE, and ENDPOINT.<li>Labels</li>To filter DLP incidents based on labels, ensure that you replace the parameter <code>value:[string]</code> with <code>value:[{label_name: [label_value]}]</code> in the request body. You need to provide the label name and its associated value to get accurate results.<li>Incident Group</li><li>Engine</li></ul> The supported time range values are:<ul> <li>Start date and time</li> <li>End date and time</li>"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1incidents~1search/post/requestBody",
+          "expect": {
+            "description": "Search request filters the DLP incidents based on the field value (exact match) or the time range (start and end time)."
+          }
+        }
+      ]
+    },
+    "status-values": {
+      "statement": "The API's incident statuses are NEW, INVESTIGATING, VALIDATE_WITH_USER, JUSTIFICATION_RESPONSE_RECEIVED, ESCALATED and RESOLVED.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSDLPIncidentStatus",
+          "expect": {
+            "enum": [
+              "NEW",
+              "INVESTIGATING",
+              "VALIDATE_WITH_USER",
+              "JUSTIFICATION_RESPONSE_RECEIVED",
+              "ESCALATED",
+              "RESOLVED"
+            ]
+          }
+        }
+      ]
+    },
+    "close-request": {
+      "statement": "The close request carries an optional `resolutionLabel`, `resolutionCode` and `notes`, and the only resolution code is FALSE_POSITIVE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSDLPIncidentCloseRequest/properties",
+          "expect": {
+            "resolutionLabel": {
+              "$ref": "#/components/schemas/ZSDLPIncidentLabel"
+            },
+            "notes": {
+              "type": "string",
+              "description": "Additional information about the incident"
+            }
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSDLPIncidentCloseRequest",
+          "expect_absent": [
+            "required"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSDLPIncidentCloseRequest/properties/resolutionCode",
+          "expect": {
+            "$ref": "#/components/schemas/ZSDLPIncidentResolution"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSDLPIncidentResolution",
+          "expect": {
+            "enum": [
+              "FALSE_POSITIVE"
+            ]
+          }
+        }
+      ]
+    },
+    "python-close": {
+      "statement": "Python's `incident_close` sends `resolutionLabel`, `resolutionCode` and `notes` and drops any of them left empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zwa/dlp_incidents.py",
+          "quotes": [
+            "def incident_close(",
+            "\"resolutionLabel\": resolution_label if resolution_label else {},",
+            "\"resolutionCode\": resolution_code,",
+            "\"notes\": notes,",
+            "body = {k: v for k, v in body.items() if v}"
+          ]
+        }
+      ]
+    },
+    "go-close": {
+      "statement": "Go's `UpdateIncidentStatus` sets only `Notes` in its close request, whose `resolutionLabel` and `resolutionCode` members carry no omitempty option.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zwa/services/dlp_incidents/dlp_incidents.go",
+          "quotes": [
+            "func UpdateIncidentStatus(",
+            "ResolutionLabel common.Label `json:\"resolutionLabel\"`",
+            "ResolutionCode  string       `json:\"resolutionCode\"`",
+            "requestPayload := ResolutionDetailsRequest{Notes: close}"
+          ]
+        }
+      ]
+    },
+    "go-close-empty-members": {
+      "statement": "So a Go close always sends an empty `resolutionLabel` object and an empty-string `resolutionCode`, which is not one of the documented codes, and cannot close an incident as a false positive.",
+      "tier": "B",
+      "derived_from": [
+        "go-close",
+        "close-request"
+      ],
+      "conditions": "Go's JSON encoder writes every member without omitempty, so the zero-valued label struct and string are sent; how the API treats an empty resolutionCode is not observed."
+    },
+    "delete-operation": {
+      "statement": "The API reference documents DELETE on an incident as deleting the DLP incident for the given ID, returning a boolean on success, and the Go SDK's `DeleteDLPIncident` calls it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1incidents~1{dlpIncidentId}/delete",
+          "expect": {
+            "description": "Deletes the DLP incident for the specified incident ID",
+            "operationId": "deleteDLPIncident"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1incidents~1{dlpIncidentId}/delete/responses/200/content/application~1json/schema",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zwa/services/dlp_incidents/dlp_incidents.go",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"DELETE\", path, nil, nil, nil)"
+          ]
+        }
+      ]
+    },
+    "python-no-delete": {
+      "statement": "The Python SDK's DLP incidents module has no delete method.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zwa/dlp_incidents.py",
+          "quotes": [
+            "class DLPIncidentsAPI(APIClient):"
+          ]
+        }
+      ],
+      "conditions": "Rests on every def in zscaler/zwa/dlp_incidents.py at the pin: __init__, get_incident_transactions, get_incident_details, change_history, get_incident_triggers, get_generated_tickets, get_incident_evidence, dlp_incident_search, incident_group_search, assign_labels, incident_notes and incident_close."
+    },
+    "triggers-v1-v2": {
+      "statement": "The v1 triggers operation, which downloads the data that triggered the incident, is marked deprecated; a v2 operation returns the trigger metadata nested by source category. Both take `fetchTriggerContext`, which on v1 adds the prefix and suffix data when true and defaults to false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1incidents~1{dlpIncidentId}~1triggers/get",
+          "expect": {
+            "description": "Downloads the actual data that triggered the incident",
+            "deprecated": true
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1incidents~1{dlpIncidentId}~1triggers/get/parameters/[name=fetchTriggerContext]",
+          "expect": {
+            "description": "(Optional) Specifies whether to download the complete incident trigger data, including the prefix and suffix information. Set this field to <code>true</code> to fetch the prefix and suffix data.The default value is <code>false</code>.",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v2~1incidents~1{dlpIncidentId}~1triggers/get",
+          "expect": {
+            "description": "Downloads the actual trigger metadata of the incident in a nested structure organized by source category."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v2~1incidents~1{dlpIncidentId}~1triggers/get/parameters/[name=fetchTriggerContext]",
+          "expect": {
+            "in": "query",
+            "description": "Boolean value indicating whether to fetch trigger data context"
+          }
+        }
+      ]
+    },
+    "sdk-triggers-no-context": {
+      "statement": "The Python `get_incident_triggers` takes only `incident_id` and builds a request to the triggers path under its `/zwa/dlp/v1` base with no query parameters; the Go `GetDLPIncidentTriggers` takes only the incident ID and sends a GET to the triggers path under `/dlp/v1/incidents` with nil options.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zwa/dlp_incidents.py",
+          "quotes": [
+            "self._zwa_base_endpoint = \"/zwa/dlp/v1\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zwa/dlp_incidents.py",
+          "after": "def get_incident_triggers(",
+          "quotes": [
+            "self, incident_id: str, ) -> APIResult[dict]:",
+            "/incidents/{incident_id}/triggers",
+            "request, error = self._request_executor.create_request(http_method, api_url, body, headers)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zwa/services/dlp_incidents/dlp_incidents.go",
+          "quotes": [
+            "baseIncidentEndpoint = \"/dlp/v1/incidents\"",
+            "func GetDLPIncidentTriggers(ctx context.Context, service *services.Service, dlpIncidentID string) (DLPIncidentTriggerData, *http.Response, error) {",
+            "path := fmt.Sprintf(\"%s/%s/triggers\", baseIncidentEndpoint, dlpIncidentID)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"GET\", path, nil, nil, &triggers)"
+          ]
+        }
+      ]
+    },
+    "sdk-triggers-no-context-param": {
+      "statement": "So neither SDK can send `fetchTriggerContext`, and both reach only the v1 triggers operation.",
+      "tier": "B",
+      "derived_from": [
+        "sdk-triggers-no-context",
+        "triggers-v1-v2"
+      ],
+      "conditions": "Read from the two functions at the pin: neither takes an argument that becomes a query parameter. Not observed on the wire."
+    },
+    "evidence": {
+      "statement": "The evidence operation returns the incident's evidence URL, which views and downloads an XML file with the data that triggered the incident, together with `fileName`, `fileType` and `additionalInfo`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1incidents~1{dlpIncidentId}~1evidence/get",
+          "expect": {
+            "description": "Gets the evidence URL of the incident. You can use the evidence link to view and download the XML file with the actual data that triggered the incident."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSDLPIncidentEvidenceInfo",
+          "expect": {
+            "required": [
+              "fileName"
+            ],
+            "description": "DLP Incident evidence metadata"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/components/schemas/ZSDLPIncidentEvidenceInfo/properties",
+          "expect": {
+            "fileType": {
+              "type": "string",
+              "description": "The type or extension of the file"
+            },
+            "additionalInfo": {
+              "type": "object",
+              "description": "Any additional information about the incident"
+            },
+            "evidenceURL": {
+              "type": "string",
+              "description": "The evidence URL of the incident"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "go-list-member": {
+      "summary": "The reference returns incident and ticket lists under `incidents` and `tickets`, while the Go pager reads items only from `logs`.",
+      "positions": [
+        {
+          "says": "Incident search and transaction lookups return cursor and incidents; ticket lookups return cursor and tickets.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dlp-incidents-workflow-automation-api.json",
+            "pointer": "/spec/components/schemas/ZSDLPIncidentList",
+            "expect": {
+              "required": [
+                "cursor",
+                "incidents"
+              ]
+            }
+          }
+        },
+        {
+          "says": "The Go pager's page struct maps its items to logs.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zwa/services/common/common.go",
+            "quotes": [
+              "Items  []T    `json:\"logs\"`"
+            ]
+          }
+        }
+      ],
+      "impact": "If responses follow the reference, Go's FilterIncidentSearch, GetIncidentTransactions and GetDLPIncidentTickets return no items with no error, because the JSON decoder ignores the unmatched incidents and tickets members; the audit log search, whose list is logs, is unaffected. Not observed against a live tenant."
+    },
+    "page-start": {
+      "summary": "The reference's page numbers start at 0, while the Go pager starts at page 1 unless the caller sets one.",
+      "positions": [
+        {
+          "says": "Incident search's page parameter has minimum 0 and default 0.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dlp-incidents-workflow-automation-api.json",
+            "pointer": "/spec/paths/~1dlp~1v1~1incidents~1search/post/parameters/[name=page]",
+            "expect": {
+              "schema": {
+                "type": "integer",
+                "minimum": 0,
+                "default": 0
+              }
+            }
+          }
+        },
+        {
+          "says": "ReadAllPages starts at page 1 and stops once the page number reaches totalPages minus 1.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zwa/services/common/common.go",
+            "quotes": [
+              "page := 1",
+              "if cursor.CurrentPageSize < pageSize || page >= cursor.TotalPages-1 {"
+            ]
+          }
+        }
+      ],
+      "impact": "If pages are numbered from 0, a Go list call without an explicit page skips the first page of results. Not observed."
+    },
+    "page-size": {
+      "summary": "Incident search documents a maximum page size of 100, and Python's docstrings say the same for search and audit logs, while the Go pager requests 1000 per page by default.",
+      "positions": [
+        {
+          "says": "The maximum page size is 100.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dlp-incidents-workflow-automation-api.json",
+            "pointer": "/spec/paths/~1dlp~1v1~1incidents~1search/post/parameters/[name=pageSize]",
+            "expect": {
+              "description": "Specifies the page size (i.e., number of incidents per page). The maximum page size is 100."
+            }
+          }
+        },
+        {
+          "says": "Python documents page_size with Max: 100 for the audit log search.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zwa/audit_logs.py",
+            "quotes": [
+              "Specifies the page size (i.e., number of incidents per page). Max: 100."
+            ]
+          }
+        },
+        {
+          "says": "Go defaults to 1000 per page.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zwa/services/common/common.go",
+            "quotes": [
+              "pageSize := 1000 // Default page size"
+            ]
+          }
+        }
+      ],
+      "impact": "A Go list call without PageSize asks for 1000 items a page; whether the server caps, rejects or honors it is not observed. The audit log operation in the reference states no maximum."
+    },
+    "go-path-order": {
+      "summary": "Go adds notes at /incidents/notes/{id} and reads tickets at /incidents/tickets/{id}, while the reference and Python put the ID first: /incidents/{id}/notes and /incidents/{id}/tickets.",
+      "positions": [
+        {
+          "says": "The reference's note and ticket operations are under the incident ID.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dlp-incidents-workflow-automation-api.json",
+            "pointer": "/spec/paths/~1dlp~1v1~1incidents~1{dlpIncidentId}~1notes/post",
+            "expect": {
+              "operationId": "addNoteDLPIncident",
+              "description": "Adds notes to the incident during updates or status changes"
+            }
+          }
+        },
+        {
+          "says": "Go formats the notes and tickets paths with the ID last.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zwa/services/dlp_incidents/dlp_incidents.go",
+            "quotes": [
+              "path := fmt.Sprintf(\"%s/notes/%d\", baseIncidentEndpoint, dlpIncidentID)",
+              "path := fmt.Sprintf(\"%s/tickets/%s\", baseIncidentEndpoint, dlpIncidentID)"
+            ]
+          }
+        }
+      ],
+      "impact": "Go's CreateNotes and GetDLPIncidentTickets call paths the reference does not list; unless the server also accepts them, those two functions fail."
+    },
+    "evidence-additional-info": {
+      "summary": "The reference types evidence `additionalInfo` as an object, while Go types it as a string.",
+      "positions": [
+        {
+          "says": "additionalInfo is an object.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dlp-incidents-workflow-automation-api.json",
+            "pointer": "/spec/components/schemas/ZSDLPIncidentEvidenceInfo/properties/additionalInfo",
+            "expect": {
+              "type": "object",
+              "description": "Any additional information about the incident"
+            }
+          }
+        },
+        {
+          "says": "Go's DLPIncidentEvidence declares AdditionalInfo as a string.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zwa/services/dlp_incidents/dlp_incidents.go",
+            "quotes": [
+              "AdditionalInfo string `json:\"additionalInfo\"`"
+            ]
+          }
+        }
+      ],
+      "impact": "If the API returns an object, Go's JSON decoding of the evidence response fails with a type error; the incident details' application and content additionalInfo, also strings in Go, appear as objects in the getting-started example. Not observed."
+    }
+  },
+  "gaps": {
+    "delete-semantics": {
+      "kind": "semantic",
+      "status": "partial",
+      "former_ids": [
+        "zwa-02"
+      ],
+      "title": "Whether the API delete matches the portal's permanent, permission-gated delete",
+      "about": [
+        "zwa.incidents:delete-permanent"
+      ],
+      "detail": "The portal says deletion is permanent and needs a role with delete access for Incidents, and the API reference says DELETE deletes the incident. Not stated: whether an API key's role needs the same permission, whether the API delete is equally unrecoverable, and why Python has no delete.",
+      "blocks": "deciding whether an API client may delete incidents safely",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "trigger-context": {
+      "kind": "semantic",
+      "status": "partial",
+      "former_ids": [
+        "zwa-05"
+      ],
+      "title": "How an SDK user gets trigger context, and when to move to v2 triggers",
+      "detail": "Neither SDK can send fetchTriggerContext or call the v2 triggers path, and the v1 path is deprecated. Open: whether the SDKs will add either, and whether v2 returns the same data in a new shape.",
+      "blocks": "fetching prefix and suffix trigger context from an SDK",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

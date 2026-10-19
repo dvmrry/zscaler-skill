@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.api-clients.access-tokens",
+  "title": "ZIdentity-issued access tokens: the Tokens page, when tokens are revoked, and who can revoke them",
+  "aliases": [
+    "revoke access token zidentity",
+    "authentication service issued tokens",
+    "token revoked api client disabled",
+    "revoke oneapi token",
+    "jti api client token",
+    "disabled api client token still works"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zidentity.api-clients"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.api-clients.access-policy"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{jwt-limited-validity}} How a client requests a token and presents it is in [[shared.oneapi.authentication]]; its lifetime is set per client: [[zidentity.api-clients:lifetime-range]]."
+    },
+    {
+      "label": "The Tokens page.",
+      "text": "{{tokens-page}}"
+    },
+    {
+      "label": "When a token is revoked.",
+      "text": "{{revoked-states}} {{revoke-procedure}} {{revoked-unusable}}"
+    },
+    {
+      "label": "Through the API.",
+      "text": "{{admins-only}} Tokens cannot be revoked through the API: the contract has no token operation, [[zidentity.api:no-token-or-policy-paths]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a client that stopped working, the token's status on the Tokens page (searched by client ID or JTI): Revoked, Expired or Active.",
+      "uses": [
+        "tokens-page",
+        "revoked-states"
+      ]
+    },
+    {
+      "do": "For a leaked token, whether it was revoked on the Tokens page, or the client disabled, which also revokes its tokens.",
+      "uses": [
+        "revoke-procedure",
+        "revoked-states"
+      ]
+    }
+  ],
+  "claims": {
+    "jwt-limited-validity": {
+      "statement": "Access tokens are JSON web tokens that OneAPI verifies before allowing an API client to reach a service's API resources, and they have limited validity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-access-tokens.json",
+          "quotes": [
+            "Access tokens are JSON web tokens (JWT) required by API clients for authorization.",
+            "OneAPI verifies the access token and allows the API client to access the required Zscaler service's API resource.",
+            "The access tokens have limited validity."
+          ]
+        }
+      ]
+    },
+    "admins-only": {
+      "statement": "An access token can be revoked only by admins.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-access-tokens.json",
+          "quotes": [
+            "The access token can be revoked only by admins."
+          ]
+        }
+      ]
+    },
+    "tokens-page": {
+      "statement": "The Authentication Service Issued Tokens page lists each token with its client ID, JTI, issued and expiry times and status (Active, Revoked or Expired), and can be filtered by issue time, expiry time and status and searched by client ID or JTI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-access-tokens.json",
+          "quotes": [
+            "Search By: Select Client ID or JTI to search for a token. By default, the Client ID is selected.",
+            "JTI: The JSON identifier.",
+            "Client ID: The unique identifier for the API client.",
+            "Issued At: The date and time when the token was issued.",
+            "Expires At: The date and time when the token expires.",
+            "Expires At: View the tokens that have expired in the selected time frame.",
+            "Status: View the status (Active, Revoked, Expired) of the token.",
+            "Issued At: View the tokens that were issued in the selected time frame."
+          ]
+        }
+      ]
+    },
+    "revoked-states": {
+      "statement": "A token is marked revoked when the API client it was assigned to is deleted, when that client's status is disabled, or when an administrator revokes it on the Tokens page; after re-enabling the client (or for a revoked token whose client is enabled) a new token can be generated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-access-tokens.json",
+          "quotes": [
+            "Token is revoked because the API client to which the token was assigned is deleted. You need to create a new API client and authenticate to get a new token.",
+            "Token is revoked because the status of the API client to which the token was assigned is disabled. You can change the status to Enabled and generate a new token for this API client.",
+            "An administrator manually revoked a token on the Tokens page.",
+            "If the token is revoked but the API client's status is enabled in the Zscaler Admin Console, you can generate a new token and access the API resources."
+          ]
+        }
+      ]
+    },
+    "revoke-procedure": {
+      "statement": "Only active tokens can be revoked; an admin revokes one from the Tokens page by clicking Revoke for it and confirming with CONFIRM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "revoking-access-tokens.json",
+          "quotes": [
+            "You can only revoke active tokens.",
+            "From the navigation menu, go to Administration > API > Tokens.",
+            "On the Authentication Service Issued Tokens page, search or use the Status filter to view the list of active tokens.",
+            "Click Revoke for the specific active token.",
+            "In the Revoke Token window, enter CONFIRM to confirm the action, then click Revoke."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-access-tokens.json",
+          "quotes": [
+            "The access token can be revoked only by admins."
+          ]
+        }
+      ]
+    },
+    "revoked-unusable": {
+      "statement": "A revoked access token can no longer be used to access the Zscaler API resources; a new token has to be generated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "revoking-access-tokens.json",
+          "quotes": [
+            "The revoked access token can no longer be used to access the Zscaler API resources.",
+            "You need to generate a new token when required."
+          ]
+        }
+      ]
+    }
+  }
+}

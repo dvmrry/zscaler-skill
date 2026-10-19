@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "id": "easm.mcp",
+  "title": "The Zscaler MCP server's EASM tools: inventory, full records and documentation mismatches",
+  "aliases": [
+    "easm mcp tools",
+    "zeasm_list_findings",
+    "zeasm_get_lookalike_domain",
+    "easm review attack surface skill",
+    "zeasm organization_id"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "easm.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.mcp-server.results"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The MCP server wraps the Python SDK's EASM reads; toolsets, entitlement filtering and the untrusted-content banner are shared behavior ([[shared.mcp-server.tool-inventory]], [[shared.mcp-server.results]])."
+    },
+    {
+      "label": "Tools.",
+      "text": "{{tools}} {{unwrap-full-records}} {{arg-names}}"
+    },
+    {
+      "label": "Documentation mismatches.",
+      "text": "The skill's argument names differ {{divergence:skill-arg-names}}, the tool guide describes an old wrapper {{divergence:org-docs-wrapper}}, and the tool list describes triage rows {{divergence:list-docs-triage}}."
+    },
+    {
+      "label": "What the skill asks for.",
+      "text": "{{skill-org-fields}} {{org-fields-unavailable}}"
+    },
+    {
+      "label": "Trust.",
+      "text": "Which EASM tools carry the untrusted-content flag is in [[shared.mcp-server.results:untrusted-set]]; the finding description gap is in [[easm.findings]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether tool calls use org_id and lookalike_raw rather than the skill's organization_id and domain_id.",
+      "uses": [
+        "arg-names",
+        "skill-arg-names"
+      ]
+    }
+  ],
+  "claims": {
+    "tools": {
+      "statement": "The MCP server has seven read-only EASM tools in three toolsets: `zeasm` (organizations), `zeasm_findings` (list, details, evidence, scan output) and `zeasm_lookalike_domains` (list, get).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "docs/guides/toolsets.md",
+          "quotes": [
+            "| `zeasm` | 1 | `zeasm_list_organizations` |",
+            "| `zeasm_findings` | 4 | `zeasm_get_finding_details`, `zeasm_get_finding_evidence`, `zeasm_get_finding_scan_output`, `zeasm_list_findings` |",
+            "| `zeasm_lookalike_domains` | 2 | `zeasm_get_lookalike_domain`, `zeasm_list_lookalike_domains` |"
+          ]
+        }
+      ]
+    },
+    "unwrap-full-records": {
+      "statement": "The list tools unwrap the SDK collection's `results` and return each item's full `as_dict()` record; the get tools return the full record.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/easm/organizations.py",
+          "quotes": [
+            "results = getattr(orgs, \"results\", None) or []",
+            "return shape_many([o.as_dict() for o in results])"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/easm/findings.py",
+          "quotes": [
+            "return shape_many([f.as_dict() for f in results])",
+            "return shape_one(finding.as_dict())"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/easm/lookalike_domains.py",
+          "quotes": [
+            "return shape_many([d.as_dict() for d in results])",
+            "return shape_one(domain.as_dict())"
+          ]
+        }
+      ]
+    },
+    "arg-names": {
+      "statement": "The tools take `org_id` and, for the lookalike get, `lookalike_raw`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/easm/lookalike_domains.py",
+          "quotes": [
+            "org_id=args.org_id, lookalike_raw=args.lookalike_raw"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/easm/findings.py",
+          "quotes": [
+            "findings, _, err = client.zeasm.findings.list_findings(org_id=args.org_id)"
+          ]
+        }
+      ]
+    },
+    "skill-org-fields": {
+      "statement": "The review skill asks the agent to note each organization's monitored domains or assets and last scan date.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/easm/review-attack-surface/SKILL.md",
+          "quotes": [
+            "- Monitored domains/assets",
+            "- Last scan date"
+          ]
+        }
+      ]
+    },
+    "org-fields-unavailable": {
+      "statement": "Monitored-asset counts and last scan dates are not on organization records; per-asset first and last seen times come from the asset list, which no MCP tool calls.",
+      "tier": "B",
+      "derived_from": [
+        "skill-org-fields",
+        "easm.api:org-model",
+        "easm.api:assets-api-only"
+      ],
+      "conditions": "Follows from the organization model (id and name) and the asset endpoints being API-only."
+    }
+  },
+  "divergences": {
+    "skill-arg-names": {
+      "summary": "The EASM review skill calls the tools with argument names the tools do not define.",
+      "positions": [
+        {
+          "says": "Calls use `organization_id` and, for the lookalike get, `domain_id`.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "skills/easm/review-attack-surface/SKILL.md",
+            "quotes": [
+              "zeasm_get_lookalike_domain(organization_id=\"<org_id>\", domain_id=\"<domain_id>\")"
+            ]
+          }
+        },
+        {
+          "says": "The tools take `org_id` and `lookalike_raw`.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/easm/lookalike_domains.py",
+            "quotes": [
+              "org_id=args.org_id, lookalike_raw=args.lookalike_raw"
+            ]
+          }
+        }
+      ],
+      "impact": "An agent following the skill literally sends arguments the tool schema rejects; use org_id and the lookalike_raw domain name."
+    },
+    "org-docs-wrapper": {
+      "summary": "The bundled tool guide says the organizations tool returns a results/total_results wrapper; the tool returns a list of organization rows.",
+      "positions": [
+        {
+          "says": "The result is a dictionary with `results` and `total_results`.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "docsrc/tools/easm/index.rst",
+            "quotes": [
+              "- ``total_results``: Total number of organizations"
+            ]
+          }
+        },
+        {
+          "says": "The tool unwraps `results` and returns one row per organization.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/easm/organizations.py",
+            "quotes": [
+              "return shape_many([o.as_dict() for o in results])"
+            ]
+          }
+        }
+      ],
+      "impact": "Code written against the guide's example (`orgs['results']`) fails; iterate the returned list."
+    },
+    "list-docs-triage": {
+      "summary": "The supported-tools guide says the findings list returns a triage row rather than the raw SDK record; the tool returns the full record.",
+      "positions": [
+        {
+          "says": "One triage row per finding rather than the raw SDK record.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "docs/guides/supported-tools.md",
+            "quotes": [
+              "Returns one triage row per finding (id, category, type, status, risk level/score, impacted asset, first/last seen) rather than the raw SDK record."
+            ]
+          }
+        },
+        {
+          "says": "Each item's full `as_dict()` record.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/easm/findings.py",
+            "quotes": [
+              "return shape_many([f.as_dict() for f in results])"
+            ]
+          }
+        }
+      ],
+      "impact": "Findings list rows include description and the scoring fields, which matters for token budgets and for the untrusted description text."
+    }
+  }
+}

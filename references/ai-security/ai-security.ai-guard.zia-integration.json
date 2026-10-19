@@ -1,0 +1,322 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.zia-integration",
+  "title": "Sending ZIA users' AI traffic to AI Guard by proxy chaining: prerequisites, proxy, QUIC rule and forwarding",
+  "aliases": [
+    "ai guard zia integration",
+    "integrating zia with ai guard",
+    "proxy chain to ai guard",
+    "forward.prod.zsaiguard.net",
+    "ai guard proxy gateway",
+    "ai guard x-authenticated-user",
+    "ai guard quic",
+    "ai guard supported applications",
+    "ai guard for users",
+    "ai guard users not showing",
+    "AllUsersGroup"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.forwarding-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.tenant-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall"
+    }
+  ],
+  "prose": [
+    {
+      "text": "AI Guard for Users inspects people's traffic to public AI apps by having ZIA forward that traffic to AI Guard as a chained proxy. This subject is the Help article's configuration and its stated conditions."
+    },
+    {
+      "label": "Before starting.",
+      "text": "{{invoke-from-zia}} {{prerequisites}} {{single-tenant-domain}} {{supported-apps-table}} {{windsurf-proxy-only}}"
+    },
+    {
+      "label": "Configuration in ZIA.",
+      "steps": [
+        {
+          "text": "{{root-cert}} {{cert-download}}"
+        },
+        {
+          "text": "{{proxy-settings}}"
+        },
+        {
+          "text": "{{gateway-fail-close}}"
+        },
+        {
+          "text": "{{quic-block}}"
+        },
+        {
+          "text": "{{forwarding-rule}} Forwarding Control itself is in [[zia.forwarding-control]]."
+        }
+      ]
+    },
+    {
+      "label": "Conditions for it to work.",
+      "text": "{{sign-in-required}} {{users-appear}} How users and groups sync in AI Guard is in [[ai-security.ai-guard.tenant-settings:zia-sync]]."
+    },
+    {
+      "label": "Not stated by the article.",
+      "text": "Whether SSL inspection settings in ZIA matter on this path is open {{gap:ssl-inspection}}, as is what traffic escapes inspection without the QUIC rule or with the gateway set to fail open {{gap:quic-bypass}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "That the user is signed in to ZIA (for example through Client Connector) and authenticated by the IdP; forwarding works only then.",
+      "uses": [
+        "sign-in-required"
+      ]
+    },
+    {
+      "do": "That the application and client type are in the supported table and the destination domain is in the wildcard FQDN group that the forwarding rule sends to the AI Guard gateway.",
+      "uses": [
+        "supported-apps-table",
+        "forwarding-rule"
+      ]
+    },
+    {
+      "do": "That the ZIA proxy is forward.prod.zsaiguard.net on port 9443 with Insert X-Authenticated-User on and Base64 encoding off, and the gateway is fail-close.",
+      "uses": [
+        "proxy-settings",
+        "gateway-fail-close"
+      ]
+    },
+    {
+      "do": "That QUIC is blocked by a firewall rule, or disabled in the browser for ZIA Tunnel 1.0.",
+      "uses": [
+        "quic-block",
+        "quic-bypass"
+      ]
+    }
+  ],
+  "claims": {
+    "invoke-from-zia": {
+      "statement": "ZIA can be configured to invoke AI Guard for processing users' AI traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-configuring-zia-proxy-chain-ai-guard.json",
+          "quotes": [
+            "you can configure ZIA to invoke AI Guard for processing user's AI traffic."
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "Prerequisites are an AI Guard subscription, ZIA and AI Guard linked by Zscaler Support, Experience Center enabled for the tenant (the ZIA steps assume it), the CA certificate of the AI Guard endpoint, and a supported generative AI application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-configuring-zia-proxy-chain-ai-guard.json",
+          "quotes": [
+            "Have an AI Guard subscription.",
+            "Have linked ZIA and AI Guard. Contact Zscaler Support to ensure they are linked.",
+            "Have Experience Center enabled for your tenant. Instructions for ZIA-related configuration assume that it will be performed via Experience Center.",
+            "Have the CA certificate of the AI Guard endpoint.",
+            "Are using a supported generative AI application."
+          ]
+        }
+      ]
+    },
+    "single-tenant-domain": {
+      "statement": "AI Guard can be mapped to only a single tenant and a single domain: a domain present in both a QA and a production tenant can be mapped to one of them, not both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-configuring-zia-proxy-chain-ai-guard.json",
+          "quotes": [
+            "AI Guard can only be mapped to a single tenant and a single domain.",
+            "if acme.com exists in both the QA and Production tenant, AI Guard can map to either the QA or Production tenant, but not both."
+          ]
+        }
+      ]
+    },
+    "supported-apps-table": {
+      "statement": "The supported-application table (last updated Sept. 02, 2026) gives, per application, the supported client types and the domains to forward; for example Google Gemini Workspaces supports Ask Gemini and Generate document in Docs, Slides and Sheets but not Help me write or Refine, at `appsgenaiserver-pa.clients6.google.com`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-configuring-zia-proxy-chain-ai-guard.json",
+          "quotes": [
+            "The following table lists the supported AI applications (last updated: Sept. 02, 2026)",
+            "| Application | Client Types | Domains Required |",
+            "| Google Gemini Workspaces | Google Suite (Docs, Slides, Sheets): \"Ask Gemini\" and \"Generate document\" are supported.",
+            "\"Help me write,\" \"Refine,\" and \"Refine the selected text\" functionality is not supported. | appsgenaiserver-pa.clients6.google.com |"
+          ]
+        }
+      ]
+    },
+    "windsurf-proxy-only": {
+      "statement": "Windsurf is supported only on its desktop app in Proxy mode, and custom block messages are not supported for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-configuring-zia-proxy-chain-ai-guard.json",
+          "quotes": [
+            "| Windsurf | Desktop App (Proxy Mode Only).Custom Block Messages are not currently supported with this provider. |"
+          ]
+        }
+      ]
+    },
+    "root-cert": {
+      "statement": "The AI Guard CA certificate (a .pem file) is uploaded in ZIA as a root certificate of type Proxy Chaining.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-configuring-zia-proxy-chain-ai-guard.json",
+          "quotes": [
+            "Type: From the drop-down menu, select Proxy Chaining.",
+            "File: Browse and select the AI Guard CA certificate (.pem file) from your system."
+          ]
+        }
+      ]
+    },
+    "cert-download": {
+      "statement": "The AI Guard proxy chain root certificate can be downloaded from AI Guard's Tenant Settings for upload into ZIA, which creates the trust between ZIA and AI Guard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-tenant-settings.json",
+          "quotes": [
+            "Next to Download Zscaler AI Guard Proxy Chain Certificate, click Download to download the root certificate from the portal which you can upload into ZIA to create the trust between ZIA and AI Guard."
+          ]
+        }
+      ]
+    },
+    "proxy-settings": {
+      "statement": "The ZIA proxy points to `forward.prod.zsaiguard.net` on port 9443 with the AI Guard root certificate, Insert X-Authenticated-User enabled, and Base64 encoding of the X-Authenticated-User value disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-configuring-zia-proxy-chain-ai-guard.json",
+          "quotes": [
+            "IP Address/FQDN: forward.prod.zsaiguard.net.",
+            "Port: 9443.",
+            "Proxy's Root Certificate: Select the root certificate you previously created.",
+            "Insert X-Authenticated-User: Enable this setting.",
+            "Enable Base64 Encoding for X-Authenticated-User value: Disable this setting."
+          ]
+        }
+      ]
+    },
+    "gateway-fail-close": {
+      "statement": "The proxy gateway keeps Fail Close selected, uses the AI Guard proxy as its primary proxy and leaves the secondary proxy blank.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-configuring-zia-proxy-chain-ai-guard.json",
+          "quotes": [
+            "Fail Close: Leave selected.",
+            "Primary Proxy: Select the proxy you previously created.",
+            "Secondary Proxy: Leave blank."
+          ]
+        }
+      ]
+    },
+    "quic-block": {
+      "statement": "A Firewall Filtering rule on the QUIC network service with action Block/ICMP drops QUIC; for ZIA Tunnel 1.0 the page says to disable the QUIC protocol in the browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-configuring-zia-proxy-chain-ai-guard.json",
+          "quotes": [
+            "Creating a rule for ZIA to drop QUIC traffic",
+            "Network Services: Select QUIC from the dropdown menu.",
+            "Network Traffic: From the drop-down menu, select Block/ICMP.",
+            "If you have ZIA Tunnel 1.0, disable the QUIC protocol from your browser."
+          ]
+        }
+      ]
+    },
+    "forwarding-rule": {
+      "statement": "A Wildcard FQDN destination group holds the required domains for the chosen AI providers, which the Prerequisites section's supported-applications table lists, and a Forwarding Control rule on that group uses Proxy Chaining to the AI Guard proxy gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-configuring-zia-proxy-chain-ai-guard.json",
+          "quotes": [
+            "Type: Select Wildcard FQDN.",
+            "Wildcard FQDN: Add in the required domains for your desired AI providers and click Add Items.",
+            "The AI domains are found in the Prerequisites section.",
+            "The following table lists the supported AI applications",
+            "Destination IPv4 Groups: Select the wildcard FQDN destination group you previously created.",
+            "Forwarding Method: Select Proxy Chaining.",
+            "Forward to Proxy Gateway: Select the proxy gateway you previously created."
+          ]
+        }
+      ]
+    },
+    "sign-in-required": {
+      "statement": "Forwarding works only for users signed in to ZIA, for example through Zscaler Client Connector, and authenticated by the organization's IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-configuring-zia-proxy-chain-ai-guard.json",
+          "quotes": [
+            "For traffic forwarding to work, users must have signed in to ZIA through mechanisms such as Zscaler Client Connector, and they must be authenticated by your IdP."
+          ]
+        }
+      ]
+    },
+    "users-appear": {
+      "statement": "Once ZIA is configured, users defined in Authentication Service appear in AI Guard automatically, but groups are not yet populated automatically; Policy Match policies can target users and groups, and the default group is `AllUsersGroup`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-configuring-zia-proxy-chain-ai-guard.json",
+          "quotes": [
+            "AI users defined in Authentication Service show up automatically in AI Guard after you have configured ZIA successfully.",
+            "Groups are not yet automatically populated.",
+            "You can define policies in Policy Match for both individual users and groups you've created. The default group is AllUsersGroup."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ssl-inspection": {
+      "kind": "semantic",
+      "title": "Whether ZIA SSL inspection settings affect the AI Guard proxy-chaining path",
+      "status": "open",
+      "detail": "Unverified legacy statement: inline mode requires SSL inspection; prompt and response payloads are HTTPS to LLM providers, so SSL bypass on LLM domains can prevent AI Guard inline inspection. The ZIA integration article does not mention SSL inspection: it chains the forwarded traffic to the AI Guard proxy, which is trusted through the uploaded proxy-chaining root certificate.",
+      "blocks": "diagnosing AI Guard for Users traffic that is not inspected",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "quic-bypass": {
+      "kind": "semantic",
+      "title": "What escapes AI Guard without the QUIC block or with a fail-open gateway",
+      "status": "open",
+      "detail": "Unverified legacy statement: proxy-mode ZIA integration should fail closed and block QUIC, otherwise AI-app traffic can bypass the intended inspection path. The article prescribes both settings but does not say what happens without them.",
+      "blocks": "explaining AI traffic missing from AI Guard dashboards",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

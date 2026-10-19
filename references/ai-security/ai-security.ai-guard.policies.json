@@ -1,0 +1,327 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.policies",
+  "title": "AI Guard policies: detector settings, policy control rules, first-match order, applications and testing",
+  "aliases": [
+    "ai guard policy",
+    "ai guard policy configuration",
+    "ai guard policy control",
+    "policy match rule",
+    "ai guard rule order",
+    "ai guard first match",
+    "ai guard policy not applied",
+    "ai guard policy testing",
+    "detector threshold",
+    "ai guard allow block detect",
+    "ai guard applications",
+    "application groups",
+    "match criteria"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.detectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.admin-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.tenant-settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "An AI Guard policy is a set of detector settings; it applies to traffic only through a policy control rule that matches it. Both halves are covered here."
+    },
+    {
+      "label": "Policy configurations.",
+      "text": "{{policy-is-detectors}} {{detector-settings}} {{pii-name-disabled}} {{ten-limit}} The detectors themselves are in [[ai-security.ai-guard.detectors]]."
+    },
+    {
+      "label": "Policy control.",
+      "text": "{{control-binding}} {{user-control-fields}} {{criteria-types}} {{match-rule-references}} {{no-match-unapplied}} What applies when no rule matches is open {{gap:no-match-default}}."
+    },
+    {
+      "label": "Enabling and disabling.",
+      "text": "{{enable-disable-match-rules}}"
+    },
+    {
+      "label": "Applications.",
+      "text": "{{ai-applications}}"
+    },
+    {
+      "label": "Testing.",
+      "text": "{{testing}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "The rules above the expected one in policy control order, since evaluation stops at the first match.",
+      "uses": [
+        "control-binding"
+      ]
+    },
+    {
+      "do": "That the rule is enabled and its criteria match the traffic: provider and model, account type, users or groups for user rules; applications, credentials, application groups, source IPs or custom headers for application rules.",
+      "uses": [
+        "user-control-fields",
+        "criteria-types",
+        "no-match-unapplied"
+      ]
+    },
+    {
+      "do": "The detector's Action (Block, Detect or Allow) and threshold in the policy; Detect only flags.",
+      "uses": [
+        "detector-settings"
+      ]
+    },
+    {
+      "do": "Run the policy through Policy Testing with the same provider credential and model before relying on it.",
+      "uses": [
+        "testing"
+      ]
+    }
+  ],
+  "claims": {
+    "policy-is-detectors": {
+      "statement": "A policy is set by enabling detectors on prompts and responses; a tenant can have several policies, apply one per app, several to one app, or one to several apps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-add-and-manage-ai-guard-policies.json",
+          "quotes": [
+            "You set a policy by enabling one or more included detectors on prompts and responses.",
+            "Every policy is a guardrail, and you can set up multiple policies, define and apply a policy per app, apply multiple policies to one app, or apply a policy to multiple apps."
+          ]
+        }
+      ]
+    },
+    "detector-settings": {
+      "statement": "Most detectors share Enabled (on by default), Severity, Threshold (the lower it is, the more strictly AI Guard activates the policy) and Action: Allow lets the prompt proceed, Block blocks it, Detect flags it as detected, and some detectors also offer Disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-add-and-manage-ai-guard-policies.json",
+          "quotes": [
+            "Most prompt detectors share the following configuration options:",
+            "Enabled: Enables the prompt detector and is on by default.",
+            "Severity: Corresponds to the severity icons in the Prompt Detectors column on the Policies page.",
+            "Threshold: The lower the threshold setting, the more strict AI Guard is with activating the policy (i.e., allowing, blocking, or detecting the prompt).",
+            "Allow allows the prompt to proceed, Block blocks the prompt, and Detect flags the prompt as detected.",
+            "Some detectors include a Disabled option to ensure what is disabled is not covered under that category's detections."
+          ]
+        }
+      ]
+    },
+    "pii-name-disabled": {
+      "statement": "In the PII detector the Person's name category defaults to Disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-add-and-manage-ai-guard-policies.json",
+          "quotes": [
+            "In the PII detector, the Person's name category is defaulted to Disabled."
+          ]
+        }
+      ]
+    },
+    "ten-limit": {
+      "statement": "Competition and Topic accept at most 10 entries at a time in a single policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-add-and-manage-ai-guard-policies.json",
+          "quotes": [
+            "Only 10 can be set at a time for a single policy."
+          ],
+          "after": "Competition: Includes a Competitors category where you enter your specific competitor names."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-add-and-manage-ai-guard-policies.json",
+          "quotes": [
+            "Only 10 can be set at a time for a single policy."
+          ],
+          "after": "Topic: Includes the ability to add multiple custom topics to add to your policy."
+        }
+      ]
+    },
+    "control-binding": {
+      "statement": "A policy configuration is applied by attaching it through policy control to an LLM provider, user or user group; policy controls are evaluated top to bottom and evaluation stops at the first match.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-ai-guard-policy-control.json",
+          "quotes": [
+            "After you create an AI Guard policy configuration, you can then attach it to an LLM provider, user, or user group by adding policy control.",
+            "Policies are evaluated from top-to-bottom and the evaluation will stop after matching the first policy."
+          ]
+        }
+      ]
+    },
+    "user-control-fields": {
+      "statement": "A user policy control needs a rule name, a policy configuration, a rule order and a rule status (enabled or disabled), and at least one match criterion among LLM provider and models (with Account Type when Organization Restrictions are on), users and user groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-ai-guard-policy-control.json",
+          "quotes": [
+            "Rule Name: Enter a name for the policy match.",
+            "Policy Configuration: From the drop-down menu, select a policy you previously created.",
+            "Rule Order: Enter a number for the order in which you want the policy match applied.",
+            "Rule Status: Select whether you want the rule to be enabled or disabled.",
+            "Match Criteria: At least one match criteria must be defined:",
+            "Account Type: If Organization Restrictions are enabled, select Enterprise, Personal, or Both.",
+            "Users: Click the drop-down menu and select the users you want to include with the match criteria.",
+            "User Groups: Click the drop-down to select the groups you want to include in the match criteria."
+          ]
+        }
+      ]
+    },
+    "criteria-types": {
+      "statement": "In the API a match rule's criteria have one of three types: `APPLICATION` targets LLM applications (optionally specific application credentials), application groups, LLM providers, source IPs and optional custom request headers; `DAS_APPLICATION` targets DAS applications the same way without providers; `USER` targets Zscaler users and user groups, optionally narrowed by LLM provider.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1detections~1policy-match-rules/post/requestBody/content/application~1json/schema/properties/matchCriteria",
+          "expect": {
+            "description": "Polymorphic base for match-rule criteria; the `type` discriminator selects the concrete subtype (APPLICATION, USER, or DAS_APPLICATION)."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1detections~1policy-match-rules/post/requestBody/content/application~1json/schema/properties/matchCriteria/discriminator/x-zscaler-inline-mapping/APPLICATION",
+          "expect": {
+            "description": "Match criteria targeting LLM applications, application groups, LLM providers, source IPs, and optional custom request headers."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1detections~1policy-match-rules/post/requestBody/content/application~1json/schema/properties/matchCriteria/discriminator/x-zscaler-inline-mapping/APPLICATION/properties/llmApplications/items",
+          "expect": {
+            "description": "Selects a specific LLM application (by id or name) and, optionally, particular application credentials."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1detections~1policy-match-rules/post/requestBody/content/application~1json/schema/properties/matchCriteria/discriminator/x-zscaler-inline-mapping/DAS_APPLICATION",
+          "expect": {
+            "description": "Match criteria targeting DAS applications, identified by LLM applications, application groups, source IPs, and optional custom request headers."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1detections~1policy-match-rules/post/requestBody/content/application~1json/schema/properties/matchCriteria/discriminator/x-zscaler-inline-mapping/USER",
+          "expect": {
+            "description": "Match criteria targeting specific Zscaler users and user groups, optionally narrowed by LLM provider."
+          }
+        }
+      ]
+    },
+    "match-rule-references": {
+      "statement": "Creating a match rule through the API requires the detection policy and any LLM applications it names to exist already; otherwise the request is rejected with a message naming the missing item.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1detections~1policy-match-rules/post",
+          "expect": {
+            "description": "Creates a new detection policy match rule with priority ordering. The detection policy and any\nLLM applications the rule refers to must already exist; if a referenced policy or application\ncannot be found, the request is rejected with a message that names the missing item."
+          }
+        }
+      ]
+    },
+    "no-match-unapplied": {
+      "statement": "A policy configuration applies to traffic only through an enabled policy control that matches it first; a policy with no such rule, a disabled rule, or a rule below an earlier match is not applied to that traffic.",
+      "tier": "B",
+      "derived_from": [
+        "control-binding",
+        "user-control-fields"
+      ],
+      "conditions": "Follows from first-match evaluation and the rule status field; no page describes the failure case."
+    },
+    "enable-disable-match-rules": {
+      "statement": "Enabling or disabling a detection policy through the API turns every match rule that references it on or off, and the response lists those rules with their new state; disabling does not delete the policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1detections~1policies~1{id}:disable/post/responses/200/content/application~1json/schema",
+          "expect": {
+            "description": "Result of enabling or disabling a detection policy. Enabling or disabling a policy turns every match rule that references it on or off; the response lists those match rules with their new state rather than the full policy."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/aiguard.openapi.json",
+          "pointer": "/paths/~1v1~1detections~1policies~1{id}:disable/post",
+          "expect": {
+            "description": "Disables the detection policy without deleting it."
+          }
+        }
+      ]
+    },
+    "ai-applications": {
+      "statement": "AI applications such as chatbots are added while configuring AI Guard so a policy can be applied to them; they can be grouped into application groups; a DaaS application carries API keys and a Proxy application an identity broker.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-add-and-manage-ai-applications-ai-guard.md",
+          "quotes": [
+            "Adding an AI application (such as a chatbot) needs to be done while configuring AI Guard. Once added, an AI Guard policy can be configured and applied to it.",
+            "Applications: From the drop-down menu, select the applications you want to group together.",
+            "To add or make changes to a DaaS mode AI application's API key:",
+            "To make changes to a Proxy mode AI application's identity broker:"
+          ]
+        }
+      ]
+    },
+    "testing": {
+      "statement": "Policy Testing, available once an LLM provider, its credentials and a policy exist, sends a prompt through a chosen provider credential, policy and LLM model and shows what was allowed or blocked together with the prompt and response without guardrails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-ai-guard-policy-testing.json",
+          "quotes": [
+            "After adding a large language model (LLM) provider, LLM provider credentials, and a policy to AI Guard, you can test your policy to make sure it is working to your satisfaction.",
+            "Provider Credential: From the drop-down menu, select an LLM credential.",
+            "Policy: From the drop-down menu, select a policy you want to test.",
+            "LLM Model: From the drop-down menu, select the LLM model you want to use.",
+            "In addition to the policy test showing you what is allowed or blocked, it also shows you the prompt and response without guardrails."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "no-match-default": {
+      "kind": "semantic",
+      "title": "What AI Guard does with traffic that no policy control matches",
+      "status": "open",
+      "detail": "No captured page says whether unmatched traffic is allowed uninspected, inspected by a default policy, or blocked. The ZIA integration names AllUsersGroup as the default user group (ai-security.ai-guard.zia-integration:users-appear), which does not say what policy applies to it.",
+      "blocks": "answers on traffic outside every policy control",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

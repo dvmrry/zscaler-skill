@@ -38,9 +38,9 @@ into a claim that no server-side write API exists
 
 | Topic | File | Status |
 |---|---|---|
-| Architecture (cloud + agents + WFP/nftables), AI policy recommendations, deployment, ZPA-add-on framing, edge cases | [`./overview.md`](./overview.md) | draft |
-| Portal operations for Application Catalog, ML tag recommendations, namespace/key/value tags, and group-scoped provisioning keys | [`./overview.md`](./overview.md) | draft |
-| GraphQL API surface (read-only) — query conventions: `eyez_id`, dual pagination, three-level tag hierarchy, managed/unmanaged resource groups | [`./api.md`](./api.md) | draft |
+| Architecture (cloud + agents + WFP/nftables), AI policy recommendations, deployment, ZPA-add-on framing, edge cases | [`zms.overview`](kb:zms.overview) | draft |
+| Portal operations for Application Catalog, ML tag recommendations, namespace/key/value tags, and group-scoped provisioning keys | [`zms.overview`](kb:zms.overview) | draft |
+| GraphQL API surface (read-only) — query conventions: `eyez_id`, dual pagination, three-level tag hierarchy, managed/unmanaged resource groups | [`zms.api`](kb:zms.api) | draft |
 
 ## Why ZMS matters in the suite
 
