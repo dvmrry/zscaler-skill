@@ -87,7 +87,12 @@
           "quotes": [
             "for ba_app in existing_app.get(\"clientless_apps\") or []:",
             "config[\"app_id\"] = existing_app[\"id\"] if existing_app else \"\"",
-            "deleted_ids = ["
+            "deleted_ids = [",
+            "Sub-app IDs are resolved exclusively from the clientless apps owned by",
+            "On create",
+            "there is no parent segment yet, so the IDs are left empty and nothing",
+            "config[\"ba_app_id\"] = \"\"",
+            "if deleted_ids: desired_app[\"common_apps_dto\"][\"deleted_ba_apps\"] = deleted_ids"
           ]
         },
         {
@@ -96,7 +101,12 @@
           "quotes": [
             "for pra_app in existing_app.get(\"pra_apps\") or []:",
             "config[\"app_id\"] = existing_app[\"id\"] if existing_app else \"\"",
-            "deleted_ids = ["
+            "deleted_ids = [",
+            "Sub-app IDs are resolved exclusively from the PRA apps owned by the",
+            "segment being updated.",
+            "there is no parent segment yet, so the IDs are left empty and nothing",
+            "config[\"pra_app_id\"] = \"\"",
+            "if deleted_ids: desired_app[\"common_apps_dto\"][\"deleted_pra_apps\"] = deleted_ids"
           ]
         }
       ]
@@ -133,7 +143,9 @@
           "quotes": [
             "desired_app[\"tcp_port_range\"] = list(declared_ports) + [",
             "tcp_port_ranges=convert_ports_list( existing_app.get(\"tcp_port_range\", None)",
-            "tcp_port_ranges=convert_ports_list(app.get(\"tcp_port_range\", None)),"
+            "tcp_port_ranges=convert_ports_list(app.get(\"tcp_port_range\", None)),",
+            "# Merge the BA app domains and ports into the declared values instead",
+            "desired_app[\"domain_names\"] = list(declared_domains) + ["
           ]
         },
         {
@@ -142,7 +154,9 @@
           "quotes": [
             "desired_app[\"tcp_port_range\"] = list(declared_ports) + [",
             "tcp_port_ranges=convert_ports_list( existing_app.get(\"tcp_port_range\", None)",
-            "tcp_port_ranges=convert_ports_list(app.get(\"tcp_port_range\", None)),"
+            "tcp_port_ranges=convert_ports_list(app.get(\"tcp_port_range\", None)),",
+            "# Merge the PRA app domains and ports into the declared values instead",
+            "desired_app[\"domain_names\"] = list(declared_domains) + ["
           ]
         }
       ]
@@ -178,7 +192,11 @@
           "path": "plugins/modules/zpa_application_segment_ba_v2.py",
           "quotes": [
             "ba_by_domain[domain] = ba_app",
-            "ba_app = ba_by_domain.get(domain)"
+            "ba_app = ba_by_domain.get(domain)",
+            "ba_by_domain = {}",
+            "for domain, ba_app in ba_by_domain.items()",
+            "(ba_app.get(\"domain\") or \"\").strip().casefold()",
+            "(app_config.get(\"domain\") or \"\").strip().casefold()"
           ]
         },
         {
@@ -186,7 +204,11 @@
           "path": "plugins/modules/zpa_application_segment_pra.py",
           "quotes": [
             "pra_by_domain[domain] = pra_app",
-            "pra_app = pra_by_domain.get(domain)"
+            "pra_app = pra_by_domain.get(domain)",
+            "pra_by_domain = {}",
+            "for domain, pra_app in pra_by_domain.items()",
+            "(pra_app.get(\"domain\") or \"\").strip().casefold()",
+            "(app_config.get(\"domain\") or \"\").strip().casefold()"
           ]
         }
       ]
@@ -208,14 +230,18 @@
           "source": "ansible-zpa",
           "path": "plugins/modules/zpa_application_segment_ba_v2.py",
           "quotes": [
-            "fields_to_exclude = [\"id\", \"common_apps_dto\"]"
+            "fields_to_exclude = [\"id\", \"common_apps_dto\"]",
+            "current_domains.discard(\"\") desired_domains.discard(\"\") if desired_domains != current_domains: differences_detected = True",
+            "for key, desired_value in desired_app.items(): if key in fields_to_exclude: continue"
           ]
         },
         {
           "source": "ansible-zpa",
           "path": "plugins/modules/zpa_application_segment_pra.py",
           "quotes": [
-            "fields_to_exclude = [\"id\", \"common_apps_dto\"]"
+            "fields_to_exclude = [\"id\", \"common_apps_dto\"]",
+            "current_domains.discard(\"\") desired_domains.discard(\"\") if desired_domains != current_domains: differences_detected = True",
+            "for key, desired_value in desired_app.items(): if key in fields_to_exclude: continue"
           ]
         }
       ]
@@ -231,7 +257,10 @@
             "application_type=\"INSPECT\",",
             "desired_app[\"common_apps_dto\"][\"deleted_pra_apps\"] = deleted_ids",
             "client.app_segments_pra.update_segment_pra(",
-            "target_app_id = existing_app.get(\"id\")"
+            "target_app_id = existing_app.get(\"id\")",
+            "pra_by_domain = {} if existing_app: target_app_id = existing_app.get(\"id\")",
+            "lambda qp: client.app_segment_by_type.get_segments_by_type( application_type=\"INSPECT\",",
+            "there is no parent segment yet, so the IDs are left empty and nothing"
           ]
         }
       ]
@@ -246,7 +275,12 @@
           "quotes": [
             "desired_app[\"tcp_port_range\"] = list(declared_ports) + [",
             "tcp_port_ranges=convert_ports_list( existing_app.get(\"tcp_port_range\", None)",
-            "tcp_port_ranges=convert_ports_list(app.get(\"tcp_port_range\", None)),"
+            "tcp_port_ranges=convert_ports_list(app.get(\"tcp_port_range\", None)),",
+            "# Merge the inspection app domains and ports into the declared values",
+            "desired_app[\"domain_names\"] = list(declared_domains) + [",
+            "udp_port_ranges=convert_ports_list( existing_app.get(\"udp_port_range\", None)",
+            "udp_port_ranges=convert_ports_list(app.get(\"udp_port_range\", None)),",
+            "client.app_segments_inspection.add_segment_inspection("
           ]
         }
       ]

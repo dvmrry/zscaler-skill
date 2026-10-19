@@ -92,8 +92,93 @@
           "path": "zscaler/zcc/services/web_privacy/web_privacy.go",
           "quotes": [
             "EnablePacketCapture           string `json:\"enablePacketCapture\"`",
-            "CollectUserInfo               string `json:\"collectUserInfo\"`"
+            "CollectUserInfo               string `json:\"collectUserInfo\"`",
+            "type WebPrivacyInfo struct { ID string `json:\"id\"` Active string `json:\"active\"` CollectUserInfo string `json:\"collectUserInfo\"`",
+            "CollectMachineHostname string `json:\"collectMachineHostname\"` CollectZdxLocation string `json:\"collectZdxLocation\"` EnablePacketCapture string `json:\"enablePacketCapture\"`",
+            "DisableCrashlytics string `json:\"disableCrashlytics\"` OverrideT2ProtocolSetting string `json:\"overrideT2ProtocolSetting\"` RestrictRemotePacketCapture string `json:\"restrictRemotePacketCapture\"`",
+            "GrantAccessToZscalerLogFolder string `json:\"grantAccessToZscalerLogFolder\"` ExportLogsForNonAdmin string `json:\"exportLogsForNonAdmin\"` EnableAutoLogSnippet string `json:\"enableAutoLogSnippet\"`",
+            "EnforceSecurePacUrls string `json:\"enforceSecurePacUrls\"` EnableFQDNMatchForVpnBypasses string `json:\"enableFQDNMatchForVpnBypasses\"` }"
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1setWebPrivacyInfo/put/requestBody/content/application~1json/schema/properties",
+          "expect": {
+            "active": {
+              "type": "string"
+            },
+            "collectMachineHostname": {
+              "type": "string"
+            },
+            "collectUserInfo": {
+              "type": "string"
+            },
+            "collectZdxLocation": {
+              "type": "string"
+            },
+            "disableCrashlytics": {
+              "type": "string"
+            },
+            "enablePacketCapture": {
+              "type": "string"
+            },
+            "exportLogsForNonAdmin": {
+              "type": "string"
+            },
+            "grantAccessToZscalerLogFolder": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "overrideT2ProtocolSetting": {
+              "type": "string"
+            },
+            "restrictRemotePacketCapture": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getWebPrivacyInfo/get/responses/200/content/application~1json/schema/properties",
+          "expect": {
+            "active": {
+              "type": "string"
+            },
+            "collectMachineHostname": {
+              "type": "string"
+            },
+            "collectUserInfo": {
+              "type": "string"
+            },
+            "collectZdxLocation": {
+              "type": "string"
+            },
+            "disableCrashlytics": {
+              "type": "string"
+            },
+            "enablePacketCapture": {
+              "type": "string"
+            },
+            "exportLogsForNonAdmin": {
+              "type": "string"
+            },
+            "grantAccessToZscalerLogFolder": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "overrideT2ProtocolSetting": {
+              "type": "string"
+            },
+            "restrictRemotePacketCapture": {
+              "type": "string"
+            }
+          }
         }
       ]
     },
@@ -109,7 +194,8 @@
             "func boolToStr01(b types.Bool) string {",
             "m.Active = types.BoolValue(p.Active == \"1\")",
             "// API GET omits these fields; preserve existing plan/state value to avoid drift.",
-            "if m.EnforceSecurePacUrls.IsNull() || m.EnforceSecurePacUrls.IsUnknown() {"
+            "if m.EnforceSecurePacUrls.IsNull() || m.EnforceSecurePacUrls.IsUnknown() {",
+            "if m.EnableFQDNMatchForVpnBypasses.IsNull() || m.EnableFQDNMatchForVpnBypasses.IsUnknown() {"
           ]
         },
         {
@@ -165,15 +251,29 @@
         {
           "source": "sdk-python",
           "path": "zscaler/zcc/web_privacy.py",
+          "after": "def set_web_privacy_info(self, **kwargs) -> APIResult[dict]:",
           "quotes": [
-            "result = WebPrivacy(self.form_response_body(response.get_body()))"
+            "result = WebPrivacy(self.form_response_body(response.get_body()))",
+            "body.update(kwargs)",
+            "return (result, response, None)"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zcc/models/webprivacy.py",
           "quotes": [
-            "self.restrict_remote_packet_capture = ("
+            "self.restrict_remote_packet_capture = (",
+            "config[\"active\"] if \"active\" in config else None",
+            "config[\"collectMachineHostname\"] if \"collectMachineHostname\" in config else None",
+            "config[\"collectUserInfo\"] if \"collectUserInfo\" in config else None",
+            "config[\"collectZdxLocation\"] if \"collectZdxLocation\" in config else None",
+            "config[\"disableCrashlytics\"] if \"disableCrashlytics\" in config else None",
+            "config[\"enablePacketCapture\"] if \"enablePacketCapture\" in config else None",
+            "config[\"exportLogsForNonAdmin\"] if \"exportLogsForNonAdmin\" in config else None",
+            "config[\"grantAccessToZscalerLogFolder\"] if \"grantAccessToZscalerLogFolder\" in config else None",
+            "config[\"id\"] if \"id\" in config else None",
+            "config[\"overrideT2ProtocolSetting\"] if \"overrideT2ProtocolSetting\" in config else None",
+            "config[\"restrictRemotePacketCapture\"] if \"restrictRemotePacketCapture\" in config else None"
           ]
         }
       ]
@@ -209,6 +309,15 @@
           "path": "zscaler/zcc/services/web_privacy/web_privacy.go",
           "quotes": [
             "func GetWebPrivacyInfo(ctx context.Context, service *zscaler.Service) (*WebPrivacyInfo, error) {"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getWebPrivacyInfo/get",
+          "expect_absent": [
+            "parameters",
+            "requestBody"
           ]
         }
       ]

@@ -67,7 +67,9 @@
           "path": "skills/zia/investigate-sandbox/SKILL.md",
           "quotes": [
             "**One-time download links** -- After the initial request, the URL no longer serves the file.",
-            "then \"Allowed\" for subsequent attempts (but with server-side 404)"
+            "then \"Allowed\" for subsequent attempts (but with server-side 404)",
+            "Subsequent download attempts return 404/403 from the origin server.",
+            "Web Insights logs show \"Sent for Analysis\" for the first transaction"
           ]
         }
       ],
@@ -84,7 +86,9 @@
           "path": "skills/zia/investigate-sandbox/SKILL.md",
           "quotes": [
             "Each new hash triggers a new quarantine.",
-            "multiple \"Sent for Analysis\" entries for the same URL but with different MD5 hashes"
+            "multiple \"Sent for Analysis\" entries for the same URL but with different MD5 hashes",
+            "Some websites generate a unique file per request (different MD5 each time).",
+            "Web Insights logs show multiple \"Sent for Analysis\" entries"
           ]
         }
       ]
@@ -98,7 +102,8 @@
           "path": "skills/zia/investigate-sandbox/SKILL.md",
           "quotes": [
             "Create a Sandbox rule for the affected domain to \"Allow and scan\" instead of quarantine.",
-            "If malicious, a Patient 0 alert fires."
+            "If malicious, a Patient 0 alert fires.",
+            "This delivers the file immediately while Sandbox analyzes in the background."
           ]
         }
       ]
@@ -112,7 +117,10 @@
           "path": "skills/zia/investigate-sandbox/SKILL.md",
           "quotes": [
             "This resolves itself after the cache propagates.",
-            "the PSE cache hasn't updated yet. The user should retry shortly."
+            "the PSE cache hasn't updated yet. The user should retry shortly.",
+            "After analysis completes on one ZIA Public Service Edge, the result may not yet be cached on another PSE.",
+            "Users accessing from a different location may briefly see the quarantine page again.",
+            "If the report shows \"Benign\" but the file is still quarantined"
           ]
         }
       ]
@@ -125,7 +133,8 @@
           "source": "zscaler-help",
           "path": "about-sandbox.json",
           "quotes": [
-            "Hash propagation of malicious files across all Public Service Edges for Internet & SaaS"
+            "Hash propagation of malicious files across all Public Service Edges for Internet & SaaS",
+            "It propagates a hash of malicious files to all Public Service Edges for Internet & SaaS (ZIA) throughout the cloud, effectively maintaining a real-time denylist"
           ]
         }
       ]

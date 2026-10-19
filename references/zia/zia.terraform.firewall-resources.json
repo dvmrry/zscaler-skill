@@ -77,12 +77,12 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_firewall_filtering_rules.go",
           "at": [
-            "v4.8.8"
+            "v4.8.8",
+            "v4.8.9"
           ],
           "quotes": [
-            "Description: \"The EUN template ID associated with the rule\","
-          ],
-          "after": "\"eun_template_id\": {"
+            "\"eun_template_id\": { Type: schema.TypeInt, Optional: true, Description: \"The EUN template ID associated with the rule\", },"
+          ]
         },
         {
           "source": "tf-zia",
@@ -92,22 +92,56 @@
             "// when the template is not set, regardless of is_eun_enabled.",
             "Computed:    true,"
           ],
-          "after": "\"eun_template_id\": {"
+          "after": "\"eun_template_id\": {",
+          "at": [
+            "v4.8.10",
+            "HEAD"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 4.8.10 (October 5, 2026)",
+            "[PR #609](https://github.com/zscaler/terraform-provider-zia/pull/609) - Added missing eun template attributes to `zia_firewall_filtering_rule` resource"
+          ]
         }
       ]
     },
     "eun-docs-asymmetry": {
-      "statement": "The data-source page lists both EUN attributes while the resource page's argument reference does not mention them.",
+      "statement": "The data-source page lists both EUN attributes, `is_eun_enabled` and `eun_template_id`. The resource page's argument reference lists them too from v4.8.10, whose changelog reads \"Added missing eun template attributes to `zia_firewall_filtering_rule` resource\" (#609).",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zia",
           "path": "docs/data-sources/zia_firewall_filtering_rule.md",
           "quotes": [
+            "* `is_eun_enabled` - (Boolean) A Boolean value that indicates whether Enhanced User Notification (EUN) is enabled for the rule.",
             "* `eun_template_id` - (Integer) The ID of the Enhanced User Notification (EUN) template associated with the rule."
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_filtering_rule.md",
+          "at": [
+            "v4.8.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "* `is_eun_enabled` - (Boolean) A Boolean value that indicates whether Enhanced User Notification (EUN) is enabled for the rule.",
+            "* `eun_template_id` - (Integer) The ID of the Enhanced User Notification (EUN) template associated with the rule."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 4.8.10 (October 5, 2026)",
+            "[PR #609](https://github.com/zscaler/terraform-provider-zia/pull/609) - Added missing eun template attributes to `zia_firewall_filtering_rule` resource"
+          ]
         }
-      ]
+      ],
+      "conditions": "Changed upstream in v4.8.10 (checked 2026-10-19): previously \"The data-source page lists both EUN attributes while the resource page's argument reference does not mention them.\""
     },
     "eun-read-and-expand": {
       "statement": "Read copies the API's `eunTemplateId` into state, and the SDK model tags that field `omitempty`.",
@@ -163,7 +197,9 @@
           "source": "tf-zia",
           "path": "docs/resources/zia_ips_signature_rules.md",
           "quotes": [
-            "If the rule text is rejected, the create/update aborts before any state is written"
+            "If the rule text is rejected, the create/update aborts before any state is written",
+            "The provider validates `rule_text` against the Zscaler validation endpoint on every create and update.",
+            "the underlying API diagnostic (position, parameter, suggestion) is surfaced in the error."
           ]
         },
         {
@@ -187,7 +223,9 @@
             "The custom-signature `sid` range starts at `1000000`.",
             "`msg:\"...\"` and `sid:N` are required inside the parentheses.",
             "The bidirectional `<>` operator is not supported.",
-            "No leading whitespace before `alert`."
+            "No leading whitespace before `alert`.",
+            "Use literal `any` (or a literal CIDR) for source / destination networks.",
+            "Direction must be `->`."
           ]
         }
       ]
@@ -201,7 +239,8 @@
           "path": "docs/resources/zia_ips_signature_rules.md",
           "quotes": [
             "`rule_text` is whitespace-insensitive across plans.",
-            "the leftover spaces become part of the string and Zscaler's validation endpoint rejects the rule"
+            "The provider normalizes leading/trailing whitespace and trailing newlines on both sides of the diff",
+            "If the rule line is indented more than `EOT`, the leftover spaces become part of the string and Zscaler's validation endpoint rejects the rule with `Unexpected character(s) at rule header`."
           ]
         }
       ]

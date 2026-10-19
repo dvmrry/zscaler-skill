@@ -139,14 +139,40 @@
       ]
     },
     "terraform-omits-any-none": {
-      "statement": "The Terraform provider and the Ansible module list only the eight category tokens for `type`, not ANY or NONE.",
+      "statement": "For DLP rules, the Terraform provider and the Ansible module list only the eight category tokens for `type`, not ANY or NONE; for malware rules the Ansible module omits them too, but the Terraform resource accepts ANY and NONE.",
       "tier": "A",
       "evidence": [
         {
           "source": "api-specs",
           "path": "automate-zscaler/zia-divergences.md",
+          "after": "## casb_dlp_rule",
           "quotes": [
-            "vs TF ['OFLCASB_DLP_FILE', 'OFLCASB_DLP_EMAIL', 'OFLCASB_DLP_CRM', 'OFLCASB_DLP_ITSM', 'OFLCASB_DLP_COLLAB', 'OFLCASB_DLP_REPO', 'OFLCASB_DLP_STORAGE', 'OFLCASB_DLP_GENAI']"
+            "- `type`: contract ['ANY', 'NONE', 'OFLCASB_DLP_FILE',",
+            "vs TF ['OFLCASB_DLP_FILE', 'OFLCASB_DLP_EMAIL', 'OFLCASB_DLP_CRM', 'OFLCASB_DLP_ITSM', 'OFLCASB_DLP_COLLAB', 'OFLCASB_DLP_REPO', 'OFLCASB_DLP_STORAGE', 'OFLCASB_DLP_GENAI']",
+            "vs Ansible ['OFLCASB_DLP_FILE', 'OFLCASB_DLP_EMAIL', 'OFLCASB_DLP_CRM', 'OFLCASB_DLP_ITSM', 'OFLCASB_DLP_COLLAB', 'OFLCASB_DLP_REPO', 'OFLCASB_DLP_STORAGE', 'OFLCASB_DLP_GENAI'] (ziacloud-ansible)"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/zia-divergences.md",
+          "after": "## casb_malware_rule",
+          "quotes": [
+            "- `type`: contract ['ANY', 'NONE', 'OFLCASB_AVP_FILE',",
+            "vs Ansible ['OFLCASB_AVP_FILE', 'OFLCASB_AVP_EMAIL', 'OFLCASB_AVP_CRM', 'OFLCASB_AVP_ITSM', 'OFLCASB_AVP_COLLAB', 'OFLCASB_AVP_REPO', 'OFLCASB_AVP_STORAGE', 'OFLCASB_AVP_GENAI'] (ziacloud-ansible)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_casb_dlp_rules.go",
+          "quotes": [
+            "\"OFLCASB_DLP_FILE\", \"OFLCASB_DLP_EMAIL\", \"OFLCASB_DLP_CRM\", \"OFLCASB_DLP_ITSM\", \"OFLCASB_DLP_COLLAB\", \"OFLCASB_DLP_REPO\", \"OFLCASB_DLP_STORAGE\", \"OFLCASB_DLP_GENAI\", }, false),"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_casb_malware_rules.go",
+          "quotes": [
+            "\"ANY\", \"NONE\", \"OFLCASB_AVP_FILE\","
           ]
         }
       ]
@@ -200,11 +226,39 @@
         {
           "source": "zscaler-help",
           "path": "about-saas-security-insights-logs.json",
+          "after": "Collaboration Columns",
           "quotes": [
-            "Application: The type of sanctioned SaaS application (e.g., Slack).",
-            "Application: The type of sanctioned SaaS application (e.g., Salesforce).",
-            "Application: The type of sanctioned SaaS application (e.g., Exchange).",
-            "Application: The type of sanctioned SaaS application (e.g., ChatGPT).",
+            "Application: The type of sanctioned SaaS application (e.g., Slack)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "after": "CRM Columns",
+          "quotes": [
+            "Application: The type of sanctioned SaaS application (e.g., Salesforce)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "after": "Email Columns",
+          "quotes": [
+            "Application: The type of sanctioned SaaS application (e.g., Exchange)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "after": "Gen AI Columns",
+          "quotes": [
+            "Application: The type of sanctioned SaaS application (e.g., ChatGPT)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
             "Collaboration Columns",
             "CRM Columns",
             "Email Columns",
@@ -217,6 +271,16 @@
       "statement": "DLP rule order is defined relative to other Data at Rest Scanning DLP rules and malware rule order relative to other Data at Rest Scanning Malware rules, so the two kinds are separate ordered lists, and both are separate from the inline Web DLP rule list.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post",
+          "expect": {
+            "tags": [
+              "SaaS Security API"
+            ]
+          }
+        },
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zia.openapi.json",
@@ -240,6 +304,16 @@
           "expect": {
             "description": "The rule order of execution for the DLP policy rule with respect to other rules."
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/post",
+          "expect": {
+            "tags": [
+              "Data Loss Prevention"
+            ]
+          }
         }
       ]
     },
@@ -259,7 +333,7 @@
       ]
     },
     "ruletype-scoped-calls": {
-      "statement": "The rule endpoints take `ruleType` as an optional query parameter on list, get and delete, and the SDKs and the Terraform provider always scope their calls to one rule type.",
+      "statement": "The rule endpoints take `ruleType` as an optional query parameter on list, get and delete. The Go SDK's GetByRuleType, GetByRuleID and Delete each send one ruleType, and the Terraform DLP rule resource reads rules through GetByRuleType and GetByRuleID with the rule's type; the Python SDK requires rule_type to list rules and makes it optional on get and delete.",
       "tier": "A",
       "evidence": [
         {
@@ -269,6 +343,15 @@
           "expect": {
             "required": false,
             "description": "Specifies the DLP rule type"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules~1{ruleId}/get/parameters/[name=ruleType]",
+          "expect": {
+            "required": false,
+            "description": "Rule type"
           }
         },
         {
@@ -284,7 +367,34 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/saas_security_api/casb_dlp_rules/casb_dlp_rules.go",
           "quotes": [
-            "endpoint := fmt.Sprintf(\"%s?ruleType=%s\", casbDlpRulesEndpoint, url.QueryEscape(ruleType))"
+            "endpoint := fmt.Sprintf(\"%s?ruleType=%s\", casbDlpRulesEndpoint, url.QueryEscape(ruleType))",
+            "endpoint := fmt.Sprintf(\"%s/%d?ruleType=%s\", casbDlpRulesEndpoint, ruleID, url.QueryEscape(ruleType))\n\terr := service.Client.Read(ctx, endpoint, &rule)",
+            "func Delete(ctx context.Context, service *zscaler.Service, ruleType string, ruleID int) (*http.Response, error) {\n\tendpoint := fmt.Sprintf(\"%s/%d?ruleType=%s\", casbDlpRulesEndpoint, ruleID, url.QueryEscape(ruleType))"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_casb_dlp_rules.go",
+          "after": "func resourceCasbDlpRulesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "ruleType, ok := d.Get(\"type\").(string)",
+            "resp, err := casb_dlp_rules.GetByRuleID(ctx, service, ruleType, id)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_casb_dlp_rules.go",
+          "quotes": [
+            "rules, _ := casb_dlp_rules.GetByRuleType(ctx, service, req.Type)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/casb_dlp_rules.py",
+          "quotes": [
+            "def list_rules( self, rule_type: str,",
+            "def get_rule( self, rule_id: int, rule_type: Optional[str] = None,",
+            "def delete_rule(self, rule_id: int, rule_type: Optional[str] = None)"
           ]
         }
       ]

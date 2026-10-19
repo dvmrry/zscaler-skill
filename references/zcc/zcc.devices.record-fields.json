@@ -136,7 +136,8 @@
           "source": "zscaler-help",
           "path": "about-enrolled-devices.json",
           "quotes": [
-            "If Collect Device Owner Information is enabled, this field displays the device owner information. For Windows and macOS, this is the locally logged in user. For Android and iOS, this is the Zscaler Client Connector username."
+            "If Collect Device Owner Information is enabled, this field displays the device owner information. For Windows and macOS, this is the locally logged in user. For Android and iOS, this is the Zscaler Client Connector username.",
+            "When disabled, this field does not display device owner information."
           ]
         }
       ]
@@ -210,7 +211,15 @@
             "ZIA Enabled: Displays True if the user is entitled for the Internet & SaaS (ZIA) service in Zscaler Client Connector.",
             "ZIA Health: Displays Active if Zscaler Client Connector is connected to Internet & SaaS. Displays Inactive if Zscaler Client Connector is not connected to Internet & SaaS.",
             "Last Seen Connected to ZPA: The last known date and time of connection to Private Access.",
-            "Zscaler Deception Health: Displays Active if Zscaler Client Connector is connected to Deception."
+            "Zscaler Deception Health: Displays Active if Zscaler Client Connector is connected to Deception.",
+            "Last Seen Connected to ZIA: The last known date and time of connection to Internet & SaaS.",
+            "ZPA Enabled: Displays True if the user is entitled for the Private Access service in Zscaler Client Connector.",
+            "ZPA Health: Displays Active if Zscaler Client Connector is connected to Private Access. Displays Inactive if Zscaler Client Connector is not connected to Private Access.",
+            "ZDX Enabled: Displays True if the user is entitled for the ZDX service in Zscaler Client Connector.",
+            "ZDX Health: Displays Active if Zscaler Client Connector is connected to ZDX. Displays Inactive if Zscaler Client Connector is not connected to ZDX.",
+            "Last Seen Connected to ZDX: The last known date and time of connection to ZDX.",
+            "Zscaler Deception Enabled: Displays True if the user is entitled for the Deception service in Zscaler Client Connector.",
+            "Last Seen Connected to Zscaler Deception: The last known date and time of connection to Deception."
           ]
         }
       ]
@@ -274,6 +283,46 @@
           "expect": {
             "type": "string"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getDevices/get/responses/200/content/*~1*/schema/items/properties/macAddress",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getDeviceDetails/get/responses/200/content/*~1*/schema/properties/mac_address",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getDevices/get/responses/200/content/*~1*/schema/items/properties/agentVersion",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getDeviceDetails/get/responses/200/content/*~1*/schema/properties/agent_version",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getDevices/get/responses/200/content/*~1*/schema/items/properties/user",
+          "expect": {
+            "type": "string"
+          }
         }
       ]
     },
@@ -290,7 +339,19 @@
             "self.zdp_health = config[\"zdpHealth\"] if \"zdpHealth\" in config else None",
             "self.device_trust = config[\"deviceTrust\"] if \"deviceTrust\" in config else None",
             "self.anti_tampering_status = config[\"antiTamperingStatus\"] if \"antiTamperingStatus\" in config else None",
-            "self.zcc_upgrade_status = config[\"zccUpgradeStatus\"] if \"zccUpgradeStatus\" in config else None"
+            "self.zcc_upgrade_status = config[\"zccUpgradeStatus\"] if \"zccUpgradeStatus\" in config else None",
+            "self.zia_enabled = config[\"ziaEnabled\"] if \"ziaEnabled\" in config else None",
+            "self.zpa_health = config[\"zpaHealth\"] if \"zpaHealth\" in config else None",
+            "self.zdx_health = config[\"zdxHealth\"] if \"zdxHealth\" in config else None",
+            "self.zd_enabled = config[\"zdEnabled\"] if \"zdEnabled\" in config else None",
+            "self.zd_health = config[\"zdHealth\"] if \"zdHealth\" in config else None",
+            "self.zd_last_seen_time = config[\"zdLastSeenTime\"] if \"zdLastSeenTime\" in config else None",
+            "self.zdp_enabled = config[\"zdpEnabled\"] if \"zdpEnabled\" in config else None",
+            "self.zdp_version = config[\"zdpVersion\"] if \"zdpVersion\" in config else None",
+            "self.zdp_last_seen_time = config[\"zdpLastSeenTime\"] if \"zdpLastSeenTime\" in config else None",
+            "self.expected_zcc_version = config[\"expectedZCCVersion\"] if \"expectedZCCVersion\" in config else None",
+            "config[\"deviceOtpArray\"] if \"deviceOtpArray\" in config else [], str",
+            "self.log_fetch_info = LogFetchInfo(config[\"logFetchInfo\"])"
           ]
         },
         {
@@ -301,6 +362,39 @@
             "title": "DeviceDetailResponseContract",
             "type": "object"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getDeviceDetails/get/responses/200/content/*~1*/schema/properties",
+          "expect_absent": [
+            "serialNumber",
+            "ziaEnabled",
+            "ziaHealth",
+            "zpaHealth",
+            "zdxHealth",
+            "zdEnabled",
+            "zdHealth",
+            "zdpEnabled",
+            "zdpHealth",
+            "deviceTrust",
+            "antiTamperingStatus",
+            "expectedZCCVersion",
+            "zccUpgradeStatus",
+            "deviceOtpArray",
+            "logFetchInfo"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/devices/devices.go",
+          "after": "type DeviceDetails struct {",
+          "quotes": [
+            "AgentVersion string `json:\"agent_version\"` Carrier string `json:\"carrier\"` ConfigDownloadTime string `json:\"config_download_time\"` DeregistrationTime string `json:\"deregistration_time\"` DevicePolicyName string `json:\"devicePolicyName\"` DeviceLocale string `json:\"device_locale\"`",
+            "DownloadCount int `json:\"download_count\"` ExternalModel string `json:\"external_model\"` HardwareFingerprint string `json:\"hardwareFingerprint\"` KeepAliveTime string `json:\"keep_alive_time\"` LastSeenTime string `json:\"last_seen_time\"` MacAddress string `json:\"mac_address\"`",
+            "MachineHostname string `json:\"machineHostname\"` Manufacturer string `json:\"manufacturer\"` OSVersion string `json:\"os_version\"` Owner string `json:\"owner\"` RegistrationTime string `json:\"registration_time\"` Rooted int `json:\"rooted\"` State string `json:\"state\"`",
+            "TunnelVersion string `json:\"tunnelVersion\"` Type string `json:\"type\"` UniqueID string `json:\"unique_id\"` UpmVersion string `json:\"upmVersion\"` UserName string `json:\"user_name\"` ZadVersion string `json:\"zadVersion\"` ZappArch string `json:\"zappArch\"`"
+          ]
         }
       ]
     },
@@ -317,6 +411,53 @@
             "\"serialNumber\":\"F99LXTG6YY\",\"ziaEnabled\":\"true\"",
             "\"deviceTrust\":0",
             "\"lastLocationSourceUsed\":\"Source IP\"}'"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/devices.py",
+          "quotes": [
+            "self.serial_number = config[\"serialNumber\"] if \"serialNumber\" in config else None",
+            "self.zia_enabled = config[\"ziaEnabled\"] if \"ziaEnabled\" in config else None",
+            "self.device_trust = config[\"deviceTrust\"] if \"deviceTrust\" in config else None",
+            "self.log_fetch_info = LogFetchInfo(config[\"logFetchInfo\"])"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/devices/devices.go",
+          "after": "type DeviceDetails struct {",
+          "quotes": [
+            "AgentVersion string `json:\"agent_version\"` Carrier string `json:\"carrier\"` ConfigDownloadTime string `json:\"config_download_time\"` DeregistrationTime string `json:\"deregistration_time\"` DevicePolicyName string `json:\"devicePolicyName\"` DeviceLocale string `json:\"device_locale\"`",
+            "DownloadCount int `json:\"download_count\"` ExternalModel string `json:\"external_model\"` HardwareFingerprint string `json:\"hardwareFingerprint\"` KeepAliveTime string `json:\"keep_alive_time\"` LastSeenTime string `json:\"last_seen_time\"` MacAddress string `json:\"mac_address\"`",
+            "MachineHostname string `json:\"machineHostname\"` Manufacturer string `json:\"manufacturer\"` OSVersion string `json:\"os_version\"` Owner string `json:\"owner\"` RegistrationTime string `json:\"registration_time\"` Rooted int `json:\"rooted\"` State string `json:\"state\"`",
+            "TunnelVersion string `json:\"tunnelVersion\"` Type string `json:\"type\"` UniqueID string `json:\"unique_id\"` UpmVersion string `json:\"upmVersion\"` UserName string `json:\"user_name\"` ZadVersion string `json:\"zadVersion\"` ZappArch string `json:\"zappArch\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/devices.py",
+          "after": "class DeviceDetails(ZscalerObject):",
+          "quotes": [
+            "self.agent_version = config.get(\"agent_version\") or config.get(\"agentVersion\") self.carrier = config.get(\"carrier\") self.config_download_time = config.get(\"config_download_time\") or config.get(\"configDownloadTime\")",
+            "self.deregistration_time = config.get(\"deregistration_time\") or config.get(\"deregistrationTime\") self.device_policy_name = config.get(\"device_policy_name\") or config.get(\"devicePolicyName\") self.device_locale = config.get(\"device_locale\") or config.get(\"deviceLocale\")",
+            "self.download_count = config.get(\"download_count\") or config.get(\"downloadCount\") self.external_model = config.get(\"external_model\") or config.get(\"externalModel\") self.hardware_fingerprint = config.get(\"hardware_fingerprint\") or config.get(\"hardwareFingerprint\")",
+            "self.keep_alive_time = config.get(\"keep_alive_time\") or config.get(\"keepAliveTime\") self.last_seen_time = config.get(\"last_seen_time\") or config.get(\"lastSeenTime\") self.mac_address = config.get(\"mac_address\") or config.get(\"macAddress\")",
+            "self.machine_hostname = config.get(\"machine_hostname\") or config.get(\"machineHostname\") self.manufacturer = config.get(\"manufacturer\") self.os_version = config.get(\"os_version\") or config.get(\"osVersion\") self.owner = config.get(\"owner\")",
+            "self.registration_time = config.get(\"registration_time\") or config.get(\"registrationTime\") self.rooted = config.get(\"rooted\") self.state = config.get(\"state\") self.tunnel_version = config.get(\"tunnel_version\") or config.get(\"tunnelVersion\") self.type = config.get(\"type\")",
+            "self.unique_id = config.get(\"unique_id\") or config.get(\"uniqueId\") self.upm_version = config.get(\"upm_version\") or config.get(\"upmVersion\") self.user_name = config.get(\"user_name\") or config.get(\"userName\") self.zad_version = config.get(\"zad_version\") or config.get(\"zadVersion\")",
+            "self.zapp_arch = config.get(\"zapp_arch\") or config.get(\"zappArch\") # Additional fields from the API response self.id = config[\"id\"] if \"id\" in config else None self.internal_model = config[\"internal_model\"] if \"internal_model\" in config else None",
+            "self.zdp_version = config[\"zdpVersion\"] if \"zdpVersion\" in config else None self.serial_number = config[\"serialNumber\"] if \"serialNumber\" in config else None self.zia_enabled = config[\"ziaEnabled\"] if \"ziaEnabled\" in config else None",
+            "self.zpa_enabled = config[\"zpaEnabled\"] if \"zpaEnabled\" in config else None self.zdx_enabled = config[\"zdxEnabled\"] if \"zdxEnabled\" in config else None self.zd_enabled = config[\"zdEnabled\"] if \"zdEnabled\" in config else None self.zdp_enabled = config[\"zdpEnabled\"] if \"zdpEnabled\" in config else None",
+            "self.zia_health = config[\"ziaHealth\"] if \"ziaHealth\" in config else None self.zpa_health = config[\"zpaHealth\"] if \"zpaHealth\" in config else None self.zdx_health = config[\"zdxHealth\"] if \"zdxHealth\" in config else None self.zd_health = config[\"zdHealth\"] if \"zdHealth\" in config else None",
+            "self.zdp_health = config[\"zdpHealth\"] if \"zdpHealth\" in config else None self.zpa_last_seen_time = config[\"zpaLastSeenTime\"] if \"zpaLastSeenTime\" in config else None self.zdx_last_seen_time = config[\"zdxLastSeenTime\"] if \"zdxLastSeenTime\" in config else None",
+            "self.zd_last_seen_time = config[\"zdLastSeenTime\"] if \"zdLastSeenTime\" in config else None self.zdp_last_seen_time = config[\"zdpLastSeenTime\"] if \"zdpLastSeenTime\" in config else None self.zcc_logged_in_user_type = config[\"zccLoggedInUserType\"] if \"zccLoggedInUserType\" in config else None",
+            "self.external_device_id = config[\"externalDeviceId\"] if \"externalDeviceId\" in config else None self.zcc_force_revert = config[\"zccForceRevert\"] if \"zccForceRevert\" in config else None self.anti_tampering_status = config[\"antiTamperingStatus\"] if \"antiTamperingStatus\" in config else None",
+            "self.device_trust = config[\"deviceTrust\"] if \"deviceTrust\" in config else None self.zcc_tunnel_version = config[\"zccTunnelVersion\"] if \"zccTunnelVersion\" in config else None self.vdi = config[\"vdi\"] if \"vdi\" in config else None",
+            "self.strict_enforcement = config[\"strictEnforcement\"] if \"strictEnforcement\" in config else None self.expected_zcc_version = config[\"expectedZCCVersion\"] if \"expectedZCCVersion\" in config else None self.expected_zcc_version_timestamp = (",
+            "config[\"expectedZCCVersionTimestamp\"] if \"expectedZCCVersionTimestamp\" in config else None ) self.zcc_upgrade_status = config[\"zccUpgradeStatus\"] if \"zccUpgradeStatus\" in config else None self.device_otp_array = ZscalerCollection.form_list(",
+            "config[\"deviceOtpArray\"] if \"deviceOtpArray\" in config else [], str ) if \"logFetchInfo\" in config: if isinstance(config[\"logFetchInfo\"], LogFetchInfo): self.log_fetch_info = config[\"logFetchInfo\"] elif config[\"logFetchInfo\"] is not None: self.log_fetch_info = LogFetchInfo(config[\"logFetchInfo\"])",
+            "else: self.log_fetch_info = None else: self.log_fetch_info = None"
           ]
         }
       ]
@@ -368,7 +509,10 @@
             "self.log_ts = config[\"logTs\"] if \"logTs\" in config else None",
             "self.log_ack_ts = config[\"logAckTs\"] if \"logAckTs\" in config else None",
             "self.log_fetch_pcap_enabled = config[\"logFetchPCAPEnabled\"] if \"logFetchPCAPEnabled\" in config else None",
-            "self.log_fetch_from_no_of_days = config[\"logFetchFromNoOfDays\"] if \"logFetchFromNoOfDays\" in config else None"
+            "self.log_fetch_from_no_of_days = config[\"logFetchFromNoOfDays\"] if \"logFetchFromNoOfDays\" in config else None",
+            "self.error = config[\"error\"] if \"error\" in config else None",
+            "self.log_fetch_db_enabled = config[\"logFetchDBEnabled\"] if \"logFetchDBEnabled\" in config else None",
+            "self.log_fetch_info = LogFetchInfo(config[\"logFetchInfo\"])"
           ]
         }
       ]

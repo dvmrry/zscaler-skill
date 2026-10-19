@@ -265,6 +265,22 @@
             "self.min_size = config[\"minSize\"] if \"minSize\" in config else 0",
             "self.max_size = config[\"maxSize\"] if \"maxSize\" in config else 0"
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/minSize",
+          "expect": {
+            "description": "Minimum file size (in KB) used for evaluation of the FTP rule"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/maxSize",
+          "expect": {
+            "description": "Maximum file size (in KB) used for evaluation of the FTP rule"
+          }
         }
       ]
     },
@@ -295,8 +311,38 @@
           "source": "sdk-python",
           "path": "zscaler/zia/models/filetyperules.py",
           "quotes": [
-            "self.file_types = ZscalerCollection.form_list(config[\"fileTypes\"] if \"fileTypes\" in config else [], str)"
+            "self.file_types = ZscalerCollection.form_list(config[\"fileTypes\"] if \"fileTypes\" in config else [], str)",
+            "current_obj_format = { \"id\": self.id, \"protocols\": self.protocols, \"order\": self.order, \"timeQuota\": self.time_quota, \"sizeQuota\": self.size_quota, \"description\": self.description, \"locations\": [loc.request_format() for loc in (self.locations or [])],",
+            "\"locationGroups\": [loc_group.request_format() for loc_group in (self.location_groups or [])], \"departments\": [dept.request_format() for dept in (self.departments or [])], \"groups\": [group.request_format() for group in (self.groups or [])],",
+            "\"users\": [user.request_format() for user in (self.users or [])], \"devices\": [device.request_format() for device in (self.devices or [])], \"deviceGroups\": [dg.request_format() for dg in (self.device_groups or [])], \"timeWindows\": [window.request_format() for window in (self.time_windows or [])],",
+            "\"labels\": [label.request_format() for label in (self.labels or [])], \"zpaAppSegments\": [zpa.request_format() for zpa in (self.zpa_app_segments or [])], \"urlCategories\": self.url_categories, \"fileTypes\": self.file_types, \"deviceTrustLevels\": self.device_trust_levels, \"minSize\": self.min_size,",
+            "\"maxSize\": self.max_size, \"filteringAction\": self.filtering_action, \"capturePCAP\": self.capture_pcap, \"operation\": self.operation, \"activeContent\": self.active_content, \"unscannable\": self.unscannable, \"state\": self.state, \"rank\": self.rank, \"lastModifiedTime\": self.last_modified_time,",
+            "\"lastModifiedBy\": self.last_modified_by, \"accessControl\": self.access_control, \"name\": self.name, \"cloudApplications\": self.cloud_applications, \"passwordProtected\": self.password_protected, }"
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/fileTypeCategories",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/fileTypeCategories/items/properties/id",
+          "expect": {
+            "description": "File type ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeRules/post/requestBody/content/application~1json/schema/properties/fileTypeCategories/items/properties/name",
+          "expect": {
+            "description": "File type description"
+          }
         }
       ]
     },
@@ -635,6 +681,32 @@
             "``FILETYPECATEGORYFORFILETYPECONTROL``: File Type Control policy"
           ],
           "after": "def list_file_type_categories("
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeCategories/get",
+          "expect": {
+            "description": "<p>Retrieves the list of all file types, including predefined and custom file types, available for configuring rule conditions in different ZIA policies. You can retrieve predefined file types for specific file categories of policies by using the <b>enum</b> request parameter and by specifying one of the following values:</p><ul><li><code>ZSCALERDLP</code>: Web DLP rules with content inspection</li><li><code>EXTERNALDLP</code>: Web DLP rules without content inspection</li><li><code>FILETYPECATEGORYFORFILETYPECONTROL</code>: File Type Control policy</li></ul>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeCategories/get/parameters/[name=enums]",
+          "expect": {
+            "name": "enums",
+            "description": "<p>Specifies the file type category for specific policies to retrieve the corresponding list of predefined file types supported for the policy category. The following values are supported:</p><ul><li><code>ZSCALERDLP</code>: DLP rules with content inspection</li><li><code>EXTERNALDLP</code>: DLP rules without content inspection</li><li><code>FILETYPECATEGORYFORFILETYPECONTROL</code>: File Type Control policy</li></ul>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1fileTypeCategories/get/parameters/[name=excludeCustomFileTypes]",
+          "expect": {
+            "name": "excludeCustomFileTypes",
+            "description": "A Boolean value specifying whether custom file types must be excluded from the list or not"
+          }
         }
       ]
     },
@@ -678,6 +750,46 @@
           "pointer": "/paths/~1customFileTypes/post/requestBody/content/application~1json/schema/properties/fileTypeId",
           "expect": {
             "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customFileTypes/post",
+          "expect": {
+            "description": "Adds a new custom file type. ."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customFileTypes/put",
+          "expect": {
+            "description": "Updates information for a custom file type based on the specified ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customFileTypes~1{id}/get",
+          "expect": {
+            "description": "Retrieves information about a custom file type based on the specified ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customFileTypes~1{id}/delete",
+          "expect": {
+            "description": "Deletes a custom file type based on the specified ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1customFileTypes/post/requestBody/content/application~1json/schema/properties/id",
+          "expect": {
+            "description": "Custom file type ID. This ID is assigned and maintained exclusively for custom file types, and this value is different from the file type ID (i.e., fileTypeId field)."
           }
         }
       ]

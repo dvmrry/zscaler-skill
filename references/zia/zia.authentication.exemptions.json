@@ -121,7 +121,7 @@
       ]
     },
     "tf-list-resource": {
-      "statement": "The zia_auth_settings_urls resource holds the whole list in one urls set capped at 25,000 items in the schema; its delete is a no-op. Changing the list reads the current list, then adds and removes the differences in separate calls, with the partial-failure behavior described in the multi-step writes subject.",
+      "statement": "The zia_auth_settings_urls resource holds the whole list in one urls set capped at 25,000 items in the schema; its delete is a no-op. Changing the list reads the current list, then adds and removes the differences in separate calls.",
       "tier": "A",
       "evidence": [
         {
@@ -155,8 +155,9 @@
           "source": "zscaler-help",
           "path": "ranges-limitations-zia.json",
           "quotes": [
-            "Includes:Custom URLs/TLDs in all URL Categories/TLD CategoriesAuth Exemption URLs in Advanced settings",
-            "Duplicate URLs/TLDs are counted once."
+            "| Custom URLs/TLDs | 25K URLs/TLDs |",
+            "Includes:Custom URLs/TLDs in all URL Categories/TLD CategoriesAuth Exemption URLs in Advanced settingsBlocked Malicious URLs in Advanced Threat Protection settingsBlocked URLs in SSL Inspection settingsAllowed URLs in FTP Control settingsBandwidth Class DomainsDuplicate URLs/TLDs are counted once.",
+            "Contact your Zscaler Account team to subscribe to up to an additional 50K custom URLs/TLDs."
           ]
         }
       ]
@@ -229,7 +230,9 @@
           "path": "zscaler/zia/authentication_settings.py",
           "after": "def add_urls_to_exempt_list(",
           "quotes": [
+            "http_method = \"post\".upper()",
             "/authSettings/exemptedUrls?action=ADD_TO_LIST",
+            "payload = {\"urls\": url_list}",
             "time.sleep(2)",
             "return self.get_exempted_urls()"
           ]
@@ -239,7 +242,9 @@
           "path": "zscaler/zia/authentication_settings.py",
           "after": "def delete_urls_from_exempt_list(",
           "quotes": [
+            "http_method = \"post\".upper()",
             "/authSettings/exemptedUrls?action=REMOVE_FROM_LIST",
+            "payload = {\"urls\": url_list}",
             "time.sleep(2)",
             "return self.get_exempted_urls()"
           ]

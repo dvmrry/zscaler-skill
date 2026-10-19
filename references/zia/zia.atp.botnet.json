@@ -172,7 +172,8 @@
           "source": "zscaler-help",
           "path": "configuring-advanced-threat-protection-policy.json",
           "quotes": [
-            "Domain Generation Algorithm (DGA) Domains: Choose to Allow or Block domains that are suspected to be generated using domain generation algorithms."
+            "Domain Generation Algorithm (DGA) Domains: Choose to Allow or Block domains that are suspected to be generated using domain generation algorithms.",
+            "These algorithms are used in various malware families to periodically generate a large number of domain names that can be used by malware-infected devices to connect with command and control servers in order to circumvent the identification and shutting down of malicious domains."
           ]
         }
       ],
@@ -194,7 +195,7 @@
       ]
     },
     "dga-has-capture": {
-      "statement": "dgaDomainsCapture exists in the API next to dgaDomainsBlocked, so DGA has the same Blocked and Capture pair as the other threat classes.",
+      "statement": "dgaDomainsCapture exists in the API next to dgaDomainsBlocked, so DGA has a Blocked and Capture pair, as Command & Control Servers and Command & Control Traffic do.",
       "tier": "A",
       "evidence": [
         {
@@ -212,6 +213,38 @@
           "expect": {
             "type": "boolean",
             "description": "A Boolean value specifying whether packet capture (PCAP) is enabled or not for DGA domains"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/cmdCtlServerBlocked",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/cmdCtlServerCapture",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/cmdCtlTrafficBlocked",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1advancedThreatSettings/get/responses/200/content/application~1json/schema/properties/cmdCtlTrafficCapture",
+          "expect": {
+            "type": "boolean"
           }
         }
       ],

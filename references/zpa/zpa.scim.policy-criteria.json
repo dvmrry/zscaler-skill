@@ -135,7 +135,8 @@
           "path": "docs/resources/zpa_policy_access_rule_v2.md",
           "quotes": [
             "`lhs` - (String) -  ID of the Identity Provider",
-            "`rhs` - (String) - ID of the SCIM Group."
+            "`rhs` - (String) - ID of the SCIM Group.",
+            "`object_type` (String) This is for specifying the policy criteria. Supported values: `SCIM_GROUP`"
           ]
         },
         {
@@ -143,7 +144,10 @@
           "path": "zpa/common.go",
           "quotes": [
             "_, _, err := idpcontroller.Get(ctx, zClient.Service, operand.LHS)",
-            "_, _, err = scimgroup.Get(ctx, zClient.Service, operand.RHS)"
+            "_, _, err = scimgroup.Get(ctx, zClient.Service, operand.RHS)",
+            "return fmt.Errorf(\"entry_values must be provided for SCIM_GROUP object_type\")",
+            "return fmt.Errorf(\"LHS must be a valid IdP ID and cannot be empty for SCIM_GROUP object_type\")",
+            "return fmt.Errorf(\"RHS must be a valid scim group ID and cannot be empty for SCIM_GROUP object_type\")"
           ]
         }
       ]
@@ -188,8 +192,17 @@
           "quotes": [
             "values, err := scimattributeheader.GetValues(ctx, zClient.Service, scim.IdpID, scim.ID)",
             "if strings.EqualFold(v, operand.RHS) {",
-            "valid SCIM Attribute Value from the list: %v"
+            "valid SCIM Attribute Value from the list: %v",
+            "func validateOperand(ctx context.Context, operand policysetcontroller.Operands, zClient *Client, microtenantID string) error {"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "quotes": [
+            "if err := ValidateConditions(ctx, req.Conditions, zClient, microTenantID); err != nil {"
+          ],
+          "after": "func resourcePolicyAccessCreate(ctx"
         }
       ]
     },

@@ -131,6 +131,27 @@
           "quotes": [
             "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network) | ``network_id``  | ``\"true\"`` |"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_forwarding_rule.md",
+          "quotes": [
+            "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network) | ``network_id``  | ``\"true\"`` |"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_inspection_rule.md",
+          "quotes": [
+            "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network) | ``network_id``  | ``\"true\"`` |"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_isolation_rule.md",
+          "quotes": [
+            "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network) | ``network_id``  | ``\"true\"`` |"
+          ]
         }
       ]
     },
@@ -145,7 +166,8 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_access_rule_v2.md",
           "quotes": [
-            "`lhs` (String) -  The Trusted Network `network_id` value."
+            "`lhs` (String) -  The Trusted Network `network_id` value.",
+            "- `rhs` (String) - Supported values: `\"true\"` or `\"false\"`"
           ],
           "after": "`object_type` (String) This is for specifying the policy criteria. Supported values: `TRUSTED_NETWORK`"
         }
@@ -252,6 +274,46 @@
             "if operand.RHS != \"true\" {"
           ],
           "after": "_, _, err := trustednetwork.GetByNetID(ctx, zClient.Service, operand.LHS)"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "func ValidateConditions(ctx context.Context, conditions []policysetcontroller.Conditions, zClient *Client, microtenantID string) error {",
+            "func validateOperand(ctx context.Context, operand policysetcontroller.Operands, zClient *Client, microtenantID string) error {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_forwarding_rule.go",
+          "after": "func resourcePolicyForwardingRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := ValidateConditions(ctx, req.Conditions, zClient, GetString(d.Get(\"microtenant_id\"))); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_inspection_rule.go",
+          "after": "func resourcePolicyInspectionRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := ValidateConditions(ctx, req.Conditions, zClient, GetString(d.Get(\"microtenant_id\"))); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_isolation_rule.go",
+          "after": "func resourcePolicyIsolationRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := ValidateConditions(ctx, req.Conditions, zClient, GetString(d.Get(\"microtenant_id\"))); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule.go",
+          "after": "func resourcePolicyTimeoutRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := ValidateConditions(ctx, req.Conditions, zClient, microTenantID); err != nil {"
+          ]
         }
       ]
     },
@@ -295,6 +357,17 @@
             "if err := ValidatePolicyRuleConditions(d); err != nil {"
           ],
           "after": "func resourcePolicyAccessV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "func ValidateConditions(ctx context.Context, conditions []policysetcontroller.Conditions, zClient *Client, microtenantID string) error { for _, condition := range conditions { if err := validateOperands(ctx, condition.Operands, zClient, microtenantID); err != nil {",
+            "if err := validateOperand(ctx, operand, zClient, microtenantID); err != nil {",
+            "_, _, err := trustednetwork.GetByNetID(ctx, zClient.Service, operand.LHS)",
+            "func ValidatePolicyRuleConditions(d *schema.ResourceData) error {",
+            "return fmt.Errorf(\"rhs value must be 'true' or 'false' for TRUSTED_NETWORK object_type\")"
+          ]
         }
       ]
     }

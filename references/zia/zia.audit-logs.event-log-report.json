@@ -61,7 +61,10 @@
           "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1eventlogEntryReport/post",
           "expect": {
-            "description": "<p>Creates an event log report for the specified time period and saves it as a CSV file. The report includes event log information for every call made to the ZIA API during the specified time period. Creating a new event log report overwrites the previously-generated report.</p>"
+            "description": "<p>Creates an event log report for the specified time period and saves it as a CSV file. The report includes event log information for every call made to the ZIA API during the specified time period. Creating a new event log report overwrites the previously-generated report.</p>",
+            "tags": [
+              "Event Logs"
+            ]
           }
         },
         {
@@ -70,6 +73,59 @@
           "pointer": "/paths/~1eventlogEntryReport/get",
           "expect": {
             "description": "<p>Gets the status of the request to generate an event log report. Following a request to generate a report via the POST <code>/eventlogEntryReport</code> endpoint, you can call GET <code>/eventlogEntryReport</code> to check the current status of report generation. If the status is <code>COMPLETE</code>, you can send a GET request to <code>/eventlogEntryReport/download</code> to download the report as a CSV file.</p> "
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1eventlogEntryReport~1download/get",
+          "expect": {
+            "tags": [
+              "Event Logs"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1eventlogEntryReport/delete",
+          "expect": {
+            "description": "<p>Cancels the request to generate an event log report.</p>",
+            "tags": [
+              "Event Logs"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post",
+          "expect": {
+            "description": "<p>Creates an audit log report for the specified time period and saves it as a CSV file. The report includes audit information for every call made to the cloud service API during the specified time period. Creating a new audit log report overwrites a previously-generated report.</p>\n"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/get",
+          "expect": {
+            "description": "<p>Gets the status of a request for an audit log report. After sending a POST request to <code>/auditlogEntryReport</code> to generate a report, you can continue to call GET <code>/auditlogEntryReport</code> to check whether the report has finished generating. Once the status is <code>COMPLETE</code>, you can send another GET request to <code>/auditlogEntryReport/download</code> to download the report as a CSV file.</p>\n"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/delete",
+          "expect": {
+            "description": "<p>Cancels the request to create an audit log report.</p>\n"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport~1download/get",
+          "expect": {
+            "description": "<p>Downloads the most recently created audit log report. After a call to GET <code>/auditlogEntryReport</code> indicates that the report (CSV file) was generated, you can send a GET request to <code>/auditlogEntryReport/download</code> to download the file.</p>\n"
           }
         }
       ]
@@ -92,6 +148,38 @@
       "statement": "The event log request filters by startTime, endTime, category, subcategories and actionResult, and adds text-search fields message, errorCode and statusCode; it has no adminName, clientIP, objectName or traceId filter.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1eventlogEntryReport/post/requestBody/content/application~1json/schema/properties/startTime",
+          "expect": {
+            "description": "Start time for event log entry"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1eventlogEntryReport/post/requestBody/content/application~1json/schema/properties/endTime",
+          "expect": {
+            "description": "End time for event log entry"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1eventlogEntryReport/post/requestBody/content/application~1json/schema/properties/category",
+          "expect": {
+            "description": "Filters the list based on the category of event log entries"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1eventlogEntryReport/post/requestBody/content/application~1json/schema/properties/subcategories",
+          "expect": {
+            "description": "Filters the list based on the subcategories within a category of event log entries"
+          }
+        },
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zia.openapi.json",
@@ -123,6 +211,17 @@
           "expect": {
             "description": "Filters the list based on the outcome of the events recorded"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1eventlogEntryReport/post/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "adminName",
+            "clientIP",
+            "objectName",
+            "traceId"
+          ]
         }
       ],
       "conditions": "The absence of admin-oriented filters rests on reading the property list of the request schema; the four searched names do not appear in it."
@@ -136,6 +235,8 @@
           "path": "zscaler/zia/services/eventlogentryreport/eventlogentryreport.go",
           "quotes": [
             "func GetAll(ctx context.Context, service *zscaler.Service) ([]EventLogEntryReportTaskInfo, error) {",
+            "var eventLogEntryReport []EventLogEntryReportTaskInfo",
+            "func Create(ctx context.Context, service *zscaler.Service, eventLog *EventLogEntryReport) (*EventLogEntryReport, error) {",
             "func Delete(ctx context.Context, service *zscaler.Service) (*http.Response, error) {"
           ]
         }
@@ -149,6 +250,14 @@
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1eventlogEntryReport/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "type": "object"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/get/responses/200/content/application~1json/schema",
           "expect": {
             "type": "object"
           }

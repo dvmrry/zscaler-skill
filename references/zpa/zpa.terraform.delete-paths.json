@@ -76,7 +76,8 @@
           ],
           "after": "func resourcePRAPortalControllerDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "if err := detachAndCleanUpPRAPortals(ctx, portalID, consoleService); err != nil {",
+            "if err := detachAndCleanUpPRAPortals(ctx, portalID, consoleService); err != nil { return diag.FromErr(fmt.Errorf(\"error detaching PRAPortal with ID %s from PRAConsoleControllers: %s\", portalID, err)) }",
+            "if _, err := praportal.Delete(ctx, service, portalID); err != nil {",
             "consoles, _, err := praconsole.GetAll(ctx, consoleService)"
           ]
         }
@@ -95,9 +96,8 @@
           ],
           "after": "func detachAndCleanUpPRAPortals(ctx context.Context, portalID string, consoleService *zscaler.Service) error {",
           "quotes": [
-            "if len(updatedPortals) == 0 {",
-            "// Delete the console if it no longer contains any portals",
-            "_, err = praconsole.Delete(ctx, consoleService, console.ID)"
+            "if len(updatedPortals) == 0 { // Delete the console if it no longer contains any portals _, err = praconsole.Delete(ctx, consoleService, console.ID)",
+            "} else { // Update the console with the remaining portals console.PRAPortals = updatedPortals"
           ]
         }
       ]
@@ -155,7 +155,21 @@
           "after": "func detachAndCleanUpPRAPortals(ctx context.Context, portalID string, consoleService *zscaler.Service) error {",
           "quotes": [
             "for _, console := range consoles {",
-            "return fmt.Errorf(\"failed to update PRAConsoleController with ID %s: %s\", console.ID, err)"
+            "return fmt.Errorf(\"failed to update PRAConsoleController with ID %s: %s\", console.ID, err)",
+            "return fmt.Errorf(\"failed to delete PRAConsoleController with ID %s: %s\", console.ID, err)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_pra_portal_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePRAPortalControllerDelete(",
+          "quotes": [
+            "if err := detachAndCleanUpPRAPortals(ctx, portalID, consoleService); err != nil { return diag.FromErr(fmt.Errorf(\"error detaching PRAPortal with ID %s from PRAConsoleControllers: %s\", portalID, err)) }",
+            "if _, err := praportal.Delete(ctx, service, portalID); err != nil {"
           ]
         }
       ],
@@ -198,7 +212,23 @@
           "after": "func detachPRAConsoleFromPolicy(ctx context.Context, id string, svc *zscaler.Service) error {",
           "quotes": [
             "maxRetries := 3",
-            "return fmt.Errorf(\"failed to update rule %s after %d attempts: %w\", rule.ID, maxRetries, err)"
+            "return fmt.Errorf(\"failed to update rule %s after %d attempts: %w\", rule.ID, maxRetries, err)",
+            "for _, rule := range allRules {",
+            "_, err := policysetcontrollerv2.UpdateRule(ctx, svc, rule.PolicySetID, rule.ID, &convertedRule)",
+            "if i == maxRetries-1 {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_pra_console_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePRAConsoleControllerDelete(",
+          "quotes": [
+            "if err := detachPRAConsoleFromPolicy(ctx, d.Id(), svc); err != nil { return diag.FromErr(fmt.Errorf(\"failed to detach PRA console from policy: %w\", err)) }",
+            "if _, err := praconsole.Delete(ctx, svc, d.Id()); err != nil {"
           ]
         }
       ],
@@ -245,6 +275,30 @@
             "v4.4.10",
             "HEAD"
           ],
+          "quotes": [
+            "if _, err := policysetcontroller.UpdateRule(ctx, service, rule.PolicySetID, rule.ID, &rule); err != nil { // Check if the rule was already deleted (e.g., by Terraform in parallel) if errResp, ok := err.(*errorx.ErrorResponse); ok && errResp.IsObjectNotFound() {",
+            "log.Printf(\"[DEBUG] Rule %s no longer exists, skipping update (likely already deleted)\", rule.ID) continue } log.Printf(\"[WARN] Failed to update v1 policy rule %s: %v\", rule.ID, err)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, err := policysetcontrollerv2.UpdateRule(ctx, service, rule.PolicySetID, rule.ID, &convertedRule); err != nil { // Check if the rule was already deleted (e.g., by Terraform in parallel) if errResp, ok := err.(*errorx.ErrorResponse); ok && errResp.IsObjectNotFound() {",
+            "log.Printf(\"[DEBUG] Rule %s no longer exists, skipping update (likely already deleted)\", rule.ID) continue } log.Printf(\"[WARN] Failed to update v2 policy rule %s: %v\", rule.ID, err)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
           "after": "func resourceSegmentGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "if err := detachSegmentGroupFromAllPolicyRules(ctx, d.Id(), service); err != nil {",
@@ -272,7 +326,8 @@
           ],
           "after": "func detachSegmentGroupFromV1Policies(ctx context.Context, id string, service *zscaler.Service) error {",
           "quotes": [
-            "log.Printf(\"[WARN] Failed to fetch policy rules of type %s: %v\", t, err)"
+            "log.Printf(\"[WARN] Failed to fetch policy set of type %s: %v\", t, err) continue",
+            "log.Printf(\"[WARN] Failed to fetch policy rules of type %s: %v\", t, err) continue"
           ]
         },
         {
@@ -284,7 +339,34 @@
           ],
           "after": "func detachSegmentGroupFromV2Policies(ctx context.Context, id string, service *zscaler.Service) error {",
           "quotes": [
-            "log.Printf(\"[WARN] Failed to fetch v2 policy rules of type %s: %v\", t, err)"
+            "log.Printf(\"[WARN] Failed to fetch v2 policy set of type %s: %v\", t, err) continue",
+            "log.Printf(\"[WARN] Failed to fetch v2 policy rules of type %s: %v\", t, err) continue"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachSegmentGroupFromAllPolicyRules(",
+          "quotes": [
+            "if err := detachSegmentGroupFromV1Policies(ctx, id, service); err != nil {",
+            "if err := detachSegmentGroupFromV2Policies(ctx, id, service); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceSegmentGroupDelete(",
+          "quotes": [
+            "if err := detachSegmentGroupFromAllPolicyRules(ctx, d.Id(), service); err != nil {",
+            "if _, err := segmentgroup.Delete(ctx, service, d.Id()); err != nil {"
           ]
         }
       ],
@@ -308,10 +390,34 @@
           ],
           "after": "func resourceServerGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "log.Printf(\"[ERROR] Detaching server group ID: %v from app connector groups failed: %v\\n\", d.Id(), err)",
+            "if err := detachServerGroupFromAppConnectorGroups(ctx, d.Id(), service, service); err != nil { log.Printf(\"[ERROR] Detaching server group ID: %v from app connector groups failed: %v\\n\", d.Id(), err) }",
             "detachServerGroupFromAllAccessPolicyRules(ctx, d.Id(), service)",
             "detachServerGroupFromAllAppSegments(ctx, d.Id(), service)",
             "if _, err := servergroup.Delete(ctx, service, d.Id()); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachServerGroupFromAllAccessPolicyRules(",
+          "quotes": [
+            "ctx context.Context, id string, service *zscaler.Service) { policyRulesDetchLock.Lock()"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachServerGroupFromAllAppSegments(",
+          "quotes": [
+            "ctx context.Context, id string, service *zscaler.Service) { apps, _, err := applicationsegment.GetAll(ctx, service)"
           ]
         }
       ],
@@ -335,6 +441,8 @@
           ],
           "after": "func detachServerGroupFromAllAccessPolicyRules(ctx context.Context, id string, service *zscaler.Service) {",
           "quotes": [
+            "log.Printf(\"[WARN] Failed to fetch access policy set: %v\", err) return",
+            "log.Printf(\"[WARN] Failed to fetch access policy rules: %v\", err) return",
             "log.Printf(\"[WARN] Failed to update access policy rule %s: %v\", accessPolicyRule.ID, err)"
           ]
         },
@@ -347,6 +455,7 @@
           ],
           "after": "func detachServerGroupFromAllAppSegments(ctx context.Context, id string, service *zscaler.Service) {",
           "quotes": [
+            "log.Printf(\"[WARN] Failed to fetch application segments: %v\", err) return",
             "log.Printf(\"[WARN] Failed to update application segment %s: %v\", app.ID, err)"
           ]
         },
@@ -359,7 +468,21 @@
           ],
           "after": "func detachServerGroupFromAppConnectorGroups(ctx context.Context, serverGroupID string, service *zscaler.Service, appConnectorGroupService *zscaler.Service) error {",
           "quotes": [
-            "log.Printf(\"[WARN] Failed to update app connector group %s: %v\", app.ID, err)"
+            "return fmt.Errorf(\"failed to fetch server group %s: %w\", serverGroupID, err)",
+            "log.Printf(\"[WARN] Failed to fetch app connector group %s: %v\", appConnectorGroup.ID, err) continue",
+            "log.Printf(\"[WARN] Failed to update app connector group %s: %v\", app.ID, err) } } return nil }"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceServerGroupDelete(",
+          "quotes": [
+            "if err := detachServerGroupFromAppConnectorGroups(ctx, d.Id(), service, service); err != nil { log.Printf(\"[ERROR] Detaching server group ID: %v from app connector groups failed: %v\\n\", d.Id(), err) }"
           ]
         }
       ],

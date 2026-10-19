@@ -72,7 +72,7 @@
   ],
   "claims": {
     "saml-sp": {
-      "statement": "With SAML single sign-on the Zscaler service is the service provider and the organization's IdP provisions and authenticates users. Before configuring it, the SAML SSL certificate and the XML metadata must be obtained from the IdP.",
+      "statement": "With SAML single sign-on the Zscaler service is the service provider, and SAML SSO is used for provisioning and authenticating users. Before configuring it, the SAML SSL certificate must be obtained from the IdP and the XML metadata exported from it.",
       "tier": "A",
       "evidence": [
         {
@@ -80,21 +80,23 @@
           "path": "configuring-saml.json",
           "quotes": [
             "You can configure the Zscaler service as the service provider (SP) and use Security Assertion Markup Language (SAML) Single Sign-On (SSO) for provisioning and authenticating users.",
-            "Obtain the SAML SSL certificate from your identity provider (IdP)."
+            "Obtain the SAML SSL certificate from your identity provider (IdP).",
+            "Export the XML metadata from your IdP."
           ]
         }
       ]
     },
     "saml-idp-reachability": {
-      "statement": "The IdP must be reachable without a user identity. With PAC-file forwarding, the redirected IdP URL must be in the PAC file's authentication exemption list or authentication fails; with transparent forwarding, the SAML IdP traffic must be exempted from the GRE or IPSec tunnel by a route at the gateway router.",
+      "statement": "The IdP must be reachable without a user identity. With PAC-file forwarding, the redirected IdP URL must be in the PAC file's authentication exemption list or authentication fails; with transparent forwarding, the SAML IdP traffic must be exempted from the GRE or IPSec tunnel, for example by a route at the gateway router that sends it directly to the internet.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "configuring-saml.json",
           "quotes": [
-            "add the redirected URL to the authentication exemption list in the PAC files. Otherwise, the authentication fails.",
-            "you must exempt the SAML IdP traffic from the GRE or IPSec tunnel."
+            "If you are using PAC files to forward traffic to the Zscaler service, add the redirected URL to the authentication exemption list in the PAC files. Otherwise, the authentication fails.",
+            "the current user isn't yet authorized to use the service, so the request never passes through the Internet & SaaS (ZIA) Public Service Edge.",
+            "If you are transparently forwarding traffic to the Zscaler service, you must exempt the SAML IdP traffic from the GRE or IPSec tunnel. You can do this by adding a route at the gateway router to forward the traffic directly to the internet."
           ]
         }
       ]
@@ -108,7 +110,9 @@
           "path": "about-kerberos-authentication.json",
           "quotes": [
             "Unlike the other supported authentication mechanisms, Kerberos doesn't use cookies for authentication.",
-            "it issues a 407 Negotiate challenge."
+            "It is a ticket-based authentication protocol",
+            "If the Public Service Edge doesn't find a Zscaler cookie for the domain in the HTTP request, it issues a 407 Negotiate challenge.",
+            "The client sends the HTTP request with the proxy authorization header and ticket, which contains the client information."
           ]
         }
       ]
@@ -121,8 +125,11 @@
           "source": "zscaler-help",
           "path": "about-kerberos-authentication.json",
           "quotes": [
+            "Use a PAC file to forward traffic to the Zscaler service.",
             "The service supports Kerberos authentication only for traffic forwarded in explicit mode.",
-            "Kerberos is an authentication mechanism. It is not a provisioning method"
+            "It doesn't support Kerberos for traffic forwarded in transparent mode, which is traffic forwarded through a GRE or IPSec tunnel and the browser isn't configured to use a PAC file to forward traffic.",
+            "Kerberos is an authentication mechanism. It is not a provisioning method",
+            "Users must be provisioned on the Zscaler service before they can use Kerberos for authentication."
           ]
         }
       ]
@@ -136,6 +143,7 @@
           "path": "about-kerberos-authentication.json",
           "quotes": [
             "It enables the Zscaler service to authenticate users when they use applications that do not support cookies, such as Office 365 and Windows Metro apps.",
+            "The service can enforce granular user, group, and department policies on proxied FTP transactions as well as HTTPS transactions, without having to decrypt the HTTPS transactions.",
             "The Zscaler service doesn't support Kerberos on Windows XP, Apple iOS, or Android devices."
           ]
         }
@@ -149,8 +157,9 @@
           "source": "zscaler-help",
           "path": "about-kerberos-authentication.json",
           "quotes": [
+            "Ensure that the DNS server on site can resolve the Zscaler service host names",
             "Ensure that your firewall allows connections to port 88/8800 to enable Kerberos authentication.",
-            "is a registered domain in the Zscaler account."
+            "Ensure that the domain suffix of either the client or server, in the Kerberos ticket obtained from your organization's domain controller, is a registered domain in the Zscaler account."
           ]
         }
       ]

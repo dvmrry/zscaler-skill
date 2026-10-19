@@ -57,7 +57,7 @@
   ],
   "claims": {
     "cac-first": {
-      "statement": "Cloud App Control is evaluated before URL Filtering.",
+      "statement": "By default, Cloud App Control takes precedence over URL Filtering.",
       "tier": "A",
       "evidence": [
         {
@@ -110,14 +110,14 @@
       ]
     },
     "no-cac-rule-url-filtering-runs": {
-      "statement": "When no Cloud App Control rule matches, URL Filtering evaluates normally: CAC's default Allow All is not an explicit allow and does not skip URL Filtering.",
+      "statement": "When the user requests a cloud app that no Cloud App Control rule covers, the service still evaluates and applies URL Filtering, although the Cloud App Control default policy behavior is Allow All.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "configuring-url-filtering-policy.json",
           "quotes": [
-            "you don't have a Cloud App Control rule for ebay.com), the service still evaluates and applies the URL Filtering policy."
+            "If a user requests a Cloud App for which you have not configured a Cloud App Control policy rule (for example, the user requests ebay.com, and you don't have a Cloud App Control rule for ebay.com), the service still evaluates and applies the URL Filtering policy."
           ]
         },
         {
@@ -144,6 +144,15 @@
           "source": "zscaler-help",
           "path": "adding-instant-messaging-rule-cloud-app-control.json",
           "quotes": [
+            "Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on)",
+            "A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on)",
             "A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule."
           ]
         }
@@ -172,6 +181,14 @@
           "quotes": [
             "However, the URL Filtering policy doesn't apply if the Cloud App Control policy blocks the transaction."
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "after": "type WebApplicationRules struct {",
+          "quotes": [
+            "CascadingEnabled     bool     `json:\"cascadingEnabled,omitempty\"`"
+          ]
         }
       ]
     },
@@ -189,14 +206,14 @@
       ]
     },
     "document-cascading": {
-      "statement": "Zscaler advises documenting the cascading setting, because it changes which policy decides every cloud-app transaction.",
+      "statement": "Zscaler advises documenting the Allow Cascading to URL Filtering settings, to understand the flow of the evaluated rules and help internal personnel and Zscaler Support troubleshoot issues.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
           "quotes": [
-            "Document the Allow Cascading to URL Filtering settings to understand the flow of the evaluated"
+            "Document the Allow Cascading to URL Filtering settings to understand the flow of the evaluated rules to help internal personnel and Zscaler Support troubleshoot issues."
           ]
         }
       ]
@@ -219,7 +236,9 @@
           "path": "src/zscaler_mcp/common/zia_helpers.py",
           "quotes": [
             "lower = evaluated first. Required by the ZIA API on create — defaults to",
-            "DEFAULT_RULE_ORDER: int = 1"
+            "DEFAULT_RULE_ORDER: int = 1",
+            "Positive integer (1-based) for the rule's position in the policy table;",
+            "1 (top) when omitted; on update, only changed when explicitly provided."
           ]
         },
         {
@@ -239,6 +258,7 @@
           "source": "mcp-server",
           "path": "skills/zia/create-cloud-app-control-rule/SKILL.md",
           "quotes": [
+            "Cloud App Control rules sit in a single top-to-bottom evaluation table per `rule_type`",
             "**first match wins**",
             "A more general rule placed above a more specific rule will **shadow** the specific one."
           ]

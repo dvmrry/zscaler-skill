@@ -64,7 +64,10 @@
           "quotes": [
             "Description: \"Organization Policy Edit/Update Activation status\",",
             "CreateContext: resourceActivationCreate,",
-            "DeleteContext: resourceActivationDelete,"
+            "DeleteContext: resourceActivationDelete,",
+            "CreateContext: resourceActivationCreate, ReadContext: resourceActivationRead, DeleteContext: resourceActivationDelete, Importer: &schema.ResourceImporter{},",
+            "Schema: map[string]*schema.Schema{ \"status\": { Type: schema.TypeString, Required: true, ForceNew: true,",
+            "ValidateFunc: validation.StringInSlice([]string{ \"ACTIVE\", }, false), }, }, Timeouts:"
           ]
         }
       ]
@@ -82,13 +85,15 @@
           "quotes": [
             "resp, err := activation.CreateActivation(ctx, service, req)",
             "d.SetId(\"activation\")",
-            "return resourceActivationRead(ctx, d, meta)"
+            "return resourceActivationRead(ctx, d, meta)",
+            "req := expandActivation(d)",
+            "Status: d.Get(\"status\").(string),"
           ]
         }
       ]
     },
     "delete-is-noop": {
-      "statement": "Delete does nothing: the code comments that an activation cannot be deleted, so destroying the resource removes it from state without calling ZIA.",
+      "statement": "Delete does nothing: the code comments that an activation cannot be deleted and returns without calling ZIA.",
       "tier": "A",
       "evidence": [
         {
@@ -98,7 +103,8 @@
             "HEAD"
           ],
           "quotes": [
-            "// Delete doesn't actually do anything, because an activation can't be deleted."
+            "// Delete doesn't actually do anything, because an activation can't be deleted.",
+            "// Delete doesn't actually do anything, because an activation can't be deleted. return nil"
           ]
         }
       ]

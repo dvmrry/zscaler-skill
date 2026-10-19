@@ -166,7 +166,8 @@
             "return errors.New(\"zpaIpGroup must be provided with a valid ID when action is REDIR_ZPA\")",
             "case \"REDIR_REQ_DOH\", \"REDIR_REQ_TCP\", \"REDIR_REQ_UDP\":",
             "return errors.New(\"protocols must be provided when action is REDIR_REQ_KEEP_SENDER\")",
-            "return errors.New(\"dnsGateway must be provided with a valid ID and Name when action is REDIR_REQ_KEEP_SENDER\")"
+            "return errors.New(\"dnsGateway must be provided with a valid ID and Name when action is REDIR_REQ_KEEP_SENDER\")",
+            "return fmt.Errorf(\"dnsGateway must be provided with a valid ID and Name when action is %s\", rule.Action)"
           ]
         }
       ],
@@ -251,7 +252,12 @@
             "Silently block all DNS requests and responses.",
             "Blocks DNS requests and responses and sends the specified response code to the client.",
             "Redirect DNS requests using the original user protocol (DoH, UDP, or TCP) to the DNS service configured in the specified DNS Gateway.",
-            "Resolve domain names of Private Access (ZPA) applications to an ephemeral IP address from a preconfigured IP pool."
+            "Resolve domain names of Private Access (ZPA) applications to an ephemeral IP address from a preconfigured IP pool.",
+            "Allow: Allows the DNS requests and responses.",
+            "Redirect Response: Replace the IP address of the resolved hostname in the DNS response with a preferred IP address before sending the response to the client.",
+            "Redirect Request Using DoH: Redirect DNS requests using DNS over HTTPS (DoH) to the DNS service configured in the specified DNS Gateway.",
+            "Redirect Request Using TCP: Redirect DNS requests using TCP to the DNS service configured in the specified DNS Gateway.",
+            "Redirect Request Using UDP: Redirect DNS requests using UDP to the DNS service configured in the specified DNS Gateway."
           ]
         }
       ],
@@ -293,7 +299,11 @@
           "path": "configuring-dns-control-policy.json",
           "quotes": [
             "Defining a response code for an entire type of DNS request should be strictly avoided.",
-            "would likely result in an unintended DNS outage."
+            "would likely result in an unintended DNS outage.",
+            "NXDomain should only be used exclusively with rule criteria such as Request Categories and Response Categories.",
+            "However, categories such as Miscellaneous that are not mapped to specific target domains should be avoided in the criteria.",
+            "Alternatively, consider using less definitive and less globally cacheable response codes such as \"5 - Query Refused\" (i.e., Refused) and \"2 - Server Failure\" (i.e., ServFail).",
+            "For example, defining a rule to block all DNS requests of A or AAAA record types (i.e., using DNS Request Type criteria) with NXDomain"
           ]
         }
       ]
@@ -307,7 +317,8 @@
           "path": "configuring-dns-control-policy.json",
           "quotes": [
             "Replace the IP address of the resolved hostname in the DNS response with a preferred IP address before sending the response to the client.",
-            "Enter the IP address that must replace the domain-resolved IP address in the DNS response to the client."
+            "Enter the IP address that must replace the domain-resolved IP address in the DNS response to the client.",
+            "This action happens on the response side but can match the request or response side condition."
           ]
         }
       ],
@@ -326,7 +337,11 @@
             "If the incoming DNS request uses protocols other than DoH (i.e., UDP or TCP), the Zscaler service translates the protocol to DoH",
             "However, UDP-to-TCP translation is not supported.",
             "However, TCP-to-UDP translation is not supported.",
-            "Only DNS Gateways configured with DoH support are listed."
+            "Only DNS Gateways configured with DoH support are listed.",
+            "The Zscaler service establishes a TCP connection to the DNS service if the incoming request uses TCP or DoH (after protocol translation).",
+            "The Zscaler service sends the request to the DNS service over UDP if the incoming request uses UDP or DoH (after protocol translation).",
+            "Only DNS Gateways configured with TCP support are listed.",
+            "Only DNS Gateways configured with UDP support are listed."
           ]
         }
       ],
@@ -362,7 +377,8 @@
           "path": "configuring-dns-control-policy.json",
           "quotes": [
             "By default, logging is set to Full and cannot be changed.",
-            "When both options are enabled, the Web EUN takes precedence and only this notification is displayed to users."
+            "When both options are enabled, the Web EUN takes precedence and only this notification is displayed to users.",
+            "Web EUN is supported for the Block action, whereas Client Connector EUN is supported for the Block, Block with Response Code, and Redirect Response actions."
           ]
         }
       ]

@@ -147,7 +147,12 @@
           "path": "legacy-getting-started-client-connector-api.json",
           "quotes": [
             "Send a POST request to the /login endpoint with the following parameters:",
-            "The authorization token is passed onto subsequent calls for authentication."
+            "The authorization token is passed onto subsequent calls for authentication.",
+            "url = \"https://mobile.<cloudName>.net/papi/auth/v1/login\" payload={\"apiKey\":\"{apiKey}\",\"secretKey\":\"{secretKey}\"} headers = { 'Content-Type': 'application/json' } response = requests.request(\"POST\", url, headers=headers, json=payload)",
+            "apiKey: A string that contains the API client ID.",
+            "secretKey: A string that contains the client secret.",
+            "you must retrieve your authorization token (JWT Token<jwtToken>)",
+            "{ \"jwtToken\" : \"eyJraWQiOiI0bzZFS1k4STFqS1kwN2tQdjlqWV9\", \"message\" : null }"
           ]
         },
         {
@@ -181,7 +186,8 @@
           "source": "zscaler-help",
           "path": "legacy-getting-started-client-connector-api.json",
           "quotes": [
-            "The client secret (i.e., secret key) is only accessible within the Zscaler Client Connector Portal when the API key is created for the first time."
+            "The client secret (i.e., secret key) is only accessible within the Zscaler Client Connector Portal when the API key is created for the first time.",
+            "The client secret is only available to copy when adding an API key."
           ]
         }
       ]
@@ -201,14 +207,16 @@
           "source": "sdk-python",
           "path": "zscaler/zcc/legacy.py",
           "quotes": [
-            "\"auth-token\": f\"{self.auth_token}\","
+            "\"auth-token\": f\"{self.auth_token}\",",
+            "self.headers = { \"Content-Type\": \"application/json\", \"Accept\": \"*/*\", \"auth-token\": f\"{self.auth_token}\", \"User-Agent\": self.user_agent, }"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zcc/v2_client.go",
           "quotes": [
-            "req.Header.Set(\"auth-token\", config.ZCC.Client.AuthToken.AccessToken)"
+            "req.Header.Set(\"auth-token\", config.ZCC.Client.AuthToken.AccessToken) req.Header.Add(\"Content-Type\", \"application/json\")",
+            "req.Header.Set(\"x-partner-id\", client.Config.ZCC.Client.PartnerID)"
           ]
         }
       ]

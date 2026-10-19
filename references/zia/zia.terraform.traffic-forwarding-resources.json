@@ -65,7 +65,8 @@
           "source": "tf-zia",
           "path": "docs/resources/zia_traffic_forwarding_gre_tunnel.md",
           "quotes": [
-            "The provider automatically query the Zscaler cloud for the primary and secondary destination datacenter and virtual IP address (VIP) of the GRE tunnel."
+            "The provider automatically query the Zscaler cloud for the primary and secondary destination datacenter and virtual IP address (VIP) of the GRE tunnel.",
+            "The attribute can be overriden if needed by setting the parameters: `primary_dest_vip` and `secondary_dest_vip`."
           ]
         }
       ]
@@ -78,8 +79,8 @@
           "source": "tf-zia",
           "path": "docs/resources/zia_traffic_forwarding_gre_tunnel.md",
           "quotes": [
-            "only one attribute is required.",
-            "The provider will automatically select the available VIP."
+            "Although the example shows 2 valid attributes defined (datacenter, virtual_ip) within the primary_dest_vip and secondary_dest_vip, only one attribute is required.",
+            "If setting the datacenter name as the attribute i.e YVR1. The provider will automatically select the available VIP."
           ]
         }
       ]
@@ -92,7 +93,8 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_traffic_forwarding_static_ips.go",
           "quotes": [
-            "Latitude with 7 digit precision after decimal point, ranges between -90 and 90 degrees. If not provided, the API will automatically determine it from the IP address."
+            "Optional: true, Computed: true, ValidateFunc: ValidateLatitude, DiffSuppressFunc: DiffSuppressFuncCoordinate, Description: \"Latitude with 7 digit precision after decimal point, ranges between -90 and 90 degrees. If not provided, the API will automatically determine it from the IP address.\"",
+            "Optional: true, Computed: true, ValidateFunc: ValidateLongitude, DiffSuppressFunc: DiffSuppressFuncCoordinate, Description: \"Longitude with 7 digit precision after decimal point, ranges between -180 and 180 degrees. If not provided, the API will automatically determine it from the IP address.\""
           ]
         }
       ]
@@ -105,7 +107,8 @@
           "source": "tf-zia",
           "path": "CHANGELOG.md",
           "quotes": [
-            "to auto-determine latitude and longitude coordinates when `geo_override = true` but coordinates are not explicitly provided, eliminating \"Missing geo Coordinates\" API error"
+            "## 4.6.2 (November, 20 2025)",
+            "Fixed `zia_traffic_forwarding_static_ip` resource to auto-determine latitude and longitude coordinates when `geo_override = true` but coordinates are not explicitly provided, eliminating \"Missing geo Coordinates\" API error"
           ]
         }
       ]
@@ -174,6 +177,7 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_location_management.go",
           "quotes": [
+            "if parentIDInt, ok := d.GetOk(\"parent_id\"); ok && parentIDInt.(int) != 0 {",
             "when the location is a sub-location ip_addresses must not be empty: %v"
           ]
         }

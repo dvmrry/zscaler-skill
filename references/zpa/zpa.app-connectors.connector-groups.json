@@ -297,7 +297,11 @@
           "quotes": [
             "// Group was created but verification failed",
             "// Verify user codes if they changed",
-            "if d.HasChange(\"user_codes\") {"
+            "if d.HasChange(\"user_codes\") {",
+            "// Verify user codes if provided",
+            "// Verify user codes if provided if v, ok := d.GetOk(\"user_codes\"); ok { userCodes := SetToStringList(d, \"user_codes\") if len(userCodes) > 0 {",
+            "return diag.Errorf(\"app connector group created successfully (ID: %s), but user code verification failed: %s.",
+            "return diag.Errorf(\"app connector group updated successfully (ID: %s), but user code verification failed: %s\", id, err)"
           ]
         }
       ],
@@ -333,6 +337,17 @@
             "self.enrollment_cert_id = config[\"enrollmentCertId\"] if \"enrollmentCertId\" in config else None",
             "self.private_cloud_id = config[\"privateCloudId\"] if \"privateCloudId\" in config else None",
             "self.site_id = config[\"siteId\"] if \"siteId\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connector_groups.py",
+          "after": "class AppConnectorGroup(ZscalerObject):",
+          "quotes": [
+            "self.id = config[\"id\"] if \"id\" in config else None",
+            "self.name = config[\"name\"] if \"name\" in config else None",
+            "self.enabled = config[\"enabled\"] if \"enabled\" in config else True",
+            "self.description = config[\"description\"] if \"description\" in config else None"
           ]
         }
       ],
@@ -429,7 +444,10 @@
           "path": "modules/terraform-zpa-app-connector-group/main.tf",
           "quotes": [
             "var.app_connector_group_override_version_profile == false ? \"0\" :",
-            "name = \"Default\""
+            "name = \"Default\"",
+            "data \"zpa_customer_version_profile\" \"default\" {",
+            "count = var.app_connector_group_override_version_profile && var.app_connector_group_version_profile_id == \"\" ? 1 : 0",
+            "data.zpa_customer_version_profile.default[0].id"
           ]
         }
       ]
@@ -442,15 +460,36 @@
           "source": "tfmod-aws-zpa-app-connector",
           "path": "modules/terraform-zpa-app-connector-group/variables.tf",
           "quotes": [
-            "default = \"\""
+            "default = \"\"",
+            "Optional: City and country of this App Connector Group."
           ],
           "after": "variable \"app_connector_group_city_country\" {"
         },
         {
           "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/variables.tf",
+          "after": "variable \"app_connector_group_city_country\" {",
+          "quotes": [
+            "Optional: City and country of this App Connector Group.",
+            "default = \"\""
+          ]
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
           "path": "modules/terraform-zpa-app-connector-group/main.tf",
           "quotes": [
+            "The ZPA API derives city_country from the supplied latitude/longitude and",
             "ignore_changes = [city_country]"
+          ]
+        },
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/main.tf",
+          "after": "resource \"zpa_app_connector_group\" \"app_connector_group\" {",
+          "quotes": [
+            "name = var.app_connector_group_name description = var.app_connector_group_description enabled = var.app_connector_group_enabled country_code = var.app_connector_group_country_code city_country = var.app_connector_group_city_country latitude = var.app_connector_group_latitude longitude =",
+            "var.app_connector_group_longitude location = var.app_connector_group_location upgrade_day = var.app_connector_group_upgrade_day upgrade_time_in_secs = var.app_connector_group_upgrade_time_in_secs override_version_profile = var.app_connector_group_override_version_profile version_profile_id =",
+            "local.version_profile_id dns_query_type = var.app_connector_group_dns_query_type # enrollment_cert_id = data.zpa_enrollment_cert.connector.id user_codes = var.user_codes }"
           ]
         }
       ],
@@ -467,7 +506,10 @@
             "self.pra_enabled = config[\"praEnabled\"] if \"praEnabled\" in config else False",
             "self.waf_disabled = config[\"wafDisabled\"] if \"wafDisabled\" in config else False",
             "self.lss_app_connector_group = config[\"lssAppConnectorGroup\"] if \"lssAppConnectorGroup\" in config else False",
-            "self.lss_app_connector_group = None"
+            "self.lss_app_connector_group = None",
+            "self.tcp_quick_ack_app = config[\"tcpQuickAckApp\"] if \"tcpQuickAckApp\" in config else False",
+            "self.tcp_quick_ack_assistant = config[\"tcpQuickAckAssistant\"] if \"tcpQuickAckAssistant\" in config else False",
+            "self.tcp_quick_ack_read_assistant = ( config[\"tcpQuickAckReadAssistant\"] if \"tcpQuickAckReadAssistant\" in config else False )"
           ]
         },
         {
@@ -519,12 +561,26 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/models/app_connector_groups.py",
           "quotes": [
-            "self.np_assistant_group = NPAssistantGroup(config[\"npAssistantGroup\"])",
+            "self.np_assistant_group = NPAssistantGroup(config[\"npAssistantGroup\"])"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connector_groups.py",
+          "after": "class NPAssistantGroup(ZscalerObject):",
+          "quotes": [
             "self.mtu = config[\"mtu\"] if \"mtu\" in config else None",
             "self.external_routers = ZscalerCollection.form_list(",
             "self.lan_subnets = ZscalerCollection.form_list(config[\"lanSubnets\"] if \"lanSubnets\" in config else [], LanSubnet)",
-            "self.np_dns_ns_record = NPDnsNsRecord(config[\"npDnsNsRecord\"] if \"npDnsNsRecord\" in config else None)",
             "self.redundant_mode_enabled = config[\"redundantModeEnabled\"] if \"redundantModeEnabled\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connector_groups.py",
+          "after": "class LanSubnet(ZscalerObject):",
+          "quotes": [
+            "self.np_dns_ns_record = NPDnsNsRecord(config[\"npDnsNsRecord\"] if \"npDnsNsRecord\" in config else None)"
           ]
         }
       ]
@@ -547,6 +603,14 @@
             "DiffSuppressFunc: DiffSuppressFuncCoordinate,"
           ],
           "after": "\"latitude\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "after": "\"longitude\": {",
+          "quotes": [
+            "DiffSuppressFunc: DiffSuppressFuncCoordinate,"
+          ]
         }
       ]
     },
@@ -597,7 +661,8 @@
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1appConnectorGroup~1{appConnectorGroupId}/get/responses/200/content/*~1*/schema/properties/connectors/items/properties/latitude",
           "expect": {
             "format": "double",
-            "type": "number"
+            "type": "number",
+            "description": "The latitude of the App Connector. This field is read only and is ignored in PUT and POST requests."
           }
         },
         {
@@ -649,16 +714,28 @@
         },
         {
           "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
+          "quotes": [
+            "func Update(ctx context.Context, service *zscaler.Service, appConnectorGroupID string, appConnectorGroup *AppConnectorGroup) (*http.Response, error) { path := fmt.Sprintf(\"%v/%v\", mgmtConfig+service.Client.GetCustomerID()+appConnectorGroupEndpoint, appConnectorGroupID)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, appConnectorGroup, nil) if err != nil { return nil, err } return resp, err }"
+          ]
+        },
+        {
+          "source": "sdk-go",
           "path": "zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go",
           "quotes": [
-            "EnrollmentCertID string `json:\"enrollmentCertId,omitempty\"`"
+            "EnrollmentCertID string `json:\"enrollmentCertId,omitempty\"`",
+            "func Update(ctx context.Context, service *zscaler.Service, serviceEdgeGroupID string, serviceEdge *ServiceEdgeGroup) (*http.Response, error) { relativeURL := fmt.Sprintf(\"%s/%s\", mgmtConfig+service.Client.GetCustomerID()+serviceEdgeGroupEndpoint, serviceEdgeGroupID)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()}, serviceEdge, nil) if err != nil { return nil, err } return resp, nil }"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/private_cloud_group/private_cloud_group.go",
           "quotes": [
-            "EnrollmentCertID string `json:\"enrollmentCertId,omitempty\"`"
+            "EnrollmentCertID string `json:\"enrollmentCertId,omitempty\"`",
+            "func Update(ctx context.Context, service *zscaler.Service, groupID string, controllerGroup *PrivateCloudGroup) (*http.Response, error) { path := fmt.Sprintf(\"%v/%v\", mgmtConfig+service.Client.GetCustomerID()+privateCloudControllerGroupEndpoint, groupID)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, controllerGroup, nil) if err != nil { return nil, err } return resp, err }"
           ]
         }
       ]
@@ -687,7 +764,8 @@
           "quotes": [
             "Auto-resolves the",
             "tenant's standard 'Connector' enrollment certificate when none is supplied.",
-            "\"enrollment_cert_id\": resolved_cert_id,"
+            "\"enrollment_cert_id\": resolved_cert_id,",
+            "created, _, err = client.zpa.app_connector_groups.add_connector_group(**body)"
           ]
         }
       ]
@@ -708,9 +786,20 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_connector_groups.py",
           "quotes": [
-            "cert, _, error = self._enrollment_certificates.get_enrolment_by_name(\"Connector\")"
+            "cert, _, error = self._enrollment_certificates.get_enrolment_by_name(\"Connector\")",
+            "if not body.get(\"enrollment_cert_id\"):",
+            "body[\"enrollment_cert_id\"] = cert.id"
           ],
           "after": "def add_connector_group"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "after": "def update_connector_group(self, group_id: str, **kwargs)",
+          "quotes": [
+            "if not body.get(\"enrollment_cert_id\"): cert, _, error = self._enrollment_certificates.get_enrolment_by_name(\"Connector\")",
+            "body[\"enrollment_cert_id\"] = cert.id"
+          ]
         }
       ]
     }

@@ -91,7 +91,7 @@
   ],
   "claims": {
     "api-read-only": {
-      "statement": "ZPA's API documentation describes machine group resources as read-only. The documented operations are a GET on the collection and a GET on a single group.",
+      "statement": "ZPA's API documentation says machine group API resources allow you to read machine groups. The documented operations are a GET on the collection and a GET on a single group.",
       "tier": "A",
       "binds": [
         "zpa/machine-groups"
@@ -119,6 +119,28 @@
           "expect": {
             "operationId": "Get Machine Group"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1machineGroup",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1machineGroup~1{Id}",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
         }
       ]
     },
@@ -141,6 +163,22 @@
           "path": "zscaler/zpa/machine_groups.py",
           "quotes": [
             "/machineGroup/summary"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/machine_groups.py",
+          "after": "def list_machine_group_summary(",
+          "quotes": [
+            "Retrieves all configured machine groups Name and IDs"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/mgmtconfig/v1/admin/customers/{customerId}/machineGroup/summary"
           ]
         }
       ]
@@ -202,11 +240,17 @@
           "source": "tf-zpa",
           "path": "docs/data-sources/zpa_machine_group.md",
           "quotes": [
-            "* `modified_name` (string)",
-            "* `machines` (string)",
-            "* `machine_token_id` (string)",
-            "* `signing_cert` (string)",
-            "* `issued_cert_id` (string)"
+            "* `id` - (string) The ID of the machine group to be exported.\n* `creation_time` (string)\n* `description` (string)\n* `enabled` (bool)\n* `modified_by` (string)\n* `modified_name` (string)\n* `microtenant_id` (string)",
+            "* `microtenant_name` (string) The name of the microtenant the resource is to be associated with.\n * `machines` (string)",
+            "* `fingerprint` (string)\n * `id` (string)\n * `issued_cert_id` (string)\n * `machine_group_id` (string)\n * `machine_group_name` (string)\n * `machine_token_id` (string)",
+            "* `signing_cert` (string)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_machine_group.go",
+          "quotes": [
+            "\"machines\": {\nType: schema.TypeList,"
           ]
         }
       ]
@@ -271,7 +315,8 @@
           "source": "zscaler-help",
           "path": "obtaining-machine-group-details-using-api.json",
           "quotes": [
-            "If not provided, the default page size is 20. The maximum page size is 500."
+            "If not provided, the default page size is 20. The maximum page size is 500.",
+            "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/machineGroup?page=1&pagesize=20."
           ]
         }
       ]

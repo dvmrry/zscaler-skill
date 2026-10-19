@@ -158,7 +158,8 @@
           "quotes": [
             "If you add a fully qualified domain name (FQDN), the FQDN resolves and all resulting IP addresses are added to the bypass list at the start of the tunnel. However, if the FQDN resolves to a different IP address later, that address might not be bypassed.",
             "Adding too many FQDNs can slow tunnel startup because Zscaler Client Connector resolves all these domains before starting tunneling.",
-            "Zscaler Client Connector attempts to resolve all entries after a network change."
+            "Zscaler Client Connector attempts to resolve all entries after a network change.",
+            "Zscaler recommends adding an IP or subnet where possible."
           ],
           "after": "To add a new Windows policy rule:"
         },
@@ -196,7 +197,8 @@
           "path": "best-practices-adding-bypasses-z-tunnel-2.0.json",
           "quotes": [
             "Include specific subnets only by adding 0.0.0.0/0 to Destination Exclusions and entering specific subnets to the Destination Inclusions.",
-            "Exclude specific subnets only by adding 0.0.0.0/0 to Destination Inclusions and entering specific subnets to the Destination Exclusions."
+            "Exclude specific subnets only by adding 0.0.0.0/0 to Destination Inclusions and entering specific subnets to the Destination Exclusions.",
+            "You can add specific subnets to the Destination Exclusions and Destination Inclusion fields in the Zscaler Client Connector app profile, allowing you to send a specific subset of your traffic to the Public Service Edge for Internet & SaaS through Z-Tunnel 2.0."
           ]
         }
       ]
@@ -275,7 +277,8 @@
           "source": "zscaler-help",
           "path": "best-practices-adding-bypasses-z-tunnel-2.0.json",
           "quotes": [
-            "This bypass requires Z-Tunnel 1.0 listener, which can only bypass the web traffic (i.e., HTTP/HTTPS traffic) originating from the system proxy. You must route system proxy traffic to the listener and then bypass the domains in the app profile PAC."
+            "This bypass requires Z-Tunnel 1.0 listener, which can only bypass the web traffic (i.e., HTTP/HTTPS traffic) originating from the system proxy. You must route system proxy traffic to the listener and then bypass the domains in the app profile PAC.",
+            "This allows you to create bypasses for domain-based applications (i.e., applications that can’t be resolved to a single IP address)."
           ]
         }
       ]
@@ -338,14 +341,15 @@
       ]
     },
     "bypasses-before-listener": {
-      "statement": "Z-Tunnel 2.0 inclusions and exclusions and VPN hostname bypasses are applied before traffic is sent to the listening proxy, so only TCP 80 and 443 traffic covered by the inclusions reaches it.",
+      "statement": "Z-Tunnel 2.0 inclusions and exclusions and VPN hostname bypasses are applied before traffic is sent to the listening proxy, so when Redirect Web Traffic to Zscaler Client Connector Listening Proxy is enabled, only TCP 80 and 443 traffic covered by the inclusions reaches it.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "best-practices-adding-bypasses-z-tunnel-2.0.json",
           "quotes": [
-            "Z-Tunnel 2.0 inclusions and exclusions and VPN hostname bypasses are applied before sending traffic to the listening proxy. Hence, only the TCP 80/443 traffic covered by the Z-Tunnel 2.0 inclusions is sent to the listening proxy when this option is enabled."
+            "Z-Tunnel 2.0 inclusions and exclusions and VPN hostname bypasses are applied before sending traffic to the listening proxy. Hence, only the TCP 80/443 traffic covered by the Z-Tunnel 2.0 inclusions is sent to the listening proxy when this option is enabled.",
+            "Select Redirect Web Traffic to Zscaler Client Connector Listening Proxy to split traffic so that the TCP port 80 and TCP port 443 traffic go to the Zscaler Client Connector Listening Proxy, with the remaining traffic passing through Z-Tunnel 2.0."
           ]
         }
       ]
@@ -399,6 +403,7 @@
           "source": "zscaler-help",
           "path": "best-practices-adding-bypasses-z-tunnel-2.0.json",
           "quotes": [
+            "| Redirect Web Traffic to Zscaler Client Connector Listening Proxy option | Use Z-Tunnel 2.0 for Proxied Web Traffic option | Web Traffic | Non-Web Traffic |",
             "| Enabled | Disabled | Forward to the listening proxy through Z-Tunnel 1.0 | Send directly to Z-Tunnel 2.0 |",
             "| Disabled | Enabled | If using a system proxy (like 127.0.0.1:9000), forward to the Zscaler listening proxy and then send to Z-Tunnel 2.0.If not using a system proxy, send directly to Z-Tunnel 2.0. | Send directly to Z-Tunnel 2.0 |",
             "| Enabled | Enabled | Forward to the listening proxy through Z-Tunnel 2.0. | Send directly to Z-Tunnel 2.0 |"

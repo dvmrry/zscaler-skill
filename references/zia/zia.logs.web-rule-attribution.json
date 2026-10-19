@@ -34,7 +34,7 @@
     },
     {
       "label": "URL category in logs.",
-      "text": "{{category-source}} That is the offline substitute for the predefined-membership gap in [[zia.url-categories.membership]], as long as the URL has been seen."
+      "text": "{{category-source}} {{category-membership-from-logs}} That is the offline substitute for the predefined-membership gap in [[zia.url-categories.membership]], as long as the URL has been seen."
     },
     {
       "text": "What action shows when several policy layers weigh in on one transaction, and its full set of values, is open {{gap:action-values-precedence}}."
@@ -52,7 +52,8 @@
     {
       "do": "Whether a URL's category in the logs (`urlcat`, `urlcatmethod`) answers the membership question for that URL, once the URL has been seen.",
       "uses": [
-        "category-source"
+        "category-source",
+        "category-membership-from-logs"
       ]
     }
   ],
@@ -95,7 +96,7 @@
       ]
     },
     "category-source": {
-      "statement": "`urlcat` records the category the transaction was judged under, and `urlcatmethod` records where that categorization came from, which is how logs reveal a URL's actual category membership.",
+      "statement": "`urlcat` records the category of the transaction's destination URL, and `urlcatmethod` records the source of that categorization.",
       "tier": "A",
       "binds": [
         "zia/web-log#urlcat",
@@ -111,6 +112,18 @@
           ]
         }
       ]
+    },
+    "category-membership-from-logs": {
+      "statement": "Because a logged transaction carries both the URL's category and the source of that categorization, the logs show which category a URL was actually placed in, for URLs that have been seen.",
+      "tier": "B",
+      "binds": [
+        "zia/web-log#urlcat",
+        "zia/web-log#urlcatmethod"
+      ],
+      "derived_from": [
+        "category-source"
+      ],
+      "conditions": "Inference from the field descriptions; the source does not describe reading category membership from logs."
     }
   },
   "gaps": {

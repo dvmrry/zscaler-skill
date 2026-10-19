@@ -116,7 +116,8 @@
           "path": "configuring-device-posture-profiles.json",
           "quotes": [
             "Platform: Select one or more of the following platform options:",
-            "Not all device posture types work for all platforms. If you select a device that doesn't support a specific posture type, the posture type is unavailable."
+            "Not all device posture types work for all platforms. If you select a device that doesn't support a specific posture type, the posture type is unavailable.",
+            "Platform: Select one or more of the following platform options: - Windows - macOS - Linux - Android - iOS"
           ]
         }
       ]
@@ -130,7 +131,8 @@
           "path": "configuring-device-posture-profiles.json",
           "quotes": [
             "Apply when added as Partner Tenant: Applies to Zscaler Client Connector version 4.6 and later for Windows and Zscaler Client Connector version 5.0 and later for macOS.",
-            "When selected, the posture type is evaluated and applied to the Private Access tunnel used to connect to a partner tenant."
+            "When selected, the posture type is evaluated and applied to the Private Access tunnel used to connect to a partner tenant.",
+            "When selected, the posture type is evaluated and applied to the Private Access tunnel used to connect to a partner tenant. If not selected, the posture type is only evaluated for Private Access and Internet & SaaS tunnels."
           ]
         }
       ]
@@ -145,7 +147,8 @@
           "quotes": [
             "Applies to Windows, macOS, Linux, Android, or iOS. Select Certificate Trust from the drop-down menu",
             "The user's device must trust the certificate to pass the posture validation check.",
-            "For iOS, the certificate must be trusted directly by the device. An intermediate certificate doesn't work."
+            "For iOS, the certificate must be trusted directly by the device. An intermediate certificate doesn't work.",
+            "Zscaler accepts Base64-encoded .pem and .cer files, and you can upload any one of the following: - A root CA certificate - An intermediate certificate - A client certificate"
           ]
         }
       ]
@@ -189,7 +192,8 @@
           "quotes": [
             "If a certificate was revoked, the posture check fails.",
             "Zscaler Client Connector for Windows checks the CRL that was downloaded from the CA server and cached by a Microsoft API.",
-            "you can have Zscaler Client Connector download, validate, and cache the CRL locally based on a configurable cache interval (0 to 30 minutes)."
+            "you can have Zscaler Client Connector download, validate, and cache the CRL locally based on a configurable cache interval (0 to 30 minutes).",
+            "Optionally, enable Perform CRL Check. If enabled, Zscaler Client Connector can help detect whether the certificate was revoked."
           ]
         },
         {
@@ -203,7 +207,7 @@
       ]
     },
     "server-validated-cert": {
-      "statement": "Server Validated Client Certificate (Client Connector 4.4 and later on Windows, 5.0 and later on macOS) applies to Private Access only: the server sends a challenge that the client signs with the certificate's private key. On macOS the certificate must be in the System keychain, not the Login keychain, and certificates that need user interaction such as PIN smart cards are not supported.",
+      "statement": "Server Validated Client Certificate (Client Connector 4.4 and later on Windows, 5.0 and later on macOS) applies to Private Access only: the server sends a challenge, and the client, after locating the private key and the root CA on the certificate chain, sends the signed challenge back. On macOS the certificate must be in the System keychain, not the Login keychain, and certificates that need user interaction such as PIN smart cards are not supported.",
       "tier": "A",
       "evidence": [
         {
@@ -213,7 +217,9 @@
             "Applies only to Zscaler Client Connector version 4.4 and later for Windows and Zscaler Client Connector version 5.0 and later for macOS. This posture is applicable to Private Access (ZPA) only.",
             "For this posture validation check, the server sends a challenge to the client.",
             "The client certificate must also be in the System keychain for posture evaluation. Certificates in the Login keychain are not supported at this time.",
-            "Client certificates that require user interaction (e.g., smart cards with a PIN) are not supported."
+            "Client certificates that require user interaction (e.g., smart cards with a PIN) are not supported.",
+            "Select Server Validated Client Certificate from the drop-down menu and upload a CA certificate trusted by your organization's users.",
+            "After locating the private key and the root CA on the certificate chain, the client sends the signed challenge back to the server to pass the validation."
           ]
         }
       ]
@@ -315,7 +321,8 @@
           "path": "configuring-device-posture-profiles.json",
           "quotes": [
             "Applies to Zscaler Client Connector version 3.6 and later for Windows or macOS, or Zscaler Client Connector 1.4 and later for Linux, or Zscaler Client Connector 3.7 and later for Android.",
-            "If the machine is running this version or later, then the posture check passes."
+            "If the machine is running this version or later, then the posture check passes.",
+            "For Windows only, select an edition from the OS Editions drop-down menu, click Add OS to add it, and then select a build from the OS Build drop-down menu."
           ]
         }
       ]
@@ -329,7 +336,9 @@
           "path": "configuring-device-posture-profiles.json",
           "quotes": [
             "Applies to Zscaler Client Connector version 4.8 and later for Windows or Zscaler Client Connector version 4.8 and later for macOS. Select Zscaler Client Connector Version from the drop-down menu. Enter up to five versions in the Version field",
-            "You can enter only values 4.8 and higher (e.g., 4.8, 4.8.0.456, 4.9, 4.9.0.789)."
+            "You can enter only values 4.8 and higher (e.g., 4.8, 4.8.0.456, 4.9, 4.9.0.789).",
+            "Enter up to five versions in the Version field in a minimum two-version level to maximum 4-version level format. If you select Exact Match, the exact version number is required to pass the check.",
+            "Only versions 4.8.0.456 and 4.9.0.789"
           ]
         }
       ]
@@ -387,7 +396,10 @@
           "quotes": [
             "Select Detect Carbon Black. The user must have Carbon Black running on the device to pass the posture validation check.",
             "Select Detect CrowdStrike. The user must have CrowdStrike running on the device to pass the posture validation check.",
-            "Select Detect SentinelOne. The user must have SentinelOne running on the device to pass the posture validation check."
+            "Select Detect SentinelOne. The user must have SentinelOne running on the device to pass the posture validation check.",
+            "This is only applicable if you're using Zscaler Client Connector version 2.1.2 and later for Windows or macOS. Select Detect Carbon Black.",
+            "This is only applicable if you're using Zscaler Client Connector version 2.1.2 and later for Windows or macOS. Select Detect CrowdStrike.",
+            "This is only applicable if you're using Zscaler Client Connector version 2.1.2 and later for Windows or macOS. Select Detect SentinelOne."
           ]
         }
       ]
@@ -403,7 +415,13 @@
             "if there are no matching thumbprints, the posture check still passes if Carbon Black is installed and turned on in Windows Security.",
             "if there are no matching thumbprints, the posture check still passes if CrowdStrike is installed and turned on in Windows Security.",
             "if there are no matching thumbprints, the posture check still passes if SentinelOne is installed and turned on in Windows Security.",
-            "if there are no matching thumbprints, the posture check still passes if CrowdStrike is installed and the process is running."
+            "if there are no matching thumbprints, the posture check still passes if CrowdStrike is installed and the process is running.",
+            "For Zscaler Client Connector version 4.5 and later for Windows, if there are no matching thumbprints, the posture check still passes if Carbon Black is installed and turned on in Windows Security.",
+            "For Zscaler Client Connector version 4.5 and later for Windows, if there are no matching thumbprints, the posture check still passes if CrowdStrike is installed and turned on in Windows Security.",
+            "For Zscaler Client Connector version 4.5 and later for Windows, if there are no matching thumbprints, the posture check still passes if SentinelOne is installed and turned on in Windows Security.",
+            "For Zscaler Client Connector version 4.3 and later for macOS, if there are no matching thumbprints, the posture check still passes if Carbon Black is installed and the process is running.",
+            "For Zscaler Client Connector version 4.3 and later for macOS, if there are no matching thumbprints, the posture check still passes if CrowdStrike is installed and the process is running.",
+            "For Zscaler Client Connector version 4.3 and later for macOS, if there are no matching thumbprints, the posture check still passes if SentinelOne is installed and the process is running."
           ]
         }
       ]
@@ -456,7 +474,35 @@
           "path": "configuring-device-posture-profiles.json",
           "after": "The user must have Microsoft Defender Advanced Threat Protection running on the device to pass the posture validation check.",
           "quotes": [
-            "If you use Zscaler Client Connector version 4.9 and later for Windows, you can specify one or more software versions that the device must have to pass the check."
+            "If you use Zscaler Client Connector version 4.9 and later for Windows, you can specify one or more software versions that the device must have to pass the check.",
+            "Enter up to three versions in the Version field in a minimum two-version level to maximum 4-version level format. If you select Exact Match, the exact version number is required to pass the check. Contact Zscaler Support to enable this feature."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "after": "Select Detect Carbon Black.",
+          "quotes": [
+            "If you use Zscaler Client Connector version 4.9 and later for Windows, you can specify one or more software versions that the device must have to pass the check.",
+            "Enter up to three versions in the Version field in a minimum two-version level to maximum 4-version level format. If you select Exact Match, the exact version number is required to pass the check. Contact Zscaler Support to enable this feature."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "after": "Select Detect CrowdStrike.",
+          "quotes": [
+            "If you use Zscaler Client Connector version 4.9 and later for Windows, you can specify one or more software versions that the device must have to pass the check.",
+            "Enter up to three versions in the Version field in a minimum two-version level to maximum 4-version level format. If you select Exact Match, the exact version number is required to pass the check. Contact Zscaler Support to enable this feature."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "after": "Select Detect SentinelOne.",
+          "quotes": [
+            "If you use Zscaler Client Connector version 4.9 and later for Windows, you can specify one or more software versions that the device must have to pass the check.",
+            "Enter up to three versions in the Version field in a minimum two-version level to maximum 4-version level format. If you select Exact Match, the exact version number is required to pass the check. Contact Zscaler Support to enable this feature."
           ]
         }
       ]
@@ -489,7 +535,11 @@
             "This is only applicable if you're using Zscaler Client Connector version 4.6 and later for Windows or Zscaler Client Connector version 4.8 and later for macOS. Select CrowdStrike ZTA Device OS Score.",
             "If that OS score is greater than or equal to the score you've entered, the posture check passes.",
             "Select CrowdStrike ZTA Sensor Setting Score.",
-            "If that sensor setting score is greater than or equal to the score you've entered, the posture check passes."
+            "If that sensor setting score is greater than or equal to the score you've entered, the posture check passes.",
+            "This is only applicable if you're using Zscaler Client Connector version 4.6 and later for Windows or Zscaler Client Connector version 4.8 and later for macOS. Select CrowdStrike ZTA Sensor Setting Score.",
+            "Zscaler Client Connector compares this number against the OS score assigned by CrowdStrike's user agent.",
+            "Zscaler Client Connector compares this number against the sensor setting score assigned by CrowdStrike's user agent.",
+            "Zscaler Client Connector compares this number against an overall score (a combined score based on the device OS settings and sensor settings) assigned by CrowdStrike's user agent."
           ]
         }
       ]
@@ -505,7 +555,8 @@
             "Applies to Zscaler Client Connector version 4.3 and later for macOS.",
             "Jamf Detection: Zscaler Client Connector checks if Jamf is running on the device.",
             "Jamf Risk Level: Zscaler Client Connector checks for Jamf-provided risk levels. Choose from Secure, Low, Medium, or High.",
-            "when removing an MDM profile from a device, the Jamf daemon might still be running."
+            "when removing an MDM profile from a device, the Jamf daemon might still be running.",
+            "To ensure it is not running, on unenrollment, admins must add the command sudo jamf -removeFramework to Jamf Pro to completely remove the Jamf daemon from running on the system."
           ]
         }
       ]

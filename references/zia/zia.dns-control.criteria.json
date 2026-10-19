@@ -83,7 +83,8 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
           "quotes": [
-            "DNS request types to which the rule applies"
+            "DNS request types to which the rule applies",
+            "DNSRuleRequestTypes []string `json:\"dnsRuleRequestTypes,omitempty\"`"
           ]
         }
       ],
@@ -99,7 +100,8 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
           "quotes": [
-            "List of destination IP categories to which the rule applies."
+            "List of destination IP categories to which the rule applies.",
+            "ResCategories []string `json:\"resCategories,omitempty\"`"
           ]
         }
       ],
@@ -118,7 +120,12 @@
           "source": "zscaler-help",
           "path": "configuring-dns-control-policy.json",
           "quotes": [
-            "The logical relationship between the categories is AND, and the rule conditions within each category have their own set of logical operators applied, explained as follows:"
+            "The DNS Control policy supports different rule conditions, grouped into categories.",
+            "The logical relationship between the categories is AND, and the rule conditions within each category have their own set of logical operators applied, explained as follows:",
+            "Who, Where, & When: [ (Users OR Groups OR Departments) AND (Locations OR Location Groups) AND Time ] AND",
+            "Source IP: (Source Groups OR IP Addresses) AND",
+            "Destination/Resolved IPs: (Destination IPv4 Groups OR DNS Server IP Addresses) AND",
+            "DNS Application: [ (DNS Tunnels & Network Apps OR DNS Application Group) AND (Resolved IP-Based Countries OR Requested Categories OR Response Categories) AND DNS Request Types AND Protocol AND (Endpoint Applications OR Endpoint Application Tags) AND Endpoint Application Risk Level ]"
           ]
         }
       ]
@@ -131,9 +138,13 @@
           "source": "zscaler-help",
           "path": "configuring-dns-control-policy.json",
           "quotes": [
+            "Select the DNS tunnels to which the rule applies.",
+            "Select the DNS Application Groups to which the rule applies.",
             "Select the countries you want to control. Their destination is identified based on the server location.",
             "Select the request and response URL and TLD categories to which the rule applies.",
-            "Select the DNS request types to which the rule applies."
+            "Select the DNS request types to which the rule applies.",
+            "Select the protocols you want to control from DNS Over HTTPS, TCP, and UDP.",
+            "Choose whether the rule should specifically include the selected endpoint applications, or exclude them to cover all other non-specified applications."
           ]
         }
       ]
@@ -153,7 +164,7 @@
       ]
     },
     "limits-32": {
-      "statement": "A rule can select up to 32 users, 32 groups, 32 departments, 32 locations and 32 location groups; Zscaler Support can raise those limits.",
+      "statement": "A rule can select up to 32 users, 32 groups, 32 departments, 32 locations and 32 location groups; Zscaler Support can raise the limits for users, groups, departments and locations.",
       "tier": "A",
       "evidence": [
         {
@@ -161,7 +172,11 @@
           "path": "configuring-dns-control-policy.json",
           "quotes": [
             "Contact Zscaler Support to increase the limit of Users, Groups, Departments, or Locations.",
-            "Select up to 32 organization users to which the rule applies."
+            "Select up to 32 organization users to which the rule applies.",
+            "Select up to 32 user groups to which the rule applies.",
+            "Select up to 32 departments to which the rule applies.",
+            "Select up to 32 locations to which the rule applies.",
+            "Select up to 32 location groups to which this rule applies."
           ]
         }
       ]

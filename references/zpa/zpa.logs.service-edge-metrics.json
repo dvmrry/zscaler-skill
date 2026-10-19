@@ -125,6 +125,13 @@
           "quotes": [
             "| PrivateCloudController | The Private Cloud Controller name"
           ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "private-cloud-controller-status-log-fields.json",
+          "quotes": [
+            "| PrivateCloudController | The Private Cloud Controller name |"
+          ]
         }
       ],
       "binds": [
@@ -165,6 +172,7 @@
           "source": "zscaler-help",
           "path": "private-service-edge-metrics-log-fields.json",
           "quotes": [
+            "{\"LogTimestamp\":\"Fri May 6 11:40:00 2022,\"PrivateSE\":\"TestPrivateServiceEdge\"",
             "\"SystemMemoryUtilization\":%j{SystemMemoryUtilization},\"ProcessMemoryUtilization\":%j{ProcessMemoryUtilization}"
           ]
         }
@@ -184,7 +192,9 @@
           "path": "configuring-log-streaming-service-configurations-using-api.json",
           "after": "\"zpn_pbroker_comprehensive_stats\":{",
           "quotes": [
-            "\\\"AvailableDiskBytes\\\":%j{AvailableDiskBytes}}"
+            "%s{LogTimestamp:time} Service Edge Metric zpa-lss:",
+            "\"json\":\"{\\\"LogTimestamp\\\":%j{LogTimestamp:time},\\\"PrivateSE\\\":%j{PrivateSE}",
+            "\\\"AvailableDiskBytes\\\":%j{AvailableDiskBytes}}\\\\n\""
           ]
         },
         {

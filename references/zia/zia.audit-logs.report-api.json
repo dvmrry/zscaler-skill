@@ -89,7 +89,10 @@
           "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1auditlogEntryReport/get",
           "expect": {
-            "description": "<p>Gets the status of a request for an audit log report. After sending a POST request to <code>/auditlogEntryReport</code> to generate a report, you can continue to call GET <code>/auditlogEntryReport</code> to check whether the report has finished generating. Once the status is <code>COMPLETE</code>, you can send another GET request to <code>/auditlogEntryReport/download</code> to download the report as a CSV file.</p>\n"
+            "description": "<p>Gets the status of a request for an audit log report. After sending a POST request to <code>/auditlogEntryReport</code> to generate a report, you can continue to call GET <code>/auditlogEntryReport</code> to check whether the report has finished generating. Once the status is <code>COMPLETE</code>, you can send another GET request to <code>/auditlogEntryReport/download</code> to download the report as a CSV file.</p>\n",
+            "tags": [
+              "Admin Audit Logs"
+            ]
           }
         },
         {
@@ -159,7 +162,8 @@
           "pointer": "/paths/~1auditlogEntryReport/delete/parameters/[name=statusId]",
           "expect": {
             "required": true,
-            "in": "query"
+            "in": "query",
+            "description": "The unique identifier for the report generation task, returned in the response of the POST <code>/auditlogEntryReport</code> request."
           }
         },
         {
@@ -168,7 +172,8 @@
           "pointer": "/paths/~1auditlogEntryReport/get/parameters/[name=statusId]",
           "expect": {
             "required": false,
-            "in": "query"
+            "in": "query",
+            "description": "The unique identifier for the report generation task, returned in the response of the POST <code>/auditlogEntryReport</code> request."
           }
         },
         {
@@ -177,13 +182,14 @@
           "pointer": "/paths/~1auditlogEntryReport~1download/get/parameters/[name=statusId]",
           "expect": {
             "required": false,
-            "in": "query"
+            "in": "query",
+            "description": "The unique identifier for the report generation task, returned in the response of the POST <code>/auditlogEntryReport</code> request."
           }
         }
       ]
     },
     "post-204": {
-      "statement": "The POST returns 204 with no body, so the report identifier is not in the create response.",
+      "statement": "The POST returns 204 with no body, and the Go SDK treats any other status as an error.",
       "tier": "A",
       "evidence": [
         {
@@ -198,6 +204,7 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/adminauditlogs/adminauditlogs.go",
           "quotes": [
+            "if httpResp.StatusCode != http.StatusNoContent {",
             "expected 204 No Content"
           ]
         }
@@ -271,6 +278,38 @@
           "pointer": "/paths/~1auditlogEntryReport/post/requestBody",
           "expect": {
             "description": "<p>Audit log entry request, which includes the following values:</p><ul><li>startTime: The timestamp, in epoch, of the admin's last login.</li><li>endTime: The timestamp, in epoch, of the admin's last logout.</li><li>actionTypes: The action performed by the admin in the Zscaler Admin Portal (i.e., Admin UI) or API. . </li><li>category: The location in the Zscaler Admin Portal (i.e., Admin UI) where the actionType was performed. .</li><li>subcategories: The area within a category where the actionType was performed. .</li><li>actionResult: The outcome (i.e., Failure or Success) of an actionType.</li><li>actionInterface: The interface (i.e., Admin UI or API) where the actionType was performed.</li><li>clientIP: The source IP address for the admin.</li><li>adminName: The admin's login ID.</li></ul>\n"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/traceId",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/targetOrgId",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/page",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/post/requestBody/content/application~1json/schema/properties/pageSize",
+          "expect": {
+            "type": "integer"
           }
         },
         {
@@ -350,16 +389,26 @@
       ]
     },
     "python-create": {
-      "statement": "The Python SDK create() sends only startTime and endTime, and sleeps 2 seconds after the POST before returning the status code; filters need a direct REST call.",
+      "statement": "The Python SDK create() takes only start_time and end_time and sends only startTime and endTime, with no filter parameters; after the POST it sleeps 2 seconds, then returns the status code.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zia/audit_logs.py",
+          "after": "def create(self, start_time: str, end_time: str)",
           "quotes": [
-            "def create(self, start_time: str, end_time: str)",
-            "\"startTime\": start_time,",
-            "time.sleep(2)"
+            "Returns:\n            :obj:`int`: The status code for the operation.",
+            "payload = {\n            \"startTime\": start_time,\n            \"endTime\": end_time,\n        }",
+            "response, error = self._request_executor.execute(request, None)",
+            "time.sleep(2)",
+            "return response.get_status()"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "quotes": [
+            "def create(self, start_time: str, end_time: str)"
           ]
         }
       ]
@@ -446,6 +495,22 @@
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1auditlogEntryReport/get/responses/200/content/application~1json/schema/properties/errorMessage",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/get/responses/200/content/application~1json/schema/properties/progressEndTime",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1auditlogEntryReport/get/responses/200/content/application~1json/schema/properties/errorCode",
           "expect": {
             "type": "string"
           }

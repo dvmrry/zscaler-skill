@@ -67,6 +67,14 @@
             "MaxNumOfRetries = 10",
             "envconfig:\"ZIA_CLIENT_RATE_LIMIT_MAX_RETRIES\""
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "// Legacy struct holds and instance of each legacy API client to support backwards compatibility",
+            "type LegacyClient struct { ZiaClient *zia.Client"
+          ]
         }
       ]
     },
@@ -78,7 +86,8 @@
           "source": "sdk-go",
           "path": "zscaler/zia/v2_client.go",
           "quotes": [
-            "return errorx.IsRetryableServerError(resp), nil"
+            "return errorx.IsRetryableServerError(resp), nil",
+            "if err == nil && resp != nil && resp.StatusCode >= 500 {"
           ]
         },
         {
@@ -88,7 +97,22 @@
             "if res.StatusCode < 500 || res.StatusCode == http.StatusNotImplemented {",
             "502 / 503 / 504 are infrastructure signals, never API verdicts: retry them",
             "for _, msg := range transientServerErrorMessages {",
-            "if code, ok := parsed.Code.(string); ok && code != \"\" {"
+            "if code, ok := parsed.Code.(string); ok && code != \"\" {",
+            "http.StatusBadGateway: true, // 502",
+            "http.StatusServiceUnavailable: true, // 503",
+            "http.StatusGatewayTimeout: true, // 504",
+            "if alwaysRetryableServerStatuses[res.StatusCode] { return true }",
+            "var transientServerErrorMessages = []string{ \"EDIT_LOCK_NOT_AVAILABLE\", \"Resource Access Blocked\", \"Failed during enter Org barrier\", \"Request processing failed, possibly because an expected precondition was not met\", }",
+            "var parsed struct { Code interface{} `json:\"code\"` } if err := json.Unmarshal(bodyBytes, &parsed); err == nil {",
+            "return false } } return true }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "// Legacy struct holds and instance of each legacy API client to support backwards compatibility",
+            "type LegacyClient struct { ZiaClient *zia.Client"
           ]
         }
       ]
@@ -110,13 +134,24 @@
           "path": "zscaler/zia/v2_client.go",
           "quotes": [
             "if err == nil && resp != nil {",
-            "giving up after %d attempt(s); surfacing API response status %d"
+            "giving up after %d attempt(s); surfacing API response status %d",
+            "drain the body and return a bare \"giving up after N attempt(s)\" error with a",
+            "retryableClient.ErrorHandler = func(resp *http.Response, err error, numTries int) (*http.Response, error) {",
+            "surfacing API response status %d\", numTries, resp.StatusCode) return resp, nil"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "// Legacy struct holds and instance of each legacy API client to support backwards compatibility",
+            "type LegacyClient struct { ZiaClient *zia.Client"
           ]
         }
       ]
     },
     "error-response-consumes-body": {
-      "statement": "On a non-success status the legacy request path builds an `ErrorResponse` with `CheckErrorInResponse`, which reads the whole response body and closes it, keeping the HTTP status and any parsed code and message but not a readable body.",
+      "statement": "On a non-success status the legacy request path builds an `ErrorResponse` with `CheckErrorInResponse`, which reads the whole response body and closes it, keeping the response with its HTTP status, any parsed code and message, and the body text as a string, but not a readable response body.",
       "tier": "A",
       "evidence": [
         {
@@ -124,7 +159,11 @@
           "path": "zscaler/errorx/errors.go",
           "quotes": [
             "bodyBytes, _ := io.ReadAll(res.Body)",
-            "defer res.Body.Close()"
+            "defer res.Body.Close()",
+            "parsed := &ParsedAPIError{ Status: res.StatusCode,",
+            "if code, ok := jsonBody[\"code\"]; ok { parsed.Code = code }",
+            "if msg, ok := jsonBody[\"message\"].(string); ok { parsed.Message = msg }",
+            "return &ErrorResponse{ Response: res, Err: respErr, Parsed: parsed, Message: string(bodyBytes), }"
           ],
           "after": "func CheckErrorInResponse(res *http.Response, respErr error) error {"
         },
@@ -132,9 +171,18 @@
           "source": "sdk-go",
           "path": "zscaler/zia/v2_client.go",
           "quotes": [
-            "errResp := errorx.CheckErrorInResponse(resp, fmt.Errorf(\"api responded with code: %d\", resp.StatusCode))"
+            "errResp := errorx.CheckErrorInResponse(resp, fmt.Errorf(\"api responded with code: %d\", resp.StatusCode))",
+            "if resp.StatusCode > 299 && resp.StatusCode != http.StatusUnauthorized {"
           ],
           "after": "// Retry logic for the request"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "// Legacy struct holds and instance of each legacy API client to support backwards compatibility",
+            "type LegacyClient struct { ZiaClient *zia.Client"
+          ]
         }
       ]
     }

@@ -80,6 +80,7 @@
           "path": "about-virtual-service-edge-clusters-internet-saas.json",
           "quotes": [
             "To ensure high availability, the Zscaler load balancers use the Common Address Redundancy Protocol (CARP) for active-passive fault tolerance.",
+            "all Virtual Service Edge instances in the cluster are active, and one load balancer instance is active at a time.",
             "The active load balancer receives ingress traffic through the cluster IP address and directs the traffic to the appropriate Virtual Service Edge.",
             "If the active load balancer fails, then the passive load balancer automatically takes over, ensuring no disruption in service."
           ]
@@ -155,14 +156,17 @@
           "source": "zscaler-help",
           "path": "configuring-virtual-service-edge-clusters-internet-saas.json",
           "quotes": [
+            "Zscaler performs ICMP and HTTP monitoring from the LB to the Virtual Service Edge",
             "For health probes to work, you must create a Firewall Filtering rule to allow all Virtual Service Edge proxy, LB, and cluster IP addresses.",
+            "In Add Firewall Filtering Rule window, click the Source IP tab.",
+            "In IP Addresses, add the following IP address for your Virtual Service Edges:",
             "Under Network Traffic, select Allow."
           ]
         }
       ]
     },
     "esxi-vswitch-settings": {
-      "statement": "On ESXi, Promiscuous Mode (Accept), MAC Address Changes and Forged Transmits must be enabled on the vSwitch or port group, because the Zscaler load balancers and Service Edges use CARP. Zscaler recommends a dedicated port group, because vSwitch-level promiscuous mode can let other VMs on the vSwitch sniff Virtual Service Edge traffic.",
+      "statement": "On ESXi, Promiscuous Mode (Accept), MAC Address Changes and Forged Transmits must be enabled on the vSwitch or port group; promiscuous mode is required because the Zscaler load balancers and Service Edges use CARP. Zscaler recommends a dedicated port group, because vSwitch-level promiscuous mode can let other VMs on the vSwitch sniff Virtual Service Edge traffic.",
       "tier": "A",
       "evidence": [
         {
@@ -170,8 +174,12 @@
           "path": "configuring-virtual-service-edge-clusters-internet-saas.json",
           "quotes": [
             "The Promiscuous Mode option must be enabled (i.e., set to Accept) on the vSphere switch (vSwitch) or at the port group level.",
+            "Zscaler LBs and Public Service Edges for Internet & SaaS use the Common Address Redundancy Protocol (CARP) to process traffic across multiple Public Service Edge instances.",
+            "To support this, enabling promiscuous mode on your Virtual Service Edge interfaces is required.",
             "The MAC Address Changes option must be enabled on the vSwitch or port group.",
             "The Forged Transmits option must be enabled on the vSwitch or port group.",
+            "Virtual Service Edges often share the vSwitch with other corporate VMs and settings applied on the vSwitch level are applied to all VMs on the vSwitch.",
+            "Having Promiscuous Mode enabled means other VMs may be able to sniff traffic going through the Virtual Service Edge.",
             "Zscaler recommends you create and use a port group for your Virtual Service Edge interfaces."
           ]
         }
@@ -186,7 +194,7 @@
           "path": "configuring-virtual-service-edge-clusters-internet-saas.json",
           "quotes": [
             "If multiple physical ports exist on the same vSwitch, then the Net.ReversePathFwdCheckPromisc advanced option must be enabled (i.e., set to 1) on the ESXi host.",
-            "If it is not, then multicast traffic loops back to the host, causing CARP not to function properly"
+            "If it is not, then multicast traffic loops back to the host, causing CARP not to function properly, and \"link states coalesced\" messages to be sent."
           ]
         }
       ]

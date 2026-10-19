@@ -112,7 +112,7 @@
       ]
     },
     "entry-format": {
-      "statement": "Entries follow the URL format guidelines used for URL Filtering.",
+      "statement": "Entries follow the URL format guidelines, which apply to URLs entered when configuring policies or settings in the Admin Console.",
       "tier": "A",
       "evidence": [
         {
@@ -121,11 +121,18 @@
           "quotes": [
             "For guidance on entering URLs, see the URL format guidelines."
           ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "url-format-guidelines.json",
+          "quotes": [
+            "The following guidelines are for entering URLs when configuring policies or settings in the Zscaler Admin Console."
+          ]
         }
       ]
     },
     "specificity-wins": {
-      "statement": "More specific blocked malicious URLs always take precedence: a rule is not applied to a category with a wildcard if the destination is defined more specifically in another category. The page reuses the CUSTOM_C1 and CUSTOM_C2 www.example.com example from URL Filtering.",
+      "statement": "More specific blocked malicious URLs always take precedence: a rule is not applied to a category with a wildcard if the destination is defined more specifically in another category. The page illustrates this with rules CUSTOM_C1 and CUSTOM_C2 that both contain www.example.com.",
       "tier": "A",
       "evidence": [
         {
@@ -133,7 +140,8 @@
           "path": "configuring-advanced-threat-protection-policy.json",
           "quotes": [
             "More specific blocked malicious URLs always take precedence.",
-            "URL filtering rules are not applied to a category with a wildcard if the destination is defined more specifically in another category."
+            "URL filtering rules are not applied to a category with a wildcard if the destination is defined more specifically in another category.",
+            "For example, if the first rule CUSTOM_C1 contains www.example.com and the second rule CUSTOM_C2 contains www.example.com, when accessing www.example.com, the CUSTOM_C1 policy isn’t applied because CUSTOM_C2 is more specific (even though CUSTOM_C1 is higher in the rule order)."
           ]
         }
       ]
@@ -159,7 +167,29 @@
           "pointer": "/paths/~1cyberThreatProtection~1maliciousUrls/get/responses/200/content/application~1json/schema/properties/maliciousUrls",
           "expect": {
             "description": "List of malicious URLs that are blocked by the ATP policy",
-            "type": "array"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1maliciousUrls/get",
+          "expect": {
+            "description": "Retrieves the malicious URLs added to the denylist in the Advanced Threat Protection (ATP) policy"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1maliciousUrls/put/requestBody/content/application~1json/schema/properties/maliciousUrls",
+          "expect": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       ],
@@ -177,7 +207,8 @@
           "pointer": "/paths/~1cyberThreatProtection~1maliciousUrls/put/parameters/[name=action]",
           "expect": {
             "name": "action",
-            "in": "query"
+            "in": "query",
+            "description": "Indicates whether to include or exclude the specified URLs from the list"
           }
         },
         {
@@ -208,6 +239,22 @@
             "/cyberThreatProtection/maliciousUrls?action=REMOVE_FROM_LIST",
             "The API does not allow an empty list."
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/atp_policy.py",
+          "after": "def add_atp_malicious_urls(self, malicious_urls: list) -> APIResult[dict]:",
+          "quotes": [
+            "return self.get_atp_malicious_urls()"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/atp_policy.py",
+          "after": "def delete_atp_malicious_urls(self, malicious_urls: list) -> APIResult[dict]:",
+          "quotes": [
+            "return self.get_atp_malicious_urls()"
+          ]
         }
       ]
     },
@@ -223,6 +270,22 @@
             "type": "boolean",
             "description": "A Boolean value specifying whether packet capture (PCAP) is enabled or not for malicious URLs"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1maliciousUrls/get/responses/200/content/application~1json/schema/properties",
+          "expect_absent": [
+            "maliciousUrlsCapture"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1cyberThreatProtection~1maliciousUrls/put/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "maliciousUrlsCapture"
+          ]
         }
       ],
       "binds": [

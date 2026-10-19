@@ -170,7 +170,8 @@
           "path": "zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go",
           "quotes": [
             "mgmtConfig               = \"/zpa/mgmtconfig/v1/admin/customers/\"",
-            "isolationProfileEndpoint = \"/isolation/profiles\""
+            "isolationProfileEndpoint = \"/isolation/profiles\"",
+            "([]IsolationProfile, *http.Response, error) { relativeURL := mgmtConfig + service.Client.GetCustomerID() + isolationProfileEndpoint"
           ]
         },
         {
@@ -179,6 +180,14 @@
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1isolation~1profiles/get",
           "expect": {
             "operationId": "Get Profiles For Customer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1profiles/get",
+          "expect": {
+            "operationId": "Get All Profiles From CBI Using GET"
           }
         }
       ]
@@ -207,7 +216,8 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go",
           "quotes": [
-            "var list []IsolationProfile"
+            "var list []IsolationProfile",
+            "resp, err := service.Client.NewRequestDo(ctx, \"GET\", relativeURL, nil, nil, &list)"
           ],
           "after": "func GetAll(ctx context.Context, service *zscaler.Service)"
         },
@@ -248,7 +258,11 @@
           "path": "zscaler/zpa/services/cloudbrowserisolation/cbibannercontroller/cbibannercontroller.go",
           "quotes": [
             "\"POST\", cbiConfig+service.Client.GetCustomerID()+cbiBannerEndpoint",
-            "cbiBannersEndpoint = \"/banners\""
+            "cbiBannersEndpoint = \"/banners\"",
+            "relativeURL := fmt.Sprintf(\"%s/%s\", cbiConfig+service.Client.GetCustomerID()+cbiBannersEndpoint, bannerID)",
+            "cbiBannerID) resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, nil, cbiBanner, nil)",
+            "cbiBannerID) resp, err := service.Client.NewRequestDo(ctx, \"DELETE\", path, nil, nil, nil)",
+            "relativeURL := cbiConfig + service.Client.GetCustomerID() + cbiBannersEndpoint"
           ]
         },
         {
@@ -256,7 +270,11 @@
           "path": "zscaler/zpa/services/cloudbrowserisolation/cbicertificatecontroller/cbicertificatecontroller.go",
           "quotes": [
             "\"POST\", cbiConfig+service.Client.GetCustomerID()+cbiCertificateEndpoint",
-            "cbiCertificatesEndpoint = \"/certificates\""
+            "cbiCertificatesEndpoint = \"/certificates\"",
+            "relativeURL := fmt.Sprintf(\"%s/%s\", cbiConfig+service.Client.GetCustomerID()+cbiCertificatesEndpoint, certificateID)",
+            "certificateID) resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, nil, certificateRequest, nil)",
+            "certificateID) resp, err := service.Client.NewRequestDo(ctx, \"DELETE\", path, nil, nil, nil)",
+            "relativeURL := cbiConfig + service.Client.GetCustomerID() + cbiCertificatesEndpoint"
           ]
         },
         {
@@ -278,6 +296,30 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1banners~1{bannerId}/get",
+          "expect": {
+            "operationId": "Get Cbi Banner Using GET"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1banners~1{bannerId}/put",
+          "expect": {
+            "operationId": "Update Zpa Banner Using PUT"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1banners~1{bannerId}/delete",
+          "expect": {
+            "operationId": "Delete Zpa Banner Using DELETE"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1certificate/post",
           "expect": {
             "operationId": "Add Cbi Certificate Using POST"
@@ -289,6 +331,30 @@
           "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1certificates/get",
           "expect": {
             "operationId": "Get All Cbi Certificate Using GET"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1certificates~1{certificateId}/get",
+          "expect": {
+            "operationId": "Get Cbi Certificate Using GET"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1certificates~1{certificateId}/put",
+          "expect": {
+            "operationId": "Update Zpa Certificate Using PUT"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1certificates~1{certificateId}/delete",
+          "expect": {
+            "operationId": "Delete Certificate Using DELETE"
           }
         }
       ]
@@ -303,7 +369,8 @@
           "quotes": [
             "Regions          []Regions         `json:\"regions,omitempty\"`",
             "RegionIDs        []string          `json:\"regionIds,omitempty\"`",
-            "CertificateIDs   []string          `json:\"certificateIds,omitempty\"`"
+            "CertificateIDs   []string          `json:\"certificateIds,omitempty\"`",
+            "Certificates []Certificates `json:\"certificates,omitempty\"`"
           ]
         },
         {
@@ -402,7 +469,7 @@
       ]
     },
     "python-cbi-profile-microtenant-keys": {
-      "statement": "The Python CBIProfile model in models/cbi_zpa_profile.py, which no SDK call uses, emits microtenant_id and microtenant_name as snake_case keys in request_format and defaults microtenant_name to boolean True when absent from a response.",
+      "statement": "The Python CBIProfile model in models/cbi_zpa_profile.py, which neither the cbi_profile nor the cbi_zpa_profile service module imports, emits microtenant_id and microtenant_name as snake_case keys in request_format and defaults microtenant_name to boolean True when absent from a response.",
       "tier": "A",
       "evidence": [
         {
@@ -418,6 +485,20 @@
           "path": "zscaler/zpa/models/cbi_zpa_profile.py",
           "quotes": [
             "self.microtenant_name = config[\"microtenantName\"] if config and \"microtenantName\" in config else True"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/cbi_profile.py",
+          "quotes": [
+            "from zscaler.zpa.models.cbi_profile import CBIProfile"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/cbi_zpa_profile.py",
+          "quotes": [
+            "from zscaler.zpa.models.cbi_zpa_profile import ZPACBIProfile"
           ]
         }
       ],
@@ -437,6 +518,26 @@
           ]
         },
         {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/browser_protection/browser_protection.go",
+          "after": "func GetBrowserProtectionProfile(ctx",
+          "quotes": [
+            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + \"/browserProtectionProfile\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/browser_protection/browser_protection.go",
+          "quotes": [
+            "func GetActiveBrowserProtectionProfile(ctx context.Context, service *zscaler.Service) ([]BrowserProtection, *http.Response, error) {",
+            "func GetBrowserProtectionProfile(ctx context.Context, service *zscaler.Service) ([]BrowserProtection, *http.Response, error) {",
+            "func GetBrowserProtectionProfileByName(ctx context.Context, service *zscaler.Service, profileName string) (*BrowserProtection, *http.Response, error) {",
+            "func UpdateBrowserProtectionProfile(ctx context.Context, service *zscaler.Service, profileID string) (*http.Response, error) {",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, nil, nil, nil)"
+          ],
+          "note": "the package's complete function list: three reads and one PUT"
+        },
+        {
           "source": "sdk-python",
           "path": "zscaler/zpa/browser_protection.py",
           "quotes": [
@@ -444,7 +545,7 @@
           ]
         }
       ],
-      "conditions": "The absence of create and delete functions was read from the whole Go package."
+      "conditions": "The absence of create and delete functions follows from the package's complete function list quoted above (every `func` in browser_protection.go at the pin)."
     },
     "predefined-controls-version-required": {
       "statement": "The OpenAPI predefined-controls list requires the version query parameter; the Go SDK sends it with every list, flattens the returned control groups into a single list of controls, and its by-name lookup searches name+EQ+name server-side and then matches case-insensitively.",
@@ -492,7 +593,11 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
           "quotes": [
+            "if inspectionProfile.PredefinedControlsVersion == \"\" {",
+            "for _, control := range inspectionProfile.PredefinedControls {",
+            "if control.Version != \"\" {",
             "inspectionProfile.PredefinedControlsVersion = control.Version",
+            "if !found {",
             "inspectionProfile.PredefinedControlsVersion = defaultVersion"
           ],
           "after": "func setVersion(inspectionProfile *InspectionProfile)"
@@ -504,6 +609,14 @@
             "version = kwargs.pop(\"predefined_controls_version\", \"OWASP_CRS/3.3.0\")"
           ],
           "after": "def add_profile(self"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_protection.py",
+          "after": "def update_profile(self, profile_id: str, **kwargs)",
+          "quotes": [
+            "version = kwargs.pop(\"predefined_controls_version\", \"OWASP_CRS/3.3.0\")"
+          ]
         }
       ]
     },
@@ -516,7 +629,8 @@
           "path": "zscaler/zpa/services/inspectioncontrol/inspection_custom_controls/zpa_inspection_custom_controls.go",
           "quotes": [
             "ControlRuleJson                  string                          `json:\"controlRuleJson,omitempty\"`",
-            "err := json.Unmarshal([]byte(rulesJsonStr), &rules)"
+            "err := json.Unmarshal([]byte(rulesJsonStr), &rules)",
+            "Rules []Rules `json:\"rules,omitempty\"`"
           ]
         },
         {
@@ -527,12 +641,28 @@
             "v.Rules = rules"
           ],
           "after": "func Get(ctx context.Context, service *zscaler.Service, customID string)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_custom_controls/zpa_inspection_custom_controls.go",
+          "after": "func Create(",
+          "quotes": [
+            "v := new(InspectionCustomControl) resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+customControlsEndpoint, nil, customControls, &v)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_custom_controls/zpa_inspection_custom_controls.go",
+          "after": "func Update(",
+          "quotes": [
+            "relativeURL := fmt.Sprintf(\"%s/%s\", mgmtConfig+service.Client.GetCustomerID()+customControlsEndpoint, customID) resp, err := service.Client.NewRequestDo(ctx, \"PUT\", relativeURL, nil, customControls, nil)"
+          ]
         }
       ],
-      "conditions": "The Create and Update half rests on the absence of any re-encoding in those functions."
+      "conditions": "The Create and Update half rests on their complete bodies, quoted above: each passes the struct straight to NewRequestDo with no re-encoding of Rules."
     },
     "detach-spelling-deprecated": {
-      "statement": "The OpenAPI document marks deAssociateAllPredefinedControls as deprecated and lists dissociateAllPredefinedControls with the same description; the Go SDK and the Python SDK still call deAssociateAllPredefinedControls.",
+      "statement": "The OpenAPI document marks deAssociateAllPredefinedControls as deprecated and lists dissociateAllPredefinedControls with the same description less the deprecation sentence; the Go SDK and the Python SDK still call deAssociateAllPredefinedControls.",
       "tier": "A",
       "evidence": [
         {
@@ -541,7 +671,8 @@
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionProfile~1{inspectionProfileId}~1deAssociateAllPredefinedControls/put",
           "expect": {
             "deprecated": true,
-            "operationId": "De Associate All Predefined Controls"
+            "operationId": "De Associate All Predefined Controls",
+            "description": "Updates the inspection profile for the specified ID and dissociates all predefined controls from a profile. This API will be deprecated in a future release."
           }
         },
         {
@@ -620,6 +751,14 @@
           "expect": {
             "description": "OK"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1profiles/post/responses",
+          "expect_absent": [
+            "201"
+          ]
         }
       ],
       "conditions": "The Postman collection (09_29_2026 release) no longer carries this: profileId is described only as \"profileId\" and the add request has no example response. Previously \"Creating a CBI isolation profile returns 200 OK in both the OpenAPI document and the Postman collection, not 201 Created.\""

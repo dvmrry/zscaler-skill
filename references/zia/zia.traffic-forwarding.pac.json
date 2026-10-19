@@ -114,7 +114,8 @@
           "quotes": [
             "The Zscaler service hosts 4 default PAC files: recommended.pac, proxy.pac, mobile_proxy.pac, and kerberos.pac.",
             "The default PAC files are non-editable, but you can copy them to create and build your custom PAC files.",
-            "Zscaler recommends using the Kerberos PAC file if you are deploying Kerberos authentication."
+            "Zscaler recommends using the Kerberos PAC file if you are deploying Kerberos authentication.",
+            "These files are all configured to automatically forward all browser traffic to the nearest Public Service Edge for Internet & SaaS (ZIA)."
           ]
         }
       ]
@@ -154,7 +155,17 @@
           "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1pacFiles~1{pacId}~1version~1{pacVersion}~1action~1{pacVersionAction}/put/parameters/[name=pacVersionAction]",
           "expect": {
-            "description": "Specifies the action that must be performed on the PAC file version"
+            "description": "Specifies the action that must be performed on the PAC file version",
+            "schema": {
+              "enum": [
+                "DEPLOY",
+                "STAGE",
+                "LKG",
+                "UNSTAGE",
+                "REMOVE_LKG"
+              ],
+              "type": "string"
+            }
           }
         }
       ]
@@ -180,7 +191,7 @@
       ]
     },
     "changes-immediate": {
-      "statement": "PAC file changes immediately affect the organization's traffic, so they should be verified and applied in a maintenance window, with a copy of the current file saved first. Staging gives a test version on its own URL; it is not a gradual rollout to users on the deployed URL.",
+      "statement": "PAC file changes immediately affect the organization's traffic, so they should be verified and applied in a maintenance window, with a copy of the current file saved first. Staging serves a test version from its own hosted URL, different from the deployed version's, so users on the deployed URL do not receive it.",
       "tier": "A",
       "evidence": [
         {
@@ -189,11 +200,13 @@
           "quotes": [
             "PAC file changes immediately impact your organization's traffic.",
             "Zscaler highly recommends that you save a copy of your current PAC file before applying any changes.",
-            "Click Save & Deploy to deploy the PAC file with immediate effect."
+            "Click Save & Deploy to deploy the PAC file with immediate effect.",
+            "If you're editing a PAC file, verify the changes and apply them during your organization's maintenance window.",
+            "You can create multiple versions for the same PAC file and can stage them for testing before deployment.",
+            "You can stage only one PAC file version for deployment at a time, and the hosted URL for that PAC file is different from the deployed version."
           ]
         }
-      ],
-      "conditions": "The first sentence is stated; that staging is not a canary follows from the staged version being served from a different hosted URL (claim version-states)."
+      ]
     },
     "over-tunnel": {
       "statement": "PAC-forwarded traffic that goes through a GRE or IPSec tunnel is subject to the tunnel's throughput limit. Government clouds support PAC files only when the proxy traffic is sent through a GRE or IPSec tunnel, not directly over the internet.",
@@ -221,7 +234,8 @@
             "Users on and off the corporate network are protected by the service.",
             "Microsoft Internet Explorer PAC settings can be enforced organization-wide using Microsoft Active Directory Group Policies (GPO).",
             "You can create locations if traffic is coming from a static public IP address.",
-            "If your router can use XFF headers, and it is enabled at your location, you can leverage the Surrogate IP feature."
+            "If your router can use XFF headers, and it is enabled at your location, you can leverage the Surrogate IP feature.",
+            "If certain applications need to be excluded from the Zscaler service, it is easy to write an exclude statement in your PAC file to send traffic directly."
           ]
         }
       ]
@@ -239,6 +253,14 @@
             "Unless XFF headers are inserted, Zscaler loses internal IP address visibility, and customers are not able to leverage the sublocation feature.",
             "The service can apply group and user policies, but not sublocation policies.",
             "SLAs and performance can be impacted if you don't implement GRE or IPSec tunnels."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "choosing-traffic-forwarding-methods.json",
+          "after": "A PAC file is a text file that directs the browser to forward traffic to a Public Service Edge.",
+          "quotes": [
+            "Not all applications support PAC files, therefore not all traffic is secured by Zscaler."
           ]
         }
       ]
@@ -265,7 +287,8 @@
           "source": "zscaler-help",
           "path": "best-practices-traffic-forwarding.json",
           "quotes": [
-            "do not specify specific Public Service Edges for Internet & SaaS (ZIA) by host names or IP addresses in the PAC file to prevent failover.",
+            "Using PAC Files to Forward Traffic to a Dedicated Proxy Port",
+            "In this deployment, do not specify specific Public Service Edges for Internet & SaaS (ZIA) by host names or IP addresses in the PAC file to prevent failover.",
             "you must use the variables ${GATEWAY_FX} and ${SECONDARY_GATEWAY_FX} to send web traffic to Public Service Edges closest to the user."
           ]
         }
@@ -294,22 +317,30 @@
           "path": "zscaler/zia/services/pacfiles/pacfiles.go",
           "quotes": [
             "LastModifiedBy *common.IDNameExtensions `json:\"lastModifiedBy,omitempty\"`"
+          ],
+          "at": [
+            "v3.8.46",
+            "HEAD"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zia/services/common/common.go",
           "quotes": [
-            "Extensions map[string]interface{} `json:\"extensions,omitempty\"`"
+            "type IDNameExtensions struct { ID int `json:\"id,omitempty\"` Name string `json:\"name,omitempty\"` Extensions map[string]interface{} `json:\"extensions,omitempty\"` }"
           ],
-          "after": "type IDNameExtensions struct"
+          "at": [
+            "v3.8.46",
+            "HEAD"
+          ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zia/models/common.py",
           "quotes": [
             "self.external_id = config[\"externalId\"] if \"externalId\" in config else False"
-          ]
+          ],
+          "after": "class CommonBlocks(ZscalerObject):"
         },
         {
           "source": "api-specs",
@@ -318,6 +349,13 @@
           "expect": {
             "type": "string"
           }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/pac_files.py",
+          "quotes": [
+            "self.last_modified_by = common.CommonBlocks(config[\"lastModifiedBy\"])"
+          ]
         }
       ]
     }

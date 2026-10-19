@@ -56,9 +56,28 @@
           "source": "sdk-python",
           "path": "zscaler/zia/security_policy_settings.py",
           "quotes": [
-            "payload = {\"whitelistUrls\": url_list}"
+            "payload = {\"whitelistUrls\": url_list}",
+            "http_method = \"put\".upper() api_url = format_url(f\"{self._zia_base_endpoint}/security\")"
           ],
           "after": "def replace_whitelist(self, url_list: list)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/security_policy_settings.py",
+          "after": "def add_urls_to_whitelist(self, url_list: list)",
+          "quotes": [
+            "whitelist, _, _ = self.get_whitelist()",
+            "return self.replace_whitelist(whitelist.whitelist_urls)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/security_policy_settings.py",
+          "after": "def delete_urls_from_whitelist(self, url_list: list)",
+          "quotes": [
+            "whitelist, _, _ = self.get_whitelist()",
+            "return self.replace_whitelist(whitelist.whitelist_urls)"
+          ]
         }
       ]
     },
@@ -81,6 +100,22 @@
             "params = {\"action\": \"ADD_TO_LIST\"}",
             "params = {\"action\": \"REMOVE_FROM_LIST\"}"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/security_policy_settings.py",
+          "after": "def add_urls_to_blacklist(self, url_list: list)",
+          "quotes": [
+            "http_method = \"post\".upper() api_url = format_url(f\"{self._zia_base_endpoint}/security/advanced/blacklistUrls\") params = {\"action\": \"ADD_TO_LIST\"} payload = {\"blacklistUrls\": url_list} request, error = self._request_executor.create_request(http_method, api_url, payload, params=params)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/security_policy_settings.py",
+          "after": "def delete_urls_from_blacklist(self, url_list: list)",
+          "quotes": [
+            "http_method = \"post\".upper() api_url = format_url(f\"{self._zia_base_endpoint}/security/advanced/blacklistUrls\") params = {\"action\": \"REMOVE_FROM_LIST\"} payload = {\"blacklistUrls\": url_list} request, error = self._request_executor.create_request(http_method, api_url, payload, params=params)"
+          ]
         }
       ]
     },
@@ -100,7 +135,8 @@
           "source": "sdk-python",
           "path": "zscaler/zia/security_policy_settings.py",
           "quotes": [
-            "api_url = format_url(f\"{self._zia_base_endpoint}/security/advanced\")"
+            "api_url = format_url(f\"{self._zia_base_endpoint}/security/advanced\")",
+            "http_method = \"put\".upper() api_url = format_url(f\"{self._zia_base_endpoint}/security/advanced\") payload = {\"blacklistUrls\": url_list}"
           ],
           "after": "def replace_blacklist(self, url_list: list)"
         }

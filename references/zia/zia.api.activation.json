@@ -64,7 +64,7 @@
       ]
     },
     "sdk-activation-endpoints": {
-      "statement": "The Python SDK's activation client reads the activation status with a GET to /status and activates pending changes with a POST to /status/activate.",
+      "statement": "The Python SDK's activation client reads the activation status with a GET to /status and activates configuration changes with a POST to /status/activate.",
       "tier": "A",
       "evidence": [
         {
@@ -83,6 +83,15 @@
             "/status/activate"
           ],
           "after": "def activate(self) -> APIResult[Activation]:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/activate.py",
+          "after": "def status(self) -> APIResult[Activation]:",
+          "quotes": [
+            "http_method = \"get\".upper()",
+            "{self._zia_base_endpoint} /status \"\"\")"
+          ]
         }
       ]
     },
@@ -102,7 +111,7 @@
           "source": "zscaler-help",
           "path": "automate-zscaler/getting-started.json",
           "quotes": [
-            "configuration changes must be explicitly activated with a POST to /status/activate or /ecAdminActivateStatus/activate, respectively."
+            "Activation might be required: For ZIA and Cloud & Branch Connector APIs, configuration changes must be explicitly activated with a POST to /status/activate or /ecAdminActivateStatus/activate, respectively."
           ]
         }
       ],

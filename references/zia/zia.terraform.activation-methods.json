@@ -99,7 +99,8 @@
           "path": "docs/index.md",
           "quotes": [
             "This is the recommended method for CI/CD pipelines and for large configurations.",
-            "It issues exactly one activation call for the entire run"
+            "It issues exactly one activation call for the entire run",
+            "adds no activation traffic to the apply itself"
           ]
         }
       ]
@@ -141,7 +142,9 @@
           "source": "tf-zia",
           "path": "docs/index.md",
           "quotes": [
-            "at **10 POST requests per minute and 40 per hour**"
+            "at **10 POST requests per minute and 40 per hour**",
+            "It triggers an activation call for **every** resource created, updated, or deleted",
+            "A configuration of any meaningful size therefore exhausts that budget quickly and spends the rest of the run waiting on retries."
           ]
         }
       ]
@@ -155,7 +158,9 @@
           "path": "docs/guides/zia-activator-overview.md",
           "quotes": [
             "The ZIA platform has its own auto-activation behavior, independent of the Terraform provider.",
-            "or because an admin logged out"
+            "or because an admin logged out",
+            "Pending changes are activated automatically when a session ends — either because an API session reached the `api_session_timeout` configured in Advanced Settings",
+            "This applies to all API-based changes, including Terraform. If you do not want changes to go live"
           ]
         }
       ]
@@ -195,7 +200,8 @@
           "source": "tf-zia",
           "path": "docs/guides/zia-activator-overview.md",
           "quotes": [
-            "activation on session end is native to the platform and cannot be disabled or overridden by the provider"
+            "activation on session end is native to the platform and cannot be disabled or overridden by the provider",
+            "Raising the timeout reduces how often a long run crosses a session boundary, but it does not eliminate the behaviour"
           ]
         }
       ]
@@ -210,7 +216,10 @@
           "quotes": [
             "Raise the timeout to its maximum of 20 minutes before running large configurations.",
             "Set the `api_session_timeout` attribute on the `zia_advanced_settings` resource",
-            "split the work across smaller states"
+            "split the work across smaller states",
+            "This can be done in either of two ways.",
+            "### In the ZIA Admin Portal",
+            "so for very large configurations also split the work across smaller states"
           ]
         }
       ]
@@ -254,7 +263,9 @@
           "path": "docs/guides/zia-activator-overview.md",
           "quotes": [
             "`EDIT_LOCK_NOT_AVAILABLE`, `Resource Access Blocked`, or `Failed during enter Org barrier`",
-            "contention typically appears as a progressively slower run rather than an immediate failure"
+            "contention typically appears as a progressively slower run rather than an immediate failure",
+            "requests that cannot acquire it are rejected with",
+            "The provider retries these automatically"
           ]
         }
       ]
@@ -267,7 +278,8 @@
           "source": "tf-zia",
           "path": "docs/guides/zia-activator-overview.md",
           "quotes": [
-            "Do not lower Terraform's `-parallelism` in response to lock contention."
+            "Do not lower Terraform's `-parallelism` in response to lock contention.",
+            "It does not reduce the number of competing runs, and the longer run time increases the chance of crossing an API session boundary and triggering an unplanned activation."
           ]
         }
       ]
@@ -281,7 +293,9 @@
           "path": "docs/guides/zia-activator-overview.md",
           "quotes": [
             "a queued activation cannot be cancelled",
-            "publication timing is set by whichever run finishes last"
+            "publication timing is set by whichever run finishes last",
+            "if another administrator or API session still has unactivated changes, the activation is **queued** until all editing administrators have activated",
+            "Activating at the end of each configuration does not publish that configuration's changes independently."
           ]
         }
       ]
@@ -294,7 +308,8 @@
           "source": "tf-zia",
           "path": "docs/guides/zia-activator-overview.md",
           "quotes": [
-            "a partially created rule set can take effect with incomplete ordering"
+            "a partially created rule set can take effect with incomplete ordering",
+            "When the queue clears, all pending tenant changes are published — including those written by a run still in progress, or one that failed part-way through."
           ]
         }
       ]
@@ -307,7 +322,8 @@
           "source": "tf-zia",
           "path": "docs/guides/zia-activator-overview.md",
           "quotes": [
-            "a separate tenant is the only boundary that provides it"
+            "a separate tenant is the only boundary that provides it",
+            "as each tenant has its own write lock and activation queue."
           ]
         }
       ]

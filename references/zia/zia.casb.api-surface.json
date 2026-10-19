@@ -132,6 +132,50 @@
           "expect": {
             "description": "Retrieves the tags used in the policy rules associated with a tenant, based on the tenant ID."
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1lite",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1scanInfo",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1validate~1status~1{tenantId}",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1{tenantId}~1tags~1policy",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
         }
       ]
     },
@@ -177,6 +221,54 @@
               "type": "boolean"
             }
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1lite/get/parameters/[name=includeDeleted]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1lite/get/parameters/[name=appType]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1lite/get/parameters/[name=app]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1lite/get/parameters/[name=filterByFeature]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1lite/get/parameters/[name=page]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1lite/get/parameters/[name=pageSize]",
+          "expect": {
+            "in": "query"
+          }
         }
       ]
     },
@@ -189,14 +281,17 @@
           "path": "zscaler/zia/saas_security_api.py",
           "quotes": [
             "``[query_params.active_only]`` {bool}: Indicates that the tenant is in use.",
-            "``[query_params.scan_config_tenants_only]`` {bool}: Specifies the tenant which the scan is already configured"
+            "``[query_params.scan_config_tenants_only]`` {bool}: Specifies the tenant which the scan is already configured",
+            "``[query_params.filter_by_feature]`` {list[str]}: Filters the SaaS application tenant by feature"
           ]
         },
         {
           "source": "tf-zia",
           "path": "docs/data-sources/zia_casb_tenant.md",
           "quotes": [
-            "(Boolean) Specifies the tenant for which the scan is already configured"
+            "* `active_only` - (Boolean) Indicates that the tenant is in use.",
+            "* `scan_config_tenants_only` - (Boolean) Specifies the tenant for which the scan is already configured",
+            "* `filter_by_feature` - (List) Filters the SaaS application tenant by feature"
           ]
         },
         {
@@ -216,11 +311,37 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1scanInfo/get/parameters/[name=page]",
+          "expect": {
+            "description": "Specifies the page offset",
+            "schema": {
+              "default": 1,
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1casbTenant~1scanInfo/get/parameters/[name=pageSize]",
           "expect": {
             "description": "Specifies the page size",
             "schema": {
               "default": 500,
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1{tenantId}~1tags~1policy/get/parameters/[name=page]",
+          "expect": {
+            "description": "Specifies the page offset",
+            "schema": {
+              "default": 1,
               "format": "int32",
               "type": "integer"
             }
@@ -240,10 +361,34 @@
           }
         },
         {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1lite/get/parameters/[name=page]",
+          "expect": {
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1lite/get/parameters/[name=pageSize]",
+          "expect": {
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        {
           "source": "sdk-go",
           "path": "zscaler/zia/services/saas_security_api/saas_security_api.go",
           "quotes": [
-            "err := common.ReadAllPages(ctx, service.Client, casbTenantEndpoint+\"/scanInfo\", &scanInfos)"
+            "err := common.ReadAllPages(ctx, service.Client, casbTenantEndpoint+\"/scanInfo\", &scanInfos)",
+            "err := common.ReadAllPages(ctx, service.Client, endpoint, &tags)",
+            "err := common.ReadAllPages(ctx, service.Client, endpoint, &tenants)"
           ]
         }
       ]
@@ -252,6 +397,18 @@
       "statement": "The Go SDK reads scan information as the tenant name, tenant ID, SaaS application, an integer `scanAction`, and a `scanInfo` object with `cur_scan_start_time`, `prev_scan_end_time` and `scan_reset_num`; the OpenAPI document declares `scanInfo` as an object with no members.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/saas_security_api/saas_security_api.go",
+          "after": "type CasbTenantScanInfo struct {",
+          "quotes": [
+            "TenantName string `json:\"tenantName,omitempty\"`",
+            "TenantID int `json:\"tenantId,omitempty\"`",
+            "SaasApplication string `json:\"saasApplication,omitempty\"`",
+            "ScanInfo ScanInfo `json:\"scanInfo,omitempty\"`",
+            "ScanAction int `json:\"scanAction,omitempty\"`"
+          ]
+        },
         {
           "source": "sdk-go",
           "path": "zscaler/zia/services/saas_security_api/saas_security_api.go",
@@ -327,6 +484,54 @@
           "pointer": "/paths/~1casbMalwareRules~1{ruleId}/delete",
           "expect": {
             "description": "Deletes the SaaS Security Data at Rest Scanning Malware Detection rule based on the specified ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/post",
+          "expect": {
+            "description": "Adds a new SaaS Security Data at Rest Scanning DLP rule. ."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules/get",
+          "expect": {
+            "description": "Retrieves the SaaS Security Data at Rest Scanning Data Loss Prevention (DLP) rules based on the specified rule type. ."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbDlpRules~1{ruleId}/get",
+          "expect": {
+            "description": "Retrieves the SaaS Security Data at Rest Scanning DLP rule based on the specified ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbMalwareRules/post",
+          "expect": {
+            "description": "Adds a new SaaS Security Data at Rest Scanning Malware Detection rule. ."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbMalwareRules/get",
+          "expect": {
+            "description": "Retrieves the SaaS Security Data at Rest Scanning Malware Detection rules based on the specified rule type. ."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbMalwareRules~1{ruleId}/get",
+          "expect": {
+            "description": "Retrieves the SaaS Security Data at Rest Scanning Malware Detection rule based on the specified ID"
           }
         }
       ]
@@ -409,9 +614,19 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/saas_security_api/casb_dlp_rules/casb_dlp_rules.go",
           "quotes": [
+            "endpoint := fmt.Sprintf(\"%s?ruleType=%s\", casbDlpRulesEndpoint, url.QueryEscape(ruleType))",
             "err := service.Client.Read(ctx, endpoint, &rules)"
           ],
           "after": "func GetByRuleType(ctx context.Context, service *zscaler.Service, ruleType string) ([]CasbDLPRules, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/saas_security_api/casb_dlp_rules/casb_dlp_rules.go",
+          "after": "func GetByRuleID(ctx context.Context, service *zscaler.Service, ruleType string, ruleID int) (*CasbDLPRules, error) {",
+          "quotes": [
+            "endpoint := fmt.Sprintf(\"%s/%d?ruleType=%s\", casbDlpRulesEndpoint, ruleID, url.QueryEscape(ruleType))",
+            "err := service.Client.Read(ctx, endpoint, &rule)"
+          ]
         },
         {
           "source": "sdk-go",
@@ -453,7 +668,12 @@
           "source": "sdk-python",
           "path": "zscaler/zia/saas_security_api.py",
           "quotes": [
-            "class SaaSSecurityAPI(APIClient):"
+            "class SaaSSecurityAPI(APIClient):",
+            "def list_domain_profiles_lite(self)",
+            "def list_quarantine_tombstone_lite(self)",
+            "def list_casb_email_label_lite(self)",
+            "def list_casb_tenant_lite(self, query_params: Optional[dict] = None)",
+            "def list_saas_scan_info(self, query_params: Optional[dict] = None)"
           ]
         }
       ]
@@ -474,6 +694,13 @@
           "path": "docs/resources/zia_casb_malware_rules.md",
           "quotes": [
             "# zia_casb_malware_rules (Resource)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_casb_tenant.md",
+          "quotes": [
+            "# zia_casb_tenant (Data Source)"
           ]
         },
         {

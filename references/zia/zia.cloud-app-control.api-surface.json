@@ -65,22 +65,53 @@
   ],
   "claims": {
     "app-entry-fields": {
-      "statement": "Application entries in the availableActions request body (`cloudApps[]`) are objects with `val`, `webApplicationClass`, `backendName`, `originalName`, `name` and five booleans: `deprecated`, `misc`, `appNotReady`, `underMigration` and `appCatModified`. The Python SDK models the same ten fields as its Application class. The same boolean fields appear on application lists in the advanced settings responses, and the API reference gives no description for any of them.",
+      "statement": "Application entries in the availableActions request body (`cloudApps[]`) are objects with `val`, `webApplicationClass`, `backendName`, `originalName`, `name` and five booleans: `deprecated`, `misc`, `appNotReady`, `underMigration` and `appCatModified`. The Python SDK models the same ten fields as its Application class. The same boolean fields appear on application lists in the advanced settings response (for example `authBypassApps[]`), and the API reference describes only `webApplicationClass` among the ten fields.",
       "tier": "A",
       "evidence": [
         {
           "source": "api-specs",
           "path": "automate-zscaler/zia-api-reference.json",
+          "after": "\"operation\": \"zia/cloud-app-control-policy/web-application-rule-resource-get-available-actions\",",
           "quotes": [
-            "\"name\": \"cloudApps[].underMigration\",",
-            "\"name\": \"cloudApps[].appCatModified\",",
-            "\"name\": \"cloudApps[].val\","
+            "\"name\": \"cloudApps[].val\", \"top_name\": \"cloudApps\", \"type\": \"int32\", \"required\": false, \"readonly\": false, \"enum\": null, \"description\": null,",
+            "\"name\": \"cloudApps[].webApplicationClass\", \"top_name\": \"cloudApps\", \"type\": \"string\",",
+            "\"description\": \"<p>The cloud application class selected from the available options</p>\"",
+            "\"name\": \"cloudApps[].backendName\", \"top_name\": \"cloudApps\", \"type\": \"string\", \"required\": false, \"readonly\": false, \"enum\": null, \"description\": null,",
+            "\"name\": \"cloudApps[].originalName\", \"top_name\": \"cloudApps\", \"type\": \"string\", \"required\": false, \"readonly\": false, \"enum\": null, \"description\": null,",
+            "\"name\": \"cloudApps[].name\", \"top_name\": \"cloudApps\", \"type\": \"string\", \"required\": false, \"readonly\": false, \"enum\": null, \"description\": null,",
+            "\"name\": \"cloudApps[].deprecated\", \"top_name\": \"cloudApps\", \"type\": \"boolean\", \"required\": false, \"readonly\": false, \"enum\": null, \"description\": null,",
+            "\"name\": \"cloudApps[].misc\", \"top_name\": \"cloudApps\", \"type\": \"boolean\", \"required\": false, \"readonly\": false, \"enum\": null, \"description\": null,",
+            "\"name\": \"cloudApps[].appNotReady\", \"top_name\": \"cloudApps\", \"type\": \"boolean\", \"required\": false, \"readonly\": false, \"enum\": null, \"description\": null,",
+            "\"name\": \"cloudApps[].underMigration\", \"top_name\": \"cloudApps\", \"type\": \"boolean\", \"required\": false, \"readonly\": false, \"enum\": null, \"description\": null,",
+            "\"name\": \"cloudApps[].appCatModified\", \"top_name\": \"cloudApps\", \"type\": \"boolean\", \"required\": false, \"readonly\": false, \"enum\": null, \"description\": null,"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/zia-api-reference.json",
+          "after": "\"operation\": \"zia/advanced-settings/advanced-settings-resource-get-advanced-settings\",",
+          "quotes": [
+            "\"name\": \"authBypassApps\", \"top_name\": \"authBypassApps\", \"type\": \"array\",",
+            "\"name\": \"authBypassApps[].appCatModified\", \"top_name\": \"authBypassApps\", \"type\": \"boolean\", \"required\": false, \"readonly\": false, \"enum\": null, \"description\": null,",
+            "\"name\": \"authBypassApps[].appNotReady\", \"top_name\": \"authBypassApps\", \"type\": \"boolean\", \"required\": false, \"readonly\": false, \"enum\": null, \"description\": null,",
+            "\"name\": \"authBypassApps[].deprecated\", \"top_name\": \"authBypassApps\", \"type\": \"boolean\", \"required\": false, \"readonly\": false, \"enum\": null, \"description\": null,",
+            "\"name\": \"authBypassApps[].misc\", \"top_name\": \"authBypassApps\", \"type\": \"boolean\", \"required\": false, \"readonly\": false, \"enum\": null, \"description\": null,",
+            "\"name\": \"authBypassApps[].underMigration\", \"top_name\": \"authBypassApps\", \"type\": \"boolean\", \"required\": false, \"readonly\": false, \"enum\": null, \"description\": null,"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zia/models/cloudappcontrol.py",
+          "after": "class Application(ZscalerObject):",
           "quotes": [
+            "self.val = config[\"val\"] if \"val\" in config else None",
+            "self.web_application_class = config[\"webApplicationClass\"] if \"webApplicationClass\" in config else None",
+            "self.backend_name = config[\"backendName\"] if \"backendName\" in config else None",
+            "self.original_name = config[\"originalName\"] if \"originalName\" in config else None",
+            "self.name = config[\"name\"] if \"name\" in config else None",
+            "self.deprecated = config[\"deprecated\"] if \"deprecated\" in config else False",
+            "self.misc = config[\"misc\"] if \"misc\" in config else False",
+            "self.app_not_ready = config[\"appNotReady\"] if \"appNotReady\" in config else False",
             "self.under_migration = config[\"underMigration\"] if \"underMigration\" in config else False",
             "self.app_cat_modified = config[\"appCatModified\"] if \"appCatModified\" in config else False"
           ]
@@ -88,7 +119,7 @@
       ]
     },
     "val-echoed": {
-      "statement": "The Python Application model reads the server-assigned numeric `val` and writes it back unchanged in its request format.",
+      "statement": "The Python Application model reads the numeric `val` (int32 in the API reference) and writes it back unchanged in its request format.",
       "tier": "A",
       "evidence": [
         {
@@ -97,6 +128,14 @@
           "quotes": [
             "self.val = config[\"val\"] if \"val\" in config else None",
             "\"val\": self.val,"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/zia-api-reference.json",
+          "after": "\"operation\": \"zia/cloud-app-control-policy/web-application-rule-resource-get-available-actions\",",
+          "quotes": [
+            "\"name\": \"cloudApps[].val\", \"top_name\": \"cloudApps\", \"type\": \"int32\","
           ]
         }
       ]
@@ -113,11 +152,20 @@
             "/webApplicationRules/{rule_type}/duplicate/{rule_id}",
             "params = {\"name\": name}"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloudappcontrol.py",
+          "after": "def add_duplicate_rule(self, rule_type: str, rule_id: str, name: str, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "http_method = \"post\".upper()",
+            "body = kwargs"
+          ]
         }
       ]
     },
     "state-wire-field": {
-      "statement": "The cloud app control rule carries its on/off state as the string field `state` (ENABLED or DISABLED). The Python SDK accepts a boolean `enabled` argument and rewrites it to `state` before sending; the Go struct has only `State`.",
+      "statement": "The cloud app control rule carries its on/off state as the string field `state` (ENABLED or DISABLED). The Python SDK accepts a boolean `enabled` argument and rewrites it to `state` before sending; the Go struct carries it as `State`.",
       "tier": "A",
       "evidence": [
         {
@@ -138,7 +186,7 @@
       ]
     },
     "rule-type-required-update-is-put": {
-      "statement": "Every Python cloud app control rule call is built under /webApplicationRules/{rule_type}, including get, update and delete by rule ID, and update is a PUT whose body is the caller-supplied fields after `transform_common_id_fields(reformat_params, ...)`. The Go functions likewise take `ruleType` on every call.",
+      "statement": "Every Python cloud app control rule call (list, get, add, update, delete and duplicate) is built under /webApplicationRules/{rule_type}, including get, update and delete by rule ID, and update is a PUT whose body is the caller-supplied fields after `transform_common_id_fields(reformat_params, ...)`. The Go rule functions (get by ID or type, create, update, delete and duplicate) likewise take `ruleType`.",
       "tier": "A",
       "evidence": [
         {
@@ -152,16 +200,65 @@
           "after": "def update_rule(self, rule_type: str, rule_id: str, **kwargs)"
         },
         {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloudappcontrol.py",
+          "after": "def list_rules(",
+          "quotes": [
+            "http_method = \"get\".upper()",
+            "/webApplicationRules/{rule_type}"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloudappcontrol.py",
+          "after": "def get_rule(self, rule_type: str, rule_id: str) -> APIResult[dict]:",
+          "quotes": [
+            "http_method = \"get\".upper()",
+            "/webApplicationRules/{rule_type}/{rule_id}"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloudappcontrol.py",
+          "after": "def add_rule(self, rule_type: str, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "http_method = \"post\".upper()",
+            "/webApplicationRules/{rule_type}"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloudappcontrol.py",
+          "after": "def delete_rule(self, rule_type: str, rule_id: int) -> APIResult[dict]:",
+          "quotes": [
+            "http_method = \"delete\".upper()",
+            "/webApplicationRules/{rule_type}/{rule_id}"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloudappcontrol.py",
+          "after": "def add_duplicate_rule(self, rule_type: str, rule_id: str, name: str, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "/webApplicationRules/{rule_type}/duplicate/{rule_id}"
+          ]
+        },
+        {
           "source": "sdk-go",
           "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
           "quotes": [
-            "func GetByRuleID(ctx context.Context, service *zscaler.Service, ruleType string, ruleID int)"
+            "func GetByRuleID(ctx context.Context, service *zscaler.Service, ruleType string, ruleID int)",
+            "func GetByRuleType(ctx context.Context, service *zscaler.Service, ruleType string)",
+            "func Create(ctx context.Context, service *zscaler.Service, ruleType string, rule *WebApplicationRules)",
+            "func Update(ctx context.Context, service *zscaler.Service, ruleType string, ruleID int, rules *WebApplicationRules)",
+            "func Delete(ctx context.Context, service *zscaler.Service, ruleType string, ruleID int)",
+            "func CreateDuplicate(ctx context.Context, service *zscaler.Service, ruleType string, ruleID int, newName string)"
           ]
         }
       ]
     },
     "applications-sent-as-strings": {
-      "statement": "The cloud app control rule lists its applications as plain strings (`applications`) in the Go model. The Python SDK passes the caller kwargs through as the body after ID reshaping through `reformat_params`, which maps only `application_ids` to `applications`.",
+      "statement": "The cloud app control rule lists its applications as plain strings (`applications`) in the Go model. The Python SDK's `add_rule` passes the caller kwargs through as the body after ID reshaping through `reformat_params`, whose entries map `application_ids` to `applications`.",
       "tier": "A",
       "evidence": [
         {
@@ -175,7 +272,17 @@
           "source": "sdk-python",
           "path": "zscaler/utils.py",
           "quotes": [
+            "reformat_params = [",
             "(\"application_ids\", \"applications\"),"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloudappcontrol.py",
+          "after": "def add_rule(self, rule_type: str, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "body = kwargs",
+            "transform_common_id_fields(reformat_params, body, body)"
           ]
         }
       ]
@@ -230,7 +337,8 @@
           "source": "mcp-server",
           "path": "skills/zia/create-cloud-app-control-rule/SKILL.md",
           "quotes": [
-            "ZIA enforces a hard 31-character maximum on the Cloud App Control rule `name`."
+            "ZIA enforces a hard 31-character maximum on the Cloud App Control rule `name`.",
+            "The API rejects longer names with `{\"code\": \"INVALID_INPUT_ARGUMENT\", \"message\": \"Name exceeds the max length 31 characters\"}`."
           ]
         },
         {
@@ -250,8 +358,10 @@
         {
           "source": "sdk-python",
           "path": "CHANGELOG.md",
+          "after": "## 1.11.2 (October 7 2026)",
           "quotes": [
-            "Fixed ZIA `cloudappcontrol.list_rules` failing with `KeyError: 0` when a rule has a `cloudAppRiskProfile`; the field is a single object and is now parsed as one."
+            "Fixed ZIA `cloudappcontrol.list_rules` failing with `KeyError: 0` when a rule has a `cloudAppRiskProfile`; the field is a single object and is now parsed as one. [Issue #586]",
+            "## 1.11.1 (October 6 2026)"
           ]
         },
         {
@@ -259,6 +369,13 @@
           "path": "zscaler/zia/models/cloudappcontrol.py",
           "quotes": [
             "common_reference.ResourceReference(config[\"cloudAppRiskProfile\"])"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "CloudAppRiskProfile *common.IDCustom          `json:\"cloudAppRiskProfile,omitempty\"`"
           ]
         }
       ]

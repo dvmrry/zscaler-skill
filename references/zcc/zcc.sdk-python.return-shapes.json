@@ -74,8 +74,9 @@
           "path": "zscaler/zcc/web_privacy.py",
           "after": "def get_web_privacy(self) -> APIResult[dict]:",
           "quotes": [
-            "if error:",
-            "return None"
+            "request, error = self._request_executor.create_request(http_method, api_url, body, headers) if error: return None",
+            "response, error = self._request_executor.execute(request) if error: return None",
+            "except Exception as error: return None"
           ]
         }
       ]
@@ -92,6 +93,14 @@
             "result = self.form_response_body(response.get_body())",
             "return result"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/api_client.py",
+          "quotes": [
+            "result[_to_camel(key)] = val"
+          ],
+          "after": "def form_response_body(body: Union[Dict[str, Any], List[Any], Any]) -> Union[Dict[str, Any], List[Any], Any]:"
         }
       ]
     },
@@ -106,6 +115,45 @@
             "filename = f\"zcc-devices-{datetime.now().strftime('%Y%m%d-%H_%M_%S')}.csv\"",
             "raise Exception(\"Error creating request for downloading devices.\")",
             "raise Exception(\"No response received when downloading disable reasons report.\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "after": "def download_devices(self, query_params=None, filename: str = None):",
+          "quotes": [
+            "if not filename:",
+            "filename = f\"zcc-devices-{datetime.now().strftime('%Y%m%d-%H_%M_%S')}.csv\"",
+            "raise Exception(\"Error creating request for downloading devices.\")",
+            "raise error",
+            "raise Exception(\"Invalid response content type or unexpected response format.\")",
+            "return filename"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "after": "def download_service_status(self, query_params=None, filename: str = None):",
+          "quotes": [
+            "if not filename:",
+            "filename = f\"zcc-service-status-{datetime.now().strftime('%Y%m%d-%H_%M_%S')}.csv\"",
+            "raise Exception(\"Error creating request for downloading service status.\")",
+            "raise error",
+            "raise Exception(\"Invalid response content type or unexpected response format.\")",
+            "return filename"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "after": "def download_disable_reasons(self, query_params=None, filename: str = None):",
+          "quotes": [
+            "if not filename:",
+            "filename = f\"zcc-disable-reasons-{datetime.now().strftime('%Y%m%d-%H_%M_%S')}.csv\"",
+            "raise Exception(\"Error creating request for downloading disable reasons report.\")",
+            "raise error",
+            "raise Exception(\"Invalid response content type or unexpected response format.\")",
+            "return filename"
           ]
         }
       ]
@@ -151,7 +199,9 @@
           "quotes": [
             "response, error = self._request_executor.execute(request, CompanyInfo)",
             "for item in response.get_results():",
-            "result.append(CompanyInfo(self.form_response_body(item)))"
+            "result.append(CompanyInfo(self.form_response_body(item)))",
+            "result = []",
+            "return (result, response, None)"
           ]
         },
         {
@@ -253,6 +303,14 @@
           "quotes": [
             "result.append((self.form_response_body(item)))"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/api_client.py",
+          "quotes": [
+            "result[_to_camel(key)] = val"
+          ],
+          "after": "def form_response_body(body: Union[Dict[str, Any], List[Any], Any]) -> Union[Dict[str, Any], List[Any], Any]:"
         }
       ]
     },
@@ -266,7 +324,9 @@
           "after": "def activate_web_policy(self, **kwargs) -> APIResult[dict]:",
           "quotes": [
             "if response and hasattr(response, \"get_body\") and response.get_body():",
-            "result = WebPolicy()"
+            "result = WebPolicy()",
+            "result = WebPolicy(self.form_response_body(response.get_body())) else: result = WebPolicy()",
+            "return (result, response, None)"
           ]
         }
       ]
@@ -321,6 +381,21 @@
           "quotes": [
             "body.update(kwargs)",
             "result = WebPrivacy(self.form_response_body(response.get_body()))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/webprivacy.py",
+          "quotes": [
+            "self.active = config[\"active\"] if \"active\" in config else None",
+            "config[\"restrictRemotePacketCapture\"] if \"restrictRemotePacketCapture\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_object.py",
+          "quotes": [
+            "def __init__(self, config: Optional[Any] = None) -> None: pass"
           ]
         }
       ]

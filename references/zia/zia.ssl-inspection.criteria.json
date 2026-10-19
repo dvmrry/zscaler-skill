@@ -41,7 +41,7 @@
       "items": [
         {
           "label": "Destinations.",
-          "text": "{{destination-group-types}} {{dest-ip-groups-ignored-with-sni}}"
+          "text": "{{destination-group-types}} {{dest-ip-groups-ignored-with-sni}} Whether a rule scoped only by IP destination groups then matches every request with SNI or none of them is not documented {{gap:ip-dest-group-ignored-effect}}."
         },
         {
           "label": "User agent.",
@@ -106,7 +106,7 @@
       "conditions": "Corrected on recapture (2026-10-18): previously \"An SSL/TLS inspection rule matches when this expression is true: Source IP Groups AND [URL Categories OR Cloud Applications OR Destination Groups OR Forwarding Gateways] AND ZPA Application Segment AND [Location Groups OR Locations] AND [Users OR Groups OR Departments] AND [Device Groups OR Devices OR Remote Users with Kerberos] AND Device Trust Level AND CONNECT User-Agent.\""
     },
     "zcc-criteria-unset-ignored": {
-      "statement": "Device trust levels, device groups, devices and platforms apply only to devices managed by Client Connector, and when none is set the criterion is ignored during evaluation; an unset `platforms` list means the rule applies to all device platforms.",
+      "statement": "Device trust levels, device groups and devices are documented as applicable to devices managed by Client Connector, and when none is set the criterion is ignored during evaluation; an unset `platforms` list means the rule applies to all device platforms.",
       "tier": "A",
       "binds": [
         "zia/ssl-inspection-rules#deviceGroups",
@@ -120,7 +120,11 @@
           "path": "zscaler/zia/services/sslinspection/sslinspection.go",
           "quotes": [
             "This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.",
-            "Specifies devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation."
+            "Specifies devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.",
+            "List of device trust levels for which the rule must be applied. This field is applicable for devices that are managed using Zscaler Client Connector.",
+            "If no value is set, this field is ignored during the policy evaluation. DeviceTrustLevels []string",
+            "If no value is set, this field is ignored during the policy evaluation. DeviceGroups []common.IDNameExtensions",
+            "If no value is set, this field is ignored during the policy evaluation. Devices []common.IDNameExtensions"
           ]
         },
         {
@@ -128,14 +132,15 @@
           "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/platforms",
           "expect": {
-            "type": "array"
+            "type": "array",
+            "description": "Zscaler Client Connector device platforms for which the rule must be applied. If not set, rule is applied to all device platforms"
           },
           "note": "platforms: 'If not set, rule is applied to all device platforms'"
         }
       ]
     },
     "dest-ip-groups-ignored-with-sni": {
-      "statement": "IP address-based destination groups in a rule's criteria are ignored when the HTTPS request carries an SNI value, so a rule scoped only by IP destination group does not match ordinary HTTPS traffic, only requests without SNI.",
+      "statement": "IP address-based destination groups in a rule's criteria are ignored during policy evaluation when the HTTPS request carries an SNI value.",
       "tier": "A",
       "binds": [
         "zia/ssl-inspection-rules#destIpGroups"
@@ -146,7 +151,7 @@
           "source": "zscaler-help",
           "path": "configuring-ssl-tls-inspection-policy.json",
           "quotes": [
-            "IP address-based destination groups in the rule criteria are ignored if an SNI value is present in HTTPS requests."
+            "During policy evaluation, IP address-based destination groups in the rule criteria are ignored if an SNI value is present in HTTPS requests."
           ]
         }
       ]
@@ -205,7 +210,8 @@
           "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/zpaAppSegments",
           "expect": {
-            "type": "array"
+            "type": "array",
+            "description": "List of Source IP Anchoring-enabled ZPA Application Segments for which this rule is applicable"
           },
           "note": "zpaAppSegments: 'List of Source IP Anchoring-enabled ZPA Application Segments for which this rule is applicable'"
         }
@@ -226,6 +232,22 @@
             "type": "array"
           },
           "note": "platforms enum: SCAN_IOS, SCAN_ANDROID, SCAN_MACOS, SCAN_WINDOWS, NO_CLIENT_CONNECTOR, SCAN_LINUX"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/platforms/items",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "SCAN_IOS",
+              "SCAN_ANDROID",
+              "SCAN_MACOS",
+              "SCAN_WINDOWS",
+              "NO_CLIENT_CONNECTOR",
+              "SCAN_LINUX"
+            ]
+          }
         },
         {
           "source": "sdk-go",
@@ -300,7 +322,7 @@
       ]
     },
     "identity-needs-zcc-or-surrogate-ip": {
-      "statement": "User, Group and Department criteria work only when traffic arrives through Client Connector (preferred) or through GRE/IPsec with Enforce Surrogate IP; without either the service cannot identify the user before inspection, so identity-scoped SSL rules do not apply. Device Group criteria need Client Connector.",
+      "statement": "User, Group and Department criteria work only when traffic arrives through Client Connector (preferred) or through GRE/IPsec with Enforce Surrogate IP; without either the service cannot identify the user before inspection to properly apply user-based policies. Device Group criteria need Client Connector.",
       "tier": "A",
       "conditions": "'Do not apply' is the guide's 'cannot identify the user ... to properly apply user-based policies'; the guide does not say whether the rule is skipped or evaluated as no match.",
       "evidence": [
@@ -309,7 +331,9 @@
           "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
           "quotes": [
             "You can only use user attributes if the traffic forwarded to Zscaler is from the Zscaler Client Connector (preferred) or if you enable Enforce Surrogate IP",
-            "Without Zscaler Client Connector or Surrogate IP, the service cannot identify the user (before inspection) to properly apply user-based policies and determine if inspection is desired."
+            "Without Zscaler Client Connector or Surrogate IP, the service cannot identify the user (before inspection) to properly apply user-based policies and determine if inspection is desired.",
+            "User Attributes (Group/Department). You can only use user attributes if the traffic forwarded to Zscaler is from the Zscaler Client Connector (preferred) or if you enable Enforce Surrogate IP and properly work for traffic flowing through GRE or IPSec tunnels to Zscaler.",
+            "Device Groups (OS Type). You can only identify device groups if the traffic is forwarded to Zscaler via the Zscaler Client Connector."
           ]
         }
       ]
@@ -364,6 +388,18 @@
       "resolves_with": [
         "lab-test",
         "source-read"
+      ]
+    },
+    "ip-dest-group-ignored-effect": {
+      "kind": "semantic",
+      "title": "What an SSL rule scoped only by IP destination groups does when the request carries SNI",
+      "status": "open",
+      "about": [
+        "zia/ssl-inspection-rules#destIpGroups"
+      ],
+      "detail": "The rule page says IP address-based destination groups are ignored when an SNI value is present. It does not say whether the rule then matches as if the criterion were unset (every SNI request) or does not match (only requests without SNI).",
+      "resolves_with": [
+        "lab-test"
       ]
     }
   }

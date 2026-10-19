@@ -95,6 +95,14 @@
             "_ = d.Set(\"csv\", resp.Csv)",
             "_ = d.Set(\"json\", resp.Json)"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "after": "def get_all_log_formats(self, log_type=None, query_params=None) -> dict:",
+          "quotes": [
+            "Returns all available pre-configured LSS Log Formats or a specific log format if specified."
+          ]
         }
       ]
     },
@@ -126,10 +134,25 @@
           ]
         },
         {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "after": "# Creating a New LSS Configuration",
+          "quotes": [
+            "\"format\":\"%s{LogTimestamp:time} User Activity zpa-lss: ,%s{Customer},%s{SessionID},%s{ConnectionID}"
+          ]
+        },
+        {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_lss_config_controller.go",
           "quotes": [
             "Description: \"Format of the log type. Format given by the following API to get formats: /mgmtconfig/v2/admin/lssConfig/logType/formats\","
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-log-stream-content-format.json",
+          "quotes": [
+            "The field format string contains arbitrary text with the following escape formats"
           ]
         }
       ]
@@ -144,7 +167,9 @@
           "quotes": [
             "elif mapped_source_log_type is not None:",
             "log_stream_content = self.get_all_log_formats()[mapped_source_log_type][source_log_format]",
-            "Otherwise the existing format on the server is preserved."
+            "Otherwise the existing format on the server is preserved.",
+            "if \"log_stream_content\" in kwargs:\nlog_stream_content = kwargs.pop(\"log_stream_content\")\nelif mapped_source_log_type is not None:",
+            "if log_stream_content is not None:\nconfig_block[\"format\"] = log_stream_content"
           ]
         }
       ]
@@ -159,6 +184,13 @@
           "quotes": [
             "Required: true, Description: \"Format of the log type. Format given by the following API to get formats: /mgmtconfig/v2/admin/lssConfig/logType/formats\","
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_lss_config_controller.md",
+          "quotes": [
+            "format = data.zpa_lss_config_log_type_formats.zpn_ast_comprehensive_stats.json"
+          ]
         }
       ]
     },
@@ -171,7 +203,7 @@
           "path": "configuring-log-receiver.json",
           "quotes": [
             "You can also edit the log stream content within the text field in order to capture specific fields and create a Custom log template.",
-            "the Restore Default Content option appears, allowing you to revert to the default."
+            "If you made changes to the log stream content, the Restore Default Content option appears, allowing you to revert to the default."
           ]
         }
       ]
@@ -184,6 +216,7 @@
           "source": "zscaler-help",
           "path": "understanding-log-stream-content-format.json",
           "quotes": [
+            "| %[OPT]s{<field_name>} | Displays the field as a string.",
             "Displays the field as a JSON string with quotation marks",
             "Displays the field as a JSON string without quotation marks",
             "Displays the field in decimal integer format",
@@ -203,22 +236,22 @@
           "path": "understanding-log-stream-content-format.json",
           "quotes": [
             "Field names are case sensitive.",
+            "The default Log Stream Content automatically adds a newline (\\n) character after the last field.",
             "If you have modified the content, you must append at least one newline character after the last field."
           ]
         }
       ]
     },
     "format-page-log-types": {
-      "statement": "The Log Stream Content Format article lists sixteen log types its field format specifications apply to: Audit Logs, App Connector Metrics, App Connector Status, Browser Access, Business Continuity Event Logs, KRB Inspection Logs, LDAP Inspection Logs, Microsegmentation Flow, Private Cloud Controller Metrics and Status, Private Service Edge Metrics and Status, SMB Inspection Logs, User Activity, User Status and Web Inspection.",
+      "statement": "The Log Stream Content Format article lists sixteen log types its field format specifications apply to: Audit Logs, App Connector Metrics, App Connector Status, Browser Access, Business Continuity Event Logs, KRB Inspection Logs, LDAP Inspection Logs, Microsegmentation Flow, Private Cloud Controller Metrics, Private Cloud Controller Status, Private Service Edge Metrics, Private Service Edge Status, SMB Inspection Logs, User Activity, User Status and Web Inspection.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "understanding-log-stream-content-format.json",
           "quotes": [
-            "- Business Continuity Event Logs",
-            "- Web Inspection",
-            "- SMB Inspection Logs"
+            "used by these log types:\n- Audit Logs\n- App Connector Metrics\n- App Connector Status\n- Browser Access\n- Business Continuity Event Logs\n- KRB Inspection Logs\n- LDAP Inspection Logs\n- Microsegmentation Flow",
+            "- Microsegmentation Flow\n- Private Cloud Controller Metrics\n- Private Cloud Controller Status\n- Private Service Edge Metrics\n- Private Service Edge Status\n- SMB Inspection Logs\n- User Activity\n- User Status\n- Web Inspection\nWhile configuring your log receiver"
           ]
         }
       ]

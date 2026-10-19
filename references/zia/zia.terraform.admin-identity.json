@@ -97,7 +97,8 @@
           ],
           "quotes": [
             "\"EXEC_INSIGHT_AND_ORG_ADMIN\",",
-            "\"PUBLIC_API\","
+            "\"PUBLIC_API\",",
+            "ValidateFunc: validation.StringInSlice([]string{ \"ORG_ADMIN\", \"EXEC_INSIGHT\", \"EXEC_INSIGHT_AND_ORG_ADMIN\", \"SDWAN\", \"PUBLIC_API\", }, false),"
           ]
         }
       ]
@@ -147,7 +148,9 @@
           ],
           "quotes": [
             "Default value is 7 (the lowest rank).",
-            "This is applicable only when admin rank is enabled in the advanced settings."
+            "This is applicable only when admin rank is enabled in the advanced settings.",
+            "\"rank\": { Type: schema.TypeInt, Optional: true, Description: \"Admin rank of this admin role.",
+            "and which rule orders this admin can access.\", }, \"policy_access\": {"
           ]
         }
       ]
@@ -164,7 +167,9 @@
           ],
           "quotes": [
             "If admin single sign-on (SSO) is disabled, then this field is mandatory for POST requests.",
-            "This information is not provided in a GET response."
+            "This information is not provided in a GET response.",
+            "\"password\": { Type: schema.TypeString, Description: \"The admin's password.",
+            "This information is not provided in a GET response.\", Optional: true, Sensitive: true,"
           ]
         }
       ]
@@ -181,7 +186,9 @@
           ],
           "quotes": [
             "_ = d.Set(\"temp_auth_email\", resp.TempAuthEmail)",
-            "if err := d.Set(\"department\", flattenUserDepartment(resp.Department)); err != nil {"
+            "if err := d.Set(\"department\", flattenUserDepartment(resp.Department)); err != nil {",
+            "d.SetId(fmt.Sprintf(\"%d\", resp.ID)) _ = d.Set(\"user_id\", resp.ID) _ = d.Set(\"name\", resp.Name) _ = d.Set(\"email\", resp.Email) _ = d.Set(\"comments\", resp.Comments) _ = d.Set(\"temp_auth_email\", resp.TempAuthEmail) if err := d.Set(\"groups\", flattenUserGroups(resp.Groups)); err != nil {",
+            "if err := d.Set(\"department\", flattenUserDepartment(resp.Department)); err != nil { return diag.FromErr(err) } return nil }"
           ]
         }
       ]
@@ -194,7 +201,8 @@
           "source": "tf-zia",
           "path": "CHANGELOG.md",
           "quotes": [
-            "Fixed the `zia_user_management` resource to read the user's `name` and `email` from the user list instead of the single-user lookup."
+            "Fixed the `zia_user_management` resource to read the user's `name` and `email` from the user list instead of the single-user lookup.",
+            "On tenants migrated to Zidentity the single-user lookup returned these fields in an encoded form, which produced a perpetual in-place update on every `terraform plan`."
           ]
         },
         {
@@ -218,7 +226,8 @@
           "source": "tf-zia",
           "path": "docs/resources/zia_user_management.md",
           "quotes": [
-            "it must be unique and its domain must belong to the organization"
+            "it must be unique and its domain must belong to the organization",
+            "It does not have to be a valid email address, but it must be unique and its domain must belong to the organization."
           ]
         }
       ]

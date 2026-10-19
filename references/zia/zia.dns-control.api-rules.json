@@ -114,6 +114,13 @@
           "quotes": [
             "firewallDnsRulesEndpoint = \"/zia/api/v1/firewallDnsRules\""
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go",
+          "quotes": [
+            "firewallRulesEndpoint = \"/zia/api/v1/firewallFilteringRules\""
+          ]
         }
       ]
     },
@@ -178,6 +185,14 @@
           "quotes": [
             "Supported Values: \"ANY_RULE\", \"SMRULEF_CASCADING_ALLOWED\", \"TCP_RULE\", \"UDP_RULE\", \"DOHTTPS_RULE\""
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall_dns.py",
+          "after": "def add_rule(",
+          "quotes": [
+            "protocols (list[str]): Protocols the rule applies to (e.g., TCP, UDP, DOHTTPS)."
+          ]
         }
       ],
       "binds": [
@@ -185,7 +200,7 @@
       ]
     },
     "zpa-ip-group-always-sent": {
-      "statement": "In Go, `zpaIpGroup` has no `omitempty`, so it is serialized even when nil, unlike most fields on the struct.",
+      "statement": "In Go, `zpaIpGroup` has no `omitempty`, so it is serialized even when nil.",
       "tier": "A",
       "evidence": [
         {
@@ -252,8 +267,10 @@
           "source": "ansible-zia",
           "path": "plugins/modules/zia_cloud_firewall_dns_rules.py",
           "quotes": [
+            "\"is_web_eun_enabled\": desired_rule.get(\"is_web_eun_enabled\"),",
             "updated_rule, _unused, error = client.cloud_firewall_dns.update_rule(**update_data)"
-          ]
+          ],
+          "after": "update_data = deleteNone("
         }
       ],
       "binds": [
@@ -304,6 +321,7 @@
           "source": "tf-zia",
           "path": "CHANGELOG.md",
           "quotes": [
+            "Upgraded to [Zscaler-SDK-GO v3.8.44](https://github.com/zscaler/zscaler-sdk-go/releases/tag/v3.8.44)",
             "to fix mispelled attribute `isWebEunEnabled` to the expected API value `isWebEUNEnabled` in firewall dns control policies struct"
           ]
         },

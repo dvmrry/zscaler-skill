@@ -106,7 +106,7 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/firewallpolicies/networkservices/networkservices.go",
           "quotes": [
-            "json:\"type,omitempty\""
+            "Type string `json:\"type,omitempty\"`"
           ]
         }
       ]
@@ -217,7 +217,10 @@
           "path": "src/zscaler_mcp/tools/zia/network_services.py",
           "quotes": [
             "Filter by protocol: ICMP, TCP, UDP, GRE, ESP, OTHER.",
-            "qp[\"protocol\"] = args.protocol.upper()"
+            "qp[\"protocol\"] = args.protocol.upper()",
+            "protocol: Annotated[ Optional[str],",
+            "if args.protocol:",
+            "services, _, err = client.zia.cloud_firewall.list_network_services(query_params=qp)"
           ]
         }
       ]
@@ -263,6 +266,9 @@
           "source": "sdk-python",
           "path": "zscaler/zia/cloud_firewall.py",
           "quotes": [
+            "if ports is not None:",
+            "for items in ports:",
+            "port_dict = {\"start\": int(items[2])}",
             "body.setdefault(f\"{items[0]}{items[1].title()}Ports\", []).append(port_dict)"
           ],
           "after": "def add_network_service("
@@ -287,7 +293,8 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/firewallpolicies/networkservices/networkservices.go",
           "quotes": [
-            "End   int `json:\"end,omitempty\"`"
+            "End   int `json:\"end,omitempty\"`",
+            "Start int `json:\"start,omitempty\"`"
           ]
         }
       ]
@@ -330,7 +337,8 @@
           "source": "mcp-server",
           "path": "skills/zia/look-up-rule-targets/SKILL.md",
           "quotes": [
-            "server-side `search=\"http\"` does NOT match `HTTP`."
+            "server-side `search=\"http\"` does NOT match `HTTP`.",
+            "ZIA's canonical network-service names are uppercase enums (`HTTP`, `FTP`, `DNS`)"
           ]
         }
       ]

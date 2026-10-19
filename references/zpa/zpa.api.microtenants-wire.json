@@ -148,6 +148,22 @@
           "expect": {
             "type": "array"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants/post/responses/201/content/*~1*/schema/properties/user",
+          "expect": {
+            "title": "UserResource"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants/post/responses/201/content/*~1*/schema/properties/roles",
+          "expect": {
+            "type": "array"
+          }
         }
       ],
       "conditions": "The create and update request schemas in the specification list neither roles nor user (checked by reading both schemas); an absence cannot be pinned by a pointer."
@@ -161,6 +177,7 @@
           "path": "zscaler/zpa/services/microtenants/microtenants_test.go",
           "quotes": [
             "CriteriaAttribute: \"AuthDomain\",",
+            "CriteriaAttributeValues: []string{domain},",
             "// Check for specific error message and continue if found",
             "if strings.Contains(err.Error(), \"domains.does.not.belong.to.customer\") {"
           ]
@@ -169,7 +186,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/microtenants.py",
           "quotes": [
-            "criteria_attribute=\"AuthDomain\","
+            "criteria_attribute=\"AuthDomain\",",
+            "criteria_attribute_values=[\"acme.com\"]"
           ]
         }
       ],
@@ -188,10 +206,43 @@
           }
         },
         {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants~1summary/get/responses/200/content/*~1*/schema/items",
+          "expect": {
+            "title": "NameIdDto"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants~1summary/get/responses/200/content/*~1*/schema/items/properties/id",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants~1summary/get/responses/200/content/*~1*/schema/items/properties/name",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants/get/responses/200/content/*~1*/schema/properties/list",
+          "expect": {
+            "type": "array"
+          },
+          "note": "the microtenant list itself is wrapped: list, totalPages, totalCount, currentCount"
+        },
+        {
           "source": "sdk-python",
           "path": "zscaler/zpa/microtenants.py",
           "quotes": [
-            "if isinstance(response_body, list):"
+            "microtenant_list = [] response_body = response.get_body() if isinstance(response_body, list): for item in response_body: microtenant_list.append(Microtenant(item)) return (microtenant_list, None)"
           ]
         }
       ]
@@ -238,7 +289,8 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/microtenants/microtenants.go",
           "quotes": [
-            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", relativeURL, nil, microTenant, nil)"
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", relativeURL, nil, microTenant, nil)",
+            "return resp, err"
           ],
           "after": "func Update(ctx context.Context, service *zscaler.Service, microTenantID string, microTenant *MicroTenant) (*http.Response, error) {"
         }
@@ -264,9 +316,25 @@
             "relativeURL := mgmtConfig + service.Client.GetCustomerID() + microtenantsEndpoint + \"/search\"",
             "FilterName: \"name\",",
             "Operator: \"EQ\",",
-            "common.Filter{MicroTenantID: service.MicroTenantID()}"
+            "common.Filter{MicroTenantID: service.MicroTenantID()}",
+            "if strings.EqualFold(ns.Name, microtenantName) {"
           ],
           "after": "func GetMicrotenantByName(ctx context.Context, service *zscaler.Service, microtenantName string) (*MicroTenant, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "after": "func GetAllPagesGenericWithPostSearch[T any](",
+          "quotes": [
+            "resp, err := client.NewRequestDo(ctx, \"POST\", relativeURL, filter, searchRequest, &paged)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "// The filter parameter is passed as query params (for microTenantID)."
+          ]
         }
       ]
     },
@@ -285,8 +353,16 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/common/common.go",
           "quotes": [
-            "ValidPage: 0,",
-            "ValidPageSize: 0,"
+            "DefaultPageSize = 500"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "pageSize := DefaultPageSize",
+            "searchRequest.PageBy = &SearchPageBy{ Page: page, PageSize: pageSize, ValidPage: 0, ValidPageSize: 0, }",
+            "resp, err := client.NewRequestDo(ctx, \"POST\", relativeURL, filter, searchRequest, &paged)"
           ],
           "after": "func GetAllPagesGenericWithPostSearch[T any]("
         },
@@ -309,12 +385,42 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/models/microtenants.py",
           "quotes": [
-            "self.criteria_attribute = config[\"criteriaAttribute\"] if config and \"criteriaAttribute\" in config else None",
-            "config[\"privilegedApprovalsEnabled\"] if config and \"privilegedApprovalsEnabled\" in config else None"
+            "if config: self.id = config[\"id\"] if \"id\" in config else None self.modified_time = config[\"modifiedTime\"] if config and \"modifiedTime\" in config else None self.creation_time = config[\"creationTime\"] if config and \"creationTime\" in config else None",
+            "self.modified_by = config[\"modifiedBy\"] if config and \"modifiedBy\" in config else None self.name = config[\"name\"] if config and \"name\" in config else None self.description = config[\"description\"] if config and \"description\" in config else None",
+            "self.enabled = config[\"enabled\"] if config and \"enabled\" in config else None self.operator = config[\"operator\"] if config and \"operator\" in config else None self.criteria_attribute = config[\"criteriaAttribute\"] if config and \"criteriaAttribute\" in config else None",
+            "self.privileged_approvals_enabled = ( config[\"privilegedApprovalsEnabled\"] if config and \"privilegedApprovalsEnabled\" in config else None ) self.criteria_attribute_values = ZscalerCollection.form_list( config[\"criteriaAttributeValues\"] if \"criteriaAttributeValues\" in config else [], str )"
+          ],
+          "note": "the complete config branch of __init__"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/microtenants.py",
+          "quotes": [
+            "else: self.id = None self.name = None self.description = None self.enabled = None self.creation_time = None self.modified_by = None self.modified_time = None self.operator = None self.criteria_attribute = None self.criteria_attribute_values = None self.privileged_approvals_enabled = None"
+          ],
+          "note": "the complete no-config branch"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/microtenants.py",
+          "quotes": [
+            "current_obj_format = { \"id\": self.id, \"name\": self.name, \"description\": self.description, \"enabled\": self.enabled, \"modifiedTime\": self.modified_time, \"modifiedBy\": self.modified_by, \"creationTime\": self.creation_time, \"operator\": self.operator, \"criteriaAttribute\": self.criteria_attribute,",
+            "\"criteriaAttributeValues\": self.criteria_attribute_values, \"privilegedApprovalsEnabled\": self.privileged_approvals_enabled, }"
+          ],
+          "note": "the complete request_format dict; no roles, user or priority anywhere"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/microtenants/microtenants.go",
+          "after": "type MicroTenant struct {",
+          "quotes": [
+            "Priority string `json:\"priority,omitempty\"`",
+            "Roles []Roles `json:\"roles,omitempty\"`",
+            "UserResource *UserResource `json:\"user,omitempty\"`"
           ]
         }
       ],
-      "conditions": "Absence of an attribute is read from the constructor body quoted; roles, user and priority appear in no line of the model."
+      "conditions": "Absence of an attribute follows from the complete constructor branches and request_format quoted above."
     }
   },
   "divergences": {

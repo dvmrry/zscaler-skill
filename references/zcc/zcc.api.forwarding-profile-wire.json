@@ -185,6 +185,17 @@
           "quotes": [
             "http_method = \"post\".upper()"
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webForwardingProfile~1edit",
+          "expect_absent": [
+            "get",
+            "put",
+            "patch",
+            "delete"
+          ]
         }
       ]
     },
@@ -215,6 +226,46 @@
           "expect": {
             "operationId": "Adds or updates a policy or app profile for the company by platform"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webForwardingProfile~1edit/post",
+          "expect": {
+            "operationId": "Updates a forwarding profile"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webForwardingProfile~1edit",
+          "expect_absent": [
+            "put"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webFailOpenPolicy~1edit",
+          "expect_absent": [
+            "post"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webTrustedNetwork~1edit",
+          "expect_absent": [
+            "post"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit",
+          "expect_absent": [
+            "post"
+          ]
         }
       ]
     },
@@ -270,6 +321,14 @@
           "quotes": [
             "IsSameAsOnTrustedNetwork           *bool                  `json:\"isSameAsOnTrustedNetwork,omitempty\"`"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go",
+          "after": "type ForwardingProfileZpaActionRequest struct {",
+          "quotes": [
+            "IsSameAsOnTrustedNetwork *bool `json:\"isSameAsOnTrustedNetwork,omitempty\"`"
+          ]
         }
       ]
     },
@@ -323,7 +382,8 @@
           "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
           "quotes": [
             "ConditionType int `json:\"conditionType\"`",
-            "EvaluateTrustedNetwork int `json:\"evaluateTrustedNetwork\"`"
+            "EvaluateTrustedNetwork int `json:\"evaluateTrustedNetwork\"`",
+            "EnableSplitVpnTN int `json:\"enableSplitVpnTN\"`"
           ]
         },
         {
@@ -350,10 +410,10 @@
           "source": "tf-zcc",
           "path": "docs/resources/zcc_forwarding_profile.md",
           "quotes": [
-            "Match policy applied across the trusted-network criteria — `0` for OR semantics (`ANY`) or `1` for AND semantics (`ALL`).",
-            "Network classification this action applies to (`0` = off-trusted, `1` = on-trusted, etc.).",
-            "Forwarding mode (`0` = direct, `1` = tunnel, `2` = none, etc.).",
-            "Primary transport (`0` = TLS/ZTunnel 2.0, `1` = DTLS, etc.)."
+            "- `condition_type` (Number) — Match policy applied across the trusted-network criteria — `0` for OR semantics (`ANY`) or `1` for AND semantics (`ALL`).",
+            "| `network_type` | Number | Network classification this action applies to (`0` = off-trusted, `1` = on-trusted, etc.). |",
+            "| `action_type` | Number | Forwarding mode (`0` = direct, `1` = tunnel, `2` = none, etc.). |",
+            "| `primary_transport` | Number | Primary transport (`0` = TLS/ZTunnel 2.0, `1` = DTLS, etc.). |"
           ]
         }
       ]
@@ -428,6 +488,14 @@
             "parsedNum, err := strconv.Atoi(str)",
             "return fmt.Errorf(\"invalid value for IntOrString: %s\", string(data))"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "after": "func (i *IntOrString) UnmarshalJSON(data []byte) error {",
+          "quotes": [
+            "var num int if err := json.Unmarshal(data, &num); err == nil { *i = IntOrString(num) return nil }"
+          ]
         }
       ]
     },
@@ -440,7 +508,8 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
           "quotes": [
-            "TrustedNetworkIdsSelected []int `json:\"trustedNetworkIdsSelected\"`"
+            "TrustedNetworkIdsSelected []int `json:\"trustedNetworkIdsSelected\"`",
+            "TrustedNetworks []string `json:\"trustedNetworks\"`"
           ]
         },
         {
@@ -452,6 +521,31 @@
             "OptimiseForUnstableConnections int `json:\"optimiseForUnstableConnections\"`",
             "SystemProxy int `json:\"systemProxy\"`",
             "DropIpv6TrafficInIpv6Network IntOrString `json:\"dropIpv6TrafficInIpv6Network\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go",
+          "after": "type ForwardingProfileRequest struct {",
+          "quotes": [
+            "ID string `json:\"id\"` Active int `json:\"active\"` Name string `json:\"name\"` AddCondition string `json:\"addCondition\"` ConditionType int `json:\"conditionType\"` DnsServers string `json:\"dnsServers\"` DnsSearchDomains string `json:\"dnsSearchDomains\"` EnableLWFDriver int `json:\"enableLWFDriver\"`",
+            "Hostname string `json:\"hostname\"` ResolvedIpsForHostname string `json:\"resolvedIpsForHostname\"` TrustedSubnets string `json:\"trustedSubnets\"` TrustedGateways string `json:\"trustedGateways\"` TrustedDhcpServers string `json:\"trustedDhcpServers\"` TrustedEgressIps string `json:\"trustedEgressIps\"`",
+            "EnableUnifiedTunnel int `json:\"enableUnifiedTunnel\"` EnableAllDefaultAdaptersTN int `json:\"enableAllDefaultAdaptersTN\"` EnableSplitVpnTN int `json:\"enableSplitVpnTN\"` EvaluateTrustedNetwork int `json:\"evaluateTrustedNetwork\"` SkipTrustedCriteriaMatch int `json:\"skipTrustedCriteriaMatch\"`",
+            "PredefinedTrustedNetworks bool `json:\"predefinedTrustedNetworks\"` PredefinedTnAll bool `json:\"predefinedTnAll\"` TrustedNetworkIds []int `json:\"trustedNetworkIds\"` ForwardingProfileActions []ForwardingProfileActionRequest `json:\"forwardingProfileActions\"`",
+            "ForwardingProfileZpaActions []ForwardingProfileZpaActionRequest `json:\"forwardingProfileZpaActions\"` UnifiedTunnel []UnifiedTunnelRequest `json:\"unifiedTunnel\"` }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go",
+          "after": "type ForwardingProfileActionRequest struct {",
+          "quotes": [
+            "ActionType int `json:\"actionType\"` EnablePacketTunnel int `json:\"enablePacketTunnel\"` BlockUnreachableDomainsTraffic string `json:\"blockUnreachableDomainsTraffic\"` DropIpv6Traffic int `json:\"dropIpv6Traffic\"` PrimaryTransport int `json:\"primaryTransport\"` UDPTimeout int `json:\"UDPTimeout\"`",
+            "DTLSTimeout int `json:\"DTLSTimeout\"` TLSTimeout int `json:\"TLSTimeout\"` MtuForZadapter string `json:\"mtuForZadapter\"` AllowTLSFallback int `json:\"allowTLSFallback\"` PathMtuDiscovery int `json:\"pathMtuDiscovery\"` Tunnel2FallbackType int `json:\"tunnel2FallbackType\"`",
+            "UseTunnel2ForProxiedWebTraffic int `json:\"useTunnel2ForProxiedWebTraffic\"` UseTunnel2ForUnencryptedWebTraffic int `json:\"useTunnel2ForUnencryptedWebTraffic\"` RedirectWebTraffic int `json:\"redirectWebTraffic\"` DropIpv6IncludeTrafficInT2 int `json:\"dropIpv6IncludeTrafficInT2\"`",
+            "CustomPac string `json:\"customPac\"` SystemProxyData SystemProxyDataRequest `json:\"systemProxyData\"` LatencyBasedZenEnablement int `json:\"latencyBasedZenEnablement\"` ZenProbeInterval int `json:\"zenProbeInterval\"` ZenProbeSampleSize int `json:\"zenProbeSampleSize\"`",
+            "ZenThresholdLimit int `json:\"zenThresholdLimit\"` LatencyBasedServerEnablement int `json:\"latencyBasedServerEnablement\"` LbsProbeInterval int `json:\"lbsProbeInterval\"` LbsProbeSampleSize int `json:\"lbsProbeSampleSize\"` LbsThresholdLimit int `json:\"lbsThresholdLimit\"`",
+            "LatencyBasedServerMTEnablement int `json:\"latencyBasedServerMTEnablement\"` NetworkType int `json:\"networkType\"` IsSameAsOnTrustedNetwork *bool `json:\"isSameAsOnTrustedNetwork,omitempty\"` }"
           ]
         }
       ]
@@ -477,7 +571,9 @@
             "if provided_key in _legacy_snake_preserve_keys():",
             "4. Otherwise -> fall back to ``to_lower_camel_case`` (which honours",
             "return to_lower_camel_case(provided_key)",
-            "out[wire_key] = value"
+            "out[wire_key] = value",
+            "preserved on the wire (currently ``WebPolicy.SNAKE_CASE_KEYS``).",
+            "any key listed here passes through"
           ]
         }
       ]
@@ -500,7 +596,7 @@
       ]
     },
     "unified-tunnel-shape": {
-      "statement": "Both SDKs model a `unifiedTunnel` list, switched by `enableUnifiedTunnel`, whose entries each name a `networkType` and carry separate `actionTypeZIA` and `actionTypeZPA` codes alongside transport, MTU, fallback, IPv6, DNS and system proxy settings and a `sameAsOnTrusted` flag.",
+      "statement": "Both SDKs model a `unifiedTunnel` list, switched by `enableUnifiedTunnel`, whose entries each name a `networkType` and carry separate `actionTypeZIA` and `actionTypeZPA` codes alongside transport, MTU, fallback, IPv6 and system proxy settings and a `sameAsOnTrusted` flag; the Go entry also carries `sendAllDNSToTrustedServer`.",
       "tier": "A",
       "binds": [
         "zcc/forwarding-profiles#unifiedTunnel",
@@ -524,6 +620,44 @@
           "quotes": [
             "self.action_type_zia = config[\"actionTypeZIA\"] if \"actionTypeZIA\" in config else None",
             "self.action_type_zpa = config[\"actionTypeZPA\"] if \"actionTypeZPA\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "after": "type UnifiedTunnel struct {",
+          "quotes": [
+            "NetworkType int `json:\"networkType\"`",
+            "PrimaryTransport int `json:\"primaryTransport\"`",
+            "MtuForZadapter int `json:\"mtuForZadapter\"`",
+            "AllowTLSFallback int `json:\"allowTLSFallback\"`",
+            "Tunnel2FallbackType int `json:\"tunnel2FallbackType\"`",
+            "DropIpv6Traffic int `json:\"dropIpv6Traffic\"`",
+            "SendAllDNSToTrustedServer int `json:\"sendAllDNSToTrustedServer\"`",
+            "SystemProxyData SystemProxyData `json:\"systemProxyData\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/forwardingprofile.py",
+          "quotes": [
+            "self.enable_unified_tunnel = config[\"enableUnifiedTunnel\"] if \"enableUnifiedTunnel\" in config else None",
+            "config[\"unifiedTunnel\"] if \"unifiedTunnel\" in config else [], UnifiedTunnel"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/forwardingprofile.py",
+          "after": "class UnifiedTunnel(ZscalerObject):",
+          "quotes": [
+            "self.drop_ipv6_traffic = config[\"dropIpv6Traffic\"] if \"dropIpv6Traffic\" in config else None",
+            "self.primary_transport = config[\"primaryTransport\"] if \"primaryTransport\" in config else None",
+            "self.mtu_for_zadapter = config[\"mtuForZadapter\"] if \"mtuForZadapter\" in config else None",
+            "self.allow_tls_fallback = config[\"allowTLSFallback\"] if \"allowTLSFallback\" in config else None",
+            "self.tunnel2_fallback_type = config[\"tunnel2FallbackType\"] if \"tunnel2FallbackType\" in config else None",
+            "self.system_proxy_data = SystemProxyData(config[\"systemProxyData\"]) if \"systemProxyData\" in config else None",
+            "self.network_type = config[\"networkType\"] if \"networkType\" in config else None",
+            "self.same_as_on_trusted = config[\"sameAsOnTrusted\"] if \"sameAsOnTrusted\" in config else None"
           ]
         }
       ]

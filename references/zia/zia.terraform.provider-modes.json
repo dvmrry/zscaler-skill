@@ -116,7 +116,8 @@
           "source": "tf-zia",
           "path": "zia/config.go",
           "quotes": [
-            "so \"skipping validation\" means never building the client."
+            "// The OneAPI SDK performs an OAuth handshake inside its constructor, // so \"skipping validation\" means never building the client.",
+            "} else if os.Getenv(\"ZSCALER_SKIP_CREDENTIALS_VALIDATION\") != \"\" {"
           ]
         }
       ]
@@ -129,7 +130,7 @@
           "source": "tf-zia",
           "path": "docs/index.md",
           "quotes": [
-            "every `zia_*` resource and data source is conditionally disabled (e.g., `count = 0`)",
+            "This is intended for configurations where the ZIA provider is declared but every `zia_*` resource and data source is conditionally disabled (e.g., `count = 0`)",
             "succeeds with a warning even when no credentials are supplied"
           ]
         }
@@ -143,8 +144,9 @@
           "source": "tf-zia",
           "path": "zia/provider.go",
           "quotes": [
-            "guardResourceAgainstInertClient(r)",
-            "guardResourceAgainstInertClient(ds)"
+            "for _, r := range p.ResourcesMap { guardResourceAgainstInertClient(r) }",
+            "for _, ds := range p.DataSourcesMap { guardResourceAgainstInertClient(ds) }",
+            "// guardResourceAgainstInertClient wraps a resource's CRUD and import // functions so that, in skip_credentials_validation mode, they return a"
           ]
         },
         {
@@ -237,7 +239,7 @@
           "source": "tf-zia",
           "path": "docs/index.md",
           "quotes": [
-            "indicates that another session is modifying the configuration, not that a rate limit was exceeded"
+            "An `HTTP 409` response reporting `EDIT_LOCK_NOT_AVAILABLE` or `Failed during enter Org barrier` indicates that another session is modifying the configuration, not that a rate limit was exceeded."
           ]
         }
       ]
@@ -250,7 +252,7 @@
           "source": "tf-zia",
           "path": "docs/index.md",
           "quotes": [
-            "others (such as `/staticIP`) are limited to 1 POST request per second"
+            "some endpoints allow multiple POST requests per second, while others (such as `/staticIP`) are limited to 1 POST request per second."
           ]
         }
       ]
@@ -287,7 +289,8 @@
           "path": "legacy-api-rate-limit-summary.json",
           "quotes": [
             "| Resource URI | GET (read) | POST (create) | PUT (replace) | DELETE |",
-            "| /staticIP | 2/sec and 1000/hr | 1/sec and 400/hr | - | - |"
+            "| /staticIP | 2/sec and 1000/hr | 1/sec and 400/hr | - | - |",
+            "The following table summarizes the Zscaler Internet Access (ZIA) API resources and their rate limits for each method."
           ]
         }
       ]

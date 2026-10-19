@@ -123,8 +123,9 @@
           "source": "sdk-go",
           "path": "CHANGELOG.md",
           "quotes": [
-            "Adds a new exception (sub) rule to an existing Endpoint DLP rule.",
-            "Deletes the Endpoint DLP exception (sub) rule based on the specified IDs."
+            "`POST /endPointDlpRules/{id}/subRule` Adds a new exception (sub) rule to an existing Endpoint DLP rule.",
+            "`PUT /endPointDlpRules/{id}/subRule/{subRuleId}` Updates the Endpoint DLP exception (sub) rule based on the specified IDs.",
+            "`DELETE /endPointDlpRules/{id}/subRule/{subRuleId}` Deletes the Endpoint DLP exception (sub) rule based on the specified IDs."
           ]
         }
       ]
@@ -140,7 +141,9 @@
             "ChannelPrinting               Channel = \"PRINTING\"",
             "ChannelRemovableDriveTransfer Channel = \"REMOVABLE_DRIVE_TRANSFER\"",
             "ChannelNetworkDriveTransfer   Channel = \"NETWORK_DRIVE_TRANSFER\"",
-            "ChannelPersonalCloudStorage   Channel = \"PERSONAL_CLOUD_STORAGE\""
+            "ChannelPersonalCloudStorage   Channel = \"PERSONAL_CLOUD_STORAGE\"",
+            "endpoint := fmt.Sprintf(\"%s/%s\", dlpEndpointResourceEndpoint, url.PathEscape(string(channel)))",
+            "endpoint := fmt.Sprintf(\"%s/%s/%d\", dlpEndpointResourceEndpoint, url.PathEscape(string(channel)), id)"
           ]
         }
       ]
@@ -192,7 +195,7 @@
       ]
     },
     "python-custom-app-model-mixup": {
-      "statement": "In the Python SDK, custom-app list and get decode `EndpointApplicationsCustomApps`, but create and update declare and decode `DlpEndpointResource`. This is an SDK wrapper defect, not evidence of the endpoint's wire schema.",
+      "statement": "In the Python SDK, custom-app list and get decode `EndpointApplicationsCustomApps`, but create and update declare and decode `DlpEndpointResource`.",
       "tier": "A",
       "evidence": [
         {
@@ -215,7 +218,13 @@
           "path": "zscaler/zia/services/common/common.go",
           "quotes": [
             "The API rejects create/update requests when",
-            "m[\"zappId\"] = e.ZappID"
+            "m[\"zappId\"] = e.ZappID",
+            "MarshalJSON restricts the request body for endpoint applications to the",
+            "writable identifier fields only.",
+            "read-only fields such as \"version\" and \"versions\" are present (they serialize",
+            "if e.ResourceID != 0 {",
+            "m[\"resourceId\"] = e.ResourceID",
+            "if e.ZappID != \"\" {"
           ]
         }
       ]
@@ -241,7 +250,7 @@
       ]
     },
     "terraform-resources": {
-      "statement": "Terraform provider v4.8.0 added Endpoint DLP custom applications, application groups, resources, resource groups, rules and sub-rules, plus data sources for applications, rules, channels and resource group tags. Release context: Go SDK v3.8.41 and Python SDK v1.9.39 introduced the families (Python registers them in v1.9.41 too); Terraform v4.8.0 added the provider side.",
+      "statement": "Terraform provider v4.8.0 added Endpoint DLP custom applications, application groups, resources, resource groups, rules and sub-rules, plus data sources for applications, rules, channels and resource group tags. Release context: Go SDK v3.8.41 and Python SDK v1.9.39 introduced the families; Terraform v4.8.0 added the provider side.",
       "tier": "A",
       "evidence": [
         {
@@ -261,21 +270,35 @@
         {
           "source": "sdk-go",
           "path": "CHANGELOG.md",
+          "after": "# 3.8.41 (July 20, 2026)",
           "quotes": [
-            "# 3.8.41 (July 20, 2026)"
+            "Added the following new ZIA Endpoint DLP Applications endpoints",
+            "Added the following new ZIA Endpoint DLP Custom Applications endpoints",
+            "Added the following new ZIA Endpoint DLP Application Groups endpoints",
+            "Added the following new ZIA Endpoint DLP Resources endpoints",
+            "Added the following new ZIA Endpoint DLP Resource Groups endpoints",
+            "Added the following new ZIA Endpoint DLP Rules endpoints",
+            "Added the following new ZIA Endpoint DLP Exception (Sub) Rules endpoints"
           ]
         },
         {
           "source": "sdk-python",
           "path": "CHANGELOG.md",
+          "after": "## 1.9.39 (July 27, 2026)",
           "quotes": [
-            "## 1.9.39 (July 27, 2026)"
+            "Added the following new ZIA Endpoint DLP Applications endpoints",
+            "Added the following new ZIA Endpoint DLP Custom Applications endpoints",
+            "Added the following new ZIA Endpoint DLP Application Groups endpoints",
+            "Added the following new ZIA Endpoint DLP Resources endpoints",
+            "Added the following new ZIA Endpoint DLP Resource Groups endpoints",
+            "Added the following new ZIA Endpoint DLP Rules endpoints",
+            "Added the following new ZIA Endpoint DLP Exception (Sub) Rules endpoints"
           ]
         }
       ]
     },
     "outside-automate-capture": {
-      "statement": "The Endpoint DLP families are outside the current Automate API capture, so their fields cannot be checked against the vendor contract; they exist as Go SDK and Terraform surface only.",
+      "statement": "The Endpoint DLP families are outside the current Automate API capture, so their fields cannot be checked against the vendor contract; the capture's divergence report lists the Go SDK and Terraform as their official surfaces.",
       "tier": "A",
       "evidence": [
         {
@@ -283,7 +306,11 @@
           "path": "automate-zscaler/zia-divergences.md",
           "quotes": [
             "Official client/provider families that cannot yet be reconciled field by field because no corresponding operation is mapped in the current Automate capture:",
-            "| `endpoint_dlp_rules` | `/zia/api/v1/endPointDlpRules` | `go`, `tf` |"
+            "| `endpoint_dlp_rules` | `/zia/api/v1/endPointDlpRules` | `go`, `tf` |",
+            "| family | API path family | official surfaces |",
+            "| `endpoint_custom_applications` | `/zia/api/v1/endPointApplications/customApps` | `go`, `tf` |",
+            "| `endpoint_application_groups` | `/zia/api/v1/endPointApplicationGroups` | `go`, `tf` |",
+            "| `endpoint_dlp_resources` | `/zia/api/v1/dlpEndpointResource`<br>`/zia/api/v1/endPointDlpResourceGroups` | `go`, `tf` |"
           ]
         }
       ],

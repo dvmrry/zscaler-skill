@@ -73,7 +73,7 @@
   ],
   "claims": {
     "request-do-decodes": {
-      "statement": "`NewZccRequestDo` encodes its options struct as query parameters, JSON-marshals the body, sends the request, and decodes the response body into the target value when one is passed, so callers get a decoded value rather than a body to read themselves.",
+      "statement": "`NewZccRequestDo` encodes its options struct as query parameters, JSON-marshals the body, sends the request, and decodes the response body into the target value when one is passed.",
       "tier": "A",
       "evidence": [
         {
@@ -81,7 +81,9 @@
           "path": "zscaler/zccrequests.go",
           "quotes": [
             "q, err := query.Values(options)",
-            "if err := decodeJSON(respBody, v); err != nil {"
+            "if err := decodeJSON(respBody, v); err != nil {",
+            "bodyBytes, err := json.Marshal(body)",
+            "respBody, _, _, err := client.ExecuteRequest(ctx, method, endpoint, bodyReader, nil, contentTypeJSON)"
           ]
         }
       ]
@@ -141,6 +143,13 @@
           "quotes": [
             "return common.ReadAllPages[AdminUser](ctx, service.Client, getAdminUserEndpoint, params, effectivePageSize)"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "quotes": [
+            "// DO NOT use this for v1 endpoints — those return a bare JSON array and the // existing ReadAllPages helper is the correct call."
+          ]
         }
       ]
     },
@@ -155,7 +164,19 @@
           "quotes": [
             "return 0, nil",
             "if val, ok := deviceTypeNameToID[strings.ToLower(name)]; ok {",
-            "if val, err := strconv.Atoi(name); err == nil {"
+            "if val, err := strconv.Atoi(name); err == nil {",
+            "if _, ok := deviceTypeIDToName[val]; ok {",
+            "return 0, fmt.Errorf(\"invalid device type ID: %d.",
+            "return 0, fmt.Errorf(\"invalid device type: %q."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "quotes": [
+            "DeviceTypeIOS = 1 DeviceTypeAndroid = 2 DeviceTypeWindows = 3 DeviceTypeMacOS = 4 DeviceTypeLinux = 5",
+            "var deviceTypeNameToID = map[string]int{ \"ios\": DeviceTypeIOS, \"android\": DeviceTypeAndroid, \"windows\": DeviceTypeWindows, \"macos\": DeviceTypeMacOS, \"linux\": DeviceTypeLinux, }",
+            "var deviceTypeIDToName = map[int]string{ DeviceTypeIOS: \"iOS\", DeviceTypeAndroid: \"Android\", DeviceTypeWindows: \"Windows\", DeviceTypeMacOS: \"macOS\", DeviceTypeLinux: \"Linux\", }"
           ]
         }
       ]
@@ -171,7 +192,8 @@
             "return json.Marshal(int(i))",
             "if len(trimmed) == 0 || bytes.Equal(trimmed, []byte(\"null\")) || bytes.Equal(trimmed, []byte(`\"\"`)) {",
             "quoted-int strings are rejected with a silent",
-            "{\"success\":\"false\",\"id\":0} on the web_policy /edit endpoint),"
+            "{\"success\":\"false\",\"id\":0} on the web_policy /edit endpoint),",
+            "// - serialize as a JSON number (the form every ZCC POST/PUT endpoint // actually accepts; quoted-int strings are rejected with a silent"
           ]
         }
       ]

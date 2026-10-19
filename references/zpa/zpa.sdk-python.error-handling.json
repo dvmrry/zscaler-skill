@@ -57,15 +57,24 @@
   ],
   "claims": {
     "tuple-shape": {
-      "statement": "ZPA list wrappers document their return as a tuple of the result, the response and the error.",
+      "statement": "ZPA list wrappers such as emergency access `list_users` and `list_tag_keys` document their return as a tuple of the result, the response and the error.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/emergency_access.py",
           "quotes": [
-            "A tuple containing (list of Emergency Access instances, Response, error)"
+            "A tuple containing (list of Emergency Access instances, Response, error)",
+            "def list_users(self, query_params: Optional[dict] = None, **kwargs)"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/tag_key.py",
+          "quotes": [
+            "tuple: (list of TagKey, Response, error)."
+          ],
+          "after": "def list_tag_keys("
         }
       ]
     },
@@ -78,7 +87,10 @@
           "path": "zscaler/request_executor.py",
           "quotes": [
             "logger.error(f\"Exception during HTTP request: {ex}\")",
-            "logger.error(f\"Exception while checking response for errors: {ex}\")"
+            "logger.error(f\"Exception while checking response for errors: {ex}\")",
+            "request, response, response_body, error = self.fire_request(request)",
+            "return None, ex",
+            "response_data, error = check_response_for_error(request[\"url\"], response, response_body)"
           ],
           "after": "def execute("
         }
@@ -92,9 +104,11 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/provisioning.py",
           "quotes": [
+            "try: result = []",
             "result.append(ProvisioningKey(self.form_response_body(item)))",
             "except Exception as error:",
-            "return (None, response, error)"
+            "return (None, response, error)",
+            "for item in response.get_results():"
           ],
           "after": "def list_provisioning_keys("
         }
@@ -123,7 +137,9 @@
           "path": "zscaler/zpa/policies.py",
           "quotes": [
             "raise ValueError(f\"Incorrect policy type provided: {policy_type}\")",
-            "ValueError: If the policy_type is invalid."
+            "ValueError: If the policy_type is invalid.",
+            "mapped_policy_type = self.POLICY_MAP.get(policy_type)",
+            "if not mapped_policy_type:"
           ],
           "after": "def get_policy(self, policy_type: str"
         }

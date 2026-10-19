@@ -90,14 +90,19 @@
           "path": "zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go",
           "quotes": [
             "FileHashesToBeBlocked []string `json:\"fileHashesToBeBlocked,omitempty\"`",
-            "// e.g. \"MALWARE\""
+            "// e.g. \"MALWARE\"",
+            "Md5HashValueList []Md5HashValue `json:\"md5HashValueList\"`",
+            "URL string `json:\"url,omitempty\"`",
+            "URLComment string `json:\"urlComment,omitempty\"`",
+            "Type string `json:\"type,omitempty\"` // e.g. \"MALWARE\""
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zia/sandbox.py",
           "quotes": [
-            "``type`` (str): The type of hash, e.g., ``CUSTOM_FILEHASH_DENY`` or ``CUSTOM_FILEHASH_ALLOW``."
+            "``type`` (str): The type of hash, e.g., ``CUSTOM_FILEHASH_DENY`` or ``CUSTOM_FILEHASH_ALLOW``.",
+            "``url`` (str): The MD5 hash value."
           ]
         }
       ],
@@ -148,14 +153,19 @@
           "path": "zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go",
           "quotes": [
             "RemainingFileHashes    int `json:\"remainingFileHashes,omitempty\"`",
-            "fileHashCountEndpoint    = \"/fileHashCount\""
+            "fileHashCountEndpoint    = \"/fileHashCount\"",
+            "BlockedFileHashesCount int `json:\"blockedFileHashesCount,omitempty\"`",
+            "advancedSettingsEndpoint = \"/zia/api/v1/behavioralAnalysisAdvancedSettings\"",
+            "err := service.Client.Read(ctx, advancedSettingsEndpoint+fileHashCountEndpoint, &hashes)"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zia/sandbox.py",
           "quotes": [
-            "Retrieves the Cloud Sandbox used and unused quota for blocking MD5 file hashes."
+            "Retrieves the Cloud Sandbox used and unused quota for blocking MD5 file hashes.",
+            "/behavioralAnalysisAdvancedSettings/fileHashCount",
+            "This method fetches the count of MD5 hashes currently blocked by the Sandbox and the remaining quota available for blocking additional hashes."
           ]
         }
       ],
@@ -187,7 +197,11 @@
           "quotes": [
             "func Getv2(ctx context.Context",
             "func Updatev2(ctx context.Context",
-            "func GetFileHashCount(ctx context.Context"
+            "func GetFileHashCount(ctx context.Context",
+            "func Get(ctx context.Context, service *zscaler.Service) (*BaAdvancedSettings, error)",
+            "func Getv2(ctx context.Context, service *zscaler.Service) (*Md5HashValueListPayload, error)",
+            "func Update(ctx context.Context, service *zscaler.Service, hashes BaAdvancedSettings) (*BaAdvancedSettings, error)",
+            "func Updatev2(ctx context.Context, service *zscaler.Service, payload Md5HashValueListPayload) (*Md5HashValueListPayload, error)"
           ]
         },
         {
@@ -195,7 +209,11 @@
           "path": "zscaler/zia/sandbox.py",
           "quotes": [
             "def get_behavioral_analysis(self)",
-            "def add_hash_to_custom_list("
+            "def add_hash_to_custom_list(",
+            "Returns the custom list of MD5 file hashes that are blocked by Sandbox.",
+            "payload = {\"md5HashValueList\": md5_hash_value_list}",
+            "def get_file_hash_count(self)",
+            "Retrieves the Cloud Sandbox used and unused quota for blocking MD5 file hashes."
           ]
         }
       ]
@@ -241,7 +259,8 @@
             "HEAD"
           ],
           "quotes": [
-            "_, err = sandbox_settings.Update(ctx, service, fileHashes)"
+            "_, err = sandbox_settings.Update(ctx, service, fileHashes)",
+            "\"file_hashes_to_be_blocked\": {"
           ]
         },
         {
@@ -251,7 +270,19 @@
             "HEAD"
           ],
           "quotes": [
-            "_, err := sandbox_settings.Updatev2(ctx, service, payload)"
+            "_, err := sandbox_settings.Updatev2(ctx, service, payload)",
+            "\"md5_hash_value_list\": {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/provider.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "\"zia_sandbox_behavioral_analysis\": resourceSandboxSettings(),",
+            "\"zia_sandbox_behavioral_analysis_v2\": resourceSandboxSettingsV2(),"
           ]
         }
       ]

@@ -158,6 +158,8 @@
           "source": "zscaler-help",
           "path": "configuring-advanced-policy-settings.json",
           "quotes": [
+            "When AI/ML-based content categorization is enabled, the handling of transactions depends on the HTTP response codes received from the website server.",
+            "If the policy is set to block a category (e.g., Gambling), but the server responds with a redirect (3xx response code)",
             "then Zscaler allows the transaction to proceed and follows the redirect.",
             "error (5xx), then Zscaler logs the transaction as allowed.",
             "Other response codes: For all other response codes, Zscaler blocks or allows the site based on your configured policy for the identified category."
@@ -176,14 +178,18 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
           "quotes": [
-            "EnableCIPACompliance cannot be enabled with the following options: EnableNewlyRegisteredDomains, ConsiderEmbeddedSites, EnforceSafeSearch, EnableDynamicContentCat"
+            "EnableCIPACompliance cannot be enabled with the following options: EnableNewlyRegisteredDomains, ConsiderEmbeddedSites, EnforceSafeSearch, EnableDynamicContentCat",
+            "if urlAndAppSettings.EnableCIPACompliance {",
+            "resp, err := service.Client.UpdateWithPut(ctx, urladvSettingsEndpoint, urlAndAppSettings)"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zia/url_filtering.py",
           "quotes": [
-            "cannot be True when 'enable_cipa_compliance' is True"
+            "cannot be True when 'enable_cipa_compliance' is True",
+            "if kwargs.get(\"enable_cipa_compliance\") is True:",
+            "ValueError(f\"Invalid configuration: '{key}' cannot be True when 'enable_cipa_compliance' is True\"),"
           ]
         }
       ],
@@ -192,15 +198,20 @@
       ]
     },
     "go-full-state-write": {
-      "statement": "The Go SDK sends every advanced-settings boolean even when false (except `blockSkype`, and `safeSearchApps` stays optional), so a sparse struct written to toggle one setting turns the others off. Read the current settings, change the field, write the whole value.",
+      "statement": "The Go SDK sends every advanced-settings boolean even when false (except `blockSkype`, and `safeSearchApps` stays optional), so a sparse struct written to toggle one setting turns the others off.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
           "quotes": [
+            "// URLAdvancedPolicySettings is the full set of advanced URL filtering and cloud",
             "// The booleans deliberately omit omitempty: a caller disabling a setting sends",
-            "// The two exceptions are BlockSkype and SafeSearchApps, which the service"
+            "// false, and dropping that false from the body would leave the setting enabled.",
+            "// The two exceptions are BlockSkype and SafeSearchApps, which the service",
+            "EnableCIPACompliance bool `json:\"enableCIPACompliance\"`",
+            "BlockSkype bool `json:\"blockSkype,omitempty\"`",
+            "SafeSearchApps []string `json:\"safeSearchApps,omitempty\"`"
           ]
         }
       ],
@@ -240,6 +251,8 @@
           "source": "zscaler-help",
           "path": "configuring-advanced-policy-settings.json",
           "quotes": [
+            "Enabling the following options allows Zscaler to categorize and store the prompts for the respective applications:",
+            "ChatGPT - Microsoft Copilot - Gemini - Perplexity - Poe - Meta AI - WRITER - DeepSeek - Grok AI - Claude - Mistral - Grammarly - QuillBot - Google AI",
             "The prompts for these applications are logged on the Web Insights Logs page.",
             "The Zscaler service stores prompts up to a maximum of 2 KB in size for these",
             "Prompts for the Microsoft Copilot application are stored only if the user is not authenticated to it.",

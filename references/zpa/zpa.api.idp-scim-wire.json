@@ -200,7 +200,7 @@
       "conditions": "The recording is one test tenant; that every ZIdentity-backed IdP carries such domains is not shown."
     },
     "idp-sso-type-observed-values": {
-      "statement": "Recorded IdP responses carry ssoType [\"USER\"] for an IdP used for user authentication and [\"ADMIN\"] for an IdP used for administrator login; the OpenAPI schema types ssoType as an array of strings with no enum.",
+      "statement": "Recorded IdP responses carry ssoType [\"USER\"] for one IdP and [\"ADMIN\"] for another; the OpenAPI schema types ssoType as an array of strings with no enum.",
       "tier": "A",
       "evidence": [
         {
@@ -216,7 +216,10 @@
           "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}/get/responses/200/content/*~1*/schema/properties/ssoType",
           "expect": {
-            "type": "array"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       ],
@@ -230,26 +233,24 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/idpcontroller/zpa_idp_controller.go",
           "quotes": [
-            "SpBaseURL      string `json:\"spBaseUrl\"`",
-            "SpPostURL      string `json:\"spPostUrl\"`"
+            "type AdminMetadata struct { CertificateURL string `json:\"certificateUrl\"` SpBaseURL string `json:\"spBaseUrl\"` SpEntityID string `json:\"spEntityId\"` SpMetadataURL string `json:\"spMetadataUrl\"` SpPostURL string `json:\"spPostUrl\"` }"
           ],
-          "after": "type AdminMetadata struct"
+          "note": "the complete AdminMetadata struct"
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/idpcontroller/zpa_idp_controller.go",
           "quotes": [
-            "SpBaseURL      string `json:\"spBaseUrl\"`",
-            "SpEntityID     string `json:\"spEntityId,omitempty\"`",
-            "SpPostURL      string `json:\"spPostUrl,omitempty\"`"
+            "type UserMetadata struct { CertificateURL string `json:\"certificateUrl,omitempty\"` SpBaseURL string `json:\"spBaseUrl\"` SpEntityID string `json:\"spEntityId,omitempty\"` SpMetadataURL string `json:\"spMetadataUrl,omitempty\"` SpPostURL string `json:\"spPostUrl,omitempty\"` }"
           ],
-          "after": "type UserMetadata struct"
+          "note": "the complete UserMetadata struct"
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/models/idp.py",
           "quotes": [
             "self.sp_entity_id = config[\"spEntityId\"] if \"spEntityId\" in config else False",
+            "self.sp_metadata_url = config[\"spMetadataUrl\"] if \"spMetadataUrl\" in config else False",
             "self.sp_post_url = config[\"spPostUrl\"] if \"spPostUrl\" in config else False"
           ]
         }
@@ -266,7 +267,8 @@
             "self.delta = config[\"delta\"] if \"delta\" in config else None",
             "self.iam_idp_id = config[\"iamIdpId\"] if \"iamIdpId\" in config else None",
             "self.migration_detail = config[\"migrationDetail\"] if \"migrationDetail\" in config else None",
-            "self.one_identity_enabled = config[\"oneIdentityEnabled\"] if \"oneIdentityEnabled\" in config else None"
+            "self.one_identity_enabled = config[\"oneIdentityEnabled\"] if \"oneIdentityEnabled\" in config else None",
+            "config[\"certificates\"] if \"certificates\" in config else [], certificates.Certificate"
           ]
         },
         {
@@ -280,13 +282,50 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}/get/responses/200/content/*~1*/schema/properties/iamIdpId",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}/get/responses/200/content/*~1*/schema/properties/migrationDetail",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}/get/responses/200/content/*~1*/schema/properties/oneIdentityEnabled",
           "expect": {
             "type": "boolean"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}/get/responses/200/content/*~1*/schema/properties/certificates",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/idpcontroller/zpa_idp_controller.go",
+          "quotes": [
+            "type IdpController struct { AdminSpSigningCertID string `json:\"adminSpSigningCertId,omitempty\"` AutoProvision string `json:\"autoProvision,omitempty\"` CreationTime string `json:\"creationTime,omitempty\"` Description string `json:\"description,omitempty\"`",
+            "DisableSamlBasedPolicy bool `json:\"disableSamlBasedPolicy\"` Domainlist []string `json:\"domainList,omitempty\"` EnableScimBasedPolicy bool `json:\"enableScimBasedPolicy\"` EnableArbitraryAuthDomains string `json:\"enableArbitraryAuthDomains\"` Enabled bool `json:\"enabled\"`",
+            "ForceAuth bool `json:\"forceAuth\"` ID string `json:\"id,omitempty\"` IdpEntityID string `json:\"idpEntityId,omitempty\"` LoginHint bool `json:\"loginHint,omitempty\"` LoginNameAttribute string `json:\"loginNameAttribute,omitempty\"` LoginURL string `json:\"loginUrl,omitempty\"`",
+            "ModifiedBy string `json:\"modifiedBy,omitempty\"` ModifiedTime string `json:\"modifiedTime,omitempty\"` Name string `json:\"name,omitempty\"` ReauthOnUserUpdate bool `json:\"reauthOnUserUpdate\"` RedirectBinding bool `json:\"redirectBinding\"` ScimEnabled bool `json:\"scimEnabled\"`",
+            "ScimServiceProviderEndpoint string `json:\"scimServiceProviderEndpoint,omitempty\"` ScimSharedSecretExists bool `json:\"scimSharedSecretExists,omitempty\"` SignSamlRequest string `json:\"signSamlRequest,omitempty\"` SsoType []string `json:\"ssoType,omitempty\"`",
+            "UseCustomSpMetadata bool `json:\"useCustomSPMetadata\"` UserSpSigningCertID string `json:\"userSpSigningCertId,omitempty\"` AdminMetadata *AdminMetadata `json:\"adminMetadata,omitempty\"` UserMetadata *UserMetadata `json:\"userMetadata,omitempty\"` }"
+          ],
+          "note": "the complete IdpController struct, with no delta, iamIdpId, migrationDetail, oneIdentityEnabled or certificates member"
         }
       ],
-      "conditions": "The absence of these members from the Go struct was read from the whole struct definition."
+      "conditions": "The absence of these members from the Go struct follows from the complete struct quoted above; encoding/json drops response keys that have no struct field."
     },
     "scim-group-sort-order-dsc": {
       "statement": "The SCIM group list takes sortOrder ASC or DSC (not DESC) and defaults to DSC.",
@@ -347,12 +386,14 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/scimattributeheader/zpa_scim_attribute_header.go",
           "quotes": [
-            "Uniqueness      bool     `json:\"uniqueness,omitempty\"`"
+            "type ScimAttributeHeader struct { CanonicalValues []string `json:\"canonicalValues,omitempty\"` CaseSensitive bool `json:\"caseSensitive,omitempty\"` CreationTime string `json:\"creationTime,omitempty,\"` DataType string `json:\"dataType,omitempty\"` Description string `json:\"description,omitempty\"`",
+            "ID string `json:\"id,omitempty\"` IdpID string `json:\"idpId,omitempty\"` ModifiedBy string `json:\"modifiedBy,omitempty\"` ModifiedTime string `json:\"modifiedTime,omitempty\"` MultiValued bool `json:\"multivalued,omitempty\"` Mutability string `json:\"mutability,omitempty\"`",
+            "Name string `json:\"name,omitempty\"` Required bool `json:\"required,omitempty\"` Returned string `json:\"returned,omitempty\"` SchemaURI string `json:\"schemaURI,omitempty\"` Uniqueness bool `json:\"uniqueness,omitempty\"` }"
           ],
-          "after": "type ScimAttributeHeader struct"
+          "note": "the complete ScimAttributeHeader struct, with no delta member"
         }
       ],
-      "conditions": "The Go statement rests on the struct ending at uniqueness with no delta member."
+      "conditions": "The Go statement rests on the complete ScimAttributeHeader struct quoted above."
     },
     "saml-attribute-by-name-exact": {
       "statement": "The Go SAML attribute GetByName compares names with ==, so it is case-sensitive, unlike the SCIM attribute header lookup, which uses strings.EqualFold.",
@@ -420,7 +461,9 @@
             "var globalScimConfig *ScimConfiguration",
             "var scimConfigOnce sync.Once",
             "scimConfigOnce.Do(func() {",
-            "return globalScimConfig, nil"
+            "return globalScimConfig, nil",
+            "fullURL := fmt.Sprintf(\"%s%s/\", baseURL, globalScimConfig.ZPAScim.Client.ZPAIdPID)",
+            "globalScimConfig.BaseURL = parsedURL"
           ]
         }
       ]
@@ -436,9 +479,20 @@
             "itemsPerPage = 10 // Default to 10 if not specified",
             "itemsPerPage = 100 // Enforce maximum limit of 100",
             "paginatedURL := fmt.Sprintf(\"%s?startIndex=%d&count=%d\", baseURL, startIndex, itemsPerPage)",
-            "TotalResults int `json:\"totalResults\"`"
+            "TotalResults int `json:\"totalResults\"`",
+            "startIndex := 1",
+            "Resources []T `json:\"Resources\"`"
           ],
           "after": "func GetAllPagesScimGenericWithSearch"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1idp/get/parameters/[name=page]",
+          "expect": {
+            "name": "page",
+            "in": "query"
+          }
         },
         {
           "source": "api-specs",
@@ -458,9 +512,34 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/responses/200/content/*~1*/schema/properties",
+          "expect_absent": [
+            "currentCount"
+          ],
+          "note": "the response properties are list, totalCount and totalPages"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/responses/200/content/*~1*/schema/properties/list",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/responses/200/content/*~1*/schema/properties/totalCount",
           "expect": {
             "format": "int64",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/responses/200/content/*~1*/schema/properties/totalPages",
+          "expect": {
             "type": "integer"
           }
         },
@@ -493,8 +572,17 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/config_scim.go",
           "quotes": [
+            "func (c *ScimZpaClient) DoRequest(ctx context.Context, method, endpoint string, payload interface{}, target interface{}) (*http.Response, error) {",
             "req.Header.Add(\"Content-Type\", \"application/scim+json\")",
             "req.Header.Add(\"Authorization\", fmt.Sprintf(\"Bearer %s\", c.ScimConfig.AuthToken))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/v2_client.go",
+          "after": "func (client *Client) newRequest(",
+          "quotes": [
+            "req.Header.Add(\"Content-Type\", \"application/json\")"
           ]
         }
       ]
@@ -567,7 +655,7 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/scimgroup/zpa_scim_group.go",
           "quotes": [
-            "SortBy:    string(service.SortBy),"
+            "common.Filter{ SortBy: string(service.SortBy), SortOrder: string(service.SortOrder), })"
           ],
           "after": "func GetAllByIdpId(ctx context.Context, service *zscaler.Service, idpId string) ([]ScimGroup, *http.Response, error) {"
         }

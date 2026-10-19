@@ -252,7 +252,8 @@
           "quotes": [
             "Linux (Red Hat Enterprise Linux 8 or 9)",
             "OpenShift",
-            "VMware vCenter or vSphere Hypervisor (ESXi)"
+            "VMware vCenter or vSphere Hypervisor (ESXi)",
+            "List of Platforms Supported by Private Access - Amazon Web Services (AWS) - Docker - Google Cloud Platform (GCP) - Kubernetes - Linux (Red Hat Enterprise Linux 8 or 9) - Microsoft Azure - Nutanix - OpenShift - VMware vCenter or vSphere Hypervisor (ESXi)"
           ]
         }
       ]
@@ -327,14 +328,14 @@
           "source": "tfmod-aws-zpa-app-connector",
           "path": "README.md",
           "quotes": [
-            "As of version 1.4.0 of this module, all App Connectors are deployed using the new"
+            "As of version 1.4.0 of this module, all App Connectors are deployed using the new [Red Hat Enterprise Linux 9](https://help.zscaler.com/zpa/app-connector-red-hat-enterprise-linux-9-migration)"
           ]
         },
         {
           "source": "tfmod-azure-zpa-app-connector",
           "path": "README.md",
           "quotes": [
-            "As of version 1.1.0 of this module, all App Connectors are deployed using the new"
+            "As of version 1.1.0 of this module, all App Connectors are deployed using the new [Red Hat Enterprise Linux 9](https://help.zscaler.com/zpa/app-connector-red-hat-enterprise-linux-9-migration)"
           ]
         }
       ]
@@ -350,7 +351,11 @@
             "Deployment Type: (base | base_ac | base_ac_asg):",
             "base_ac: Base Deployment Type + Creates App Connector private subnets and App Connector VMs egressing through the NAT Gateways",
             "base_ac_asg: Base Deployment Type + Creates App Connectors via Launch Template in an Autoscaling Group.",
-            "Deployment Type: (ac | ac_asg):"
+            "Deployment Type: (ac | ac_asg):",
+            "base: Creates 1 new VPC with 1 public subnet and 1 private/workload subnet; 1 IGW; 1 NAT Gateway; 1 Bastion Host",
+            "This template alone will NOT create any App Connector appliances.",
+            "Brownfield Deployment Types",
+            "ac_asg: Same resource creation and \"byo\" options as ac deployment type, but the App Connectors VMs are instead deployed via a Launch Template in Autoscaling Group configuration."
           ]
         }
       ]
@@ -364,11 +369,34 @@
           "path": "examples/README.md",
           "quotes": [
             "Deployment Type: (base | base_ac ):",
-            "2 App Connector VMs in an availability set (or zones if supported and specified)"
+            "2 App Connector VMs in an availability set (or zones if supported and specified)",
+            "**base** - Creates: 1 Resource Group containing; 1 VNet w/ 1 subnet (public/bastion); 1 Ubuntu Bastion Host",
+            "This does NOT deploy any actual App Connectors."
+          ]
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "examples/base_ac_vmss/README.md",
+          "quotes": [
+            "Zscaler \"base_ac_vmss\" deployment type"
+          ]
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "examples/ac/README.md",
+          "quotes": [
+            "Zscaler \"ac\" deployment type"
+          ]
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "examples/ac_vmss/README.md",
+          "quotes": [
+            "Zscaler \"ac_vmss\" deployment type"
           ]
         }
       ],
-      "conditions": "The ac, ac_vmss and base_ac_vmss example directories exist in the module (examples/ac, ac_vmss, base_ac_vmss); their README descriptions were not quoted."
+      "conditions": "The base_ac_vmss, ac and ac_vmss types are named by the titles of their example READMEs; their full descriptions are not quoted."
     },
     "module-aws-defaults": {
       "statement": "AWS module defaults: standalone instance type m5.large, ac_count 1 per module call, ASG min_size 2, max_size 4 and target CPU 50%.",
@@ -492,6 +520,14 @@
             "default = \"PT15M\""
           ],
           "after": "variable \"scale_out_cooldown\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvmss-azure/variables.tf",
+          "after": "variable \"scale_in_cooldown\" {",
+          "quotes": [
+            "default = \"PT15M\""
+          ]
         }
       ]
     },
@@ -504,22 +540,24 @@
           "path": "modules/terraform-zsac-sg-aws/main.tf",
           "quotes": [
             "cidr_blocks = [\"0.0.0.0/0\"]",
-            "Allow SSH to App Connector VM only from within the VPC CIDR space"
+            "Allow SSH to App Connector VM only from within the VPC CIDR space",
+            "egress { from_port = 0 to_port = 0 protocol = \"-1\" cidr_blocks = [\"0.0.0.0/0\"] }",
+            "from_port = 22 to_port = 22 protocol = \"tcp\" security_group_id = aws_security_group.ac_sg[count.index].id cidr_blocks = [data.aws_vpc.selected.cidr_block] type = \"ingress\""
           ]
         },
         {
           "source": "tfmod-azure-zpa-app-connector",
           "path": "modules/terraform-zsac-nsg-azure/main.tf",
           "quotes": [
-            "name = \"SSH_VNET\"",
-            "name = \"ICMP_VNET\"",
-            "name = \"OUTBOUND\""
+            "name = \"SSH_VNET\" priority = 4000 direction = \"Inbound\" access = \"Allow\" protocol = \"Tcp\" source_port_range = \"*\" destination_port_range = \"22\" source_address_prefix = \"VirtualNetwork\" destination_address_prefix = \"*\"",
+            "name = \"ICMP_VNET\" priority = 4001 direction = \"Inbound\" access = \"Allow\" protocol = \"Icmp\" source_port_range = \"*\" destination_port_range = \"*\" source_address_prefix = \"VirtualNetwork\" destination_address_prefix = \"*\"",
+            "name = \"OUTBOUND\" priority = 4000 direction = \"Outbound\" access = \"Allow\" protocol = \"*\" source_port_range = \"*\" destination_port_range = \"*\" source_address_prefix = \"*\" destination_address_prefix = \"*\""
           ]
         }
       ]
     },
     "module-aws-hardening": {
-      "statement": "AWS module hardening defaults: imdsv2_enabled is true for standalone and ASG instances; the ASG module encrypts EBS volumes by default (ebs_encrypted true, AWS managed key when ebs_kms_key_arn is null); the standalone module sets no EBS encryption variable; the instance role trusts ec2.amazonaws.com.",
+      "statement": "AWS module hardening defaults: imdsv2_enabled is true for standalone and ASG instances; the ASG module encrypts EBS volumes by default (ebs_encrypted true, AWS managed key when ebs_kms_key_arn is null); the standalone module's instance resource sets no EBS or root block device encryption; the instance role trusts ec2.amazonaws.com.",
       "tier": "A",
       "evidence": [
         {
@@ -556,6 +594,16 @@
         },
         {
           "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-aws/main.tf",
+          "after": "resource \"aws_instance\" \"ac_vm\" {",
+          "quotes": [
+            "count = var.ac_count ami = element(var.ami_id, count.index) instance_type = var.acvm_instance_type iam_instance_profile = element(var.iam_instance_profile, count.index) vpc_security_group_ids = [element(var.security_group_id, count.index)] subnet_id = element(var.ac_subnet_ids, count.index) key_name",
+            "= var.instance_key associate_public_ip_address = var.associate_public_ip_address user_data_base64 = base64encode(element(var.user_data, count.index)) metadata_options { http_endpoint = \"enabled\" http_tokens = var.imdsv2_enabled ? \"required\" : \"optional\" } tags = merge(var.global_tags, { Name =",
+            "\"${var.name_prefix}-ac-vm-${count.index + 1}-${var.resource_tag}\" } ) }"
+          ]
+        },
+        {
+          "source": "tfmod-aws-zpa-app-connector",
           "path": "modules/terraform-zsac-iam-aws/main.tf",
           "quotes": [
             "identifiers = [\"ec2.amazonaws.com\"]"
@@ -565,7 +613,7 @@
       "conditions": "Statement narrowed from the first draft, which said EBS encryption applied to all instances; ebs_encrypted exists only in terraform-zsac-asg-aws (a search of the standalone acvm module's .tf files for ebs and encrypt found no match)."
     },
     "module-azure-hardening": {
-      "statement": "Azure module: the VMSS OS disk is Premium_LRS with ReadWrite caching, and the default marketplace image is publisher zscaler, offer zscaler-private-access, SKU zpa-con-azure, pinned to a version rather than latest: 2025.11.12 up to v1.3.1, and 2026.07.07 from v2.0.0 (#31).",
+      "statement": "Azure module: the VMSS OS disk is Premium_LRS with ReadWrite caching, and the default marketplace image is publisher zscaler, offer zscaler-private-access, SKU zpa-con-azure, pinned to a version rather than latest: 2025.11.12 at v1.3.1, and 2026.07.07 from v2.0.0 (#31).",
       "tier": "A",
       "evidence": [
         {
@@ -617,7 +665,19 @@
           "quotes": [
             "default = \"2026.07.07\""
           ],
-          "after": "variable \"acvm_image_version\" {"
+          "after": "variable \"acvm_image_version\" {",
+          "at": [
+            "v2.0.0",
+            "HEAD"
+          ]
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## [2.0.0](https://github.com/zscaler/terraform-azurerm-zpa-app-connector-modules/compare/v1.3.1...v2.0.0)",
+            "image pin fix ([#31](https://github.com/zscaler/terraform-azurerm-zpa-app-connector-modules/issues/31))"
+          ]
         }
       ],
       "conditions": "Changed upstream in v2.0.0 (checked 2026-10-18): previously \"Azure module: the VMSS OS disk is Premium_LRS with ReadWrite caching, and the default marketplace image is publisher zscaler, offer zscaler-private-access, SKU zpa-con-azure, pinned to version 2025.11.12 rather than latest.\""
@@ -702,7 +762,8 @@
           "path": "zpa-connector-deployment-prerequisites.json",
           "quotes": [
             "Zscaler recommends using a minimum CPU benchmark score of 2640 when choosing a CPU processor.",
-            "The Intel Advanced Encryption Standard New Instructions (AES-NI) instruction set must also be enabled on the CPU processor."
+            "The Intel Advanced Encryption Standard New Instructions (AES-NI) instruction set must also be enabled on the CPU processor.",
+            "Using the PassMark Software Pty Ltd benchmark to verify the CPU Mark score"
           ]
         }
       ]
@@ -717,7 +778,8 @@
           "quotes": [
             "For Digital Experience (ZDX) deployments, Zscaler recommends App Connectors to have 8 GB of RAM.",
             "If the ZDX probes exceed a count of 2,000 at an interval of 5 minutes, further scaling should be considered.",
-            "For ZDX deployments, Zscaler recommends App Connectors to have 4 CPU cores."
+            "For ZDX deployments, Zscaler recommends App Connectors to have 4 CPU cores.",
+            "If alerts are observed that exceed a configured bandwidth of 250 Mbps on each App Connector, further scaling of 32 GB of RAM should be considered."
           ]
         }
       ]
@@ -733,7 +795,8 @@
             "we recommend that your App Connectors have at least 8 CPU cores and 8 GB of memory.",
             "Ensure that your App Connectors are less than 40% for peak memory utilization and peak CPU utilization.",
             "Your App Connector throughput might be 100 to 200 Mbps depending on App Connector sizing when using AppProtection.",
-            "The AppProtection recommendations are based on a mix of web traffic, 85% GET requests, and 15% POST and payload and response sizes of 32 KB."
+            "The AppProtection recommendations are based on a mix of web traffic, 85% GET requests, and 15% POST and payload and response sizes of 32 KB.",
+            "To enable AppProtection using the default AppProtection profile provided by Zscaler"
           ]
         }
       ]
@@ -763,7 +826,9 @@
           "quotes": [
             "Using these specifications, each App Connector supports up to 500 Mbps of throughput.",
             "500 Mbps of throughput is an aggregate of multiple streams of traffic.",
-            "8 vCPU cores for virtual machines or 4 CPU cores for physical machines"
+            "8 vCPU cores for virtual machines or 4 CPU cores for physical machines",
+            "It is possible to increase App Connector throughput up to 1 Gbps per App Connector by running the App Connector on hardware with more memory and CPUs along with increased network link speed.",
+            "you can increase the underlying VM spec as follows: - 8 vCPU cores for virtual machines or 4 CPU cores for physical machines - 8 GB RAM"
           ]
         }
       ]
@@ -781,7 +846,9 @@
             "| 50% | 375 Mbps |",
             "| 75% | 312.5 Mbps |",
             "| 100% | 250 Mbps |",
-            "you would need to deploy 2 to 3 App Connectors if your applications are not using double encryption, but 4 to 6 App Connectors if they are."
+            "you would need to deploy 2 to 3 App Connectors if your applications are not using double encryption, but 4 to 6 App Connectors if they are.",
+            "If you have a 1 Gbps connection (aggregate) in your data center, you can use the throughput guidelines in the following table to make sure that you have enough App Connectors to support the connection and room for failover (N+1).",
+            "| % of Applications with Double Encryption | Per App Connector Throughput |"
           ]
         }
       ]
@@ -794,7 +861,8 @@
           "source": "zscaler-help",
           "path": "zpa-connector-deployment-prerequisites.json",
           "quotes": [
-            "whether you have double encryption, App Protection, or ZDX enabled."
+            "whether you have double encryption, App Protection, or ZDX enabled.",
+            "The exact throughput can vary and depends on other network factors such as your internal network setup, latency, and whether you have double encryption, App Protection, or ZDX enabled."
           ]
         }
       ]
@@ -825,7 +893,8 @@
             "Intel x86_64/AMD64-based architecture",
             "A static MAC address",
             "For OAuth 2.0 enrollment, Manager software and App Connector version 25.46.3 or later",
-            "The OAuth server only supports IPv4-based communication."
+            "The OAuth server only supports IPv4-based communication.",
+            "Intel x86_64/AMD64-based architecture - systemd - Root or sudo access to the system to configure a new package repository and install packages - DNS resolution and network access"
           ]
         }
       ]
@@ -840,7 +909,9 @@
           "quotes": [
             "| App Connectors | 100 App Connectors |",
             "| App Connector Groups | 100 groups |",
-            "| App Connector Provisioning Keys | 100 keys |"
+            "| App Connector Provisioning Keys | 100 keys |",
+            "Private Access (ZPA) Ranges and Limitations",
+            "The following table shows the ranges and limitations for App Connector management:"
           ]
         }
       ],

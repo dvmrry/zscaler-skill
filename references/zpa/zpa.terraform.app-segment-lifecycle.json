@@ -52,7 +52,7 @@
     },
     {
       "label": "Child identity.",
-      "text": "{{browser-child-id-positional-fallback}} {{browser-child-id-may-duplicate}} {{nested-apps-matched-by-name}}"
+      "text": "{{browser-child-id-positional-fallback}} {{browser-set-order-not-remote}} {{browser-child-id-may-duplicate}} {{nested-apps-matched-by-name}}"
     },
     {
       "label": "Sharing and associations.",
@@ -120,7 +120,8 @@
           "quotes": [
             "ExtranetEnabled bool `json:\"extranetEnabled\"`",
             "AutoAppProtectEnabled bool `json:\"autoAppProtectEnabled\"`",
-            "ADPEnabled bool `json:\"adpEnabled\"`"
+            "ADPEnabled bool `json:\"adpEnabled\"`",
+            "APIProtectionEnabled bool `json:\"apiProtectionEnabled\"`"
           ]
         },
         {
@@ -211,7 +212,8 @@
           "quotes": [
             "req := expandApplicationSegmentRequest(ctx, d, zClient, id)",
             "if _, _, err := applicationsegment.Get(ctx, service, id); err != nil {",
-            "if _, err := applicationsegment.Update(ctx, service, id, req); err != nil {"
+            "if _, err := applicationsegment.Update(ctx, service, id, req); err != nil {",
+            "if _, _, err := applicationsegment.Get(ctx, service, id); err != nil { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() { d.SetId(\"\") return nil } } if _, err := applicationsegment.Update(ctx, service, id, req); err != nil {"
           ]
         },
         {
@@ -350,7 +352,9 @@
             "AdpEnabled bool `json:\"adpEnabled\"`",
             "AllowOptions bool `json:\"allowOptions\"`",
             "Hidden bool `json:\"hidden\"`",
-            "Portal bool `json:\"portal\"`"
+            "Portal bool `json:\"portal\"`",
+            "Enabled bool `json:\"enabled\"`",
+            "TrustUntrustedCert bool `json:\"trustUntrustedCert\"`"
           ]
         },
         {
@@ -362,10 +366,12 @@
           ],
           "after": "func Update(ctx context.Context, service *zscaler.Service, id string, appSegmentInspection *AppSegmentInspection)",
           "quotes": [
-            "appSegmentInspection.CommonAppsDto.AppsConfig[i].InspectAppID = existingApp.ID"
+            "appSegmentInspection.CommonAppsDto.AppsConfig[i].InspectAppID = existingApp.ID",
+            "if existingApp, ok := existingInspectionApps[appConfig.Name]; ok { appSegmentInspection.CommonAppsDto.AppsConfig[i].AppID = existingResource.ID"
           ]
         }
-      ]
+      ],
+      "conditions": "That the loop copies nothing beyond the two IDs rests on reading it; its body holds only the AppID and InspectAppID assignments at both pins."
     },
     "inspection-subapp-expand-subset": {
       "statement": "The inspection resource's expander builds each nested app from a subset of fields (ids, name, port, protocol, certificate, domain, trust-untrusted-cert, app types; up to v4.4.11 also description, which v4.4.12 dropped from the schema and the expander). It does not assign `Enabled`, `AdpEnabled`, `AllowOptions`, `Hidden` or `Portal`, and the `Protocols` assignment is commented out in the expander. Up to v4.4.11 it was also commented out in the flattener; v4.4.12 rewrote the flattener (#690), which maps no protocols field.",
@@ -504,7 +510,17 @@
             "if _, found := currentHCLDomains[domain]; found {",
             "ApplicationPort: pra.ApplicationPort,",
             "ConnectionSecurity: pra.ConnectionSecurity,",
-            "if _, exists := existingDomains[app.Domain]; !exists {"
+            "if _, exists := existingDomains[app.Domain]; !exists {",
+            "existingDomains[pra.Domain] = pra",
+            "for _, app := range hclDefinedDto.AppsConfig { currentHCLDomains[app.Domain] = struct{}{} }",
+            "Name: pra.Name,",
+            "Enabled: pra.Enabled,",
+            "ApplicationProtocol: pra.ApplicationProtocol,",
+            "Domain: pra.Domain,",
+            "Description: pra.Description,",
+            "fullAppsConfig = append(fullAppsConfig, app) } else {",
+            "if _, exists := existingDomains[app.Domain]; !exists { fullAppsConfig = append(fullAppsConfig, app) }",
+            "details.CommonAppsDto.AppsConfig = fullAppsConfig"
           ]
         }
       ],
@@ -516,7 +532,7 @@
       ]
     },
     "browser-child-id-positional-fallback": {
-      "statement": "For a clientless app with an empty ID, the browser access SDK `Update` assigns the ID of the existing app at the same list position. The provider fills IDs by name first, so only apps whose name matches no existing app (new or renamed) reach the positional fallback. Those apps come from a Terraform set, whose list order is not the order of the remote list.",
+      "statement": "For a clientless app with an empty ID, the browser access SDK `Update` assigns the ID of the existing app at the same list position. The provider fills IDs by name first, so only apps whose name matches no existing app (new or renamed) reach the positional fallback. Those apps come from a Terraform set, read as a list.",
       "tier": "A",
       "binds": [
         "zpa/browser-access#clientlessApps"
@@ -545,7 +561,8 @@
           "after": "func resourceApplicationSegmentBrowserAccessUpdate(",
           "quotes": [
             "existingClientlessByName[existing.Name] = existing",
-            "if existing, ok := existingClientlessByName[req.ClientlessApps[i].Name]; ok {"
+            "if existing, ok := existingClientlessByName[req.ClientlessApps[i].Name]; ok {",
+            "req.ClientlessApps[i].ID = existing.ID"
           ]
         },
         {
@@ -567,6 +584,14 @@
           "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
         }
       ]
+    },
+    "browser-set-order-not-remote": {
+      "statement": "Their list position therefore follows the set's own ordering, not the order of the remote list.",
+      "tier": "B",
+      "derived_from": [
+        "browser-child-id-positional-fallback"
+      ],
+      "conditions": "A Terraform schema.Set lists its elements in its own hash order; that ordering is Terraform plugin SDK behavior, not quoted from a captured source. Split out of browser-child-id-positional-fallback."
     },
     "browser-child-id-may-duplicate": {
       "statement": "So adding or renaming a clientless app can give it the ID of an existing app that another entry in the same request already carries by name, producing a request in which two entries have one ID and one existing app is replaced or overwritten.",
@@ -599,7 +624,8 @@
           "after": "func Update(ctx context.Context, service *zscaler.Service, id string, appSegmentInspection *AppSegmentInspection)",
           "quotes": [
             "existingInspectionApps[inspectionApp.Name] = inspectionApp",
-            "if existingApp, ok := existingInspectionApps[appConfig.Name]; ok {"
+            "if existingApp, ok := existingInspectionApps[appConfig.Name]; ok {",
+            "appSegmentInspection.CommonAppsDto.AppsConfig[i].InspectAppID = existingApp.ID"
           ]
         },
         {
@@ -611,7 +637,9 @@
           ],
           "after": "// Step 2: Map existing PRA apps by name",
           "quotes": [
-            "if existingApp, ok := existingPraApps[appConfig.Name]; ok {"
+            "existingPraApps[praApp.Name] = praApp",
+            "if existingApp, ok := existingPraApps[appConfig.Name]; ok {",
+            "appSegmentPra.CommonAppsDto.AppsConfig[i].PRAAppID = existingApp.ID"
           ]
         },
         {
@@ -649,7 +677,8 @@
           "quotes": [
             "d.SetId(resp.ID)",
             "applicationsegment_share.AppSegmentMicrotenantShare(ctx, service, resp.ID, shareReq)",
-            "failed to share application segment to microtenants: %w"
+            "failed to share application segment to microtenants: %w",
+            "if _, err := applicationsegment_share.AppSegmentMicrotenantShare(ctx, service, resp.ID, shareReq); err != nil { return diag.FromErr(fmt.Errorf(\"failed to share application segment to microtenants: %w\", err)) }"
           ]
         },
         {
@@ -663,7 +692,8 @@
           "quotes": [
             "if _, err := applicationsegment.Update(ctx, service, id, req); err != nil {",
             "applicationsegment_share.AppSegmentMicrotenantShare(ctx, service, id, shareReq)",
-            "failed to share updated application segment to microtenants: %w"
+            "failed to share updated application segment to microtenants: %w",
+            "if _, err := applicationsegment_share.AppSegmentMicrotenantShare(ctx, service, id, shareReq); err != nil { return diag.FromErr(fmt.Errorf(\"failed to share updated application segment to microtenants: %w\", err)) }"
           ]
         }
       ],
@@ -690,7 +720,10 @@
           ],
           "after": "func expandCommonServerGroups(",
           "quotes": [
-            "block, ok := blocks[0].(map[string]interface{})"
+            "block, ok := blocks[0].(map[string]interface{})",
+            "d *schema.ResourceData) []servergroup.ServerGroup {",
+            "idRaw, ok := block[\"id\"]",
+            "for _, id := range idSet.List() {"
           ]
         }
       ],
@@ -738,9 +771,12 @@
           ],
           "after": "func detachAppsFromAllPolicyRules(",
           "quotes": [
+            "var rules []policysetcontroller.PolicyRule",
             "types := []string{\"ACCESS_POLICY\", \"TIMEOUT_POLICY\", \"SIEM_POLICY\", \"CLIENT_FORWARDING_POLICY\", \"INSPECTION_POLICY\"}",
-            "r, _, err := policysetcontroller.GetAllByType(ctx, policySetControllerService, t)",
-            "if _, err := policysetcontroller.UpdateRule(ctx, policySetControllerService, rule.PolicySetID, rule.ID, &rule); err != nil {"
+            "policySet, _, err := policysetcontroller.GetByPolicyType(ctx, policySetControllerService, t) if err != nil { continue }",
+            "r, _, err := policysetcontroller.GetAllByType(ctx, policySetControllerService, t) if err != nil { continue }",
+            "if _, err := policysetcontroller.UpdateRule(ctx, policySetControllerService, rule.PolicySetID, rule.ID, &rule); err != nil { continue }",
+            "policySetControllerService *zscaler.Service) {"
           ]
         }
       ],
@@ -971,6 +1007,20 @@
             "v4.4.10",
             "HEAD"
           ],
+          "after": "func updateInspectionProfile(",
+          "quotes": [
+            "log.Printf(\"[ERROR] Error fetching inspection custom control: %s\", err) return",
+            "log.Printf(\"[ERROR] Error fetching inspection profile: %s\", err) continue",
+            "if _, err := inspection_profile.Patch(ctx, zClient.Service, profile.ID, updateProfile); err != nil { log.Printf(\"[ERROR] Error patching inspection profile: %s\", err) }"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_inspection_custom_controls.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
           "after": "func resourceInspectionCustomControlsCreate(",
           "quotes": [
             "updateInspectionProfile(ctx, zClient, resp.ID, &req)"
@@ -983,9 +1033,22 @@
             "v4.4.10",
             "HEAD"
           ],
+          "after": "func resourceInspectionCustomControlsUpdate(",
+          "quotes": [
+            "updateInspectionProfile(ctx, zClient, id, &req)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_inspection_custom_controls.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
           "after": "func resourceInspectionCustomControlsDelete(",
           "quotes": [
-            "inspection_profile.Update(ctx, service, inspectionProfile.ID, inspectionProfileRemote)"
+            "inspectionProfileRemote, _, err := inspection_profile.Get(ctx, service, inspectionProfile.ID) if err != nil { continue }",
+            "inspection_profile.Update(ctx, service, inspectionProfile.ID, inspectionProfileRemote) } if _, err := inspection_custom_controls.Delete(ctx, service, d.Id()); err != nil {"
           ]
         }
       ],
@@ -1010,7 +1073,11 @@
           "after": "func resourceApplicationSegmentPRAUpdate(",
           "quotes": [
             "_, err = applicationsegmentpra.Update(ctx, service, id, &req)",
-            "return resourceApplicationSegmentPRARead(ctx, d, meta)"
+            "return resourceApplicationSegmentPRARead(ctx, d, meta)",
+            "return diag.FromErr(fmt.Errorf(\"error retrieving application segment: %v\", err))",
+            "return diag.FromErr(fmt.Errorf(\"error setting app_id and pra_app_id in common_apps_dto: %v\", err))",
+            "if err := validateAppPorts(req.SelectConnectorCloseToApp, req.UDPAppPortRange, req.UDPPortRanges); err != nil { return diag.FromErr(err) }",
+            "return diag.FromErr(fmt.Errorf(\"error updating application segment: %v\", err)) } return resourceApplicationSegmentPRARead(ctx, d, meta)"
           ]
         }
       ]
@@ -1023,7 +1090,9 @@
           "source": "tf-zpa",
           "path": "zpa/common.go",
           "quotes": [
-            "ids = append(ids, group.ID)"
+            "if group.ID != \"\" { ids = append(ids, group.ID) }",
+            "if len(ids) == 0 { return nil }",
+            "return []interface{}{ map[string]interface{}{ \"id\": schema.NewSet(schema.HashString, ids), }, }"
           ],
           "after": "func flattenCommonAppServerGroupSimple(serverGroups []servergroup.ServerGroup) []interface{} {"
         },
@@ -1099,8 +1168,18 @@
           "quotes": [
             "The `applications` attribute is deprecated and will be removed in a future major release.",
             "Manage membership with the `segment_group_id` attribute of",
-            "Adding or removing applications in the `applications` block of an existing segment group is rejected at plan time."
+            "Adding or removing applications in the `applications` block of an existing segment group is rejected at plan time.",
+            "attribute of [`zpa_application_segment`](zpa_application_segment.md)"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`zpa_segment_group`: the `applications` attribute is **deprecated** and will be removed in a future major release.",
+            "Updates previously sent every application associated with the segment group"
+          ],
+          "after": "## 4.4.14 (October 8, 2026)"
         }
       ],
       "conditions": "Changed upstream in v4.4.14 (checked 2026-10-18): previously \"carrying the applications list on the segment group in Terraform configuration produces phantom drift\" (the unverified legacy statement held open in gap segment-group-applications-drift). The old update path is the same at v4.4.11, v4.4.12 and v4.4.13; the plan-time check first appears in v4.4.14."

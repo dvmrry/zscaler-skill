@@ -126,6 +126,12 @@
           "quotes": [
             "Each application category has its own set of columns.",
             "Each application category has its own set of log filters.",
+            "Collaboration Columns",
+            "CRM Columns",
+            "Email Columns",
+            "File Columns",
+            "Gen AI Columns",
+            "ITSM Columns",
             "Public Cloud Storage Columns",
             "Repository Columns"
           ]
@@ -154,7 +160,8 @@
           "source": "zscaler-help",
           "path": "about-saas-security-insights-logs.json",
           "quotes": [
-            "If an internet gateway location is specified and authentication is not required, this field displays the name of the gateway location."
+            "User: The email address of the user who performed the record. If an internet gateway location is specified and authentication is not required, this field displays the name of the gateway location.",
+            "Department: The department to which the user belongs. As with the User field, if authentication is not required and the traffic comes from a location specified in the service, this field displays the name of the gateway location."
           ],
           "after": "Each application category has its own set of columns."
         }
@@ -169,14 +176,14 @@
           "path": "about-saas-security-insights-logs.json",
           "quotes": [
             "The file owners (inside or outside your organization) that are not provisioned to the Internet & SaaS service.",
-            "the service begins to log the file owner under the User column."
+            "When a non-provisioned file owner within your organization is later provisioned to the Internet & SaaS service, the service begins to log the file owner under the User column."
           ],
           "after": "Each application category has its own set of columns."
         }
       ]
     },
     "logged-time": {
-      "statement": "Logged Time is when the service performs a scan, evaluates policies and logs the result, not when the file was changed; Scan Time is the milliseconds the policy took to scan content within the tenant.",
+      "statement": "Logged Time is when the service performs a scan, evaluates policies and logs the result; Scan Time is the milliseconds the policy took to scan content within the tenant.",
       "tier": "A",
       "evidence": [
         {
@@ -241,10 +248,18 @@
           "source": "zscaler-help",
           "path": "about-saas-security-insights-logs.json",
           "quotes": [
+            "Gen AI Columns"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
             "Bot Name: The name of the bot that has responded to the DLP.",
             "Sender Type: The type of sender, i.e., bot, system, or user.",
             "Transaction Message: The reason explaining why the transaction failed. Shows N/A for successful transactions."
-          ]
+          ],
+          "after": "Gen AI Columns"
         }
       ]
     },
@@ -256,8 +271,8 @@
           "source": "zscaler-help",
           "path": "about-saas-security-insights-logs.json",
           "quotes": [
-            "you can select up to 200 values in a single filter. You can also choose to include or exclude the selected values.",
-            "certain filters support additional operators (i.e., Does Not Contain, Does Not Start With, Does Not End With, Is Null, Is Not Null)"
+            "Certain filters, like Users, Departments, Locations, and others, support the selection of multiple values. For these, you can select up to 200 values in a single filter. You can also choose to include or exclude the selected values.",
+            "certain filters support additional operators (i.e., Does Not Contain, Does Not Start With, Does Not End With, Is Null, Is Not Null) for filters that perform string match, like Threat Super Category and others."
           ]
         }
       ]
@@ -314,7 +329,11 @@
           "quotes": [
             "NSS Servers | 2 servers",
             "NSS Feeds per Server | 8 feeds",
-            "NSS Users per Feed | 1,024 users"
+            "NSS Users per Feed | 1,024 users",
+            "NSS Departments per Feed | 1,024 departments",
+            "NSS Locations per Feed | 1,024 locations",
+            "NSS Clients per Feed | 1,024 clients",
+            "NSS Threat Names per Feed | 1,024 threat names"
           ]
         }
       ]
@@ -327,7 +346,7 @@
           "source": "zscaler-help",
           "path": "about-saas-security-insights-logs.json",
           "quotes": [
-            "a virtual machine (VM) that can stream web traffic logs in real time from the Zscaler Nanolog to your security information and event management (SIEM) system"
+            "Zscaler also offers the Nanolog Streaming Service (NSS), a virtual machine (VM) that can stream web traffic logs in real time from the Zscaler Nanolog to your security information and event management (SIEM) system"
           ]
         }
       ]
@@ -342,6 +361,7 @@
           "quotes": [
             "HTTP code 200 or 204: The feed considers the batch of logs successfully uploaded.",
             "HTTP code 400: The feed considers the batch of logs to have a parsing error and drops the batch.",
+            "Any other HTTP code (e.g., 401, 403, 501): The feed repeatedly attempts to upload the same batch until it receives a 200, 204, or 400 response from the SIEM up to one hour.",
             "After one hour, the batch is dropped."
           ]
         }
@@ -384,13 +404,14 @@
           "quotes": [
             "| %s{appname} | The name of the cloud application",
             "| %s{appclass} | The cloud application category of the application that was accessed",
+            "| %s{app_risk_score} | The computed or assigned risk index for the cloud application",
             "| %s{prompt_req} | The prompt entered by the user in the generative AI application"
           ]
         }
       ]
     },
     "web-appclass-vocabulary": {
-      "statement": "The Web NSS appclass examples are Administration, Collaboration and Web Mail, drawn from the Cloud App Control Policy page, which is not the eight SaaS Security category names.",
+      "statement": "The Web NSS appclass examples are Administration, Collaboration and Web Mail, drawn from the Cloud App Control Policy page; Administration and Web Mail are not among the eight SaaS Security log categories (Collaboration, CRM, Email, File, Gen AI, ITSM, Public Cloud Storage and Repository).",
       "tier": "A",
       "evidence": [
         {
@@ -399,6 +420,20 @@
           "quotes": [
             "Administration, Collaboration, Web Mail",
             "The full list is on the Cloud App Control Policy page"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-insights-logs.json",
+          "quotes": [
+            "Collaboration Columns",
+            "CRM Columns",
+            "Email Columns",
+            "File Columns",
+            "Gen AI Columns",
+            "ITSM Columns",
+            "Public Cloud Storage Columns",
+            "Repository Columns"
           ]
         }
       ]

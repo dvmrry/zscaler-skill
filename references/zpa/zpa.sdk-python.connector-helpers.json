@@ -95,9 +95,44 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_connector_groups.py",
           "quotes": [
-            "**server_group_ids (list):"
+            "**server_group_ids (list):",
+            "**connector_ids (list):"
           ],
           "after": "def add_connector_group(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "quotes": [
+            "**connector_ids (list):",
+            "**server_group_ids (list):"
+          ],
+          "after": "def update_connector_group(self, group_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "body = convert_keys_to_camel_case(body)"
+          ],
+          "after": "# Preserve existing logic for other services"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "result[to_lower_camel_case(k)] = convert_keys_to_camel_case(v)"
+          ],
+          "after": "def convert_keys_to_camel_case(data):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "components = string.split(\"_\")",
+            "converted.append(comp.capitalize())"
+          ],
+          "after": "def to_lower_camel_case(string):"
         }
       ],
       "conditions": "That no code in the file maps these keys rests on reading it; connector_ids and server_group_ids occur only in docstrings. The camel-casing is claim body-camel in zpa.sdk-python.microtenant-scoping.",
@@ -130,9 +165,31 @@
           "path": "zscaler/zpa/app_connector_groups.py",
           "quotes": [
             "if not body.get(\"enrollment_cert_id\"):",
-            "body[\"enrollment_cert_id\"] = cert.id"
+            "body[\"enrollment_cert_id\"] = cert.id",
+            "request, error = self._request_executor.create_request(http_method, api_url, body=body, params=params)"
           ],
           "after": "def add_connector_group(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "at": [
+            "v1.10.0"
+          ],
+          "quotes": [
+            "body = kwargs",
+            "microtenant_id = body.get(\"microtenant_id\", None)",
+            "request, error = self._request_executor.create_request(http_method, api_url, body=body, params=params)"
+          ],
+          "after": "def add_connector_group(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "ZPA `add_connector_group` / `update_connector_group` and `add_service_edge_group` / `update_service_edge_group` now populate the required `enrollment_cert_id` when it is not provided"
+          ],
+          "after": "## 1.11.2 (October 7 2026)"
         }
       ],
       "conditions": "Absence of such code rests on reading the function; the only other mention of override_version_profile in the file is the docstring. Changed upstream in v1.11.2 (checked 2026-10-18): previously \"The `add_connector_group` docstring says that `version_profile` automatically sets `override_version_profile` to true, but the function sends the keyword arguments unchanged and contains no code that sets it.\""
@@ -147,6 +204,15 @@
           "path": "zscaler/zpa/app_connector_groups.py",
           "quotes": [
             "``default``, ``previous_default`` and ``new_release``"
+          ],
+          "after": "def add_connector_group(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "quotes": [
+            "body = kwargs",
+            "request, error = self._request_executor.create_request(http_method, api_url, body=body, params=params)"
           ],
           "after": "def add_connector_group(self, **kwargs)"
         },
@@ -176,7 +242,10 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_connectors.py",
           "quotes": [
-            "payload = {\"ids\": connector_ids}"
+            "payload = {\"ids\": connector_ids}",
+            "http_method = \"post\".upper()",
+            "/connector/bulkDelete",
+            "request, error = self._request_executor.create_request(http_method, api_url, payload, params=params)"
           ],
           "after": "def bulk_delete_connectors("
         }
@@ -196,7 +265,11 @@
             "\"customerId\": customer_id,",
             "\"frequencyInterval\": body.get(\"frequency_interval\"),",
             "if \"delete_disabled\" in body:",
-            "payload[\"deleteDisabled\"] = body[\"delete_disabled\"]"
+            "payload[\"deleteDisabled\"] = body[\"delete_disabled\"]",
+            "\"frequency\": body.get(\"frequency\"),",
+            "if \"enabled\" in body:",
+            "payload[\"enabled\"] = body[\"enabled\"]",
+            "request, error = self._request_executor.create_request(http_method, api_url, body=payload, params=params)"
           ],
           "after": "def add_connector_schedule(self, **kwargs)"
         },
@@ -220,9 +293,39 @@
           "path": "zscaler/zpa/app_connector_schedule.py",
           "quotes": [
             "body.update(kwargs)",
-            "request, error = self._request_executor.create_request(http_method, api_url, body, {}, params)"
+            "request, error = self._request_executor.create_request(http_method, api_url, body, {}, params)",
+            "\"customerId\": customer_id,",
+            "\"frequency\": body.get(\"frequency\"),",
+            "\"frequencyInterval\": body.get(\"frequency_interval\"),",
+            "payload[\"deleteDisabled\"] = body[\"delete_disabled\"]",
+            "payload[\"enabled\"] = body[\"enabled\"]"
           ],
           "after": "def update_connector_schedule(self, scheduler_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "body = convert_keys_to_camel_case(body)"
+          ],
+          "after": "# Preserve existing logic for other services"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "result[to_lower_camel_case(k)] = convert_keys_to_camel_case(v)"
+          ],
+          "after": "def convert_keys_to_camel_case(data):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "components = string.split(\"_\")",
+            "converted.append(comp.capitalize())"
+          ],
+          "after": "def to_lower_camel_case(string):"
         }
       ],
       "conditions": "That `payload` is never sent rests on reading the function; it is assigned and not referenced again."
@@ -236,9 +339,19 @@
           "path": "zscaler/zpa/app_connector_schedule.py",
           "quotes": [
             "customer_id = customer_id or self.customer_id",
-            "microtenant_id = os.getenv(\"ZPA_MICROTENANT_ID\", None)"
+            "microtenant_id = os.getenv(\"ZPA_MICROTENANT_ID\", None)",
+            "{self._zpa_base_endpoint}",
+            "params = {\"microtenantId\": microtenant_id} if microtenant_id else {}",
+            "request, error = self._request_executor.create_request(http_method, api_url, body=None, headers={}, params=params)"
           ],
           "after": "def get_connector_schedule(self, customer_id=None)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_schedule.py",
+          "quotes": [
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{self.customer_id}\""
+          ]
         }
       ],
       "conditions": "That customer_id is unused afterwards rests on reading the function."

@@ -41,7 +41,7 @@
     },
     {
       "label": "API and clients.",
-      "text": "{{endpoint}} {{python-method-names}} {{go-functions}}"
+      "text": "{{endpoint}} {{python-method-names}} {{no-bare-profile-names}} {{go-functions}}"
     },
     {
       "label": "Fields.",
@@ -56,7 +56,7 @@
       "text": "{{go-omits-false-flags}} The general mechanism is in [[shared.sdk-go.zero-value-writes]]. What the server does with an omitted false is open {{gap:omitted-false-server-reaction}}."
     },
     {
-      "label": "Read-only fields.",
+      "label": "Audit fields.",
       "text": "{{last-modified-fields}}"
     },
     {
@@ -82,7 +82,18 @@
           "path": "zscaler/zia/services/tenancy_restriction/tenancy_restriction.go",
           "quotes": [
             "tenantRestrictionEndpoint = \"/zia/api/v1/tenancyRestrictionProfile\"",
-            "UpdateWithPut(ctx, fmt.Sprintf(\"%s/%d\", tenantRestrictionEndpoint, instanceID)"
+            "UpdateWithPut(ctx, fmt.Sprintf(\"%s/%d\", tenantRestrictionEndpoint, instanceID)",
+            "err := service.Client.Read(ctx, fmt.Sprintf(\"%s/%d\", tenantRestrictionEndpoint, profileID), &profile)",
+            "resp, err := service.Client.Create(ctx, tenantRestrictionEndpoint, *instanceID)",
+            "err := service.Client.Delete(ctx, fmt.Sprintf(\"%s/%d\", tenantRestrictionEndpoint, profileID))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/tenancy_restriction/tenancy_restriction.go",
+          "after": "func GetAll(",
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, tenantRestrictionEndpoint, &profiles)"
           ]
         }
       ],
@@ -91,7 +102,7 @@
       ]
     },
     "python-method-names": {
-      "statement": "The Python service `client.zia.tenancy_restriction_profile` names its methods `list_restriction_profile`, `get_restriction_profile`, `add_restriction_profile`, `update_restriction_profile`, `delete_restriction_profile` and `list_app_item_count`; the bare `*_profile` names do not exist.",
+      "statement": "The Python service `client.zia.tenancy_restriction_profile` names its methods `list_restriction_profile`, `get_restriction_profile`, `add_restriction_profile`, `update_restriction_profile`, `delete_restriction_profile` and `list_app_item_count`.",
       "tier": "A",
       "evidence": [
         {
@@ -102,7 +113,8 @@
             "def get_restriction_profile(self, profile_id: int)",
             "def add_restriction_profile(self, **kwargs)",
             "def update_restriction_profile(self, profile_id: int, **kwargs)",
-            "def delete_restriction_profile(self, profile_id: int)"
+            "def delete_restriction_profile(self, profile_id: int)",
+            "def list_app_item_count("
           ]
         }
       ]
@@ -117,7 +129,20 @@
           "quotes": [
             "func GetByName(",
             "strings.EqualFold(profile.Name, profileName)",
-            "func GetAppItemCount("
+            "func GetAppItemCount(",
+            "func Get(ctx context.Context,",
+            "func Create(ctx context.Context,",
+            "func Update(ctx context.Context,",
+            "func Delete(ctx context.Context,",
+            "func GetAll(ctx context.Context,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/tenancy_restriction/tenancy_restriction.go",
+          "after": "func GetByName(",
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, tenantRestrictionEndpoint, &profiles)"
           ]
         }
       ]
@@ -289,7 +314,7 @@
       ]
     },
     "last-modified-fields": {
-      "statement": "The Go struct carries read-only `lastModifiedTime` and `lastModifiedUserId`, which the Python model lacks; in Terraform they surface through the data source only.",
+      "statement": "The Go struct carries `lastModifiedTime` and `lastModifiedUserId`, which the Python model lacks; in Terraform the tenant profile data source exposes them as computed attributes.",
       "tier": "A",
       "evidence": [
         {
@@ -304,7 +329,18 @@
           "source": "tf-zia",
           "path": "zia/data_source_zia_tenant_restriction_profile.go",
           "quotes": [
-            "The time the tenant was last modified"
+            "The time the tenant was last modified",
+            "\"last_modified_time\": { Type: schema.TypeInt, Computed: true,",
+            "\"last_modified_user_id\": { Type: schema.TypeInt, Computed: true,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/tenancy_restriction_profile.py",
+          "quotes": [
+            "current_obj_format = { \"id\": self.id, \"name\": self.name, \"appType\": self.app_type, \"description\": self.description, \"itemTypePrimary\": self.item_type_primary, \"itemDataPrimary\": self.item_data_primary,",
+            "\"itemTypeSecondary\": self.item_type_secondary, \"itemDataSecondary\": self.item_data_secondary, \"itemValue\": self.item_value,",
+            "\"restrictPersonalO365Domains\": self.restrict_personal_o365_domains, \"allowGoogleConsumers\": self.allow_google_consumers, \"msLoginServicesTrV2\": self.ms_login_services_tr_v2, \"allowGoogleVisitors\": self.allow_google_visitors, \"allowGcpCloudStorageRead\": self.allow_gcp_cloud_storage_read, }"
           ]
         }
       ],
@@ -341,7 +377,15 @@
           "source": "tf-zia",
           "path": "CHANGELOG.md",
           "quotes": [
-            "Removed `MaxItems` from attribute `tenancy_profile_ids` and `cloud_app_instances`"
+            "Removed `MaxItems` from attribute `tenancy_profile_ids` and `cloud_app_instances`",
+            "in the resource `zia_cloud_app_control_rule` to allow API own limit delegation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "Tenant Profiles per Rule | 16 tenant profiles | Each Cloud App Control Policy rule can have up to 16 tenant profiles associated with it."
           ]
         }
       ],
@@ -356,6 +400,14 @@
         }
       ],
       "conditions": "Version-scoped; a plan against an older provider that rejects more than eight profile IDs is this defect, not policy drift."
+    },
+    "no-bare-profile-names": {
+      "statement": "The bare names such as `list_profiles` or `get_profile` do not exist on the Python tenant profile service; calls must use the `*_restriction_profile` names.",
+      "tier": "B",
+      "conditions": "The client file at the pinned SDK defines only the six methods named in python-method-names besides the constructor; a quote cannot pin the absence of other method names in code.",
+      "derived_from": [
+        "zia.tenant-profiles.api-surface:python-method-names"
+      ]
     }
   },
   "gaps": {

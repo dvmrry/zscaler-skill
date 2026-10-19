@@ -153,6 +153,38 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/inspectionApps",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/praApps",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/clientlessApps",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/commonAppsDto",
+          "expect": {
+            "title": "CommonApplicationDto"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/commonAppsDto/properties/appsConfig/items/properties/appTypes",
           "expect": {
             "items": {
@@ -179,7 +211,8 @@
           "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
           "quotes": [
             "InspectionAppDto []InspectionAppDto `json:\"inspectionApps,omitempty\"`",
-            "AppsConfig []AppsConfig `json:\"appsConfig,omitempty\"`"
+            "AppsConfig []AppsConfig `json:\"appsConfig,omitempty\"`",
+            "CommonAppsDto CommonAppsDto `json:\"commonAppsDto,omitempty\"`"
           ]
         },
         {
@@ -187,7 +220,8 @@
           "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
           "quotes": [
             "PRAApps []PRAApps `json:\"praApps\"`",
-            "AppsConfig []AppsConfig `json:\"appsConfig,omitempty\"`"
+            "AppsConfig []AppsConfig `json:\"appsConfig,omitempty\"`",
+            "CommonAppsDto CommonAppsDto `json:\"commonAppsDto\"`"
           ]
         },
         {
@@ -308,9 +342,27 @@
           "quotes": [
             "ZPNERID *common.ZPNERID `json:\"zpnErId\"`"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "quotes": [
+            "type AppSegmentInspection struct { ID string `json:\"id,omitempty\"` SegmentGroupID string `json:\"segmentGroupId,omitempty\"` SegmentGroupName string `json:\"segmentGroupName,omitempty\"` BypassType string `json:\"bypassType,omitempty\"` BypassOnReauth bool `json:\"bypassOnReauth,omitempty\"`",
+            "ConfigSpace string `json:\"configSpace,omitempty\"` DomainNames []string `json:\"domainNames,omitempty\"` Name string `json:\"name,omitempty\"` Description string `json:\"description,omitempty\"` Enabled bool `json:\"enabled\"` AdpEnabled bool `json:\"adpEnabled,omitempty\"`",
+            "AppRecommendationId string `json:\"appRecommendationId,omitempty\"` AutoAppProtectEnabled bool `json:\"autoAppProtectEnabled,omitempty\"` ICMPAccessType string `json:\"icmpAccessType,omitempty\"` PassiveHealthEnabled bool `json:\"passiveHealthEnabled,omitempty\"` FQDNDnsCheck bool `json:\"fqdnDnsCheck\"`",
+            "APIProtectionEnabled bool `json:\"apiProtectionEnabled\"` ExtranetEnabled bool `json:\"extranetEnabled\"` MatchStyle string `json:\"matchStyle,omitempty\"` SelectConnectorCloseToApp bool `json:\"selectConnectorCloseToApp\"` DoubleEncrypt bool `json:\"doubleEncrypt\"`",
+            "HealthCheckType string `json:\"healthCheckType,omitempty\"` IsCnameEnabled bool `json:\"isCnameEnabled\"` IPAnchored bool `json:\"ipAnchored\"` HealthReporting string `json:\"healthReporting,omitempty\"` CreationTime string `json:\"creationTime,omitempty\"` ModifiedBy string `json:\"modifiedBy,omitempty\"`",
+            "ModifiedTime string `json:\"modifiedTime,omitempty\"` TCPKeepAlive string `json:\"tcpKeepAlive,omitempty\"` IsIncompleteDRConfig bool `json:\"isIncompleteDRConfig\"` UseInDrMode bool `json:\"useInDrMode\"` MicroTenantID string `json:\"microtenantId,omitempty\"`",
+            "MicroTenantName string `json:\"microtenantName,omitempty\"` ReadOnly bool `json:\"readOnly,omitempty\"` RestrictionType string `json:\"restrictionType,omitempty\"` ZscalerManaged bool `json:\"zscalerManaged,omitempty\"` HBREnabled bool `json:\"hbrEnabled,omitempty\"`",
+            "StickyEntity string `json:\"stickyEntity,omitempty\"` StickyGroup string `json:\"stickyGroup,omitempty\"` WeightedLoadBalancing bool `json:\"weightedLoadBalancing,omitempty\"` GuestDetails []common.GuestDetails `json:\"guestDetails,omitempty\"` TCPPortRanges []string `json:\"tcpPortRanges,omitempty\"`",
+            "UDPPortRanges []string `json:\"udpPortRanges,omitempty\"` TCPAppPortRange []common.NetworkPorts `json:\"tcpPortRange,omitempty\"` UDPAppPortRange []common.NetworkPorts `json:\"udpPortRange,omitempty\"` TCPProtocols []string `json:\"tcpProtocols\"` UDPProtocols []string `json:\"udpProtocols,omitempty\"`",
+            "InspectionAppDto []InspectionAppDto `json:\"inspectionApps,omitempty\"` CommonAppsDto CommonAppsDto `json:\"commonAppsDto,omitempty\"` AppServerGroups []servergroup.ServerGroup `json:\"serverGroups,omitempty\"` PolicyStyle string `json:\"policyStyle,omitempty\"`",
+            "SharedMicrotenantDetails SharedMicrotenantDetails `json:\"sharedMicrotenantDetails,omitempty\"` }"
+          ],
+          "note": "the complete AppSegmentInspection struct, which has no zpnErId member"
         }
       ],
-      "conditions": "The absence of a zpnErId field in the Inspection model rests on reading the struct at the pin; the quotes above show the three variants that have it."
+      "conditions": "The absence of a zpnErId field in the Inspection model follows from the complete AppSegmentInspection struct quoted above."
     },
     "subapp-config-tags": {
       "statement": "In the Go sub-application config, the Inspection entry sends `inspectAppId` and `enabled` without `omitempty` and tags `appId` `omitempty`, while the PRA entry sends `appId` and `praAppId` without `omitempty` and tags `enabled` `omitempty`, so an explicit false `enabled` on a PRA sub-application is not sent.",
@@ -354,7 +406,9 @@
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
-          "at": ["v3.8.48"],
+          "at": [
+            "v3.8.48"
+          ],
           "quotes": [
             "DeletedInspectApps []string     `json:\"deletedInspectApps,omitempty\"",
             "// Check if `commonAppsDto` actually has entries, set to nil if empty"
@@ -387,8 +441,12 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_pra.py",
           "quotes": [
-            "application_type=\"SECURE_REMOTE_ACCESS\",",
+            "segments_list, _, err = app_segment_api.get_segments_by_type( application_type=\"SECURE_REMOTE_ACCESS\",",
             "existing_apps = {s.domain: s for s in segments_list if s.app_id == segment_id}",
+            "for app in common_apps_dto[\"apps_config\"]:",
+            "if domain in existing_apps: app[\"pra_app_id\"] = existing_apps[domain].id else: app[\"pra_app_id\"] = \"\"",
+            "desired_domains = {a[\"domain\"] for a in common_apps_dto[\"apps_config\"]}",
+            "deleted_ids = [app.id for domain, app in existing_apps.items() if domain not in desired_domains]",
             "common_apps_dto[\"deleted_pra_apps\"] = deleted_ids"
           ],
           "after": "def update_segment_pra(self, segment_id: str, **kwargs)"
@@ -397,7 +455,12 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_inspection.py",
           "quotes": [
+            "segments_list, _, err = app_segment_api.get_segments_by_type( application_type=\"INSPECT\",",
             "existing_apps = {s.domain: s for s in segments_list if s.app_id == segment_id}",
+            "for app in common_apps_dto[\"apps_config\"]:",
+            "if domain in existing_apps: app[\"inspect_app_id\"] = existing_apps[domain].id else: app[\"inspect_app_id\"] = \"\"",
+            "desired_domains = {a[\"domain\"] for a in common_apps_dto[\"apps_config\"]}",
+            "deleted_ids = [app.id for domain, app in existing_apps.items() if domain not in desired_domains]",
             "common_apps_dto[\"deleted_inspect_apps\"] = deleted_ids"
           ],
           "after": "def update_segment_inspection(self, segment_id: str, **kwargs)"
@@ -406,8 +469,12 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_ba_v2.py",
           "quotes": [
+            "segments_list, _, err = app_segment_api.get_segments_by_type( application_type=\"BROWSER_ACCESS\",",
             "existing_apps = {s.domain: s for s in segments_list if s.app_id == segment_id}",
-            "app[\"ba_app_id\"] = \"\"  # fallback to empty",
+            "for app in common_apps_dto[\"apps_config\"]:",
+            "if domain in existing_apps: app[\"ba_app_id\"] = existing_apps[domain].id else: app[\"ba_app_id\"] = \"\"",
+            "desired_domains = {a[\"domain\"] for a in common_apps_dto[\"apps_config\"]}",
+            "deleted_ids = [app.id for domain, app in existing_apps.items() if domain not in desired_domains]",
             "common_apps_dto[\"deleted_ba_apps\"] = deleted_ids"
           ],
           "after": "def update_segment_ba(self, segment_id: str, **kwargs)"
@@ -433,8 +500,7 @@
           "path": "zscaler/zpa/app_segments_inspection.py",
           "quotes": [
             "# Assign inspect_app_id and inspect_app_id",
-            "app[\"inspect_app_id\"] = segment_id",
-            "app[\"inspect_app_id\"] = \"\"  # fallback to empty"
+            "for app in common_apps_dto[\"apps_config\"]: domain = app.get(\"domain\") app[\"inspect_app_id\"] = segment_id if domain in existing_apps: app[\"inspect_app_id\"] = existing_apps[domain].id else: app[\"inspect_app_id\"] = \"\""
           ],
           "after": "def update_segment_inspection(self, segment_id: str, **kwargs)"
         },
@@ -445,6 +511,15 @@
             "app[\"app_id\"] = segment_id"
           ],
           "after": "def update_segment_pra(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba_v2.py",
+          "after": "def update_segment_ba(self, segment_id: str, **kwargs)",
+          "quotes": [
+            "# Assign app_id and ba_app_id",
+            "app[\"app_id\"] = segment_id"
+          ]
         }
       ],
       "conditions": "That app_id is never assigned in the Inspection update rests on reading the update function at the pin (the string app[\"app_id\"] does not occur in app_segments_inspection.py). Whether the API needs appId on the entries when updating Inspection sub-applications is not established."
@@ -457,8 +532,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_pra.py",
           "quotes": [
-            "body[\"tcpPortRanges\"] = []",
-            "body[\"tcpPortRange\"] = []",
+            "body[\"tcpPortRanges\"] = body.pop(\"tcp_port_ranges\") else: body[\"tcpPortRanges\"] = []",
+            "for pr in body.pop(\"tcp_port_range\")] else: body[\"tcpPortRange\"] = []",
             "body[\"udpPortRanges\"] = []  # Explicitly clear if not provided",
             "body[\"udpPortRange\"] = []  # Explicitly clear if not provided"
           ],
@@ -468,8 +543,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_inspection.py",
           "quotes": [
-            "body[\"tcpPortRanges\"] = []",
-            "body[\"tcpPortRange\"] = []",
+            "body[\"tcpPortRanges\"] = body.pop(\"tcp_port_ranges\") else: body[\"tcpPortRanges\"] = []",
+            "for pr in body.pop(\"tcp_port_range\")] else: body[\"tcpPortRange\"] = []",
             "body[\"udpPortRanges\"] = []  # Explicitly clear if not provided",
             "body[\"udpPortRange\"] = []  # Explicitly clear if not provided"
           ],
@@ -479,8 +554,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_ba.py",
           "quotes": [
-            "body[\"tcpPortRanges\"] = []",
-            "body[\"tcpPortRange\"] = []",
+            "body[\"tcpPortRanges\"] = body.pop(\"tcp_port_ranges\") else: body[\"tcpPortRanges\"] = []",
+            "for pr in body.pop(\"tcp_port_range\")] else: body[\"tcpPortRange\"] = []",
             "body[\"udpPortRanges\"] = []  # Explicitly clear if not provided",
             "body[\"udpPortRange\"] = []  # Explicitly clear if not provided"
           ],
@@ -490,8 +565,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_ba_v2.py",
           "quotes": [
-            "body[\"tcpPortRanges\"] = []",
-            "body[\"tcpPortRange\"] = []",
+            "body[\"tcpPortRanges\"] = body.pop(\"tcp_port_ranges\") else: body[\"tcpPortRanges\"] = []",
+            "for pr in body.pop(\"tcp_port_range\")] else: body[\"tcpPortRange\"] = []",
             "body[\"udpPortRanges\"] = []  # Explicitly clear if not provided",
             "body[\"udpPortRange\"] = []  # Explicitly clear if not provided"
           ],
@@ -516,7 +591,10 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_pra.py",
           "quotes": [
-            "app_config[\"app_types\"] = [\"SECURE_REMOTE_ACCESS\"]"
+            "for app_config in common_apps_dto[\"apps_config\"]:",
+            "if \"app_types\" not in app_config:",
+            "app_config[\"app_types\"] = [\"SECURE_REMOTE_ACCESS\"]",
+            "request, error = self._request_executor.create_request("
           ],
           "after": "def add_segment_pra(self, **kwargs)"
         },
@@ -524,7 +602,10 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_pra.py",
           "quotes": [
-            "app_config[\"app_types\"] = [\"SECURE_REMOTE_ACCESS\"]"
+            "for app_config in common_apps_dto[\"apps_config\"]:",
+            "if \"app_types\" not in app_config:",
+            "app_config[\"app_types\"] = [\"SECURE_REMOTE_ACCESS\"]",
+            "request, error = self._request_executor.create_request("
           ],
           "after": "def update_segment_pra(self, segment_id: str, **kwargs)"
         },
@@ -532,7 +613,10 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_inspection.py",
           "quotes": [
-            "app_config[\"app_types\"] = [\"INSPECT\"]"
+            "for app_config in common_apps_dto[\"apps_config\"]:",
+            "if \"app_types\" not in app_config:",
+            "app_config[\"app_types\"] = [\"INSPECT\"]",
+            "request, error = self._request_executor.create_request("
           ],
           "after": "def add_segment_inspection(self, **kwargs)"
         },
@@ -540,7 +624,10 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_inspection.py",
           "quotes": [
-            "app_config[\"app_types\"] = [\"INSPECT\"]"
+            "for app_config in common_apps_dto[\"apps_config\"]:",
+            "if \"app_types\" not in app_config:",
+            "app_config[\"app_types\"] = [\"INSPECT\"]",
+            "request, error = self._request_executor.create_request("
           ],
           "after": "def update_segment_inspection(self, segment_id: str, **kwargs)"
         },
@@ -548,7 +635,10 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_ba_v2.py",
           "quotes": [
-            "app_config[\"app_types\"] = [\"BROWSER_ACCESS\"]"
+            "for app_config in common_apps_dto[\"apps_config\"]:",
+            "if \"app_types\" not in app_config:",
+            "app_config[\"app_types\"] = [\"BROWSER_ACCESS\"]",
+            "request, error = self._request_executor.create_request("
           ],
           "after": "def add_segment_ba(self, **kwargs)"
         },
@@ -556,7 +646,10 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_ba_v2.py",
           "quotes": [
-            "app_config[\"app_types\"] = [\"BROWSER_ACCESS\"]"
+            "for app_config in common_apps_dto[\"apps_config\"]:",
+            "if \"app_types\" not in app_config:",
+            "app_config[\"app_types\"] = [\"BROWSER_ACCESS\"]",
+            "request, error = self._request_executor.create_request("
           ],
           "after": "def update_segment_ba(self, segment_id: str, **kwargs)"
         }
@@ -610,12 +703,20 @@
             "// Need to review as the API is returning 400 error",
             "relativeURL := mgmtConfig + service.Client.GetCustomerID() + appSegmentEndpoint + \"/summary\""
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "after": "func GetApplicationSummary(",
+          "quotes": [
+            "list, resp, err := common.GetAllPagesGenericWithCustomFilters[common.CommonSummary](ctx, service.Client, relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()})"
+          ]
         }
       ],
       "conditions": "This records the SDK author's comment, not an observed API response; the OpenAPI document does not define /application/summary."
     },
     "provision-python-only": {
-      "statement": "The Python SDK has an `add_segment_provision` that posts to `/application/provision`; no path with `/provision` appears among the Go ZPA service packages for application segments, and the OpenAPI document has no such path.",
+      "statement": "The Python SDK has an `add_segment_provision` that posts to `/application/provision`, a path the OpenAPI document does not define.",
       "tier": "A",
       "evidence": [
         {
@@ -625,9 +726,17 @@
             "def add_segment_provision(self, **kwargs) -> APIResult[dict]:",
             "/application/provision"
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/mgmtconfig/v1/admin/customers/{customerId}/application/provision"
+          ]
         }
       ],
-      "conditions": "The Go and OpenAPI absences rest on `git grep -n /provision HEAD -- zscaler/zpa` in the Go SDK, which matched only provisioning-key URLs, and on a search of the OpenAPI paths. Absence in the Go SDK is not evidence that the endpoint does not exist."
+      "conditions": "No path with `/provision` appears among the Go ZPA service packages for application segments: `git grep -n /provision HEAD -- zscaler/zpa` in the Go SDK matched only provisioning-key URLs. Absence in the Go SDK is not evidence that the endpoint does not exist."
     },
     "delete-by-type-request": {
       "statement": "Deleting a sub-application by type is `DELETE /application/{id}/deleteAppByType` with the application type as a query parameter; the Go function sends only the type and the Microtenant filter, while Go's other segment deletes pass `ForceDelete: true`, and the Python function sends `applicationType` and an optional `microtenantId`.",
@@ -638,7 +747,8 @@
           "path": "zscaler/zpa/services/applicationsegmentbytype/applicationsegmentbytype.go",
           "quotes": [
             "query.Set(\"applicationType\", applicationType)",
-            "/deleteAppByType\", mgmtConfig"
+            "/deleteAppByType\", mgmtConfig",
+            "resp, err := service.Client.NewRequestDo(ctx, \"DELETE\", constructedURL, common.Filter{MicroTenantID: service.MicroTenantID()}, nil, nil)"
           ],
           "after": "func DeleteByApplicationType("
         },
@@ -653,9 +763,10 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segment_by_type.py",
           "quotes": [
-            "params = {\"applicationType\": application_type}",
-            "/application/{segment_id}/deleteAppByType"
-          ]
+            "http_method = \"delete\".upper() api_url = format_url(f\"\"\" {self._zpa_base_endpoint} /application/{segment_id}/deleteAppByType \"\"\")",
+            "params = {\"applicationType\": application_type} if microtenant_id: params[\"microtenantId\"] = microtenant_id request, error = self._request_executor.create_request(http_method, api_url, params=params)"
+          ],
+          "after": "def delete_segments_by_type("
         }
       ],
       "conditions": "Whether the endpoint accepts forceDelete, and what it removes, is open (gap delete-by-type-scope)."
@@ -669,9 +780,22 @@
           "path": "zscaler/zpa/services/applicationsegmentbytype/applicationsegmentbytype.go",
           "quotes": [
             "if !validApplicationTypes[applicationType] {",
-            "\"SECURE_REMOTE_ACCESS\": true,"
+            "\"SECURE_REMOTE_ACCESS\": true,",
+            "\"BROWSER_ACCESS\": true,",
+            "\"INSPECT\": true,"
           ],
           "after": "func GetByApplicationType("
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbytype/applicationsegmentbytype.go",
+          "after": "func DeleteByApplicationType(",
+          "quotes": [
+            "\"BROWSER_ACCESS\": true,",
+            "\"INSPECT\": true,",
+            "\"SECURE_REMOTE_ACCESS\": true,",
+            "if !validApplicationTypes[applicationType] {"
+          ]
         },
         {
           "source": "sdk-python",
@@ -700,6 +824,16 @@
             "Must be one of \"BROWSER_ACCESS\", \"INSPECT\", \"SECURE_REMOTE_ACCESS\"."
           ],
           "after": "def get_segments_by_type("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segment_by_type.py",
+          "after": "def delete_segments_by_type(",
+          "quotes": [
+            "http_method = \"delete\".upper() api_url = format_url(f\"\"\" {self._zpa_base_endpoint} /application/{segment_id}/deleteAppByType \"\"\")",
+            "params = {\"applicationType\": application_type} if microtenant_id: params[\"microtenantId\"] = microtenant_id request, error = self._request_executor.create_request(http_method, api_url, params=params)"
+          ],
+          "note": "the function body goes from the docstring straight to building the request, with no check on application_type"
         }
       ],
       "conditions": "Corrects the legacy statement that both SDKs validate the set client-side: the Python docstrings list the three values but no code compares them."

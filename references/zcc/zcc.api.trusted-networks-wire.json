@@ -124,7 +124,14 @@
           "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
           "quotes": [
             "DnsServers string `json:\"dnsServers\"`",
-            "TrustedSubnets         string `json:\"trustedSubnets\"`"
+            "TrustedSubnets         string `json:\"trustedSubnets\"`",
+            "DnsSearchDomains string `json:\"dnsSearchDomains\"`",
+            "Hostnames string `json:\"hostnames\"`",
+            "ResolvedIpsForHostname string `json:\"resolvedIpsForHostname\"`",
+            "Ssids string `json:\"ssids,omitempty\"`",
+            "TrustedDhcpServers string `json:\"trustedDhcpServers\"`",
+            "TrustedEgressIps string `json:\"trustedEgressIps,omitempty\"`",
+            "TrustedGateways string `json:\"trustedGateways\"`"
           ]
         },
         {
@@ -141,7 +148,9 @@
           "path": "internal/framework/tnbackend/convert.go",
           "quotes": [
             "for _, part := range strings.Split(s, \",\") {",
-            "returns values like \"10.0.0.5, 10.0.0.6\") and empty segments are"
+            "returns values like \"10.0.0.5, 10.0.0.6\") and empty segments are",
+            "joinCSV renders the canonical list form as the v1 comma-separated",
+            "return strings.Join(splitCSV(strings.Join(items, \",\")), \",\")"
           ]
         }
       ]
@@ -157,7 +166,25 @@
             "trustedNetworkEndpointV2 = \"/zcc/papi/public/v2/trusted-networks\"",
             "NewZccRequestDo(ctx, \"POST\", trustedNetworkEndpointV2, nil, network, &created)",
             "NewZccRequestDo(ctx, \"PATCH\", endpoint, nil, network, &updated)",
-            "err := service.Client.Delete(ctx, fmt.Sprintf(\"%s/%d\", trustedNetworkEndpointV2, networkID))"
+            "err := service.Client.Delete(ctx, fmt.Sprintf(\"%s/%d\", trustedNetworkEndpointV2, networkID))",
+            "err := service.Client.Read(ctx, fmt.Sprintf(\"%s/%d\", trustedNetworkEndpointV2, networkID), &trustedNetwork)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go",
+          "after": "func Update(ctx context.Context, service *zscaler.Service, networkID int, network *TrustedNetworkV2)",
+          "quotes": [
+            "endpoint := fmt.Sprintf(\"%s/%d\", trustedNetworkEndpointV2, networkID)",
+            "NewZccRequestDo(ctx, \"PUT\", endpoint, nil, network, &updated)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "after": "func (c *Client) Read(ctx context.Context, endpoint string, o interface{}) error {",
+          "quotes": [
+            "resp, _, _, err := c.ExecuteRequest(ctx, \"GET\", endpoint, nil, nil, contentTypeJSON)"
           ]
         }
       ]
@@ -174,7 +201,12 @@
             "ID                     int      `json:\"id,omitempty\"`",
             "ConditionType          string   `json:\"conditionType,omitempty\"`",
             "DNSServerIPs           []string `json:\"dnsServerIps,omitempty\"`",
-            "TrustedSubnetIPs       []string `json:\"trustedSubnetIps,omitempty\"`"
+            "TrustedSubnetIPs       []string `json:\"trustedSubnetIps,omitempty\"`",
+            "Name string `json:\"name,omitempty\"`",
+            "ResolvedIPsForHostname []string `json:\"resolvedIpsForHostname,omitempty\"`",
+            "TrustedDhcpServersIPs []string `json:\"trustedDhcpServersIps,omitempty\"`",
+            "TrustedEgressIPs []string `json:\"trustedEgressIps,omitempty\"`",
+            "TrustedGatewayIPs []string `json:\"trustedGatewayIps,omitempty\"`"
           ]
         }
       ]
@@ -190,7 +222,14 @@
             "list endpoint scopes the keyword search to the named field.",
             "FilterTypeName               = \"NAME\"",
             "FilterTypeSSID               = \"SSID\"",
-            "match is still done client-side because keyword is a substring // filter, not an equality match."
+            "match is still done client-side because keyword is a substring // filter, not an equality match.",
+            "FilterTypeDNSServers = \"DNS_SERVERS\"",
+            "FilterTypeDNSSearchDomains = \"DNS_SEARCH_DOMAINS\"",
+            "FilterTypeHostnameIP = \"HOST_NAME_IP\"",
+            "FilterTypeTrustedSubnets = \"TRUSTED_SUBNETS\"",
+            "FilterTypeTrustedGateways = \"TRUSTED_GATEWAYS\"",
+            "FilterTypeTrustedDHCPServers = \"TRUSTED_DHCP_SERVERS\"",
+            "FilterTypeTrustedEgressIPs = \"TRUSTED_EGRESS_IPS\""
           ]
         }
       ]
@@ -225,14 +264,19 @@
           "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
           "quotes": [
             "TrustedNetworkContracts []TrustedNetwork `json:\"trustedNetworkContracts\"`",
-            "if response.TotalCount > 0 && len(response.TrustedNetworkContracts) == 0 {"
+            "if response.TotalCount > 0 && len(response.TrustedNetworkContracts) == 0 {",
+            "trustedNetworkEndpoint = \"/zcc/papi/public/v1/webTrustedNetwork\"",
+            "TotalCount int `json:\"totalCount\"`",
+            "return nil, resp, fmt.Errorf(\"totalCount is %d, but no trusted networks are returned\", response.TotalCount)"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zcc/trusted_networks.py",
           "quotes": [
-            "trusted_networks = response_body.get(\"trustedNetworkContracts\", [])"
+            "trusted_networks = response_body.get(\"trustedNetworkContracts\", [])",
+            "self._zcc_base_endpoint = \"/zcc/papi/public/v1\"",
+            "/webTrustedNetwork/listByCompany"
           ]
         }
       ]
@@ -246,7 +290,8 @@
           "source": "sdk-python",
           "path": "tests/integration/zcc/cassettes/TestTrustedNetworks.yaml",
           "quotes": [
-            "string: \"{\\n  \\\"conditionType\\\" : 0,\\n  \\\"active\\\" : false\\n}\""
+            "string: \"{\\n  \\\"conditionType\\\" : 0,\\n  \\\"active\\\" : false\\n}\"",
+            "uri: https://easm.test.zscaler.com/zcc/papi/public/v1/webTrustedNetwork/create"
           ]
         },
         {
@@ -262,7 +307,10 @@
           "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
           "quotes": [
             "PUT /webTrustedNetwork/edit on 200 OK (e.g. {\"success\":\"true\",\"errorCode\":\"0\"}).",
-            "The contract (id, networkName, etc.) is not returned; resolve the resource via GetTrustedNetworkByName"
+            "The contract (id, networkName, etc.) is not returned; resolve the resource via GetTrustedNetworkByName",
+            "trustedNetworkEndpoint = \"/zcc/papi/public/v1/webTrustedNetwork\"",
+            "after create or GetTrustedNetworkByID after update.",
+            "PUT returns only success/errorCode, not the contract; re-fetch by id"
           ]
         },
         {
@@ -270,6 +318,13 @@
           "path": "internal/framework/tnbackend/backend_v1.go",
           "quotes": [
             "create/edit responses carry only {\"success\",\"errorCode\"}, so the SDK"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestTrustedNetworksExtended.yaml",
+          "quotes": [
+            "uri: https://easm.test.zscaler.com/zcc/papi/public/v1/webTrustedNetwork/edit"
           ]
         }
       ]
@@ -308,6 +363,21 @@
           "quotes": [
             "resp, err := service.Client.NewZccRequestDo(ctx, \"DELETE\", endpoint, nil, nil, nil)",
             "return resp, nil"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestTrustedNetworksExtended.yaml",
+          "quotes": [
+            "uri: https://easm.test.zscaler.com/zcc/papi/public/v1/webTrustedNetwork/999999999/delete"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "quotes": [
+            "trustedNetworkEndpoint = \"/zcc/papi/public/v1/webTrustedNetwork\"",
+            "endpoint := fmt.Sprintf(\"%s/%s/delete\", trustedNetworkEndpoint, networkID)"
           ]
         }
       ]

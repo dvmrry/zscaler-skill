@@ -145,7 +145,7 @@
       ]
     },
     "connector-status-field": {
-      "statement": "An App Connector's control channel state is read from `controlChannelStatus` in the Python model, and the OpenAPI document names the same status `ctrlChannelStatus` with the values UNKNOWN, ZPN_STATUS_AUTHENTICATED and ZPN_STATUS_DISCONNECTED.",
+      "statement": "An App Connector's control channel state is read from `controlChannelStatus` in the Python model; the OpenAPI connector object has `controlChannelStatus` with the values UNKNOWN, ZPN_STATUS_AUTHENTICATED and ZPN_STATUS_DISCONNECTED, and its nested `assistantVersion` object names the control channel status `ctrlChannelStatus` with the same values.",
       "tier": "A",
       "evidence": [
         {
@@ -154,6 +154,19 @@
           "quotes": [
             "self.control_channel_status = config[\"controlChannelStatus\"] if \"controlChannelStatus\" in config else None"
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connector/get/responses/200/content/*~1*/schema/properties/list/items/properties/controlChannelStatus",
+          "expect": {
+            "enum": [
+              "UNKNOWN",
+              "ZPN_STATUS_AUTHENTICATED",
+              "ZPN_STATUS_DISCONNECTED"
+            ],
+            "type": "string"
+          }
         },
         {
           "source": "api-specs",
@@ -172,7 +185,8 @@
       ],
       "binds": [
         "zpa/app-connectors#controlChannelStatus"
-      ]
+      ],
+      "conditions": "Corrected because the OpenAPI connector object also has a top-level controlChannelStatus, and ctrlChannelStatus sits in the nested assistantVersion object; previously \"An App Connector's control channel state is read from `controlChannelStatus` in the Python model, and the OpenAPI document names the same status `ctrlChannelStatus` with the values UNKNOWN, ZPN_STATUS_AUTHENTICATED and ZPN_STATUS_DISCONNECTED.\""
     },
     "no-connection-status-member": {
       "statement": "No `connectionStatus` member is defined for an App Connector in the Python SDK, the Go SDK or the OpenAPI document; the status members are the control channel ones.",

@@ -41,7 +41,7 @@
     },
     {
       "label": "Races.",
-      "text": "{{done-channel-read-after-unlock}} {{done-channel-capture-fixed-in-v4-8-7}} {{join-after-final-snapshot}}"
+      "text": "{{done-channel-read-after-unlock}} {{done-channel-read-after-unlock-effect}} {{done-channel-capture-fixed-in-v4-8-7}} {{join-after-final-snapshot}}"
     },
     {
       "label": "Starting-order state.",
@@ -133,8 +133,13 @@
             "HEAD"
           ],
           "quotes": [
+            "var rules = listrules{",
             "orders      map[string]map[int]orderWithState",
-            "// Reorder goroutine still running — just register, don't start another",
+            "reorderDone map[string]chan struct{}",
+            "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCurrent func() (map[int]OrderRule, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {",
+            "rules.orders[resourceType][id] = orderWithState{order, false}",
+            "default: // Reorder goroutine still running — just register, don't start another shouldCallReorder = false",
+            "if shouldCallReorder {",
             "reorderAll(resourceType, getCurrent, updateOrder, beforeReorder)"
           ]
         }
@@ -147,7 +152,7 @@
       ]
     },
     "done-channel-read-after-unlock": {
-      "statement": "At v4.8.3 the registration function releases the registry lock and only then reads the cycle's done channel from the shared `reorderDone` map. Concurrent registrations write that map under the lock, so the read is a data race against writes to any key and can abort the provider with \"concurrent map read and map write\"; it cannot return a different channel for the same key.",
+      "statement": "At v4.8.3 the registration function releases the registry lock and only then reads the cycle's done channel from the shared `reorderDone` map. Concurrent registrations write that map under the lock; the v4.8.7 fix's comment says reading the map after Unlock races with them.",
       "tier": "A",
       "evidence": [
         {
@@ -158,8 +163,8 @@
           ],
           "after": "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCurrent func() (map[int]OrderRule, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {",
           "quotes": [
-            "rules.orders[resourceType][id] = orderWithState{order, false}",
-            "rules.Unlock()",
+            "rules.Lock() shouldCallReorder := false",
+            "rules.orders[resourceType][id] = orderWithState{order, false} rules.Unlock() if shouldCallReorder {",
             "doneCh := rules.reorderDone[resourceType]"
           ]
         },
@@ -172,6 +177,28 @@
           "after": "log.Printf(\"[INFO] previous reorder for %s completed, starting new cycle for rule:%d\", resourceType, id)",
           "quotes": [
             "rules.reorderDone[resourceType] = make(chan struct{})"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3"
+          ],
+          "after": "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCurrent func() (map[int]OrderRule, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {",
+          "quotes": [
+            "rules.orderer[resourceType] = id shouldCallReorder = true rules.reorderDone[resourceType] = make(chan struct{})"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.7",
+            "HEAD"
+          ],
+          "quotes": [
+            "// Capture the done channel while still holding the lock: concurrent // registrations write rules.reorderDone under the lock, so reading the // map after Unlock races with them."
           ]
         }
       ],
@@ -195,9 +222,10 @@
           ],
           "after": "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCurrent func() (map[int]OrderRule, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {",
           "quotes": [
-            "// Capture the done channel while still holding the lock: concurrent",
-            "doneCh := rules.reorderDone[resourceType]",
-            "close(doneCh)"
+            "// Capture the done channel while still holding the lock: concurrent // registrations write rules.reorderDone under the lock, so reading the // map after Unlock races with them.",
+            "doneCh := rules.reorderDone[resourceType] rules.Unlock()",
+            "case <-rules.reorderDone[resourceType]:",
+            "go func() { reorderAll(resourceType, getCurrent, updateOrder, beforeReorder) close(doneCh) }()"
           ]
         }
       ],
@@ -271,9 +299,20 @@
           ],
           "after": "func reorderAll(",
           "quotes": [
-            "if !(allDone && size > 0) {",
-            "rules.Unlock()",
-            "continue"
+            "for { select { case <-ticker.C: rules.Lock() size := len(rules.orders[resourceType]) allDone := true for _, v := range rules.orders[resourceType] { if !v.done { allDone = false break } } if !(allDone && size > 0) { rules.Unlock() continue }",
+            "current, err := getCurrent()"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "go func() { reorderAll(resourceType, getCurrent, updateOrder, beforeReorder) close(doneCh) }()",
+            "ch := rules.reorderDone[resourceType] rules.Unlock() if ch != nil { <-ch }"
           ]
         }
       ],
@@ -298,9 +337,19 @@
           "after": "func resourceBandwdithControlRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "reorderWithBeforeReorder(",
-            "if diags := resourceBandwdithControlRulesRead(ctx, d, meta); diags.HasError() {",
-            "return diags",
+            "if diags := resourceBandwdithControlRulesRead(ctx, d, meta); diags.HasError() { if time.Since(start) < timeout { time.Sleep(10 * time.Second) // Wait before retrying continue } return diags }",
             "markOrderRuleAsDone(resp.ID, \"bandwidth_control_rule\")"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "rules.orders[resourceType][id] = orderWithState{order, false}"
           ]
         }
       ],
@@ -423,7 +472,8 @@
           "after": "func resourceFiresourceTrafficCaptureRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "resourceType := \"firewall_filtering_rules\"",
-            "allRules, err := traffic_capture.GetAll(ctx, service, nil)"
+            "allRules, err := traffic_capture.GetAll(ctx, service, nil)",
+            "_, err = traffic_capture.Update(ctx, service, id, rule)"
           ]
         },
         {
@@ -497,7 +547,9 @@
           "after": "func resourceCloudAppControlRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "resourceType := \"cloud_app_control_rules\"",
-            "list, err := cloudappcontrol.GetByRuleType(ctx, service, req.Type)"
+            "list, err := cloudappcontrol.GetByRuleType(ctx, service, req.Type)",
+            "rule, err := cloudappcontrol.GetByRuleID(ctx, service, req.Type, id)",
+            "_, err = cloudappcontrol.Update(ctx, service, req.Type, id, rule)"
           ]
         },
         {
@@ -508,6 +560,29 @@
           ],
           "quotes": [
             "reorderWithBeforeReorder(OrderRule{Order: intendedOrder, Rank: intendedRank}, req.ID, \"cloud_app_control_rules\","
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3"
+          ],
+          "after": "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCurrent func() (map[int]OrderRule, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {",
+          "quotes": [
+            "// Reorder goroutine still running — just register, don't start another",
+            "reorderAll(resourceType, getCurrent, updateOrder, beforeReorder)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "at": [
+            "v4.8.7",
+            "HEAD"
+          ],
+          "quotes": [
+            "// callbacks below are scoped to req.Type's endpoint, so rules of a // different type registered under the same key would never be visible // to this cycle's GetByRuleType and would be skipped forever."
           ]
         }
       ],
@@ -532,7 +607,23 @@
           "quotes": [
             "func cloudAppRuleResourceType(ruleType string) string {",
             "return \"cloud_app_control_rules:\" + ruleType",
-            "cloudAppRuleStartingOrder = map[string]int{}"
+            "cloudAppRuleStartingOrder = map[string]int{}",
+            "// Control rule type. The key is type-scoped because the API orders rules // independently per type;"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "at": [
+            "v4.8.7",
+            "HEAD"
+          ],
+          "after": "func resourceCloudAppControlRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "cloudAppRuleStartingOrder[req.Type] = r.Order",
+            "cloudAppRuleLock.Unlock()",
+            "req.Order = cloudAppRuleStartingOrder[req.Type]",
+            "resourceType := cloudAppRuleResourceType(req.Type)"
           ]
         }
       ]
@@ -572,7 +663,8 @@
             "HEAD"
           ],
           "quotes": [
-            "reorderWithBeforeReorder(OrderRule{Order: req.Order, Rank: req.Rank}, req.ID, \"casb_dlp_rules\","
+            "reorderWithBeforeReorder(OrderRule{Order: req.Order, Rank: req.Rank}, req.ID, \"casb_dlp_rules\",",
+            "markOrderRuleAsDone(resp.ID, \"casb_dlp_rules\")"
           ]
         },
         {
@@ -619,6 +711,18 @@
           "quotes": [
             "endpoint := fmt.Sprintf(\"%s?ruleType=%s\", casbMalwareRulesEndpoint, url.QueryEscape(ruleType))"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_casb_malware_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "reorder(OrderRule{Order: order, Rank: 0}, resp.ID, \"casb_malware_rules\", func() (map[int]OrderRule, error) {",
+            "reorder(OrderRule{Order: req.Order, Rank: 0}, req.ID, \"casb_malware_rules\", func() (map[int]OrderRule, error) {"
+          ]
         }
       ],
       "upstream": [
@@ -661,6 +765,7 @@
           ],
           "after": "func resourceDlpWebRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
+            "dlpWebRulesLock.Lock()",
             "dlpWebSubRulesStartingOrder[req.ParentRule] = r.Order",
             "dlpWebRulesLock.Unlock()",
             "req.Order = dlpWebSubRulesStartingOrder[req.ParentRule]"
@@ -675,6 +780,7 @@
           ],
           "after": "func resourceOutboundEmailDLPCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
+            "outboundEmailDlpLock.Lock()",
             "outboundEmailDlpSubRulesStartingOrder[req.ParentRule] = r.Order",
             "outboundEmailDlpLock.Unlock() startWithoutLocking := time.Now()",
             "req.Order = outboundEmailDlpSubRulesStartingOrder[req.ParentRule]"
@@ -688,6 +794,7 @@
             "HEAD"
           ],
           "quotes": [
+            "endpointDlpSubRulesLock.Lock()",
             "endpointDlpSubRulesStartingOrder[parentID] = sr.Order",
             "endpointDlpSubRulesLock.Unlock()",
             "req.Order = endpointDlpSubRulesStartingOrder[parentID]"
@@ -702,6 +809,7 @@
           ],
           "after": "func resourceCloudAppControlRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
+            "cloudAppRuleLock.Lock()",
             "cloudAppRuleStartingOrder[req.Type] = r.Order",
             "cloudAppRuleLock.Unlock()",
             "req.Order = cloudAppRuleStartingOrder[req.Type]"
@@ -728,7 +836,7 @@
           ],
           "after": "func resourceNatControlRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "natControlRuleStartingOrder = r.Order",
+            "list, _ := nat_control_policies.GetAll(ctx, service) for _, r := range list { if r.Order > natControlRuleStartingOrder { natControlRuleStartingOrder = r.Order }",
             "req.Order = natControlRuleStartingOrder"
           ]
         },
@@ -741,7 +849,7 @@
           ],
           "after": "func resourceURLFilteringRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "urlFilteringStartingOrder = r.Order",
+            "list, _ := urlfilteringpolicies.GetAll(ctx, service) for _, r := range list { if r.Order > urlFilteringStartingOrder { urlFilteringStartingOrder = r.Order }",
             "req.Order = urlFilteringStartingOrder"
           ]
         }
@@ -813,9 +921,10 @@
           ],
           "after": "func resourceBandwdithControlRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "order := req.Order",
-            "req.Order = bandwidthControlStartingOrder",
-            "time.Sleep(10 * time.Second) // Wait before retrying",
+            "for { bandwidthControlLock.Lock()",
+            "order := req.Order req.Order = bandwidthControlStartingOrder",
+            "if strings.Contains(err.Error(), \"INVALID_INPUT_ARGUMENT\") {",
+            "time.Sleep(10 * time.Second) // Wait before retrying continue",
             "OrderRule{Order: order, Rank: req.Rank},"
           ]
         },
@@ -829,9 +938,11 @@
           "after": "func resourceCloudAppControlRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "intendedOrder := req.Order",
-            "intendedRank := req.Rank",
+            "intendedRank := req.Rank if intendedRank < 7 {",
             "req.Rank = 7",
-            "time.Sleep(10 * time.Second) // Wait before retrying"
+            "if strings.Contains(err.Error(), \"INVALID_INPUT_ARGUMENT\") {",
+            "time.Sleep(10 * time.Second) // Wait before retrying continue",
+            "OrderRule{Order: intendedOrder, Rank: intendedRank},"
           ]
         }
       ],
@@ -870,7 +981,7 @@
           "after": "func reorderAll(",
           "quotes": [
             "if cur.Order == desired.Order && cur.Rank == desired.Rank {",
-            "if err := updateOrder(v.ID, desired); err != nil {",
+            "if err := updateOrder(v.ID, desired); err != nil { log.Printf(\"[ERROR] reorderAll: PUT for rule %d failed in %s: %v\", v.ID, resourceType, err) puterrs++ continue }",
             "putsIssued++"
           ]
         },
@@ -883,8 +994,7 @@
           ],
           "after": "func resourceBandwdithControlRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "if rule.Order == order.Order {",
-            "rule.Order = order.Order"
+            "if rule.Order == order.Order { return nil } // Strip read-only fields that cause \"Request body is invalid\" for predefined rules rule.DefaultRule = false rule.AccessControl = \"\" rule.Order = order.Order _, err = bandwidth_control_rules.Update(ctx, service, id, rule)"
           ]
         },
         {
@@ -896,8 +1006,7 @@
           ],
           "after": "func resourceCasbDlpRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "if rule.Order == order.Order {",
-            "rule.Order = order.Order"
+            "if rule.Order == order.Order { return nil } // Strip read-only fields that cause \"Request body is invalid\" for predefined rules rule.AccessControl = \"\" rule.Order = order.Order _, err = casb_dlp_rules.Update(ctx, service, id, rule)"
           ]
         }
       ],
@@ -939,7 +1048,10 @@
           "quotes": [
             "case putsIssued > 0 && !improved && skipped == 0 && puterrs == 0:",
             "realProgress := size > lastSize || putsIssued > 0",
-            "progressedThisPass := putsIssued > 0 || (prevAtTarget >= 0 && alreadyAtTarget > prevAtTarget)"
+            "progressedThisPass := putsIssued > 0 || (prevAtTarget >= 0 && alreadyAtTarget > prevAtTarget)",
+            "if skipped > 0 && inRangeAtTarget && !progressedThisPass && puterrs == 0 {",
+            "case size != lastSize: // New registrations legitimately reshuffle the target // set; restart the oscillation window. bestAtTarget = alreadyAtTarget nonImprovingPutTicks = 0",
+            "if realProgress { noProgressTicks = 0 }"
           ]
         }
       ],
@@ -966,7 +1078,7 @@
       ]
     },
     "oscillation-breaker-six-passes": {
-      "statement": "The reorder helper stops after six consecutive clean passes (`maxNonImprovingPutTicks = 6`), meaning passes that issue PUTs without improving the best at-target count and have no skipped rules and no PUT errors; a changed registration set, a skip or a PUT error resets the count, logs the contested rules and returns so the apply can complete; the provider comment says that without the breaker the cycle livelocks until Terraform's own context deadline.",
+      "statement": "The reorder helper stops after six consecutive non-improving passes (`maxNonImprovingPutTicks = 6`), meaning passes that issue PUTs without improving the best at-target count and have no skipped rules and no PUT errors; a changed registration set, a skip or a PUT error resets the count. At six it logs the contested rules and returns so the apply can complete; the provider comment says that without the breaker the cycle livelocks until Terraform's own context deadline.",
       "tier": "A",
       "evidence": [
         {
@@ -974,10 +1086,24 @@
           "path": "zia/common.go",
           "quotes": [
             "const maxNonImprovingPutTicks = 6",
-            "// the cycle livelocks until terraform's own context deadline kills it"
+            "no other exit condition can fire and // the cycle livelocks until terraform's own context deadline kills it",
+            "After this many consecutive passes that issue // PUTs without improving on the best at-target count, the loop logs the // still-misplaced rules and returns so the apply can complete;",
+            "improved := alreadyAtTarget > bestAtTarget",
+            "case size != lastSize:",
+            "case putsIssued > 0 && !improved && skipped == 0 && puterrs == 0: nonImprovingPutTicks++ if nonImprovingPutTicks >= maxNonImprovingPutTicks {",
+            "Giving up so the apply can complete; re-run terraform plan to see the remaining differences. Contested in the last pass: %s",
+            "default: nonImprovingPutTicks = 0"
           ]
         }
       ]
+    },
+    "done-channel-read-after-unlock-effect": {
+      "statement": "So at v4.8.3 that unsynchronized read can abort the provider with Go's fatal \"concurrent map read and map write\" error; it cannot return a different channel for the same key.",
+      "tier": "B",
+      "derived_from": [
+        "done-channel-read-after-unlock"
+      ],
+      "conditions": "Inferred from the Go runtime's handling of unsynchronized map access and from the registration logic: the key's channel is replaced only by a registration that finds the previous cycle's channel closed, and the reading registration's own cycle has not started its goroutine yet. No crash with this message is recorded from a provider run."
     }
   },
   "gaps": {

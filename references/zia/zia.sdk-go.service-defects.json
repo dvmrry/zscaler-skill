@@ -107,7 +107,8 @@
           "after": "func UpdateAdminUser(ctx context.Context, service *zscaler.Service, adminUserID int, adminUser AdminUsers) (*AdminUsers, error) {",
           "quotes": [
             "res, _ := resp.(AdminUsers)",
-            "return &res, err"
+            "return &res, err",
+            "resp, err := service.Client.UpdateWithPut(ctx, path, adminUser) if err != nil { return nil, err }"
           ]
         },
         {
@@ -144,7 +145,7 @@
       ]
     },
     "admin-user-result-unused-by-provider": {
-      "statement": "The provider's admin-user update discards the value `UpdateAdminUser` returns, so the zero-value result does not reach Terraform state. The defect is observable only to other SDK callers.",
+      "statement": "The provider's admin-user update discards the value `UpdateAdminUser` returns, so the zero-value result does not reach Terraform state.",
       "tier": "A",
       "evidence": [
         {
@@ -158,7 +159,8 @@
             "if _, err := admins.UpdateAdminUser(ctx, service, id, req); err != nil {"
           ]
         }
-      ]
+      ],
+      "conditions": "No other provider call to `UpdateAdminUser` was found at v4.8.3 or HEAD (git grep in zia/), so the defect matters to other SDK callers."
     },
     "sub-location-lookups-swallow-errors": {
       "statement": "Sub-location lookups by ID and by name treat an API error as \"keep looking\". `GetSubLocationBySubID` ignores the error from each parent's lookup and only returns on success, and `GetSubLocationByName` discards the error from listing sub-locations outright. A permission, rate-limit, or server error on every parent ends as the synthetic \"not found\" error (by ID) or \"no sublocation found\" (by name). `GetLocationOrSublocationByID` and `...ByName` do the same with their first lookup, falling through to the sub-location search on any error. By name, an error listing the parent locations themselves is still returned; only the per-parent sub-location errors are dropped.",
@@ -175,7 +177,11 @@
             "if err == nil && subLoc != nil {",
             "return nil, fmt.Errorf(\"sublocation not found: %d\", subLocationID)\n}\n\n// GetSublocations gets all",
             "subLocs, _ := GetSublocations(context.Background(), service, location.ID)",
-            "location, err := GetLocation(context.Background(), service, id)\n\tif err == nil && location != nil {"
+            "location, err := GetLocation(context.Background(), service, id)\n\tif err == nil && location != nil {",
+            "func GetSubLocationByName(ctx context.Context, service *zscaler.Service, subLocatioName string) (*Locations, error) { locations, err := GetAll(ctx, service) if err != nil { return nil, err }",
+            "return nil, fmt.Errorf(\"no sublocation found with name: %s\", subLocatioName)",
+            "return GetSubLocationBySubID(context.Background(), service, id)",
+            "location, err := GetLocationByName(context.Background(), service, name) if err == nil && location != nil { return location, nil } return GetSubLocationByName(context.Background(), service, name)"
           ]
         }
       ],
@@ -212,7 +218,7 @@
       ]
     },
     "provider-location-lookups-use-these-helpers": {
-      "statement": "The provider's location resource importer (by name), read and update (by ID), and its data source call the combined location-or-sub-location lookups and `GetSubLocationByNames`, so they inherit the dropped errors and the dropped context.",
+      "statement": "The provider's location resource importer (by name, for an ID that is not an integer), read and update (by ID), and its data source call the combined location-or-sub-location lookups, so they inherit the dropped errors and the dropped context. The data source's lookup by parent and name calls `GetSubLocationByNames`, which returns its errors but also calls the API with `context.Background()`.",
       "tier": "A",
       "derived_from": [
         "sub-location-lookups-swallow-errors",
@@ -228,7 +234,8 @@
           ],
           "quotes": [
             "res, err := locationmanagement.GetLocationOrSublocationByID(ctx, service, id)",
-            "res, err := locationmanagement.GetLocationOrSublocationByName(ctx, service, name)"
+            "res, err := locationmanagement.GetLocationOrSublocationByName(ctx, service, name)",
+            "res, err := locationmanagement.GetSubLocationByNames(ctx, service, parentName, name)"
           ]
         },
         {
@@ -239,7 +246,10 @@
             "HEAD"
           ],
           "quotes": [
-            "resp, err := locationmanagement.GetLocationOrSublocationByName(ctx, service, id)"
+            "resp, err := locationmanagement.GetLocationOrSublocationByName(ctx, service, id)",
+            "Importer: &schema.ResourceImporter{",
+            "idInt, parseIDErr := strconv.ParseInt(id, 10, 64) if parseIDErr == nil {",
+            "} else { resp, err := locationmanagement.GetLocationOrSublocationByName(ctx, service, id)"
           ]
         },
         {
@@ -252,6 +262,18 @@
           "quotes": [
             "resp, err := locationmanagement.GetLocationOrSublocationByID(ctx, service, id)",
             "if _, err := locationmanagement.GetLocationOrSublocationByID(ctx, service, id); err != nil {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/location/locationmanagement/locationmanagement.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "func GetSubLocationByNames(ctx context.Context, service *zscaler.Service, locationName, subLocatioName string) (*Locations, error) { location, err := GetLocationByName(context.Background(), service, locationName) if err != nil { return nil, err }",
+            "subLocations, err := GetSublocations(context.Background(), service, location.ID) if err != nil { return nil, err }"
           ]
         }
       ]
@@ -319,7 +341,10 @@
           "quotes": [
             "allRules, getAllErr := GetAll(ctx, service)",
             "if getAllErr == nil {",
-            "return &rule, nil"
+            "return &rule, nil",
+            "if rule.Action == \"ISOLATE\" && rule.CBIProfile == nil && rule.CBIProfileID != 0 {",
+            "allRules, getAllErr := GetAll(ctx, service) if getAllErr == nil {",
+            "if allRules[i].ID == ruleID && allRules[i].CBIProfile != nil { rule.CBIProfile = allRules[i].CBIProfile"
           ]
         }
       ],
@@ -343,8 +368,15 @@
             "HEAD"
           ],
           "quotes": [
+            "switch rule.Action.Type { case \"DECRYPT\":",
+            "if rule.Action.DecryptSubActions == nil { return fmt.Errorf(\"when action.type is 'DECRYPT', decryptSubActions block must be set\")",
+            "if rule.Action.DecryptSubActions.ServerCertificates == \"\" || rule.Action.DecryptSubActions.MinClientTLSVersion == \"\" ||",
             "rule.Action.DecryptSubActions.MinServerTLSVersion == \"\" {",
-            "return fmt.Errorf(\"invalid action type: %s\", rule.Action.Type)"
+            "case \"DO_NOT_DECRYPT\": // Ensure doNotDecryptSubActions is set and not empty",
+            "return fmt.Errorf(\"when action.type is 'DO_NOT_DECRYPT' and bypassOtherPolicies is true, serverCertificates and minTLSVersion cannot be set\")",
+            "return fmt.Errorf(\"when action.type is 'DO_NOT_DECRYPT' and bypassOtherPolicies is false, serverCertificates and minTLSVersion must be set\")",
+            "case \"BLOCK\": // Ensure decryptSubActions and doNotDecryptSubActions are not set",
+            "default: return fmt.Errorf(\"invalid action type: %s\", rule.Action.Type)"
           ]
         },
         {
@@ -416,7 +448,21 @@
           "after": "func Update(ctx context.Context, service *zscaler.Service, extranetID int, extranet *Extranet) (*Extranet, error) {",
           "quotes": [
             "extranet.ID = extranetID",
-            "updatedExtranet, _ := resp.(*Extranet)"
+            "updatedExtranet, _ := resp.(*Extranet)",
+            "resp, err := service.Client.UpdateWithPut(ctx, extranetEndpoint, *extranet)",
+            "service.Client.GetLogger().Printf(\"[DEBUG]returning extranet from update: %d\", updatedExtranet.ID)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "return c.updateGeneric(ctx, endpoint, o, \"PUT\", contentTypeJSON)",
+            "if len(resp) == 0 { return nil, nil // Return nil for responseObject and no error }"
           ]
         }
       ],
@@ -452,7 +498,10 @@
             "HEAD"
           ],
           "quotes": [
-            "resp, err := dc_exclusions.GetByName(ctx, service, id)"
+            "resp, err := dc_exclusions.GetByName(ctx, service, id)",
+            "Importer: &schema.ResourceImporter{",
+            "idInt, parseIDErr := strconv.ParseInt(id, 10, strconv.IntSize) if parseIDErr == nil {",
+            "} else { resp, err := dc_exclusions.GetByName(ctx, service, id)"
           ]
         }
       ],
@@ -488,7 +537,19 @@
             "HEAD"
           ],
           "quotes": [
-            "return nil, errors.New(\"tried to create with a nil payload not a Struct\")"
+            "return nil, errors.New(\"tried to create with a nil payload not a Struct\")",
+            "return c.oauth2Credentials.LegacyClient.ZiaClient.Create(ctx, removeOneApiEndpointPrefix(endpoint), o)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v2_client.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "func (c *Client) Create(ctx context.Context, endpoint string, o interface{}) (interface{}, error) { if o == nil { return nil, errors.New(\"tried to create with a nil payload not a Struct\")"
           ]
         }
       ],
@@ -515,7 +576,10 @@
           "quotes": [
             "if !containsVIP(zscalerVips, vip) {\n\t\t\t\tzscalerVips = append(zscalerVips, vip)",
             "option(&queryParams)",
-            "return nil, fmt.Errorf(\"not enough vips, got %d vips, required: %d\", len(zscalerVips), 2)"
+            "return nil, fmt.Errorf(\"not enough vips, got %d vips, required: %d\", len(zscalerVips), 2)",
+            "for _, option := range options { option(&queryParams) }",
+            "if len(zscalerVips) < 2 { for _, vip := range zscalerVips {",
+            "func containsVIP(vips []GREVirtualIPList, vip GREVirtualIPList) bool { for _, v := range vips { if v.ID == vip.ID { return true } } return false }"
           ]
         }
       ],

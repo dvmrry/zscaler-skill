@@ -214,15 +214,16 @@
           "quotes": [
             "object_type = \"SAML\"",
             "lhs = data.zpa_saml_attribute.email_user_sso.id",
-            "idp_id = data.zpa_idp_controller.idp_name.id"
+            "idp_id = data.zpa_idp_controller.idp_name.id",
+            "`rhs` (String) This denotes the value for the given object type. Its value depends upon the key."
           ]
         },
         {
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_access_rule_v2.md",
           "quotes": [
-            "The ID of the SAML Attribute value.",
-            "The SAML attribute string i.e Group name, Department Name, Email address etc."
+            "`lhs` - (String) -  The ID of the SAML Attribute value.",
+            "`rhs` - (String) - The SAML attribute string i.e Group name, Department Name, Email address etc."
           ]
         }
       ]
@@ -236,7 +237,8 @@
           "path": "zpa/common.go",
           "quotes": [
             "_, _, err := samlattribute.Get(ctx, zClient.Service, operand.LHS)",
-            "return lhsWarn(operand.ObjectType, \"valid SAML Attribute ID\", operand.LHS, err)"
+            "return lhsWarn(operand.ObjectType, \"valid SAML Attribute ID\", operand.LHS, err)",
+            "return rhsWarn(operand.ObjectType, \"SAML Attribute Value\", operand.RHS, nil)"
           ]
         },
         {
@@ -259,8 +261,26 @@
           "source": "tf-zpa",
           "path": "zpa/common.go",
           "quotes": [
-            "return fmt.Errorf(\"LHS must be a valid SAML attribute ID and cannot be empty for SAML object_type\")"
+            "return fmt.Errorf(\"LHS must be a valid SAML attribute ID and cannot be empty for SAML object_type\")",
+            "return fmt.Errorf(\"entry_values must be provided for SAML object_type\")",
+            "return fmt.Errorf(\"RHS must be a valid string i.e email adddress, department, group etc and cannot be empty for SAML object_type\")"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "quotes": [
+            "if err := ValidateConditions(ctx, req.Conditions, zClient, microTenantID); err != nil {"
+          ],
+          "after": "func resourcePolicyAccessUpdate(ctx"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "quotes": [
+            "if err := ValidatePolicyRuleConditions(d); err != nil {"
+          ],
+          "after": "func resourcePolicyAccessV2Update(ctx"
         }
       ],
       "conditions": "v1 call sites: every ValidateConditions caller is a v1 resource's create or update function; the v2 resources call ValidatePolicyRuleConditions instead, which does no lookup. The first quote pair is the v1 validator (lookup, then lhsWarn on error); the 'cannot be empty' quote is the v2 validator ValidatePolicyRuleConditions."
@@ -274,7 +294,9 @@
           "path": "docs/resources/zpa_policy_access_rule_v2.md",
           "quotes": [
             "Rules that combine *different* object types within one block",
-            "the GUI may silently drop the operands it cannot render"
+            "the GUI may silently drop the operands it cannot render",
+            "using the `OR` operator are valid via Terraform and the API, but the ZPA Admin GUI's",
+            "criteria builder cannot always represent them."
           ]
         }
       ]

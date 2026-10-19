@@ -89,6 +89,8 @@
           "source": "zscaler-help",
           "path": "automate-zscaler/rate-limiting-zia.json",
           "quotes": [
+            "Every endpoint is assigned a weight and every weight has a default rate limit. The following table provides the typical assignment for each weight.",
+            "| Weight | Typical Assignment | Requests/second | Requests/minute | Requests/hour |",
             "| Heavy | DELETE | - | 1 | 4 |",
             "| Medium | POST, PUT | 1 | - | 400 |",
             "| Light | GET | 2 | - | 1,000 |"
@@ -105,7 +107,10 @@
           "path": "automate-zscaler/rate-limiting-zia.json",
           "quotes": [
             "When the defined rate limit is exceeded, an HTTP 429 response code is returned.",
-            "x-ratelimit-reset: The time (in seconds) remaining in the current window after which the rate limit resets."
+            "x-ratelimit-reset: The time (in seconds) remaining in the current window after which the rate limit resets.",
+            "x-ratelimit-limit: The rate limit ceiling that is applicable for the current API request.",
+            "x-ratelimit-remaining: The number of API requests remaining for the current rate limit window.",
+            "ZIA sends Rate Limit headers in API responses"
           ]
         }
       ]
@@ -147,7 +152,10 @@
           "path": "zscaler/request_executor.py",
           "quotes": [
             "max_retry_seconds = self._config.get(\"client\", {}).get(\"rateLimit\", {}).get(\"maxRetrySeconds\", None)",
-            "raise RetryTooLong("
+            "raise RetryTooLong(",
+            "if backoff > max_retry_seconds:",
+            "f\"Retry wait time {backoff} seconds exceeds configured maxRetrySeconds {max_retry_seconds}.\"",
+            "backoff_seconds = self.get_retry_after(response.headers, logger)"
           ]
         }
       ]
@@ -162,7 +170,10 @@
           "quotes": [
             "if response.status_code == 409 and request.get(\"service_type\") == \"zia\":",
             "backoff_seconds = 5 * (2**attempts)",
-            "# Cap at 60 seconds max backoff"
+            "# Cap at 60 seconds max backoff",
+            "if response_body and \"EDIT_LOCK_NOT_AVAILABLE\" in response_body:",
+            "# This error occurs when another admin session holds the edit lock",
+            "backoff_seconds = min(backoff_seconds, 60)"
           ]
         }
       ]

@@ -110,6 +110,15 @@
           "quotes": [
             "webDlpGlobalOptionsEndpoint = \"/zia/api/v1/webDlpGlobalOptions\""
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/web_dlp_global_options.py",
+          "after": "def get_global_options(",
+          "quotes": [
+            "Retrieves the DLP Advanced Settings information",
+            "/webDlpGlobalOptions"
+          ]
         }
       ]
     },
@@ -134,6 +143,14 @@
               "ICAP_RESPONSE"
             ]
           }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "after": "This article applies only to organizations with Evaluate All Rules mode enabled.",
+          "quotes": [
+            "Confirm: Users can justify the transaction to continue, or cancel the transaction altogether; in both cases, the service logs the transaction accordingly."
+          ]
         }
       ],
       "gaps": [
@@ -186,6 +203,15 @@
           "quotes": [
             "// The match only criteria for DLP engines."
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/minSize",
+          "expect": {
+            "type": "integer",
+            "description": "The minimum file size (in KB) used for evaluation of the DLP policy rule."
+          }
         }
       ]
     },
@@ -278,8 +304,38 @@
             "// The email address of an external auditor to whom DLP email notifications are sent.",
             "// The template used for DLP notification emails.",
             "InspectHttpGetEnabled bool `json:\"inspectHttpGetEnabled,omitempty\"`",
-            "UserRiskScoreLevels []string `json:\"userRiskScoreLevels,omitempty\"`"
+            "UserRiskScoreLevels []string `json:\"userRiskScoreLevels,omitempty\"`",
+            "Users []common.IDNameExtensions `json:\"users,omitempty\"`",
+            "Groups []common.IDNameExtensions `json:\"groups,omitempty\"`",
+            "Departments []common.IDNameExtensions `json:\"departments,omitempty\"`",
+            "Locations []common.IDNameExtensions `json:\"locations,omitempty\"`",
+            "IncludedDomainProfiles []common.IDNameExtensions `json:\"includedDomainProfiles,omitempty\"`",
+            "ExcludedDomainProfiles []common.IDNameExtensions `json:\"excludedDomainProfiles,omitempty\"`",
+            "WorkloadGroups []common.IDName `json:\"workloadGroups,omitempty\"`",
+            "URLCategories []common.IDNameExtensions `json:\"urlCategories,omitempty\"`",
+            "CloudApplications []string `json:\"cloudApplications,omitempty\"`",
+            "TimeWindows []common.IDNameExtensions `json:\"timeWindows,omitempty\"`",
+            "Labels []common.IDNameExtensions `json:\"labels,omitempty\"`",
+            "Auditor *common.IDCustom `json:\"auditor,omitempty\"`",
+            "NotificationTemplate *common.IDCustom `json:\"notificationTemplate,omitempty\"`",
+            "ZCCNotificationsEnabled bool `json:\"zccNotificationsEnabled,omitempty\"`"
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/includedDomainProfiles",
+          "expect": {
+            "description": "The list of  that must be added to the DLP rule criteria in order to apply the DLP rules only to domains that are part of the specified profiles. A maximum of 8 profiles can be selected."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/excludedDomainProfiles",
+          "expect": {
+            "description": "The list of  that must be added to the DLP rule criteria in order to apply the DLP rules to all domains excluding the domains that are part of the specified profiles. A maximum of 8 profiles can be selected."
+          }
         }
       ]
     },
@@ -295,7 +351,18 @@
           "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/dlpContentLocationsScopes",
           "expect": {
-            "type": "array"
+            "type": "array",
+            "items": {
+              "enum": [
+                "ANY",
+                "HTTP_BODY",
+                "FILE_CONTENT",
+                "DOCUMENT_PROPERTIES",
+                "FILENAME"
+              ],
+              "type": "string"
+            },
+            "description": "<p>Specifies one or more content locations from the available values as a match criteria for the rule to target specific sections of a file or transaction. Matches against file metadata, actual file content (not including metadata), file name, and HTTP request body are supported. Matches vary depending on the content locations selected.</p><p><b>Note</b>: This rule criteria is not applicable to DLP rules without content inspection.</p>"
           }
         },
         {
@@ -349,7 +416,8 @@
                 },
                 "type": "object"
               }
-            ]
+            ],
+            "description": "<p>This attribute is deprecated and is no longer supported. It is replaced by the <b>receiver</b> attribute. Previously, <b>icapServer</b> was used in combination with <b>zscalerIncidentReceiver</b> to specify an ICAP server or Zscaler Incident Receiver to associate with the DLP policy rule. Currently, <b>receiver</b> is used to specify the DLP Incident Receiver details for any given type of the Incident Receiver.</p><p><b>Note</b>: API calls using this attribute would not be successful. To ensure continued API operation, you must immediately update your configurations to use the <b>receiver</b> attribute in the corresponding endpoints.</p>"
           }
         },
         {
@@ -357,7 +425,8 @@
           "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/zscalerIncidentReceiver",
           "expect": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "<p>This attribute is deprecated and is no longer supported. It is replaced by the <b>receiver</b> attribute. Previously, <b>zscalerIncidentReceiver</b> was used to indicate whether the Zscaler Incident Receiver is associated with the DLP policy rule, whereas <b>receiver</b> is currently used to specify the DLP Incident Receiver details for any given type of the Incident Receiver.</p><p><b>Note</b>: API calls using this attribute would not be successful. To ensure continued API operation, you must immediately update your configurations to use the <b>receiver</b> attribute in the corresponding endpoints.</p>"
           }
         },
         {
@@ -372,6 +441,40 @@
               "C2CIR"
             ]
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/receiver/properties",
+          "expect": {
+            "tenant": {
+              "description": "This is an immutable reference to an entity that mainly consists of id and name",
+              "properties": {
+                "extensions": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "Additional information about the entity",
+                  "type": "object"
+                },
+                "externalId": {
+                  "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities.",
+                  "type": "string"
+                },
+                "id": {
+                  "description": "A unique identifier for an entity",
+                  "format": "int64",
+                  "type": "integer"
+                },
+                "name": {
+                  "description": "The configured name of the entity",
+                  "readOnly": true,
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
         }
       ]
     },
@@ -385,7 +488,37 @@
           "quotes": [
             "ExemptUrlEncodedData        bool                      `json:\"exemptUrlEncodedData,omitempty\"`",
             "HttpGetCustomUrlCategories  []string                  `json:\"httpGetCustomUrlCategories,omitempty\"`",
-            "EnableCasbOcr               bool                      `json:\"enableCasbOcr,omitempty\"`"
+            "EnableCasbOcr               bool                      `json:\"enableCasbOcr,omitempty\"`",
+            "Applications                []string                  `json:\"applications,omitempty\"`",
+            "Urls                        []string                  `json:\"urls,omitempty\"`",
+            "URLCategories               []common.IDNameExtensions `json:\"urlCategories,omitempty\"`",
+            "EnableNpkEdmTemplates       bool                      `json:\"enableNpkEdmTemplates,omitempty\"`",
+            "EnableInlineDlpOcr          bool                      `json:\"enableInlineDlpOcr,omitempty\"`",
+            "EnableEmailDlpOcr           bool                      `json:\"enableEmailDlpOcr,omitempty\"`",
+            "EnableEvaluateAllDlpRules   bool                      `json:\"enableEvaluateAllDlpRules,omitempty\"`",
+            "EnableEdmPopularFormat      bool                      `json:\"enableEdmPopularFormat,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/web_dlp_global_options.py",
+          "quotes": [
+            "applications (list): List of cloud applications exempted from DLP evaluation",
+            "url_categories (list): List of custom URL categories exempted from DLP evaluation",
+            "enable_inline_dlp_ocr (boolean): Indicates whether optical character recognition (OCR)",
+            "enable_casb_ocr (boolean): Indicates whether SaaS Security for Zscaler DLP engines to scan images for text content in data at rest is enabled",
+            "enable_email_dlp_ocr (boolean): Indicates whether Outbound Email DLP for Zscaler DLP engines",
+            "enable_evaluate_all_dlp_rules (boolean): Indicates whether DLP engines evaluate all rules or stop when a matching rule is found",
+            "enable_edm_popular_format (boolean): Indicates whether EDM with popular formats is enabled.",
+            "http_get_custom_url_categories (list): List of URL Categories to associate with Inspect HTTP GET Requests"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "after": "This article applies only to organizations with Evaluate All Rules mode enabled.",
+          "quotes": [
+            "To select a user-defined custom URL category from the drop-down menu, go to the DLP Advanced Settings page (Data Security > Common Resources > DLP Advanced Settings) and select a User-Defined URL."
           ]
         }
       ]
@@ -416,7 +549,8 @@
           "source": "api-specs",
           "path": "automate-zscaler/observed-contract-overlays.md",
           "quotes": [
-            "All six raw hashes matched the checked-in `zia-api-reference.json`, so the checked-in Automate artifact was current for this surface and still did not document the two live-read fields."
+            "All six raw hashes matched the checked-in `zia-api-reference.json`, so the checked-in Automate artifact was current for this surface and still did not document the two live-read fields.",
+            "The Web DLP operation pages were recaptured with the Automate Playwright scraper on 2026-06-21."
           ]
         }
       ]

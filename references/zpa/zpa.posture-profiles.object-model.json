@@ -94,7 +94,9 @@
           "path": "configuring-device-posture-profiles.json",
           "quotes": [
             "Posture profiles for both Internet & SaaS and Private Access devices are created in the Device Posture section.",
-            "The posture profiles are used for configuring access policies for Private Access and for adding posture profile trust levels for Internet & SaaS."
+            "The posture profiles are used for configuring access policies for Private Access and for adding posture profile trust levels for Internet & SaaS.",
+            "To configure a device posture profile for Zscaler Client Connector:",
+            "From the navigation menu, go to Infrastructure > Client Connector > Device Posture."
           ]
         }
       ]
@@ -171,6 +173,102 @@
           "expect": {
             "type": "boolean"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/id",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/name",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/platform",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/rootCert",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/domain",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/masterCustomerId",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/zscalerCustomerId",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/zscalerCloud",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/applyToMachineTunnelEnabled",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/creationTime",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/modifiedTime",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/modifiedBy",
+          "expect": {
+            "type": "integer"
+          }
         }
       ],
       "binds": [
@@ -220,7 +318,9 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/postureprofile/zpa_posture_profile.go",
           "quotes": [
-            "ApplyToMachineTunnelEnabled bool `json:\"applyToMachineTunnelEnabled\"`"
+            "ApplyToMachineTunnelEnabled bool `json:\"applyToMachineTunnelEnabled\"`",
+            "CRLCheckEnabled bool `json:\"crlCheckEnabled\"`",
+            "NonExportablePrivateKeyEnabled bool `json:\"nonExportablePrivateKeyEnabled\"`"
           ]
         }
       ],
@@ -257,6 +357,14 @@
             "adaptedPostureName := common.RemoveCloudSuffix(postureName)",
             "if strings.EqualFold(common.RemoveCloudSuffix(postureProfile.Name), adaptedPostureName) {"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/postureprofile/zpa_posture_profile.go",
+          "quotes": [
+            "for _, postureProfile := range list {"
+          ],
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, postureName string)"
         },
         {
           "source": "sdk-go",

@@ -98,13 +98,15 @@
   "claims": {
     "what-it-blocks": {
       "statement": "strictEnforcement (MSI `STRICTENFORCEMENT`) requires users to enroll with the app before they can reach the internet, and blocks traffic when the user has not yet logged in after a new install, after a user logs out, and after an administrator removes the device. It defaults to disabled.",
-      "tier": "A",      "evidence": [
+      "tier": "A",
+      "evidence": [
         {
           "source": "zscaler-help",
           "path": "supported-parameters-zscaler-client-connector-windows.json",
           "quotes": [
             "MSI: STRICTENFORCEMENTEXE: strictEnforcement",
-            "Allows you to require users to enroll with the app before accessing the internet and blocks traffic in the following situations:The user has not yet logged in after a new install.A user logs in and logs out.An administrator removes a device."
+            "Allows you to require users to enroll with the app before accessing the internet and blocks traffic in the following situations:The user has not yet logged in after a new install.A user logs in and logs out.An administrator removes a device.",
+            "This option is required if you use the STRICTENFORCEMENT or strictEnforcement option."
           ]
         },
         {
@@ -173,6 +175,15 @@
           "path": "supported-parameters-zscaler-client-connector-ios.json",
           "quotes": [
             "If you enable Strict Enforcement, you must use the policyToken configuration key.",
+            "This option is required if you use the strictEnforcement option.",
+            "If you enable Strict Enforcement, you must use the policyToken configuration key. Excluded URLs must also be defined in a device configuration policy or excludeList in an app configuration policy."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "after": "| cloudname | The name of the cloud",
+          "quotes": [
             "This option is required if you use the strictEnforcement option."
           ]
         }
@@ -209,7 +220,8 @@
           "quotes": [
             "MSI: POLICYTOKENEXE: policyToken",
             "Allows you to specify which app profile policy you want to enforce for the app before the user enrolls. All relevant settings associated with the policy apply, including the bypass of the IdP login page.",
-            "ensure that the custom PAC file associated with that policy includes a bypass for your IdP login page. This allows the user to access the IdP page to log in as necessary before enrolling with the app."
+            "ensure that the custom PAC file associated with that policy includes a bypass for your IdP login page. This allows the user to access the IdP page to log in as necessary before enrolling with the app.",
+            "CLOUDNAME or cloudNamePOLICYTOKEN or policyToken"
           ]
         },
         {
@@ -241,7 +253,8 @@
             "Allows you to exclude domains and IP addresses that should never be tunneled by Zscaler Client Connector with or without strictEnforcement.",
             "If you are using strictEnforcement, enter your MDM server or anything else the user should have access to before enrollment.",
             "If you use the Private Access service, you must enter authsp.prod.zpath.net.",
-            "Excluded URLs must also be defined in a device configuration policy or excludeList in an app configuration policy."
+            "Excluded URLs must also be defined in a device configuration policy or excludeList in an app configuration policy.",
+            "If you enable Strict Enforcement, you must use the policyToken configuration key. Excluded URLs must also be defined in a device configuration policy or excludeList in an app configuration policy."
           ]
         }
       ]
@@ -263,7 +276,8 @@
           "source": "zscaler-help",
           "path": "supported-parameters-zscaler-client-connector-windows.json",
           "quotes": [
-            "you must set the HIDEAPPUIONLAUNCH or hideAppUIOnLaunch option to 0 (disabled) to allow Zscaler Client Connector to remind users to enroll before accessing the internet."
+            "you must set the HIDEAPPUIONLAUNCH or hideAppUIOnLaunch option to 0 (disabled) to allow Zscaler Client Connector to remind users to enroll before accessing the internet.",
+            "If you enable this option, the following options are required:CLOUDNAME or cloudNamePOLICYTOKEN or policyTokenTo use this install option when deploying Zscaler Client Connector with non-persistent Citrix VDIs, you must set the HIDEAPPUIONLAUNCH"
           ]
         }
       ]
@@ -280,7 +294,8 @@
             "Allows you to pass a predownloaded configuration file with fail-close settings to use when Zscaler Client Connector is in strict enforcement mode.",
             "If you pass this install option, you must also pass these options:STRICTENFORCEMENT or strictEnforcementSEFAILCLOSECONFIGTHUMBPRINT or failCloseConfigThumbprint",
             "MSI: SEFAILCLOSECONFIGTHUMBPRINTEXE: failCloseConfigThumbprint",
-            "Allows you to pass the public key for a predownloaded configuration file with fail-close settings"
+            "Allows you to pass the public key for a predownloaded configuration file with fail-close settings",
+            "If you pass this install option, you must also pass these options:STRICTENFORCEMENT or strictEnforcementIMPORTSEFAILCLOSECONFIG or importSEFailCloseConfig"
           ]
         },
         {

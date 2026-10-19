@@ -35,7 +35,7 @@
       "text": "{{keywords-whole-uri}}"
     },
     {
-      "text": "{{regex-patterns}} {{category-type-filter}} The `type` filter rests on SDK and MCP behavior, not the captured contract {{divergence:type-filter-parameter}}. Which field a TLD category takes its entries in is open {{gap:tld-category-entries}}."
+      "text": "{{regex-patterns}} {{regex-patterns-in-tenant-data}} {{category-type-filter}} The `type` filter rests on SDK and MCP behavior, not the captured contract {{divergence:type-filter-parameter}}. Which field a TLD category takes its entries in is open {{gap:tld-category-entries}}."
     },
     {
       "text": "{{category-quotas}} How entries match requests once accepted is in [[zia.url-categories.entry-matching]]."
@@ -118,7 +118,7 @@
       ]
     },
     "bulk-add-all-or-nothing": {
-      "statement": "Adding URLs to a custom category is all-or-nothing: one invalid URL rejects the whole request with an error, so automation must validate every entry first.",
+      "statement": "Adding URLs to a custom category is all-or-nothing: one invalid URL rejects the whole request with an error.",
       "tier": "A",
       "binds": [
         "zia/url-categories#urls"
@@ -186,7 +186,7 @@
       ]
     },
     "regex-patterns": {
-      "statement": "Custom categories can match by regex (`urlType: REGEX` with `regexPatterns`) instead of exact entries; patterns are 3 to 255 characters, at most 256 across all categories, and the feature must be enabled by Zscaler Support. The console walkthrough does not show this path, so odd-looking tenant entries may be patterns.",
+      "statement": "Custom categories can match by regex (`urlType: REGEX` with `regexPatterns`) instead of exact entries; patterns are 3 to 255 characters, at most 256 across all categories, and the feature must be enabled by Zscaler Support.",
       "tier": "A",
       "binds": [
         "zia/url-categories#regexPatterns",
@@ -199,10 +199,21 @@
           "quotes": [
             "For regex, the patterns can be specified using the regexPatterns and regexPatternsRetainingParentCategory fields.",
             "Note: To enable the Regex feature, contact Zscaler Support.",
-            "Multiple patterns can be added to a category. A pattern must be between 3 and 255 characters, and a maximum of 256 patterns can be added across all categories."
+            "Multiple patterns can be added to a category. A pattern must be between 3 and 255 characters, and a maximum of 256 patterns can be added across all categories.",
+            "// Supported Values: EXACT, REGEX",
+            "UrlType string `json:\"urlType,omitempty\"`",
+            "RegexPatterns []string `json:\"regexPatterns\"`"
           ]
         }
       ]
+    },
+    "regex-patterns-in-tenant-data": {
+      "statement": "So tenant entries that look odd as exact URLs may be regex patterns, and the console walkthrough is not a guide to them.",
+      "tier": "B",
+      "derived_from": [
+        "regex-patterns"
+      ],
+      "conditions": "Inferred from the regex match type existing alongside exact entries. A search of the captured help pages (2026-10-19) found no URL-category page that describes the regex path."
     },
     "category-type-filter": {
       "statement": "Custom categories have a `type` (`URL_CATEGORY` or `TLD_CATEGORY`). When listing, no type filter returns predefined plus custom `URL_CATEGORY` categories, and `ALL` returns predefined plus custom categories of every type.",
@@ -216,7 +227,28 @@
           "path": "zscaler/zia/services/urlcategories/urlcategories.go",
           "quotes": [
             "// If categoryType is empty, no type filter is applied (returns predefined + custom URL_CATEGORY)",
-            "// If categoryType is \"ALL\", returns predefined + custom categories of all types"
+            "// If categoryType is \"ALL\", returns predefined + custom categories of all types",
+            "// Type of the custom categories. Type string `json:\"type,omitempty\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1urlCategories/post/requestBody/content/application~1json/schema/properties/type",
+          "expect": {
+            "description": "Type of the custom categories.",
+            "enum": [
+              "URL_CATEGORY",
+              "TLD_CATEGORY",
+              "ALL"
+            ]
+          }
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/url_categories.py",
+          "quotes": [
+            "API filter by category type: URL_CATEGORY, TLD_CATEGORY or ALL."
           ]
         }
       ]
@@ -240,6 +272,46 @@
             "\"name\": \"customOnly\",",
             "\"name\": \"includeOnlyUrlKeywordCounts\","
           ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/url_categories.py",
+          "after": "class ListInput(BaseModel):",
+          "quotes": [
+            "Nothing else is advertised, because nothing else works.",
+            "search: Annotated[",
+            "custom_only: Annotated[",
+            "type: Annotated[",
+            "contains_url: Annotated["
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1urlCategories/get",
+          "expect": {
+            "parameters": [
+              {
+                "description": "If set to true, gets information on custom URL categories only.",
+                "in": "query",
+                "name": "customOnly",
+                "required": false,
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              {
+                "description": "By default this parameter is set to false, so the response includes URLs and keywords for custom URL categories only. If set to true, the response only includes URL and keyword counts.",
+                "in": "query",
+                "name": "includeOnlyUrlKeywordCounts",
+                "required": false,
+                "schema": {
+                  "default": false,
+                  "type": "boolean"
+                }
+              }
+            ]
+          }
         }
       ]
     },
@@ -258,7 +330,7 @@
           "source": "mcp-server",
           "path": "src/zscaler_mcp/tools/zia/url_categories.py",
           "quotes": [
-            "``/urlCategories/lite`` is deliberately NOT used. It takes no parameters, so it"
+            "``/urlCategories/lite`` is deliberately NOT used. It takes no parameters, so it cannot filter, and it omits ``configuredName`` — which is the only handle a custom category has, since its id is a generated string."
           ]
         }
       ]

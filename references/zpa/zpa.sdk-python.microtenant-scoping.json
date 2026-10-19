@@ -61,7 +61,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/segment_groups.py",
           "quotes": [
-            "microtenant_id = query_params.get(\"microtenant_id\", None)"
+            "microtenant_id = query_params.get(\"microtenant_id\", None)",
+            "query_params[\"microtenantId\"] = microtenant_id"
           ],
           "after": "def list_groups("
         },
@@ -69,7 +70,17 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/segment_groups.py",
           "quotes": [
-            "microtenant_id = body.get(\"microtenant_id\", None)"
+            "microtenant_id = query_params.get(\"microtenant_id\", None)",
+            "query_params[\"microtenantId\"] = microtenant_id"
+          ],
+          "after": "def get_group("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/segment_groups.py",
+          "quotes": [
+            "microtenant_id = body.get(\"microtenant_id\", None)",
+            "params = {\"microtenantId\": microtenant_id} if microtenant_id else {}"
           ],
           "after": "def add_group("
         },
@@ -79,6 +90,14 @@
           "quotes": [
             "def delete_group(self, group_id: str, microtenant_id: str = None)"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/segment_groups.py",
+          "quotes": [
+            "params = {\"microtenantId\": microtenant_id} if microtenant_id else {}"
+          ],
+          "after": "def delete_group("
         }
       ]
     },
@@ -118,6 +137,16 @@
           "quotes": [
             "self.microtenant_id = self._config[\"client\"].get(\"microtenantId\")  # Optional for ZIA/ZCC"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "if body and isinstance(body, dict) and \"microtenantId\" in body and body[\"microtenantId\"]:",
+            "if params and \"microtenantId\" in params and params[\"microtenantId\"]:",
+            "return self.microtenant_id"
+          ],
+          "after": "def _get_microtenant_id(self, body, params):"
         }
       ]
     },
@@ -130,7 +159,9 @@
           "path": "zscaler/request_executor.py",
           "quotes": [
             "microtenant_id = self._get_microtenant_id(body, params)",
-            "params[\"microtenantId\"] = microtenant_id"
+            "params[\"microtenantId\"] = microtenant_id",
+            "if service_type.lower() == \"zpa\":",
+            "if microtenant_id: params[\"microtenantId\"] = microtenant_id"
           ]
         }
       ]
@@ -143,7 +174,9 @@
           "source": "sdk-python",
           "path": "zscaler/request_executor.py",
           "quotes": [
-            "params.pop(\"microtenantId\", None)"
+            "params.pop(\"microtenantId\", None)",
+            "if service_type.lower() == \"zpa\":",
+            "# Normal param conversion if not ZPA"
           ]
         }
       ]

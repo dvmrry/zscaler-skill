@@ -66,16 +66,42 @@
       ]
     },
     "errors-return-none": {
-      "statement": "Each `AuditLogsAPI` method returns None when the request cannot be built or fails, so a failure is indistinguishable from an empty result.",
+      "statement": "Each `AuditLogsAPI` method (`get_status`, `create`, `cancel`, `get_report`) returns a bare None, not the error, when the request cannot be built or fails.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zia/audit_logs.py",
           "quotes": [
-            "if error: return None"
+            "if error: return None",
+            "http_method = \"get\".upper()"
           ],
           "after": "def get_status(self)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "after": "def create(self, start_time: str, end_time: str)",
+          "quotes": [
+            "request, error = self._request_executor.create_request(",
+            "if error: return None response, error = self._request_executor.execute(request, None) if error: return None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "after": "def cancel(self)",
+          "quotes": [
+            "if error: return None response, error = self._request_executor.execute(request, None) if error: return None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "after": "def get_report(self)",
+          "quotes": [
+            "if error: return None response, error = self._request_executor.execute(request, None) if error: return None"
+          ]
         }
       ]
     },
@@ -135,6 +161,21 @@
           "quotes": [
             "method: POST uri: https://easm.test.zscaler.com/zia/api/v1/auditlogEntryReport%22",
             "method: DELETE uri: https://easm.test.zscaler.com/zia/api/v1/auditlogEntryReport%22"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zia/cassettes/TestAuditLogs.yaml",
+          "after": "interactions:",
+          "quotes": [
+            "method: GET uri: https://easm.test.zscaler.com/zia/api/v1/auditlogEntryReport response:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zia/cassettes/TestAuditLogs.yaml",
+          "quotes": [
+            "method: GET uri: https://easm.test.zscaler.com/zia/api/v1/auditlogEntryReport/download"
           ]
         }
       ]

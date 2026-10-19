@@ -91,6 +91,7 @@
           "path": "configuring-log-streaming-service-configurations-using-api.json",
           "quotes": [
             "Send a POST request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/lssConfig.",
+            "Send a GET request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/lssConfig/{lssId}.",
             "Send a PUT request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/lssConfig/{lssId}.",
             "Send a DELETE request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/lssConfig/{lssId}."
           ]
@@ -98,9 +99,25 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1lssConfig~1{lssId}/get",
+          "expect": {
+            "operationId": "Gets the LSS configuration details for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1lssConfig~1{lssId}/put",
           "expect": {
             "operationId": "Updates the LSS configuration for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1lssConfig~1{lssId}/delete",
+          "expect": {
+            "operationId": "Deletes the LSS configuration for the specified ID."
           }
         }
       ]
@@ -177,6 +194,14 @@
           "expect": {
             "operationId": "Gets all LSS client types. This API will be deprecated in a future release."
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1lssConfig~1customers~1{customerId}~1clientTypes/get",
+          "expect": {
+            "operationId": "Gets all LSS client types for the specified customer."
+          }
         }
       ]
     },
@@ -220,7 +245,9 @@
             "The PUT body is constructed from scratch -- this function does not",
             "pre-fetch and merge the current state.",
             "config_block = {\"id\": lss_config_id}",
-            "\"policySetId\": policy_set_id,"
+            "\"policySetId\": policy_set_id,",
+            "# Build config block conditionally -- only include keys the caller\n# supplied. config.id always rides along (LSS PUT requires it).",
+            "# When policy_rules is set, the payload's policyRuleResource must\n# include the SIEM_POLICY policy set id (resolved at runtime).\nif kwargs.get(\"policy_rules\"):\n policy_set_id, err = self._get_siem_policy_set_id()"
           ],
           "after": "def update_lss_config("
         }
@@ -235,14 +262,17 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "`lss.update_lss_config()` now builds the PUT body from caller-supplied fields only",
-            "fixes the earlier `policy.invalid.mapping.input` failure by including `config.id` in the body"
+            "fixes the earlier `policy.invalid.mapping.input` failure by including `config.id` in the body",
+            "dynamically resolving `policyRuleResource.policySetId` from the `SIEM_POLICY` policy type when `policy_rules` is provided."
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/lss.py",
           "quotes": [
-            "current_config, _, error = self.get_config(lss_config_id)"
+            "current_config, _, error = self.get_config(lss_config_id)",
+            "# Fetch the current configuration so we can merge with the new values",
+            "# Prepare the payload by merging the current configuration with the new changes\ncurrent_config[\"config\"].update("
           ],
           "at": [
             "v1.9.29"

@@ -45,7 +45,7 @@
       "heading": "Always-sent and dropped values"
     },
     {
-      "text": "{{service-edge-provisioning-key-sent}} {{private-broker-version-value-struct}} {{upgrade-now-once}}"
+      "text": "{{service-edge-provisioning-key-sent}} {{private-broker-version-value-struct}} {{private-broker-version-empty-object}} {{upgrade-now-once}}"
     },
     {
       "text": "{{service-edge-group-enabled-sent}} The Go `isPublic` string is in [[zpa.private-service-edges.client-selection]]."
@@ -115,7 +115,7 @@
   ],
   "claims": {
     "schedule-duplicate-packages": {
-      "statement": "The Go SDK defines the same `AssistantSchedule` type and a `/serviceEdgeSchedule` endpoint constant in both the serviceedgecontroller and serviceedgeschedule packages; the serviceedgeschedule package exposes only GetSchedule, CreateSchedule and UpdateSchedule.",
+      "statement": "The Go SDK defines the same `AssistantSchedule` type and a `/serviceEdgeSchedule` endpoint constant in both the serviceedgecontroller and serviceedgeschedule packages; the serviceedgeschedule package defines GetSchedule, CreateSchedule and UpdateSchedule.",
       "tier": "A",
       "evidence": [
         {
@@ -148,7 +148,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/service_edge_schedule.py",
           "quotes": [
-            "create_request(http_method, api_url, body, {}, params)"
+            "create_request(http_method, api_url, body, {}, params)",
+            "payload = { \"customerId\": customer_id, \"frequency\": body.get(\"frequency\"), \"frequencyInterval\": body.get(\"frequency_interval\"), }"
           ],
           "after": "/serviceEdgeSchedule/{scheduler_id}"
         },
@@ -191,7 +192,7 @@
       ]
     },
     "private-broker-version-value-struct": {
-      "statement": "The Go service edge holds `PrivateBrokerVersion` as a struct value tagged omitempty, so a zero value is sent as an empty object.",
+      "statement": "The Go service edge holds `PrivateBrokerVersion` as a struct value (not a pointer) tagged omitempty, and every member of `PrivateBrokerVersion` is itself tagged omitempty.",
       "tier": "A",
       "evidence": [
         {
@@ -199,6 +200,19 @@
           "path": "zscaler/zpa/services/serviceedgecontroller/zpa_service_edge_controller.go",
           "quotes": [
             "PrivateBrokerVersion PrivateBrokerVersion `json:\"privateBrokerVersion,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgecontroller/zpa_service_edge_controller.go",
+          "after": "type PrivateBrokerVersion struct {",
+          "quotes": [
+            "ID string `json:\"id,omitempty\"` ApplicationStartTime string `json:\"applicationStartTime,omitempty\"` BrokerId string `json:\"brokerId,omitempty\"` CreationTime string `json:\"creationTime,omitempty\"` CtrlChannelStatus string `json:\"ctrlChannelStatus,omitempty\"`",
+            "CurrentVersion string `json:\"currentVersion,omitempty\"` DisableAutoUpdate bool `json:\"disableAutoUpdate,omitempty\"` LastConnectTime string `json:\"lastConnectTime,omitempty\"` LastDisconnectTime string `json:\"lastDisconnectTime,omitempty\"` LastUpgradedTime string `json:\"lastUpgradedTime,omitempty\"`",
+            "LoneWarrior bool `json:\"loneWarrior,omitempty\"` ModifiedBy string `json:\"modifiedBy,omitempty\"` ModifiedTime string `json:\"modifiedTime,omitempty\"` Platform string `json:\"platform,omitempty\"` PlatformDetail string `json:\"platformDetail,omitempty\"`",
+            "PreviousVersion string `json:\"previousVersion,omitempty\"` ServiceEdgeGroupID string `json:\"serviceEdgeGroupId,omitempty\"` PrivateIP string `json:\"privateIp,omitempty\"` PublicIP string `json:\"publicIp,omitempty\"` RestartInstructions string `json:\"restartInstructions,omitempty\"`",
+            "RestartTimeInSec string `json:\"restartTimeInSec,omitempty\"` RuntimeOS string `json:\"runtimeOS,omitempty\"` SargeVersion string `json:\"sargeVersion,omitempty\"` SystemStartTime string `json:\"systemStartTime,omitempty\"` TunnelId string `json:\"tunnelId,omitempty\"`",
+            "UpgradeAttempt string `json:\"upgradeAttempt,omitempty\"` UpgradeStatus string `json:\"upgradeStatus,omitempty\"` UpgradeNowOnce bool `json:\"upgradeNowOnce,omitempty\"` ZPNSubModuleUpgradeList []common.ZPNSubModuleUpgrade `json:\"zpnSubModuleUpgradeList,omitempty\"` }"
           ]
         }
       ],
@@ -246,7 +260,8 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/private_cloud_controller/private_cloud_controller.go",
           "quotes": [
-            "`json:\"runtimeOS,omitempty\"`"
+            "`json:\"runtimeOS,omitempty\"`",
+            "Runtime string `json:\"runtimeOS,omitempty\"`"
           ]
         },
         {
@@ -375,6 +390,42 @@
           }
         },
         {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge/get/parameters/[name=search]",
+          "expect": {
+            "name": "search",
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge/get/parameters/[name=page]",
+          "expect": {
+            "name": "page",
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge/get/parameters/[name=sortBy]",
+          "expect": {
+            "name": "sortBy",
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge/get/parameters/[name=microtenantId]",
+          "expect": {
+            "name": "microtenantId",
+            "in": "query"
+          }
+        },
+        {
           "source": "sdk-python",
           "path": "zscaler/zpa/private_cloud_controller.py",
           "quotes": [
@@ -394,6 +445,14 @@
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge~1bulkDelete/post/responses/200",
           "expect": {
             "description": "OK"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge~1bulkDelete/post/responses/200/content/*~1*/schema",
+          "expect": {
+            "type": "object"
           }
         },
         {
@@ -427,7 +486,8 @@
           "source": "sdk-python",
           "path": "CHANGELOG.md",
           "quotes": [
-            "Fixed ZPA `get_service_edge`, `delete_service_edge` and `bulk_delete_service_edges` to return the documented `(result, response, error)` tuple instead of a bare object or status code."
+            "Fixed ZPA `get_service_edge`, `delete_service_edge` and `bulk_delete_service_edges` to return the documented `(result, response, error)` tuple instead of a bare object or status code.",
+            "[Issue #578](https://github.com/zscaler/zscaler-sdk-python/issues/578)"
           ],
           "after": "## 1.11.1 (October 6 2026)"
         }
@@ -521,6 +581,24 @@
         }
       ],
       "conditions": "Converted from a divergence: the two SDKs describe the same list at different typing depth and neither contradicts the other about the wire."
+    },
+    "private-broker-version-empty-object": {
+      "statement": "A Go service edge write that leaves `PrivateBrokerVersion` at its zero value therefore carries an empty `privateBrokerVersion` object instead of omitting the member.",
+      "tier": "B",
+      "derived_from": [
+        "private-broker-version-value-struct",
+        "shared.sdk-go.zero-value-writes:value-struct-omitempty-emits-empty-object"
+      ],
+      "conditions": "Follows from Go's encoding/json not treating a struct value as empty for omitempty (the shared claim) and from every member of PrivateBrokerVersion being omitempty; not quoted from the SDK. Split out of private-broker-version-value-struct, whose evidence states only the tags.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgecontroller/zpa_service_edge_controller.go",
+          "quotes": [
+            "PrivateBrokerVersion PrivateBrokerVersion `json:\"privateBrokerVersion,omitempty\"`"
+          ]
+        }
+      ]
     }
   },
   "divergences": {

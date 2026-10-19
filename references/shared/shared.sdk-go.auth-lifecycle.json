@@ -71,7 +71,10 @@
           ],
           "quotes": [
             "Context:       context.Background(), // Set default context",
-            "cfg.Context = ctx"
+            "cfg.Context = ctx",
+            "ctx := context.WithValue(\n\t\tcontext.Background(),\n\t\tContextAccessToken,",
+            "func Authenticate(ctx context.Context, cfg *Configuration, l logger.Logger) (*AuthToken, error) {",
+            "req, err := http.NewRequestWithContext(ctx, \"POST\", authUrl, strings.NewReader(data.Encode()))"
           ]
         },
         {
@@ -101,6 +104,21 @@
             "HEAD"
           ],
           "quotes": [
+            "// Add a small delay before retrying to avoid overwhelming the server",
+            "time.Sleep(time.Second * 2)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "// Session invalidation means the server considers the token invalid",
+          "quotes": [
+            "c.Lock() // Prevent concurrent token refresh",
+            "c.oauth2Credentials.Logger.Printf(\"[INFO] Token refreshed successfully, retrying request...\")",
             "// Add a small delay before retrying to avoid overwhelming the server",
             "time.Sleep(time.Second * 2)"
           ]
@@ -134,6 +152,19 @@
             "c.Lock()",
             "c.oauth2Credentials.Zscaler.Client.AuthToken = authToken"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "// Session invalidation means the server considers the token invalid",
+          "quotes": [
+            "c.Lock() // Prevent concurrent token refresh",
+            "c.oauth2Credentials.Zscaler.Client.AuthToken = authToken"
+          ]
         }
       ],
       "upstream": [
@@ -158,6 +189,37 @@
             "case <-c.stopTicker:",
             "close(c.stopTicker)",
             "c.stopTicker = nil"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func (c *Client) Close() {",
+          "quotes": [
+            "c.Lock()",
+            "defer c.Unlock()",
+            "close(c.stopTicker)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func (c *Client) startTokenRenewalTicker() {",
+          "quotes": [
+            "go func() {",
+            "select {",
+            "case <-ticker.C:",
+            "c.Lock()",
+            "c.Unlock()",
+            "case <-c.stopTicker:"
           ]
         }
       ]

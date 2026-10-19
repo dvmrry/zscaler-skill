@@ -103,7 +103,8 @@
           "source": "zscaler-help",
           "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
           "quotes": [
-            "If you need something inspected that is otherwise exempted, build an inspection rule before the exemption rule."
+            "If you need something inspected that is otherwise exempted, build an inspection rule before the exemption rule.",
+            "build one rule to inspect the Device Groups running Zscaler Client Connector and then another rule to exempt the locations or location group as necessary."
           ]
         }
       ]
@@ -158,7 +159,9 @@
           "path": "ranges-limitations-zia.json",
           "quotes": [
             "255 rules (245 custom rules and 10 predefined rules)",
-            "from 1,024 rules to 2,048 rules"
+            "from 1,024 rules to 2,048 rules",
+            "| SSL Inspection Policy Rules | 255 rules (245 custom rules and 10 predefined rules) | |",
+            "| All Other Policy Rules (i.e., DLP Policy, Inline Web DLP Policy, IPS Control Policy, etc.) | 1,024 rules | Contact your Zscaler Account team for a possible increase in this limit from 1,024 rules to 2,048 rules. |"
           ]
         }
       ],
@@ -178,13 +181,17 @@
             "These rules are not editable and can only be implemented as is.",
             "Zscaler-Recommended Exemptions rule: Predefined rule to automatically exempt known destinations that cannot be SSL/TLS inspected. This rule is enabled by default.",
             "O365 One Click rule: Predefined rule, controlled by the Microsoft-Recommended and Legacy Office 365 One Click setting.",
-            "This rule is disabled by default and cannot be deleted."
+            "This rule is disabled by default and cannot be deleted.",
+            "O365 tenant restriction inspection rules: Predefined rules to enable Office 365 Tenancy Restrictions for location and remote user traffic.",
+            "UCaaS One Click rule: Predefined rule, controlled by the UCaaS One Click configuration.",
+            "Unauthorized Traffic Bypass for IoT Classifications rule: Predefined rule to allow unauthorized traffic to bypass SSL/TLS Inspection for IoT classifications in all IoT policy-enabled locations.",
+            "You can modify the Rule Order, Admin Rank, Rule Status, Rule Label, and choose Evaluate Other Policies or Bypass Other Policies under Do Not Inspect Action for this rule and cannot edit other attributes."
           ]
         }
       ]
     },
     "default-rule": {
-      "statement": "The Leading Practices rule set ends with a Default rule whose action is Do Not Inspect with Evaluate Other Policies; 'inspect everything not exempted' is a separate, administrator-built Inspect All rule placed above it.",
+      "statement": "The Leading Practices rule set ends with a Default rule whose action is Do Not Inspect with Evaluate Other Policies; 'inspect everything not exempted' is a separate Inspect All rule (criteria Any/Any/Any) placed above it.",
       "tier": "A",
       "binds": [
         "zia/ssl-inspection-rules#defaultRule"
@@ -195,13 +202,14 @@
           "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
           "quotes": [
             "Do Not Inspect Default Default Rule N/A Evaluate other policies.",
-            "New default. Inspect everything not exempted."
+            "New default. Inspect everything not exempted.",
+            "7 Inspect All Any/Any/Any Inspect"
           ]
         }
       ]
     },
     "marker-fields": {
-      "statement": "`predefined` is a read-only boolean marking Zscaler's predefined SSL rules, `defaultRule` is a boolean marking the default rule (the contract does not mark it read-only), and `accessControl` is a read-only RBAC privilege (`NONE`, `READ_ONLY`, `READ_WRITE`) for the calling admin.",
+      "statement": "`predefined` is a read-only boolean marking Zscaler's predefined SSL rules, `defaultRule` is a boolean marking the default rule (the contract does not mark it read-only), and `accessControl` is a read-only privilege (`NONE`, `READ_ONLY`, `READ_WRITE`) on the rule based on the admin's role-based access.",
       "tier": "A",
       "binds": [
         "zia/ssl-inspection-rules#predefined",
@@ -215,7 +223,8 @@
           "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/predefined",
           "expect": {
             "type": "boolean",
-            "readOnly": true
+            "readOnly": true,
+            "description": "A Boolean value that indicates whether the rule is a predefined SSL inspection rule or not"
           },
           "note": "predefined: readonly boolean, 'whether the rule is a predefined SSL inspection rule'"
         },
@@ -224,9 +233,13 @@
           "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/defaultRule",
           "expect": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "A Boolean value that indicates whether the rule is the default rule or not"
           },
-          "note": "defaultRule: boolean, not marked readonly"
+          "note": "defaultRule: boolean, not marked readonly",
+          "expect_absent": [
+            "readOnly"
+          ]
         },
         {
           "source": "api-specs",
@@ -239,14 +252,15 @@
               "READ_ONLY",
               "READ_WRITE"
             ],
-            "readOnly": true
+            "readOnly": true,
+            "description": "Access privilege to this rule based on the admin's RBA"
           },
           "note": "accessControl: readonly string, enum NONE, READ_ONLY, READ_WRITE"
         }
       ]
     },
     "predefined-management": {
-      "statement": "Predefined SSL rules cannot be deleted; through the provider only attributes such as description, state and labels can be changed on them, and Default Rules must not be imported or managed because the API does not support managing them.",
+      "statement": "Predefined SSL rules cannot be deleted; through the provider certain attributes such as description, state and labels can still be changed on them, though not all custom-rule attributes apply, and Default Rules must not be imported or managed because the API does not support managing them.",
       "tier": "A",
       "binds": [
         "zia/ssl-inspection-rules#predefined"
@@ -258,7 +272,11 @@
           "quotes": [
             "**NOTE 1** Zscaler SSL Inspection rules contain default and predefined rules which cannot be deleted.",
             "**NOTE 4** DO NOT import or manage Default Rules. Management of default rules are not supported via the API.",
-            "Certain attributes on `predefined` rules can still be managed or updated via Terraform such as:"
+            "Certain attributes on `predefined` rules can still be managed or updated via Terraform such as:",
+            "`description` - (Optional) Enter additional notes or information.",
+            "`state` - (Optional) An enabled rule is actively enforced.",
+            "`labels` (list) - Labels that are applicable to the rule.",
+            "not all attributes available on custom rules apply to them"
           ]
         }
       ]
@@ -277,7 +295,9 @@
           "source": "tf-zia",
           "path": "CLAUDE.md",
           "quotes": [
-            "The API rejects PUT requests for predefined rules when read-only fields (`Predefined`, `DefaultRule`, `AccessControl`) are included."
+            "The API rejects PUT requests for predefined rules when read-only fields (`Predefined`, `DefaultRule`, `AccessControl`) are included.",
+            "When the provider reorders rules, the `updateOrder` callback fetches each rule via GET and sends it back via PUT with the new order. For predefined rules, the API returns read-only fields that MUST NOT be included in the PUT body:",
+            "| ssl_inspection, firewall_filtering, firewall_dns, firewall_ips, nat_control, traffic_capture | `Predefined`, `DefaultRule`, `AccessControl` |"
           ]
         },
         {
@@ -285,9 +305,34 @@
           "path": "zia/resource_zia_ssl_inspection_rules.go",
           "quotes": [
             "rule.Predefined = false",
-            "rule.AccessControl = \"\""
+            "rule.AccessControl = \"\"",
+            "rule.DefaultRule = false"
           ],
           "after": "Strip read-only/server-managed fields so PUTs against"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/predefined",
+          "expect": {
+            "readOnly": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/accessControl",
+          "expect": {
+            "readOnly": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/defaultRule",
+          "expect_absent": [
+            "readOnly"
+          ]
         }
       ]
     },

@@ -111,13 +111,13 @@
           "quotes": [
             "The options are Any, TLS, RDP, or NLA.",
             "Windows 10, 11, and Windows Server 2016 or later: Select Any. This option uses the strongest mutually supported protocol, including NLA.",
-            "These versions do not support TLS, NLA, or Any options."
+            "Windows Server 2012 R2 and earlier (e.g., Server 2008, 2008 R2, 2012, 2012 R2), or older client parting systems (e.g., Windows 7 or 8.x): Select RDP. These versions do not support TLS, NLA, or Any options."
           ]
         }
       ]
     },
     "tf-protocol-enum": {
-      "statement": "In the Terraform PRA segment resource, each app's application_protocol is validated against RDP, SSH and VNC, and connection_security against ANY, NLA, NLA_EXT, TLS, VM_CONNECT and RDP. VM_CONNECT is a connection-security value, not a separate action.",
+      "statement": "In the Terraform PRA segment resource, each app's application_protocol is validated against RDP, SSH and VNC, and connection_security against ANY, NLA, NLA_EXT, TLS, VM_CONNECT and RDP.",
       "tier": "A",
       "binds": [
         "zpa/pra-app-segments#praApps"
@@ -127,14 +127,16 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_application_segment_pra.go",
           "quotes": [
+            "\"application_protocol\": {",
             "\"RDP\", \"SSH\", \"VNC\",",
+            "\"connection_security\": {",
             "\"ANY\", \"NLA\", \"NLA_EXT\", \"TLS\", \"VM_CONNECT\", \"RDP\","
           ]
         }
       ]
     },
     "tf-app-types-forced": {
-      "statement": "The Terraform PRA segment resource sets app_types to SECURE_REMOTE_ACCESS on every PRA app it builds, which is what distinguishes a PRA segment from a standard segment at the API layer.",
+      "statement": "The Terraform PRA segment resource sets app_types to SECURE_REMOTE_ACCESS on each existing PRA app it keeps when it updates a segment, and on every PRA app it reads back into state.",
       "tier": "A",
       "binds": [
         "zpa/pra-app-segments#praApps"
@@ -144,8 +146,33 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_application_segment_pra.go",
           "quotes": [
+            "// Rebuild apps from existing state: keep only apps still present in HCL; mark removed ones for deletion",
             "AppTypes:            []string{\"SECURE_REMOTE_ACCESS\"},"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_pra.go",
+          "quotes": [
+            "if err := mapPRAAppsToCommonApps(d, resp.PRAApps); err != nil {"
+          ],
+          "after": "func resourceApplicationSegmentPRARead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_pra.go",
+          "quotes": [
+            "\"app_types\":            []string{\"SECURE_REMOTE_ACCESS\"},"
+          ],
+          "after": "for _, domain := range currentDomains {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_pra.go",
+          "quotes": [
+            "\"app_types\":            []string{\"SECURE_REMOTE_ACCESS\"},"
+          ],
+          "after": "if !contains(currentDomains, app.Domain) {"
         }
       ]
     },

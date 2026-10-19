@@ -102,8 +102,8 @@
           "source": "zscaler-help",
           "path": "about-ips-control.json",
           "quotes": [
-            "uses signature-based detection",
-            "as well as signatures from industry-leading vendors."
+            "uses signature-based detection to monitor and protect your network traffic from intrusion over all ports and protocols",
+            "Zscaler's IPS Control uses IPS signature rules built and updated by Zscaler's security research team, as well as signatures from industry-leading vendors."
           ]
         }
       ]
@@ -134,7 +134,8 @@
           "path": "about-ips-control.json",
           "quotes": [
             "default IPS rule that blocks all traffic",
-            "(e.g., IT Security group traffic matching threats)"
+            "(e.g., IT Security group traffic matching threats)",
+            "You can create granular policies of higher precedence (i.e., higher admin rank) than the default rule to explicitly allow specific traffic"
           ]
         }
       ]
@@ -202,14 +203,20 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
           "quotes": [
-            "ipsSignaturesEndpoint         = \"/zia/api/v1/ipsSignatureRules\""
+            "ipsSignaturesEndpoint         = \"/zia/api/v1/ipsSignatureRules\"",
+            "RuleText string `json:\"ruleText,omitempty\"`",
+            "Category *IPSSignatureCategory `json:\"category,omitempty\"`",
+            "Enabled bool `json:\"enabled\"`"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zia/services/ips_control_policies/ips_policies/ips_policies.go",
           "quotes": [
-            "firewallIpsRulesEndpoint = \"/zia/api/v1/firewallIpsRules\""
+            "firewallIpsRulesEndpoint = \"/zia/api/v1/firewallIpsRules\"",
+            "Action string `json:\"action,omitempty\"`",
+            "NwServices []common.IDNameExtensions `json:\"nwServices,omitempty\"`",
+            "ThreatCategories []common.IDNameExtensions `json:\"threatCategories,omitempty\"`"
           ]
         }
       ]
@@ -242,7 +249,11 @@
           "path": "zscaler/zia/ips_signature_rules.py",
           "quotes": [
             "is validated against the ZIA dynamic-validation",
-            "this method does **not** call"
+            "this method does **not** call",
+            "endpoint (``validate_ips_signature_rule``) *before* the create request is",
+            "flags any signature carrying a ``sid``",
+            "a duplicate — which on an update is the rule being modified",
+            "itself, so a pre-flight check would reject every legitimate update."
           ]
         },
         {
@@ -267,7 +278,11 @@
           "quotes": [
             "PUT-replace; backfills name/rule_text",
             "payload.setdefault(\"name\", ed.get(\"name\"))",
-            "payload.setdefault(\"rule_text\", ed.get(\"rule_text\") or ed.get(\"ruleText\"))"
+            "payload.setdefault(\"rule_text\", ed.get(\"rule_text\") or ed.get(\"ruleText\"))",
+            "payload: dict[str, Any] = {\"name\": args.name, \"rule_text\": args.rule_text}",
+            "description: Annotated[Optional[str], Field(default=None, description=\"Admin note.\")] = None",
+            "if \"name\" not in payload or \"rule_text\" not in payload:",
+            "existing, _, ferr = client.zia.ips_signature_rules.get_ips_signature_rule(args.rule_id)"
           ]
         }
       ]
@@ -286,15 +301,15 @@
       ]
     },
     "logging": {
-      "statement": "Threats detected in network traffic are shown under Firewall Insights > Logs, and threats detected in web-only traffic also appear on the Security Dashboard. The firewall log records the IPS rule name and whether a custom signature applied.",
+      "statement": "Threats detected in network traffic are shown under Firewall Insights > Logs, and threats detected in web-only traffic also appear on the Security dashboard. The firewall log records the IPS rule name and whether a custom signature applied.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "about-ips-control.json",
           "quotes": [
-            "Threats detected in your network traffic are displayed under",
-            "Threats detected in web-only traffic also appear on the"
+            "Threats detected in your network traffic are displayed under Firewall Insights > Logs.",
+            "Threats detected in web-only traffic also appear on the Security dashboard."
           ]
         },
         {
@@ -302,7 +317,8 @@
           "path": "nss-feed-output-format-firewall-logs.json",
           "quotes": [
             "| The name of the IPS policy that was applied to the Firewall session",
-            "| Indicates if a custom IPS signature rule was applied."
+            "| Indicates if a custom IPS signature rule was applied.",
+            "| Default IPS Rule | IPS Rule Name |"
           ]
         }
       ]

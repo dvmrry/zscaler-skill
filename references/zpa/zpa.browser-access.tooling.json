@@ -111,6 +111,15 @@
             "transform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)"
           ],
           "after": "def update_segment_ba(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "after": "def transform_common_id_fields(id_groups: list, source_dict: dict, target_dict: dict, coerce_ids: bool = True):",
+          "quotes": [
+            "coerce_ids: If ``True`` (default), numeric-looking string IDs are\n coerced to ``int``",
+            "If ``False``, ID values are passed through verbatim\n — required for ZPA, whose 19-digit string IDs must be preserved\n on the wire"
+          ]
         }
       ]
     },
@@ -124,7 +133,27 @@
           "quotes": [
             "Browser-access (clientless) app configs forwarded as-is.",
             "\"clientless_app_ids\",",
-            "created, _, err = api.add_segment_ba(**_build_body(args))"
+            "created, _, err = api.add_segment_ba(**_build_body(args))",
+            "Field(default=None, description=\"New clientless app configs.\"),",
+            "for field in (\n \"name\",\n \"description\",\n \"enabled\",\n \"domain_names\",\n \"segment_group_id\",\n \"server_group_ids\",\n \"tcp_port_ranges\",\n \"udp_port_ranges\",\n \"clientless_app_ids\",\n ):",
+            "if not args.name or not args.segment_group_id:\n raise ValueError(\"name and segment_group_id are required\")",
+            "updated, _, err = api.update_segment_ba(args.segment_id, **_build_body(args))"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/app_segments_ba.py",
+          "after": "def zpa_create_application_segment_ba(args: CreateBaSegmentInput)",
+          "quotes": [
+            "api = client.zpa.app_segments_ba_v2"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/app_segments_ba.py",
+          "after": "def zpa_update_application_segment_ba(args: UpdateBaSegmentInput)",
+          "quotes": [
+            "api = client.zpa.app_segments_ba_v2"
           ]
         }
       ]
@@ -140,7 +169,8 @@
             "browserAccessGroupsEndpoint = \"/browserAccessGroups\"",
             "type BrowserAccessGroups struct {",
             "func GetAll(ctx context.Context, service *zscaler.Service) ([]BrowserAccessGroups, *http.Response, error) {",
-            "func Get(ctx context.Context, service *zscaler.Service, browserAccessGroupsID string) (*BrowserAccessGroups, *http.Response, error) {"
+            "func Get(ctx context.Context, service *zscaler.Service, browserAccessGroupsID string) (*BrowserAccessGroups, *http.Response, error) {",
+            "mgmtConfig                  = \"/zpa/mgmtconfig/v1/admin/customers/\""
           ]
         }
       ]
@@ -191,7 +221,12 @@
           "quotes": [
             "// fails with \"invalid.clientless.port\" because the new range is not yet",
             "portPrewrite.ClientlessApps = existingSegment.ClientlessApps",
-            "func browserAccessClientlessPortsNeedPrewrite(existing, req *applicationsegmentbrowseraccess.BrowserAccess) bool {"
+            "func browserAccessClientlessPortsNeedPrewrite(existing, req *applicationsegmentbrowseraccess.BrowserAccess) bool {",
+            "// Step 5: The API validates each clientless app's port against the port\n// ranges already persisted on the application.",
+            "portPrewrite.TCPPortRanges = unionPortRanges(existingSegment.TCPPortRanges, convertPortsToListString(existingSegment.TCPAppPortRange), req.TCPPortRanges)",
+            "portPrewrite.UDPPortRanges = unionPortRanges(existingSegment.UDPPortRanges, convertPortsToListString(existingSegment.UDPAppPortRange), req.UDPPortRanges)",
+            "if _, err := applicationsegmentbrowseraccess.Update(ctx, service, id, &portPrewrite); err != nil {",
+            "// Step 6: Perform the update with the full desired state\nif _, err := applicationsegmentbrowseraccess.Update(ctx, service, id, &req); err != nil {"
           ]
         }
       ]

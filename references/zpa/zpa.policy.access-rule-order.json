@@ -134,8 +134,11 @@
           "source": "zscaler-help",
           "path": "about-policies.json",
           "quotes": [
+            "An organization configures an access policy rule that allows all applications for the \"Marketing Dept.\"",
+            "The organization also configures a policy that denies the \"Operations Apps\" segment group to the \"Marketing Dept.\"",
             "users from \"Marketing Dept\" still have access to the \"Operations Apps\" segment group.",
-            "It then applies that access policy rule and immediately stops checking any other policies, because a matching policy was found for the user."
+            "It then applies that access policy rule and immediately stops checking any other policies, because a matching policy was found for the user.",
+            "Private Access first checks the access policy rules and finds the policy rule allowing Marketing users access to any application."
           ]
         }
       ]
@@ -155,7 +158,7 @@
           "source": "zscaler-help",
           "path": "access-policy-configuration-examples.json",
           "quotes": [
-            "that allow policy must be listed after this block policy."
+            "Because policy rules are enforced in the order listed, if the users you want to block are covered under another access policy rule which allows them access, that allow policy must be listed after this block policy."
           ]
         }
       ]
@@ -185,7 +188,11 @@
           "quotes": [
             "// PUT --> /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}/reorder/{newOrder}",
             "// PUT --> /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySet}/reorder",
-            "// ruleIdOrders is a map[ruleID]Order"
+            "// ruleIdOrders is a map[ruleID]Order",
+            "func Reorder(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, order int) (*http.Response, error) {",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, nil, nil)",
+            "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {",
+            "resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, ruleIdsOrdered, nil)"
           ]
         }
       ]
@@ -200,6 +207,14 @@
           "quotes": [
             "def reorder_rule(self, policy_type: str, rule_id: str, rule_order: str, **kwargs)",
             "/policySet/{policy_set_id.get(\"id\")}/rule/{rule_id}/reorder/{rule_order}"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "after": "def reorder_rule(self, policy_type: str, rule_id: str, rule_order: str, **kwargs)",
+          "quotes": [
+            "The policy type. Accepted values:\n- ``access``\n- ``timeout``\n- ``client_forwarding``\n- ``isolation``\n- ``inspection``\n- ``redirection``\n- ``credential``\n- ``capabilities``\n- ``siem``"
           ]
         }
       ]
@@ -238,14 +253,15 @@
       ]
     },
     "priority-field-exists": {
-      "statement": "A rule carries a `priority` field alongside `ruleOrder` in the API document, the Python model and the Terraform schema, where `priority` is a string.",
+      "statement": "A rule carries a `priority` field alongside `ruleOrder` in the API document, the Python model and the Terraform schema; the Terraform schema types `priority` as a string and the API document as an int32 integer.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/models/policyset_controller_v2.py",
           "quotes": [
-            "self.priority = config[\"priority\"] if \"priority\" in config else None"
+            "self.priority = config[\"priority\"] if \"priority\" in config else None",
+            "self.rule_order = config[\"ruleOrder\"] if \"ruleOrder\" in config else None"
           ],
           "after": "class PolicySetControllerV2(ZscalerObject):"
         },
@@ -253,13 +269,23 @@
           "source": "tf-zpa",
           "path": "zpa/common.go",
           "quotes": [
-            "\"priority\": { Type: schema.TypeString, Optional: true, Computed: true, },"
+            "\"priority\": { Type: schema.TypeString, Optional: true, Computed: true, },",
+            "\"rule_order\": {\nType: schema.TypeString,"
           ]
         },
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/priority",
+          "expect": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/ruleOrder",
           "expect": {
             "format": "int32",
             "type": "integer"

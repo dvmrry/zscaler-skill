@@ -113,7 +113,10 @@
           "path": "zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go",
           "quotes": [
             "A Boolean value indicating whether a First-Time Action is specifically configured for the rule.",
-            "Supported values: \"ALLOW_SCAN\", \"QUARANTINE\", \"ALLOW_NOSCAN\", \"QUARANTINE_ISOLATE\""
+            "Supported values: \"ALLOW_SCAN\", \"QUARANTINE\", \"ALLOW_NOSCAN\", \"QUARANTINE_ISOLATE\"",
+            "FirstTimeEnable bool `json:\"firstTimeEnable\"`",
+            "The action that must take place when users download unknown files for the first time",
+            "FirstTimeOperation string `json:\"firstTimeOperation\"`"
           ]
         }
       ]
@@ -153,7 +156,8 @@
           "source": "api-specs",
           "path": "automate-zscaler/rosetta.md",
           "quotes": [
-            "use AI analysis to instantly assign threat scores to unknown files. This option is available to use only with specific rule actions such as Quarantine and Allow and Scan for First-Time Action."
+            "use AI analysis to instantly assign threat scores to unknown files. This option is available to use only with specific rule actions such as Quarantine and Allow and Scan for First-Time Action.",
+            "| `mlActionEnabled` | A Boolean value indicating whether to enable or disable the AI Instant Verdict option to have the Zscaler service"
           ]
         },
         {
@@ -177,7 +181,15 @@
           "path": "zscaler/zia/sandbox_rules.py",
           "after": "def add_rule(",
           "quotes": [
-            "Minimum threat score can be set between 40 to 70."
+            "Minimum threat score can be set between 40 to 70.",
+            "by_threat_score (int): Minimum threat score can be set between 40 to 70."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go",
+          "quotes": [
+            "ByThreatScore int `json:\"byThreatScore,omitempty\"`"
           ]
         }
       ]
@@ -205,7 +217,12 @@
             "Name-ID pairs of time interval during which rule must be enforced.",
             "Name-ID pairs of devices for which rule must be applied.",
             "DeviceGroups []common.IDNameExtensions `json:\"deviceGroups\"`",
-            "The list of URL categories to which the DLP policy rule must be applied."
+            "The list of URL categories to which the DLP policy rule must be applied.",
+            "Name-ID pairs of the location groups to which the rule must be applied.",
+            "Labels []common.IDNameExtensions `json:\"labels,omitempty\"`",
+            "This field is applicable for devices that are managed using Zscaler Client Connector.",
+            "Specifies devices that are managed using Zscaler Client Connector.",
+            "The list of ZPA Application Segments for which this rule is applicable."
           ]
         },
         {
@@ -213,7 +230,8 @@
           "path": "zscaler/zia/sandbox_rules.py",
           "after": "def add_rule(",
           "quotes": [
-            "ba_policy_categories=[\"ADWARE_BLOCK\", \"BOTMAL_BLOCK\", \"ANONYP2P_BLOCK\","
+            "ba_policy_categories=[\"ADWARE_BLOCK\", \"BOTMAL_BLOCK\", \"ANONYP2P_BLOCK\",",
+            "\"RANSOMWARE_BLOCK\", \"OFFSEC_TOOLS_BLOCK\", \"SUSPICIOUS_BLOCK\"]"
           ]
         },
         {
@@ -236,7 +254,9 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go",
           "quotes": [
-            "Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on)"
+            "Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on)",
+            "this field specifies the order of execution for the rule.",
+            "Order int `json:\"order,omitempty\"`"
           ]
         }
       ]
@@ -254,14 +274,19 @@
           "path": "zia/resource_zia_sandbox_rules.go",
           "quotes": [
             "// Ignore Default BA Rule to prevent drift",
-            "if rule.Order != 127 && rule.Name != \"Default BA Rule\" {"
+            "if rule.Order != 127 && rule.Name != \"Default BA Rule\" {",
+            "if r.Order == 127 || r.Name == \"Default BA Rule\" {",
+            "if r.Order > sandboxStartingOrder {",
+            "if resp.Order == 127 || resp.Name == \"Default BA Rule\" {",
+            "// Filter out Default BA Rule before sorting"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go",
           "quotes": [
-            "If set to true, the default rule is applied"
+            "If set to true, the default rule is applied",
+            "DefaultRule bool `json:\"defaultRule\"`"
           ]
         }
       ],
@@ -271,7 +296,7 @@
       "conditions": "The captured help page (about-sandbox) says the default rule is evaluated last but never mentions order 127, so 127 is visible only in provider code and the API."
     },
     "python-crud": {
-      "statement": "The Python SDK has full CRUD for sandbox rules (`list_rules`, `get_rule`, `add_rule`, `update_rule`, `delete_rule`) over /sandboxRules, with the same field set as the Go SDK, so first-time behavior is configurable through either SDK.",
+      "statement": "The Python SDK has full CRUD for sandbox rules (`list_rules`, `get_rule`, `add_rule`, `update_rule`, `delete_rule`) over /sandboxRules, and its rule model carries `firstTimeEnable`, `firstTimeOperation`, `mlActionEnabled` and `byThreatScore`, as the Go SDK's does, so first-time behavior is configurable through either SDK.",
       "tier": "A",
       "evidence": [
         {
@@ -279,14 +304,38 @@
           "path": "zscaler/zia/sandbox_rules.py",
           "quotes": [
             "def list_rules(",
-            "def delete_rule(self, rule_id: int) -> APIResult[dict]:"
+            "def delete_rule(self, rule_id: int) -> APIResult[dict]:",
+            "def get_rule(",
+            "def add_rule(",
+            "def update_rule(self, rule_id: int, **kwargs) -> APIResult[dict]:"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zia/models/sandboxrules.py",
           "quotes": [
-            "self.ml_action_enabled = config[\"mlActionEnabled\"]"
+            "self.ml_action_enabled = config[\"mlActionEnabled\"]",
+            "self.first_time_enable = config[\"firstTimeEnable\"]",
+            "self.first_time_operation = config[\"firstTimeOperation\"]",
+            "self.by_threat_score = config[\"byThreatScore\"]"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox_rules.py",
+          "after": "def list_rules(",
+          "quotes": [
+            "/sandboxRules"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go",
+          "quotes": [
+            "FirstTimeEnable bool `json:\"firstTimeEnable\"`",
+            "FirstTimeOperation string `json:\"firstTimeOperation\"`",
+            "MLActionEnabled bool `json:\"mlActionEnabled\"`",
+            "ByThreatScore int `json:\"byThreatScore,omitempty\"`"
           ]
         }
       ]
@@ -304,7 +353,8 @@
           "path": "about-sandbox.json",
           "quotes": [
             "The default rule is always the last rule checked.",
-            "The default rule is evaluated last."
+            "The default rule is evaluated last.",
+            "Rules are applied in the rule order list from first to last."
           ]
         }
       ]
@@ -320,7 +370,8 @@
           "source": "zscaler-help",
           "path": "about-sandbox.json",
           "quotes": [
-            "uploads to Private Access assets are sandboxed if the file is unknown to the Zscaler service"
+            "uploads to Private Access assets are sandboxed if the file is unknown to the Zscaler service",
+            "If you use Internet & SaaS to inspect Private Access (ZPA) traffic"
           ]
         }
       ]

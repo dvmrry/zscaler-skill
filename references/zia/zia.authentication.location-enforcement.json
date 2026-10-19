@@ -95,13 +95,14 @@
       ]
     },
     "sublocation-split": {
-      "statement": "A sublocation can have authentication enforced on one network and disabled on another, for example enforced on the internal corporate network and disabled for the guest network, even when both go through the same tunnel.",
+      "statement": "Sublocations let authentication be enforced on one network and disabled on another: for example, one sublocation for the internal corporate network enforces it and another for the guest network disables it, even when both go through the same tunnel.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "understanding-sublocations.json",
           "quotes": [
+            "For example, an organization can define one sublocation for its corporate network and another sublocation for its guest network, even if their traffic goes through the same GRE or IPSec tunnel.",
             "Enforce authentication on the internal corporate network, while disabling it for the guest network."
           ]
         }
@@ -118,10 +119,10 @@
           "source": "zscaler-help",
           "path": "configuring-locations.json",
           "quotes": [
-            "select this option to enforce digest authentication on all web traffic explicitly forwarded from the location and its associated dedicated ports.",
-            "select this option to enforce basic authentication on all web traffic explicitly forwarded from the location and its associated dedicated ports.",
-            "you can enable this feature to enforce Kerberos authentication on all web traffic explicitly forwarded from the location and its associated dedicated ports.",
-            "select this option to enforce JSON Web Token (JWT) authentication on all workload traffic explicitly forwarded from the location and its associated dedicated ports.",
+            "Enable Digest Authentication: If you enabled Enforce Authentication, select this option to enforce digest authentication on all web traffic explicitly forwarded from the location and its associated dedicated ports.",
+            "Enable Basic Authentication: If you enabled Enforce Authentication, select this option to enforce basic authentication on all web traffic explicitly forwarded from the location and its associated dedicated ports.",
+            "Enable Kerberos Authentication: If you enabled Enforce Authentication, you can enable this feature to enforce Kerberos authentication on all web traffic explicitly forwarded from the location and its associated dedicated ports.",
+            "Enable Proxy JWT Authentication: If you enabled Enforce Authentication, select this option to enforce JSON Web Token (JWT) authentication on all workload traffic explicitly forwarded from the location and its associated dedicated ports.",
             "JWT authentication is not supported for the Extranet and IoT Traffic location types."
           ]
         },
@@ -129,8 +130,11 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_location_management.go",
           "quotes": [
+            "\"basic_auth_enabled\": {",
             "Enable Basic Authentication at the location",
+            "\"digest_auth_enabled\": {",
             "Enable Digest Authentication at the location",
+            "\"kerberos_auth\": {",
             "Enable Kerberos Authentication at the location"
           ]
         }
@@ -146,7 +150,12 @@
           "quotes": [
             "The Cloud Service API Security feature must be enabled for your organization.",
             "The Hosted DB user repository type with the Form-Based authentication type is supported.",
-            "The user credentials are transferred in clear text when using basic authentication."
+            "The hosted users/passwords must be created or imported using a CSV file.",
+            "The users must be enrolled for basic authentication using the following APIs:",
+            "https://zsapi.<cloud>.net/api/v1/authenticatedSession",
+            "https://zsapi.<cloud>.net/api/v1/users/<userid>/enroll",
+            "The user credentials are transferred in clear text when using basic authentication.",
+            "So, you must use an IPSec tunnel from a router or firewall or an encrypted tunnel from cloud or branch connectors if you are forwarding the authenticated traffic over the public internet."
           ]
         }
       ]
@@ -159,8 +168,8 @@
           "source": "zscaler-help",
           "path": "configuring-locations.json",
           "quotes": [
-            "If you disabled Enforce Authentication, you can enable this feature and set the Caution Interval to be greater than one minute",
-            "If you disabled Enforce Authentication, you can enable this feature to display an Acceptable Use Policy (AUP) for unauthenticated traffic"
+            "If you disabled Enforce Authentication, you can enable this feature and set the Caution Interval to be greater than one minute to display a caution notification to unauthenticated users.",
+            "If you disabled Enforce Authentication, you can enable this feature to display an Acceptable Use Policy (AUP) for unauthenticated traffic and require users to accept it."
           ]
         }
       ]

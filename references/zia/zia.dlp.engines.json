@@ -115,7 +115,7 @@
           "source": "zscaler-help",
           "path": "about-dlp-dictionaries.json",
           "quotes": [
-            "which is what you must reference when creating DLP policies"
+            "Any combination of cloned, predefined, and custom dictionaries can be added to a DLP engine, which is what you must reference when creating DLP policies."
           ]
         }
       ]
@@ -189,7 +189,8 @@
           "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1dlpEngines/post/requestBody/content/application~1json/schema/properties/engineExpression",
           "expect": {
-            "type": "string"
+            "type": "string",
+            "description": "<p>The logical expression that defines a DLP engine by combining DLP dictionaries using logical operators, namely All (AND), Any (OR), Exclude (NOT), and Sum (the total number of content matches). .</p><p>Engine expression examples:</p><ul><li><code>((D63.S> 1))</code></li><li><code>((D38.S> 1) AND (D63.S> 1))</code></li><li><code>((D38.S> 1) OR (D63.S> 1))</code></li><li><code>((D38.S> 0) AND ( NOT ( (D61.S> 0) ) )</code></li><li><code>(SUM(D63.S, D38.S)> 3)</code></li></ul><p>In the preceding examples, 63 represents the ID of the Credit Cards dictionary ID, 61 is the Financial Statements ID, and 38 is the ABA Bank Routing Numbers dictionary ID. Each dictionary ID is wrapped around by a prefix (D) and a suffix (.S).</p>"
           }
         }
       ]
@@ -212,15 +213,23 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/dlp/dlp_engines/dlp_engines.go",
           "quotes": [
-            "// The boolean logical operator in which various DLP dictionaries are combined within a DLP engine's expression."
-          ]
+            "// The boolean logical operator in which various DLP dictionaries are combined within a DLP engine's expression.",
+            "ID int `json:\"id\"`",
+            "Name string `json:\"name,omitempty\"`",
+            "Description string `json:\"description,omitempty\"`",
+            "PredefinedEngineName string `json:\"predefinedEngineName,omitempty\"`",
+            "EngineExpression string `json:\"engineExpression,omitempty\"`",
+            "CustomDlpEngine bool `json:\"customDlpEngine,omitempty\"` }"
+          ],
+          "after": "type DLPEngines struct {"
         },
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1dlpEngines/post/requestBody/content/application~1json/schema/properties/engineExpression",
           "expect": {
-            "type": "string"
+            "type": "string",
+            "description": "<p>The logical expression that defines a DLP engine by combining DLP dictionaries using logical operators, namely All (AND), Any (OR), Exclude (NOT), and Sum (the total number of content matches). .</p><p>Engine expression examples:</p><ul><li><code>((D63.S> 1))</code></li><li><code>((D38.S> 1) AND (D63.S> 1))</code></li><li><code>((D38.S> 1) OR (D63.S> 1))</code></li><li><code>((D38.S> 0) AND ( NOT ( (D61.S> 0) ) )</code></li><li><code>(SUM(D63.S, D38.S)> 3)</code></li></ul><p>In the preceding examples, 63 represents the ID of the Credit Cards dictionary ID, 61 is the Financial Statements ID, and 38 is the ABA Bank Routing Numbers dictionary ID. Each dictionary ID is wrapped around by a prefix (D) and a suffix (.S).</p>"
           }
         }
       ],
@@ -229,7 +238,7 @@
       ]
     },
     "validate-expression-endpoint": {
-      "statement": "The API has an endpoint that validates an engine expression before it is saved.",
+      "statement": "The API has an endpoint that validates an engine expression.",
       "tier": "A",
       "evidence": [
         {
@@ -243,14 +252,14 @@
       ]
     },
     "engine-channels": {
-      "statement": "The DLP Engines page shows, per engine, the channels (Network Share, Personal Cloud Storage, Printing, or Removable Storage) associated with it. These are the Endpoint DLP channels.",
+      "statement": "The DLP Engines page shows, per engine, the channels associated with it; the captured row names Network Share, Personal Cloud Storage, Printing, or Removable Storage, and also Endpoint DLP, SaaS Security, DSPM, Inline Web, and Email DLP.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "about-dlp-engines.json",
           "quotes": [
-            "Channels: The specific channels (Network Share, Personal Cloud Storage, Printing, or Removable Storage) associated with the DLP engine."
+            "Channels: The specific channels (Network Share, Personal Cloud Storage, Printing, or Removable Storage) associated with the DLP engine. (Endpoint DLP, SaaS Security, DSPM, Inline Web, and Email DLP) associated with the DLP engine."
           ]
         }
       ],
@@ -279,6 +288,7 @@
           "source": "tf-zia",
           "path": "docs/resources/zia_dlp_engines.md",
           "quotes": [
+            "Before using the new ``zia_dlp_engines`` resource contact [Zscaler Support](https://help.zscaler.com/login-tickets).",
             "request the following API methods ``POST``, ``PUT``, and ``DELETE`` to be enabled for your organization."
           ]
         }

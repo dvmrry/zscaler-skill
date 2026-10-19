@@ -65,7 +65,8 @@
           "source": "tf-zia",
           "path": "CHANGELOG.md",
           "quotes": [
-            "or any time the API returned the `urls` list in a different order than the one declared in HCL",
+            "## 4.7.23 (May, 28 2026)",
+            "Fixed a regression in the `zia_url_categories` resource where `terraform plan` could fail immediately after `terraform import` (or any time the API returned the `urls` list in a different order than the one declared in HCL)",
             "re-ordering URLs in the configuration continues to produce no diff"
           ]
         }
@@ -79,7 +80,7 @@
           "source": "tf-zia",
           "path": "docs/resources/zia_url_categories.md",
           "quotes": [
-            "The unique ID for the URL category. This attribute is particularly useful when referencing the URL category in other resources like DLP web rules."
+            "* `val` - (Number) The unique ID for the URL category. This attribute is particularly useful when referencing the URL category in other resources like DLP web rules."
           ]
         }
       ]
@@ -105,7 +106,8 @@
           "source": "tf-zia",
           "path": "docs/resources/zia_url_categories.md",
           "quotes": [
-            "This provider only supports the importing of custom URL categories. The importing of built-in categories is not supported."
+            "This provider only supports the importing of custom URL categories. The importing of built-in categories is not supported.",
+            "**zia_url_categories** can be imported by using `<CATEGORY_ID>` or `<CATEGORY_NAME>` as the import ID."
           ]
         }
       ]
@@ -118,7 +120,8 @@
           "source": "tf-zia",
           "path": "CHANGELOG.md",
           "quotes": [
-            "now automatically detaches a custom URL category from any rules that reference it before deleting the category."
+            "## 4.7.26 (June, 26 2026)",
+            "The `zia_url_categories` resource now automatically detaches a custom URL category from any rules that reference it before deleting the category. This removes the need to manually remove the category from rules first and avoids the API error returned when deleting a category that is still in use."
           ]
         }
       ]
@@ -144,7 +147,7 @@
           "source": "tf-zia",
           "path": "docs/resources/zia_url_categories_predefined.md",
           "quotes": [
-            "the value is not returned in the GET response for predefined categories, which would cause persistent state drift."
+            "The `description` attribute is **not** supported by this resource. Although the API accepts a description in the PUT payload, the value is not returned in the GET response for predefined categories, which would cause persistent state drift."
           ]
         }
       ]
@@ -157,7 +160,8 @@
           "source": "tf-zia",
           "path": "docs/resources/zia_url_categories_predefined.md",
           "quotes": [
-            "those existing items will be captured in the Terraform state."
+            "When importing a predefined category that already has custom URLs, keywords, or IP ranges configured (e.g., via the ZIA Admin Portal), those existing items will be captured in the Terraform state.",
+            "If your HCL configuration does not include those items, the **next** `terraform apply` will attempt to **remove** them to match the desired state defined in your configuration."
           ]
         }
       ]
@@ -170,7 +174,8 @@
           "source": "tf-zia",
           "path": "docs/resources/zia_url_categories_predefined.md",
           "quotes": [
-            "This resource only supports importing **predefined** URL categories."
+            "Predefined URL categories can be imported by using the predefined category ID or display name as the import ID.",
+            "This resource only supports importing **predefined** URL categories. For custom URL categories, use the [`zia_url_categories`](zia_url_categories) resource."
           ]
         }
       ]

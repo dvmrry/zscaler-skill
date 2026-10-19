@@ -182,6 +182,14 @@
           "path": "zscaler/zpa/models/emergency_access.py",
           "quotes": [
             "self.user_id = config[\"userId\"] if config and \"userId\" in config else None",
+            "self.first_name = config[\"firstName\"] if config and \"firstName\" in config else None",
+            "self.last_name = config[\"lastName\"] if config and \"lastName\" in config else None",
+            "self.email_id = config[\"emailId\"] if config and \"emailId\" in config else None",
+            "self.user_status = config[\"userStatus\"] if config and \"userStatus\" in config else None",
+            "self.activated_on = config[\"activatedOn\"] if config and \"activatedOn\" in config else None",
+            "self.last_login_time = config[\"lastLoginTime\"] if config and \"lastLoginTime\" in config else None",
+            "self.allowed_activate = config[\"allowedActivate\"] if config and \"allowedActivate\" in config else None",
+            "self.allowed_deactivate = config[\"allowedDeactivate\"] if config and \"allowedDeactivate\" in config else None",
             "self.update_enabled = config[\"updateEnabled\"] if config and \"updateEnabled\" in config else None"
           ]
         }
@@ -215,7 +223,7 @@
       ]
     },
     "send-email": {
-      "statement": "The activate call takes sendEmail, default false, and the Python activate_user sends it only when send_email is true.",
+      "statement": "The activate call takes sendEmail as a query parameter, default false. The Python activate_user builds {\"sendEmail\": \"true\"} only when send_email is true, but passes that dict as create_request's fourth positional argument, which is headers, so it goes out as a request header rather than a query parameter.",
       "tier": "A",
       "evidence": [
         {
@@ -235,8 +243,20 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/emergency_access.py",
           "quotes": [
-            "query_params = {\"sendEmail\": \"true\"} if send_email else {}"
+            "query_params = {\"sendEmail\": \"true\"} if send_email else {}",
+            "request, error = self._request_executor.create_request(http_method, api_url, {}, query_params)"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "body: dict = None,",
+            "headers: dict = None,",
+            "params: dict = None,",
+            "headers = self._prepare_headers(headers, endpoint)"
+          ],
+          "after": "def create_request("
         }
       ]
     },
@@ -257,7 +277,7 @@
           "source": "sdk-python",
           "path": "zscaler/request_executor.py",
           "quotes": [
-            "if \"/emergencyAccess/users\" in endpoint:"
+            "if \"/emergencyAccess/users\" in endpoint:\n # Convert everything to camelCase\n converted = convert_keys_to_camel_case(params)"
           ]
         },
         {
@@ -294,6 +314,14 @@
             "DeleteContext: resourceEmergencyAccessDeactivated,",
             "if _, err := emergencyaccess.Deactivate(ctx, service, d.Id()); err != nil {"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_emergency_access.go",
+          "after": "func resourceEmergencyAccessDeactivated(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "d.SetId(\"\")"
+          ]
         }
       ]
     },
@@ -312,7 +340,7 @@
       ]
     },
     "add-user-drops-microtenant": {
-      "statement": "In the Python SDK, add_user builds query_params with microtenantId and then reassigns query_params to a dict holding only activateNow, so the microtenant ID is never sent on create; list_users, get_user, update_user, activate_user and deactivate_user do pass it.",
+      "statement": "In the Python SDK, add_user builds query_params with microtenantId and then reassigns query_params to a dict holding only activateNow, so the microtenant ID is never sent on create; list_users, get_user, update_user and deactivate_user pass it as a query parameter, while activate_user hands its query dict to create_request in the headers position.",
       "tier": "A",
       "evidence": [
         {
@@ -320,25 +348,64 @@
           "path": "zscaler/zpa/emergency_access.py",
           "quotes": [
             "query_params = {\"microtenantId\": microtenant_id} if microtenant_id else {}",
-            "query_params = {\"activateNow\": \"true\" if activate_now else \"false\"}"
+            "query_params = {\"activateNow\": \"true\" if activate_now else \"false\"}",
+            "create_request(http_method, api_url, body=body, params=query_params)"
           ],
           "after": "def add_user(self, activate_now=True, **kwargs) -> APIResult[dict]:"
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/emergency_access.py",
+          "after": "def list_users(self, query_params: Optional[dict] = None, **kwargs)",
           "quotes": [
-            "query_params[\"activateNow\"] = \"true\" if activate_now else \"false\""
+            "query_params[\"microtenantId\"] = microtenant_id",
+            "create_request(http_method, api_url, body={}, headers={}, params=query_params)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/emergency_access.py",
+          "after": "def get_user(self, user_id: str, query_params: Optional[dict] = None)",
+          "quotes": [
+            "query_params[\"microtenantId\"] = microtenant_id",
+            "create_request(http_method, api_url, params=query_params)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/emergency_access.py",
+          "quotes": [
+            "query_params[\"activateNow\"] = \"true\" if activate_now else \"false\"",
+            "query_params = {\"microtenantId\": microtenant_id} if microtenant_id else {}",
+            "create_request(http_method, api_url, body=body, params=query_params)"
           ],
           "after": "def update_user(self, user_id: str, activate_now=True, **kwargs) -> APIResult[dict]:"
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/emergency_access.py",
+          "after": "def activate_user(self, user_id: str, send_email: bool = False, **kwargs)",
           "quotes": [
-            "params = {\"microtenantId\": microtenant_id} if microtenant_id else {}"
+            "query_params[\"microtenantId\"] = microtenant_id",
+            "request, error = self._request_executor.create_request(http_method, api_url, {}, query_params)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/emergency_access.py",
+          "quotes": [
+            "params = {\"microtenantId\": microtenant_id} if microtenant_id else {}",
+            "create_request(http_method, api_url, params=params)"
           ],
           "after": "def deactivate_user(self, user_id: str, **kwargs) -> APIResult[dict]:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def create_request(",
+          "quotes": [
+            "method: str,\n endpoint: str,\n body: dict = None,\n headers: dict = None,\n params: dict = None,"
+          ]
         }
       ],
       "upstream": [
@@ -358,7 +425,7 @@
             "\"user_id\": {",
             "\"email_id\": {",
             "\"first_name\": {",
-            "\"last_name\": {"
+            "\"last_name\": {\n Type: schema.TypeString,\n Description: \"The last name of the emergency access user, as provided by the admin\",\n Optional: true,\n Computed: true,\n },\n },\n }\n}"
           ],
           "after": "Schema: map[string]*schema.Schema{"
         },
@@ -369,6 +436,30 @@
             "microTenantID := GetString(d.Get(\"microtenant_id\"))"
           ],
           "after": "func resourceEmergencyAccessCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_emergency_access.go",
+          "after": "func resourceEmergencyAccessRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "microTenantID := GetString(d.Get(\"microtenant_id\"))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_emergency_access.go",
+          "after": "func resourceEmergencyAccessUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "microTenantID := GetString(d.Get(\"microtenant_id\"))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_emergency_access.go",
+          "after": "func resourceEmergencyAccessDeactivated(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "microTenantID := GetString(d.Get(\"microtenant_id\"))"
+          ]
         }
       ],
       "upstream": [

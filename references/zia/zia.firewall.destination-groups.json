@@ -98,7 +98,8 @@
           "source": "sdk-python",
           "path": "zscaler/zia/cloud_firewall.py",
           "quotes": [
-            "valid_exclude_types = {\"DSTN_IP\", \"DSTN_FQDN\", \"DSTN_DOMAIN\", \"DSTN_OTHER\"}"
+            "valid_exclude_types = {\"DSTN_IP\", \"DSTN_FQDN\", \"DSTN_DOMAIN\", \"DSTN_OTHER\"}",
+            "if exclude_type and exclude_type not in valid_exclude_types: raise ValueError(f\"Invalid exclude_type: {exclude_type}."
           ],
           "after": "def list_ip_destination_groups("
         },
@@ -106,7 +107,9 @@
           "source": "mcp-server",
           "path": "src/zscaler_mcp/tools/zia/ip_destination_groups.py",
           "quotes": [
-            "DSTN_IP, DSTN_FQDN, DSTN_DOMAIN, or DSTN_OTHER."
+            "DSTN_IP, DSTN_FQDN, DSTN_DOMAIN, or DSTN_OTHER.",
+            "_TYPE_PATTERN = \"^(DSTN_IP|DSTN_FQDN|DSTN_DOMAIN|DSTN_OTHER)$\"",
+            "Field(pattern=_TYPE_PATTERN, description=\"DSTN_IP, DSTN_FQDN, DSTN_DOMAIN, or DSTN_OTHER.\"),"
           ]
         }
       ]
@@ -141,16 +144,18 @@
           "source": "mcp-server",
           "path": "src/zscaler_mcp/tools/zia/ip_destination_groups.py",
           "quotes": [
-            "IPs/FQDNs. Required for DSTN_IP or DSTN_FQDN.",
-            "Country codes (COUNTRY_XX). Optional for DSTN_OTHER.",
-            "URL categories. Optional for DSTN_OTHER."
+            "addresses: Annotated[ Optional[list[str]], Field(default=None, description=\"IPs/FQDNs. Required for DSTN_IP or DSTN_FQDN.\"),",
+            "countries: Annotated[ Optional[list[str]], Field(default=None, description=\"Country codes (COUNTRY_XX). Optional for DSTN_OTHER.\"),",
+            "ip_categories: Annotated[ Optional[list[str]], Field(default=None, description=\"URL categories. Optional for DSTN_OTHER.\"),"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zia/cloud_firewall.py",
           "quotes": [
-            "type='DSTN_OTHER',"
+            "type='DSTN_OTHER',",
+            "countries=['COUNTRY_US']),",
+            "ip_categories=['CUSTOM_01']),"
           ],
           "after": "def add_ip_destination_group("
         }
@@ -186,6 +191,15 @@
           "quotes": [
             "Note: Only Custom categories allowed."
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "after": "def add_ip_destination_group(",
+          "quotes": [
+            "ip_categories (list): Destination IP address URL categories. Note: Only Custom categories allowed.",
+            "ip_categories=['CUSTOM_01']),"
+          ]
         }
       ]
     },
@@ -213,7 +227,8 @@
           "source": "sdk-python",
           "path": "zscaler/zia/cloud_firewall.py",
           "quotes": [
-            "Exclude all groups that match the specified IP destination group's type."
+            "Exclude all groups that match the specified IP destination group's type.",
+            "query_params[\"excludeType\"] = exclude_type"
           ],
           "after": "def list_ip_destination_groups("
         },
@@ -242,7 +257,8 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/firewallpolicies/ipdestinationgroups/ipdestinationgroups.go",
           "quotes": [
-            "url = fmt.Sprintf(\"%s?override=%t\", url, *override)"
+            "url = fmt.Sprintf(\"%s?override=%t\", url, *override)",
+            "if override != nil {"
           ]
         }
       ]
@@ -264,13 +280,90 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/firewallpolicies/ipdestinationgroups/ipdestinationgroups.go",
           "quotes": [
-            "ipDestinationGroupsEndpoint = \"/zia/api/v1/ipDestinationGroups\""
+            "ipDestinationGroupsEndpoint = \"/zia/api/v1/ipDestinationGroups\"",
+            "err := service.Client.Read(ctx, fmt.Sprintf(\"%s/%d\", ipDestinationGroupsEndpoint, ipGroupID), &ipDestinationGroups)",
+            "resp, err := service.Client.Create(ctx, ipDestinationGroupsEndpoint, *ipGroupID)",
+            "url := fmt.Sprintf(\"%s/%d\", ipDestinationGroupsEndpoint, ipGroupID)",
+            "err := service.Client.Delete(ctx, fmt.Sprintf(\"%s/%d\", ipDestinationGroupsEndpoint, ipGroupID))",
+            "endpoint := ipDestinationGroupsEndpoint"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ipDestinationGroups/post",
+          "expect": {
+            "operationId": "IP Destination Group Resource Add Destination IP Group"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ipDestinationGroups~1{ipGroupId}/get",
+          "expect": {
+            "operationId": "IP Destination Group Resource Get Destination IP Group By ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ipDestinationGroups~1{ipGroupId}/put",
+          "expect": {
+            "operationId": "IP Destination Group Resource Edit Destination IP Group"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1ipDestinationGroups~1{ipGroupId}/delete",
+          "expect": {
+            "operationId": "IP Destination Group Resource Delete Destination IP Group"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "after": "def list_ip_destination_groups(",
+          "quotes": [
+            "http_method = \"get\".upper() api_url = format_url(f\"\"\" {self._zia_base_endpoint} /ipDestinationGroups \"\"\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "after": "def get_ip_destination_group(",
+          "quotes": [
+            "http_method = \"get\".upper() api_url = format_url(f\"\"\" {self._zia_base_endpoint} /ipDestinationGroups/{group_id} \"\"\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "after": "def add_ip_destination_group(",
+          "quotes": [
+            "http_method = \"post\".upper() api_url = format_url(f\"\"\" {self._zia_base_endpoint} /ipDestinationGroups \"\"\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "after": "def update_ip_destination_group(",
+          "quotes": [
+            "http_method = \"put\".upper() api_url = format_url(f\"\"\" {self._zia_base_endpoint} /ipDestinationGroups/{group_id} \"\"\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "after": "def delete_ip_destination_group(",
+          "quotes": [
+            "http_method = \"delete\".upper() api_url = format_url(f\"\"\" {self._zia_base_endpoint} /ipDestinationGroups/{group_id} \"\"\")"
           ]
         }
       ]
     },
     "fqdn-per-group-caps": {
-      "statement": "Destination groups hold up to 8,000 IP entries and FQDNs per group, but only 100 FQDNs per group by default (8,000 with Advanced Firewall).",
+      "statement": "Destination groups hold up to 8,000 IP entries and FQDNs per group, but only 100 FQDNs per group (8,000 with Advanced Firewall).",
       "tier": "A",
       "evidence": [
         {

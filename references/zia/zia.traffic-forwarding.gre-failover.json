@@ -62,7 +62,8 @@
           "path": "best-practices-deploying-gre-tunnels.json",
           "quotes": [
             "Zscaler requires you to monitor your GRE tunnels so that failover between the primary and the backup tunnels is triggered if a tunnel goes down.",
-            "Zscaler requires you to connect tunnel monitoring to tunnel failover."
+            "Zscaler requires you to connect tunnel monitoring to tunnel failover.",
+            "When service monitoring is down, the primary tunnel should fail over to the backup tunnel, and when monitoring is available, switch back to the primary tunnel."
           ]
         }
       ]
@@ -76,7 +77,8 @@
           "path": "best-practices-deploying-gre-tunnels.json",
           "quotes": [
             "GRE tunneling interfaces do not have a built-in mechanism for detecting when a tunnel fails.",
-            "However, the GRE keepalives monitor the interface, not the service beyond the interface."
+            "However, the GRE keepalives monitor the interface, not the service beyond the interface.",
+            "Therefore, configure GRE keepalives on the physical or on the logical interface to detect tunnel failures."
           ]
         }
       ]
@@ -121,7 +123,12 @@
             "| Best-Case Failover | 30–32 seconds | 120–125 seconds |",
             "| Worst-Case Failover | 40–42 seconds | 180–185 seconds |",
             "| False Positive Risk | Higher | Lower |",
-            "| Application Layer Test | No (Layer 3 only) | Yes (HTTP service) |"
+            "| Application Layer Test | No (Layer 3 only) | Yes (HTTP service) |",
+            "| IP SLA Type | ICMP Echo | HTTP Raw |",
+            "| IP SLA Frequency | 10 seconds | 60 seconds |",
+            "| Track Delay Down | 30 seconds | 120 seconds |",
+            "| Track Delay Up | 45 seconds | 180 seconds |",
+            "| CPU/Resource Usage | Higher | Lower |"
           ]
         }
       ]
@@ -134,7 +141,9 @@
           "source": "zscaler-help",
           "path": "best-practices-deploying-gre-tunnels.json",
           "quotes": [
-            "This means that the router waits for two consecutive failures before marking the connection as down, and it waits for three consecutive successes before marking the connection as up."
+            "This means that the router waits for two consecutive failures before marking the connection as down, and it waits for three consecutive successes before marking the connection as up.",
+            "The delay down command prevents frequent failovers due to short-lived flaps in the connection.",
+            "In the following example, the delay time to mark an IP SLA test as down is configured as 120 seconds. The delay time to mark an object as up is configured as 180 seconds. The router generates an HTTP SLA probe once every 60 seconds."
           ]
         }
       ]

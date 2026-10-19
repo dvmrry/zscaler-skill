@@ -80,7 +80,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/saml_attributes.py",
           "quotes": [
-            "self._zpa_base_endpoint_v2 = f\"/zpa/mgmtconfig/v2/admin/customers/{customer_id}\""
+            "self._zpa_base_endpoint_v2 = f\"/zpa/mgmtconfig/v2/admin/customers/{customer_id}\"",
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
           ]
         },
         {
@@ -141,7 +142,8 @@
           "path": "zscaler/zpa/trusted_networks.py",
           "quotes": [
             "{self._zpa_base_endpoint} /network/{network_id}",
-            "def get_network(self, network_id: str)"
+            "def get_network(self, network_id: str)",
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
           ]
         }
       ]
@@ -154,7 +156,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/segment_groups.py",
           "quotes": [
-            "{self._zpa_base_endpoint_v2} /segmentGroup/{group_id}"
+            "{self._zpa_base_endpoint_v2} /segmentGroup/{group_id}",
+            "http_method = \"put\".upper()"
           ],
           "after": "def update_group_v2("
         },
@@ -162,9 +165,18 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/segment_groups.py",
           "quotes": [
-            "{self._zpa_base_endpoint} /segmentGroup/{group_id}"
+            "{self._zpa_base_endpoint} /segmentGroup/{group_id}",
+            "http_method = \"put\".upper()"
           ],
           "after": "def update_group(self, group_id: str"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/segment_groups.py",
+          "quotes": [
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\"",
+            "self._zpa_base_endpoint_v2 = f\"/zpa/mgmtconfig/v2/admin/customers/{customer_id}\""
+          ]
         }
       ]
     },
@@ -214,6 +226,13 @@
             "/associationType/{simplify_key_type(key_type)}/provisioningKey"
           ],
           "after": "def list_provisioning_keys("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/oauth2_user_code.py",
+          "quotes": [
+            "/associationType/{simplify_key_type(key_type)}/usercodes/status"
+          ]
         }
       ]
     },
@@ -227,8 +246,25 @@
           "quotes": [
             "self._zpa_base_endpoint_userconfig = f\"/zpa/userconfig/v1/customers/{customer_id}\"",
             "/idp/{idp_id}/scimattribute/{attribute_id}",
-            "/scimattribute/idpId/{idp_id}/attributeId/{attribute_id}"
+            "/scimattribute/idpId/{idp_id}/attributeId/{attribute_id}",
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/scim_attributes.py",
+          "quotes": [
+            "{self._zpa_base_endpoint} /idp/{idp_id}/scimattribute"
+          ],
+          "after": "def list_scim_attributes("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/scim_attributes.py",
+          "quotes": [
+            "self._zpa_base_endpoint} /idp/{idp_id}/scimattribute/{attribute_id}"
+          ],
+          "after": "def get_scim_attribute("
         },
         {
           "source": "sdk-python",
@@ -241,7 +277,7 @@
       ]
     },
     "scim-group-get": {
-      "statement": "`get_scim_group` takes only a group ID and calls `/scimgroup/{group_id}`, with no IdP ID.",
+      "statement": "`get_scim_group` takes a group ID and optional query parameters, with no IdP ID, and calls `/scimgroup/{group_id}`.",
       "tier": "A",
       "evidence": [
         {
@@ -249,7 +285,8 @@
           "path": "zscaler/zpa/scim_groups.py",
           "quotes": [
             "def get_scim_group(self, group_id: str,",
-            "/scimgroup/{group_id}"
+            "/scimgroup/{group_id}",
+            "def get_scim_group(self, group_id: str, query_params: Optional[dict] = None)"
           ]
         }
       ]
@@ -267,6 +304,15 @@
             "def delete_ip_range(self, range_id: str)",
             "/ipRanges/search"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/c2c_ip_ranges.py",
+          "quotes": [
+            "http_method = \"post\".upper()",
+            "/ipRanges/search"
+          ],
+          "after": "def get_ip_range_search("
         }
       ]
     }

@@ -112,7 +112,10 @@
           "after": "func NewPagination(pageSize int) Pagination {",
           "quotes": [
             "pageSize = DefaultPageSize",
-            "pageSize = MaxPageSize"
+            "pageSize = MaxPageSize",
+            "if pageSize <= 0 {",
+            "if pageSize > MaxPageSize {",
+            "return Pagination{PageSize: pageSize}"
           ]
         },
         {
@@ -122,6 +125,38 @@
             "DefaultPageSize = 50",
             "MaxPageSize = 5000"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/remove_devices/zcc_remove_devices.go",
+          "after": "func SoftRemoveDevices(ctx context.Context, service *zscaler.Service, request RemoveDevicesRequest, pageSize int) (*RemoveDevicesResponse, error) {",
+          "quotes": [
+            "pagination := common.NewPagination(pageSize)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/remove_devices/zcc_remove_devices.go",
+          "after": "func ForceRemoveDevices(ctx context.Context, service *zscaler.Service, request RemoveDevicesRequest, pageSize int) (*RemoveDevicesResponse, error) {",
+          "quotes": [
+            "pagination := common.NewPagination(pageSize)"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeDevices/post/parameters/[name=pageSize]",
+          "expect": {
+            "description": "Specifies the page size. If not provided, the default page size is 30. The max page size is 5000."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1forceRemoveDevices/post/parameters/[name=pageSize]",
+          "expect": {
+            "description": "Specifies the page size. If not provided, the default page size is 30."
+          }
         }
       ]
     },
@@ -136,7 +171,9 @@
           "quotes": [
             "mapped_params[\"osType\"] = \",\".join(mapped)",
             "if \"query_params\" in kwargs:",
-            "kwargs.update(mapped_params)"
+            "kwargs.update(mapped_params)",
+            "query_params.update(mapped_params)",
+            "kwargs[\"query_params\"] = query_params"
           ]
         },
         {
@@ -153,6 +190,32 @@
           "path": "tests/integration/zcc/cassettes/TestDeviceRemoval.yaml",
           "quotes": [
             "\"username\": \"nonexistent@test.com\", \"osType\": \"3\"}'"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "after": "def remove_devices(self, query_params: Optional[dict] = None, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "body = kwargs",
+            "method=http_method, endpoint=api_url, body=body, params=query_params"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "after": "def force_remove_devices(self, query_params: Optional[dict] = None, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "body = kwargs",
+            "method=http_method, endpoint=api_url, body=body, params=query_params"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "quotes": [
+            "@zcc_param_mapper def remove_devices(self, query_params: Optional[dict] = None, **kwargs)",
+            "@zcc_param_mapper def force_remove_devices(self, query_params: Optional[dict] = None, **kwargs)"
           ]
         }
       ],
@@ -231,7 +294,10 @@
           "after": "zcc_param_map = {",
           "quotes": [
             "\"ios\": 1,",
-            "\"linux\": 5,"
+            "\"linux\": 5,",
+            "\"android\": 2,",
+            "\"windows\": 3,",
+            "\"macos\": 4,"
           ]
         }
       ]
@@ -263,6 +329,31 @@
           "pointer": "/paths/~1papi~1public~1v1~1removeMachineTunnel/post/requestBody/content/application~1json/schema/properties/hostNames",
           "expect": {
             "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeMachineTunnel/post/parameters/[name=machineToken]",
+          "expect": {
+            "description": "Machine token.",
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeMachineTunnel/post/requestBody/content/application~1json/schema/properties",
+          "expect": {
+            "hostNames": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "machineToken": {
+              "type": "string"
+            }
           }
         }
       ]

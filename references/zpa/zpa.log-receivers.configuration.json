@@ -96,6 +96,7 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
           "quotes": [
+            "ID string `json:\"id,omitempty\"`",
             "LSSConfig *LSSConfig `json:\"config\"`",
             "ConnectorGroups []ConnectorGroups `json:\"connectorGroups,omitempty\"`",
             "PolicyRule *PolicyRule `json:\"policyRule,omitempty\"`",
@@ -107,12 +108,21 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
           "quotes": [
+            "ID string `json:\"id,omitempty\"`",
+            "Name string `json:\"name,omitempty\"`",
+            "Description string `json:\"description,omitempty\"`",
+            "Enabled bool `json:\"enabled,omitempty\"`",
+            "CreationTime string `json:\"creationTime,omitempty\"`",
+            "ModifiedBy string `json:\"modifiedBy,omitempty\"`",
+            "ModifiedTime string `json:\"modifiedTime,omitempty\"`",
             "Filter []string `json:\"filter,omitempty\"`",
             "Format string `json:\"format,omitempty\"`",
             "AuditMessage string `json:\"auditMessage,omitempty\"`",
             "LSSHost string `json:\"lssHost,omitempty\"`",
+            "LSSPort string `json:\"lssPort,omitempty\"`",
             "SourceLogType string `json:\"sourceLogType,omitempty\"`",
             "MicroTenantID string `json:\"microtenantId,omitempty\"`",
+            "MicroTenantName string `json:\"microtenantName,omitempty\"`",
             "UseTLS bool `json:\"useTls,omitempty\"`"
           ],
           "after": "type LSSConfig struct {"
@@ -131,7 +141,11 @@
             "Required: true, Description: \"Format of the log type. Format given by the following API to get formats: /mgmtconfig/v2/admin/lssConfig/logType/formats\",",
             "Required: true, Description: \"Host of the LSS configuration\",",
             "Required: true, Description: \"Port of the LSS configuration\",",
-            "Required: true, Description: \"Log type of the LSS configuration\","
+            "Required: true, Description: \"Log type of the LSS configuration\",",
+            "\"description\": {\nType: schema.TypeString,\nOptional: true,\nDescription: \"Description of the LSS configuration\",",
+            "\"enabled\": {\nType: schema.TypeBool,\nOptional: true,",
+            "\"filter\": {\nType: schema.TypeSet,\nElem: &schema.Schema{Type: schema.TypeString},\nOptional: true,",
+            "\"use_tls\": {\nType: schema.TypeBool,\nOptional: true,"
           ]
         }
       ]
@@ -256,7 +270,8 @@
           "quotes": [
             "connectorGroups is included only when the caller supplied",
             "Passing an empty list explicitly will",
-            "clear the associations on the server."
+            "clear the associations on the server.",
+            "if app_connector_group_ids is not None:\npayload[\"connectorGroups\"] = [{\"id\": group_id} for group_id in app_connector_group_ids]"
           ]
         }
       ]
@@ -270,7 +285,12 @@
           "path": "configuring-log-streaming-service-configurations-using-api.json",
           "quotes": [
             "policyRuleResource.objectType | The object type of the rule as part of the log receiver configuration.",
-            "APP: Denotes the Applications streaming policy criteria for the log receiver."
+            "APP: Denotes the Applications streaming policy criteria for the log receiver.",
+            "APP_GROUP: Denotes the segments groups for the Applications streaming policy criteria for the log receiver.",
+            "CLIENT_TYPE: Denotes the Client Types streaming policy criteria for the log receiver.",
+            "SAML: Denotes the SAML attributes for the SAML and SCIM Attributes streaming policy criteria for the log receiver.",
+            "SCIM: Denotes the SCIM attributes for the SAML and SCIM Attributes streaming policy criteria for the log receiver.",
+            "SCIM_GROUP: Denotes the SCIM groups for the SAML and SCIM Attributes streaming policy criteria for the log receiver."
           ]
         }
       ]

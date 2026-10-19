@@ -92,11 +92,14 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/workloadgroups/workloadgroups.go",
           "quotes": [
+            "WorkloadTagExpression WorkloadTagExpression `json:\"expressionJson,omitempty\"`",
             "// The workload group expression containing tag types, tags, and their relationships represented in a JSON format.",
             "ExpressionContainers []ExpressionContainer `json:\"expressionContainers\"`",
             "TagType string `json:\"tagType,omitempty\"`",
+            "// The operator (either AND or OR) used to create logical relationships among tag types",
             "TagContainer TagContainer `json:\"tagContainer\"`",
             "Tags []Tags `json:\"tags\"`",
+            "// The logical operator (either AND or OR) used to combine the tags within a tag type",
             "Key string `json:\"key,omitempty\"`",
             "Value string `json:\"value,omitempty\"`"
           ]
@@ -235,7 +238,8 @@
             "- Cloud-Defined: This scope is an attribute defined by the cloud service provider (CSP). For example, Vpc-id is defined by the CSP.",
             "- User-Defined: This scope is a resource tagged with a key-value pair by the user configuration of the resource.",
             "- Any: This scope is a resource that can be either cloud-defined or user-defined.",
-            "For cloud-defined tag scope, the default Attribute tag type is automatically selected."
+            "For cloud-defined tag scope, the default Attribute tag type is automatically selected.",
+            "For user-defined tag scope, you can select one of the following options from the drop-down menu: - Network Interface - Subnet - VM - VPC"
           ]
         }
       ]
@@ -304,13 +308,16 @@
           "path": "understanding-workload-groups.json",
           "quotes": [
             "Workload groups are created using hierarchical scopes, meaning each workload inherits the tags (key-value pair) from the VPC, subnet, VM, and Network Interface resources.",
+            "However, if there is a conflict with the tags such as duplication of tag keys, you need to choose the appropriate resource to specify that tag.",
+            "The VPC resource tag type has a tag APP=ACME (key-value pair). However, for the same tag type, the Bastion host has the tag APP=Bastion. In this case, the workload inherits both the tags, and the tag key is duplicated.",
+            "To resolve this conflict, you can provide alternate permissions by selecting the tag on the VM resource tag type.",
             "Then, specify the VM as the tag type for the workload. The tag APP=Bastion is only considered based on the hierarchical scopes."
           ]
         }
       ]
     },
     "max-8-tags": {
-      "statement": "A workload group can hold at most 8 key-value pairs in total, regardless of how many tag types are used; this is a limit on tags per group, separate from the number of groups per rule.",
+      "statement": "A workload group can hold at most 8 key-value pairs in total, regardless of how many tag types are used.",
       "tier": "A",
       "binds": [
         "zia/workload-groups"
@@ -364,6 +371,15 @@
           "expect": {
             "description": "The workload group expression containing tag types, tags, and their relationships.",
             "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1workloadGroups/post/responses/200/content/application~1json/schema/properties/expressionJson",
+          "expect": {
+            "description": "The workload group expression containing tag types, tags, and their relationships represented in a JSON format.",
+            "type": "object"
           }
         },
         {

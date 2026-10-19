@@ -51,7 +51,7 @@
     },
     {
       "label": "Walking pages.",
-      "text": "[[zia.sdk-python.pagination:first-page-only]] [[zia.sdk-python.pagination:has-next-next]] {{next-uses-page}} {{next-stopiteration}} {{zpa-next-counter}} [[zia.sdk-python.response-shape:search-current-page]]"
+      "text": "[[zia.sdk-python.pagination:first-page-only]] [[zia.sdk-python.pagination:has-next-next]] {{next-uses-page}} {{next-stopiteration}} {{zpa-next-counter}} {{zpa-later-page-restarts}} [[zia.sdk-python.response-shape:search-current-page]]"
     },
     {
       "label": "Page size.",
@@ -108,7 +108,8 @@
     {
       "do": "Whether a follow-on page call started from the page the caller asked for, because the counter always starts at 1.",
       "uses": [
-        "zpa-next-counter"
+        "zpa-next-counter",
+        "zpa-later-page-restarts"
       ]
     }
   ],
@@ -193,8 +194,26 @@
           "source": "sdk-python",
           "path": "zscaler/oneapi_response.py",
           "quotes": [
-            "logger.debug(\"No page size provided - letting API use its default\")"
+            "logger.debug(\"No page size provided - letting API use its default\")",
+            "# Don't set any default - let the API use its own default behavior"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "\"zpa\": {\"default\": 100, \"max\": 500},"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "return None",
+            "max_page_size = limits.get(\"max\", 100)",
+            "min_page_size = limits.get(\"min\", 1)"
+          ],
+          "after": "if page_size is None:"
         }
       ]
     },
@@ -251,7 +270,16 @@
           "source": "sdk-python",
           "path": "zscaler/oneapi_response.py",
           "quotes": [
-            "self._params[\"page\"] = self._page"
+            "results, error = self._fetch_next_page()"
+          ],
+          "after": "def next(self)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "self._params[\"page\"] = self._page",
+            "self._page += 1"
           ],
           "after": "[DEBUG] Taking ZPA/other pagination branch."
         },
@@ -283,6 +311,14 @@
             "raise StopIteration(\"No more pages available.\")",
             "return results, self, None"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "if not self.has_next():"
+          ],
+          "after": "def next(self)"
         }
       ]
     },
@@ -297,7 +333,11 @@
             "page_size = 100",
             "\"pageSize\": page_size,",
             "total_pages = 1",
-            "if page >= total_pages:"
+            "if page >= total_pages:",
+            "while True:",
+            "all_items.append(model_class(form_response_body(item)))",
+            "tp = body_data.get(\"totalPages\")",
+            "page += 1"
           ],
           "after": "def _post_search_all_pages("
         },
@@ -322,7 +362,10 @@
           "path": "zscaler/zpa/tag_group.py",
           "quotes": [
             "search_body = {\"sortBy\": {\"sortName\": \"name\", \"sortOrder\": \"ASC\"}}",
-            "req_params = {\"microtenantId\": microtenant_id} if microtenant_id else {}"
+            "req_params = {\"microtenantId\": microtenant_id} if microtenant_id else {}",
+            "params = query_params or {}",
+            "microtenant_id = params.get(\"microtenant_id\")",
+            "return _post_search_all_pages("
           ],
           "after": "def list_tag_groups("
         }
@@ -339,6 +382,27 @@
             "def list_ip_ranges(self) -> APIResult[List[IpRanges]]:",
             "def get_ip_range_search(self, **kwargs)"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/c2c_ip_ranges.py",
+          "quotes": [
+            "http_method = \"get\".upper()",
+            "{self._zpa_base_endpoint} /ipRanges",
+            "request, error = self._request_executor.create_request(http_method, api_url)"
+          ],
+          "after": "def list_ip_ranges(self)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/c2c_ip_ranges.py",
+          "quotes": [
+            "http_method = \"post\".upper()",
+            "/ipRanges/search",
+            "body = kwargs",
+            "request, error = self._request_executor.create_request(http_method, api_url, body=body)"
+          ],
+          "after": "def get_ip_range_search(self, **kwargs)"
         }
       ]
     },
@@ -373,13 +437,13 @@
           "path": "zscaler/request_executor.py",
           "quotes": [
             "search_value = params[\"search\"].strip()",
+            "filter_operators = [ \"+EQ+\", \"+NE+\", \"+GT+\", \"+LT+\", \"+GE+\", \"+LE+\", \"+CONTAINS+\", \"+STARTSWITH+\", \"+ENDSWITH+\", \"%2BEQ%2B\", \"%2BNE%2B\", \"%2BGT%2B\", \"%2BLT%2B\", \"%2BGE%2B\", \"%2BLE%2B\", ]",
             "params[\"search\"] = f\"name+EQ+{search_value}\"",
-            "\"+CONTAINS+\",",
-            "\"+STARTSWITH+\",",
-            "\"%2BEQ%2B\",",
-            "\"%2BLE%2B\",",
             "has_filter_operator = any(op in search_value.upper() for op in filter_operators)",
-            "# Already in filter format - use as-is"
+            "# Already in filter format - use as-is",
+            "if not has_filter_operator:",
+            "# Simple search string - convert to name+EQ+<search_string> format",
+            "params[\"search\"] = search_value"
           ]
         }
       ]
@@ -393,13 +457,16 @@
           "path": "zscaler/request_executor.py",
           "quotes": [
             "if search_value.startswith('\"') and search_value.endswith('\"'):",
-            "search_value = search_value[1:-1]"
+            "search_value = search_value[1:-1]",
+            "if service_type.lower() == \"zpa\":",
+            "# Remove any existing quotes",
+            "# Check if the search string already contains filter operators"
           ]
         }
       ]
     },
     "zpa-next-counter": {
-      "statement": "The response object's page counter starts at 1 and, for ZPA, the next-page fetch increments it and sets the `page` parameter to the new value; only ZIA (from `pageNumber`) and ZCC (from `page`) initialize the counter from a caller-supplied value, so a ZPA list that began at a later `page` continues from page 2.",
+      "statement": "The response object's page counter starts at 1 and, for ZPA, the next-page fetch increments it and sets the `page` parameter to the new value; ZIA (from `pageNumber`) and ZCC (from `page`) initialize the counter from a caller-supplied value.",
       "tier": "A",
       "evidence": [
         {
@@ -421,7 +488,8 @@
           "path": "zscaler/oneapi_response.py",
           "quotes": [
             "if self._service_type == \"zcc\" and \"page\" in self._params:",
-            "self._page = int(self._params[\"page\"])"
+            "self._page = int(self._params[\"page\"])",
+            "# ZCC uses a 1-based \"page\" query param; if the user supplied one,"
           ]
         },
         {
@@ -429,11 +497,21 @@
           "path": "zscaler/oneapi_response.py",
           "quotes": [
             "if \"pageNumber\" in self._params:",
-            "self._page = int(self._params[\"pageNumber\"])"
+            "self._page = int(self._params[\"pageNumber\"])",
+            "if self._service_type == \"zia\": # Normalize page_size → pageSize if still in snake_case",
+            "# If user supplied pageNumber, initialize self._page accordingly"
           ]
         }
       ],
       "conditions": "The 'continues from page 2' consequence is read from the code; it was not run against a tenant. Corrected because ZIA initializes from pageNumber, not page; previously \"...only ZIA and ZCC initialize the counter from a caller-supplied page parameter, so a ZPA list that began at a later `page` continues from page 2.\""
+    },
+    "zpa-later-page-restarts": {
+      "statement": "Only ZIA and ZCC initialize the page counter from a caller-supplied value, so a ZPA list that began at a later `page` continues from page 2 when followed with `next()`.",
+      "tier": "B",
+      "derived_from": [
+        "zpa-next-counter"
+      ],
+      "conditions": "Read from the response constructor, whose only assignments to the page counter are the initial 1 and the ZIA and ZCC branches; not run against a tenant. Split out of zpa-next-counter, whose evidence quotes the branches but cannot quote the absence of a ZPA one."
     }
   },
   "divergences": {

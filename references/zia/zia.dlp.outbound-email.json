@@ -45,7 +45,13 @@
           "quotes": [
             "emailDlpRulesEndpoint = \"/zia/api/v1/emailDlpRules\"",
             "func GetLite(ctx context.Context, service *zscaler.Service) ([]OutboundEmailDlp, error) {",
-            "The response body is CSV and is"
+            "The response body is CSV and is",
+            "func Get(ctx context.Context, service *zscaler.Service, ruleID int) (*OutboundEmailDlp, error) {",
+            "func GetAll(ctx context.Context, service *zscaler.Service, orgID *int) ([]OutboundEmailDlp, error) {",
+            "func Create(ctx context.Context, service *zscaler.Service, dlpRule *OutboundEmailDlp) (*OutboundEmailDlp, *http.Response, error) {",
+            "func Update(ctx context.Context, service *zscaler.Service, ruleID int, dlpRule *OutboundEmailDlp) (*OutboundEmailDlp, *http.Response, error) {",
+            "func Delete(ctx context.Context, service *zscaler.Service, profileID int) (*http.Response, error) {",
+            "func GetActions(ctx context.Context, service *zscaler.Service, tenantIDs []int) ([]byte, error) {"
           ]
         }
       ]
@@ -58,7 +64,9 @@
           "source": "sdk-python",
           "path": "zscaler/zia/outbound_email_dlp_rules.py",
           "quotes": [
-            "The response body is a CSV file."
+            "The response body is a CSV file.",
+            "/emailDlpRules/actions",
+            "tuple: A 2-tuple of (the CSV mapping of supported outbound email DLP rule actions as bytes, error)."
           ]
         }
       ]
@@ -71,14 +79,16 @@
           "source": "sdk-go",
           "path": "CHANGELOG.md",
           "quotes": [
-            "Added the following new ZIA Outbound Email DLP endpoint"
+            "Added the following new ZIA Outbound Email DLP endpoint",
+            "`GET /emailDlpRules/actions` Retrieves the supported Outbound Email DLP rule actions for the specified email tenants as a CSV file."
           ]
         },
         {
           "source": "sdk-python",
           "path": "CHANGELOG.md",
           "quotes": [
-            "Added the following new ZIA Outbound Email DLP endpoint"
+            "Added the following new ZIA Outbound Email DLP endpoint",
+            "`GET /emailDlpRules/actions` Retrieves the supported Outbound Email DLP rule actions for the specified email tenants as a CSV file."
           ]
         },
         {
@@ -93,6 +103,38 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "## 1.9.39 (July 27, 2026)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go",
+          "at": [
+            "v3.8.41",
+            "HEAD"
+          ],
+          "quotes": [
+            "func GetLite(ctx context.Context, service *zscaler.Service) ([]OutboundEmailDlp, error) {",
+            "func GetAll(ctx context.Context, service *zscaler.Service, orgID *int) ([]OutboundEmailDlp, error) {",
+            "func Get(ctx context.Context, service *zscaler.Service, ruleID int) (*OutboundEmailDlp, error) {",
+            "func Create(ctx context.Context, service *zscaler.Service, dlpRule *OutboundEmailDlp) (*OutboundEmailDlp, *http.Response, error) {",
+            "func Update(ctx context.Context, service *zscaler.Service, ruleID int, dlpRule *OutboundEmailDlp) (*OutboundEmailDlp, *http.Response, error) {",
+            "func Delete(ctx context.Context, service *zscaler.Service, profileID int) (*http.Response, error) {"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/outbound_email_dlp_rules.py",
+          "at": [
+            "v1.9.39",
+            "HEAD"
+          ],
+          "quotes": [
+            "def list_rules(self, query_params: Optional[dict] = None) -> APIResult[List[OutboundEmailDlpRules]]:",
+            "def list_rules_lite(self, query_params: Optional[dict] = None) -> APIResult[List[OutboundEmailDlpRules]]:",
+            "def get_rule(self, rule_id: int) -> APIResult[OutboundEmailDlpRules]:",
+            "def add_rule(self, **kwargs) -> APIResult[OutboundEmailDlpRules]:",
+            "def update_rule(self, rule_id: int, **kwargs) -> APIResult[OutboundEmailDlpRules]:",
+            "def delete_rule(self, rule_id: int) -> APIResult[None]:"
           ]
         }
       ]

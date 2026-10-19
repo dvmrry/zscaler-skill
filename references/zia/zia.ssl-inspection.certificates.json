@@ -84,7 +84,9 @@
           "source": "zscaler-help",
           "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
           "quotes": [
-            "the ZIA Public Service Edge acts as a short-lived intermediate CA. As a user requests a connection, the ZIA Public Service Edge issues certificates on demand for the application."
+            "the ZIA Public Service Edge acts as a short-lived intermediate CA. As a user requests a connection, the ZIA Public Service Edge issues certificates on demand for the application.",
+            "From the browser’s point of view, the ZIA Public Service Edge certificate is valid for the destination.",
+            "because the user or administrator imported the ZIA Public Service Edge trust chain into the device’s certificate store."
           ]
         }
       ]
@@ -113,7 +115,8 @@
           "quotes": [
             "From a functional standpoint, the two options are equivalent, but there are differences in the deployment of the root CA.",
             "Using your existing CA is an additional subscription with Zscaler.",
-            "Your client machines are already preloaded with your root CA certificate, and they can begin to use the ZIA service immediately without additional certificate installations in the client certificate store."
+            "Your client machines are already preloaded with your root CA certificate, and they can begin to use the ZIA service immediately without additional certificate installations in the client certificate store.",
+            "You must decide between using the Zscaler Central Authority (CA) or your own existing CA with Zscaler as an intermediate CA."
           ]
         }
       ]
@@ -126,7 +129,8 @@
           "source": "zscaler-help",
           "path": "SSL_Inspection_Deployment_and_Operations_Guide.txt",
           "quotes": [
-            "Zscaler supports private keys in cloud hardware security modules (HSM)."
+            "Zscaler supports private keys in cloud hardware security modules (HSM).",
+            "I’m not willing to upload my own intermediate certificate to Zscaler nodes:"
           ]
         }
       ]
@@ -156,7 +160,9 @@
           "source": "zscaler-help",
           "path": "configuring-ssl-tls-inspection-policy.json",
           "quotes": [
-            "Select Yes to override the default intermediate Certificate Authority (CA) certificate."
+            "Select Yes to override the default intermediate Certificate Authority (CA) certificate.",
+            "Select Yes to override the default intermediate CA certificate. This field is only available if you have enabled Show Notifications for Blocked Traffic.",
+            "Select Yes to override the default intermediate CA certificate. This field is only available if you have enabled Show End User Notifications."
           ]
         },
         {
@@ -178,7 +184,7 @@
       ]
     },
     "own-trust-stores": {
-      "statement": "Some applications keep their own certificate trust store, so installing the Zscaler root in the operating system is not enough: Firefox, Python and developer tooling are the named examples, and non-browser applications that show SSL errors usually need the root in their own repository.",
+      "statement": "Some applications keep their own certificate trust store, so installing the Zscaler root in the operating system is not enough: Firefox, Python and developer tooling are the named examples, and for non-browser applications that show SSL errors the check is whether the Zscaler root is installed in the proper repository for them.",
       "tier": "A",
       "evidence": [
         {
@@ -199,7 +205,7 @@
       ]
     },
     "own-trust-store-remedies": {
-      "statement": "For applications with custom trust stores Zscaler recommends installing the Zscaler root (or custom intermediate) certificate into the application's store, manually or with a tool such as SCCM; disabling certificate validation is advised only for short-term testing, and exempting the developer traffic or the destination domains are the less desirable alternatives.",
+      "statement": "For applications with custom trust stores Zscaler recommends installing the Zscaler root (or custom intermediate) certificate into the application's store, manually or with a tool such as SCCM; disabling certificate validation is advised only for short-term testing, and the other alternatives are exempting the developer users' traffic, which the guide calls less desirable, or exempting the destination domains.",
       "tier": "A",
       "evidence": [
         {
@@ -209,7 +215,8 @@
             "Zscaler recommends handling the applications with custom trust stores by installing the Zscaler root cert (or custom intermediate cert) into the application",
             "This is done manually or automatically via a tool like Microsoft System Center Configuration Manager (SCCM).",
             "You can also disable cert validation, which Zscaler recommends only for short terms and testing.",
-            "Alternatively, you can exempt the traffic from developer users (which is less desirable) from SSL inspection."
+            "Alternatively, you can exempt the traffic from developer users (which is less desirable) from SSL inspection.",
+            "You can also exempt the destination domains to which these apps connect."
           ]
         }
       ]
@@ -223,7 +230,8 @@
           "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
           "quotes": [
             "you can only inspect user traffic, and you must exempt the traffic between the device and Google",
-            "Put the list of required exemptions by domain into a custom URL category and then bypass the custom URL category from inspection."
+            "Put the list of required exemptions by domain into a custom URL category and then bypass the custom URL category from inspection.",
+            "ChromeOS doesn’t trust any managed or user-installed certificates for OS-level communications."
           ]
         }
       ]

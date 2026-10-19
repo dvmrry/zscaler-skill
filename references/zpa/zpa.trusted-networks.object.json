@@ -124,7 +124,9 @@
           "path": "zscaler/zpa/services/trustednetwork/zpa_trusted_network.go",
           "quotes": [
             "NetworkID        string `json:\"networkId,omitempty\"`",
-            "MasterCustomerID string `json:\"masterCustomerId,omitempty\"`"
+            "MasterCustomerID string `json:\"masterCustomerId,omitempty\"`",
+            "type TrustedNetwork struct { CreationTime string `json:\"creationTime,omitempty\"` Domain string `json:\"domain,omitempty\"` ID string `json:\"id,omitempty\"`",
+            "ModifiedBy string `json:\"modifiedBy,omitempty\"` ModifiedTime string `json:\"modifiedTime,omitempty\"` Name string `json:\"name,omitempty\"`"
           ]
         }
       ]
@@ -218,9 +220,17 @@
           "path": "zscaler/zpa/services/trustednetwork/zpa_trusted_network.go",
           "quotes": [
             "list, resp, err := common.GetAllPagesGeneric[TrustedNetwork](ctx, service.Client, relativeURL, \"\")",
-            "if trustedNetwork.NetworkID == netID {"
+            "if trustedNetwork.NetworkID == netID {",
+            "relativeURL := mgmtConfigV2 + service.Client.GetCustomerID() + trustedNetworkEndpoint"
           ],
           "after": "func GetByNetID(ctx context.Context, service *zscaler.Service, netID string) (*TrustedNetwork, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/trustednetwork/zpa_trusted_network.go",
+          "quotes": [
+            "mgmtConfigV2           = \"/zpa/mgmtconfig/v2/admin/customers/\""
+          ]
         }
       ]
     },
@@ -235,7 +245,8 @@
           "source": "zscaler-help",
           "path": "obtaining-trusted-network-details-using-api.json",
           "quotes": [
-            "id: The ID of the desired trusted network."
+            "id: The ID of the desired trusted network.",
+            "/mgmtconfig/v1/admin/customers/{customerId}/network/{id}."
           ]
         },
         {
@@ -301,7 +312,8 @@
           "path": "docs/data-sources/zpa_trusted_network.md",
           "quotes": [
             "This data source can then be referenced within the following resources:",
-            "5. Service Edge Group."
+            "5. Service Edge Group.",
+            "1. Access Policy 2. Forwarding Policy 3. Inspection Policy 4. Isolation Policy 5. Service Edge Group."
           ]
         }
       ]

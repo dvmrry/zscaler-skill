@@ -88,8 +88,23 @@
           "path": "configuring-ssl-tls-inspection-policy.json",
           "quotes": [
             "you can further choose to either Evaluate Other Policies or Bypass Other Policies.",
-            "Choosing Bypass Other Policies bypasses web policies (URL Filtering and Cloud App Control) for the TLS traffic."
+            "Choosing Bypass Other Policies bypasses web policies (URL Filtering and Cloud App Control) for the TLS traffic.",
+            "In the Actions section, choose the appropriate action (Inspect, Do Not Inspect, or Block) for the SSL/TLS traffic that matches the defined criteria:",
+            "If you choose to evaluate other policies for the traffic, you can configure the following settings:",
+            "Show Notifications for Blocked Traffic: Enable this setting to display end user notifications to users if the traffic is blocked by other web policies.",
+            "OCSP Revocation Check: Enable this option to include a certificate revocation check in the untrusted server certificate validation.",
+            "Minimum TLS Version: Select the minimum TLS version required for your connections.",
+            "If you choose the Block action, you can choose to enable or disable end user notifications:"
           ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "quotes": [
+            "Untrusted Server Certificates: Select how the service handles untrusted certificates",
+            "Block No Server Name Indication (SNI): Enable this option to block any traffic that does not contain the SNI in the Client Hello message during SSL/TLS handshake."
+          ],
+          "after": "If you choose to evaluate other policies for the traffic, you can configure the following settings:"
         }
       ]
     },
@@ -127,6 +142,13 @@
             "If a failure occurs, you can choose to Allow, Caution, or Block the connection. Zscaler recommends blocking access until the certificate issue is addressed on the server side.",
             "Zscaler recommends that you drop all traffic associated with bad certificates and enable OCSP for all inspection rules."
           ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "quotes": [
+            "Pass Through: Certificate warnings are displayed to users, and they can decide to proceed to the site."
+          ]
         }
       ]
     },
@@ -155,7 +177,7 @@
       ]
     },
     "ocsp-on-in-example-exemptions": {
-      "statement": "The Leading Practices example for the Zscaler Recommended Exemptions rule (Do Not Inspect, Evaluate Other Policies) shows OCSP Revocation Check enabled, so an exemption rule is not expected to leave OCSP off.",
+      "statement": "The Leading Practices example for the Zscaler Recommended Exemptions rule (Do Not Inspect, Evaluate Other Policies) shows OCSP Revocation Check enabled.",
       "tier": "A",
       "binds": [
         "zia/ssl-inspection-rules#action"
@@ -166,7 +188,8 @@
           "source": "zscaler-help",
           "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
           "quotes": [
-            "Online Certificate Status Protocol (OCSP) Revocation Check: Enabled"
+            "Online Certificate Status Protocol (OCSP) Revocation Check: Enabled",
+            "1 Zscaler N/A Do Not Inspect Recommended Evaluate Other Exemption Rule Policies"
           ]
         }
       ],
@@ -245,7 +268,8 @@
           "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
           "quotes": [
             "Zscaler recommends initially allowing all supported protocols and ciphers to minimize user disruption.",
-            "Zscaler recommends blocking all TLS versions earlier than 1.2, including any legacy SSL services."
+            "Zscaler recommends blocking all TLS versions earlier than 1.2, including any legacy SSL services.",
+            "During this time, you can discover what is in use on your network"
           ]
         }
       ]
@@ -278,7 +302,9 @@
           "source": "zscaler-help",
           "path": "configuring-ssl-tls-inspection-policy.json",
           "quotes": [
-            "The HTTP/2 feature is only available if it is enabled for your organization and does not work for a location's traffic if Bandwidth Control is enabled on that location."
+            "The HTTP/2 feature is only available if it is enabled for your organization and does not work for a location's traffic if Bandwidth Control is enabled on that location.",
+            "Enable HTTP/2: Enable to make HTTP/2 the web protocol used for accessing all applications.",
+            "If Bandwidth Control is enabled on that location, the Zscaler service falls back to HTTP/1.1, even if HTTP/2 is enabled in the SSL/TLS Inspection policy."
           ]
         }
       ]
@@ -302,9 +328,21 @@
           "source": "zscaler-help",
           "path": "configuring-ssl-tls-inspection-policy.json",
           "quotes": [
-            "Ensure that you install the Zscaler root CA certificate or your enterprise root CA certificate in your client's truststore, so the service can reply or redirect the user to the notification page."
+            "Ensure that you install the Zscaler root CA certificate or your enterprise root CA certificate in your client's truststore, so the service can reply or redirect the user to the notification page.",
+            "If no certificate is installed, the browser displays an Invalid Certificate warning message.",
+            "If this setting is disabled, the service resets the connection with a generic failed connection message from the browser."
           ],
           "after": "Show End User Notifications: Enable this setting to display end user notifications."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.json",
+          "quotes": [
+            "Ensure that you install the Zscaler root CA certificate or your enterprise root CA certificate in your client's truststore, so the service can reply or redirect the user to the notification page.",
+            "If no certificate is installed, the browser displays an Invalid Certificate warning message.",
+            "If this setting is disabled, the service resets the connection with a generic failed connection message from the browser."
+          ],
+          "after": "Show Notifications for Blocked Traffic: Enable this setting to display end user notifications to users if the traffic is blocked by other web policies."
         }
       ]
     },

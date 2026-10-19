@@ -121,6 +121,39 @@
           "quotes": [
             "return (result, response, None) def add_app_protection_rule("
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "@synchronized(global_rule_lock) def add_access_rule(",
+            "@synchronized(global_rule_lock) def update_access_rule(",
+            "@synchronized(global_rule_lock) def add_timeout_rule(",
+            "@synchronized(global_rule_lock) def update_timeout_rule(",
+            "@synchronized(global_rule_lock) def add_client_forwarding_rule(",
+            "@synchronized(global_rule_lock) def update_client_forwarding_rule(",
+            "@synchronized(global_rule_lock) def add_isolation_rule(",
+            "@synchronized(global_rule_lock) def update_isolation_rule(",
+            "@synchronized(global_rule_lock) def update_app_protection_rule(",
+            "@synchronized(global_rule_lock) def add_access_rule_v2(",
+            "@synchronized(global_rule_lock) def update_access_rule_v2(",
+            "@synchronized(global_rule_lock) def add_timeout_rule_v2(",
+            "@synchronized(global_rule_lock) def update_timeout_rule_v2(",
+            "@synchronized(global_rule_lock) def add_client_forwarding_rule_v2(",
+            "@synchronized(global_rule_lock) def update_client_forwarding_rule_v2(",
+            "@synchronized(global_rule_lock) def add_isolation_rule_v2(",
+            "@synchronized(global_rule_lock) def update_isolation_rule_v2(",
+            "@synchronized(global_rule_lock) def add_app_protection_rule_v2(",
+            "@synchronized(global_rule_lock) def update_app_protection_rule_v2(",
+            "@synchronized(global_rule_lock) def add_privileged_credential_rule_v2(",
+            "@synchronized(global_rule_lock) def update_privileged_credential_rule_v2(",
+            "@synchronized(global_rule_lock) def add_capabilities_rule_v2(",
+            "@synchronized(global_rule_lock) def update_capabilities_rule_v2(",
+            "@synchronized(global_rule_lock) def add_redirection_rule_v2(",
+            "@synchronized(global_rule_lock) def update_redirection_rule_v2(",
+            "@synchronized(global_rule_lock) def add_browser_protection_rule_v2(",
+            "@synchronized(global_rule_lock) def update_browser_protection_rule_v2("
+          ]
         }
       ]
     },
@@ -135,7 +168,16 @@
             "if isinstance(condition, tuple) and len(condition) == 3:",
             "elif isinstance(condition, dict):",
             "operator = \"OR\"  # Default operator if none specified",
-            "if isinstance(condition, tuple) and isinstance(condition[0], str) and condition[0].upper() in [\"AND\", \"OR\"]:"
+            "if isinstance(condition, tuple) and isinstance(condition[0], str) and condition[0].upper() in [\"AND\", \"OR\"]:",
+            "object_type = condition[0].upper()",
+            "lhs = condition[1]",
+            "rhs = condition[2]",
+            "for key in [\"id\", \"negated\", \"operator\"]:",
+            "operands = condition.get(\"operands\", [])",
+            "operators_for_types[object_type] = operator",
+            "object_types_to_operands[object_type].append(operand)",
+            "operator = operators_for_types.get(object_type, \"OR\")",
+            "template.append({\"operator\": operator, \"operands\": operands})"
           ],
           "after": "def _create_conditions_v1("
         }
@@ -161,7 +203,8 @@
             "v1.10.0"
           ],
           "quotes": [
-            "if isinstance(condition, tuple):"
+            "if isinstance(condition, tuple):",
+            "if isinstance(condition, tuple) and condition[0].upper() in [\"AND\", \"OR\"]:"
           ],
           "after": "def _create_conditions_v2("
         },
@@ -169,7 +212,8 @@
           "source": "sdk-python",
           "path": "CHANGELOG.md",
           "quotes": [
-            "ZPA policy `conditions` now accept lists as well as tuples (e.g. conditions loaded from JSON); list-shaped conditions were previously dropped."
+            "ZPA policy `conditions` now accept lists as well as tuples (e.g. conditions loaded from JSON); list-shaped conditions were previously dropped.",
+            "Issue #583"
           ],
           "after": "## 1.11.1 (October 6 2026)"
         },
@@ -183,7 +227,12 @@
             "elif object_type in [\"app\", \"app_group\"]:",
             "elif object_type in [\"console\", \"location\", \"machine_grp\", \"client_type\", \"user_portal\"]:",
             "for lhs, rhs in values[0]:",
-            "criteria_conditions.setdefault(key, []).append({\"lhs\": lhs, \"rhs\": rhs})"
+            "criteria_conditions.setdefault(key, []).append({\"lhs\": lhs, \"rhs\": rhs})",
+            "# Handle individual conditions (each in their own block)",
+            "\"operator\": operator,",
+            "result.extend(individual_conditions)",
+            "if object_type.lower() in [ \"posture\", \"trusted_network\", \"country_code\", \"platform\", \"risk_factor_type\", \"saml\", \"scim\", \"scim_group\", ]:",
+            "\"entryValues\": [v if isinstance(v, dict) else {\"lhs\": v[0], \"rhs\": v[1]} for v in values],"
           ],
           "after": "def _create_conditions_v2("
         }
@@ -268,9 +317,19 @@
             "return (None, None, \"Only one of credential_id or credential_pool_id may be provided.\")",
             "return (None, None, \"Either credential_id or credential_pool_id must be provided.\")",
             "payload[\"credential\"] = {\"id\": credential_id}",
-            "payload[\"credentialPool\"] = {\"id\": credential_pool_id}"
+            "payload[\"credentialPool\"] = {\"id\": credential_pool_id}",
+            "policy_type_response, _, err = self.get_policy("
           ],
           "after": "def add_privileged_credential_rule_v2(self, name: str, credential_id: str = None, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "http_method = \"get\".upper()",
+            "request, error = self._request_executor.create_request(http_method, api_url, params=query_params)"
+          ],
+          "after": "def get_policy(self, policy_type: str"
         },
         {
           "source": "api-specs",
@@ -291,7 +350,8 @@
           "path": "zscaler/zpa/policies.py",
           "quotes": [
             "\"rhs\": \"zpn_client_type_exporter\"}]}",
-            "if not client_type_present:"
+            "if not client_type_present:",
+            "if not client_type_present: payload[\"conditions\"].append( {\"operator\": \"OR\", \"operands\": [{\"objectType\": \"CLIENT_TYPE\", \"lhs\": \"id\", \"rhs\": \"zpn_client_type_exporter\"}]} ) request, error = self._request_executor.create_request(http_method, api_url, body=payload, params=params)"
           ],
           "after": "def add_isolation_rule(self, name: str, action: str, zpn_isolation_profile_id: str = None, **kwargs)"
         },
@@ -300,7 +360,8 @@
           "path": "zscaler/zpa/policies.py",
           "quotes": [
             "{\"objectType\": \"CLIENT_TYPE\", \"values\": [\"zpn_client_type_exporter\"]}]}",
-            "if not client_type_present:"
+            "if not client_type_present:",
+            "if not client_type_present: payload[\"conditions\"].append( {\"operator\": \"OR\", \"operands\": [{\"objectType\": \"CLIENT_TYPE\", \"values\": [\"zpn_client_type_exporter\"]}]} ) request, error = self._request_executor.create_request(http_method, api_url, body=payload, params=params)"
           ],
           "after": "def add_isolation_rule_v2(self, name: str, action: str, zpn_isolation_profile_id: str = None, **kwargs)"
         },
@@ -309,7 +370,8 @@
           "path": "zscaler/zpa/policies.py",
           "quotes": [
             "{\"objectType\": \"CLIENT_TYPE\", \"values\": [\"zpn_client_type_exporter\"]}]}",
-            "if not client_type_present:"
+            "if not client_type_present:",
+            "if not client_type_present: payload[\"conditions\"].append( {\"operator\": \"OR\", \"operands\": [{\"objectType\": \"CLIENT_TYPE\", \"values\": [\"zpn_client_type_exporter\"]}]} ) request, error = self._request_executor.create_request(http_method, api_url, body=payload, params=params)"
           ],
           "after": "def add_browser_protection_rule_v2("
         },
@@ -318,9 +380,46 @@
           "path": "zscaler/zpa/policies.py",
           "quotes": [
             "{\"objectType\": \"CLIENT_TYPE\", \"values\": [\"zpn_client_type_exporter\"]}]}",
-            "if not client_type_present:"
+            "if not client_type_present:",
+            "if not client_type_present: payload[\"conditions\"].append( {\"operator\": \"OR\", \"operands\": [{\"objectType\": \"CLIENT_TYPE\", \"values\": [\"zpn_client_type_exporter\"]}]} ) request, error = self._request_executor.create_request(http_method, api_url, body=payload, params=params)"
           ],
           "after": "def update_browser_protection_rule_v2("
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "v := new(PolicyRule) path := fmt.Sprintf(mgmtConfig+service.Client.GetCustomerID()+\"/policySet/%s/rule\", rule.PolicySetID) resp, err := service.Client.NewRequestDo(ctx, \"POST\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, rule, v)"
+          ],
+          "after": "func CreateRule("
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "policySetRule.Conditions = []Conditions{}",
+            "condtion.Operands[i].Name = \"\"",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, policySetRule, nil)"
+          ],
+          "after": "func UpdateRule("
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "v := new(PolicyRule) path := fmt.Sprintf(mgmtConfigV2+service.Client.GetCustomerID()+\"/policySet/%s/rule\", rule.PolicySetID) resp, err := service.Client.NewRequestDo(ctx, \"POST\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, rule, v)"
+          ],
+          "after": "func CreateRule("
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "policySetRule.Conditions = []PolicyRuleResourceConditions{}",
+            "condition.Operands[j].ID = \"\"",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, policySetRule, nil)"
+          ],
+          "after": "func UpdateRule("
         }
       ],
       "conditions": "Extended per verifier to add_browser_protection_rule_v2 and update_browser_protection_rule_v2, which append the same condition (v1.10.0 and HEAD). Applies to the add and update isolation builders; the Go-side absence is a read of the two Go policy packages (no client-type string appears in CreateRule or UpdateRule)."
@@ -337,7 +436,13 @@
             "capabilities.append(\"FILE_UPLOAD\")",
             "elif priv_caps_map.get(\"file_upload\") is False:",
             "capabilities.append(\"INSPECT_FILE_UPLOAD\")",
-            "capabilities.append(\"SHARE_SESSION\")"
+            "capabilities.append(\"SHARE_SESSION\")",
+            "capabilities.append(\"CLIPBOARD_COPY\")",
+            "capabilities.append(\"CLIPBOARD_PASTE\")",
+            "capabilities.append(\"FILE_DOWNLOAD\")",
+            "capabilities.append(\"INSPECT_FILE_DOWNLOAD\")",
+            "capabilities.append(\"MONITOR_SESSION\")",
+            "capabilities.append(\"RECORD_SESSION\")"
           ],
           "after": "def add_capabilities_rule_v2(self, name: str, **kwargs)"
         },
@@ -374,7 +479,12 @@
             "elif action.lower() in [\"redirect_preferred\", \"redirect_always\"] and not service_edge_group_ids:",
             "if val in (\"zpn_client_type_branch_connector\", \"zpn_client_type_edge_connector\"):",
             "\"action\": action.upper(),",
-            "if operand[\"objectType\"] == \"CLIENT_TYPE\" and operand[\"values\"][0] not in valid_client_types:"
+            "if operand[\"objectType\"] == \"CLIENT_TYPE\" and operand[\"values\"][0] not in valid_client_types:",
+            "raise ValueError(\"service_edge_group_ids cannot be set when action is 'redirect_default'.\")",
+            "raise ValueError(\"service_edge_group_ids must be set when action is 'redirect_preferred' or 'redirect_always'.\")",
+            "valid_client_types = [ \"zpn_client_type_edge_connector\", \"zpn_client_type_branch_connector\", \"zpn_client_type_machine_tunnel\", \"zpn_client_type_zapp\", \"zpn_client_type_zapp_partner\", ]",
+            "if action.lower() == \"redirect_always\":",
+            "\"'zpn_client_type_edge_connector' when action is 'REDIRECT_ALWAYS'.\""
           ],
           "after": "def add_redirection_rule_v2(self, name: str, action: str, service_edge_group_ids: list = [], **kwargs)"
         },
@@ -446,16 +556,28 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/policies.py",
           "quotes": [
-            "(\"app_connector_group_ids\", \"PolicySetControllers\"),"
+            "reformat_params = [ (\"app_server_group_ids\", \"appServerGroups\"), (\"app_connector_group_ids\", \"PolicySetControllers\"),"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/policies.py",
           "quotes": [
-            "\"appConnectorGroups\": [{\"id\": group_id} for group_id in app_connector_group_ids],"
+            "\"appConnectorGroups\": [{\"id\": group_id} for group_id in app_connector_group_ids],",
+            "app_connector_group_ids: list = [],",
+            "transform_common_id_fields(self.reformat_params, kwargs, payload, coerce_ids=False)"
           ],
           "after": "def add_access_rule("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "app_connector_group_ids: list = None,",
+            "\"appConnectorGroups\": [{\"id\": group_id} for group_id in (app_connector_group_ids or [])],",
+            "transform_common_id_fields(self.reformat_params, kwargs, payload, coerce_ids=False)"
+          ],
+          "after": "def update_access_rule("
         }
       ],
       "conditions": "That the mapped key is not reached relies on app_connector_group_ids being a named parameter of the access builders, so it is never in kwargs."
@@ -469,9 +591,18 @@
           "path": "zscaler/zpa/policies.py",
           "quotes": [
             "mapped_policy_type = self.POLICY_MAP.get(policy_type)",
-            "raise ValueError(f\"Incorrect policy type provided: {policy_type}\")"
+            "raise ValueError(f\"Incorrect policy type provided: {policy_type}\")",
+            "# Map the policy type to the ZPA API equivalent"
           ],
           "after": "def list_rules(self, policy_type: str, query_params: Optional[dict] = None) -> APIResult[List[PolicySetControllerV1]]:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "POLICY_MAP = { \"access\": \"ACCESS_POLICY\", \"capabilities\": \"CAPABILITIES_POLICY\", \"client_forwarding\": \"CLIENT_FORWARDING_POLICY\", \"clientless\": \"CLIENTLESS_SESSION_PROTECTION_POLICY\", \"credential\": \"CREDENTIAL_POLICY\", \"portal_policy\": \"PRIVILEGED_PORTAL_POLICY\",",
+            "\"portal_policy\": \"PRIVILEGED_PORTAL_POLICY\", \"vpn_policy\": \"VPN_TUNNEL_POLICY\", \"inspection\": \"INSPECTION_POLICY\", \"isolation\": \"ISOLATION_POLICY\", \"redirection\": \"REDIRECTION_POLICY\", \"siem\": \"SIEM_POLICY\", \"timeout\": \"TIMEOUT_POLICY\", \"user_portal\": \"USER_PORTAL\", }"
+          ]
         }
       ]
     },
@@ -483,7 +614,10 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/policies.py",
           "quotes": [
-            "if policy_type in self.POLICY_MAP.values():"
+            "if policy_type in self.POLICY_MAP.values():",
+            "mapped_policy_type = policy_type",
+            "# Try to map from user-friendly format",
+            "mapped_policy_type = self.POLICY_MAP.get(policy_type)"
           ],
           "after": "def get_policy_rule_count(self, policy_type: str"
         }
@@ -504,7 +638,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/policies.py",
           "quotes": [
-            "/policySet/{policy_set_id}/reorder"
+            "/policySet/{policy_set_id}/reorder",
+            "http_method = \"put\".upper()"
           ],
           "after": "def bulk_reorder_rules(self, policy_type: str, rules_orders: list[str], **kwargs)"
         }
@@ -552,6 +687,38 @@
             "self.get_policy(\"access\", query_params={\"microtenantId\": kwargs.get(\"microtenantId\")})"
           ],
           "after": "def add_access_rule("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "self.get_policy(\"access\", query_params=query_params)"
+          ],
+          "after": "def update_access_rule("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "self.get_policy(\"timeout\", query_params={\"microtenantId\": kwargs.get(\"microtenantId\")})"
+          ],
+          "after": "def add_timeout_rule("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "self.get_policy(\"timeout\", query_params={\"microtenantId\": kwargs.get(\"microtenantId\")})"
+          ],
+          "after": "def update_timeout_rule("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "self.get_policy(\"inspection\")"
+          ],
+          "after": "def update_app_protection_rule("
         }
       ]
     },

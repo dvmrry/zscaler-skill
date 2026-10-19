@@ -106,7 +106,9 @@
           "path": "zscaler/zcc/services/common/common.go",
           "after": "func clampPageSize(pageSize int) int {",
           "quotes": [
+            "if pageSize <= 0 {",
             "return DefaultPageSize",
+            "if pageSize > MaxPageSize {",
             "return MaxPageSize"
           ]
         },
@@ -141,7 +143,8 @@
           "quotes": [
             "pages := fmt.Sprintf(\"%v\", paged.TotalPages)",
             "totalPages, _ := strconv.Atoi(pages)",
-            "// Even if totalPages == 0, return list to prevent fallback to raw array"
+            "// Even if totalPages == 0, return list to prevent fallback to raw array",
+            "return totalPages, paged.List, resp, nil"
           ],
           "after": "// Build pagination struct with search filter (already converted to filter format)"
         }
@@ -165,10 +168,26 @@
             "HEAD"
           ],
           "quotes": [
+            "totalPages, result, resp, err := getAllPagesGeneric[T](ctx, client, relativeURL, 1, DefaultPageSize, Filter{Search: searchQuery})",
             "for page := 2; page <= totalPages; page++ {",
-            "totalPages, l, resp, err = getAllPagesGeneric[T](ctx, client, relativeURL, page, DefaultPageSize, Filter{Search: searchQuery})"
+            "totalPages, l, resp, err = getAllPagesGeneric[T](ctx, client, relativeURL, page, DefaultPageSize, Filter{Search: searchQuery})",
+            "return result, resp, nil"
           ],
           "after": "func GetAllPagesGeneric[T any](ctx context.Context, client *zscaler.Client, relativeURL, searchQuery string) ([]T, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "// Build pagination struct with search filter (already converted to filter format)",
+          "quotes": [
+            "pages := fmt.Sprintf(\"%v\", paged.TotalPages)",
+            "totalPages, _ := strconv.Atoi(pages)",
+            "return totalPages, paged.List, resp, nil"
+          ]
         }
       ],
       "upstream": [
@@ -190,7 +209,10 @@
             "HEAD"
           ],
           "quotes": [
-            "if page >= totalPages {"
+            "result = append(result, paged.List...)",
+            "pages := fmt.Sprintf(\"%v\", paged.TotalPages)",
+            "totalPages, _ := strconv.Atoi(pages)",
+            "if page >= totalPages {\n\t\t\tbreak\n\t\t}\n\t\tpage++"
           ],
           "after": "func GetAllPagesGenericWithPostSearch[T any](ctx context.Context, client *zscaler.Client, relativeURL string, searchRequest SearchRequest, filter Filter) ([]T, *http.Response, error) {"
         }
@@ -301,6 +323,7 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/common/common.go",
           "quotes": [
+            "pageSize = clampPageSize(pageSize)",
             "perPage = clampPageSize(perPage)",
             "if params.PerPage <= 0 {"
           ]
@@ -310,7 +333,9 @@
           "path": "zscaler/zcc/services/common/common.go",
           "after": "func clampPageSize(pageSize int) int {",
           "quotes": [
+            "if pageSize <= 0 {",
             "return DefaultPageSize",
+            "if pageSize > MaxPageSize {",
             "return MaxPageSize"
           ]
         },
@@ -365,8 +390,12 @@
             "HEAD"
           ],
           "quotes": [
-            "params.Skip += perPage",
-            "if page.Limit > 0 && page.Count < page.Limit {"
+            "perPage = clampPageSize(perPage)",
+            "params.PerPage = perPage",
+            "if page.Count == 0 || len(page.Items) == 0 {",
+            "if page.Limit > 0 && page.Count < page.Limit {",
+            "if page.Total > 0 && len(allResults) >= page.Total {",
+            "params.Skip += perPage"
           ],
           "after": "func ReadAllPagesV2[T any](ctx context.Context, client *zscaler.Client, endpoint string, params QueryParamsV2, perPage int) ([]T, error) {"
         }
@@ -390,10 +419,28 @@
             "HEAD"
           ],
           "quotes": [
+            "for {\n\t\tvar page PaginatedResponseV2[T]",
             "if page.Count == 0 || len(page.Items) == 0 {",
-            "if page.Total > 0 && len(allResults) >= page.Total {"
+            "if page.Limit > 0 && page.Count < page.Limit {",
+            "if page.Total > 0 && len(allResults) >= page.Total {",
+            "params.Skip += perPage"
           ],
           "after": "func ReadAllPagesV2[T any](ctx context.Context, client *zscaler.Client, endpoint string, params QueryParamsV2, perPage int) ([]T, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "after": "type PaginatedResponseV2[T any] struct {",
+          "quotes": [
+            "Items  []T `json:\"items\"`",
+            "Total  int `json:\"total\"`",
+            "Limit  int `json:\"limit\"`",
+            "Count  int `json:\"count\"`"
+          ]
         }
       ],
       "upstream": [
@@ -478,7 +525,7 @@
       ]
     },
     "zia-readallpages-extra-request": {
-      "statement": "The ZIA helper ends only on a page shorter than its page size. When the last page is exactly full (the total is a multiple of the page size), it requests one more page, which it expects to be empty. The extra request is wasted work, and under a rate limit it costs a call.",
+      "statement": "Apart from a request error, the ZIA helper ends only on a page shorter than its page size. When the last page is exactly full (the total is a multiple of the page size), it requests one more page, an extra API call that returns nothing new.",
       "tier": "A",
       "evidence": [
         {
@@ -489,8 +536,10 @@
             "HEAD"
           ],
           "quotes": [
-            "if len(pageItems) < pageSize {",
-            "pageSize := defaultPageSize"
+            "pageSize := defaultPageSize",
+            "for {\n\t\tpageItems := []T{}",
+            "err := client.Read(ctx, fmt.Sprintf(\"%s&pageSize=%d&page=%d\", endpoint, pageSize, page), &pageItems)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}",
+            "if len(pageItems) < pageSize {\n\t\t\tbreak\n\t\t}\n\t\tpage++"
           ],
           "after": "func ReadAllPages[T any](ctx context.Context, client *zscaler.Client, endpoint string, list *[]T, customPageSize ...int) error {"
         }
@@ -523,6 +572,43 @@
             "profiles, err := forwarding_profile.GetForwardingProfileByCompanyID(ctx, service, \"\", nil, nil)"
           ],
           "after": "func findProfileByName(ctx context.Context, service *zscaler.Service, name string) (*forwarding_profile.ForwardingProfile, error) {"
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func (r *ForwardingProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {",
+          "quotes": [
+            "profiles, err := forwarding_profile.GetForwardingProfileByCompanyID(ctx, service, \"\", nil, nil)"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func findProfileByID(ctx context.Context, service *zscaler.Service, id int) (*forwarding_profile.ForwardingProfile, error) {",
+          "quotes": [
+            "profiles, err := forwarding_profile.GetForwardingProfileByCompanyID(ctx, service, \"\", nil, nil)"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "profile, err := findProfileByID(ctx, service, createResp.ID)",
+            "profile, err = findProfileByName(ctx, service, payload.Name)",
+            "profile, err := findProfileByID(ctx, service, readID)"
+          ]
         }
       ],
       "upstream": [
@@ -545,7 +631,36 @@
           ],
           "quotes": [
             "tflog.Info(ctx, \"Removing forwarding profile from state - no longer exists\", map[string]any{\"id\": idStr})",
-            "return nil, fmt.Errorf(\"forwarding profile with name '%s' not found after retries\", name)"
+            "resp.State.RemoveResource(ctx)",
+            "profile, err := findProfileByID(ctx, service, createResp.ID)",
+            "profile, err = findProfileByName(ctx, service, payload.Name)",
+            "profile, err := findProfileByID(ctx, service, readID)",
+            "return nil, fmt.Errorf(\"forwarding profile with name '%s' not found after retries\", name)",
+            "return nil, fmt.Errorf(\"forwarding profile with ID '%d' not found after retries\", id)"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func findProfileByName(ctx context.Context, service *zscaler.Service, name string) (*forwarding_profile.ForwardingProfile, error) {",
+          "quotes": [
+            "for attempt := 0; attempt < 5; attempt++ {"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func findProfileByID(ctx context.Context, service *zscaler.Service, id int) (*forwarding_profile.ForwardingProfile, error) {",
+          "quotes": [
+            "for attempt := 0; attempt < 5; attempt++ {"
           ]
         }
       ]
@@ -574,6 +689,8 @@
             "HEAD"
           ],
           "quotes": [
+            "if _, parseErr := strconv.ParseInt(id, 10, 64); parseErr == nil {",
+            "resource.ImportStatePassthroughID(ctx, path.Root(\"id\"), req, resp)",
             "posture, err := zia_posture.GetByName(ctx, service, id)"
           ],
           "after": "func (r *ZIAPostureResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {"
@@ -587,6 +704,7 @@
           ],
           "quotes": [
             "postures, err := GetAll(ctx, service, &GetAllFilterOptions{Keyword: postureName})",
+            "if strings.EqualFold(posture.Name, postureName) {",
             "return common.ReadAllPagesV2[ZIAPosture](ctx, service.Client, ziaPostureEndpointV2, params, common.DefaultPageSize)"
           ]
         }
@@ -604,8 +722,36 @@
             "HEAD"
           ],
           "quotes": [
+            "lookup is currently restricted to the numeric `id`",
             "The upstream `/zia-posture-profiles` **list** endpoint mishandles pagination and silently returns a truncated set",
-            "which calls a different list endpoint"
+            "so name-based and platform-based lookup is temporarily disabled",
+            "Use the `zcc_zia_posture` resource's import handler (which calls a different list endpoint) to discover the id",
+            "Currently the only supported lookup key."
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/zia_posture.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func (r *ZIAPostureResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {",
+          "quotes": [
+            "posture, err := zia_posture.GetByName(ctx, service, id)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "ziaPostureEndpointV2 = \"/zcc/papi/public/v2/zia-posture-profiles\"",
+            "postures, err := GetAll(ctx, service, &GetAllFilterOptions{Keyword: postureName})",
+            "return common.ReadAllPagesV2[ZIAPosture](ctx, service.Client, ziaPostureEndpointV2, params, common.DefaultPageSize)"
           ]
         }
       ]

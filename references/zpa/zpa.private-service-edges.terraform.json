@@ -144,6 +144,7 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_service_edge_group.go",
           "quotes": [
+            "Optional: true,",
             "Computed: true,"
           ],
           "after": "\"country_code\": {"
@@ -168,8 +169,11 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_service_edge_group.md",
           "quotes": [
-            "`country_code` - (String) Provide a 2 letter"
-          ]
+            "`city_country` - (String) The city and country of the App Connector",
+            "`country_code` - (String) Provide a 2 letter",
+            "### Optional"
+          ],
+          "after": "### Required"
         }
       ],
       "binds": [
@@ -179,7 +183,7 @@
       "conditions": "Statement changed from the legacy \"requires name, latitude, longitude, location, city_country and country_code\": the schema marks city_country Optional and country_code Optional+Computed, contradicting the docs' Required list. Dropped \"trusted_networks takes at most one block\": the schema's MaxItems is commented out, so that is now the trusted-networks-max-items divergence; the defaults are now cited from the schema."
     },
     "zpa-terraform-grace": {
-      "statement": "grace_distance_value and grace_distance_value_unit are RequiredWith grace_distance_enabled in the schema, so the three are configured together.",
+      "statement": "grace_distance_value and grace_distance_value_unit are RequiredWith grace_distance_enabled in the schema, and each is RequiredWith the other, so setting either value or unit requires the other two fields.",
       "tier": "A",
       "evidence": [
         {
@@ -294,8 +298,11 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_service_edge_group.go",
           "quotes": [
+            "Optional: true,",
             "Computed: true, // This is key",
-            "// If the field isn't set in config (regardless of static or dynamic block)"
+            "Description: \"WARNING: Service edge membership is managed externally. \" +",
+            "// If the field isn't set in config (regardless of static or dynamic block)",
+            "if _, ok := d.GetOk(\"service_edges\"); !ok {\n\t\t\t\t\t\treturn true\n\t\t\t\t\t}\n\t\t\t\t\treturn false"
           ],
           "after": "\"service_edges\": {"
         }

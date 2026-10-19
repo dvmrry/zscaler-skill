@@ -85,10 +85,13 @@
         {
           "source": "zscaler-help",
           "path": "understanding-policy-enforcement.json",
+          "after": "The Public Service Edge scans the POST request and applies policies in the following order:",
           "quotes": [
-            "The Public Service Edge scans the POST request and applies policies in the following order:",
-            "Data Loss Prevention: The Public Service Edge checks if the POST request",
-            "File Type Control: The Public Service Edge checks if the POST request violates"
+            "Cloud App Control: The Public Service Edge checks if the requested application violates the Cloud App Control policy configured by your organization.",
+            "URL Filtering: The Public Service Edge checks if the requested URL belongs to URL categories or custom URL categories blocked by your organization's URL Filtering policy.",
+            "Malware Protection: The Public Service Edge checks files in the request against anti-virus and anti-spyware signatures.",
+            "File Type Control: The Public Service Edge checks if the POST request violates your File Type Control policy.",
+            "Data Loss Prevention: The Public Service Edge checks if the POST request includes content that violates your organization's DLP policy."
           ]
         }
       ]
@@ -101,7 +104,10 @@
           "source": "zscaler-help",
           "path": "understanding-policy-enforcement.json",
           "quotes": [
-            "The DLP policy itself is never triggered, and the service does not send a notification"
+            "Under the File Type Control policy, the organization blocks PDFs from being sent out of its corporate network.",
+            "Under the DLP policy, the organization blocks documents containing US Social Security numbers and specifies that the Zscaler service send notifications to auditors when it detects users attempting to do so.",
+            "If a user in this organization attempts to send a PDF that contains credit card numbers, the service blocks the transaction, but it does so because of the File Type Control policy, rather than the DLP policy.",
+            "The DLP policy itself is never triggered, and the service does not send a notification alerting the auditor that a user has attempted to send Social Security numbers out of the organization."
           ]
         }
       ]
@@ -130,6 +136,7 @@
           "source": "zscaler-help",
           "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
           "quotes": [
+            "This article applies only to organizations with Evaluate All Rules mode enabled. To access this feature, contact your Zscaler Account team.",
             "By default, the Zscaler service evaluates inline Data Loss Prevention (DLP) policy rules according to rule order, with evaluation stopping at the first match.",
             "enforcing the rule with the most restrictive action.",
             "Evaluate All Rules mode uses rule order only when multiple rules with the same action are matched."
@@ -145,6 +152,7 @@
           "source": "zscaler-help",
           "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
           "quotes": [
+            "With Evaluate All Rules mode enabled for your organization, you first set how the Zscaler service evaluates inline DLP rules on the DLP Advanced Settings page",
             "You must first delete all existing inline DLP rules before you change the way the Zscaler service evaluates rules."
           ]
         },
@@ -152,6 +160,7 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/dlp/dlp_global_options/dlp_global_options.go",
           "quotes": [
+            "webDlpGlobalOptionsEndpoint = \"/zia/api/v1/webDlpGlobalOptions\"",
             "EnableEvaluateAllDlpRules   bool                      `json:\"enableEvaluateAllDlpRules,omitempty\"`"
           ]
         }
@@ -168,6 +177,7 @@
           "source": "zscaler-help",
           "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
           "quotes": [
+            "you have the ability to create exception rules, which are child rules that allow you to exclude specific users or groups in your organization",
             "There is not a limit to the number of exception rules that you can assign to each parent rule."
           ]
         },
@@ -181,7 +191,7 @@
       ]
     },
     "exemption-list": {
-      "statement": "To exempt a specific website, custom URL category or cloud application from DLP evaluation, add it to the Cloud Apps & URL Exceptions for DLP list in DLP Advanced Settings; excluding it in a rule's criteria is not the same.",
+      "statement": "To exempt a specific website, custom URL category or cloud application from DLP evaluation, add it to the Cloud Apps & URL Exceptions for DLP list.",
       "tier": "A",
       "evidence": [
         {

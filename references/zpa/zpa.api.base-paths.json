@@ -88,7 +88,7 @@
   ],
   "claims": {
     "customer-id-in-path": {
-      "statement": "Operations on the mgmtconfig v1 and v2, userconfig and cbiconfig path families all take the customer ID as a required path parameter.",
+      "statement": "Operations under `/customers/{customerId}` in the mgmtconfig v1 and v2, userconfig and cbiconfig path families take the customer ID as a required path parameter, as the application, posture, SCIM group and CBI regions reads show.",
       "tier": "A",
       "evidence": [
         {
@@ -160,6 +160,7 @@
           "source": "sdk-python",
           "path": "zscaler/constants.py",
           "quotes": [
+            "ZPA_BASE_URLS = {",
             "\"PRODUCTION\": \"https://config.private.zscaler.com\",",
             "\"ZPATWO\": \"https://config.zpatwo.net\",",
             "\"BETA\": \"https://config.zpabeta.net\",",
@@ -174,6 +175,14 @@
             "\"GOV\": \"https://config.zpagov.net\",",
             "\"GOVUS\": \"https://config.zpagov.us\","
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/legacy.py",
+          "quotes": [
+            "from zscaler.constants import DEV_AUTH_URL, ZPA_BASE_URLS",
+            "self.baseurl = ZPA_BASE_URLS.get(cloud, ZPA_BASE_URLS[\"PRODUCTION\"])"
+          ]
         }
       ]
     },
@@ -186,7 +195,16 @@
           "source": "sdk-go",
           "path": "zscaler/zparequests.go",
           "quotes": [
+            "if client.oauth2Credentials.UseLegacyClient {",
             "return client.oauth2Credentials.LegacyClient.ZpaClient.NewRequestDo(method, removeOneApiEndpointPrefix(endpoint), options, body, v)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/utils.go",
+          "quotes": [
+            "if strings.HasPrefix(endpoint, \"/zpa\") {",
+            "return strings.TrimPrefix(endpoint, \"/zpa\")"
           ]
         },
         {
@@ -251,6 +269,13 @@
             "\"admin\", \"/zia\", \"/zpa\", \"/zcc\","
           ],
           "after": "def remove_oneapi_endpoint_prefix(self, endpoint: str) -> str:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "if self.use_legacy_client: endpoint = self.remove_oneapi_endpoint_prefix(endpoint)"
+          ]
         }
       ]
     },
@@ -364,6 +389,24 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1certificate~1issued/get/parameters/[name=customerId]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1enrollmentCert/get/parameters/[name=customerId]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/put/parameters/[name=customerId]",
           "expect": {
             "in": "path",
@@ -374,6 +417,15 @@
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/parameters/[name=customerId]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule~1{ruleId}/put/parameters/[name=customerId]",
           "expect": {
             "in": "path",
             "required": true

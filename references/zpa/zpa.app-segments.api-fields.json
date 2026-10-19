@@ -121,7 +121,9 @@
           "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
           "quotes": [
             "TCPPortRanges []string `json:\"tcpPortRanges\"`",
-            "TCPAppPortRange []common.NetworkPorts `json:\"tcpPortRange,omitempty\"`"
+            "TCPAppPortRange []common.NetworkPorts `json:\"tcpPortRange,omitempty\"`",
+            "UDPPortRanges []string `json:\"udpPortRanges\"`",
+            "UDPAppPortRange []common.NetworkPorts `json:\"udpPortRange,omitempty\"`"
           ]
         },
         {
@@ -129,17 +131,84 @@
           "path": "zscaler/zpa/models/application_segment.py",
           "quotes": [
             "\"tcpPortRanges\": self.tcp_port_ranges,",
-            "\"tcpPortRange\": [{\"from\": pr[\"from\"], \"to\": pr[\"to\"]} for pr in self.tcp_port_range],"
+            "\"tcpPortRange\": [{\"from\": pr[\"from\"], \"to\": pr[\"to\"]} for pr in self.tcp_port_range],",
+            "\"udpPortRanges\": self.udp_port_ranges,",
+            "\"udpPortRange\": [{\"from\": pr[\"from\"], \"to\": pr[\"to\"]} for pr in self.udp_port_range],"
           ],
           "after": "Formats the Application Segment data into a dictionary suitable for API requests."
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "after": "class ApplicationSegments(ZscalerObject):",
+          "quotes": [
+            "self.tcp_port_ranges = ZscalerCollection.form_list( config[\"tcpPortRanges\"] if \"tcpPortRanges\" in config else [], str )",
+            "self.udp_port_ranges = ZscalerCollection.form_list( config[\"udpPortRanges\"] if \"udpPortRanges\" in config else [], str )"
+          ]
         },
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_application_segment.go",
           "quotes": [
             "\"tcp_port_range\": resourceAppSegmentPortRange(\"tcp port range\"),",
-            "Description: \"TCP port ranges used to access the app.\","
+            "Description: \"TCP port ranges used to access the app.\",",
+            "\"udp_port_range\": resourceAppSegmentPortRange(\"udp port range\"),",
+            "Description: \"UDP port ranges used to access the app.\","
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/tcpPortRanges",
+          "expect": {
+            "items": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/udpPortRanges",
+          "expect": {
+            "items": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/tcpPortRange/items/properties",
+          "expect": {
+            "from": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "to": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/udpPortRange/items/properties",
+          "expect": {
+            "from": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "to": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
         }
       ],
       "conditions": "Statement changed after verification: the API spec types tcpPortRanges and udpPortRanges as int32 arrays, while the Go and Python models use strings."
@@ -179,9 +248,11 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/common/common.go",
           "quotes": [
+            "ZIAErID string `json:\"ziaErId,omitempty\"`",
             "ZIAErName string `json:\"ziaErName,omitempty\"`",
             "ZIAOrgID string `json:\"ziaOrgId,omitempty\"`"
-          ]
+          ],
+          "after": "type ZPNERID struct {"
         },
         {
           "source": "tf-zpa",
@@ -306,6 +377,15 @@
           "path": "zscaler/zpa/models/application_segment.py",
           "quotes": [
             "self.app_recommendation_id = config[\"appRecommendationId\"] if \"appRecommendationId\" in config else None"
+          ],
+          "after": "class AppResource(ZscalerObject):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "after": "class BAAppDto(ZscalerObject):",
+          "quotes": [
+            "self.app_resource = AppResource(config[\"appResource\"])"
           ]
         }
       ]
@@ -348,10 +428,70 @@
           }
         },
         {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/inconsistentConfigDetails/properties/segmentGroup",
+          "expect": {
+            "description": "The inconsistent configuration details for the segment group.",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/inconsistentConfigDetails/properties/serverGroup",
+          "expect": {
+            "description": "The inconsistent configuration details for the server group.",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/inconsistentConfigDetails/properties/appConnectorGroup",
+          "expect": {
+            "description": "The inconsistent configuration details for the App Connector group.",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/inconsistentConfigDetails/properties/idp",
+          "expect": {
+            "description": "The inconsistent configuration details for the IdP.",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/inconsistentConfigDetails/properties/segmentGroup/items/properties",
+          "expect": {
+            "name": {
+              "description": "The name of the inconsistent configuration.",
+              "type": "string"
+            },
+            "reason": {
+              "description": "The reason for the inconsistent configuration.",
+              "type": "string"
+            }
+          }
+        },
+        {
           "source": "sdk-python",
           "path": "zscaler/zpa/models/application_segment.py",
           "quotes": [
             "\"inconsistentConfigDetails\": self.inconsistent_config_details,"
+          ],
+          "after": "class AppResource(ZscalerObject):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "after": "class BAAppDto(ZscalerObject):",
+          "quotes": [
+            "self.app_resource = AppResource(config[\"appResource\"])"
           ]
         }
       ]
@@ -379,21 +519,27 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go",
           "quotes": [
-            "HBREnabled bool `json:\"hbrEnabled,omitempty\"`"
+            "HBREnabled bool `json:\"hbrEnabled,omitempty\"`",
+            "StickyEntity string `json:\"stickyEntity,omitempty\"`",
+            "StickyGroup string `json:\"stickyGroup,omitempty\"`"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
           "quotes": [
-            "HBREnabled bool `json:\"hbrEnabled,omitempty\"`"
+            "HBREnabled bool `json:\"hbrEnabled,omitempty\"`",
+            "StickyEntity string `json:\"stickyEntity,omitempty\"`",
+            "StickyGroup string `json:\"stickyGroup,omitempty\"`"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
           "quotes": [
-            "HBREnabled bool `json:\"hbrEnabled,omitempty\"`"
+            "HBREnabled bool `json:\"hbrEnabled,omitempty\"`",
+            "StickyEntity string `json:\"stickyEntity,omitempty\"`",
+            "StickyGroup string `json:\"stickyGroup,omitempty\"`"
           ]
         },
         {

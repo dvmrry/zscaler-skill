@@ -104,7 +104,7 @@
       ]
     },
     "asterisk-invalid": {
-      "statement": "Asterisks are not valid wildcards: `*.example.com` and `*example.com` are not permitted; the leading-period form is the only domain wildcard.",
+      "statement": "Asterisks are not valid wildcards: `*.example.com` and `*example.com` are not permitted; an asterisk inside a URL is a literal character, and the documented domain wildcard is a leading period.",
       "tier": "A",
       "binds": [
         "zia/url-categories#urls"
@@ -114,7 +114,9 @@
           "source": "zscaler-help",
           "path": "url-format-guidelines.json",
           "quotes": [
-            "Do not use an asterisk (\"*\") as a wildcard character at the beginning of a domain. For example, .safemarch.com is permitted, while *safemarch.com and *.safemarch.com are not."
+            "Do not use an asterisk (\"*\") as a wildcard character at the beginning of a domain. For example, .safemarch.com is permitted, while *safemarch.com and *.safemarch.com are not.",
+            "An asterisk that's included in the URL is treated as a literal character and not as a wildcard.",
+            "A leading period (\".\") functions as a wildcard to the left of the named URL"
           ]
         }
       ]
@@ -187,20 +189,21 @@
       ]
     },
     "mcp-guide-semantics-claim": {
-      "statement": "The MCP supported-tools guide says the `contains_url` matching understands ZIA's domain semantics and that `.app.box.com` covers `app.box.com`. That is a documentation claim about the client matcher, separate from what the helper code does.",
+      "statement": "The MCP supported-tools guide, for the `contains_url` parameter of `zia_list_url_categories`, says the server's matching understands ZIA's domain semantics and that `.app.box.com` covers `app.box.com`.",
       "tier": "A",
       "evidence": [
         {
           "source": "mcp-server",
           "path": "docs/guides/supported-tools.md",
           "quotes": [
+            "pass `custom_only=True, contains_url=\"app.box.com\"`",
             "the server's matching understands ZIA's domain semantics (`.app.box.com` covers `app.box.com`)"
           ]
         }
       ]
     },
     "mcp-contains-url-matcher": {
-      "statement": "The MCP `contains_url` filter runs in the MCP process after the full category listing, not as a ZIA API filter. It reduces the query and every configured entry to a bare lower-case host by stripping scheme, path, query, port and leading or trailing periods, then matches an entry that equals the host or that the host extends at a dot-label boundary. It searches the `urls`, `db_categorized_urls` and `dbCategorizedUrls` fields and returns each matching row with an additive `_url_match`.",
+      "statement": "The MCP `contains_url` filter runs in the MCP process on the rows the category listing call returns, not as a ZIA API filter. It reduces the query and every configured entry to a bare lower-case host by stripping scheme, path, query, port and leading or trailing periods, then matches an entry that equals the host or that the host extends at a dot-label boundary. It searches the `urls`, `db_categorized_urls` and `dbCategorizedUrls` fields and returns each matching row with an additive `_url_match`.",
       "tier": "A",
       "evidence": [
         {
@@ -210,7 +213,15 @@
             "host = host.split(\"/\", 1)[0].split(\"?\", 1)[0].split(\":\", 1)[0]",
             "return host == entry_host or host.endswith(\".\" + entry_host)",
             "for field in (\"urls\", \"db_categorized_urls\", \"dbCategorizedUrls\"):",
-            "matched_rows.append({**row, \"_url_match\": {\"url\": url, \"matched\": matches}})"
+            "matched_rows.append({**row, \"_url_match\": {\"url\": url, \"matched\": matches}})",
+            "results, _, err = client.zia.url_categories.list_categories(query_params=query_params)",
+            "Server-side, because the API has no such filter",
+            "rows = _match_categories_containing(rows, args.contains_url)",
+            "host = value.strip().lower()",
+            "host = host.split(\"://\", 1)[1]",
+            "return host.strip(\".\")",
+            "entry_host = _url_host(entry)",
+            "host = _url_host(url)"
           ]
         }
       ]

@@ -99,7 +99,11 @@
           "quotes": [
             "return &policysetcontroller.PolicyRule{",
             "BypassDefaultRule: d.Get(\"bypass_default_rule\").(bool),",
-            "Conditions:        conditions,"
+            "Conditions:        conditions,",
+            "Name:              d.Get(\"name\").(string),",
+            "Action:            d.Get(\"action\").(string),",
+            "Operator:          d.Get(\"operator\").(string),",
+            "Priority:          d.Get(\"priority\").(string),"
           ]
         },
         {
@@ -125,7 +129,8 @@
           "quotes": [
             "DevicePostureFailureNotificationEnabled bool `json:\"devicePostureFailureNotificationEnabled\"`",
             "AppServerGroups []servergroup.ServerGroup `json:\"appServerGroups\"`",
-            "ServiceEdgeGroups []serviceedgegroup.ServiceEdgeGroup `json:\"serviceEdgeGroups\"`"
+            "ServiceEdgeGroups []serviceedgegroup.ServiceEdgeGroup `json:\"serviceEdgeGroups\"`",
+            "AppConnectorGroups []appconnectorgroup.AppConnectorGroup `json:\"appConnectorGroups\"`"
           ]
         }
       ],
@@ -150,7 +155,9 @@
           "after": "func resourcePolicyForwardingRuleV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "req, err := expandPolicyForwardingRuleV2(d, policySetID) // Adjusted to use the fetched policySetID",
-            "_, _, err = policysetcontrollerv2.GetPolicyRule(ctx, service, policySetID, ruleID)"
+            "_, _, err = policysetcontrollerv2.GetPolicyRule(ctx, service, policySetID, ruleID)",
+            "// Checking the current state of the rule to handle cases where it might have been deleted outside Terraform",
+            "if errResp, ok := err.(*errorx.ErrorResponse); ok && errResp.IsObjectNotFound() {"
           ]
         },
         {
@@ -176,7 +183,8 @@
           "quotes": [
             "DevicePostureFailureNotificationEnabled bool `json:\"devicePostureFailureNotificationEnabled\"`",
             "AppServerGroups []servergroup.ServerGroup `json:\"appServerGroups\"`",
-            "ServiceEdgeGroups []serviceedgegroup.ServiceEdgeGroup `json:\"serviceEdgeGroups\"`"
+            "ServiceEdgeGroups []serviceedgegroup.ServiceEdgeGroup `json:\"serviceEdgeGroups\"`",
+            "AppConnectorGroups []appconnectorgroup.AppConnectorGroup `json:\"appConnectorGroups\"`"
           ]
         }
       ],
@@ -243,6 +251,18 @@
           "quotes": [
             "Name:       operandSet[\"name\"].(string),"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "\"operands\": {",
+          "quotes": [
+            "\"name\": { Type: schema.TypeString, Optional: true, Computed: true, },"
+          ]
         }
       ],
       "upstream": [
@@ -266,7 +286,31 @@
           "after": "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {",
           "quotes": [
             "if operand.ID != \"\" {",
-            "condition.Operands[j].ID = \"\""
+            "condition.Operands[j].ID = \"\"",
+            "for j, operand := range condition.Operands { // Clearing the ID if present, assuming you want to ensure IDs are not sent in updates if operand.ID != \"\" { condition.Operands[j].ID = \"\" } // If there's more logic to be added for handling Operands, do so here }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "type PolicyRuleResourceOperands struct { ID string `json:\"id,omitempty\"` CreationTime string `json:\"creationTime,omitempty\"` ModifiedBy string `json:\"modifiedBy,omitempty\"` ModifiedTime string `json:\"modifiedTime,omitempty\"`",
+            "ObjectType string `json:\"objectType,omitempty\"` Values []string `json:\"values,omitempty\"` IDPID string `json:\"idpId,omitempty\"` LHS string `json:\"lhs,omitempty\"` RHS string `json:\"rhs,omitempty\"` EntryValuesLHSRHS []OperandsResourceLHSRHSValue `json:\"entryValues,omitempty\"` }"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "op := policysetcontrollerv2.PolicyRuleResourceOperands{ ID: id, ObjectType: operandSet[\"object_type\"].(string), IDPID: IdpID, Values: values, EntryValuesLHSRHS: entryValues, }"
           ]
         }
       ]
@@ -352,9 +396,14 @@
             "v4.4.10",
             "HEAD"
           ],
+          "after": "func detachSegmentGroupFromV2Policies(ctx context.Context, id string, service *zscaler.Service) error {",
           "quotes": [
             "convertedRule := ConvertV1ResponseToV2Request(rule)",
-            "if _, err := policysetcontrollerv2.UpdateRule(ctx, service, rule.PolicySetID, rule.ID, &convertedRule); err != nil {"
+            "if _, err := policysetcontrollerv2.UpdateRule(ctx, service, rule.PolicySetID, rule.ID, &convertedRule); err != nil {",
+            "types := []string{\"ACCESS_POLICY\", \"TIMEOUT_POLICY\", \"SIEM_POLICY\", \"CLIENT_FORWARDING_POLICY\", \"INSPECTION_POLICY\"}",
+            "rules, _, err := policysetcontrollerv2.GetAllByType(ctx, service, t)",
+            "if strings.EqualFold(op.ObjectType, \"APP_GROUP\") {",
+            "rule.Conditions = newConditions"
           ]
         }
       ],
@@ -393,7 +442,7 @@
       ]
     },
     "import-accepts-types-crud-ignores-them": {
-      "statement": "The access rule importers (v1 and v2) accept the policy types `ACCESS_POLICY` and `GLOBAL_POLICY`, and the timeout rule importers accept `TIMEOUT_POLICY` and `REAUTH_POLICY`. Read always resolves the policy set for `ACCESS_POLICY` or `TIMEOUT_POLICY` (and stores that set's ID in `policy_set_id`); in the v1 resources, create, update and delete use a configured `policy_set_id` first, and the v2 resources resolve the fixed type unconditionally. A numeric import ID never consults the types; they matter only for lookup by name.",
+      "statement": "The access rule importers (v1 and v2) accept the policy types `ACCESS_POLICY` and `GLOBAL_POLICY`, and the timeout rule importers accept `TIMEOUT_POLICY` and `REAUTH_POLICY`. Read always resolves the policy set for `ACCESS_POLICY` or `TIMEOUT_POLICY` and writes `policy_set_id` (the resolved set's ID, except the v1 timeout rule, which writes the policy set ID from the rule it read); in the v1 resources, create, update and delete use a configured `policy_set_id` first, and the v2 resources resolve the fixed type unconditionally. A numeric import ID never consults the types; they matter only for lookup by name.",
       "tier": "A",
       "evidence": [
         {
@@ -416,7 +465,8 @@
           ],
           "after": "func resourcePolicyAccessRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", microTenantID)"
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", microTenantID)",
+            "_ = d.Set(\"policy_set_id\", policySetID)"
           ]
         },
         {
@@ -439,7 +489,8 @@
           ],
           "after": "func resourcePolicyAccessV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", microTenantID)"
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", microTenantID)",
+            "_ = d.Set(\"policy_set_id\", policySetID)"
           ]
         },
         {
@@ -462,7 +513,8 @@
           ],
           "after": "func resourcePolicyTimeoutRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"TIMEOUT_POLICY\", microTenantID)"
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"TIMEOUT_POLICY\", microTenantID)",
+            "_ = d.Set(\"policy_set_id\", resp.PolicySetID)"
           ]
         },
         {
@@ -485,7 +537,189 @@
           ],
           "after": "func resourcePolicyTimeoutRuleV2Read(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"TIMEOUT_POLICY\", microTenantID)",
+            "_ = d.Set(\"policy_set_id\", policySetID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if v, ok := d.GetOk(\"policy_set_id\"); ok {",
+            "policySetID = v.(string)",
+            "policySetID, err = fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", microTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if v, ok := d.GetOk(\"policy_set_id\"); ok {",
+            "policySetID = v.(string)",
+            "policySetID, err = fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", microTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if v, ok := d.GetOk(\"policy_set_id\"); ok {",
+            "policySetID = v.(string)",
+            "policySetID, err = fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", microTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyTimeoutRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if v, ok := d.GetOk(\"policy_set_id\"); ok {",
+            "policySetID = v.(string)",
+            "policySetID, err = fetchPolicySetIDByType(ctx, zClient, \"TIMEOUT_POLICY\", microTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyTimeoutRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if v, ok := d.GetOk(\"policy_set_id\"); ok {",
+            "policySetID = v.(string)",
+            "policySetID, err = fetchPolicySetIDByType(ctx, zClient, \"TIMEOUT_POLICY\", microTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyTimeoutRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if v, ok := d.GetOk(\"policy_set_id\"); ok {",
+            "policySetID = v.(string)",
+            "policySetID, err = fetchPolicySetIDByType(ctx, zClient, \"TIMEOUT_POLICY\", microTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", GetString(d.Get(\"microtenant_id\")))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", GetString(d.Get(\"microtenant_id\")))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"ACCESS_POLICY\", microTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyTimeoutRuleV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"TIMEOUT_POLICY\", GetString(d.Get(\"microtenant_id\")))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyTimeoutRuleV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"TIMEOUT_POLICY\", GetString(d.Get(\"microtenant_id\")))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyTimeoutRuleV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
             "policySetID, err := fetchPolicySetIDByType(ctx, zClient, \"TIMEOUT_POLICY\", microTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func importPolicyStateContextFunc(types []string) schema.StateContextFunc {",
+          "quotes": [
+            "_, parseIDErr := strconv.ParseInt(id, 10, 64)",
+            "if parseIDErr == nil { // assume if the passed value is an int _ = d.Set(\"id\", id) } else { resp, _, err := policysetcontroller.GetByNameAndTypes(ctx, service, types, id)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func importPolicyStateContextFuncV2(types []string) schema.StateContextFunc {",
+          "quotes": [
+            "if parseIDErr == nil { // assume if the passed value is an int _ = d.Set(\"id\", id) } else { resp, _, err := policysetcontrollerv2.GetByNameAndTypes(ctx, service, types, id)"
           ]
         }
       ],
@@ -575,7 +809,8 @@
           "after": "func resourcePRACredentialControllerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "if _, _, err := pracredential.Get(ctx, service, id); err != nil {",
-            "if _, err := pracredential.Update(ctx, service, id, &req); err != nil {"
+            "if _, err := pracredential.Update(ctx, service, id, &req); err != nil {",
+            "if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() { d.SetId(\"\") return nil } } if _, err := pracredential.Update(ctx, service, id, &req); err != nil {"
           ]
         },
         {
@@ -588,7 +823,8 @@
           "after": "func resourcePolicyRedictionRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "if _, _, err := policysetcontroller.GetPolicyRule(ctx, service, globalPolicySet.ID, ruleID); err != nil {",
-            "if _, err := policysetcontroller.UpdateRule(ctx, service, globalPolicySet.ID, ruleID, req); err != nil {"
+            "if _, err := policysetcontroller.UpdateRule(ctx, service, globalPolicySet.ID, ruleID, req); err != nil {",
+            "if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() { d.SetId(\"\") return nil } } if _, err := policysetcontroller.UpdateRule(ctx, service, globalPolicySet.ID, ruleID, req); err != nil {"
           ]
         }
       ],
@@ -627,7 +863,8 @@
           "after": "func detachPRACredentialFromPolicy(ctx context.Context, id string, policySetControllerService *zscaler.Service) error {",
           "quotes": [
             "types := []string{\"CREDENTIAL_POLICY\"}",
-            "if op.ObjectType == \"APP\" && op.LHS == \"id\" && op.RHS == id {"
+            "if op.ObjectType == \"APP\" && op.LHS == \"id\" && op.RHS == id {",
+            "r, _, err := policysetcontroller.GetAllByType(ctx, policySetControllerService, t)"
           ]
         },
         {
@@ -637,6 +874,19 @@
             "v4.4.10",
             "HEAD"
           ],
+          "after": "func resourcePRACredentialPoolDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := detachPRACredentialFromPolicy(ctx, d.Id(), service); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_pra_credential_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePRACredentialControllerDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "if err := detachPRACredentialFromPolicy(ctx, d.Id(), service); err != nil {"
           ]
@@ -715,7 +965,10 @@
           "quotes": [
             "ExactlyOneOf: []string{\"credential\", \"credential_pool\"},",
             "// If both are nil in request, check if we should fall back to API values",
-            "req.CredentialPool = resp.CredentialPool"
+            "req.CredentialPool = resp.CredentialPool",
+            "if id, ok := m[\"id\"].(string); ok && id != \"\" {",
+            "credential = &policysetcontrollerv2.Credential{ID: id}",
+            "if req.Credential == nil && req.CredentialPool == nil {"
           ]
         }
       ],

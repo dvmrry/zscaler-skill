@@ -148,6 +148,59 @@
           "quotes": [
             "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/praapproval/praapproval.go",
+          "quotes": [
+            "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/praconsole/praconsole.go",
+          "quotes": [
+            "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/praportal/praportal.go",
+          "quotes": [
+            "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_approval.py",
+          "quotes": [
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_console.py",
+          "quotes": [
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_portal.py",
+          "quotes": [
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/mgmtconfig/v1/admin/customers/{customerId}/credential-pool",
+            "/mgmtconfig/v1/admin/customers/{customerId}/credential-pool/{id}",
+            "/waap-pra-config/v1/admin/customers/{customerId}/credential-pool",
+            "/waap-pra-config/v1/admin/customers/{customerId}/credential-pool/{id}"
+          ]
         }
       ],
       "conditions": "The absence of a credential-pool path in the OpenAPI document was checked by listing its paths for 'credential'; only /credential, /credential/{id} and /credential/{id}/move exist, and the Postman collection has no credential-pool request either. Corrected the list of paths, which had left out /credential/{id}."
@@ -185,7 +238,9 @@
           "quotes": [
             "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+credentialEndpoint, common.Filter{MicroTenantID: service.MicroTenantID()}, credential, nil)",
             "// Do a follow-up GetAll to find the created resource by name",
-            "credential pool created, but could not locate ID for name: %s"
+            "credential pool created, but could not locate ID for name: %s",
+            "if strings.EqualFold(c.Name, credential.Name) {",
+            "return &c, resp, nil"
           ],
           "after": "func Create(ctx context.Context, service *zscaler.Service, credential *CredentialPool)"
         }
@@ -228,7 +283,10 @@
             "\"description\": console_data.get(\"description\", \"\"),",
             "entry.update(kwargs)",
             "body=None,",
-            "request[\"json\"] = body"
+            "request[\"json\"] = body",
+            "\"name\": console_data.get(\"name\"),",
+            "\"praPortals\": [{\"id\": portal_id} for portal_id in console_data.get(\"pra_portal_ids\", [])],",
+            "\"description\": console_data.get(\"description\", \"\"), } )"
           ],
           "after": "def add_bulk_console(self, consoles: list, **kwargs)"
         },
@@ -252,7 +310,10 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_pra_approval.go",
           "quotes": [
-            "// validate24HourTimeFormat validates that a string is in \"HH:MM\" 24-hour time format."
+            "// validate24HourTimeFormat validates that a string is in \"HH:MM\" 24-hour time format.",
+            "\"start_time\": { Type: schema.TypeString, Optional: true, Computed: true, ValidateFunc: validate24HourTimeFormat,",
+            "\"end_time\": { Type: schema.TypeString, Optional: true, Computed: true, ValidateFunc: validate24HourTimeFormat,",
+            "_, err := time.Parse(\"15:04\", timeStr)"
           ]
         },
         {
@@ -287,13 +348,21 @@
       ]
     },
     "approval-times": {
-      "statement": "A privileged approval's top-level startTime and endTime are integer epoch values in the specification and strings in the Go struct; the Python SDK converts RFC 1123 style time strings to epoch, rejects a start more than one hour in the past and an end more than 365 days after the start, and uses the working-hours time zone or UTC.",
+      "statement": "A privileged approval's top-level startTime and endTime are integers in the specification and strings in the Go struct; the Python SDK converts RFC 1123 style time strings to epoch, rejects a start more than one hour in the past and an end more than 365 days after the start, and uses the working-hours time zone or UTC.",
       "tier": "A",
       "evidence": [
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1approval~1{id}/get/responses/200/content/*~1*/schema/properties/startTime",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1approval~1{id}/get/responses/200/content/*~1*/schema/properties/endTime",
           "expect": {
             "type": "integer"
           }
@@ -312,7 +381,10 @@
           "path": "zscaler/utils.py",
           "quotes": [
             "raise ValueError(\"Start time cannot be more than 1 hour in the past.\")",
-            "if end_time > (start_time + datetime.timedelta(days=365)):"
+            "if end_time > (start_time + datetime.timedelta(days=365)):",
+            "Validates and converts provided time strings to epoch.",
+            "Start time in RFC1123Z or RFC1123 format.",
+            "End time in RFC1123Z or RFC1123 format."
           ],
           "after": "def validate_and_convert_times(start_time_str, end_time_str, time_zone_str):"
         },
@@ -378,6 +450,14 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1approval~1expired/delete/responses/200/content/*~1*/schema",
+          "expect": {
+            "type": "object"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1approval~1expired/delete/parameters/[name=microtenantId]",
           "expect": {
             "in": "query",
@@ -392,6 +472,70 @@
             "common.Filter{MicroTenantID: service.MicroTenantID()}"
           ],
           "after": "func DeleteExpired(ctx context.Context, service *zscaler.Service) (*http.Response, error) {"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1approval~1{id}/put/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1approval~1{id}/delete/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1credential~1{id}/put/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1credential~1{id}/delete/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1praConsole~1{id}/put/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1praConsole~1{id}/delete/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1praPortal~1{id}/put/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1praPortal~1{id}/delete/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
         }
       ]
     },
@@ -464,7 +608,9 @@
           "path": "zscaler/zpa/services/privilegedremoteaccess/pracredential/credential_controller.go",
           "quotes": [
             "func CredentialMove(ctx context.Context, service *zscaler.Service, credentialID string, targetMicrotenantId string) (*http.Response, error) {",
-            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", relativeURL, nil, nil, nil)"
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", relativeURL, nil, nil, nil)",
+            "relativeURL := fmt.Sprintf(\"%s%s%s/%s/move\", mgmtConfig, service.Client.GetCustomerID(), credentialEndpoint, credentialID)",
+            "// Make the POST request with an empty body since the API expects an empty body for this operation resp, err := service.Client.NewRequestDo(ctx, \"POST\", relativeURL, nil, nil, nil) if err != nil { return nil, err } return resp, nil }"
           ]
         },
         {
@@ -509,7 +655,11 @@
           "quotes": [
             "if credential_type == \"USERNAME_PASSWORD\":",
             "elif credential_type == \"SSH_KEY\":",
-            "raise ValueError(f\"Unsupported credential_type: {credential_type}\")"
+            "raise ValueError(f\"Unsupported credential_type: {credential_type}\")",
+            "Username and password must be provided for USERNAME_PASSWORD type.",
+            "Username and private_key must be provided for SSH_KEY type.",
+            "elif credential_type == \"PASSWORD\":",
+            "Password must be provided for PASSWORD type."
           ],
           "after": "def add_credential(self, **kwargs)"
         },
@@ -538,7 +688,9 @@
             "UserNotification string `json:\"userNotification\"`",
             "UserNotificationEnabled bool `json:\"userNotificationEnabled\"`",
             "ExtDomain string `json:\"extDomain\"`",
-            "ExtLabel string `json:\"extLabel\"`"
+            "ExtLabel string `json:\"extLabel\"`",
+            "ExtDomainName string `json:\"extDomainName\"`",
+            "ExtDomainTranslation string `json:\"extDomainTranslation\"`"
           ],
           "after": "type PRAPortal struct {"
         }

@@ -80,9 +80,25 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1segmentGroup/get",
+          "expect": {
+            "description": "Gets all configured Segment Groups for the specified customer."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1segmentGroup/post",
           "expect": {
             "description": "Adds a new Segment Group for the specified customer."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/get",
+          "expect": {
+            "description": "Gets the Segment Group details for the specified ID."
           }
         },
         {
@@ -126,7 +142,27 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/put/requestBody/content/application~1json/schema/properties/applicationNames",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/put/requestBody/content/application~1json/schema/properties/sharedMicrotenantIds",
+          "expect": {
+            "items": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/put/requestBody/content/application~1json/schema/properties/addedApps",
           "expect": {
             "items": {
               "format": "int64",
@@ -146,6 +182,16 @@
             },
             "type": "array"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/put/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "policyMigrated",
+            "applicationNames",
+            "sharedMicrotenantIds"
+          ]
         }
       ]
     },
@@ -153,6 +199,22 @@
       "statement": "The Go SDK exposes `Update` (v1 path) and `UpdateV2` (v2 path), and the Python SDK exposes `update_group` and `update_group_v2` against the v1 and v2 base endpoints.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "quotes": [
+            "mgmtConfigV1         = \"/zpa/mgmtconfig/v1/admin/customers/\"",
+            "func Update(ctx context.Context, service *zscaler.Service, segmentGroupId string, segmentGroupRequest *SegmentGroup)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "quotes": [
+            "path := fmt.Sprintf(\"%v/%v\", mgmtConfigV1+service.Client.GetCustomerID()+segmentGroupEndpoint, segmentGroupId)"
+          ],
+          "after": "func Update(ctx context.Context"
+        },
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
@@ -173,8 +235,26 @@
           "path": "zscaler/zpa/segment_groups.py",
           "quotes": [
             "def update_group_v2(self, group_id: str, **kwargs)",
-            "self._zpa_base_endpoint_v2 = f\"/zpa/mgmtconfig/v2/admin/customers/{customer_id}\""
+            "self._zpa_base_endpoint_v2 = f\"/zpa/mgmtconfig/v2/admin/customers/{customer_id}\"",
+            "def update_group(self, group_id: str, **kwargs)",
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/segment_groups.py",
+          "quotes": [
+            "{self._zpa_base_endpoint} /segmentGroup/{group_id}"
+          ],
+          "after": "def update_group(self, group_id: str"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/segment_groups.py",
+          "quotes": [
+            "{self._zpa_base_endpoint_v2} /segmentGroup/{group_id}"
+          ],
+          "after": "def update_group_v2("
         }
       ]
     },
@@ -197,12 +277,25 @@
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.11"
+          ],
+          "quotes": [
+            "Applications:  expandSegmentGroupApplications(d.Get(\"applications\").([]interface{})),"
+          ],
+          "after": "func expandSegmentGroup(d *schema.ResourceData) segmentgroup.SegmentGroup {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
           "after": "func resourceSegmentGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "req := segmentgroup.SegmentGroupV2Update{",
             "MicroTenantID: d.Get(\"microtenant_id\").(string),",
             "segmentgroup.UpdateV2Changes(ctx, service, id, &req)",
-            "// never sent: membership is managed through segment_group_id on"
+            "// never sent: membership is managed through segment_group_id on",
+            "req := segmentgroup.SegmentGroupV2Update{ Name: d.Get(\"name\").(string), Description: d.Get(\"description\").(string), Enabled: d.Get(\"enabled\").(bool), MicroTenantID: d.Get(\"microtenant_id\").(string), }",
+            "// Only the segment group's own settings are sent. The application list is"
           ]
         },
         {
@@ -213,6 +306,25 @@
             "path := fmt.Sprintf(\"%v/%v\", mgmtConfigV2+service.Client.GetCustomerID()+segmentGroupEndpoint, segmentGroupId)",
             "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, segmentGroupRequest, nil)"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "quotes": [
+            "AddedApps     []int64 `json:\"addedApps,omitempty\"`",
+            "DeletedApps   []int64 `json:\"deletedApps,omitempty\"`"
+          ],
+          "after": "type SegmentGroupV2Update struct {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Updates previously sent every application associated with the segment group, even when the configuration did not manage them.",
+            "Updates now send only the segment group's own settings (name, description, enabled)",
+            "[PR #695](https://github.com/zscaler/terraform-provider-zpa/pull/695) - Fixed `zpa_segment_group` updates failing"
+          ],
+          "after": "## 4.4.14 (October 8, 2026)"
         }
       ],
       "conditions": "Changed upstream in v4.4.14 (checked 2026-10-18): previously \"The Terraform `zpa_segment_group` resource updates through `segmentgroup.UpdateV2`.\""
@@ -276,6 +388,17 @@
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.11"
+          ],
+          "quotes": [
+            "req := expandSegmentGroup(d)"
+          ],
+          "after": "func resourceSegmentGroupUpdate("
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
           "after": "func expandSegmentGroup(d *schema.ResourceData) segmentgroup.SegmentGroup {",
           "quotes": [
             "Enabled: d.Get(\"enabled\").(bool),",
@@ -302,6 +425,42 @@
             "* `enabled` (Optional) Whether this segment group is enabled or not.",
             "* `microtenant_id` (String) The ID of the microtenant the resource is to be associated with."
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "quotes": [
+            "req := expandSegmentGroup(d)",
+            "segmentgroup.Create(ctx, service, &req)"
+          ],
+          "after": "func resourceSegmentGroupCreate("
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "quotes": [
+            "CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error { if d.Id() == \"\" || !d.HasChange(\"applications\") {",
+            "// configuration that adds or removes applications on an existing group,",
+            "Deprecated: \"Application segment membership is managed through the segment_group_id attribute of zpa_application_segment. \""
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "quotes": [
+            "Description: \"Name of the app group.\", Required: true,"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Updates previously sent every application associated with the segment group, even when the configuration did not manage them.",
+            "Updates now send only the segment group's own settings (name, description, enabled)",
+            "`zpa_segment_group`: the `applications` attribute is **deprecated** and will be removed in a future major release.",
+            "[PR #695](https://github.com/zscaler/terraform-provider-zpa/pull/695) - Fixed `zpa_segment_group` updates failing"
+          ],
+          "after": "## 4.4.14 (October 8, 2026)"
         }
       ],
       "conditions": "Changed upstream in v4.4.14 (checked 2026-10-18): previously \"The Terraform resource takes a required `name` and optional `description`, `enabled`, `microtenant_id` and an `applications` list of `{id}` objects; an `enabled` left out is sent as false, and only each application's ID is sent on write.\""

@@ -83,7 +83,9 @@
           "quotes": [
             ".zip only",
             "All common types including Office, PDF, APK, scripts",
-            "File size | 2 MB max | Up to 20 MB (50 MB for .exe and archives)"
+            "File size | 2 MB max | Up to 20 MB (50 MB for .exe and archives)",
+            "File types | .exe, .dll, .scr, .ocx, .sys, .zip only",
+            "Basic Sandbox only supports .exe, .dll, .scr, .ocx, .sys, .zip."
           ]
         }
       ]
@@ -130,7 +132,10 @@
           "path": "skills/zia/investigate-sandbox/SKILL.md",
           "quotes": [
             "the file is classified as benign without Sandbox analysis",
-            "Allowed - No Active Content"
+            "Allowed - No Active Content",
+            "For Office documents and PDFs, ZIA performs static analysis first.",
+            "If no macros, embedded scripts, or suspicious objects are found",
+            "Web Insights logs show \"Allowed - No Active Content\"."
           ]
         }
       ]
@@ -143,7 +148,8 @@
           "source": "mcp-server",
           "path": "skills/zia/investigate-sandbox/SKILL.md",
           "quotes": [
-            "it may be fast-pathed without re-analysis"
+            "it may be fast-pathed without re-analysis",
+            "If the same MD5 was previously analyzed and classified as benign"
           ]
         }
       ]
@@ -164,7 +170,8 @@
           "source": "mcp-server",
           "path": "skills/zia/investigate-sandbox/SKILL.md",
           "quotes": [
-            "If traffic is not SSL-inspected, Sandbox, Malware Protection, and ATP cannot scan the file content"
+            "If traffic is not SSL-inspected, Sandbox, Malware Protection, and ATP cannot scan the file content",
+            "If a `DO_NOT_INSPECT` or `DO_NOT_DECRYPT` rule matches, Sandbox cannot see the file."
           ]
         }
       ]
@@ -181,7 +188,10 @@
           "path": "commands/investigate-sandbox.md",
           "quotes": [
             "1. SSL not inspecting traffic for this domain (Step 4)",
-            "5. File already analyzed and cached as benign"
+            "5. File already analyzed and cached as benign",
+            "2. File type not supported by subscription (Basic: only .exe/.dll/.scr/.ocx/.sys/.zip)",
+            "3. File size exceeds limit (Basic: 2MB, Advanced: 20MB)",
+            "4. No active content in Office/PDF files (static analysis found nothing suspicious)"
           ]
         }
       ]
@@ -195,7 +205,7 @@
       ]
     },
     "help-default-rule": {
-      "statement": "The default Sandbox rule analyzes Windows executable and library files of 2 MB or less downloaded from suspicious URL categories (including Anonymizer, FileHost, Shareware Download, Web Host and Miscellaneous or Unknown), also when they are inside ZIP archives. A file the service has never seen is allowed and sent to the Sandbox engine; malicious Adware, Malware & Botnets and P2P & Anonymizer files are blocked.",
+      "statement": "The default Sandbox rule analyzes Windows executable and library files of 2 MB or less downloaded from suspicious URL categories (including Anonymizer, FileHost, Shareware Download, Web Host and Miscellaneous or Unknown), also when they are inside ZIP archives. A file the service has never seen is allowed and sent to the Sandbox engine; malicious Adware, Malware & Botnets and P2P & Anonymizers files are blocked.",
       "tier": "A",
       "binds": [
         "zia/sandbox-rules#defaultRule"
@@ -207,7 +217,25 @@
           "quotes": [
             "It analyzes Windows executable files and Windows library files (such as dynamic-link libraries) that are 2 MB or less and downloaded from URLs in suspicious URL categories.",
             "The service also analyzes these files if they’re contained in ZIP archive files.",
-            "the service allows the downloads and sends the files to the Sandbox engine for analysis"
+            "the service allows the downloads and sends the files to the Sandbox engine for analysis",
+            "The suspicious URL categories include:",
+            "When users attempt to download files that meet the preceding criteria and the service has never seen the files before",
+            "It blocks files that contain the following types of malicious files:",
+            "Adware: Files that automatically render advertisements or install adware.",
+            "Malware & Botnets: Files that behave like APTs",
+            "P2P & Anonymizers: Files that exhibit behaviors consistent with P2P/anonymizer programs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-sandbox.json",
+          "after": "The suspicious URL categories include:",
+          "quotes": [
+            "Anonymizer",
+            "FileHost",
+            "Shareware Download",
+            "Web Host",
+            "Miscellaneous or Unknown"
           ]
         }
       ]
@@ -225,7 +253,8 @@
           "quotes": [
             "You can scan files sized higher than 2 MB.",
             "Zscaler Sandbox supports file sizes up to 50MB for Windows EXEs, Android APKs, and Archive file types.",
-            "you can analyze EXE and DLL files sized up to 200 MB"
+            "you can analyze EXE and DLL files sized up to 200 MB",
+            "You can specify which file types the sandbox analyzes."
           ]
         }
       ]

@@ -92,14 +92,16 @@
   ],
   "claims": {
     "overview": {
-      "statement": "A GRE tunnel functions like a VPN without encryption: a GRE-capable router encapsulates the packet and sends it across the public network to the Public Service Edge. GRE adds a 4-byte header.",
+      "statement": "A GRE tunnel functions like a VPN without encryption: a GRE-capable router encapsulates the packet and sends it across the public network to the Zscaler service. GRE adds a 4-byte header.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "understanding-generic-routing-encapsulation-gre.json",
           "quotes": [
-            "A GRE tunnel functions like a VPN but without encryption; it transports packets from one endpoint to another through the public network."
+            "A GRE tunnel functions like a VPN but without encryption; it transports packets from one endpoint to another through the public network.",
+            "A Generic Routing Encapsulation (GRE) tunnel is ideal for forwarding internet-bound traffic from your corporate network to the Zscaler service.",
+            "A GRE-capable router encapsulates a payload packet inside a GRE packet."
           ]
         },
         {
@@ -188,8 +190,9 @@
           "source": "zscaler-help",
           "path": "understanding-generic-routing-encapsulation-gre.json",
           "quotes": [
+            "If the internal tunnel endpoint IP addresses are source NATed, then Zscaler can only support up to 250 Mbps of traffic for each tunnel.",
             "This is because the Zscaler service uses the internal IP addresses of the GRE tunnel to load-balance GRE traffic over multiple servers.",
-            "the load-balancer cannot be effective in balancing the traffic across different nodes"
+            "If the internal source IP address is the same for all traffic across multiple GRE tunnels, then the load-balancer cannot be effective in balancing the traffic across different nodes"
           ]
         }
       ]
@@ -203,20 +206,21 @@
           "path": "best-practices-deploying-gre-tunnels.json",
           "quotes": [
             "If your organization wants to forward more than 1 Gbps of traffic, Zscaler recommends configuring more GRE tunnels with different public source IP addresses.",
-            "you can configure two primary GRE tunnels and two backup GRE tunnels"
+            "For example, if your organization forwards 2 Gbps of traffic, you can configure two primary GRE tunnels and two backup GRE tunnels. If your organization forwards 3 Gbps of traffic, you can configure three primary GRE tunnels and three backup GRE tunnels."
           ]
         }
       ]
     },
     "client-persistence": {
-      "statement": "With several egress IPs, client persistence must be kept (load balancer, ECMP or other), because a server that checks persistence refuses connections arriving from a different egress IP.",
+      "statement": "With several egress IPs, client persistence should be maintained (load balancer, ECMP or other), because a server that checks persistence refuses connections arriving from a different egress IP.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "best-practices-deploying-gre-tunnels.json",
           "quotes": [
-            "you should maintain client persistence to avoid issues because a server with persistence checking refuses connection to different egress IP addresses."
+            "When configuring multiple GRE tunnels, you should maintain client persistence to avoid issues because a server with persistence checking refuses connection to different egress IP addresses.",
+            "You can use a Load Balancer (LB), ECMP, or other means to maintain persistence."
           ]
         }
       ]
@@ -229,9 +233,10 @@
           "source": "zscaler-help",
           "path": "gre-deployment-scenarios.json",
           "quotes": [
-            "Zscaler recommends that you configure two GRE tunnels from an internal router behind the firewall to the Public Service Edge for Internet & SaaS (ZIA)",
+            "Zscaler recommends that you configure two GRE tunnels from an internal router behind the firewall to the Public Service Edge for Internet & SaaS (ZIA): a primary tunnel from the router to a Public Service Edge in one data center and a secondary tunnel from the router to a Public Service Edge in another data center.",
             "the GRE tunnel source IP address is a public IP address that is configured on the loopback interface of the router",
-            "On the firewall, you'll need to define a rule that allows GRE traffic from the router."
+            "On the firewall, you'll need to define a rule that allows GRE traffic from the router.",
+            "This type of deployment provides visibility into the internal IP addresses, which can be used for the Zscaler security policies and logging."
           ]
         }
       ]
@@ -245,7 +250,8 @@
           "path": "gre-deployment-scenarios.json",
           "quotes": [
             "If configuring GRE tunnels from an internal router to the Public Service Edges is not feasible, then you can configure a GRE tunnel from your border router to the Public Service Edge.",
-            "You also need to disable NAT on your firewall to provide internal IP address visibility to the Public Service Edges."
+            "You also need to disable NAT on your firewall to provide internal IP address visibility to the Public Service Edges.",
+            "In this type of deployment, you need to configure the border router to send internet-bound traffic to the Public Service Edges."
           ]
         }
       ]
@@ -259,7 +265,7 @@
           "path": "gre-deployment-scenarios.json",
           "quotes": [
             "To configure GRE tunnels with the explicit proxy mode in no default route environment, use the following set of global Public Service Edge IP addresses:",
-            "- 185.46.212.97"
+            "- 185.46.212.88 - 185.46.212.89 - 185.46.212.90 - 185.46.212.91 - 185.46.212.92 - 185.46.212.93 - 185.46.212.97 - 185.46.212.98"
           ]
         },
         {
@@ -267,7 +273,8 @@
           "path": "about-global-public-service-edges.json",
           "quotes": [
             "The addresses of these Public Service Edges do not listen for traffic but are dummy addresses that all Public Service Edges know about.",
-            "Ensure that you route the traffic destined to the Global Public Service Edge IP address through a GRE or an IPSec tunnel."
+            "Ensure that you route the traffic destined to the Global Public Service Edge IP address through a GRE or an IPSec tunnel.",
+            "Use PAC files to direct the corporate user traffic to the Global Public Service Edge IP address."
           ]
         }
       ]
@@ -308,7 +315,7 @@
           "source": "sdk-python",
           "path": "zscaler/zia/gre_tunnel.py",
           "quotes": [
-            "VIPs will be automatically chosen."
+            "Note: If the `primary_dest_vip` and `secondary_dest_vip` aren't specified then the closest recommended VIPs will be automatically chosen."
           ]
         },
         {
@@ -325,6 +332,22 @@
           "pointer": "/paths/~1greTunnels/post/requestBody/content/application~1json/schema/properties/ipUnnumbered",
           "expect": {
             "description": "This is required to support the automated SD-WAN provisioning of GRE tunnels, when set to true gre_tun_ip and gre_tun_id are set to null"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1greTunnels/post/requestBody/content/application~1json/schema/properties/primaryDestVip",
+          "expect": {
+            "description": "The primary destination data center and virtual IP address (VIP) of the GRE tunnel"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1greTunnels/post/requestBody/content/application~1json/schema/properties/secondaryDestVip",
+          "expect": {
+            "description": "The secondary destination data center and virtual IP address (VIP) of the GRE tunnel"
           }
         }
       ],

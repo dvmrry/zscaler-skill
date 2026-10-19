@@ -100,6 +100,9 @@
             "HEAD"
           ],
           "quotes": [
+            "type inFlightRequest struct {",
+            "wg     sync.WaitGroup",
+            "if inFlight, exists := c.inFlightRequests.Load(key); exists {",
             "existingIfr.wg.Wait() // Wait for the in-flight request to complete"
           ]
         }
@@ -185,14 +188,21 @@
             "HEAD"
           ],
           "quotes": [
+            "// Also invalidate the parent collection endpoint so that list",
+            "// responses (e.g. /sslInspectionRules) are cleared when a child",
+            "// resource (e.g. /sslInspectionRules/123) is mutated. Without",
+            "// this, a GET on the collection is served stale from cache for",
+            "// up to the TTL after a child PUT/POST/DELETE, which breaks",
             "// any client logic that mutates and immediately re-reads",
-            "// (e.g. terraform-provider-zia rule reordering — SUP-3988)."
+            "// (e.g. terraform-provider-zia rule reordering — SUP-3988).",
+            "parentKey := baseKey[:idx]",
+            "c.oauth2Credentials.CacheManager.ClearAllKeysWithPrefix(parentKey)"
           ]
         }
       ]
     },
     "prefix-invalidation-over-broad": {
-      "statement": "Invalidation matches cache keys by raw string prefix, and the parent of a collection path is the product's API root, so one create can clear every cached ZIA read. This costs extra API reads; it never serves wrong data.",
+      "statement": "Invalidation matches cache keys by raw string prefix, and a write's parent key is its URL cut at the last `/`, so a create on a top-level collection such as `/zia/api/v1/firewallFilteringRules` clears every cached read under `/zia/api/v1`. The match only deletes entries, so the cost of the over-broad match is extra API reads.",
       "tier": "A",
       "evidence": [
         {
@@ -203,7 +213,45 @@
             "HEAD"
           ],
           "quotes": [
-            "if strings.HasPrefix(e.Key(), prefix) {"
+            "if strings.HasPrefix(e.Key(), prefix) {",
+            "c.bcache.Delete(e.Key())"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "cache/cache.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "s := req.URL.Scheme + \"://\" + req.URL.Host + req.URL.RequestURI()"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "key := cache.CreateCacheKey(req)",
+            "baseKey := strings.Split(key, \"?\")[0]",
+            "if idx := strings.LastIndex(baseKey, \"/\"); idx > 0 {",
+            "parentKey := baseKey[:idx]",
+            "c.oauth2Credentials.CacheManager.ClearAllKeysWithPrefix(parentKey)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "firewallRulesEndpoint = \"/zia/api/v1/firewallFilteringRules\""
           ]
         }
       ]
@@ -223,6 +271,7 @@
           "quotes": [
             "respData, err := io.ReadAll(cachedResp.Body)",
             "if err == nil {",
+            "cachedResp.Body = io.NopCloser(bytes.NewBuffer(respData))",
             "return respData, cachedResp, req, nil"
           ]
         }

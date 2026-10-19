@@ -88,7 +88,8 @@
             "| Retrieve All Users (up to 1,000 entries) | GET /Users |",
             "| Retrieve All Users (1,000 users from specified index value) | GET /Users?startIndex=<value> |",
             "| Update User | PUT /Users/{UserID} or PATCH /Users/{UserID} |",
-            "| Delete User | DELETE /Users/{UserID} |"
+            "| Delete User | DELETE /Users/{UserID} |",
+            "| Retrieve a Specific User | GET /Users/{UserID} |"
           ]
         }
       ]
@@ -104,7 +105,9 @@
             "| Create Group | POST /Groups |",
             "| Retrieve All Groups (up to 1,000 entries) | GET /Groups |",
             "| Update Group | PUT /Groups/{GroupID} or PATCH /Groups/{GroupID} |",
-            "| Delete Group | DELETE /Groups/{GroupID} |"
+            "| Delete Group | DELETE /Groups/{GroupID} |",
+            "| Retrieve All Groups (1,000 groups from specified index value) | GET /Groups?startIndex=<value> |",
+            "| Retrieve a Specific Group | GET /Groups/{GroupID} |"
           ]
         }
       ]
@@ -121,7 +124,9 @@
             "| Retrieve All Resource Schemas | GET /Schemas |",
             "| Retrieve the Service Provider's Configuration | GET |",
             "| Retrieve All Resource Types | GET /ResourceTypes |",
-            "| Search for Resource Types | POST |"
+            "| Search for Resource Types | POST |",
+            "| Retrieve a Specific Resource Schema | GET /Schemas/{SchemaID} |",
+            "| Retrieve a Specific Resource Type | GET /ResourceTypes/{ResourceTypeID} |"
           ]
         }
       ]
@@ -152,7 +157,7 @@
       ]
     },
     "paging": {
-      "statement": "totalResults is exact when under 10K; above 10K the service returns a rough estimate to keep responses fast, and the field reflects the precise count only after the client fetches the last page.",
+      "statement": "totalResults is exact when under 10K; above 10K the service returns a rough estimate to keep responses fast, and after the client fetches the last page the field reflects the precise, final count.",
       "tier": "A",
       "evidence": [
         {
@@ -174,7 +179,8 @@
           "source": "zscaler-help",
           "path": "scim-api-examples.json",
           "quotes": [
-            "Zscaler SCIM servers have a rate limit of 5 requests per second."
+            "Zscaler SCIM servers have a rate limit of 5 requests per second.",
+            "In order to avoid retries, configure your application to comply with this."
           ]
         }
       ]
@@ -189,9 +195,19 @@
           "quotes": [
             "-H \"Content-Type: application/json-patch+json\"",
             "\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"",
-            "The server responds with 204 - No Content upon successful operation."
+            "The server responds with 204 - No Content upon successful operation.",
+            "\"Operations\":[ { \"op\":\"add\", \"value\": { \"members\" :"
           ],
           "after": "# Updating a Group With a New Member"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "scim-api-examples.json",
+          "quotes": [
+            "DELETE /Users/{UserID}",
+            "The server responds with 204 - No Content upon successful operation."
+          ],
+          "after": "# Deleting a User"
         }
       ]
     },

@@ -48,7 +48,7 @@
     },
     {
       "label": "Text arguments.",
-      "text": "{{multiline-normalizer-doubles-dollar}} {{multiline-diff-suppress-ignores-clears}} {{multiline-helpers-on-nine-resources}} Omitted zero values and empty lists in SDK writes are the broader mechanism behind other clears that cannot be sent; they are in [[shared.sdk-go.zero-value-writes]], not repeated here."
+      "text": "{{multiline-normalizer-doubles-dollar}} {{unescape-helper-unused}} {{multiline-diff-suppress-ignores-clears}} {{multiline-helpers-on-nine-resources}} Omitted zero values and empty lists in SDK writes are the broader mechanism behind other clears that cannot be sent; they are in [[shared.sdk-go.zero-value-writes]], not repeated here."
     },
     {
       "label": "Accepted but unused arguments.",
@@ -134,6 +134,8 @@
             "HEAD"
           ],
           "quotes": [
+            "v2Client, err := zscalerSDKV2Client(c)",
+            "c.zscalerSDKClientV3 = v2Client.Client",
             "v3Client, err := zscalerSDKV3Client(c)",
             "c.zscalerSDKClientV3 = v3Client"
           ],
@@ -147,6 +149,8 @@
             "HEAD"
           ],
           "quotes": [
+            "wrappedV2Client, err := zscalerSDKV2Client(c)",
+            "Service: zscaler.NewService(wrappedV2Client.Client, nil),",
             "v3Client, err := zscalerSDKV3Client(c)",
             "Service: zscaler.NewService(v3Client, nil),"
           ],
@@ -161,7 +165,7 @@
       ]
     },
     "sdk-construction-authenticates": {
-      "statement": "Constructing a OneAPI client in the Go SDK authenticates immediately and, unless the legacy client is configured, starts a token-renewal ticker goroutine. Construction is therefore a network call with a background effect, not a cheap object build.",
+      "statement": "Unless the legacy client is configured, constructing a OneAPI client in the Go SDK authenticates immediately, requesting a token over HTTP when the configuration holds no valid one, and starts a token-renewal ticker goroutine when the token expires more than a minute later. Construction is therefore a network call with a background effect, not a cheap object build.",
       "tier": "A",
       "evidence": [
         {
@@ -172,10 +176,60 @@
             "HEAD"
           ],
           "quotes": [
-            "if err := cli.authenticate(); err != nil {",
-            "cli.startTokenRenewalTicker()"
+            "if !config.UseLegacyClient { // Authenticate and start token renewal if err := cli.authenticate(); err != nil { return nil, fmt.Errorf(\"initial authentication failed: %w\", err) } cli.startTokenRenewalTicker() }"
           ],
           "after": "func NewOneAPIClient(config *Configuration) (*Service, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "renewalInterval := time.Until(tokenExpiry) - (time.Minute * 1) // Renew 1 minute before expiration",
+            "if renewalInterval > 0 { ticker := time.NewTicker(renewalInterval) go func() {"
+          ],
+          "after": "func (c *Client) startTokenRenewalTicker() {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "if !c.authValid() {",
+            "authToken, err := Authenticate(c.oauth2Credentials.Context, c.oauth2Credentials, c.oauth2Credentials.Logger)"
+          ],
+          "after": "func (c *Client) authenticate() error {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "req, err := http.NewRequestWithContext(ctx, \"POST\", authUrl, strings.NewReader(data.Encode()))",
+            "resp, err := cfg.HTTPClient.Do(req)"
+          ],
+          "after": "func Authenticate(ctx context.Context, cfg *Configuration, l logger.Logger) (*AuthToken, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := cfg.HTTPClient.PostForm(authUrl, formData)"
+          ],
+          "after": "func authenticateWithCert(cfg *Configuration) (*AuthToken, error) {"
         }
       ]
     },
@@ -234,7 +288,7 @@
       ]
     },
     "multiline-normalizer-doubles-dollar": {
-      "statement": "The multi-line text normalizer trims every line, doubles every `$` (`$` becomes `$$`), and appends a newline. The inverse helper `unescapeTerraformVariables` is defined next to it, but nothing in the provider calls it.",
+      "statement": "The multi-line text normalizer trims every line, doubles every `$` (`$` becomes `$$`), and appends a newline. The inverse helper `unescapeTerraformVariables` is defined next to it.",
       "tier": "A",
       "evidence": [
         {
@@ -245,11 +299,39 @@
             "HEAD"
           ],
           "quotes": [
+            "lines := strings.Split(str, \"\\n\") for i := range lines { lines[i] = strings.TrimSpace(lines[i]) }",
             "escapedStr = strings.ReplaceAll(escapedStr, \"$\", \"$$\")",
             "return escapedStr + \"\\n\"",
             "func unescapeTerraformVariables(val string) string {"
           ],
           "after": "func normalizeMultiLineString(val interface{}) string {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "unescape-helper-unused": {
+      "statement": "Nothing in the provider calls `unescapeTerraformVariables`, so the `$$` doubling is never reversed by the provider.",
+      "tier": "B",
+      "derived_from": [
+        "multiline-normalizer-doubles-dollar"
+      ],
+      "conditions": "Absence claim from a search: at v0.2.0 and HEAD, `git -C vendor/terraform-provider-ztc grep -n unescapeTerraformVariables` finds only the definition in ztc/validator.go.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/validator.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "func unescapeTerraformVariables(val string) string {"
+          ]
         }
       ],
       "upstream": [
@@ -445,7 +527,7 @@
             "HEAD"
           ],
           "quotes": [
-            "return nil, fmt.Errorf(\"rule with ID %d not found\", id)"
+            "allRules, err := forwarding_rules.GetAll(ctx, service) if err != nil { return nil, err } for i := range allRules { if allRules[i].ID == id { var rule forwarding_rules.ForwardingRules = allRules[i] return &rule, nil } } return nil, fmt.Errorf(\"rule with ID %d not found\", id)"
           ],
           "after": "func getRule(ctx context.Context, service *zscaler.Service, id int) (*forwarding_rules.ForwardingRules, error) {"
         },
@@ -457,9 +539,7 @@
             "HEAD"
           ],
           "quotes": [
-            "resp, err := getRule(ctx, service, id)",
-            "return diag.FromErr(err)",
-            "Removing forwarding rule %s from state because it no longer exists in ZIA"
+            "resp, err := getRule(ctx, service, id) if err != nil { return diag.FromErr(err) } // Rule not found if resp == nil { log.Printf(\"[WARN] Removing forwarding rule %s from state because it no longer exists in ZIA\", d.Id())"
           ],
           "after": "func resourceTrafficForwardingRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         },
@@ -471,10 +551,23 @@
             "HEAD"
           ],
           "quotes": [
-            "resp, err := traffic_dns_rules.Get(ctx, service, id)",
-            "respErr.IsObjectNotFound()"
+            "resp, err := traffic_dns_rules.Get(ctx, service, id) if err != nil { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {",
+            "from state because it no longer exists in ZTC\", d.Id()) d.SetId(\"\") return nil"
           ],
           "after": "func resourceTrafficForwardingDNSRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := traffic_log_rules.Get(ctx, service, id) if err != nil { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {",
+            "from state because it no longer exists in ZTC\", d.Id()) d.SetId(\"\") return nil"
+          ],
+          "after": "func resourceTrafficForwardingLogRuleRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
       ],
       "upstream": [
@@ -499,7 +592,9 @@
             "HEAD"
           ],
           "quotes": [
-            "if groupType == \"DSTN_OTHER\" {"
+            "groupType := d.Get(\"type\").(string) if groupType == \"DSTN_OTHER\" {",
+            "ipCategories, ipCategoriesOk := d.GetOk(\"ip_categories\") countries, countriesOk := d.GetOk(\"countries\") if (!ipCategoriesOk || ipCategories.(*schema.Set).Len() == 0) && (!countriesOk || countries.(*schema.Set).Len() == 0) {",
+            "return diag.FromErr(fmt.Errorf(\"when 'type' is set to 'DSTN_OTHER', either 'ip_categories' or 'countries' must be set\")) } } zClient := meta.(*Client)"
           ],
           "after": "func resourceIPDestinationGroupsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         },
@@ -512,7 +607,8 @@
           ],
           "quotes": [
             "if groupType == \"DSTN_OTHER\" || d.HasChange(\"countries\") || d.HasChange(\"ip_categories\") {",
-            "when 'type' is set to 'DSTN_OTHER', either 'ip_categories' or 'countries' must be set"
+            "ipCategories, ipCategoriesOk := d.GetOk(\"ip_categories\") countries, countriesOk := d.GetOk(\"countries\") if (!ipCategoriesOk || ipCategories.(*schema.Set).Len() == 0) && (!countriesOk || countries.(*schema.Set).Len() == 0) {",
+            "return diag.FromErr(fmt.Errorf(\"when 'type' is set to 'DSTN_OTHER', either 'ip_categories' or 'countries' must be set\")) } } zClient := meta.(*Client)"
           ],
           "after": "func resourceIPDestinationGroupsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
@@ -716,10 +812,10 @@
             "HEAD"
           ],
           "quotes": [
+            "rules.Lock() shouldCallReorder := false",
             "rules.reorderDone[resourceType] = make(chan struct{})",
             "rules.Unlock() if shouldCallReorder {",
-            "doneCh := rules.reorderDone[resourceType]",
-            "close(doneCh)"
+            "doneCh := rules.reorderDone[resourceType] go func() { reorderAll(resourceType, getCount, updateOrder, beforeReorder) close(doneCh) }()"
           ],
           "after": "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
         },
@@ -731,7 +827,7 @@
             "HEAD"
           ],
           "quotes": [
-            "ch := rules.reorderDone[resourceType]"
+            "rules.Lock() ch := rules.reorderDone[resourceType] rules.Unlock()"
           ],
           "after": "func waitForReorder(resourceType string) {"
         }

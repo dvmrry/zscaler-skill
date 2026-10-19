@@ -227,7 +227,7 @@
           "source": "sdk-python",
           "path": "zscaler/zia/authentication_settings.py",
           "quotes": [
-            "User authentication type. Setting this to an LDAP-based authentication"
+            "User authentication type. Setting this to an LDAP-based authentication requires a complete LdapProperties configuration."
           ]
         },
         {
@@ -236,6 +236,14 @@
           "pointer": "/spec/definitions/AuthSettings/properties/samlEnabled",
           "expect": {
             "description": "Whether or not to authenticate users using SAML Single Sign-On. Enabling SAML requires complete SamlSettings."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/orgAuthType",
+          "expect": {
+            "description": "User authentication type. Setting it to an LDAP-based authentication requires a complete LdapProperties configuration."
           }
         }
       ]
@@ -263,7 +271,7 @@
       ]
     },
     "one-time-auth": {
-      "statement": "oneTimeAuth only matters when orgAuthType is NONE; with SAML single sign-on enabled the one-time token is not applicable and the field has no effect.",
+      "statement": "oneTimeAuth (OTP_DISABLED, OTP_TOKEN or OTP_LINK) is described for orgAuthType NONE, where administrators must provide new users' passwords and a one-time token or link with a temporary password is emailed to new users; with SAML single sign-on enabled the one-time token is not applicable and the field has no effect.",
       "tier": "A",
       "evidence": [
         {
@@ -271,7 +279,12 @@
           "path": "legacy-authentication-settings.json",
           "pointer": "/spec/definitions/AuthSettings/properties/oneTimeAuth",
           "expect": {
-            "description": "When the orgAuthType is NONE, administrators must manually provide the password to new end users. For new users who have not yet authenticated, a one-time token or link with a temporary password is sent as an email by the security cloud. If SAML Single Sign-On is enabled, this one-time token is not applicable, and this field is ineffective."
+            "description": "When the orgAuthType is NONE, administrators must manually provide the password to new end users. For new users who have not yet authenticated, a one-time token or link with a temporary password is sent as an email by the security cloud. If SAML Single Sign-On is enabled, this one-time token is not applicable, and this field is ineffective.",
+            "enum": [
+              "OTP_DISABLED",
+              "OTP_TOKEN",
+              "OTP_LINK"
+            ]
           }
         }
       ]

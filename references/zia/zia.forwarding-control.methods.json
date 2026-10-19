@@ -86,6 +86,14 @@
             "Forwarding Method: From the drop-down menu, choose Dedicated IP to forward the traffic through a dedicated IP gateway.",
             "Forwarding Method: From the drop-down menu, choose GeoIP to forward traffic with the source IP address mapped to the location of the originating request."
           ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-policy.json",
+          "quotes": [
+            "Select Direct to directly forward the traffic to the destination server using the Zscaler service IP address."
+          ],
+          "after": "choose Proxy Chaining to forward the traffic to a third-party proxy service."
         }
       ],
       "binds": [
@@ -124,8 +132,9 @@
           "source": "sdk-python",
           "path": "zscaler/zia/forwarding_control.py",
           "quotes": [
-            "`ECSELF`, `DROP`, `ENATDEDIP`, `GEOIP`"
-          ]
+            "Supported Values: `INVALID`, `DIRECT`, `PROXYCHAIN`, `ZIA`, `ZPA`, `ECZPA`, `ECSELF`, `DROP`, `ENATDEDIP`, `GEOIP`"
+          ],
+          "after": "def add_rule(self, **kwargs)"
         },
         {
           "source": "sdk-python",
@@ -174,7 +183,7 @@
           "source": "zscaler-help",
           "path": "about-dedicated-ip.json",
           "quotes": [
-            "the Zscaler service creates a default gateway that can neither be edited nor deleted.",
+            "When dedicated IP addresses are allocated to your organization, the Zscaler service creates a default gateway that can neither be edited nor deleted.",
             "the Zscaler service directs the traffic to the geographically nearest data center that has a dedicated IP address assigned."
           ]
         }
@@ -191,10 +200,13 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_forwarding_control_rule.go",
           "quotes": [
-            "requiredAttrs := []string{\"zpa_app_segments\", \"zpa_gateway\"}",
-            "prohibitedAttrs := []string{\"zpa_gateway\", \"proxy_gateway\", \"zpa_app_segments\", \"zpa_application_segments\", \"zpa_application_segment_groups\"}",
+            "CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {",
+            "if ruleType == \"FORWARDING\" { switch forwardMethod { case \"ZPA\": requiredAttrs := []string{\"zpa_app_segments\", \"zpa_gateway\"}",
+            "return fmt.Errorf(\"the following attributes are required for ZPA forwarding: %v\", missingAttrs) } case \"DIRECT\": prohibitedAttrs := []string{\"zpa_gateway\", \"proxy_gateway\", \"zpa_app_segments\", \"zpa_application_segments\", \"zpa_application_segment_groups\"}",
+            "return fmt.Errorf(\"%s attribute cannot be set when type is 'FORWARDING' and forward_method is 'DIRECT'\", attr) } } case \"PROXYCHAIN\": if !isSet(\"proxy_gateway\") {",
             "return fmt.Errorf(\"proxy gateway is mandatory for Proxy Chaining forwarding\")",
-            "prohibitedAttrs := []string{\"zpa_gateway\", \"zpa_app_segments\", \"zpa_application_segments\", \"zpa_application_segment_groups\"}"
+            "prohibitedAttrs := []string{\"zpa_gateway\", \"zpa_app_segments\", \"zpa_application_segments\", \"zpa_application_segment_groups\"}",
+            "return fmt.Errorf(\"%s attribute cannot be set when type is 'FORWARDING' and forward_method is 'PROXYCHAIN'\", attr) } } } } // Combined validation:"
           ]
         }
       ],
@@ -213,8 +225,9 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_forwarding_control_rule.go",
           "quotes": [
-            "List of ZPA Application Segments for which this rule is applicable. This field is applicable only for the ECZPA forwarding method",
-            "List of ZPA Application Segment Groups for which this rule is applicable. This field is applicable only for the ECZPA forwarding method"
+            "\"zpa_app_segments\": setExtIDNameSchemaCustom(intPtr(255), \"The list of ZPA Application Segments for which this rule is applicable. This field is applicable only for the ZPA Gateway forwarding method.\"),",
+            "\"zpa_application_segments\": setIDsSchemaTypeCustom(intPtr(255), \"List of ZPA Application Segments for which this rule is applicable. This field is applicable only for the ECZPA forwarding method (used for Zscaler Cloud Connector).\"),",
+            "\"zpa_application_segment_groups\": setIDsSchemaTypeCustom(intPtr(255), \"List of ZPA Application Segment Groups for which this rule is applicable. This field is applicable only for the ECZPA forwarding method (used for Zscaler Cloud Connector).\"),"
           ]
         },
         {
@@ -224,6 +237,15 @@
           "expect": {
             "type": "array",
             "description": "List of ZPA Application Segments for which this rule is applicable. This field is applicable only for the ECZPA forwarding method (used for Zscaler Cloud Connector)."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1forwardingRules/post/requestBody/content/application~1json/schema/properties/zpaApplicationSegmentGroups",
+          "expect": {
+            "type": "array",
+            "description": "List of ZPA Application Segment Groups for which this rule is applicable. This field is applicable only for the ECZPA forwarding method (used for Zscaler Cloud Connector)."
           }
         },
         {
@@ -251,7 +273,10 @@
           "path": "zia/resource_zia_forwarding_control_rule.go",
           "quotes": [
             "forwardMethod != \"PROXYCHAIN\" && forwardMethod != \"DIRECT\" && forwardMethod != \"ENATDEDIP\" && forwardMethod != \"GEOIP\" {",
-            "dest_addresses, dest_countries and dest_ip_categories can only be set when forward_method is either 'PROXYCHAIN' or 'DIRECT' or 'ENATDEDIP' or 'GEOIP'"
+            "dest_addresses, dest_countries and dest_ip_categories can only be set when forward_method is either 'PROXYCHAIN' or 'DIRECT' or 'ENATDEDIP' or 'GEOIP'",
+            "\"INVALID\", \"DIRECT\", \"PROXYCHAIN\", \"ZIA\", \"ZPA\", \"ECZPA\", \"ECSELF\", \"DROP\", \"ENATDEDIP\", \"GEOIP\",",
+            "if ruleType == \"FORWARDING\" { switch forwardMethod { case \"ZPA\":",
+            "return fmt.Errorf(\"%s attribute cannot be set when type is 'FORWARDING' and forward_method is 'PROXYCHAIN'\", attr) } } } } // Combined validation:"
           ]
         }
       ],

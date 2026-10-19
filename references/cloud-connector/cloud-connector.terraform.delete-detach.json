@@ -113,7 +113,31 @@
             "HEAD"
           ],
           "quotes": [
-            "rules, err := forwarding_rules.GetAll(ctx, service)"
+            "func DetachRuleIDNameExtensions(ctx context.Context, client *Client, id int, resource string, getResources func(*forwarding_rules.ForwardingRules) []common.IDNameExtensions, setResources func(*forwarding_rules.ForwardingRules, []common.IDNameExtensions)) error {"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/utils.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "service := client.Service log.Printf(\"[INFO] Detaching filtering rule from %s: %d\\n\", resource, id) rules, err := forwarding_rules.GetAll(ctx, service)",
+            "if err != nil { log.Printf(\"[error] Error while getting filtering rule\") return err } for _, rule := range rules {"
+          ],
+          "after": "func DetachRuleIDNameExtensions("
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/utils.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "_, err = forwarding_rules.Get(ctx, service, rule.ID) if err == nil { _, err = forwarding_rules.Update(ctx, service, rule.ID, &rule) if err != nil { return err } } } } return nil }"
           ],
           "after": "func DetachRuleIDNameExtensions("
         }
@@ -233,8 +257,8 @@
           ],
           "quotes": [
             "\"NwApplicationGroups\",",
-            "return r.NwApplicationGroups",
-            "r.NwApplicationGroups = ids"
+            "func(r *forwarding_rules.ForwardingRules) []common.IDNameExtensions { return r.NwApplicationGroups },",
+            "func(r *forwarding_rules.ForwardingRules, ids []common.IDNameExtensions) { r.NwApplicationGroups = ids },"
           ],
           "after": "func resourceNetworkServiceGroupsDelete("
         }
@@ -361,6 +385,18 @@
             "SrcIpGroups:     expandIDNameExtensionsSet(d, \"src_ip_groups\"),",
             "DestIpGroups:    expandIDNameExtensionsSet(d, \"dest_ip_groups\"),"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "SrcIpGroups []common.IDNameExtensions `json:\"srcIpGroups,omitempty\"`",
+            "DestIpGroups []common.IDNameExtensions `json:\"destIpGroups,omitempty\"`"
+          ]
         }
       ]
     },
@@ -376,8 +412,7 @@
             "HEAD"
           ],
           "quotes": [
-            "r.SrcIpGroups = ids",
-            "if _, err := ipsourcegroups.Delete(ctx, service, id); err != nil {"
+            "func(r *forwarding_rules.ForwardingRules) []common.IDNameExtensions { return r.SrcIpGroups }, func(r *forwarding_rules.ForwardingRules, ids []common.IDNameExtensions) { r.SrcIpGroups = ids }, ) if err != nil { return diag.FromErr(err) } if _, err := ipsourcegroups.Delete(ctx, service, id); err != nil {"
           ],
           "after": "func resourceIPSourceGroupsGroupsDelete("
         },
@@ -389,8 +424,7 @@
             "HEAD"
           ],
           "quotes": [
-            "r.DestIpGroups = ids",
-            "if _, err := ipdestinationgroups.Delete(ctx, service, id); err != nil {"
+            "func(r *forwarding_rules.ForwardingRules) []common.IDNameExtensions { return r.DestIpGroups }, func(r *forwarding_rules.ForwardingRules, ids []common.IDNameExtensions) { r.DestIpGroups = ids }, ) if err != nil { return diag.FromErr(err) } if _, err := ipdestinationgroups.Delete(ctx, service, id); err != nil {"
           ],
           "after": "func resourceIPDestinationGroupsDelete("
         }
@@ -428,8 +462,7 @@
             "HEAD"
           ],
           "quotes": [
-            "_, err = forwarding_rules.Get(ctx, service, rule.ID)",
-            "if err == nil {"
+            "_, err = forwarding_rules.Get(ctx, service, rule.ID) if err == nil { _, err = forwarding_rules.Update(ctx, service, rule.ID, &rule) if err != nil { return err } } } } return nil }"
           ],
           "after": "func DetachRuleIDNameExtensions("
         }
@@ -453,7 +486,10 @@
             "HEAD"
           ],
           "quotes": [
-            "_, err = forwarding_rules.Update(ctx, service, rule.ID, &rule)"
+            "rules, err := forwarding_rules.GetAll(ctx, service)",
+            "for _, rule := range rules {",
+            "setResources(&rule, ids)",
+            "_, err = forwarding_rules.Get(ctx, service, rule.ID) if err == nil { _, err = forwarding_rules.Update(ctx, service, rule.ID, &rule)"
           ],
           "after": "func DetachRuleIDNameExtensions("
         }
@@ -471,7 +507,9 @@
             "HEAD"
           ],
           "quotes": [
-            "time.Sleep(time.Second * 5)"
+            "for _, rule := range rules {",
+            "for _, destGroup := range getResources(&rule) { if destGroup.ID != id { ids = append(ids, destGroup) } else { shouldUpdate = true } }",
+            "if shouldUpdate { setResources(&rule, ids) time.Sleep(time.Second * 5) _, err = forwarding_rules.Get(ctx, service, rule.ID) if err == nil {"
           ],
           "after": "func DetachRuleIDNameExtensions("
         }

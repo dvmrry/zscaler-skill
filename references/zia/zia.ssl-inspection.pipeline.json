@@ -80,7 +80,8 @@
           "quotes": [
             "In the explicit proxy mode, the URL filtering and cloud application policies are evaluated against the first CONNECT request.",
             "The policies are evaluated on the incoming SSL/TLS connection based on the SNI. This is the first step of policy evaluation for the traffic in transparent proxy mode.",
-            "During a CONNECT request or an incoming SSL/TLS connection (SNI), only the destination domain is available and not the full URL."
+            "During a CONNECT request or an incoming SSL/TLS connection (SNI), only the destination domain is available and not the full URL.",
+            "If the traffic is allowed, then the Public Service Edge decrypts the further HTTP transactions and enforces the policies on them."
           ]
         }
       ]
@@ -95,7 +96,9 @@
           "quotes": [
             "These policies are only a subset of the policies enforced on the HTTP traffic:",
             "Known Malicious URLs (Advanced Threat Protection): The Public Service Edge checks if the requested URL is known to have malicious content",
-            "Bandwidth Control: The Public Service Edge checks how much bandwidth to allocate the request"
+            "Bandwidth Control: The Public Service Edge checks how much bandwidth to allocate the request",
+            "So, the Public Service Edge applies only the following set of policies, which are based only on the requested domain and not the full URL or HTTP header.",
+            "Cloud App Control: The Public Service Edge checks if the request violates the Cloud App Control policy configured by your organization."
           ]
         },
         {
@@ -109,14 +112,17 @@
       ]
     },
     "first-pass-block": {
-      "statement": "A first-pass block ends the connection before any TLS handshake completes: a block on the CONNECT host header returns HTTP 403, a block on the SNI resets the connection.",
+      "statement": "A first-pass block on a destination known to contain an advanced threat ends the connection immediately, without an end user notification even when SSL/TLS Inspection is enabled: a block on the CONNECT host header returns HTTP 403, a block on the SNI resets the connection. With SSL/TLS Inspection disabled, any first-pass block ends the connection the same way.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "understanding-policy-enforcement.json",
           "quotes": [
-            "block happens on the CONNECT host header, the service responds with a 403 error. If the block happens on the SNI, the service resets the connection."
+            "block happens on the CONNECT host header, the service responds with a 403 error. If the block happens on the SNI, the service resets the connection.",
+            "When the destination domain is known to contain an advanced threat, the connection terminates immediately without showing an EUN even if SSL/TLS Inspection is enabled",
+            "If the request hits the block rule, then the Public Service Edge closes the connection and returns a 403 error.",
+            "If the traffic hits the block rule, then the Public Service Edge resets the connection."
           ]
         }
       ]
@@ -140,7 +146,7 @@
       ]
     },
     "second-pass-after-decrypt": {
-      "statement": "When the connection is inspected and allowed, ZIA decrypts the following HTTP transactions and enforces policy on them, with the full URL, headers, and body visible.",
+      "statement": "When the connection is inspected and allowed, ZIA decrypts the following HTTP transactions and enforces policy on them.",
       "tier": "A",
       "evidence": [
         {
@@ -228,7 +234,7 @@
       ]
     },
     "user-context-needed": {
-      "statement": "User-scoped rules can only apply in the first pass if the user is known then (Surrogate IP or Client Connector); without user context on an authenticated location, ZIA skips that evaluation rather than guess.",
+      "statement": "User-scoped rules can only apply in the first pass if the user is known then (Surrogate IP or Client Connector); without user context on a location with authentication enabled, ZIA skips that evaluation to avoid an incorrect decision.",
       "tier": "A",
       "evidence": [
         {
@@ -236,7 +242,7 @@
           "path": "understanding-policy-enforcement.json",
           "quotes": [
             "You must enable Surrogate IP or use Zscaler Client Connector for the Public Service Edge to have the user context during the CONNECT request or the Client Hello SNI.",
-            "Service Edge skips the policy evaluation to avoid an incorrect decision."
+            "If there is no user context and if authentication is enabled for the location, then the Public Service Edge skips the policy evaluation to avoid an incorrect decision."
           ]
         }
       ]

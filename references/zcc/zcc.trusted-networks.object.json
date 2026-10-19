@@ -117,7 +117,13 @@
           "quotes": [
             "Ssids string `json:\"ssids,omitempty\"`",
             "TrustedEgressIps string `json:\"trustedEgressIps,omitempty\"`",
-            "TrustedGateways string `json:\"trustedGateways\"`"
+            "TrustedGateways string `json:\"trustedGateways\"`",
+            "DnsSearchDomains string `json:\"dnsSearchDomains\"`",
+            "DnsServers string `json:\"dnsServers\"`",
+            "Hostnames string `json:\"hostnames\"`",
+            "ResolvedIpsForHostname string `json:\"resolvedIpsForHostname\"`",
+            "TrustedDhcpServers string `json:\"trustedDhcpServers\"`",
+            "TrustedSubnets string `json:\"trustedSubnets\"`"
           ]
         }
       ]
@@ -158,6 +164,16 @@
             "if tn.NetworkName == name {",
             "if len(res.TrustedNetworkContracts) < pageSize {"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "after": "func GetTrustedNetworkByID(ctx context.Context, service *zscaler.Service, id string) (*TrustedNetwork, *http.Response, error) {",
+          "quotes": [
+            "pageSize := 1000",
+            "if tn.ID == id {",
+            "if len(res.TrustedNetworkContracts) < pageSize {"
+          ]
         }
       ]
     },
@@ -179,7 +195,18 @@
           "source": "sdk-python",
           "path": "zscaler/zcc/trusted_networks.py",
           "quotes": [
-            "body.update(kwargs)"
+            "body = {} body.update(kwargs) request, error = self._request_executor.create_request(http_method, api_url, body, {}, {})"
+          ],
+          "after": "/webTrustedNetwork/edit"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "after": "func UpdateTrustedNetwork(",
+          "quotes": [
+            "url := fmt.Sprintf(\"%s/edit\", trustedNetworkEndpoint)",
+            "resp, err := service.Client.NewZccRequestDo(ctx, \"PUT\", url, nil, network, &apiResp)",
+            "re-fetch by id (id must be set on the request body)."
           ]
         }
       ]
@@ -193,7 +220,8 @@
           "path": "zscaler/zcc/trusted_networks.py",
           "after": "/webTrustedNetwork/create",
           "quotes": [
-            "body = kwargs"
+            "body = kwargs",
+            "body = kwargs request, error = self._request_executor.create_request( method=http_method, endpoint=api_url, body=body, )"
           ]
         },
         {
@@ -202,6 +230,14 @@
           "quotes": [
             "if \"/zcc/\" in endpoint and body:",
             "body = convert_keys_to_camel_case_selective(body, WebPolicy.SNAKE_CASE_KEYS)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/trusted_networks.py",
+          "after": "/webTrustedNetwork/edit",
+          "quotes": [
+            "body = {} body.update(kwargs) request, error = self._request_executor.create_request(http_method, api_url, body, {}, {})"
           ]
         }
       ]

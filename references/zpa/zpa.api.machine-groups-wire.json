@@ -81,6 +81,15 @@
         },
         {
           "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "after": "def convert_keys_to_camel_case(data):",
+          "quotes": [
+            "Recursively convert all keys in a dictionary or list to camelCase.",
+            "result[to_lower_camel_case(k)] = convert_keys_to_camel_case(v)"
+          ]
+        },
+        {
+          "source": "sdk-python",
           "path": "zscaler/request_executor.py",
           "quotes": [
             "self.microtenant_id = self._config[\"client\"].get(\"microtenantId\")",
@@ -107,7 +116,16 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/np_client/np_client.go",
           "quotes": [
-            "filter := common.Filter{}"
+            "vpnConnectedUsersEndpoint = \"/vpnConnectedUsers\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/np_client/np_client.go",
+          "quotes": [
+            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + vpnConnectedUsersEndpoint",
+            "filter := common.Filter{}",
+            "list, resp, err := common.GetAllPagesGenericWithCustomFilters[NPClient](ctx, service.Client, relativeURL, filter)"
           ],
           "after": "func GetAll(ctx context.Context, service *zscaler.Service)"
         },
@@ -115,7 +133,9 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/np_client/np_client.go",
           "quotes": [
-            "filter := common.Filter{}"
+            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + vpnConnectedUsersEndpoint",
+            "filter := common.Filter{}",
+            "list, resp, err := common.GetAllPagesGenericWithCustomFilters[NPClient](ctx, service.Client, relativeURL, filter)"
           ],
           "after": "func GetByName(ctx context.Context, service *zscaler.Service, userName string)"
         },
@@ -123,9 +143,28 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/npn_client_controller.py",
           "quotes": [
-            "query_params = query_params or {}"
+            "/vpnConnectedUsers",
+            "query_params = query_params or {} body = {} headers = {} request, error = self._request_executor.create_request(http_method, api_url, body, headers, params=query_params)"
           ],
           "after": "def list_vpn_connected_users(self, query_params"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/machine_groups.py",
+          "after": "def list_machine_groups(self, query_params",
+          "quotes": [
+            "microtenant_id = query_params.get(\"microtenant_id\", None)",
+            "query_params[\"microtenantId\"] = microtenant_id"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "after": "def convert_keys_to_camel_case(data):",
+          "quotes": [
+            "Recursively convert all keys in a dictionary or list to camelCase.",
+            "result[to_lower_camel_case(k)] = convert_keys_to_camel_case(v)"
+          ]
         },
         {
           "source": "sdk-python",
@@ -149,16 +188,31 @@
       "conditions": "The Python half was changed from 'also unscoped' to the contrast, because the executor camel-cases and back-fills microtenantId for every ZPA request."
     },
     "np-client-wire-shape": {
-      "statement": "The Go NPClient struct types id, modifiedBy, modifiedTime, creationTime, deviceState and vpnServiceEdgeId as int, unlike the string IDs of other ZPA structs, and tags the user name key `UserName` with a capital U and N.",
+      "statement": "The Go NPClient struct types id, modifiedBy, modifiedTime, creationTime, deviceState and vpnServiceEdgeId as int (the App Connector struct, for example, types id, modifiedBy, modifiedTime and creationTime as string) and tags the user name key `UserName` with a capital U and N.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/np_client/np_client.go",
           "quotes": [
-            "Id                 int    `json:\"id,omitempty\"`",
-            "VpnServiceEdgeId   int    `json:\"vpnServiceEdgeId,omitempty\"`",
-            "UserName           string `json:\"UserName,omitempty\"`"
+            "CreationTime int `json:\"creationTime,omitempty\"`",
+            "DeviceState int `json:\"deviceState,omitempty\"`",
+            "Id int `json:\"id,omitempty\"`",
+            "ModifiedBy int `json:\"modifiedBy,omitempty\"`",
+            "ModifiedTime int `json:\"modifiedTime,omitempty\"`",
+            "VpnServiceEdgeId int `json:\"vpnServiceEdgeId,omitempty\"`",
+            "UserName string `json:\"UserName,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go",
+          "after": "type AppConnector struct {",
+          "quotes": [
+            "CreationTime string `json:\"creationTime,omitempty\"`",
+            "ID string `json:\"id,omitempty\"`",
+            "ModifiedBy string `json:\"modifiedBy,omitempty\"`",
+            "ModifiedTime string `json:\"modifiedTime,omitempty\"`"
           ]
         }
       ]

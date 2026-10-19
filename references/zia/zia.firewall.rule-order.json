@@ -119,7 +119,7 @@
       ]
     },
     "rank-bounds-order": {
-      "statement": "Admin rank determines the rule order that can be specified for an IPS rule. Rank can be configured only if admin ranking is enabled in Advanced Settings, and the IPS Control page shows the Admin Rank column only then.",
+      "statement": "Admin rank determines the rule order that can be specified for an IPS rule. Rank can be configured if admin ranking is enabled in Advanced Settings, and the IPS Control page shows the Admin Rank column only then.",
       "tier": "A",
       "binds": [
         "zia/ips-policies#rank",
@@ -185,10 +185,10 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_firewall_filtering_rules.go",
           "quotes": [
-            "req.Name == \"Office 365 One Click Rule\" || req.Name == \"UCaaS One Click Rule\"",
-            "req.Name == \"Block All IPv6\" || req.Name == \"Block malicious IPs and domains\"",
-            "req.Name == \"Default Firewall Filtering Rule\"",
-            "if rule.Predefined {"
+            "if req.Name == \"Office 365 One Click Rule\" || req.Name == \"UCaaS One Click Rule\" { return fmt.Errorf(\"deletion of the predefined rule '%s' is not allowed\", req.Name)",
+            "if req.Name == \"Block All IPv6\" || req.Name == \"Block malicious IPs and domains\" { return fmt.Errorf(\"deletion of the predefined rule '%s' is not allowed\", req.Name)",
+            "if req.Name == \"Default Firewall Filtering Rule\" { return fmt.Errorf(\"deletion of the predefined rule '%s' is not allowed\", req.Name)",
+            "if rule.Predefined { return diag.FromErr(fmt.Errorf(\"deletion of predefined rule '%s' is not allowed\", rule.Name))"
           ]
         }
       ]

@@ -87,7 +87,7 @@
   ],
   "claims": {
     "clients-built-before-options": {
-      "statement": "`NewConfiguration` builds every per-service HTTP client (`setHttpClients`) before it applies the caller's option functions. Options therefore see clients that already exist, and only the options that call `setHttpClients` again rebuild them.",
+      "statement": "`NewConfiguration` builds every per-service HTTP client (`setHttpClients`) before it applies the caller's option functions. Options therefore see clients that already exist, and the options that call `setHttpClients` again rebuild them.",
       "tier": "A",
       "evidence": [
         {
@@ -106,6 +106,26 @@
             "// Apply each ConfigSetter function.",
             "confSetter(cfg)"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.37",
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func setHttpClients(cfg *Configuration) {",
+          "quotes": [
+            "cfg.HTTPClient = getHTTPClient(cfg.Logger, defaultRateLimiter, cfg)",
+            "cfg.ZIAHTTPClient = getHTTPClient(cfg.Logger, ziaRateLimiter, cfg)",
+            "cfg.ZTWHTTPClient = getHTTPClient(cfg.Logger, ztwRateLimiter, cfg)",
+            "cfg.ZPAHTTPClient = getHTTPClient(cfg.Logger, zpaRateLimiter, cfg)",
+            "cfg.ZCCHTTPClient = getHTTPClient(cfg.Logger, zccRateLimiter, cfg)",
+            "cfg.ZDXHTTPClient = getHTTPClient(cfg.Logger, zdxRateLimiter, cfg)"
+          ]
         }
       ],
       "upstream": [
@@ -116,7 +136,7 @@
       ]
     },
     "proxy-and-tls-options-only-set-fields": {
-      "statement": "`WithProxyHost`, `WithProxyPort`, `WithProxyUsername`, `WithProxyPassword` and `WithTestingDisableHttpsCheck` only assign configuration fields; they do not rebuild any client. The proxy and TLS-skip settings are read once, inside `getHTTPClient`, when a client is built. A setter that runs after the last client build leaves the live transport on the default proxy-from-environment behavior.",
+      "statement": "`WithProxyHost`, `WithProxyPort`, `WithProxyUsername`, `WithProxyPassword` and `WithTestingDisableHttpsCheck` only assign configuration fields; they do not rebuild any client. The proxy and TLS-skip settings are read inside `getHTTPClient`, which fixes them into the transport it builds. A setter that runs after the last client build does not reach the live transport, which keeps the proxy chosen at build time (by default, proxy-from-environment).",
       "tier": "A",
       "evidence": [
         {
@@ -130,9 +150,11 @@
             "HEAD"
           ],
           "quotes": [
-            "c.Zscaler.Client.Proxy.Host = host",
-            "c.Zscaler.Client.Proxy.Port = i",
-            "c.Zscaler.Testing.DisableHttpsCheck = httpsCheck"
+            "func WithProxyPort(i int32) ConfigSetter {\n\treturn func(c *Configuration) {\n\t\tc.Zscaler.Client.Proxy.Port = i\n\t}\n}",
+            "func WithProxyHost(host string) ConfigSetter {\n\treturn func(c *Configuration) {\n\t\tc.Zscaler.Client.Proxy.Host = host\n\t}\n}",
+            "func WithProxyUsername(username string) ConfigSetter {\n\treturn func(c *Configuration) {\n\t\tc.Zscaler.Client.Proxy.Username = username\n\t}\n}",
+            "func WithProxyPassword(pass string) ConfigSetter {\n\treturn func(c *Configuration) {\n\t\tc.Zscaler.Client.Proxy.Password = pass\n\t}\n}",
+            "func WithTestingDisableHttpsCheck(httpsCheck bool) ConfigSetter {\n\treturn func(c *Configuration) {\n\t\tc.Zscaler.Testing.DisableHttpsCheck = httpsCheck\n\t}\n}"
           ]
         },
         {
@@ -149,7 +171,9 @@
           "quotes": [
             "proxyFunc := http.ProxyFromEnvironment // Default behavior (uses system/env variables)",
             "if cfg.Zscaler.Client.Proxy.Host != \"\" {",
-            "if cfg.Zscaler.Testing.DisableHttpsCheck {"
+            "transport := &http.Transport{\n\t\tProxy:               proxyFunc,",
+            "if cfg.Zscaler.Testing.DisableHttpsCheck {",
+            "transport.TLSClientConfig = &tls.Config{"
           ]
         }
       ],
@@ -161,7 +185,7 @@
       ]
     },
     "rate-and-timeout-options-rebuild-clients": {
-      "statement": "`WithRequestTimeout`, `WithRateLimitMaxRetries`, `WithRateLimitMinWait`, `WithRateLimitMaxWait` and `WithRateLimitRemainingThreshold` each call `setHttpClients` again, building fresh clients from the configuration as it stands at that moment. Whether proxy and TLS options take effect therefore depends on whether one of these runs after them.",
+      "statement": "`WithRequestTimeout`, `WithRateLimitMaxRetries`, `WithRateLimitMinWait`, `WithRateLimitMaxWait` and `WithRateLimitRemainingThreshold` each call `setHttpClients` again, building fresh clients from the configuration as it stands at that moment.",
       "tier": "A",
       "evidence": [
         {
@@ -191,6 +215,48 @@
             "c.Zscaler.Client.RateLimit.RetryWaitMax = maxWait",
             "setHttpClients(c)"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func WithRateLimitMaxRetries(maxRetries int32) ConfigSetter {",
+          "quotes": [
+            "c.Zscaler.Client.RateLimit.MaxRetries = maxRetries",
+            "setHttpClients(c)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func WithRateLimitMinWait(minWait time.Duration) ConfigSetter {",
+          "quotes": [
+            "c.Zscaler.Client.RateLimit.RetryWaitMin = minWait",
+            "setHttpClients(c)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func WithRateLimitRemainingThreshold(threshold int32) ConfigSetter {",
+          "quotes": [
+            "c.Zscaler.Client.RateLimit.RetryRemainingThreshold = threshold",
+            "setHttpClients(c)"
+          ]
         }
       ]
     },
@@ -207,11 +273,27 @@
             "v3.8.44"
           ],
           "quotes": [
-            "c.HTTPClient = httpClient",
+            "func WithHttpClientPtr(httpClient *http.Client) ConfigSetter {\n\treturn func(c *Configuration) {\n\t\tc.HTTPClient = httpClient\n\t}\n}",
             "cfg.HTTPClient = getHTTPClient(cfg.Logger, defaultRateLimiter, cfg)",
             "return client.oauth2Credentials.ZPAHTTPClient",
+            "return client.oauth2Credentials.ZIAHTTPClient",
+            "return client.oauth2Credentials.ZTWHTTPClient",
             "return client.oauth2Credentials.ZCCHTTPClient",
-            "return client.oauth2Credentials.ZTWHTTPClient"
+            "return client.oauth2Credentials.ZDXHTTPClient",
+            "return client.oauth2Credentials.HTTPClient // Use default client for admin endpoints"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func WithRequestTimeout(requestTimeout time.Duration) ConfigSetter {",
+          "quotes": [
+            "setHttpClients(c)"
           ]
         },
         {
@@ -379,7 +461,7 @@
           ],
           "quotes": [
             "respBody, _, _, err := client.ExecuteRequest(ctx, method, endpoint, bodyReader, nil, contentTypeJSON)",
-            "StatusCode: http.StatusOK,"
+            "resp := &http.Response{\n\t\tStatusCode: http.StatusOK,\n\t\tBody:       io.NopCloser(bytes.NewBuffer(respBody)),\n\t}"
           ]
         },
         {
@@ -391,7 +473,7 @@
           ],
           "quotes": [
             "respBody, _, _, err := client.ExecuteRequest(ctx, method, endpoint, bodyReader, nil, contentTypeJSON)",
-            "StatusCode: http.StatusOK,"
+            "resp := &http.Response{\n\t\tStatusCode: http.StatusOK,\n\t\tBody:       io.NopCloser(bytes.NewBuffer(respBody)),\n\t}"
           ]
         },
         {
@@ -401,7 +483,8 @@
             "v3.8.44"
           ],
           "quotes": [
-            "StatusCode: http.StatusOK,"
+            "respBody, _, _, err := client.ExecuteRequest(ctx, method, endpoint, bodyReader, nil, contentTypeJSON)",
+            "resp := &http.Response{\n\t\tStatusCode: http.StatusOK,\n\t\tBody:       io.NopCloser(bytes.NewBuffer(respBody)),\n\t}"
           ]
         }
       ],
@@ -497,7 +580,12 @@
           ],
           "after": "func (c *Client) CreateResource(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {",
           "quotes": [
+            "respBody, response, _, err := c.ExecuteRequest(ctx, \"POST\", endpoint, bytes.NewReader(data), nil, contentTypeJSON)",
             "if len(respBody) > 0 && strings.EqualFold(response.Header.Get(\"Content-Type\"), \"application/json\") {",
+            "responseObject := reflect.New(t).Interface()",
+            "err = json.Unmarshal(respBody, &responseObject)",
+            "return responseObject, nil",
+            "} else {",
             "return response, nil"
           ]
         }
@@ -588,7 +676,9 @@
           ],
           "after": "func (c *Client) BulkDeleteResource(ctx context.Context, endpoint string, payload interface{}) (*http.Response, error) {",
           "quotes": [
+            "resp, _, _, err := c.ExecuteRequest(ctx, \"POST\", endpoint, bytes.NewReader(data), nil, contentTypeJSON)",
             "if len(resp) == 0 {",
+            "return &http.Response{StatusCode: 204}, nil",
             "return &http.Response{StatusCode: 200}, fmt.Errorf(\"unexpected response: %s\", string(resp))"
           ]
         },
@@ -601,6 +691,9 @@
           ],
           "after": "func (c *Client) BulkDelete(ctx context.Context, endpoint string, payload interface{}) (*http.Response, error) {",
           "quotes": [
+            "resp, _, _, err := c.ExecuteRequest(ctx, \"POST\", endpoint, bytes.NewReader(data), nil, contentTypeJSON)",
+            "if len(resp) == 0 {",
+            "return &http.Response{StatusCode: 204}, nil",
             "return &http.Response{StatusCode: 200}, fmt.Errorf(\"unexpected response: %s\", string(resp))"
           ]
         }
@@ -648,7 +741,10 @@
           ],
           "quotes": [
             "maxBulkDeleteIDs           = 100",
-            "ids = ids[:maxBulkDeleteIDs]"
+            "if len(ids) > maxBulkDeleteIDs {",
+            "ids = ids[:maxBulkDeleteIDs]",
+            "service.Client.GetLogger().Printf(\"[INFO] Truncating IDs list to the first %d items\", maxBulkDeleteIDs)",
+            "return service.Client.BulkDelete(ctx, locationsEndpoint+\"/bulkDelete\", payload)"
           ]
         },
         {
@@ -659,7 +755,11 @@
             "HEAD"
           ],
           "quotes": [
-            "ids = ids[:maxBulkDeleteIDs]"
+            "maxBulkDeleteIDs       = 100",
+            "if len(ids) > maxBulkDeleteIDs {",
+            "ids = ids[:maxBulkDeleteIDs]",
+            "service.Client.GetLogger().Printf(\"[INFO] Truncating IDs list to the first %d items\", maxBulkDeleteIDs)",
+            "return service.Client.BulkDelete(ctx, vpnCredentialsEndpoint+\"/bulkDelete\", payload)"
           ]
         },
         {
@@ -672,7 +772,10 @@
           "quotes": [
             "maxBulkDeleteIDs = 500",
             "// Truncate the list to the first 100 IDs",
-            "ids = ids[:maxBulkDeleteIDs]"
+            "if len(ids) > maxBulkDeleteIDs {",
+            "ids = ids[:maxBulkDeleteIDs]",
+            "service.Client.GetLogger().Printf(\"[INFO] Truncating IDs list to the first %d items\", maxBulkDeleteIDs)",
+            "return service.Client.BulkDelete(ctx, usersEndpoint+\"/bulkDelete\", payload)"
           ]
         }
       ],
@@ -760,7 +863,21 @@
           "at": [
             "v3.8.44"
           ],
+          "after": "if resp.StatusCode >= 500 && errorx.IsRetryableServerError(resp) {",
           "quotes": [
+            "// 5xx server errors are retryable",
+            "time.Sleep(backoffDelay)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44"
+          ],
+          "after": "// Session invalidation means the server considers the token invalid",
+          "quotes": [
+            "c.oauth2Credentials.Logger.Printf(\"[INFO] Token refreshed successfully, retrying request...\")",
             "time.Sleep(time.Second * 2)"
           ]
         }

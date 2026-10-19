@@ -124,6 +124,14 @@
             "\"customerId\": \"\",",
             "\"microtenantId\": \"\","
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "from zscaler.config.config_setter import ConfigSetter",
+            "client_config_setter = ConfigSetter()"
+          ]
         }
       ]
     },
@@ -164,7 +172,7 @@
       ]
     },
     "schedule-env-fallback": {
-      "statement": "The App Connector and Service Edge schedule clients are the exception: each constructor takes the tenant ID from the configuration or from the environment variable ZPA_CUSTOMER_ID and raises ValueError when neither is set.",
+      "statement": "The App Connector and Service Edge schedule client constructors each take the tenant ID from the configuration or from the environment variable ZPA_CUSTOMER_ID and raise ValueError when neither is set.",
       "tier": "A",
       "conditions": "The Service Edge schedule client was added because it reads ZPA_CUSTOMER_ID the same way; previously \"The App Connector schedule client is the exception: its constructor takes the tenant ID from the configuration or from the environment variable ZPA_CUSTOMER_ID and raises ValueError when neither is set.\"",
       "evidence": [
@@ -223,6 +231,15 @@
             "if cloud not in ZPA_BASE_URLS:",
             "valid_clouds = \", \".join(ZPA_BASE_URLS.keys())"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/legacy.py",
+          "quotes": [
+            "raise ValueError(",
+            "The provided ZPA_CLOUD value '{cloud}' is not supported."
+          ],
+          "after": "if cloud not in ZPA_BASE_URLS:"
         }
       ]
     },
@@ -277,7 +294,10 @@
           "path": "README.md",
           "quotes": [
             "**v2.x supports OneAPI exclusively.**",
-            "remain available on **v1.x** and will be migrated to v2.x progressively."
+            "remain available on **v1.x** and will be migrated to v2.x progressively.",
+            "Legacy per-product authentication helpers (`LegacyZIAClient`, `LegacyZPAClient`, `LegacyZCCClient`, `LegacyZDXClient`, `LegacyZIdentityClient`, `LegacyZTWClient`, etc.) are **not** available in v2.x and will **not** be added.",
+            "The v2.x beta currently supports **ZIA, ZDX, and ZIdentity**.",
+            "Other Zscaler products (ZPA, ZCC, ZTW, ZTB, ZWA, …) remain available on **v1.x** and will be migrated to v2.x progressively."
           ]
         }
       ]
@@ -291,6 +311,14 @@
           "path": "README.md",
           "quotes": [
             "The SDK automatically includes the `x-partner-id` header in all API requests when `partnerId` is provided in the configuration."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "# Add x-partner-id header if partnerId is provided in config",
+            "self._default_headers[\"x-partner-id\"] = self.partner_id"
           ]
         },
         {

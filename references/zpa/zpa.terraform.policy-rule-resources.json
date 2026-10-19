@@ -163,20 +163,22 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_access_rule_v2.md",
           "quotes": [
-            "API rejects it with `duplicate.operand.found`. Aggregate all `entry_values`/`values`"
+            "API rejects it with `duplicate.operand.found`. Aggregate all `entry_values`/`values`",
+            "under one operand, or, when you need two independent groups of the same type with different operators, split them into separate `conditions` blocks"
           ]
         }
       ]
     },
     "operand-microtenant-unsupported-types": {
-      "statement": "The v1 access rule doc says microtenant_id is not supported inside operands when object_type is SAML, SCIM, SCIM_GROUP, IDP, POSTURE or TRUSTED_NETWORK, because ZPA assumes the parent tenant's object.",
+      "statement": "The v1 access rule doc says microtenant_id is not supported inside operands when object_type is SAML, SCIM, SCIM_GROUP, IDP, POSTURE or TRUSTED_NETWORK, and gives as the reason that ZPA automatically assumes the posture profile ID that belongs to the parent tenant.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_access_rule.md",
           "quotes": [
-            "is not supported within the `operands` block when the `object_type` is set to `SAML`, `SCIM`, `SCIM_GROUP`, `IDP`, `POSTURE`, `TRUSTED_NETWORK`"
+            "is not supported within the `operands` block when the `object_type` is set to `SAML`, `SCIM`, `SCIM_GROUP`, `IDP`, `POSTURE`, `TRUSTED_NETWORK`",
+            "ZPA automatically assumes the posture profile ID that belongs to the parent tenant."
           ]
         },
         {
@@ -331,17 +333,25 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_timeout_rule.md",
           "quotes": [
-            "Provides the timeout value in seconds. -1 value denotes Never.",
-            "Provides the timeout value in seconds. -1 value denotes Default."
+            "`reauth_timeout` (Required) This denotes the authentication timeout. Provides the timeout value in seconds. -1 value denotes Never.",
+            "`reauth_idle_timeout` (Required) This denotes the idle connection timeout. Provides the timeout value in seconds. -1 value denotes Default."
           ]
         },
         {
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_timeout_rule_v2.md",
           "quotes": [
-            "Timeout interval must be at least 10 minutes. Using the string `Never` means that the session never expires."
+            "Timeout interval must be at least 10 minutes. Using the string `Never` means that the session never expires.",
+            "Supported Values: - `Days`, or `days` - `Minutes` or `minutes` - `Hours` or `hours`"
           ],
           "after": "- `reauth_timeout` (String)"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_timeout_rule_v2.md",
+          "quotes": [
+            "reauth_idle_timeout = \"10 Days\" reauth_timeout = \"10 Days\""
+          ]
         }
       ]
     },
@@ -360,7 +370,7 @@
           "source": "tf-zpa",
           "path": "zpa/common.go",
           "quotes": [
-            "Description: \"This is for enabling device posture failure notification.\","
+            "\"device_posture_failure_notification_enabled\": { Type: schema.TypeBool, Optional: true, Description: \"This is for enabling device posture failure notification.\","
           ]
         },
         {
@@ -381,7 +391,11 @@
           "path": "zpa/resource_zpa_policy_capabilities_access_rule.go",
           "quotes": [
             "capabilities = append(capabilities, \"JOIN_SESSION\")",
-            "capabilities = append(capabilities, \"CONTROL_SESSION\")"
+            "capabilities = append(capabilities, \"CONTROL_SESSION\")",
+            "\"join_session\": { Type: schema.TypeBool,",
+            "\"control_session\": { Type: schema.TypeBool,",
+            "if privCapsMap[\"join_session\"].(bool) { capabilities = append(capabilities, \"JOIN_SESSION\") }",
+            "if privCapsMap[\"control_session\"].(bool) { capabilities = append(capabilities, \"CONTROL_SESSION\") }"
           ]
         },
         {
@@ -402,7 +416,10 @@
           "path": "docs/resources/zpa_policy_capabilities_rule.md",
           "quotes": [
             "Separate condition blocks for each object type is required.",
-            "Supported values: `APP` for application segments and `APP_GROUP` for segment groups"
+            "Supported values: `APP` for application segments and `APP_GROUP` for segment groups",
+            "This is for specifying the policy criteria. Supported values: `SCIM_GROUP`",
+            "This is for specifying the policy criteria. Supported values: `SCIM`",
+            "This is for specifying the policy criteria. Supported values: `SAML`"
           ]
         }
       ]
@@ -440,10 +457,11 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_policy_portal_access_rule.go",
           "quotes": [
-            "\"access_uninspected_file_sandbox\": {",
-            "\"upload_inspected_sandbox\": {",
-            "\"upload_inspected_scan\": {"
-          ]
+            "\"access_uninspected_file_sandbox\": { Type: schema.TypeBool,",
+            "\"upload_inspected_sandbox\": { Type: schema.TypeBool,",
+            "\"upload_inspected_scan\": { Type: schema.TypeBool,"
+          ],
+          "after": "\"privileged_portal_capabilities\": {"
         }
       ]
     },
@@ -507,9 +525,7 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_redirection_rule.md",
           "quotes": [
-            "The below options are the only ones supported in a timeout policy rule.",
-            "``zpn_client_type_machine_tunnel``",
-            "``zpn_client_type_branch_connector``"
+            "The below options are the only ones supported in a timeout policy rule. - ``zpn_client_type_machine_tunnel`` - ``zpn_client_type_edge_connector`` - ``zpn_client_type_zapp`` - ``zpn_client_type_zapp_partner`` - ``zpn_client_type_branch_connector`` - `COUNTRY_CODE` (String)"
           ],
           "after": "`CLIENT_TYPE` (String)"
         }
@@ -545,8 +561,26 @@
           "source": "tf-zpa",
           "path": "zpa/common.go",
           "quotes": [
-            "_, _, err := cloud_connector_group.Get(ctx, zClient.Service, id)"
-          ]
+            "switch operand.ObjectType {",
+            "case \"APP\":",
+            "case \"APP_GROUP\":",
+            "case \"IDP\":",
+            "case \"EDGE_CONNECTOR_GROUP\":",
+            "case \"CLIENT_TYPE\":",
+            "case \"MACHINE_GRP\":",
+            "case \"POSTURE\":",
+            "case \"TRUSTED_NETWORK\":",
+            "case \"PLATFORM\":",
+            "case \"SAML\":",
+            "case \"SCIM\":",
+            "case \"SCIM_GROUP\":",
+            "case \"COUNTRY_CODE\":",
+            "case \"RISK_FACTOR_TYPE\":",
+            "case \"CHROME_ENTERPRISE\":",
+            "_, _, err := cloud_connector_group.Get(ctx, zClient.Service, id)",
+            "default: return fmt.Errorf(\"[WARN] invalid operand object type %s\", operand.ObjectType)"
+          ],
+          "after": "func validateOperand("
         },
         {
           "source": "tf-zpa",
@@ -573,18 +607,14 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
           "quotes": [
-            "\"GLOBAL_POLICY\",",
-            "\"REDIRECTION_POLICY\",",
-            "\"REAUTH_POLICY\",",
-            "\"CLIENTLESS_SESSION_PROTECTION_POLICY\","
+            "\"ACCESS_POLICY\", \"GLOBAL_POLICY\", \"CAPABILITIES_POLICY\", \"BYPASS_POLICY\", \"CLIENT_FORWARDING_POLICY\", \"CREDENTIAL_POLICY\", \"ISOLATION_POLICY\", \"INSPECTION_POLICY\", \"REDIRECTION_POLICY\", \"REAUTH_POLICY\", \"TIMEOUT_POLICY\", \"CLIENTLESS_SESSION_PROTECTION_POLICY\","
           ]
         },
         {
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_access_rule_reorder.md",
           "quotes": [
-            "``BYPASS_POLICY or CLIENT_FORWARDING_POLICY``",
-            "``CLIENTLESS_SESSION_PROTECTION_POLICY``"
+            "- ``ACCESS_POLICY or GLOBAL_POLICY`` - ``TIMEOUT_POLICY or REAUTH_POLICY`` - ``BYPASS_POLICY or CLIENT_FORWARDING_POLICY`` - ``INSPECTION_POLICY`` - ``ISOLATION_POLICY`` - ``CREDENTIAL_POLICY`` - ``CAPABILITIES_POLICY`` - ``CLIENTLESS_SESSION_PROTECTION_POLICY`` - `rules` - (Block Set)"
           ]
         },
         {
@@ -614,8 +644,59 @@
           "quotes": [
             "resource \"zpa_policy_access_rule\" \"this\" {"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_application_segment.md",
+          "quotes": [
+            "resource \"zpa_policy_access_rule\" \"this\" {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_browser_access.md",
+          "quotes": [
+            "resource \"zpa_policy_access_rule\" \"this\" {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_scim_attribute.md",
+          "quotes": [
+            "resource \"zpa_policy_access_rule\" \"this\" {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_scim_group.md",
+          "quotes": [
+            "resource \"zpa_policy_access_rule\" \"this\" {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_trusted_networks.md",
+          "quotes": [
+            "resource \"zpa_policy_access_rule\" \"this\" {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_risk_factor.md",
+          "quotes": [
+            "resource \"zpa_policy_access_rule\" \"access_policy_allow_machinetunnel\" {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "quotes": [
+            "\"zpa_policy_access_rule_reorder\": resourcePolicyAccessRuleReorder(), \"zpa_policy_access_rule\": resourcePolicyAccessRule(),",
+            "\"zpa_policy_access_rule_v2\": resourcePolicyAccessRuleV2(),"
+          ]
         }
-      ]
+      ],
+      "conditions": "That no resource is registered under a variant name rests on the provider's resource map, whose zpa_policy_access_rule entries are only the base, v2 and reorder resources."
     }
   },
   "gaps": {

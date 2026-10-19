@@ -51,7 +51,7 @@
     },
     {
       "label": "MCP workflow.",
-      "text": "The Python docstring carries the per-category action lists, and two entries look misfiled {{python-docstring-action-vocabulary}}. The MCP tool forwards its inputs to the SDK {{mcp-actions-tool-forwards}}, which the workflow skill does not reflect {{divergence:mcp-representative-app-probing}}. The whole-create rejection is stated only by the MCP workflow skill {{mcp-skill-per-tuple-validation}}, and the product contract is open {{gap:per-tuple-validation-contract}}. Whether discovery needs a category representative app is also open {{gap:representative-app-actions}}."
+      "text": "{{python-docstring-action-vocabulary}} {{docstring-misfiled-entries}} The MCP tool forwards its inputs to the SDK {{mcp-actions-tool-forwards}}, which the workflow skill does not reflect {{divergence:mcp-representative-app-probing}}. The whole-create rejection is stated only by the MCP workflow skill {{mcp-skill-per-tuple-validation}}, and the product contract is open {{gap:per-tuple-validation-contract}}. Whether discovery needs a category representative app is also open {{gap:representative-app-actions}}."
     }
   ],
   "checks": [
@@ -106,6 +106,15 @@
       ],
       "evidence": [
         {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webApplicationRules~1{rule_type}/post/requestBody/content/application~1json/schema/properties/actions",
+          "expect": {
+            "type": "array",
+            "description": "Action taken when traffic matches rule."
+          }
+        },
+        {
           "source": "sdk-go",
           "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
           "quotes": [
@@ -116,6 +125,7 @@
           "source": "sdk-python",
           "path": "zscaler/zia/models/cloudappcontrol.py",
           "quotes": [
+            "self.actions = ZscalerCollection.form_list(config[\"actions\"] if \"actions\" in config else [], str)",
             "\"actions\": self.actions,"
           ]
         },
@@ -123,7 +133,7 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_cloud_app_control_rules.go",
           "quotes": [
-            "Description: \"Actions allowed for the specified type.\","
+            "\"actions\": { Type: schema.TypeSet, Optional: true, Elem: &schema.Schema{Type: schema.TypeString}, Description: \"Actions allowed for the specified type.\","
           ]
         }
       ]
@@ -200,15 +210,48 @@
         },
         {
           "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "type AvailableActionsRequest struct { CloudApps []string `json:\"cloudApps,omitempty\"` Type string `json:\"type,omitempty\"` }",
+            "func AvailableActions(ctx context.Context, service *zscaler.Service, ruleType string, payload AvailableActionsRequest) ([]string, error) {",
+            "func AllAvailableActions(ctx context.Context, service *zscaler.Service, ruleType string, payload AvailableActionsRequest) ([]string, error) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "after": "func AllAvailableActions(ctx context.Context",
+          "quotes": [
+            "resp, err := service.Client.CreateWithRawPayload(ctx, url, string(payloadData))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "after": "func AvailableActions(ctx context.Context",
+          "quotes": [
+            "resp, err := service.Client.CreateWithRawPayload(ctx, url, string(payloadData))"
+          ]
+        },
+        {
+          "source": "sdk-go",
           "path": "CHANGELOG.md",
           "quotes": [
             "Introduced new ZIA endpoint for Cloud App Control policy actions `allAvailableActions` to retrieve all available actions for each application type."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "after": "func (c *Client) CreateWithRawPayload(ctx context.Context, endpoint string, payload string) ([]byte, error) {",
+          "quotes": [
+            "resp, _, _, err := c.ExecuteRequest(ctx, \"POST\", endpoint, bytes.NewReader(data), nil, contentTypeJSON)"
           ]
         }
       ]
     },
     "provider-prefers-all-endpoint": {
-      "statement": "The provider's rule-actions data source calls AllAvailableActions first and falls back to AvailableActions only when the error is a typed response with HTTP 404 or 405. Any other failure (400, 401, 403, 5xx, or an error that is not a typed response) is returned to Terraform without a fallback. It preserves the flat response order of the list, splits ISOLATE_ actions from the rest and applies the optional JMESPath search before the split and the prefix filter after it.",
+      "statement": "The provider's rule-actions data source calls AllAvailableActions first and falls back to AvailableActions only when the error is a typed response with HTTP 404 or 405. Any other failure (400, 401, 403, 5xx, or an error that is not a typed response) is returned to Terraform without a fallback. It sets available_actions to the returned list in the order received (after the optional JMESPath search), splits ISOLATE_ actions from the rest, and applies the optional prefix filter after the search.",
       "tier": "A",
       "evidence": [
         {
@@ -217,7 +260,8 @@
           "quotes": [
             "actions, err := cloudappcontrol.AllAvailableActions(ctx, service, ruleType, payload)",
             "if err != nil && actionsEndpointUnavailable(err) {",
-            "actions, err = cloudappcontrol.AvailableActions(ctx, service, ruleType, payload)"
+            "actions, err = cloudappcontrol.AvailableActions(ctx, service, ruleType, payload)",
+            "if err != nil {\n\t\treturn diag.FromErr(err)\n\t}"
           ]
         },
         {
@@ -225,7 +269,21 @@
           "path": "zia/data_source_zia_cloud_app_control_rule_actions.go",
           "after": "func actionsEndpointUnavailable(err error) bool {",
           "quotes": [
-            "case http.StatusNotFound, http.StatusMethodNotAllowed:"
+            "respErr, ok := errorx.AsErrorResponse(err)\n\tif !ok {\n\t\treturn false\n\t}",
+            "switch respErr.Response.StatusCode {\n\t\tcase http.StatusNotFound, http.StatusMethodNotAllowed:\n\t\t\treturn true",
+            "switch respErr.Parsed.Status {\n\t\tcase http.StatusNotFound, http.StatusMethodNotAllowed:\n\t\t\treturn true",
+            "return false\n}"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_cloud_app_control_rule_actions.go",
+          "after": "func dataSourceCloudAppControlRuleActionsRead(",
+          "quotes": [
+            "filtered, jerr := zscaler.ApplyJMESPathFilter(actions, expr)",
+            "for _, action := range actions {\n\t\tif strings.HasPrefix(action, \"ISOLATE_\") {",
+            "if prefixesInterface, ok := d.GetOk(\"action_prefixes\"); ok {",
+            "_ = d.Set(\"available_actions\", actions)"
           ]
         }
       ]
@@ -273,6 +331,7 @@
           "quotes": [
             "This field appears when the application access is set to either Caution or Block.",
             "This field appears when the granular action is blocked for the selected applications.",
+            "This field is set to Show by default.",
             "Notification Message: Select a notification message that you want to show as the Zscaler Client Connector-based EUN."
           ]
         },
@@ -331,17 +390,28 @@
           "expect": {
             "description": "<p>Fetches the granular actions supported for the applications.</p>"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/webApplicationRules/{rule_type}/allAvailableActions"
+          ]
         }
       ]
     },
     "python-docstring-action-vocabulary": {
-      "statement": "The per-category action vocabulary (for example IT_SERVICES, LEGAL, SALES_AND_MARKETING) is enumerated in the Python `add_rule` docstring; the Go model types `Actions` as a plain string list with no equivalent enumeration. The docstring lists `CAUTION_LEGAL_USE` under IT_SERVICES and `DENY_DNS_OVER_HTTPS_USE` under LEGAL. The two named entries (`CAUTION_LEGAL_USE` under IT_SERVICES, `DENY_DNS_OVER_HTTPS_USE` under LEGAL) look misfiled.",
+      "statement": "The per-category action vocabulary (for example IT_SERVICES, LEGAL, SALES_AND_MARKETING) is enumerated in the Python `add_rule` docstring; the Go model types `Actions` as a plain string list with no equivalent enumeration. The docstring lists `CAUTION_LEGAL_USE` under IT_SERVICES and `DENY_DNS_OVER_HTTPS_USE` under LEGAL.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zia/cloudappcontrol.py",
           "quotes": [
+            "- **IT_SERVICES**:",
+            "- **LEGAL**:",
+            "- **SALES_AND_MARKETING**:",
             "- `ALLOW_IT_SERVICES_USE`\n                - `CAUTION_LEGAL_USE`",
             "- `ALLOW_LEGAL_USE`\n                - `DENY_DNS_OVER_HTTPS_USE`"
           ],
@@ -356,6 +426,14 @@
         }
       ]
     },
+    "docstring-misfiled-entries": {
+      "statement": "The docstring entries `CAUTION_LEGAL_USE` under IT_SERVICES and `DENY_DNS_OVER_HTTPS_USE` under LEGAL look misfiled.",
+      "tier": "B",
+      "conditions": "Inferred from naming: the other entries in each list carry their category's own token, and these two carry another category's token or name another feature; no source says they are misplaced.",
+      "derived_from": [
+        "zia.cloud-app-control.actions:python-docstring-action-vocabulary"
+      ]
+    },
     "mcp-actions-tool-forwards": {
       "statement": "The MCP list-actions tool forwards `rule_type` and the optional `cloud_apps` list to the Python SDK `list_available_actions` and returns what comes back; it does no category-level probing.",
       "tier": "A",
@@ -363,8 +441,13 @@
         {
           "source": "mcp-server",
           "path": "src/zscaler_mcp/tools/zia/cloud_app_control.py",
+          "after": "def zia_list_cloud_app_control_actions(args: ListActionsInput) -> list[dict[str, Any]]:",
           "quotes": [
-            "rule_type=args.rule_type, cloud_apps=args.cloud_apps or []"
+            "client = get_zscaler_client(service=\"zia\")",
+            "actions, _, err = client.zia.cloudappcontrol.list_available_actions(",
+            "rule_type=args.rule_type, cloud_apps=args.cloud_apps or []",
+            "if err: raise RuntimeError(f\"Failed to list CAC actions for {args.rule_type}: {err}\")",
+            "return shape_many(list(actions or []))"
           ]
         }
       ]
@@ -378,7 +461,9 @@
           "path": "skills/zia/create-cloud-app-control-rule/SKILL.md",
           "quotes": [
             "the create endpoint validates per `(rule_type, app, action)` tuple",
-            "The first incompatible (app, action) pair fails the entire create."
+            "The first incompatible (app, action) pair fails the entire create.",
+            "in practice ZIA frequently rejects multi-app rules with `INVALID_INPUT_ARGUMENT: \"Invalid action provided for selected applications\"`",
+            "so the only safe pattern is to split."
           ]
         },
         {

@@ -83,7 +83,7 @@
   ],
   "claims": {
     "prompt-capture-schema-wording": {
-      "statement": "The provider describes `prompt_capture_enabled` as applicable only when the Gen AI Applications Access field is set to Allow; this is schema wording, not a statement about backend or entitlement behavior.",
+      "statement": "The provider describes `prompt_capture_enabled` as applicable only when the Gen AI Applications Access field is set to Allow.",
       "tier": "A",
       "evidence": [
         {
@@ -118,6 +118,30 @@
           "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
           "quotes": [
             "PromptCaptureEnabled bool `json:\"promptCaptureEnabled,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "after": "func resourceCloudAppControlRulesCreate(",
+          "quotes": [
+            "req := expandCloudAppControlRules(d)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "after": "func resourceCloudAppControlRulesUpdate(",
+          "quotes": [
+            "req := expandCloudAppControlRules(d)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "after": "func expandCloudAppControlRules(d *schema.ResourceData) cloudappcontrol.WebApplicationRules {",
+          "quotes": [
+            "PromptCaptureEnabled: d.Get(\"prompt_capture_enabled\").(bool),"
           ]
         }
       ]
@@ -201,6 +225,17 @@
           "quotes": [
             "if _, err := cloudappcontrol.Delete(ctx, service, ruleType, id); err != nil {"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "after": "func resourceCloudAppControlRulesDelete(",
+          "quotes": [
+            "ruleType, ok := d.Get(\"type\").(string)",
+            "if _, err := cloudappcontrol.Delete(ctx, service, ruleType, id); err != nil { return diag.FromErr(err) } d.SetId(\"\") log.Printf(\"[INFO] cloud application control rule deleted\")",
+            "// Check if ZIA_ACTIVATION is set to a truthy value before triggering activation if shouldActivate() {",
+            "log.Printf(\"[INFO] Skipping configuration activation due to ZIA_ACTIVATION env var not being set to true.\") } return nil }"
+          ]
         }
       ]
     },
@@ -212,7 +247,8 @@
           "source": "tf-zia",
           "path": "CHANGELOG.md",
           "quotes": [
-            "Cloud App Control rules are ordered independently per rule type;"
+            "Cloud App Control rules are ordered independently per rule type;",
+            "previously, when rules of more than one type were created concurrently, only one type was guaranteed to converge to the declared `order`"
           ]
         }
       ]
@@ -225,7 +261,8 @@
           "source": "tf-zia",
           "path": "zia/common.go",
           "quotes": [
-            "Description: \"Supported App Control Types\","
+            "Description: \"Supported App Control Types\",",
+            "return &schema.Schema{ Type: schema.TypeString, Description: \"Supported App Control Types\", Optional: true, Elem: &schema.Schema{ Type: schema.TypeString, ValidateDiagFunc: validateAppControlType(), }, } }"
           ],
           "after": "func getAppControlType() *schema.Schema {"
         },

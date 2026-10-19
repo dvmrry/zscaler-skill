@@ -55,6 +55,7 @@
           "source": "zscaler-help",
           "path": "configuring-sublocations.json",
           "quotes": [
+            "Scope: You can define scope types to segregate workload traffic from a single sublocation to apply different Zscaler Cloud Connector and security policies.",
             "This field is only available for the Workload traffic type sublocations whose parent locations are associated with Amazon Web Services (AWS) Cloud Connector groups."
           ]
         },
@@ -62,6 +63,7 @@
           "source": "tf-zia",
           "path": "docs/resources/zia_location_management.md",
           "quotes": [
+            "* `sub_loc_scope` - (Strings) Defines a scope for the sublocation from the available types to segregate workload traffic from a single sublocation to apply different Cloud Connector and ZIA security policies.",
             "The supported options are: `VPC_ENDPOINT`, `VPC`, `NAMESPACE`, `ACCOUNT`"
           ]
         }
@@ -97,13 +99,14 @@
       ]
     },
     "overlap-allowed-across-scopes": {
-      "statement": "Duplicate or overlapping IP address ranges are supported when the subnets sit in separate scoped sublocations, so scope lets policy lookup tell apart workloads that share an address space.",
+      "statement": "Duplicate or overlapping IP address ranges within the same namespace are supported when the subnets sit in separate sublocations (stated for the distributed VPC endpoint model), so policy lookup can tell apart workloads that share an address space.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "cbc-using-sublocation-scopes-group-cloud-connector-workloads-amazon-web.json",
           "quotes": [
+            "In a distributed VPC endpoint deployment, there is one VPC endpoint or a set of VPC endpoints for each subnet or VPC.",
             "Duplicate or overlapping IP address ranges within the same namespace are supported if the subnets are in separate sublocations.",
             "Policy lookup can distinguish between multiple workloads with the same source IP address space, even without using namespace tags or workload discovery."
           ]
@@ -119,7 +122,8 @@
           "source": "zscaler-help",
           "path": "cbc-using-sublocation-scopes-group-cloud-connector-workloads-amazon-web.json",
           "quotes": [
-            "You can create a sublocation based on the hub VPC, but not the spoke VPCs."
+            "You can create a sublocation based on the hub VPC, but not the spoke VPCs.",
+            "However, you can use both the hub VPC and a unique IP address range to create more granular sublocations."
           ]
         }
       ]
@@ -161,7 +165,8 @@
           "source": "tf-zia",
           "path": "docs/resources/zia_location_management.md",
           "quotes": [
-            "* `sub_loc_acc_ids` - (List of Strings) Specifies one or more Amazon Web Services (AWS) account IDs."
+            "* `sub_loc_acc_ids` - (List of Strings) Specifies one or more Amazon Web Services (AWS) account IDs.",
+            "These AWS accounts are associated with the parent location of this sublocation created in the Zscaler Cloud & Branch Connector Admin Portal."
           ]
         }
       ],

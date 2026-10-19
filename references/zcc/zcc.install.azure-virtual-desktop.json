@@ -167,7 +167,9 @@
           "quotes": [
             "Connectivity to Zscaler is provided by other means, such as a PAC file for browsers on the pooled system, a Virtual Zscaler Cloud Connector, or a tunnel from a firewall or network device running in the Azure environment.",
             "You also configure a tunnel to ZIA for internet-bound traffic using a virtual network gateway.",
-            "For the Pool or Shared VM, you should install a traditional browser PAC file in the browser settings."
+            "For the Pool or Shared VM, you should install a traditional browser PAC file in the browser settings.",
+            "you might need to use a dedicated proxy port provided by Zscaler and assigned to a specific domain.",
+            "Select a Connection type of Site-to-site (IPSec). The virtual network gateway should be pre-populated with the"
           ]
         }
       ]
@@ -182,7 +184,8 @@
           "quotes": [
             "Use a custom image. Install Zscaler Client Connector onto the image before provisioning a Cloud PC.",
             "Use Intune to deploy the application to the Cloud PC after it’s been provisioned.",
-            "is Microsoft’s recommended approach to app deployment in Windows 365."
+            "is Microsoft’s recommended approach to app deployment in Windows 365.",
+            "You can do this with either a custom image or a gallery image"
           ]
         }
       ]
@@ -213,7 +216,8 @@
           "source": "zscaler-help",
           "path": "configuring-zscaler-client-connector-microsoft-365-cloud-pcs.json",
           "quotes": [
-            "Zscaler and Microsoft recommend configuring the bypasses mentioned earlier on both Cloud PCs running Zscaler Client Connector and the connecting client."
+            "Zscaler and Microsoft recommend configuring the bypasses mentioned earlier on both Cloud PCs running Zscaler Client Connector and the connecting client.",
+            "If the connecting client is using Zscaler Client Connector to optimize RDP traffic"
           ]
         }
       ]
@@ -228,7 +232,9 @@
           "quotes": [
             "the user experiences a freeze on the RDP session because the connection drops and is re-established.",
             "This happens every time the user logs in or logs out, turns Internet & SaaS off or on, or restarts the Internet & SaaS service in Zscaler Client Connector.",
-            "as soon as the tunnel is established, all inbound traffic starts flowing through the tunnel, transferring the RDP traffic to it."
+            "as soon as the tunnel is established, all inbound traffic starts flowing through the tunnel, transferring the RDP traffic to it.",
+            "If IP address bypasses are not added, the following scenario can occur when a user is connected to the Cloud PC using RDP:",
+            "However, after the session is re-established, users can use the Cloud PC without issues"
           ]
         }
       ]
@@ -263,7 +269,7 @@
       ]
     },
     "guide-pac-bypass": {
-      "statement": "On a personal AVD VM, bypasses keep traffic away from Zscaler and keep control traffic local to Azure. The guide puts them in PAC files: for Tunnel-1 an application PAC file as the app profile's Custom PAC URL; for Tunnel-2 that application PAC plus a forwarding profile PAC with the same bypasses.",
+      "statement": "Whether a private (personal) AVD VM runs Client Connector or a pooled VM uses a PAC file, bypasses keep traffic away from Zscaler and keep control traffic local to Azure. For Client Connector the guide puts them in PAC files: for Tunnel-1 an application PAC file as the app profile's Custom PAC URL; for Tunnel-2 that application PAC plus a forwarding profile PAC with the same bypasses.",
       "tier": "A",
       "evidence": [
         {
@@ -272,7 +278,8 @@
           "quotes": [
             "you must add bypasses to keep traffic away from Zscaler, and keep control traffic local to the Azure environment.",
             "For Tunnel-1 mode on the Zscaler Client Connector, install an Application PAC file in the App Profile under the Custom PAC URL.",
-            "install the application PAC file in the App Profile under the Custom PAC URL and a Forwarding Profile PAC containing the same bypasses in the APP PAC."
+            "install the application PAC file in the App Profile under the Custom PAC URL and a Forwarding Profile PAC containing the same bypasses in the APP PAC.",
+            "install the Zscaler Client Connector for the Private WVD VM, or a PAC file using a dedicated proxy port for the Pooled VM. For either the Zscaler Client Connector or a PAC file,"
           ]
         }
       ]

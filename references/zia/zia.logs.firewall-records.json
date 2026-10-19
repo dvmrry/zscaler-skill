@@ -58,7 +58,7 @@
     },
     {
       "label": "Network fields.",
-      "text": "{{bytes-direction}} {{nw-fields}} Their relation is open {{gap:nwapp-vs-nwsvc}}. {{country-forms}}"
+      "text": "{{bytes-direction}} {{nw-fields}} Their relation is open {{gap:nwapp-vs-nwsvc}}. {{country-forms}} {{country-forms-not-comparable}}"
     },
     {
       "label": "Names against the web log.",
@@ -139,11 +139,15 @@
           "source": "zscaler-help",
           "path": "nss-feed-output-format-firewall-logs.json",
           "quotes": [
-            "this is the client source IP address of the last session in the aggregate.",
-            "this is the client destination port of the last session in the aggregate.",
-            "this is the client's tunnel IP address corresponding to the last session in the aggregate.",
-            "this is the server source port of the last session in the aggregate.",
-            "this is the server destination IP address of the last session in the aggregate."
+            "For aggregated sessions, this is the client source IP address of the last session in the aggregate.",
+            "For aggregated sessions, this is the client source port of the last session in the aggregate.",
+            "For aggregated sessions, this is the client destination IP address of the last session in the aggregate.",
+            "For aggregated sessions, this is the client destination port of the last session in the aggregate.",
+            "For aggregated sessions, this is the client's tunnel IP address corresponding to the last session in the aggregate.",
+            "For aggregated sessions, this is the server destination port of the last session in the aggregate.",
+            "For aggregated sessions, this is the server destination IP address of the last session in the aggregate.",
+            "For aggregated sessions, this is the server source IP address of the last session in the aggregate.",
+            "For aggregated sessions, this is the server source port of the last session in the aggregate."
           ]
         }
       ],
@@ -192,6 +196,7 @@
           "source": "zscaler-help",
           "path": "nss-feed-output-format-firewall-logs.json",
           "quotes": [
+            "| %s{srcip_country} | The traffic's source country, which is determined by the client IP address location.",
             "There is no source country value in logs for aggregated sessions that are allowed."
           ]
         }
@@ -211,7 +216,7 @@
           "source": "zscaler-help",
           "path": "nss-feed-output-format-firewall-logs.json",
           "quotes": [
-            "| The action that the service took on the transaction: Allowed or Blocked"
+            "| %s{action} | The action that the service took on the transaction: Allowed or Blocked"
           ]
         }
       ],
@@ -256,6 +261,7 @@
           "source": "zscaler-help",
           "path": "nss-feed-output-format-firewall-logs.json",
           "quotes": [
+            "| %s{threat_severity} | The severity of the threat detected in the Firewall session by the IPS engine.",
             "The severity relates directly to the threat score.",
             "For example, if the value of %d{threat_score} is between 90 and 100, then the value of %s{threat_severity} is Critical."
           ]
@@ -274,7 +280,7 @@
           "path": "nss-feed-output-format-firewall-logs.json",
           "quotes": [
             "The score is assigned to the threat by Zscaler ThreatLabz and reflected in the Zscaler Threat Library.",
-            "from the least to the greatest threat."
+            "The score ranges from 0–100, from the least to the greatest threat."
           ]
         }
       ]
@@ -298,7 +304,7 @@
       ]
     },
     "country-forms": {
-      "statement": "srcip_country holds a country name such as United States, while destcountry holds an abbreviated code such as USA, so the two are not directly comparable.",
+      "statement": "srcip_country holds a country name such as United States, while destcountry holds an abbreviated code such as USA.",
       "tier": "A",
       "binds": [
         "zia/firewall-log#srcip_country",
@@ -309,11 +315,24 @@
           "source": "zscaler-help",
           "path": "nss-feed-output-format-firewall-logs.json",
           "quotes": [
-            "| The abbreviated code of the country of the destination IP address",
-            "which is determined by the client IP address location."
+            "| %s{srcip_country} | The traffic's source country, which is determined by the client IP address location.",
+            "for aggregated sessions that are allowed. | United States | Source Country |",
+            "| %s{destcountry} | The abbreviated code of the country of the destination IP address | USA | Dest Country |"
           ]
         }
       ]
+    },
+    "country-forms-not-comparable": {
+      "statement": "Because srcip_country carries a country name and destcountry an abbreviated code, the two fields are not directly comparable without mapping one form to the other.",
+      "tier": "B",
+      "binds": [
+        "zia/firewall-log#srcip_country",
+        "zia/firewall-log#destcountry"
+      ],
+      "derived_from": [
+        "country-forms"
+      ],
+      "conditions": "Follows from the documented example values; the source does not discuss comparing the two fields."
     },
     "names-differ": {
       "statement": "Similar fields are named differently in the firewall and web logs: ttype and trafficredirectmethod, external_deviceid and external_devid, bypass_etime and bypassed_etime, bypassed_session and bypassed_traffic, and threat_severity and threatseverity.",
@@ -337,7 +356,9 @@
           "quotes": [
             "| %s{ttype} | The traffic forwarding method used to send the traffic to the Firewall",
             "| %s{external_deviceid} | The external device ID",
-            "| %s{bypass_etime} | The date and time when the traffic bypassed the Zscaler Client Connector"
+            "| %s{bypass_etime} | The date and time when the traffic bypassed the Zscaler Client Connector",
+            "| %d{bypassed_session} | Indicates whether the traffic bypassed the Zscaler Client Connector.",
+            "| %s{threat_severity} | The severity of the threat detected in the Firewall session by the IPS engine."
           ]
         },
         {
@@ -346,7 +367,9 @@
           "quotes": [
             "| %s{trafficredirectmethod} | The traffic forwarding method to Public Service Edges for Internet & SaaS (ZIA)",
             "| %s{external_devid} | The external device ID",
-            "| %s{bypassed_etime} | The date and time when the traffic bypassed the Zscaler Client Connector"
+            "| %s{bypassed_etime} | The date and time when the traffic bypassed the Zscaler Client Connector",
+            "| %d{bypassed_traffic} | Indicates whether the traffic bypassed the Zscaler Client Connector or not",
+            "| %s{threatseverity} | The severity of the threat that was detected in the transaction, if any."
           ]
         }
       ]
@@ -363,8 +386,8 @@
           "source": "zscaler-help",
           "path": "nss-feed-output-format-firewall-logs.json",
           "quotes": [
-            "| The number of bytes sent from the server to the client",
-            "| The number of bytes sent from the client to the server"
+            "| %ld{inbytes} | The number of bytes sent from the server to the client",
+            "| %ld{outbytes} | The number of bytes sent from the client to the server"
           ]
         }
       ]
@@ -381,8 +404,8 @@
           "source": "zscaler-help",
           "path": "nss-feed-output-format-firewall-logs.json",
           "quotes": [
-            "| The network application that was accessed",
-            "| The network service that was used"
+            "| %s{nwapp} | The network application that was accessed",
+            "| %s{nwsvc} | The network service that was used"
           ]
         }
       ],

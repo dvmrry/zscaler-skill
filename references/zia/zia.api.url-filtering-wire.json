@@ -92,7 +92,9 @@
           "source": "sdk-python",
           "path": "zscaler/zia/url_filtering.py",
           "quotes": [
-            "if kwargs.get(\"enable_cipa_compliance\") is True:"
+            "if kwargs.get(\"enable_cipa_compliance\") is True:",
+            "Updates the URL and Cloud App Control advanced policy settings",
+            "enable_cipa_compliance (bool): Enables the predefined CIPA Compliance Rule."
           ]
         }
       ]
@@ -137,7 +139,8 @@
           "path": "zia/resource_zia_url_filtering_rules.go",
           "quotes": [
             "Workaround for API bug: GET does not return the cbiProfile object for ISOLATE rules,",
-            "Preserve the cbi_profile from state when the API doesn't return it."
+            "Preserve the cbi_profile from state when the API doesn't return it.",
+            "only cbiProfileId (integer)."
           ]
         }
       ]
@@ -190,6 +193,16 @@
             "size_quota (str): Size quota in KB for applying the URL Filtering rule."
           ],
           "after": "def add_rule(self, **kwargs)"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "after": "func convertAndValidateSizeQuota(sizeQuotaMB int) (int, error) {",
+          "quotes": [
+            "minMB = 10",
+            "maxMB = 100000",
+            "return 0, fmt.Errorf(\"size_quota must be between %d MB and %d MB\", minMB, maxMB)"
+          ]
         }
       ]
     },
@@ -209,7 +222,10 @@
           "path": "zia/validator.go",
           "quotes": [
             "// Ensure uniform indentation by trimming each line",
-            "return oldTextNormalized == newTextNormalized"
+            "return oldTextNormalized == newTextNormalized",
+            "// Ensure the final newline to match Terraform formatting",
+            "return escapedStr + \"\\n\"",
+            "// Trim leading/trailing whitespace for consistency"
           ]
         }
       ]

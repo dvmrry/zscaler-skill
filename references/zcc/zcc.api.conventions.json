@@ -93,6 +93,45 @@
           "quotes": [
             "params = convert_keys_to_camel_case(params)"
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webTrustedNetwork~1listByCompany/get/parameters/[name=page]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webTrustedNetwork~1listByCompany/get/parameters/[name=search]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webTrustedNetwork~1listByCompany/get/parameters/[name=searchType]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def _prepare_params(self, service_type, endpoint, params, body):",
+          "quotes": [
+            "if service_type.lower() == \"zpa\":"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "Converts snake_case to camelCase with support for known edge-case field mappings."
+          ]
         }
       ]
     },
@@ -108,7 +147,10 @@
             "endpoint = self.remove_oneapi_endpoint_prefix(endpoint)",
             "if \"/zcc/\" in endpoint and body:",
             "if isinstance(body, _ZccWireBody):",
-            "body = convert_keys_to_camel_case_selective(body, WebPolicy.SNAKE_CASE_KEYS)"
+            "body = convert_keys_to_camel_case_selective(body, WebPolicy.SNAKE_CASE_KEYS)",
+            "if isinstance(body, _ZccWireBody): return dict(body)",
+            "Skip any further",
+            "conversion to preserve the model's intent verbatim."
           ]
         },
         {
@@ -145,7 +187,10 @@
           "path": "zscaler/zcc/services/common/common.go",
           "quotes": [
             "DeviceTypeIOS     = 1",
-            "DeviceTypeLinux   = 5"
+            "DeviceTypeLinux   = 5",
+            "DeviceTypeAndroid = 2",
+            "DeviceTypeWindows = 3",
+            "DeviceTypeMacOS   = 4"
           ]
         }
       ]
@@ -158,7 +203,8 @@
           "source": "zscaler-help",
           "path": "legacy-getting-started-client-connector-api.json",
           "quotes": [
-            "Prevent API call caching by adding a dummy argument with a randomly generated number to all URL request strings."
+            "Prevent API call caching by adding a dummy argument with a randomly generated number to all URL request strings.",
+            "For example: GET /getOtp?_=123456"
           ]
         }
       ]
@@ -172,6 +218,14 @@
           "path": "zscaler/zcc/secrets.py",
           "quotes": [
             "query_params[\"udid\"] = query_params.pop(\"device_id\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/secrets.py",
+          "after": "def get_otp(self, query_params: Optional[dict] = None) -> APIResult[dict]:",
+          "quotes": [
+            "query_params = query_params or {} if \"device_id\" in query_params and \"udid\" not in query_params: query_params[\"udid\"] = query_params.pop(\"device_id\") body = {} headers = {} request, error = self._request_executor.create_request(http_method, api_url, body, headers, params=query_params)"
           ]
         }
       ],
@@ -227,7 +281,13 @@
           "quotes": [
             "| 415 | Unsupported Media Type |",
             "exceeded the rate limit or device threshold",
-            "| 500 | Not Implemented |"
+            "| 500 | Not Implemented |",
+            "| 200 | Successful |",
+            "| 400 | Bad Request |",
+            "| 401 | Unauthorized |",
+            "| 403 | Forbidden |",
+            "| 404 | Not Found |",
+            "| 429 | Too Many Requests"
           ]
         }
       ]

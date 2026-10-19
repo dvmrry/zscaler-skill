@@ -71,7 +71,7 @@
       "text": "{{search-sanitizer-strips-name-characters}} {{provider-segment-group-lookups-use-sanitized-search}}"
     },
     {
-      "text": "{{query-encoder-emits-plus-for-space}} How the list search treats `+` versus `%20` and the removed characters is open {{gap:search-filter-semantics}}."
+      "text": "{{query-encoder-emits-plus-for-space}} {{query-encoder-space-as-plus}} How the list search treats `+` versus `%20` and the removed characters is open {{gap:search-filter-semantics}}."
     },
     {
       "heading": "Context ignored"
@@ -139,7 +139,7 @@
             "HEAD"
           ],
           "quotes": [
-            "\"NP_ASSISTANT_GRP\","
+            "var ProvisioningKeyAssociationTypes []string = []string{ \"CONNECTOR_GRP\", \"SERVICE_EDGE_GRP\", \"NP_ASSISTANT_GRP\", }"
           ]
         },
         {
@@ -150,8 +150,8 @@
             "HEAD"
           ],
           "quotes": [
-            "for _, associationType := range ProvisioningKeyAssociationTypes {",
-            "if err == nil {"
+            "for _, associationType := range ProvisioningKeyAssociationTypes { p, resp, err = GetByName(ctx, service, associationType, name) if err == nil { assoc_type = associationType break } }",
+            "return p, assoc_type, resp, err"
           ],
           "after": "func GetByNameAllAssociations(ctx context.Context, service *zscaler.Service, name string) (p *ProvisioningKey, assoc_type string, resp *http.Response, err error) {"
         },
@@ -163,8 +163,8 @@
             "HEAD"
           ],
           "quotes": [
-            "for _, associationType := range ProvisioningKeyAssociationTypes {",
-            "p, resp, err = Get(ctx, service, associationType, id)"
+            "for _, associationType := range ProvisioningKeyAssociationTypes { p, resp, err = Get(ctx, service, associationType, id) if err == nil { assoc_type = associationType break } }",
+            "return p, assoc_type, resp, err"
           ],
           "after": "func GetByIDAllAssociations(ctx context.Context, service *zscaler.Service, id string) (p *ProvisioningKey, assoc_type string, resp *http.Response, err error) {"
         }
@@ -206,8 +206,10 @@
             "HEAD"
           ],
           "quotes": [
-            "_, assoc_type, _, err := provisioningkey.GetByIDAllAssociations(ctx, service, id)",
-            "resp, assoc_type, _, err := provisioningkey.GetByNameAllAssociations(ctx, service, id)"
+            "_, parseIDErr := strconv.ParseInt(id, 10, 64)",
+            "_, associationTypeSet := d.GetOk(\"association_type\")",
+            "if !associationTypeSet { _, assoc_type, _, err := provisioningkey.GetByIDAllAssociations(ctx, service, id)",
+            "} else { resp, assoc_type, _, err := provisioningkey.GetByNameAllAssociations(ctx, service, id)"
           ]
         },
         {
@@ -218,7 +220,10 @@
             "HEAD"
           ],
           "quotes": [
-            "resp, _, err := provisioningkey.Get(ctx, service, associationType, d.Id())"
+            "resp, _, err := provisioningkey.Get(ctx, service, associationType, d.Id())",
+            "resp, _, err := provisioningkey.Create(ctx, service, associationType, &req)",
+            "if _, err := provisioningkey.Update(ctx, service, associationType, id, &req); err != nil {",
+            "if _, err := provisioningkey.Delete(ctx, service, associationType, d.Id()); err != nil {"
           ]
         }
       ],
@@ -242,10 +247,22 @@
             "HEAD"
           ],
           "quotes": [
+            "for _, associationType := range ProvisioningKeyAssociationTypes {",
             "items, _ := GetAllByAssociationType(ctx, service, associationType)",
             "return list, nil"
           ],
           "after": "func GetAll(ctx context.Context, service *zscaler.Service) (list []ProvisioningKey, err error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "var ProvisioningKeyAssociationTypes []string = []string{"
+          ]
         }
       ],
       "conditions": "The provider at v4.4.10 calls `provisioningkey.GetAll` only from its sweeper test file (`zpa/provider_sweeper_test.go`); no non-test provider code was found calling it (git grep for `provisioningkey.GetAll(` in zpa/). It affects direct SDK callers and the sweeper, not apply.",
@@ -257,7 +274,7 @@
       ]
     },
     "segment-group-udp-key-misspelled": {
-      "statement": "The segment group's nested `Application` struct tags its UDP port ranges `udpPortRangesg`. Responses carrying `udpPortRanges` do not fill the field, and a populated field is written under the misspelled key. The sibling TCP fields and the application segment SDK use `udpPortRanges`.",
+      "statement": "The segment group's nested `Application` struct tags its UDP port ranges `udpPortRangesg`. Responses carrying `udpPortRanges` do not fill the field, and a populated field is written under the misspelled key. The sibling TCP field uses `tcpPortRanges`, and the application segment SDK tags its UDP port ranges `udpPortRanges`.",
       "tier": "A",
       "evidence": [
         {
@@ -268,9 +285,10 @@
             "HEAD"
           ],
           "quotes": [
-            "`json:\"udpPortRangesg,omitempty\"`",
-            "`json:\"tcpPortRanges,omitempty\"`"
-          ]
+            "TCPPortRanges interface{} `json:\"tcpPortRanges,omitempty\"`",
+            "UDPPortRanges interface{} `json:\"udpPortRangesg,omitempty\"`"
+          ],
+          "after": "type Application struct {"
         },
         {
           "source": "sdk-go",
@@ -280,7 +298,7 @@
             "HEAD"
           ],
           "quotes": [
-            "UDPPortRanges             []string"
+            "UDPPortRanges []string `json:\"udpPortRanges\"`"
           ],
           "after": "type ApplicationSegmentResource struct {"
         }
@@ -376,8 +394,11 @@
             "HEAD"
           ],
           "quotes": [
+            "\"enabled\": { Type: schema.TypeBool, Optional: true, },",
             "Enabled:           d.Get(\"enabled\").(bool),",
-            "if _, err := appconnectorschedule.UpdateSchedule(ctx, service, id, &req); err != nil {"
+            "if _, err := appconnectorschedule.UpdateSchedule(ctx, service, id, &req); err != nil {",
+            "if strings.Contains(errStr, \"resource.already.exist\") {",
+            "return resourceAppConnectorAssistantScheduleUpdate(ctx, d, meta)"
           ]
         },
         {
@@ -388,12 +409,69 @@
             "HEAD"
           ],
           "quotes": [
+            "\"enabled\": { Type: schema.TypeBool, Optional: true, },",
             "Enabled:           d.Get(\"enabled\").(bool),",
-            "if _, err := serviceedgeschedule.UpdateSchedule(ctx, service, id, &req); err != nil {"
+            "if _, err := serviceedgeschedule.UpdateSchedule(ctx, service, id, &req); err != nil {",
+            "if strings.Contains(errStr, \"resource.already.exist\") {",
+            "return resourceServiceEdgeAssistantScheduleUpdate(ctx, d, meta)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "validIntervals := map[string]bool{\"5\": true, \"7\": true, \"14\": true, \"30\": true, \"60\": true, \"90\": true}",
+            "return nil, fmt.Errorf(\"invalid FrequencyInterval: %s\", assistantSchedule.FrequencyInterval)",
+            "if !assistantSchedule.Enabled {",
+            "return nil, fmt.Errorf(\"cannot update a disabled schedule\")",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", relativeURL, nil, assistantSchedule, nil)"
+          ],
+          "after": "func UpdateSchedule(ctx context.Context, service *zscaler.Service, schedulerID string, assistantSchedule *AssistantSchedule) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "func CreateSchedule(ctx context.Context, service *zscaler.Service, assistantSchedule AssistantSchedule) (*AssistantSchedule, *http.Response, error) { v := new(AssistantSchedule) resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+scheduleEndpoint, nil, assistantSchedule, &v)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgeschedule/serviceedgeschedule.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "validIntervals := map[string]bool{\"5\": true, \"7\": true, \"14\": true, \"30\": true, \"60\": true, \"90\": true}",
+            "return nil, fmt.Errorf(\"invalid FrequencyInterval: %s\", assistantSchedule.FrequencyInterval)",
+            "if !assistantSchedule.Enabled {",
+            "return nil, fmt.Errorf(\"cannot update a disabled schedule\")",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", relativeURL, nil, assistantSchedule, nil)"
+          ],
+          "after": "func UpdateSchedule(ctx context.Context, service *zscaler.Service, schedulerID string, assistantSchedule *AssistantSchedule) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgeschedule/serviceedgeschedule.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "func CreateSchedule(ctx context.Context, service *zscaler.Service, assistantSchedule AssistantSchedule) (*AssistantSchedule, *http.Response, error) { v := new(AssistantSchedule) resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+scheduleEndpoint, nil, assistantSchedule, &v)"
           ]
         }
       ],
-      "conditions": "Optional-without-default is read from the `enabled` schema entry of the app connector resource at v4.4.10 (the service edge resource was not separately re-read for the schema entry). Create is a different SDK function and was not examined.",
+      "conditions": "Optional-without-default is read from the `enabled` schema entry of both resources. Whether the server accepts a first create with `enabled = false` is server behavior; the code shows only that the SDK create has no client-side check.",
       "upstream": [
         {
           "status": "unfiled",
@@ -426,7 +504,10 @@
             "HEAD"
           ],
           "quotes": [
-            "pagination.Search2 = filters.Search"
+            "pagination.Search2 = filters.Search",
+            "if isZPAEndpoint(relativeURL) && !isSCIMEndpoint(relativeURL) { filters.Search = convertZPASearchToFilter(filters.Search)",
+            "Search2 string `json:\"search,omitempty\" url:\"search,omitempty\"`",
+            "filterFormat := fmt.Sprintf(\"name+EQ+%s\", sanitizedValue)"
           ]
         },
         {
@@ -437,7 +518,9 @@
             "HEAD"
           ],
           "quotes": [
-            "q, err := url.ParseQuery(query)"
+            "q, err := url.ParseQuery(query)",
+            "if strings.Contains(endpoint, \"?\") && params != \"\" {",
+            "endpoint += \"&\" + params"
           ],
           "after": "func (client *Client) NewRequestDo(ctx context.Context, method, endpoint string, options, body, v interface{}) (*http.Response, error) {"
         }
@@ -463,6 +546,7 @@
           ],
           "quotes": [
             "search := fmt.Sprintf(\"name+EQ+%s\", url.QueryEscape(name))",
+            "queryParams.Set(\"search\", search)",
             "queryParams.Encode())"
           ],
           "after": "func GetByName(ctx context.Context, service *zscaler.Service, name, version string) (*PredefinedControls, *http.Response, error) {"
@@ -477,6 +561,19 @@
           "quotes": [
             "res, _, err := inspection_predefined_controls.GetByName(ctx, service, name, version)"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "q, err := url.ParseQuery(query)",
+            "query = encodeQueryWithSpacesAsPercent20(q)"
+          ],
+          "after": "func (client *Client) NewRequestDo(ctx context.Context, method, endpoint string, options, body, v interface{}) (*http.Response, error) {"
         }
       ],
       "conditions": "The double escape was reproduced with a Go snippet (`v.Set(\"search\", \"name+EQ+\"+url.QueryEscape(\"a+b\")); v.Encode()` gives `search=name%2BEQ%2Ba%252Bb`); the later re-encode in the OneAPI request path decodes once and encodes once, so it keeps the doubled escape. The legacy client path was not read. A name containing a space escapes to `+` first and then `%2B`.",
@@ -517,6 +614,18 @@
             "if strings.EqualFold(app.Name, segmentName) {"
           ],
           "after": "func GetByName(ctx context.Context, service *zscaler.Service, segmentName string) (*SegmentGroup, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "// Exception: SCIM endpoints use plain search strings",
+            "if isZPAEndpoint(relativeURL) && !isSCIMEndpoint(relativeURL) { filters.Search = convertZPASearchToFilter(filters.Search)"
+          ]
         }
       ],
       "conditions": "Whether the server's EQ operator is an exact match, and therefore whether the stripped search misses the object, is server behavior (gap search-filter-semantics). A search string that already contains an operator such as `+EQ+` bypasses the sanitizer. `git -C vendor/zscaler-sdk-go grep -c 'Search: ' v3.8.42 -- zscaler/zpa/services` matched 38 files, so the helper is shared widely; each caller was not read.",
@@ -558,6 +667,18 @@
           "quotes": [
             "res, _, err := segmentgroup.GetByName(ctx, service, name)"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "common.Filter{Search: segmentName, MicroTenantID: service.MicroTenantID()})"
+          ],
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, segmentName string) (*SegmentGroup, *http.Response, error) {"
         }
       ],
       "conditions": "One example of many; the same helper style is used by the other ZPA name lookups (see search-sanitizer-strips-name-characters conditions). Not traced for each resource.",
@@ -569,7 +690,7 @@
       ]
     },
     "query-encoder-emits-plus-for-space": {
-      "statement": "The ZPA request path re-encodes every query with `encodeQueryWithSpacesAsPercent20`, whose comment says spaces become `%20`, but it writes values with `url.QueryEscape`, which encodes a space as `+`. The function does not do what its name and comment say.",
+      "statement": "For ZPA endpoints the OneAPI request path (`NewRequestDo`) parses the query and re-encodes it with `encodeQueryWithSpacesAsPercent20`, whose name and comment say spaces become `%20`, but which writes each value with `url.QueryEscape`.",
       "tier": "A",
       "evidence": [
         {
@@ -580,10 +701,10 @@
             "HEAD"
           ],
           "quotes": [
+            "// but uses %20 for spaces instead of + to match ZPA API requirements func encodeQueryWithSpacesAsPercent20(v url.Values) string {",
             "// Use QueryEscape which encodes spaces as %20",
             "buf.WriteString(url.QueryEscape(v))"
-          ],
-          "after": "func encodeQueryWithSpacesAsPercent20(v url.Values) string {"
+          ]
         },
         {
           "source": "sdk-go",
@@ -595,17 +716,39 @@
           "quotes": [
             "// Spaces in the value will be encoded as + by url.Values.Encode(), which works for the API"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "isZPAEndpoint := strings.Contains(endpoint, \"/zpa/\") || strings.Contains(endpoint, \"/mgmtconfig/\")",
+            "q, err := url.ParseQuery(query)",
+            "query = encodeQueryWithSpacesAsPercent20(q)"
+          ],
+          "after": "func (client *Client) NewRequestDo(ctx context.Context, method, endpoint string, options, body, v interface{}) (*http.Response, error) {"
         }
       ],
-      "conditions": "Go standard library behavior, reproduced: `url.QueryEscape(\"a b+c\")` returns `a+b%2Bc`. Whether the ZPA API treats `+` and `%20` the same in a query is server behavior (gap search-filter-semantics); a comment in common.go says `+` works, a comment in zparequests.go says `%20` is required, and neither is verified here.",
-      "gaps": [
-        "search-filter-semantics"
-      ],
+      "conditions": "The legacy client path is not covered; it passes the request to the legacy ZPA client before this encoding.",
       "upstream": [
         {
           "status": "unfiled",
           "note": "Filing 18 (ZPA SDK services) of the 2026-08 provider audit."
         }
+      ]
+    },
+    "query-encoder-space-as-plus": {
+      "statement": "`encodeQueryWithSpacesAsPercent20` therefore encodes a space as `+`, not `%20`, and does not do what its name and comment say.",
+      "tier": "B",
+      "derived_from": [
+        "query-encoder-emits-plus-for-space"
+      ],
+      "conditions": "Rests on Go standard library behavior, which no captured source states; reproduced with a snippet: `url.QueryEscape(\"a b+c\")` returns `a+b%2Bc`. Whether the ZPA API treats `+` and `%20` the same in a query is server behavior (gap search-filter-semantics); a comment in common.go says `+` works, a comment in zparequests.go says `%20` is required, and neither is verified here.",
+      "gaps": [
+        "search-filter-semantics"
       ]
     },
     "policy-type-lookups-drop-context": {
@@ -642,12 +785,24 @@
             "HEAD"
           ],
           "quotes": [
-            "resp, _, err := policysetcontroller.GetByNameAndTypes(ctx, service, types, id)",
-            "resp, _, err := policysetcontrollerv2.GetByNameAndTypes(ctx, service, types, id)"
-          ]
+            "if parseIDErr == nil { // assume if the passed value is an int _ = d.Set(\"id\", id) } else { resp, _, err := policysetcontroller.GetByNameAndTypes(ctx, service, types, id)"
+          ],
+          "after": "func importPolicyStateContextFunc(types []string) schema.StateContextFunc {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if parseIDErr == nil { // assume if the passed value is an int _ = d.Set(\"id\", id) } else { resp, _, err := policysetcontrollerv2.GetByNameAndTypes(ctx, service, types, id)"
+          ],
+          "after": "func importPolicyStateContextFuncV2(types []string) schema.StateContextFunc {"
         }
       ],
-      "conditions": "Reached at v4.4.10 by the policy rule importers by name. `BulkReorder` has the same defect and is covered in [[zpa.terraform.rule-order]]. The v2 line is at 320 in v3.8.42, 316 in v3.8.48 and 313 in v3.8.55.",
+      "conditions": "Reached at v4.4.10 by the policy rule importers by name: `git -C vendor/terraform-provider-zpa grep -n GetByNameAndTypes v4.4.10 -- zpa` matched only the two importer lines in zpa/common.go, each in the branch taken when the imported ID does not parse as an integer. `BulkReorder` has the same defect and is covered in [[zpa.terraform.rule-order]]. The v2 line is at 320 in v3.8.42, 316 in v3.8.48 and 313 in v3.8.55.",
       "upstream": [
         {
           "status": "unfiled",
@@ -692,7 +847,8 @@
           ],
           "quotes": [
             "if policySetRule != nil && len(policySetRule.Conditions) == 0 {",
-            "for i, condtion := range policySetRule.Conditions {"
+            "for i, condtion := range policySetRule.Conditions {",
+            "if policySetRule != nil && len(policySetRule.Conditions) == 0 { policySetRule.Conditions = []Conditions{} } else { for i, condtion := range policySetRule.Conditions {"
           ]
         },
         {
@@ -704,7 +860,8 @@
           ],
           "quotes": [
             "if policySetRule != nil && len(policySetRule.Conditions) == 0 {",
-            "for i, condition := range policySetRule.Conditions {"
+            "for i, condition := range policySetRule.Conditions {",
+            "if policySetRule != nil && len(policySetRule.Conditions) == 0 { policySetRule.Conditions = []PolicyRuleResourceConditions{} } else { for i, condition := range policySetRule.Conditions {"
           ]
         }
       ],
@@ -728,9 +885,9 @@
             "HEAD"
           ],
           "quotes": [
-            "if inspectionProfile.PredefinedControlsVersion == \"\" {"
-          ],
-          "after": "func setVersion(inspectionProfile *InspectionProfile) {"
+            "if inspectionProfile.PredefinedControlsVersion == \"\" {",
+            "func setVersion(inspectionProfile *InspectionProfile) { // make sure to set version if inspectionProfile.PredefinedControlsVersion == \"\" {"
+          ]
         },
         {
           "source": "sdk-go",
@@ -740,9 +897,58 @@
             "HEAD"
           ],
           "quotes": [
-            "payload := *tagKey"
+            "payload := *tagKey",
+            "path := fmt.Sprintf(\"%v/%v\", namespacePath(service.Client.GetCustomerID(), namespaceID)+tagKeyPath, tagKeyID) // API requires tagValues in the payload even when empty; ensure it's never nil payload := *tagKey"
           ],
           "after": "func Update(ctx context.Context, service *zscaler.Service, namespaceID, tagKeyID string, tagKey *TagKey) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "setVersion(inspectionProfile)"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, profileID string, inspectionProfile *InspectionProfile) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "setVersion(inspectionProfile)"
+          ],
+          "after": "func PutAssociate(ctx context.Context, service *zscaler.Service, profileID string, inspectionProfile *InspectionProfile) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "setVersion(inspectionProfile)"
+          ],
+          "after": "func PutDeassociate(ctx context.Context, service *zscaler.Service, profileID string, inspectionProfile *InspectionProfile) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "setVersion(inspectionProfile)"
+          ],
+          "after": "func Patch(ctx context.Context, service *zscaler.Service, profileID string, inspectionProfile *InspectionProfile) (*http.Response, error) {"
         }
       ],
       "conditions": "At v4.4.10 the provider calls inspection profile `Update` with `&req` and `PutAssociate` with a local pointer, and no provider call to tag key `Update` was found (git grep `tag_key.Update` in zpa/). It is not shown to pass nil.",
@@ -766,7 +972,10 @@
           ],
           "quotes": [
             "// For validation, we expect either success (200) or validation error (400)",
-            "// If we get here, there was a validation error"
+            "// If we get here, there was a validation error",
+            "var validationError ApplicationValidationError",
+            "if err != nil { return nil, resp, err }",
+            "return &validationError, resp, nil"
           ],
           "after": "func ApplicationValidation(ctx context.Context, service *zscaler.Service, appSegment ApplicationSegmentResource) (*ApplicationValidationError, *http.Response, error) {"
         },
@@ -779,8 +988,30 @@
           ],
           "quotes": [
             "if resp.StatusCode >= 400 && resp.StatusCode < 500 {",
-            "return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"client error\"))"
+            "return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"client error\"))",
+            "if resp.StatusCode == http.StatusTooManyRequests || resp.StatusCode == http.StatusServiceUnavailable {",
+            "// Handle success",
+            "if resp.StatusCode < 300 {",
+            "// Handle 409 Conflict and 412 Precondition Failed (EDIT_LOCK_NOT_AVAILABLE, org barrier) - these are retryable",
+            "if resp.StatusCode == http.StatusConflict || resp.StatusCode == http.StatusPreconditionFailed {",
+            "// Handle non-retryable client errors (4xx except 401, 409, 429 which are handled above)"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "if client.oauth2Credentials.UseLegacyClient {",
+            "return client.oauth2Credentials.LegacyClient.ZpaClient.NewRequestDo(method, removeOneApiEndpointPrefix(endpoint), options, body, v)",
+            "respBody, _, _, err := client.ExecuteRequest(ctx, method, endpoint, bodyReader, nil, contentTypeJSON)",
+            "if err != nil { return nil, err }",
+            "if err := decodeJSON(respBody, v); err != nil {"
+          ],
+          "after": "func (client *Client) NewRequestDo(ctx context.Context, method, endpoint string, options, body, v interface{}) (*http.Response, error) {"
         }
       ],
       "conditions": "Traced for the OneAPI client only; the legacy client was not read. The ZPA validation endpoint's actual success and error bodies are server behavior and were not observed. No provider call to `ApplicationValidation` was found at v4.4.10 (git grep in zpa/).",
@@ -858,6 +1089,18 @@
             "segmentGroupApplications[i] = segmentgroup.Application{\n\t\t\tID: segmentGroupItem[\"id\"].(string),",
             "\"id\": segmentGroupApplication.ID,"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "Elem: &schema.Resource{ Schema: map[string]*schema.Schema{ \"id\": { Type: schema.TypeString, Optional: true, }, }, },"
+          ],
+          "after": "\"applications\": {"
         }
       ]
     },
@@ -877,8 +1120,7 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
           "quotes": [
-            "\"CONNECTOR_GRP\",",
-            "\"SERVICE_EDGE_GRP\","
+            "\"CONNECTOR_GRP\", \"SERVICE_EDGE_GRP\", \"NP_ASSISTANT_GRP\", }"
           ],
           "after": "var ProvisioningKeyAssociationTypes []string = []string{"
         },

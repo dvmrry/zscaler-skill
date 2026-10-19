@@ -108,7 +108,7 @@
   ],
   "claims": {
     "tenant-authorizes-app": {
-      "statement": "A SaaS application is authorized with Zscaler by adding it as a tenant; Zscaler Data at Rest Scanning provides visibility and security for the sanctioned SaaS applications added this way.",
+      "statement": "Zscaler Data at Rest Scanning provides visibility and security for the sanctioned SaaS applications used in the organization, and a SaaS application is authorized with Zscaler by adding it as a tenant.",
       "tier": "A",
       "binds": [
         "zia/casb-tenants"
@@ -118,6 +118,7 @@
           "source": "zscaler-help",
           "path": "about-saas-application-tenants.json",
           "quotes": [
+            "Zscaler Data at Rest Scanning provides visibility and security for sanctioned SaaS applications used in your organization.",
             "You can authorize sanctioned SaaS applications with Zscaler by adding them as tenants."
           ]
         }
@@ -194,7 +195,7 @@
           "quotes": [
             "Active: The tenant is in use. Policies are enforced for this SaaS application.",
             "Inactive: The tenant is not in use. Policies are not enforced for this SaaS application.",
-            "There were issues validating the admin credentials and authorizing the SaaS application.",
+            "Validation Failed: There were issues validating the admin credentials and authorizing the SaaS application.",
             "Reauthorization Required: Edit the tenant"
           ]
         }
@@ -230,14 +231,15 @@
           "path": "docs/data-sources/zia_casb_tenant.md",
           "quotes": [
             "(Boolean) Enable tenant re-authentication",
-            "(Number) Last time the tenant was validated"
+            "* `last_tenant_validation_time` - (Number) Last time the tenant was validated"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zia/services/saas_security_api/saas_security_api.go",
           "quotes": [
-            "ReAuth                   bool           `json:\"reAuth,omitempty\"`"
+            "ReAuth                   bool           `json:\"reAuth,omitempty\"`",
+            "LastTenantValidationTime int `json:\"lastTenantValidationTime,omitempty\"`"
           ]
         }
       ]
@@ -310,6 +312,30 @@
             "type": "string",
             "description": "The access token issued to the SaaS tenant application by the authorization serverfor tenant authorization"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1validate~1status~1{tenantId}/get/responses/200/content/application~1json/schema/properties/tenantAuthorizationInfo/properties/clientId",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1validate~1status~1{tenantId}/get/responses/200/content/application~1json/schema/properties/tenantAuthorizationInfo/properties/botToken",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1casbTenant~1validate~1status~1{tenantId}/get/responses/200/content/application~1json/schema/properties/tenantAuthorizationInfo/properties/credJson",
+          "expect": {
+            "type": "string"
+          }
         }
       ]
     },
@@ -337,6 +363,7 @@
           "source": "zscaler-help",
           "path": "ranges-limitations-zia.json",
           "quotes": [
+            "| Number of external trusted domain and user profiles per application | 32 profiles |",
             "Up to 32 profiles can be added for each sanctioned SaaS application."
           ]
         }
@@ -370,13 +397,14 @@
       ]
     },
     "owner-zia-or-zdx": {
-      "statement": "A tenant records whether it was created in Internet & SaaS (ZIA) or Digital Experience (ZDX); a tenant created in ZDX cannot be deleted in ZIA, and edits in ZIA are allowed on any field except those relating to Workflow Automation.",
+      "statement": "A tenant records whether it was created in Internet & SaaS (ZIA) or Digital Experience (ZDX); a tenant created in ZDX cannot be deleted in ZIA, and edits in ZIA to such a tenant are allowed on any field except those relating to Workflow Automation.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "about-saas-application-tenants.json",
           "quotes": [
+            "Owner: Indicates whether the SaaS application tenant was created in Internet & SaaS (ZIA) or Digital Experience (ZDX).",
             "If the tenant was created in ZDX, the delete functionality is removed in Internet & SaaS.",
             "Edits in Internet & SaaS for tenants created in ZDX are allowed on any fields except those relating to Workflow Automation."
           ]
@@ -395,7 +423,8 @@
           "path": "adding-saas-application-tenants.json",
           "quotes": [
             "you need to specify your quarantine location for supported file share applications.",
-            "enter a valid folder path or URL of the designated quarantine location for relocating the files"
+            "enter a valid folder path or URL of the designated quarantine location for relocating the files",
+            "Under DLP Admin Email ID, enter the admin email address for the application."
           ]
         }
       ]
@@ -463,7 +492,8 @@
           "source": "zscaler-help",
           "path": "about-saas-application-tenants.json",
           "quotes": [
-            "The name of the SaaS application tenant that is displayed when configuring the DLP policy, Malware Detection policy, and Scan Configuration."
+            "The name of the SaaS application tenant that is displayed when configuring the DLP policy, Malware Detection policy, and Scan Configuration.",
+            "Policy Configured: The Data at Rest Scanning policies (DLP and Malware Detection) configured for the SaaS application tenant."
           ]
         },
         {

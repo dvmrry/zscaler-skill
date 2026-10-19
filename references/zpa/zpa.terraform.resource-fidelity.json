@@ -48,11 +48,11 @@
     },
     {
       "label": "Success-shaped results.",
-      "text": "{{cloud-config-read-error-is-success}} {{cloud-config-destroy-is-noop}} {{schedule-delete-is-noop}} The SDK's refusal to update a disabled schedule is in [[zpa.sdk-go.service-defects:assistant-schedule-update-rejects-disabled]]. {{schedule-create-discards-server-id}} {{schedule-read-never-sets-id}} {{assistant-schedules-share-one-shape}}"
+      "text": "{{cloud-config-read-error-is-success}} {{cloud-config-destroy-is-noop}} {{schedule-delete-is-noop}} The SDK's refusal to update a disabled schedule is in [[zpa.sdk-go.service-defects:assistant-schedule-update-rejects-disabled]]. {{schedule-create-discards-server-id}} {{schedule-create-empty-id}} {{schedule-read-never-sets-id}} {{assistant-schedules-share-one-shape}}"
     },
     {
       "label": "Arguments that never reach the API.",
-      "text": "{{redirection-create-skips-policy-set-lookup}} {{redirection-edge-group-expand-flatten-asymmetry}} {{private-cloud-no-exporter-group-field}} {{server-group-update-name-only-on-change}} How ZPA treats a server group PUT without a name is open {{gap:api-server-group-put-name}}. {{lss-false-values-not-sent}} The wider omission mechanism is in [[shared.sdk-go.zero-value-writes]]."
+      "text": "{{redirection-create-skips-policy-set-lookup}} {{redirection-edge-group-expand-flatten-asymmetry}} {{private-cloud-no-exporter-group-field}} {{server-group-update-name-only-on-change}} {{server-group-create-sends-name}} How ZPA treats a server group PUT without a name is open {{gap:api-server-group-put-name}}. {{lss-false-values-not-sent}} The wider omission mechanism is in [[shared.sdk-go.zero-value-writes]]."
     },
     {
       "label": "Response fields that never reach state.",
@@ -81,6 +81,7 @@
       "do": "Whether the remote schedule setting is read directly after create, import or destroy, since an empty resource ID is the first symptom of the create path.",
       "uses": [
         "schedule-create-discards-server-id",
+        "schedule-create-empty-id",
         "schedule-read-never-sets-id",
         "schedule-delete-is-noop"
       ]
@@ -101,7 +102,7 @@
   ],
   "claims": {
     "schedule-create-discards-server-id": {
-      "statement": "Creating the Service Edge assistant schedule discards the object the SDK returns from the POST, then stores the ID of the request as the resource ID. The request ID was read from the resource's own computed `id`, which is empty on a first create, so the first-create path sets an empty ID. Only the already-exists branch sets the real ID, by reading the singleton. An empty ID after create probably makes Terraform report an inconsistent result rather than record the resource (Terraform core behavior, inferred, not shown here).",
+      "statement": "Creating the Service Edge assistant schedule discards the object the SDK returns from the POST, then stores the ID of the request as the resource ID. The request ID is read from the resource's own computed `id`. Only the already-exists branch sets an ID taken from the server, by reading the singleton schedule.",
       "tier": "A",
       "evidence": [
         {
@@ -115,7 +116,9 @@
             "_, _, err = serviceedgeschedule.CreateSchedule(ctx, service, req)",
             "d.SetId(req.ID)",
             "ID:                d.Get(\"id\").(string),",
-            "d.SetId(resp.ID)"
+            "d.SetId(resp.ID)",
+            "if strings.Contains(errStr, \"resource.already.exist\") {",
+            "// Get the current state of the resource resp, _, err := serviceedgeschedule.GetSchedule(ctx, service)"
           ]
         },
         {
@@ -136,6 +139,14 @@
           "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
         }
       ]
+    },
+    "schedule-create-empty-id": {
+      "statement": "On a first create the resource's computed `id` is still empty, so the first-create path sets an empty ID, which probably makes Terraform report an inconsistent result rather than record the resource.",
+      "tier": "B",
+      "derived_from": [
+        "schedule-create-discards-server-id"
+      ],
+      "conditions": "Assumes Terraform plugin SDK and core behavior not shown by these sources: a computed `id` reads as empty before the first create, and a create that ends with an empty ID is reported as an inconsistent result."
     },
     "schedule-read-never-sets-id": {
       "statement": "The schedule resource accepts any ID on import (passthrough importer), and its Read fetches the singleton schedule but never writes the singleton's ID back. Update then builds the PUT path from `d.Id()`.",
@@ -160,7 +171,8 @@
             "HEAD"
           ],
           "quotes": [
-            "resp, _, err := serviceedgeschedule.GetSchedule(ctx, service)"
+            "resp, _, err := serviceedgeschedule.GetSchedule(ctx, service)",
+            "_ = d.Set(\"customer_id\", resp.CustomerID) _ = d.Set(\"enabled\", resp.Enabled) _ = d.Set(\"delete_disabled\", resp.DeleteDisabled) _ = d.Set(\"frequency\", resp.Frequency) _ = d.Set(\"frequency_interval\", resp.FrequencyInterval) return nil }"
           ],
           "after": "func resourceServiceEdgeAssistantScheduleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         },
@@ -277,7 +289,9 @@
             "HEAD"
           ],
           "quotes": [
-            "policySetID, err = fetchPolicySetIDByType(ctx, zClient, \"CLIENT_FORWARDING_POLICY\", GetString(d.Get(\"microtenant_id\")))"
+            "policySetID, err = fetchPolicySetIDByType(ctx, zClient, \"CLIENT_FORWARDING_POLICY\", GetString(d.Get(\"microtenant_id\")))",
+            "if v, ok := d.GetOk(\"policy_set_id\"); ok {",
+            "policySetID = v.(string)"
           ],
           "after": "func resourcePolicyForwardingRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
@@ -341,7 +355,8 @@
             "HEAD"
           ],
           "quotes": [
-            "results = append(results, map[string]interface{}{"
+            "results = append(results, map[string]interface{}{",
+            "for _, edge := range serviceEdgeGroups { results = append(results, map[string]interface{}{ \"id\": schema.NewSet(schema.HashString, []interface{}{edge.ID}), }) }"
           ],
           "after": "func flattenServiceEdgeGroupSimple(serviceEdgeGroups []serviceedgegroup.ServiceEdgeGroup) []interface{} {"
         },
@@ -353,7 +368,9 @@
             "HEAD"
           ],
           "quotes": [
-            "\"service_edge_groups\": {\n\t\t\t\t\tType:        schema.TypeList,\n\t\t\t\t\tOptional:    true,"
+            "\"service_edge_groups\": {\n\t\t\t\t\tType:        schema.TypeList,\n\t\t\t\t\tOptional:    true,",
+            "\"service_edge_groups\": { Type: schema.TypeList, Optional: true, Description: \"List of the service edge group IDs.\", Elem: &schema.Resource{ Schema: map[string]*schema.Schema{ \"id\": { Type: schema.TypeSet, Required: true, Elem: &schema.Schema{Type: schema.TypeString}, }, }, }, },",
+            "_ = d.Set(\"service_edge_groups\", flattenServiceEdgeGroupSimple(resp.ServiceEdgeGroups))"
           ]
         }
       ],
@@ -428,7 +445,9 @@
             "req.ZPNFireDrillSite = nil",
             "d.SetId(resp.ID)",
             "if _, err := private_cloud.Update(ctx, service, resp.ID, &updateReq); err != nil {",
-            "private cloud created successfully (ID: %s), but enabling fire_drill_enabled failed"
+            "private cloud created successfully (ID: %s), but enabling fire_drill_enabled failed",
+            "You can retry by running terraform apply again.\", resp.ID, err) } }",
+            "// The API rejects fire_drill_enabled=true on initial creation; it only"
           ],
           "after": "func resourcePrivateCloudCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
@@ -453,7 +472,8 @@
           ],
           "quotes": [
             "resp, _, err := private_cloud_group.Create(ctx, service, req)",
-            "if err := verifyPrivateCloudUserCodes(ctx, service, resp.ID, userCodes); err != nil {"
+            "if err := verifyPrivateCloudUserCodes(ctx, service, resp.ID, userCodes); err != nil {",
+            "return diag.Errorf(\"private cloud group created successfully (ID: %s), but user code verification failed: %s. You can retry by running terraform apply again.\", resp.ID, err)"
           ],
           "after": "func resourcePrivateCloudGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         },
@@ -466,7 +486,9 @@
           ],
           "quotes": [
             "if _, err := private_cloud_group.Update(ctx, service, id, &req); err != nil {",
-            "if err := verifyPrivateCloudUserCodes(ctx, service, id, userCodes); err != nil {"
+            "if err := verifyPrivateCloudUserCodes(ctx, service, id, userCodes); err != nil {",
+            "if d.HasChange(\"user_codes\") {",
+            "return diag.Errorf(\"private cloud group updated successfully (ID: %s), but user code verification failed: %s\", id, err)"
           ],
           "after": "func resourcePrivateCloudGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         },
@@ -479,7 +501,8 @@
           ],
           "quotes": [
             "resp, _, err := serviceedgegroup.Create(ctx, service, req)",
-            "if err := verifyServiceEdgeUserCodes(ctx, service, resp.ID, userCodes); err != nil {"
+            "if err := verifyServiceEdgeUserCodes(ctx, service, resp.ID, userCodes); err != nil {",
+            "return diag.Errorf(\"service edge group created successfully (ID: %s), but user code verification failed: %s. You can retry by running terraform apply again.\", resp.ID, err)"
           ],
           "after": "func resourceServiceEdgeGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         },
@@ -493,7 +516,9 @@
           "quotes": [
             "if _, err := serviceedgegroup.Update(ctx, service, id, &req); err != nil {",
             "if err := verifyServiceEdgeUserCodes(ctx, service, id, userCodes); err != nil {",
-            "resp, _, err := oauth2_user.VerifyUserCodes(ctx, service, \"SERVICE_EDGE_GRP\", request)"
+            "resp, _, err := oauth2_user.VerifyUserCodes(ctx, service, \"SERVICE_EDGE_GRP\", request)",
+            "if d.HasChange(\"user_codes\") {",
+            "return diag.Errorf(\"service edge group updated successfully (ID: %s), but user code verification failed: %s\", id, err)"
           ],
           "after": "func resourceServiceEdgeGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
@@ -506,7 +531,7 @@
       ]
     },
     "portal-capabilities-read-checks-wrong-field": {
-      "statement": "The privileged portal rule Read guards on the length of the generic `PrivilegedCapabilities.Capabilities` but flattens `PrivilegedPortalCapabilities`. These are separate fields of the SDK response. A response with only portal capabilities is not written to state, and one with only generic capabilities clears the portal capabilities attribute (the flattener returns nil).",
+      "statement": "The privileged portal rule Read guards on the length of the generic `PrivilegedCapabilities.Capabilities` but flattens `PrivilegedPortalCapabilities`. These are separate fields of the SDK response. A response with only portal capabilities is not written to state, and one with only generic capabilities sets the portal capabilities attribute to nil (the flattener returns nil for an empty list).",
       "tier": "A",
       "evidence": [
         {
@@ -518,7 +543,8 @@
           ],
           "quotes": [
             "if len(resp.PrivilegedCapabilities.Capabilities) > 0 {",
-            "_ = d.Set(\"privileged_portal_capabilities\", flattenPrivilegedPortalCapabilities(resp.PrivilegedPortalCapabilities))"
+            "_ = d.Set(\"privileged_portal_capabilities\", flattenPrivilegedPortalCapabilities(resp.PrivilegedPortalCapabilities))",
+            "if len(resp.PrivilegedCapabilities.Capabilities) > 0 { _ = d.Set(\"privileged_portal_capabilities\", flattenPrivilegedPortalCapabilities(resp.PrivilegedPortalCapabilities)) } return nil }"
           ]
         },
         {
@@ -533,6 +559,18 @@
             "PrivilegedPortalCapabilities            PrivilegedPortalCapabilities          `json:\"privilegedPortalCapabilities,omitempty\"`"
           ],
           "after": "type PolicyRuleResource struct {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_portal_access_rule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenPrivilegedPortalCapabilities(capabilities policysetcontrollerv2.PrivilegedPortalCapabilities) []interface{} {",
+          "quotes": [
+            "if len(capabilities.Capabilities) == 0 { return nil }"
+          ]
         }
       ],
       "upstream": [
@@ -543,7 +581,7 @@
       ]
     },
     "capabilities-read-never-clears": {
-      "statement": "The capabilities rule Read sets `privileged_capabilities` only when the response lists at least one capability, and has no other branch. When the response has none, the previous value stays in state.",
+      "statement": "The capabilities rule Read sets `privileged_capabilities` only when the response lists at least one capability, and has no other branch: when the response has none, Read does not touch the attribute.",
       "tier": "A",
       "evidence": [
         {
@@ -555,7 +593,8 @@
           ],
           "quotes": [
             "if len(resp.PrivilegedCapabilities.Capabilities) > 0 {",
-            "_ = d.Set(\"privileged_capabilities\", flattenPrivilegedCapabilities(resp.PrivilegedCapabilities))"
+            "_ = d.Set(\"privileged_capabilities\", flattenPrivilegedCapabilities(resp.PrivilegedCapabilities))",
+            "if len(resp.PrivilegedCapabilities.Capabilities) > 0 { _ = d.Set(\"privileged_capabilities\", flattenPrivilegedCapabilities(resp.PrivilegedCapabilities)) } return nil }"
           ]
         }
       ],
@@ -567,7 +606,7 @@
       ]
     },
     "pra-console-read-never-clears-application": {
-      "statement": "The PRA console Read sets `pra_application` only when the flattener returns a value, and the flattener returns nil when the response application has no ID. A removed application association leaves the previous block in state.",
+      "statement": "The PRA console Read sets `pra_application` only when the flattener returns a value, and the flattener returns nil when the response application has no ID. A response without an application ID leaves `pra_application` untouched.",
       "tier": "A",
       "evidence": [
         {
@@ -579,7 +618,9 @@
           ],
           "quotes": [
             "if v := flattenPRAApplicationIDSimple(resp.PRAApplication); v != nil {",
-            "if praApplication.ID == \"\" {"
+            "if praApplication.ID == \"\" {",
+            "if v := flattenPRAApplicationIDSimple(resp.PRAApplication); v != nil { log.Printf(\"[DEBUG] Setting pra_application in state: %+v\\n\", v) _ = d.Set(\"pra_application\", v) } return nil }",
+            "if praApplication.ID == \"\" { return nil }"
           ]
         }
       ],
@@ -617,7 +658,7 @@
       ]
     },
     "server-group-update-name-only-on-change": {
-      "statement": "The server group expander sets `Name` only when `d.HasChange(\"name\")`, and the SDK tags `name` `omitempty`. An update that changes anything else sends the PUT without a name. The create path is unaffected, because every attribute of a new resource counts as changed.",
+      "statement": "The server group expander sets `Name` only when `d.HasChange(\"name\")`, and the SDK tags `name` `omitempty`. An update that changes anything else sends the PUT without a name.",
       "tier": "A",
       "evidence": [
         {
@@ -655,6 +696,28 @@
           "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
         }
       ]
+    },
+    "server-group-create-sends-name": {
+      "statement": "The create path goes through the same expander and still sends the configured name, because Terraform reports every configured attribute of a new resource as changed.",
+      "tier": "B",
+      "derived_from": [
+        "server-group-update-name-only-on-change"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceServerGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "req := expandServerGroup(d)"
+          ]
+        }
+      ],
+      "conditions": "Assumes the Terraform plugin SDK reports `HasChange` as true for every configured attribute during create; that SDK behavior is not shown by a captured source."
     },
     "lss-read-drops-policy-rule-resource": {
       "statement": "The LSS config Read writes `policy_rule_id`, `config` and `connector_groups`, but never `policy_rule_resource`, though the SDK response carries a `PolicyRuleResource`. The policy-rule block is therefore taken from configuration or prior state only, and an imported LSS config has none.",
@@ -752,6 +815,18 @@
             "return resourceZiaCloudConfigRead(ctx, d, meta)"
           ],
           "after": "func resourceZiaCloudConfigRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_cloud_config.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceZiaCloudConfigCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "return resourceZiaCloudConfigRead(ctx, d, meta)"
+          ]
         }
       ],
       "upstream": [
@@ -762,7 +837,7 @@
       ]
     },
     "cloud-config-destroy-is-noop": {
-      "statement": "The ZIA cloud config resource registers a delete function that does nothing, so destroy removes the resource from state without any API request.",
+      "statement": "The ZIA cloud config resource registers a delete function that does nothing but return success, so destroy succeeds without any API request.",
       "tier": "A",
       "evidence": [
         {
@@ -784,7 +859,8 @@
             "HEAD"
           ],
           "quotes": [
-            "func resourceFuncNoOp(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {"
+            "func resourceFuncNoOp(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {",
+            "func resourceFuncNoOp(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics { return nil }"
           ]
         }
       ],
@@ -837,14 +913,19 @@
       "conditions": "Assumes the plan compares the configuration with the refreshed state and that the configuration still holds the removed value; that plan behavior is Terraform core, not shown by these sources."
     },
     "refresh-from-list-index": {
-      "statement": "From v4.4.13 (#694), refresh of application segments, application servers, segment groups, server groups, App Connector groups and the v1/v2 access, timeout and forwarding policy rules reads each object from one paginated list fetched per run, per resource type and microtenant, instead of one GET per object. The provider reads an object by ID only when the list call fails or the object is not in the list; create and update still read the object back individually.",
+      "statement": "From v4.4.13 (#694), refresh of application segments, application servers, segment groups, server groups, App Connector groups and the v1/v2 access, timeout and forwarding policy rules reads each object from one paginated list fetched per run and per microtenant, instead of one GET per object. App Connector groups read only from the list, also after create and update. For the other types the provider reads an object by ID when the list call fails or the object is not in the list, and create and update read the object back individually.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zpa",
           "path": "CHANGELOG.md",
           "quotes": [
-            "now refresh from their paginated list endpoint (500 objects per page), fetched once per run and per microtenant, instead of making one API request per resource"
+            "now refresh from their paginated list endpoint (500 objects per page), fetched once per run and per microtenant, instead of making one API request per resource",
+            "## 4.4.13 (October 6, 2026)",
+            "[PR #694](https://github.com/zscaler/terraform-provider-zpa/pull/694) - Improved `terraform plan` and refresh performance for large configurations.",
+            "`zpa_application_segment`, `zpa_application_server`, `zpa_segment_group`, `zpa_server_group`, `zpa_app_connector_group`, `zpa_policy_access_rule`, `zpa_policy_access_rule_v2`, `zpa_policy_timeout_rule`, `zpa_policy_timeout_rule_v2`, `zpa_policy_forwarding_rule` and `zpa_policy_forwarding_rule_v2`.",
+            "A resource that is not in the list is read individually before it is removed from state, except `zpa_app_connector_group`, which reads only from the list as before.",
+            "Create and update still read the resource back individually."
           ]
         },
         {
@@ -854,6 +935,36 @@
           "quotes": [
             "log.Printf(\"[WARN] Listing failed, falling back to reading %s by ID: %v\", id, err)",
             "log.Printf(\"[DEBUG] %s not in the listed items, falling back to reading it by ID\", id)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/utils.go",
+          "quotes": [
+            "// skipListIndex marks ctx so readFromListIndex reads by ID. Create and Update // pass it to their read-back"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "// Read from the GetAll list, never the individual Get, which returns // incorrect lssAppConnectorGroup values; a group missing from the list is gone."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "after": "func resourceAppConnectorGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "zClient.appConnectorGroups.invalidate() return resourceAppConnectorGroupRead(ctx, d, meta)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "after": "func resourceAppConnectorGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "zClient.appConnectorGroups.invalidate() return resourceAppConnectorGroupRead(ctx, d, meta)"
           ]
         }
       ],

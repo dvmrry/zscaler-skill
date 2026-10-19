@@ -78,8 +78,18 @@
             "HEAD"
           ],
           "quotes": [
-            "Allowlist URLs whose contents will not be scanned. Allows up to 255 URLs.",
-            "URLs on the denylist for your organization. Allow up to 275000 URLs."
+            "MaxItems: 255, Description: \"Allowlist URLs whose contents will not be scanned. Allows up to 255 URLs.\"",
+            "MaxItems: 275000, Description: \"URLs on the denylist for your organization. Allow up to 275000 URLs.\""
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/provider.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "\"zia_security_settings\": resourceSecurityPolicySettings(),"
           ]
         }
       ]
@@ -108,7 +118,7 @@
             "HEAD"
           ],
           "quotes": [
-            "// the service reports an all-zero profile object on tenants that have none,",
+            "// the service reports an all-zero profile object on tenants that have none, // and a bare block in HCL flattens to empty strings.",
             "if id != \"\" || name != \"\" || url != \"\" {"
           ]
         }
@@ -126,8 +136,8 @@
           ],
           "quotes": [
             "// A profile change is only worth an update when one side holds a real",
-            "// tenants without a Cloud Browser Isolation subscription are answered",
-            "// with 403 NOT_SUBSCRIBED."
+            "// profile. State written by earlier releases can contain an all-empty // block, and dropping that is not a configuration change worth sending — // tenants without a Cloud Browser Isolation subscription are answered // with 403 NOT_SUBSCRIBED.",
+            "if smartIsolationProfileConfigured(before) || smartIsolationProfileConfigured(after) {"
           ]
         }
       ]
@@ -143,8 +153,9 @@
             "HEAD"
           ],
           "quotes": [
-            "// that too — an absent profile is a real answer here, and writing it through",
-            "// echo back, which would otherwise be dropped and show up as drift."
+            "// that too — an absent profile is a real answer here, and writing it through // is what clears an all-empty block left behind by an earlier release.",
+            "The one // case to leave alone is state that holds a real profile the service did not // echo back, which would otherwise be dropped and show up as drift.",
+            "if len(apiProfile) > 0 { return true } return !smartIsolationProfileConfigured(stateProfile)"
           ]
         }
       ]
@@ -160,8 +171,9 @@
             "HEAD"
           ],
           "quotes": [
-            "// \"ANY\" in the request is accepted but normalized server-side to either an",
-            "// equivalent, so without this normalization every plan after apply shows",
+            "// \"ANY\" in the request is accepted but normalized server-side to either an // empty list (bypass_plugins / bypass_applications) or [\"NONE\"]",
+            "// (blocked_*_versions). The API treats ANY, NONE and \"no entries\" as // equivalent, so without this normalization every plan after apply shows",
+            "// If the API returned the \"no entries\" sentinel AND the current state value",
             "// [\"ANY\"], we keep [\"ANY\"] so subsequent plans converge. Otherwise the API"
           ]
         }

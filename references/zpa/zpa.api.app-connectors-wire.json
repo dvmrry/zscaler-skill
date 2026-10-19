@@ -126,6 +126,14 @@
           "after": "func GetSchedule(ctx context.Context, service *zscaler.Service) (*AssistantSchedule, *http.Response, error) {"
         },
         {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go",
+          "after": "func CreateSchedule(",
+          "quotes": [
+            "service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+scheduleEndpoint, nil, assistantSchedule, &v)"
+          ]
+        },
+        {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connectorSchedule/get/responses/200",
@@ -169,7 +177,7 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_app_connector_assistant_schedule.go",
           "quotes": [
-            "\"days\", }, false),"
+            "ValidateFunc: validation.StringInSlice([]string{ \"days\", }, false),"
           ],
           "after": "\"frequency\": {"
         }
@@ -184,6 +192,8 @@
           "path": "zscaler/zpa/services/appconnectorschedule/appconnectorschedule_test.go",
           "quotes": [
             "strings.Contains(err.Error(), \"resource.already.exist\")",
+            "t.Log(\"Assistance Scheduler already enabled\")",
+            "t.Fatalf(\"Error creating schedule: %v\", err)",
             "createResp.StatusCode != 200 && createResp.StatusCode != 204"
           ]
         }
@@ -222,7 +232,7 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
           "quotes": [
-            "`json:\"serverGroups,omitempty\"`"
+            "AppServerGroup []AppServerGroup `json:\"serverGroups,omitempty\"`"
           ]
         },
         {
@@ -267,6 +277,14 @@
             "`json:\"provisioningKeyName\"`"
           ],
           "after": "type AppConnector struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
+          "after": "type AppConnectorGroup struct {",
+          "quotes": [
+            "Enabled bool `json:\"enabled\"`"
+          ]
         }
       ]
     },
@@ -278,8 +296,8 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go",
           "quotes": [
-            "`json:\"zpnSubModuleUpgradeList,omitempty\"`",
-            "map[string]interface{} `json:\"enrollmentCert,omitempty\"`"
+            "ZPNSubModuleUpgrade []common.ZPNSubModuleUpgrade `json:\"zpnSubModuleUpgradeList,omitempty\"`",
+            "EnrollmentCert map[string]interface{} `json:\"enrollmentCert,omitempty\"`"
           ]
         }
       ]
@@ -399,10 +417,23 @@
           "source": "sdk-python",
           "path": "zscaler/utils.py",
           "quotes": [
+            "version_profile = kwargs.pop(\"version_profile\", None)",
             "payload[\"overrideVersionProfile\"] = True",
+            "if version_profile == \"default\":",
             "payload[\"versionProfileId\"] = 0",
+            "elif version_profile == \"previous_default\":",
+            "payload[\"versionProfileId\"] = 1",
+            "elif version_profile == \"new_release\":",
             "payload[\"versionProfileId\"] = 2"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "quotes": [
+            "from zscaler.utils import format_url"
+          ],
+          "note": "the module imports only format_url from zscaler.utils, so pick_version_profile is not called here"
         },
         {
           "source": "sdk-python",
@@ -434,6 +465,8 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/customerversionprofile/zpa_customer_version_profile.go",
           "quotes": [
+            "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\"",
+            "customerVersionProfileEndpoint = \"/visible/versionProfiles\"",
             "path := fmt.Sprintf(\"%v/%v\", mgmtConfig+service.Client.GetCustomerID()+customerVersionProfileEndpoint, profileID)",
             "\"PUT\", path, common.Filter{}, versionProfile, nil)"
           ]
@@ -449,7 +482,9 @@
           "path": "zscaler/zpa/customer_version_profile.py",
           "quotes": [
             "/versionProfiles/{profile_id}",
-            "body = {\"removeOverrideFlag\": remove_override_flag}"
+            "body = {\"removeOverrideFlag\": remove_override_flag}",
+            "http_method = \"put\".upper()",
+            "Note: This API returns 204 No Content on success, so the result will be None."
           ],
           "after": "def update_version_profile("
         }
@@ -464,16 +499,25 @@
           "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
           "quotes": [
             "appConnectorGroupEndpoint + \"/summary\"",
-            "\"%s/%s/sg\""
+            "\"%s/%s/sg\"",
+            "([]common.CommonSummary, *http.Response, error)"
           ],
           "after": "func GetAppconnectorGroupSummary("
         },
         {
           "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
+          "after": "func GetAppConnectorGroupSG(",
+          "quotes": [
+            "(*AppConnectorGroup, *http.Response, error) {",
+            "v := new(AppConnectorGroup)"
+          ]
+        },
+        {
+          "source": "sdk-go",
           "path": "zscaler/zpa/services/common/common.go",
           "quotes": [
-            "type CommonSummary struct {",
-            "Enabled bool `json:\"enabled,omitempty\"`"
+            "type CommonSummary struct { ID string `json:\"id,omitempty\"` Name string `json:\"name,omitempty\"` Enabled bool `json:\"enabled,omitempty\"` }"
           ]
         }
       ]
@@ -482,6 +526,24 @@
       "statement": "The OpenAPI connector list takes search, page, pagesize, sortBy, sortDir and microtenantId, with a default page size of 20 and a maximum of 500; the App Connector group list takes the same paging parameters but scopeId instead of sort parameters.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connector/get/parameters/[name=search]",
+          "expect": {
+            "name": "search",
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connector/get/parameters/[name=page]",
+          "expect": {
+            "name": "page",
+            "in": "query"
+          }
+        },
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
@@ -501,6 +563,24 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connector/get/parameters/[name=sortDir]",
+          "expect": {
+            "name": "sortDir",
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connector/get/parameters/[name=microtenantId]",
+          "expect": {
+            "name": "microtenantId",
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1appConnectorGroup/get/parameters/[name=pagesize]",
           "expect": {
             "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500."
@@ -513,6 +593,65 @@
           "expect": {
             "name": "scopeId"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1appConnectorGroup/get",
+          "expect": {
+            "parameters": [
+              {
+                "description": "The unique identifier of the ZPA tenant.",
+                "in": "path",
+                "name": "customerId",
+                "required": true,
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              {
+                "description": "The search string used to support search by features and fields for the API.",
+                "in": "query",
+                "name": "search",
+                "required": false,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              {
+                "description": "Specifies the page number.",
+                "in": "query",
+                "name": "page",
+                "required": false,
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              {
+                "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500.",
+                "in": "query",
+                "name": "pagesize",
+                "required": false,
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              {
+                "in": "query",
+                "name": "scopeId",
+                "required": false,
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              {
+                "description": "The unique identifier of the microtenant of ZPA tenant. For Default microtenant 0 should be passed and for Customer data microtenant should be null.",
+                "in": "query",
+                "name": "microtenantId"
+              }
+            ]
+          },
+          "note": "the group list's complete parameters: customerId, search, page, pagesize, scopeId, microtenantId; no sortBy or sortDir"
         }
       ],
       "conditions": "The absence of sortBy on the group list is read from its parameter list in the OpenAPI document. The Go SDK's own default page size is covered in shared.sdk-go.list-pagination."

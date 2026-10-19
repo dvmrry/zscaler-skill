@@ -64,7 +64,15 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_sandbox_submission.go",
           "quotes": [
-            "// Only POST methods are available, we can't fetch data again"
+            "func resourceSandboxSubmissionRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics { // Only POST methods are available, we can't fetch data again return nil }",
+            "CreateContext: resourceSandboxSubmissionCreate, ReadContext: resourceSandboxSubmissionRead, UpdateContext: resourceSandboxSubmissionUpdate, DeleteContext: resourceSandboxSubmissionDelete, Schema: map[string]*schema.Schema{"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/provider.go",
+          "quotes": [
+            "\"zia_sandbox_file_submission\": resourceSandboxSubmission(),"
           ]
         }
       ]
@@ -77,7 +85,14 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_sandbox_submission.go",
           "quotes": [
-            "// Since there is no DELETE method for this API, simply remove it from state"
+            "// Since there is no DELETE method for this API, simply remove it from state d.SetId(\"\") return nil"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/provider.go",
+          "quotes": [
+            "\"zia_sandbox_file_submission\": resourceSandboxSubmission(),"
           ]
         }
       ]
@@ -90,7 +105,8 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_sandbox_submission.go",
           "quotes": [
-            "// Trigger a re-creation of the resource if either 'file_path' or 'force' attributes change"
+            "// Trigger a re-creation of the resource if either 'file_path' or 'force' attributes change",
+            "if d.HasChange(\"file_path\") || d.HasChange(\"force\") { // If there's a change, re-submit the file by calling the Create function return resourceSandboxSubmissionCreate(ctx, d, meta)"
           ]
         }
       ]
@@ -174,7 +190,7 @@
           "source": "tf-zia",
           "path": "docs/resources/zia_sandbox_behavioral_analysis_v2.md",
           "quotes": [
-            "This overwrites a previously generated blocklist."
+            "The **zia_sandbox_behavioral_analysis_v2** resource updates the custom list of MD5 file hashes that are blocked by Sandbox. This overwrites a previously generated blocklist."
           ]
         }
       ]

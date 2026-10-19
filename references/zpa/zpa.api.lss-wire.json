@@ -122,17 +122,19 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
           "quotes": [
-            "Negated bool `json:\"negated\"`"
+            "type Conditions struct { CreationTime string `json:\"creationTime,omitempty\"` ID string `json:\"id,omitempty\"` ModifiedBy string `json:\"modifiedBy,omitempty\"` ModifiedTime string `json:\"modifiedTime,omitempty\"`",
+            "Negated bool `json:\"negated\"` Operands *[]Operands `json:\"operands,omitempty\"` Operator string `json:\"operator,omitempty\"` }"
           ],
-          "after": "type Conditions struct {"
+          "note": "the complete legacy Conditions struct"
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
           "quotes": [
-            "Negated bool `json:\"negated\"`"
+            "type PolicyRuleResourceConditions struct { ID string `json:\"id,omitempty\"` CreationTime string `json:\"creationTime,omitempty\"` ModifiedBy string `json:\"modifiedBy,omitempty\"` ModifiedTime string `json:\"modifiedTime,omitempty\"`",
+            "Negated bool `json:\"negated\"` Operands *[]PolicyRuleResourceOperands `json:\"operands,omitempty\"` Operator string `json:\"operator,omitempty\"` }"
           ],
-          "after": "type PolicyRuleResourceConditions struct {"
+          "note": "the complete PolicyRuleResourceConditions struct"
         }
       ]
     },
@@ -146,6 +148,7 @@
           "quotes": [
             "LSSConfig *LSSConfig `json:\"config\"`",
             "ConnectorGroups []ConnectorGroups `json:\"connectorGroups,omitempty\"`",
+            "PolicyRule *PolicyRule `json:\"policyRule,omitempty\"`",
             "PolicyRuleResource *PolicyRuleResource `json:\"policyRuleResource,omitempty\"`"
           ],
           "after": "type LSSResource struct {"
@@ -176,7 +179,7 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/lss.py",
           "quotes": [
-            "return (LSSResourceModel({\"id\": lss_config_id}), response, None)"
+            "if response is None or not response.get_body(): return (LSSResourceModel({\"id\": lss_config_id}), response, None)"
           ]
         },
         {
@@ -229,7 +232,8 @@
             "objectType == \"SCIM_GROUP\" || objectType == \"SCIM\" || objectType == \"SAML\" || objectType == \"IDP\"",
             "entry_values must be provided for object_type %s",
             "entry_values should not be provided for object_type %s",
-            "both lhs and rhs must be provided in entry_values"
+            "both lhs and rhs must be provided in entry_values",
+            "} else if operand.OperandsResourceLHSRHSValue != nil && len(*operand.OperandsResourceLHSRHSValue) != 0 {"
           ],
           "after": "func validateLSSConfigControllerFilters("
         }
@@ -245,7 +249,10 @@
           "path": "zscaler/zpa/lss.py",
           "quotes": [
             "if condition[0] in [\"saml\", \"scim\", \"scim_group\"]:",
-            "\"entryValues\": []"
+            "\"entryValues\": []",
+            "\"lhs\": entry[0],",
+            "\"rhs\": entry[1],",
+            "operand[\"operands\"][0][\"entryValues\"].append(entry_values)"
           ],
           "after": "def _create_policy(self, conditions: list) -> list:"
         },
@@ -276,10 +283,10 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_client_types.go",
           "quotes": [
-            "ZPNClientTypeSlogger string `json:\"zpn_client_type_slogger,omitempty\"`",
-            "ZPNClientTypeZAPP string `json:\"zpn_client_type_zapp\"`"
+            "type LSSClientTypes struct { ZPNClientTypeExporter string `json:\"zpn_client_type_exporter\"` ZPNClientTypeMachineTunnel string `json:\"zpn_client_type_machine_tunnel\"` ZPNClientTypeIPAnchoring string `json:\"zpn_client_type_ip_anchoring\"`",
+            "ZPNClientTypeEdgeConnector string `json:\"zpn_client_type_edge_connector\"` ZPNClientTypeZAPP string `json:\"zpn_client_type_zapp\"` ZPNClientTypeSlogger string `json:\"zpn_client_type_slogger,omitempty\"` }"
           ],
-          "after": "type LSSClientTypes struct {"
+          "note": "the complete LSSClientTypes struct"
         }
       ]
     },
@@ -308,7 +315,9 @@
           "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller_test.go",
           "quotes": [
             "policyType := \"SIEM_POLICY\"",
-            "policysetcontroller.GetByPolicyType(context.Background(), service, policyType)"
+            "accessPolicySet, _, err := policysetcontroller.GetByPolicyType(context.Background(), service, policyType)",
+            "PolicySetID: accessPolicySet.ID,",
+            "createdResource, _, err := Create(context.Background(), service, lssConfig)"
           ]
         }
       ]
@@ -394,10 +403,20 @@
           "after": "var supportedClientTypes = map[string]struct{}{"
         },
         {
+          "source": "tf-zpa",
+          "path": "zpa/validator.go",
+          "after": "func validateLSSConfigControllerFilters(",
+          "quotes": [
+            "if objectType == \"CLIENT_TYPE\" {",
+            "if _, exists := supportedClientTypes[value]; !exists {",
+            "return fmt.Errorf(\"invalid value: %s for object_type CLIENT_TYPE\", value)"
+          ]
+        },
+        {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller_test.go",
           "quotes": [
-            "[]string{\"zpn_client_type_browser_isolation\"},"
+            "// { // ObjectType: \"CLIENT_TYPE\", // Values: []string{\"zpn_client_type_browser_isolation\"}, // },"
           ]
         }
       ],

@@ -92,7 +92,14 @@
           "quotes": [
             "func GetDeviceGroupByName(ctx context.Context, service *zscaler.Service, deviceGroupName string) (*DeviceGroups, error) {",
             "func GetAllDevicesGroups(ctx context.Context, service *zscaler.Service) ([]DeviceGroups, error) {",
-            "func GetAllDevices(ctx context.Context, service *zscaler.Service) ([]Devices, error) {"
+            "func GetAllDevices(ctx context.Context, service *zscaler.Service) ([]Devices, error) {",
+            "func GetIncludeDeviceInfo(ctx context.Context, service *zscaler.Service, includeDeviceInfo, includePseudoGroups bool) ([]DeviceGroups, error) {",
+            "func GetDevicesByID(ctx context.Context, service *zscaler.Service, deviceID int) (*Devices, error) {",
+            "func GetDevicesByName(ctx context.Context, service *zscaler.Service, deviceName string) (*Devices, error) {",
+            "func GetDevicesByModel(ctx context.Context, service *zscaler.Service, deviceModel string) (*Devices, error) {",
+            "func GetDevicesByOwner(ctx context.Context, service *zscaler.Service, ownerName string) (*Devices, error) {",
+            "func GetDevicesByOSType(ctx context.Context, service *zscaler.Service, osTypeName string) (*Devices, error) {",
+            "func GetDevicesByOSVersion(ctx context.Context, service *zscaler.Service, osVersionName string) (*Devices, error) {"
           ]
         }
       ]
@@ -115,6 +122,15 @@
             "def list_device_groups(self, query_params=None)",
             "def list_device_groups_devices(self, query_params=None)",
             "def list_device_groups_devices_lite(self, query_params=None)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/device_management.py",
+          "quotes": [
+            "def list_device_groups(",
+            "def list_devices(",
+            "def list_device_lite(self) -> APIResult[List[DeviceGroups]]:"
           ]
         }
       ]
@@ -163,7 +179,7 @@
       ]
     },
     "go-has-python-catalog-services": {
-      "statement": "The Go SDK has packages for ZIA services the legacy catalog marked Python-only: risk profiles, sandbox rules, sub-clouds, extranet, ZPA gateways, proxies and dedicated IP gateways, proxy gateways, IPv6 configuration and NSS servers.",
+      "statement": "The Go SDK has packages for these ZIA services: risk profiles, sandbox rules, sub-clouds, extranet, ZPA gateways, proxies and dedicated IP gateways, proxy gateways, IPv6 configuration and NSS servers.",
       "tier": "A",
       "evidence": [
         {
@@ -233,14 +249,15 @@
       ]
     },
     "python-config-audit-no-go-counterpart": {
-      "statement": "The Python SDK reads the System Audit Report at `/configAudit`, and a search of the Go ZIA tree at the pin finds no service for `configAudit` or the system audit report.",
+      "statement": "The Python SDK reads the System Audit Report at `/configAudit`.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zia/system_audit.py",
           "quotes": [
-            "/configAudit"
+            "/configAudit",
+            "Retrieves the System Audit Report."
           ]
         }
       ]
@@ -254,7 +271,8 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "Added the following new ZIA Outbound Email DLP endpoint",
-            "`GET /emailDlpRules/actions` Retrieves the supported Outbound Email DLP rule actions"
+            "`GET /emailDlpRules/actions` Retrieves the supported Outbound Email DLP rule actions",
+            "Added the following new ZIA Outbound Email DLP endpoint - `GET /emailDlpRules/actions` Retrieves the supported Outbound Email DLP rule actions for the specified email tenants as a CSV file. - [PR #445](https://github.com/zscaler/zscaler-sdk-go/pull/445) - Added the following new ZIA DNS Application Groups endpoints"
           ]
         },
         {
@@ -263,7 +281,10 @@
           "quotes": [
             "func GetLite(ctx context.Context, service *zscaler.Service) ([]OutboundEmailDlp, error) {",
             "func Create(ctx context.Context, service *zscaler.Service, dlpRule *OutboundEmailDlp)",
-            "func Delete(ctx context.Context, service *zscaler.Service, profileID int)"
+            "func Delete(ctx context.Context, service *zscaler.Service, profileID int)",
+            "func Get(ctx context.Context, service *zscaler.Service, ruleID int) (*OutboundEmailDlp, error) {",
+            "func Update(ctx context.Context, service *zscaler.Service, ruleID int, dlpRule *OutboundEmailDlp)",
+            "func GetAll(ctx context.Context, service *zscaler.Service, orgID *int) ([]OutboundEmailDlp, error) {"
           ]
         }
       ]
@@ -277,14 +298,27 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "Added the following new ZIA Outbound Email DLP endpoint",
-            "`GET /emailDlpRules/actions` Retrieves the supported Outbound Email DLP rule actions"
+            "`GET /emailDlpRules/actions` Retrieves the supported Outbound Email DLP rule actions",
+            "Added the following new ZIA Outbound Email DLP endpoint - `GET /emailDlpRules/actions` Retrieves the supported Outbound Email DLP rule actions for the specified email tenants as a CSV file. [PR #554](https://github.com/zscaler/zscaler-sdk-python/pull/554) - Added the following new ZIA DNS Application Groups endpoints"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zia/outbound_email_dlp_rules.py",
           "quotes": [
-            "/emailDlpRules/lite"
+            "/emailDlpRules/lite",
+            "def list_rules(self, query_params: Optional[dict] = None) -> APIResult[List[OutboundEmailDlpRules]]:",
+            "def get_rule(self, rule_id: int) -> APIResult[OutboundEmailDlpRules]:",
+            "def update_rule(self, rule_id: int, **kwargs) -> APIResult[OutboundEmailDlpRules]:",
+            "def delete_rule(self, rule_id: int) -> APIResult[None]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/outbound_email_dlp_rules.py",
+          "after": "def get_rule(self, rule_id: int) -> APIResult[OutboundEmailDlpRules]:",
+          "quotes": [
+            "/emailDlpRules/{rule_id}"
           ]
         }
       ]
@@ -297,14 +331,17 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
           "quotes": [
-            "ipsCategoriesEndpoint = \"/zia/api/v1/ipsCategories\""
+            "ipsCategoriesEndpoint = \"/zia/api/v1/ipsCategories\"",
+            "func GetIPSCategories(ctx context.Context, service *zscaler.Service) ([]IPSCategories, error) {"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zia/ips_categories.py",
           "quotes": [
-            "/ipsCategories"
+            "/ipsCategories",
+            "def list_categories(self, query_params: Optional[dict] = None) -> APIResult[List[IpsCategories]]:",
+            "http_method = \"get\".upper()"
           ]
         }
       ]
@@ -378,7 +415,7 @@
       ]
     },
     "go-dedicated-ip-lite-only": {
-      "statement": "Go reads dedicated IP gateways only through `GetDedicatedIPGWLite` in the forwarding-control `proxies` package, at `/dedicatedIPGateways/lite`; there is no standalone Go package for them.",
+      "statement": "Go reads dedicated IP gateways through `GetDedicatedIPGWLite` in the forwarding-control `proxies` package, at `/dedicatedIPGateways/lite`.",
       "tier": "A",
       "evidence": [
         {
@@ -402,13 +439,16 @@
             "\"gov\":   \"zidentitygov.net\",",
             "\"govus\": \"zidentitygov.us\",",
             "\"gov\":   \"https://api.zscalergov.net\",",
-            "\"govus\": \"https://api.zscalergov.us\","
+            "\"govus\": \"https://api.zscalergov.us\",",
+            "if govAuthDomain, ok := oneAPIGovAuthDomains[strings.ToLower(cloud)]; ok {",
+            "return fmt.Sprintf(\"https://%s.%s/oauth2/v1/token\", vanityDomain, govAuthDomain)",
+            "if govBaseURL, ok := oneAPIGovAPIBaseURLs[strings.ToLower(cloud)]; ok {"
           ]
         }
       ]
     },
     "july-services-unified-only": {
-      "statement": "The unified `ZIAService` registers the July 2026 additions, such as DNS application groups, endpoint applications, Endpoint DLP rules, Outbound Email DLP rules, IPS categories and NSS collectors. The legacy ZIA client registers `web_dlp_global_options` from that batch, and a search of `legacy.py` at the pin finds no accessor for the other twelve.",
+      "statement": "The unified `ZIAService` registers DNS application groups, endpoint applications, Endpoint DLP rules, Outbound Email DLP rules, IPS categories and NSS collectors. The legacy ZIA client registers `web_dlp_global_options`.",
       "tier": "A",
       "evidence": [
         {
@@ -440,7 +480,9 @@
           "source": "sdk-python",
           "path": "zscaler/zia/dns_application_groups.py",
           "quotes": [
-            "for item in response.get_results():"
+            "for item in response.get_results():",
+            "response, error = self._request_executor.execute(request)",
+            "result = [] for item in response.get_results(): result.append(DnsApplicationGroups(self.form_response_body(item))) except Exception as error: return (None, response, error) return (result, response, None)"
           ],
           "after": "def list_groups("
         },
@@ -448,7 +490,9 @@
           "source": "sdk-python",
           "path": "zscaler/zia/endpoint_applications.py",
           "quotes": [
-            "for item in response.get_results():"
+            "for item in response.get_results():",
+            "response, error = self._request_executor.execute(request)",
+            "result = [] for item in response.get_results(): result.append(EndpointApplicationsCustomApps(self.form_response_body(item))) except Exception as error: return (None, response, error) return (result, response, None)"
           ],
           "after": "def list_applications("
         },
@@ -456,7 +500,9 @@
           "source": "sdk-python",
           "path": "zscaler/zia/outbound_email_dlp_rules.py",
           "quotes": [
-            "for item in response.get_results():"
+            "for item in response.get_results():",
+            "response, error = self._request_executor.execute(request)",
+            "result = [] for item in response.get_results(): result.append(OutboundEmailDlpRules(self.form_response_body(item))) except Exception as error: return (None, response, error) return (result, response, None)"
           ],
           "after": "def list_rules("
         }
@@ -474,6 +520,15 @@
             "http_header_profile_ids (list): The HTTP header profiles that this rule applies to."
           ],
           "after": "def add_rule(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_filtering.py",
+          "after": "def update_rule(self, rule_id: str, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "http_header_action_profile_ids (list): The HTTP header action profiles that this rule applies to.",
+            "http_header_profile_ids (list): The HTTP header profiles that this rule applies to."
+          ]
         }
       ]
     },
@@ -501,14 +556,24 @@
           "quotes": [
             "def list_vips(self, query_params: Optional[dict] = None) -> APIResult[List[TrafficVips]]:",
             "def list_vip_group_by_dc(self, query_params: Optional[dict] = None) -> APIResult[List[GroupByDatacenter]]:",
-            "def list_vips_recommended(self, query_params: Optional[dict] = None) -> APIResult[List[TrafficGRERecommendedVIP]]:"
+            "def list_vips_recommended(self, query_params: Optional[dict] = None) -> APIResult[List[TrafficGRERecommendedVIP]]:",
+            "class TrafficForwardingGRETunnelAPI(APIClient):"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zia/traffic_datacenters.py",
           "quotes": [
-            "def list_datacenters(self, query_params: Optional[dict] = None) -> APIResult[List[TrafficDatacenters]]:"
+            "def list_datacenters(self, query_params: Optional[dict] = None) -> APIResult[List[TrafficDatacenters]]:",
+            "class TrafficDatacentersAPI(APIClient):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/traffic_datacenters.py",
+          "after": "def list_datacenters(self, query_params: Optional[dict] = None) -> APIResult[List[TrafficDatacenters]]:",
+          "quotes": [
+            "/datacenters"
           ]
         }
       ]
@@ -548,6 +613,30 @@
           }
         }
       ]
+    },
+    "go-dedicated-ip-no-other-package": {
+      "statement": "No other Go ZIA package reads dedicated IP gateways; there is no standalone Go package for them.",
+      "tier": "B",
+      "conditions": "A search of zscaler/zia in the Go SDK at the pin for `dedicatedIPGateways` finds only the proxies package; a search result, not a statement any source makes.",
+      "derived_from": [
+        "go-dedicated-ip-lite-only"
+      ]
+    },
+    "july-services-not-in-legacy": {
+      "statement": "The legacy ZIA client has no accessor for DNS application groups, endpoint applications, Endpoint DLP rules, Outbound Email DLP rules, IPS categories or NSS collectors.",
+      "tier": "B",
+      "conditions": "A search of zscaler/zia/legacy.py at the pin for these accessor names finds none; a search result, not a statement any source makes. Release 1.9.39 (July 2026) added several of these services; IPS categories and NSS collectors are not in its notes.",
+      "derived_from": [
+        "july-services-unified-only"
+      ]
+    },
+    "go-no-config-audit": {
+      "statement": "The Go SDK has no service for `configAudit` or the System Audit Report.",
+      "tier": "B",
+      "conditions": "A search of zscaler/zia in the Go SDK at the pin for `configAudit` and `SystemAudit` finds nothing; a search result, not a statement any source makes.",
+      "derived_from": [
+        "python-config-audit-no-go-counterpart"
+      ]
     }
   },
   "gaps": {
@@ -586,11 +675,11 @@
     },
     {
       "label": "Dedicated IP gateways.",
-      "text": "{{go-dedicated-ip-lite-only}}"
+      "text": "{{go-dedicated-ip-lite-only}} {{go-dedicated-ip-no-other-package}}"
     },
     {
       "label": "Only in Python.",
-      "text": "{{python-config-audit-no-go-counterpart}}"
+      "text": "{{python-config-audit-no-go-counterpart}} {{go-no-config-audit}}"
     },
     {
       "label": "In both.",
@@ -602,7 +691,7 @@
     },
     {
       "label": "Which Python client.",
-      "text": "{{july-services-unified-only}} Whether a tenant is entitled to those services is a separate question, open in [[zia.dlp.endpoint-dlp]]."
+      "text": "{{july-services-unified-only}} {{july-services-not-in-legacy}} Whether a tenant is entitled to those services is a separate question, open in [[zia.dlp.endpoint-dlp]]."
     },
     {
       "label": "Python list calls.",

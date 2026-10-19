@@ -45,7 +45,7 @@
     },
     {
       "label": "Accessor names.",
-      "text": "{{url-filtering-accessor}} {{categories-accessor}} {{activation-accessor}}"
+      "text": "{{url-filtering-accessor}} {{categories-accessor}} {{activation-accessor}} {{activation-accessor-no-activation}}"
     },
     {
       "label": "Errors.",
@@ -53,7 +53,7 @@
     },
     {
       "label": "Misspelled names.",
-      "text": "{{dns-gateway-accessor-misspelled}} {{browser-control-class-misspelled}} {{custom-file-type-getter-misspelled}}"
+      "text": "{{dns-gateway-accessor-misspelled}} {{dns-gateway-no-correct-spelling}} {{browser-control-class-misspelled}} {{custom-file-type-getter-misspelled}}"
     },
     {
       "label": "A fixed response-parsing bug.",
@@ -107,13 +107,15 @@
           "source": "sdk-python",
           "path": "zscaler/zia/zia_service.py",
           "quotes": [
-            "return UserManagementAPI(self._request_executor)"
+            "return UserManagementAPI(self._request_executor)",
+            "def __init__(self, request_executor: RequestExecutor) -> None: # Ensure the service gets the request executor from the Client object self._request_executor = request_executor",
+            "@property def user_management(self) -> UserManagementAPI:"
           ]
         }
       ]
     },
     "api-error-object": {
-      "statement": "A non-2xx REST response is turned into a `ZscalerAPIError` built from the URL, the response and the parsed body, and the request executor hands it back in the error slot. A response that is not JSON is returned as an `HTTPError` carrying the status code and body text.",
+      "statement": "A non-2xx REST response is turned into a `ZscalerAPIError` built from the URL, the response and the parsed body, and the request executor hands it back in the error slot. A response whose Content-Type is JSON but whose body does not parse is returned as an `HTTPError` carrying the status code and body text.",
       "tier": "A",
       "evidence": [
         {
@@ -121,7 +123,12 @@
           "path": "zscaler/errors/response_checker.py",
           "quotes": [
             "error = ZscalerAPIError(url, response_details, formatted_response)",
-            "return None, HTTPError(url, response_details, body_text)"
+            "return None, HTTPError(url, response_details, body_text)",
+            "is_json = \"application/json\" in content_type",
+            "formatted_response = json.loads(response_body) if is_json else response_body",
+            "except json.JSONDecodeError:",
+            "if 200 <= status_code < 300: return formatted_response, None",
+            "error = ZscalerAPIError(url, response_details, formatted_response) if exceptions.raise_exception: raise ZscalerAPIException(error) return None, error"
           ]
         },
         {
@@ -129,6 +136,14 @@
           "path": "zscaler/request_executor.py",
           "quotes": [
             "response_data, error = check_response_for_error(request[\"url\"], response, response_body)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/errors/http_error.py",
+          "quotes": [
+            "self.status_code: int = response_details.status_code",
+            "self.message: str = f\"HTTP {self.status_code} {response_body}\""
           ]
         }
       ]
@@ -150,6 +165,14 @@
           "after": "# Standard REST API response handling",
           "quotes": [
             "raise ZscalerAPIException(error)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/errors/response_checker.py",
+          "quotes": [
+            "if exceptions.raise_exception: raise HTTPException(url, response_details, body_text) return None, HTTPError(url, response_details, body_text)",
+            "error = ZscalerAPIError(url, response_details, formatted_response) if exceptions.raise_exception: raise ZscalerAPIException(error) return None, error"
           ]
         }
       ]
@@ -190,7 +213,7 @@
       ]
     },
     "dns-gateway-accessor-misspelled": {
-      "statement": "The unified ZIA service and the legacy ZIA client expose the DNS gateway client as the property `dns_gatways` (misspelled), imported from the module `zscaler/zia/dns_gatways.py`; no `dns_gateways` property exists on either.",
+      "statement": "The unified ZIA service and the legacy ZIA client expose the DNS gateway client as the property `dns_gatways` (misspelled), imported from the module `zscaler/zia/dns_gatways.py`.",
       "tier": "A",
       "evidence": [
         {
@@ -245,7 +268,12 @@
           "source": "sdk-python",
           "path": "zscaler/zia/custom_file_types.py",
           "quotes": [
-            "def get_custom_file_tytpe("
+            "def get_custom_file_tytpe(",
+            "def list_custom_file_types(",
+            "def add_custom_file_type(",
+            "def update_custom_file_type(self, file_id: int, **kwargs)",
+            "def delete_custom_file_type(self, file_id: int)",
+            "def get_custom_file_type_count(self)"
           ]
         }
       ]
@@ -258,14 +286,18 @@
           "source": "sdk-python",
           "path": "CHANGELOG.md",
           "quotes": [
-            "camelCase response keys with digit/letter boundaries (e.g. `isNameL10nTag`, `ipV6Enabled`) were silently corrupted by `APIClient.form_response_body()`"
-          ]
+            "camelCase response keys with digit/letter boundaries (e.g. `isNameL10nTag`, `ipV6Enabled`) were silently corrupted by `APIClient.form_response_body()`",
+            "because `pydash.strings.camel_case` re-tokenized them (turning `L10n` into `L10N`), causing model fields to resolve to `None`.",
+            "The normalizer now uses the SDK's own `to_lower_camel_case` helper"
+          ],
+          "after": "## 1.9.22 (April 23, 2026)"
         },
         {
           "source": "sdk-python",
           "path": "zscaler/api_client.py",
           "quotes": [
-            "result[_to_camel(key)] = APIClient.form_response_body(val)"
+            "result[_to_camel(key)] = APIClient.form_response_body(val)",
+            "return to_lower_camel_case(key)"
           ]
         }
       ]
@@ -278,8 +310,10 @@
           "source": "sdk-python",
           "path": "CHANGELOG.md",
           "quotes": [
-            "Added a dedicated `NetworkServicesLite` model (with a nested `NetworkServiceExtensions` block) for the ZIA `/networkServices/lite` endpoint"
-          ]
+            "Added a dedicated `NetworkServicesLite` model (with a nested `NetworkServiceExtensions` block) for the ZIA `/networkServices/lite` endpoint",
+            "exposing the `extensions.tag` payload returned by the API. `list_network_services_lite()` now hydrates this richer model."
+          ],
+          "after": "## 1.9.22 (April 23, 2026)"
         }
       ]
     },
@@ -330,7 +364,7 @@
       ]
     },
     "activation-accessor": {
-      "statement": "Activation is `client.zia.activate` with `status` and `activate` methods, not `client.zia.activation` with `get_status`.",
+      "statement": "Activation is `client.zia.activate`, whose class defines only `status`, `activate`, `get_eusa_status` and `update_eusa_status`; there is no `get_status` method.",
       "tier": "A",
       "evidence": [
         {
@@ -345,9 +379,27 @@
           "path": "zscaler/zia/activate.py",
           "quotes": [
             "def status(self) -> APIResult[Activation]:",
-            "def activate(self) -> APIResult[Activation]:"
+            "def activate(self) -> APIResult[Activation]:",
+            "def get_eusa_status(self) -> APIResult[EusaStatus]:",
+            "def update_eusa_status(self, status_id: int, **kwargs) -> APIResult[EusaStatus]:"
           ]
         }
+      ]
+    },
+    "activation-accessor-no-activation": {
+      "statement": "There is no `client.zia.activation` property; a caller looking for one must use `client.zia.activate`.",
+      "tier": "B",
+      "conditions": "The ZIA service class at the pinned SDK defines an `activate` property and no `activation` property; a quote cannot pin the absence of a property in code, so this rests on reading the whole file.",
+      "derived_from": [
+        "zia.sdk-python.client-errors-and-accessors:activation-accessor"
+      ]
+    },
+    "dns-gateway-no-correct-spelling": {
+      "statement": "No `dns_gateways` property exists on either the unified ZIA service or the legacy ZIA client, so the correctly spelled name fails.",
+      "tier": "B",
+      "conditions": "Neither `zscaler/zia/zia_service.py` nor `zscaler/zia/legacy.py` at the pinned SDK contains the string `dns_gateways`; a quote cannot pin the absence of a property in code, so this rests on reading both files.",
+      "derived_from": [
+        "zia.sdk-python.client-errors-and-accessors:dns-gateway-accessor-misspelled"
       ]
     }
   }

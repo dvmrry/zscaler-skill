@@ -55,7 +55,46 @@
           "quotes": [
             "retryableClient.CheckRetry = checkRetry",
             "func checkRetry(ctx context.Context, resp *http.Response, err error) (bool, error) {",
+            "if resp != nil && containsInt(getRetryOnStatusCodes(), resp.StatusCode) {",
+            "// Retry 409 Conflict and 412 Precondition Failed when body indicates edit lock / org barrier",
+            "if errorx.IsEditLockError(resp) {\n\t\t\treturn true, nil",
             "return retryablehttp.DefaultRetryPolicy(ctx, resp, err)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.43",
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func checkRetry(ctx context.Context, resp *http.Response, err error) (bool, error) {",
+          "quotes": [
+            "// Only retry a 5xx when the body does not carry a deterministic API verdict.",
+            "if err == nil && resp != nil && resp.StatusCode >= 500 {",
+            "return errorx.IsRetryableServerError(resp), nil"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.37",
+            "v3.8.40",
+            "v3.8.42"
+          ],
+          "after": "func checkRetry(ctx context.Context, resp *http.Response, err error) (bool, error) {",
+          "quotes": [
+            "if errorx.IsEditLockError(resp) {\n\t\t\treturn true, nil\n\t\t}\n\t}\n\treturn retryablehttp.DefaultRetryPolicy(ctx, resp, err)"
+          ]
+        },
+        {
+          "source": "zscalerctl",
+          "path": "vendor/github.com/hashicorp/go-retryablehttp/client.go",
+          "note": "go-retryablehttp v0.7.8, the version zscaler-sdk-go requires at v3.8.37 and later, as vendored by zscalerctl-dev.",
+          "quotes": [
+            "if resp.StatusCode == 0 || (resp.StatusCode >= 500 && resp.StatusCode != http.StatusNotImplemented) {"
           ]
         }
       ]
@@ -69,25 +108,75 @@
           "path": "vendor/github.com/hashicorp/go-retryablehttp/client.go",
           "note": "go-retryablehttp v0.7.8, the version zscaler-sdk-go requires at v3.8.37 and later, as vendored by zscalerctl-dev.",
           "quotes": [
+            "// Don't retry if the error was due to too many redirects.",
+            "// Don't retry if the error was due to an invalid protocol scheme.",
+            "// Don't retry if the error was due to an invalid header.",
+            "// Don't retry if the error was due to TLS cert verification failure.",
             "// The error is likely recoverable so retry.",
+            "if resp.StatusCode == http.StatusTooManyRequests {",
             "if resp.StatusCode == 0 || (resp.StatusCode >= 500 && resp.StatusCode != http.StatusNotImplemented) {"
           ]
         }
       ]
     },
     "body-buffered-for-replay": {
-      "statement": "`ExecuteRequest` reads the request body into memory once. retryablehttp rewinds it for its own retries, so POST and PUT bodies are resent intact by the inner retry loop in every audited SDK version.",
+      "statement": "`ExecuteRequest` reads the request body into memory once and builds each request from a reader over that buffer. retryablehttp reads the body into its own buffer and gives every attempt a fresh reader over it, so POST and PUT bodies are resent intact by the inner retry loop in every audited SDK version.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/oneapiconfig.go",
           "at": [
+            "v3.8.37",
+            "v3.8.40",
+            "v3.8.42",
             "v3.8.44",
             "HEAD"
           ],
           "quotes": [
-            "requestBodyBytes, err = io.ReadAll(body)"
+            "requestBodyBytes, err = io.ReadAll(body)",
+            "req, err := c.buildRequest(ctx, method, endpoint, bytes.NewReader(requestBodyBytes), urlParams, contentType)",
+            "return retryableClient.StandardClient()"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "go.mod",
+          "at": [
+            "v3.8.37",
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "github.com/hashicorp/go-retryablehttp v0.7.8"
+          ]
+        },
+        {
+          "source": "zscalerctl",
+          "path": "vendor/github.com/hashicorp/go-retryablehttp/roundtripper.go",
+          "note": "go-retryablehttp v0.7.8, the version zscaler-sdk-go requires at v3.8.37 and later, as vendored by zscalerctl-dev.",
+          "quotes": [
+            "retryableReq, err := FromRequest(req)"
+          ]
+        },
+        {
+          "source": "zscalerctl",
+          "path": "vendor/github.com/hashicorp/go-retryablehttp/client.go",
+          "note": "go-retryablehttp v0.7.8, the version zscaler-sdk-go requires at v3.8.37 and later, as vendored by zscalerctl-dev.",
+          "quotes": [
+            "bodyReader, _, err := getBodyReaderAndContentLength(r.Body)"
+          ]
+        },
+        {
+          "source": "zscalerctl",
+          "path": "vendor/github.com/hashicorp/go-retryablehttp/client.go",
+          "note": "go-retryablehttp v0.7.8, the version zscaler-sdk-go requires at v3.8.37 and later, as vendored by zscalerctl-dev.",
+          "after": "// Read all in so we can reset",
+          "quotes": [
+            "buf, err := io.ReadAll(body)",
+            "return bytes.NewReader(buf), nil"
           ]
         }
       ]
@@ -125,7 +214,12 @@
           "quotes": [
             "// When the retry budget is exhausted, retryablehttp's default behaviour is to",
             "// drain the body and return a bare \"giving up after N attempt(s)\" error with a",
-            "// The upstream policy retries every 5xx except 501, which makes a permanent"
+            "// nil response, which destroys the API's own error payload. Hand the final",
+            "// response back instead so ExecuteRequest can build a structured",
+            "// Only retry a 5xx when the body does not carry a deterministic API verdict.",
+            "// The upstream policy retries every 5xx except 501, which makes a permanent",
+            "// 500 UNEXPECTED_ERROR (e.g. an unknown URL category) burn the entire retry",
+            "return errorx.IsRetryableServerError(resp), nil"
           ]
         }
       ],
@@ -180,6 +274,17 @@
           "quotes": [
             "github.com/zscaler/zscaler-sdk-go/v3 v3.8.40"
           ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "CHANGELOG.md",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "## 0.2.0 (June 29, 2026)"
+          ]
         }
       ]
     },
@@ -195,8 +300,8 @@
           ],
           "after": "// Handle retryable errors with exponential backoff",
           "quotes": [
-            "time.Sleep(backoffDelay)",
-            "continue"
+            "// 5xx server errors are retryable",
+            "time.Sleep(backoffDelay)\n\t\t\ttotalWaitTime += time.Since(beforeWait)\n\t\t\tcontinue"
           ]
         },
         {
@@ -207,8 +312,8 @@
           ],
           "after": "// Check if context is still valid before sleeping",
           "quotes": [
-            "time.Sleep(sleepFor)",
-            "continue"
+            "c.oauth2Credentials.Logger.Printf(\"[INFO] Rate limit hit, waiting %v (Retry-After=%v, attempt %d) before retry\", sleepFor, retryAfter, retry)",
+            "time.Sleep(sleepFor)\n\t\t\t\t\ttotalWaitTime += time.Since(beforeWait)\n\t\t\t\t\tcontinue"
           ]
         },
         {
@@ -219,10 +324,25 @@
             "HEAD"
           ],
           "quotes": [
+            "// Rebuild the request with a fresh body reader, as the 401 and",
             "// 409/412 paths do. The previous attempt consumed req.Body, so",
-            "// reusing it here would resend a POST/PUT with an empty body."
+            "// reusing it here would resend a POST/PUT with an empty body.",
+            "req, err = c.buildRequest(ctx, method, endpoint, bytes.NewReader(requestBodyBytes), urlParams, contentType)"
           ],
           "after": "// Handle retryable errors with exponential backoff"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.43",
+            "HEAD"
+          ],
+          "after": "// Check if context is still valid before sleeping",
+          "quotes": [
+            "time.Sleep(sleepFor)",
+            "req, err = c.buildRequest(ctx, method, endpoint, bytes.NewReader(requestBodyBytes), urlParams, contentType)"
+          ]
         }
       ],
       "upstream": [

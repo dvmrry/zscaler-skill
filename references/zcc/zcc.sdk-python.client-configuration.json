@@ -85,6 +85,14 @@
             "self._zcc = ZCCService(self)",
             "Legacy {service_name} client requested but no legacy client instance was provided."
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "after": "def _require_legacy_client(self, service_name: str, client: Optional[TLegacy]) -> TLegacy:",
+          "quotes": [
+            "if client is None: raise RuntimeError("
+          ]
         }
       ]
     },
@@ -126,7 +134,35 @@
           "source": "sdk-python",
           "path": "zscaler/zcc/legacy.py",
           "quotes": [
-            "def process_based_apps(self) -> \"ProcessBasedAppsAPI\":"
+            "def process_based_apps(self) -> \"ProcessBasedAppsAPI\":",
+            "def devices(self) -> \"DevicesAPI\":",
+            "def admin_user(self) -> \"AdminUserAPI\":",
+            "def company(self) -> \"CompanyInfoAPI\":",
+            "def entitlements(self) -> \"EntitlementAPI\":",
+            "def forwarding_profile(self) -> \"ForwardingProfileAPI\":",
+            "def fail_open_policy(self) -> \"FailOpenPolicyAPI\":",
+            "def web_policy(self) -> \"WebPolicyAPI\":",
+            "def web_app_service(self) -> \"WebAppServiceAPI\":",
+            "def web_privacy(self) -> \"WebPrivacyAPI\":",
+            "def trusted_networks(self) -> \"TrustedNetworksAPI\":",
+            "def application_profiles(self) -> \"ApplicationProfilesAPI\":",
+            "def custom_ip_base_apps(self) -> \"CustomIPBasedAppsAPI\":",
+            "def predefined_ip_based_apps(self) -> \"PredefinedIPBasedAppsAPI\":"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/secrets.py",
+          "quotes": [
+            "def get_otp(self, query_params: Optional[dict] = None) -> APIResult[dict]:",
+            "def get_passwords(self, query_params: Optional[dict] = None) -> APIResult[dict]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "return self._require_legacy_client(\"ZCC\", self.zcc_legacy_client)"
           ]
         }
       ]
@@ -223,7 +259,9 @@
           "source": "sdk-python",
           "path": "zscaler/zcc/legacy.py",
           "quotes": [
-            "max_attempts = 3"
+            "max_attempts = 3",
+            "max_attempts = 3 attempts = 0 while True: try: self.refreshToken()",
+            "response = requests.request( method=method, url=url, json=json, headers=headers_with_user_agent,"
           ]
         }
       ]

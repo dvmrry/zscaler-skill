@@ -209,6 +209,14 @@
           ]
         },
         {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "after": "type SharedFromMicrotenant struct {",
+          "quotes": [
+            "ID string `json:\"id,omitempty\"`\nName string `json:\"name,omitempty\"`"
+          ]
+        },
+        {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application~1{applicationId}/get/responses/200/content/*~1*/schema/properties/sharedMicrotenantDetails",
@@ -230,7 +238,10 @@
             "/application/{application_id}/move",
             "\"targetSegmentGroupId\": kwargs.pop(\"target_segment_group_id\", None),",
             "\"targetMicrotenantId\": kwargs.pop(\"target_microtenant_id\", None),",
-            "\"targetServerGroupId\": kwargs.pop(\"target_server_group_id\", None),"
+            "\"targetServerGroupId\": kwargs.pop(\"target_server_group_id\", None),",
+            "microtenant_id = kwargs.pop(\"microtenant_id\", None)",
+            "params = {\"microtenantId\": microtenant_id} if microtenant_id else {}",
+            "method=http_method, endpoint=api_url, body=payload, params=params"
           ]
         },
         {
@@ -275,6 +286,9 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/applicationsegment_move/applicationsegment_move.go",
           "quotes": [
+            "appSegmentEndpoint = \"/application\"",
+            "microTenantID := move.MicroTenantID\nif microTenantID == \"\" && service.MicroTenantID() != nil {\nmicroTenantID = *service.MicroTenantID()",
+            "relativeURL := fmt.Sprintf(\"%s%s%s/%s/move\", mgmtConfig, service.Client.GetCustomerID(), appSegmentEndpoint, applicationID)",
             "resp, err := service.Client.NewRequestDo(ctx, \"POST\", relativeURL, filter, move, nil)",
             "filter.MicroTenantID = &microTenantID"
           ]
@@ -283,6 +297,9 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/applicationsegment_share/applicationsegment_share.go",
           "quotes": [
+            "appSegmentEndpoint = \"/application\"",
+            "microTenantID := appSegmentRequest.MicroTenantID\nif microTenantID == \"\" && service.MicroTenantID() != nil {\nmicroTenantID = *service.MicroTenantID()",
+            "relativeURL := fmt.Sprintf(\"%s%s%s/%s/share\", mgmtConfig, service.Client.GetCustomerID(), appSegmentEndpoint, applicationID)",
             "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", relativeURL, filter, appSegmentRequest, nil)",
             "filter.MicroTenantID = &microTenantID"
           ]
@@ -290,7 +307,7 @@
       ]
     },
     "go-share-body-omitempty": {
-      "statement": "The Go share request declares `ShareToMicrotenants` with `omitempty`, and the segment structs declare the same field without it.",
+      "statement": "The Go share request declares `ShareToMicrotenants` with `omitempty`, and the application segment struct declares the same field without it.",
       "tier": "A",
       "evidence": [
         {

@@ -58,9 +58,15 @@
           "source": "sdk-python",
           "path": "zscaler/utils.py",
           "quotes": [
+            "id_groups: list, source_dict: dict, target_dict: dict, coerce_ids: bool = True",
+            "id_groups: List of ``(snake_case_key, wire_key)`` tuples to remap.",
             "value = source_dict.pop(key)",
-            "final_list.append({\"id\": _maybe_coerce(item)})"
-          ]
+            "final_list.append({\"id\": _maybe_coerce(item)})",
+            "elif isinstance(item, dict) and \"id\" in item:",
+            "final_list.append(item)",
+            "target_dict[payload_key] = final_list"
+          ],
+          "after": "def transform_common_id_fields("
         }
       ]
     },
@@ -99,7 +105,9 @@
           "quotes": [
             "body[\"appConnectorGroups\"] = [{\"id\": group_id} for group_id in body.pop(\"app_connector_group_ids\")]",
             "body[\"servers\"] = [{\"id\": group_id} for group_id in body.pop(\"server_ids\")]",
-            "transform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)"
+            "transform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)",
+            "if \"app_connector_group_ids\" in body:",
+            "if \"server_ids\" in body:"
           ],
           "after": "def add_group("
         }
@@ -131,9 +139,40 @@
           "source": "sdk-python",
           "path": "CHANGELOG.md",
           "quotes": [
-            "Fixed ZPA application segment add/update functions raising `TypeError` when `server_group_ids=None` is passed; `None` is now treated as not supplied."
+            "Fixed ZPA application segment add/update functions raising `TypeError` when `server_group_ids=None` is passed; `None` is now treated as not supplied.",
+            "Issue #575"
           ],
           "after": "## 1.11.1 (October 6 2026)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "at": [
+            "v1.10.0"
+          ],
+          "quotes": [
+            "body[\"serverGroups\"] = [{\"id\": group_id} for group_id in body.pop(\"server_group_ids\")]"
+          ],
+          "after": "def add_segment(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "at": [
+            "v1.10.0"
+          ],
+          "quotes": [
+            "body[\"serverGroups\"] = [{\"id\": group_id} for group_id in body.pop(\"server_group_ids\")]"
+          ],
+          "after": "def update_segment(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "CLAUDE.md",
+          "quotes": [
+            "no longer have a manual `server_group_ids` block in their add/update paths — the helper handles it, which also makes `server_group_ids=None` a no-op instead of a `TypeError` (#575)",
+            "`add_segment_provision` keeps its block because it still uses `add_id_groups`."
+          ]
         },
         {
           "source": "sdk-python",
@@ -195,7 +234,8 @@
           "quotes": [
             "clientless_apps = body.pop(\"clientless_app_ids\")",
             "segments_list, _, err = app_segment_api.get_segments_by_type(application_type=\"BROWSER_ACCESS\")",
-            "transform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)"
+            "transform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)",
+            "seg.domain == app.get(\"domain\") and str(seg.app_id) == segment_id"
           ],
           "after": "def update_segment_ba(self, segment_id: str, **kwargs)"
         },

@@ -158,6 +158,38 @@
             "list[i].AssociationType = associationType"
           ],
           "after": "func GetAllByAssociationType(ctx context.Context"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "after": "func Create(ctx context.Context, service *zscaler.Service, associationType string, provisioningKey *ProvisioningKey)",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, provisioningKey, v)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "after": "func Update(ctx context.Context, service *zscaler.Service, associationType, provisioningKeyID string, provisioningKey *ProvisioningKey)",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, provisioningKey, nil)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, associationType, name string)",
+          "quotes": [
+            "provisioningKey.AssociationType = associationType"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "after": "func GetAllByZComponentID(ctx context.Context",
+          "quotes": [
+            "result[i].AssociationType = associationType"
+          ]
         }
       ],
       "conditions": "The OpenAPI path takes the type as the associationType path parameter; whether the server echoes associationType in a response was not checked against recorded responses."
@@ -172,7 +204,8 @@
           "quotes": [
             "\"CONNECTOR_GRP\",",
             "\"SERVICE_EDGE_GRP\",",
-            "\"NP_ASSISTANT_GRP\","
+            "\"NP_ASSISTANT_GRP\",",
+            "= []string{ \"CONNECTOR_GRP\", \"SERVICE_EDGE_GRP\", \"NP_ASSISTANT_GRP\", }"
           ],
           "after": "var ProvisioningKeyAssociationTypes []string"
         },
@@ -181,7 +214,8 @@
           "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
           "quotes": [
             "p, resp, err = GetByName(ctx, service, associationType, name)",
-            "assoc_type = associationType"
+            "assoc_type = associationType",
+            "for _, associationType := range ProvisioningKeyAssociationTypes { p, resp, err = GetByName(ctx, service, associationType, name) if err == nil { assoc_type = associationType break } }"
           ],
           "after": "func GetByNameAllAssociations("
         }
@@ -200,6 +234,21 @@
           }
         },
         {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1associationType~1{associationType}~1provisioningKey~1{provisioningKeyId}/put/responses",
+          "expect": {
+            "204": {
+              "description": "No Content"
+            }
+          },
+          "expect_absent": [
+            "200",
+            "201",
+            "202"
+          ]
+        },
+        {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
           "quotes": [
@@ -210,7 +259,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/provisioning.py",
           "quotes": [
-            "return (ProvisioningKey({\"id\": key_id}), response, None)"
+            "return (ProvisioningKey({\"id\": key_id}), response, None)",
+            "if response is None or not response.get_body():"
           ],
           "after": "def update_provisioning_key(self, key_id"
         }

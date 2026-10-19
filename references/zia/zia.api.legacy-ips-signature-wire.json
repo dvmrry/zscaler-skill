@@ -95,7 +95,8 @@
           "quotes": [
             "Important: the request itself MUST NOT advertise Content-Type: text/csv.",
             "The OneAPI gateway rejects that with HTTP 415 Unsupported Media Type for",
-            "accepted on the request side."
+            "accepted on the request side.",
+            "this body-less GET; only application/json (the SDK default for GET) is"
           ]
         }
       ]
@@ -109,7 +110,9 @@
           "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
           "quotes": [
             "Content-Type: application/octet-stream and Content-Disposition: attachment;",
-            "// The response body is still raw CSV; ReadRaw does not decode it."
+            "// The response body is still raw CSV; ReadRaw does not decode it.",
+            "(GET /ipsSignatureRules/export). The endpoint streams the file body with",
+            "the raw bytes are returned to the caller, which can then write them to"
           ]
         }
       ]
@@ -123,7 +126,9 @@
           "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
           "quotes": [
             "string payloads; the rule text must be wrapped in this object.",
-            "JSON object ({\"ruleText\": \"...\"}) as required by the API and the response"
+            "JSON object ({\"ruleText\": \"...\"}) as required by the API and the response",
+            "POST /ipsSignatureRules/validateRuleText endpoint. The API rejects raw",
+            "IPSSignatureRuleTextValidationRequest is the JSON body accepted by the"
           ]
         }
       ]
@@ -138,7 +143,8 @@
           "quotes": [
             "rule returns HTTP 200 with status=0 and empty error fields. An invalid rule",
             "returns HTTP 400 with a standard error envelope (INVALID_INPUT_ARGUMENT and",
-            "populated struct."
+            "populated struct.",
+            "the diagnostic in \"message\"); the SDK surfaces that as a Go error, not as a"
           ]
         }
       ]
@@ -152,7 +158,11 @@
           "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
           "quotes": [
             "// NOTE: The /ipsSignatureRules/{export,import} endpoints are currently broken",
-            "// reference for when the backend is fixed, but are commented out so callers"
+            "// reference for when the backend is fixed, but are commented out so callers",
+            "upstream (see internal bug tracker). The three functions below are kept as",
+            "/* // GetImportIPSSignatureRulesStatus retrieves the status of the most recent",
+            "custom IPS signature rules CSV import (GET /ipsSignatureRules/import).",
+            "func ImportIPSSignatureRules(ctx context.Context, service *zscaler.Service, csvData []byte) (*http.Response, error) {"
           ]
         }
       ]
@@ -168,7 +178,8 @@
             "Inner double quotes inside the rule text column must be escaped using the",
             "portal's parser rejects \\\" with \"Double quotes not terminated\".",
             "+, \"rule-name\", \"valid suricata rule text\", \"ips-category-name\", \"description\", \"Enable\"",
-            "-, \"rule-name-to-delete\""
+            "-, \"rule-name-to-delete\"",
+            "RFC 4180 doubled-quote convention (\"\") rather than backslash escapes — the"
           ]
         }
       ]
@@ -183,7 +194,10 @@
           "quotes": [
             "produce HTTP 415, so the request is sent as multipart/form-data with the",
             "CSV as a file part named \"file\" (Content-Type: text/csv on the part",
-            "\"csvFile\", \"import\", or \"uploadFile\". Capture the portal's request via"
+            "\"csvFile\", \"import\", or \"uploadFile\". Capture the portal's request via",
+            "from CSV\" file picker. Both raw text/csv and raw application/json bodies",
+            "If the API ever rejects field name \"file\", common alternates to try are",
+            "the browser's network panel to confirm the field name."
           ]
         }
       ]
@@ -204,7 +218,8 @@
           "path": "zscaler/zia/ips_categories.py",
           "quotes": [
             "``[query_params.page]`` {int}: Specifies the page offset.",
-            "request, error = self._request_executor.create_request(http_method, api_url, body, headers, params=query_params)"
+            "request, error = self._request_executor.create_request(http_method, api_url, body, headers, params=query_params)",
+            "``[query_params.page_size]`` {int}: Specifies the page size."
           ]
         }
       ]
@@ -234,7 +249,10 @@
           "after": "def update_ips_signature_rule(",
           "quotes": [
             "Unlike :meth:`add_ips_signature_rule`, this method does **not** call",
-            "itself, so a pre-flight check would reject every legitimate update."
+            "itself, so a pre-flight check would reject every legitimate update.",
+            "dynamic-validation endpoint flags any signature carrying a ``sid``",
+            "(or other unique identifiers) that already exists on the tenant as",
+            "a duplicate — which on an update is the rule being modified"
           ]
         }
       ]

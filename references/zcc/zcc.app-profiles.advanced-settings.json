@@ -392,6 +392,14 @@
           "expect": {
             "description": "Trigger expiration after a Windows user has been locked for the duration specified in the Minimum Time in Locked State (in minutes)."
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/zpaAuthExpOnWinLogonSession",
+          "expect": {
+            "description": "ZPA authentication session."
+          }
         }
       ]
     },
@@ -435,6 +443,16 @@
             "Tunnel Internal Client Connector Traffic: Enable this option for Zscaler Client Connector to tunnel internal traffic (e.g., app updates and policy updates) through Zscaler.",
             "This option is only applicable if you deploy in a no-default route environment and applies to Zscaler Client Connector version 2.12 and later for Windows. If disabled, Zscaler Client Connector sends internal traffic directly.",
             "When this option is enabled, Zscaler Client Connector does not tunnel PAC requests and continues to send PAC requests directly."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/defaults.go",
+          "quotes": [
+            "scalar / list / picker defaults the ZCC UI generates when an",
+            "administrator clicks \"Save\" on a fresh macOS app profile.",
+            "mirror the payload-ios.json fixture captured from a fresh UI save of an",
+            "iOS app profile."
           ]
         }
       ]
@@ -499,7 +517,8 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
-            "Both nested entries are present even when no ruleset is bound (their"
+            "Both nested entries are present even when no ruleset is bound (their",
+            "`id` is then 0), so the wire shape is fixed."
           ]
         }
       ]
@@ -515,6 +534,17 @@
             "EndToEndDiagnostics is the per-network-context end-to-end diagnostics",
             "toggle the macOS web policy ships at the top level (and embedded as",
             "JSON inside policyExtension.zdxLiteConfigObj)."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "after": "type EndToEndDiagnostics struct {",
+          "quotes": [
+            "Trusted int `json:\"trusted\"`",
+            "VpnTrusted int `json:\"vpnTrusted\"`",
+            "OffTrusted int `json:\"offTrusted\"`",
+            "SplitVpnTrusted int `json:\"splitVpnTrusted\"`"
           ]
         }
       ]
@@ -606,7 +636,8 @@
           "source": "zscaler-help",
           "path": "configuring-zscaler-client-connector-app-profiles.json",
           "quotes": [
-            "Bypass Traffic for MMS Applications: Enable this option for Zscaler Client Connector to automatically bypass standard messaging applications on Android."
+            "Bypass Traffic for MMS Applications: Enable this option for Zscaler Client Connector to automatically bypass standard messaging applications on Android.",
+            "The bypassed messaging apps include the Android Messages app."
           ]
         }
       ]

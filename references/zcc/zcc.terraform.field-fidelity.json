@@ -124,7 +124,8 @@
           "quotes": [
             "\"system_proxy\": intToBool(a.SystemProxy),",
             "\"send_all_dns_to_trusted_server\": intToBool(a.SendAllDNSToTrustedServer),",
-            "\"optimise_for_unstable_connections\": intToBool(a.OptimiseForUnstableConnections),"
+            "\"optimise_for_unstable_connections\": intToBool(a.OptimiseForUnstableConnections),",
+            "\"drop_ipv6_traffic_in_ipv6_network\":       intToBool(int(a.DropIpv6TrafficInIpv6Network)),"
           ]
         }
       ]
@@ -323,7 +324,13 @@
             "lbsEnablement = pm.LatencyBasedServerEnablement",
             "lbsProbeInterval = pm.LbsProbeInterval",
             "lbsThresholdLimit = pm.LbsThresholdLimit",
-            "The SDK therefore leaves those fields at"
+            "The SDK therefore leaves those fields at",
+            "lbsProbeSampleSize = pm.LbsProbeSampleSize",
+            "if !pm.LbsProbeSampleSize.IsNull() && !pm.LbsProbeSampleSize.IsUnknown() {",
+            "The SDK's ForwardingProfileZpaAction struct currently declares the",
+            "JSON tags latencyBasedZpaServerEnablement, lbsZpaProbeInterval,",
+            "The same trick handles isSameAsOnTrustedNetwork,",
+            "isSame = pm.IsSameAsOnTrustedNetwork"
           ]
         },
         {
@@ -337,7 +344,8 @@
           "quotes": [
             "LatencyBasedServerEnablement int `json:\"latencyBasedServerEnablement\"`",
             "LbsProbeInterval int `json:\"lbsProbeInterval\"`",
-            "LbsThresholdLimit int `json:\"lbsThresholdLimit\"`"
+            "LbsThresholdLimit int `json:\"lbsThresholdLimit\"`",
+            "LbsProbeSampleSize int `json:\"lbsProbeSampleSize\"`"
           ]
         }
       ],
@@ -362,7 +370,9 @@
           "quotes": [
             "if pv, ok := planAttrs[name]; ok && pv != nil && !pv.IsNull() && !pv.IsUnknown() {",
             "spdObj = overlayKnownPlanAttributes(spdObj, pm.SystemProxyData, systemProxyDataAttrTypes())",
-            "(most notably proxyAction)"
+            "(most notably proxyAction)",
+            "When actionTypeZIA and actionTypeZPA are both 0 the API silently",
+            "spdObj := flattenSystemProxyDataObject(t.SystemProxyData) if pm, ok := planModels[t.NetworkType]; ok {"
           ]
         }
       ],
@@ -490,7 +500,10 @@
           "after": "func (r *FailOpenPolicyResource) Read(",
           "quotes": [
             "if listErr != nil || len(policies) == 0 {",
-            "resp.State.RemoveResource(ctx)"
+            "resp.State.RemoveResource(ctx)",
+            "policy, err := failopen_policy.GetFailOpenPolicyByID(ctx, service, id) if err != nil {",
+            "policies, listErr := failopen_policy.GetFailOpenPolicy(ctx, service, 1000)",
+            "policy = &policies[0]"
           ]
         },
         {
@@ -503,7 +516,8 @@
           "after": "func GetFailOpenPolicyByID(",
           "quotes": [
             "policies, err := GetFailOpenPolicy(ctx, service, 1000)",
-            "return nil, err"
+            "return nil, err",
+            "return nil, fmt.Errorf(\"fail open policy with ID %q not found\", id)"
           ]
         }
       ],
@@ -542,7 +556,37 @@
           ],
           "after": "func flattenProfileActions(",
           "quotes": [
-            "if pm, ok := planModels[a.NetworkType]; ok {"
+            "if pm, ok := planModels[a.NetworkType]; ok {",
+            "isSame = pm.IsSameAsOnTrustedNetwork"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func flattenZpaActions(",
+          "quotes": [
+            "if pm, ok := planModels[a.NetworkType]; ok {",
+            "lbsEnablement = pm.LatencyBasedServerEnablement",
+            "lbsProbeInterval = pm.LbsProbeInterval",
+            "lbsProbeSampleSize = pm.LbsProbeSampleSize",
+            "lbsThresholdLimit = pm.LbsThresholdLimit",
+            "isSame = pm.IsSameAsOnTrustedNetwork"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func flattenUnifiedTunnels(",
+          "quotes": [
+            "if pm, ok := planModels[t.NetworkType]; ok { spdObj = overlayKnownPlanAttributes(spdObj, pm.SystemProxyData, systemProxyDataAttrTypes())"
           ]
         }
       ]
@@ -602,7 +646,9 @@
           "after": "func (r *ForwardingProfileResource) Create(",
           "quotes": [
             "tflog.Info(ctx, \"Forwarding profile POST response\", map[string]any{\"id\": createResp.ID, \"success\": createResp.Success})",
-            "profile, err = findProfileByName(ctx, service, payload.Name)"
+            "profile, err = findProfileByName(ctx, service, payload.Name)",
+            "createResp, err := forwarding_profile.CreateForwardingProfile(ctx, service, payload) if err != nil { resp.Diagnostics.AddError(\"Client Error\", fmt.Sprintf(\"Failed to create forwarding profile: %v\", err)) return }",
+            "profile, err := findProfileByID(ctx, service, createResp.ID) if err != nil { profile, err = findProfileByName(ctx, service, payload.Name)"
           ]
         }
       ],
@@ -671,6 +717,19 @@
             "Active: types.BoolValue(profile.Active == \"1\"),",
             "EnableLWFDriver: types.BoolValue(profile.EnableLWFDriver == \"1\"),"
           ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "string01ToBool = helpers.String01ToBool",
+            "model.Active = string01ToBool(p.Active)",
+            "model.EnableLWFDriver = string01ToBool(p.EnableLWFDriver)"
+          ]
         }
       ],
       "upstream": [
@@ -694,7 +753,12 @@
           "after": "func (i *IntOrString) UnmarshalJSON(",
           "quotes": [
             "*i = IntOrString(int(f))",
-            "*i = IntOrString(int(parsed))"
+            "*i = IntOrString(int(parsed))",
+            "Some ZCC endpoints serialize integer values as JSON floats with a",
+            "trailing .0 (e.g. `1.0`, `-1.0`); Go's json package refuses to",
+            "decode those into int, so retry through float64 and truncate.",
+            "if err := json.Unmarshal(trimmed, &f); err == nil { *i = IntOrString(int(f))",
+            "if parsed, err := strconv.ParseFloat(str, 64); err == nil { *i = IntOrString(int(parsed))"
           ]
         }
       ],
@@ -719,7 +783,11 @@
           "after": "func CreateTrustedNetwork(",
           "quotes": [
             "for attempt := 1; attempt <= 6; attempt++ {",
-            "time.Sleep(2 * time.Second)"
+            "time.Sleep(2 * time.Second)",
+            "POST does not return the new id; resolve by networkName via listByCompany.",
+            "for attempt := 1; attempt <= 6; attempt++ { createdNetwork, _, lookupErr = GetTrustedNetworkByName(ctx, service, network.NetworkName) if lookupErr == nil && createdNetwork != nil { break }",
+            "break } service.Client.GetLogger().Printf(\"[DEBUG] trusted network name lookup attempt %d failed, retrying in 2s: %v\", attempt, lookupErr) time.Sleep(2 * time.Second) }",
+            "if createdNetwork == nil { return nil, resp, fmt.Errorf(\"trusted network created, but failed to retrieve by name '%s': %w\", network.NetworkName, lookupErr)"
           ]
         }
       ],
@@ -805,7 +873,11 @@
           ],
           "quotes": [
             "resource and data source keep working on tenants where the newer",
-            "trusted-network operation probes the v2 list endpoint once and caches"
+            "trusted-network operation probes the v2 list endpoint once and caches",
+            "/zcc/papi/public/v2/trusted-networks endpoints are not yet enabled.",
+            "the verdict for the lifetime of the provider's SDK service handle, so a",
+            "if available { backend = &v2Backend{svc: svc} } else { backend = &v1Backend{svc: svc} }",
+            "var autoCache sync.Map // *zscaler.Service -> Backend"
           ]
         },
         {
@@ -815,7 +887,18 @@
             "HEAD"
           ],
           "quotes": [
-            "created, _, err := tnv1.CreateTrustedNetwork(ctx, b.svc, payload)"
+            "created, _, err := tnv1.CreateTrustedNetwork(ctx, b.svc, payload)",
+            "func (b *v1Backend) Create(ctx context.Context, net *trusted_network_v2.TrustedNetworkV2) (*trusted_network_v2.TrustedNetworkV2, error) {"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/backend_v2.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "created, _, err := trusted_network_v2.Create(ctx, b.svc, net)"
           ]
         }
       ]

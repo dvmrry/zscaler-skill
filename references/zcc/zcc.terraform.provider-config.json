@@ -79,7 +79,7 @@
           "source": "tf-zcc",
           "path": "docs/index.md",
           "quotes": [
-            "The ZCC Terraform Provider authenticates exclusively via",
+            "The ZCC Terraform Provider authenticates exclusively via [OneAPI](https://help.zscaler.com/oneapi/understanding-oneapi) OAuth2 authentication through [Zidentity](https://help.zscaler.com/zidentity/what-zidentity).",
             "This provider does **not** offer a legacy authentication path — the legacy ZCC V2 API client (`zcc_client_id` / `zcc_client_secret` / `zcc_cloud`) is not supported.",
             "Tenants must be migrated to [Zidentity](https://help.zscaler.com/zidentity/what-zidentity) before they can be managed through this provider."
           ]
@@ -129,11 +129,27 @@
             "case c.ClientID != \"\" && c.PrivateKey != \"\" && c.VanityDomain != \"\":",
             "invalid authentication configuration: missing required parameters (client_id, client_secret or private_key, vanity_domain)"
           ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/client/client.go",
+          "after": "case c.ClientID != \"\" && c.ClientSecret != \"\" && c.VanityDomain != \"\":",
+          "quotes": [
+            "if c.Cloud != \"\" { setters = append(setters, zscaler.WithZscalerCloud(c.Cloud)) }"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/client/client.go",
+          "after": "case c.ClientID != \"\" && c.PrivateKey != \"\" && c.VanityDomain != \"\":",
+          "quotes": [
+            "if c.Cloud != \"\" { setters = append(setters, zscaler.WithZscalerCloud(c.Cloud)) }"
+          ]
         }
       ]
     },
     "cloud-optional": {
-      "statement": "The documentation says `zscaler_cloud` is optional and needed only for other environments such as `beta`.",
+      "statement": "The documentation says `zscaler_cloud` is optional and needed only when authenticating to other environments such as `beta`.",
       "tier": "A",
       "evidence": [
         {

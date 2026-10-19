@@ -92,7 +92,7 @@
           "source": "zscaler-help",
           "path": "configuring-log-receiver.json",
           "quotes": [
-            "Define a streaming policy for the log receiver.",
+            "Define a streaming policy for the log receiver. For example, you can create a policy where the receiver only captures logs for a specific segment group or a specific set of session status error codes.",
             "The criteria you can use is dependent upon the Log Type you select."
           ]
         }
@@ -186,7 +186,14 @@
           "path": "zpa/validator.go",
           "quotes": [
             "var supportedLSSUserActivity = []string{",
-            "for _, validFilter := range supportedLSSUserActivity {"
+            "case \"zpn_trans_log\":\nfor _, validFilter := range supportedLSSUserActivity {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_lss_config_controller.go",
+          "quotes": [
+            "Description: \"Filter for the LSS configuration. Format given by the following API to get status codes: /mgmtconfig/v2/admin/lssConfig/statusCodes\","
           ]
         }
       ],
@@ -235,7 +242,26 @@
           "path": "zscaler/zpa/lss.py",
           "quotes": [
             "The LSS payload's ``policyRuleResource`` must include ``policySetId``",
-            "(the id of the parent SIEM_POLICY policy set)"
+            "(the id of the parent SIEM_POLICY policy set)",
+            "Resolves the SIEM policy set id by fetching the SIEM_POLICY policy type."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "after": "def add_lss_config(",
+          "quotes": [
+            "if kwargs.get(\"policy_rules\"):\npolicy_set_id, err = self._get_siem_policy_set_id()",
+            "\"policySetId\": policy_set_id,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "after": "def update_lss_config(",
+          "quotes": [
+            "if kwargs.get(\"policy_rules\"):\npolicy_set_id, err = self._get_siem_policy_set_id()",
+            "\"policySetId\": policy_set_id,"
           ]
         }
       ]
@@ -250,6 +276,23 @@
           "quotes": [
             "var validObjectTypesForAuthLog = map[string]struct{}{ \"IDP\": {}, \"SCIM\": {}, \"SCIM_GROUP\": {}, \"SAML\": {}, \"CLIENT_TYPE\": {}, }",
             "var validObjectTypesForTransLog = map[string]struct{}{ \"IDP\": {}, \"SCIM\": {}, \"SCIM_GROUP\": {}, \"SAML\": {}, \"APP\": {}, \"APP_GROUP\": {}, \"CLIENT_TYPE\": {}, }"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/validator.go",
+          "after": "// Object type validation",
+          "quotes": [
+            "case \"zpn_auth_log\":\nvalidObjectTypes = validObjectTypesForAuthLog\ncase \"zpn_trans_log\":\nvalidObjectTypes = validObjectTypesForTransLog"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "after": "# Creating a New LSS Configuration",
+          "quotes": [
+            "zpn_trans_log: Denotes the User Activity log type.",
+            "zpn_auth_log: Denotes the User Status log type."
           ]
         }
       ]

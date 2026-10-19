@@ -88,7 +88,7 @@
   ],
   "claims": {
     "what-it-is": {
-      "statement": "A sublocation is a location nested under a parent location that references IP addresses encapsulated in the parent's GRE or IPSec tunnel, or passed to the service in X-Forwarded-For headers. It is the same location object as a parent, distinguished by `parentId`: a missing or 0 `parentId` means a parent location.",
+      "statement": "A sublocation is a location nested under a parent location that references IP addresses encapsulated in a GRE or IPSec tunnel, or passed to the service in X-Forwarded-For headers. It is the same location object as a parent, distinguished by `parentId`: a missing or 0 `parentId` means a parent location.",
       "tier": "A",
       "evidence": [
         {
@@ -172,13 +172,23 @@
           "quotes": [
             "After you add a sublocation, the Zscaler service automatically creates a sublocation named other on the Locations page.",
             "The other sublocation is created, by default, for IP addresses that are sent to the cloud from a location that is not already defined in the sublocation. You can rename the other sublocation if desired.",
-            "If the Enable IPv6 option is enabled for your location, the Zscaler service automatically creates a sublocation named other6 in addition to the other sublocation."
+            "If the Enable IPv6 option is enabled for your location, the Zscaler service automatically creates a sublocation named other6 in addition to the other sublocation.",
+            "You can rename the other6 sublocation if desired."
           ]
         },
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/otherSubLocation",
+          "expect": {
+            "x-applicableTo": "SUB",
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/other6SubLocation",
           "expect": {
             "x-applicableTo": "SUB",
             "type": "boolean"
@@ -198,6 +208,8 @@
           "source": "zscaler-help",
           "path": "configuring-locations.json",
           "quotes": [
+            "Enable IPv6: Enable this option to allow IPv6 traffic for the location.",
+            "If you add a sublocation to the location with this option enabled, the service automatically creates new sublocations called other and other6 for this location.",
             "All the existing policy rules referring to the parent location now refer to the other sublocation. You need to manually configure rules to apply to traffic from the sublocation created."
           ]
         }

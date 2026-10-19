@@ -171,7 +171,9 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/saml_attributes.py",
           "quotes": [
-            "http_method = \"post\".upper()"
+            "http_method = \"post\".upper()",
+            "{self._zpa_base_endpoint}",
+            "/samlAttribute"
           ],
           "after": "def add_saml_attribute(self, **kwargs)"
         },
@@ -179,7 +181,9 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/saml_attributes.py",
           "quotes": [
-            "http_method = \"put\".upper()"
+            "http_method = \"put\".upper()",
+            "{self._zpa_base_endpoint}",
+            "/samlAttribute/{attribute_id}"
           ],
           "after": "def update_saml_attribute(self, attribute_id: str, **kwargs)"
         },
@@ -187,7 +191,9 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/saml_attributes.py",
           "quotes": [
-            "http_method = \"delete\".upper()"
+            "http_method = \"delete\".upper()",
+            "{self._zpa_base_endpoint}",
+            "/samlAttribute/{attribute_id}"
           ],
           "after": "def delete_saml_attribute(self, attribute_id: str, microtenant_id: str = None)"
         },
@@ -197,8 +203,34 @@
           "quotes": [
             "resp, err := service.Client.NewRequestDo(ctx, \"POST\", url, nil, samlAttribute, v)",
             "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", url, nil, attribute, nil)",
-            "resp, err := service.Client.NewRequestDo(ctx, \"DELETE\", url, nil, nil, nil)"
+            "resp, err := service.Client.NewRequestDo(ctx, \"DELETE\", url, nil, nil, nil)",
+            "mgmtConfigV1          = \"/zpa/mgmtconfig/v1/admin/customers/\"",
+            "samlAttributeEndpoint = \"/samlAttribute\"",
+            "url := fmt.Sprintf(\"%s%s%s\", mgmtConfigV1, service.Client.GetCustomerID(), samlAttributeEndpoint)"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/saml_attributes.py",
+          "quotes": [
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/samlattribute/zpa_saml_attribute.go",
+          "quotes": [
+            "url := fmt.Sprintf(\"%s%s%s%s\", mgmtConfigV1, service.Client.GetCustomerID(), samlAttributeEndpoint+\"/\", samlAttributeID)"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, samlAttributeID string, attribute *SamlAttribute) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/samlattribute/zpa_saml_attribute.go",
+          "quotes": [
+            "url := fmt.Sprintf(\"%s%s%s%s\", mgmtConfigV1, service.Client.GetCustomerID(), samlAttributeEndpoint+\"/\", samlAttributeID)"
+          ],
+          "after": "func Delete(ctx context.Context, service *zscaler.Service, samlAttributeID string) (*http.Response, error) {"
         }
       ]
     },
@@ -243,6 +275,14 @@
           "expect": {
             "type": "string"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1samlAttribute~1{attrId}/get/responses/200/content/*~1*/schema/properties/idpName",
+          "expect": {
+            "type": "string"
+          }
         }
       ]
     },
@@ -272,6 +312,13 @@
           "path": "zscaler/zpa/saml_attributes.py",
           "quotes": [
             "saml_name (str): Whether to enable the cloud browser isolation banner."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/cbi_banner.py",
+          "quotes": [
+            "banner (bool): Whether to enable the cloud browser isolation banner."
           ]
         }
       ]

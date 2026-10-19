@@ -73,6 +73,17 @@
             "raise ValueError(f\"Unsupported credential_type: {credential_type}\")"
           ],
           "after": "def add_credential(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_credential.py",
+          "quotes": [
+            "raise ValueError(\"Username and password must be provided for USERNAME_PASSWORD type.\")",
+            "raise ValueError(\"Username and private_key must be provided for SSH_KEY type.\")",
+            "raise ValueError(\"Password must be provided for PASSWORD type.\")",
+            "raise ValueError(f\"Unsupported credential_type: {credential_type}\")"
+          ],
+          "after": "def update_credential(self, credential_id: str, **kwargs)"
         }
       ]
     },
@@ -103,7 +114,8 @@
           "quotes": [
             "if time_zone_str not in pytz.all_timezones:",
             "raise ValueError(\"Start time cannot be more than 1 hour in the past.\")",
-            "raise ValueError(\"Start time and end time range cannot exceed 1 year.\")"
+            "raise ValueError(\"Start time and end time range cannot exceed 1 year.\")",
+            "Invalid time zone. Please visit the following site for reference"
           ],
           "after": "def validate_and_convert_times("
         }
@@ -118,7 +130,10 @@
           "path": "zscaler/zpa/pra_approval.py",
           "quotes": [
             "if start_time and end_time:",
-            "start_epoch, end_epoch = validate_and_convert_times(start_time, end_time, time_zone)"
+            "start_epoch, end_epoch = validate_and_convert_times(start_time, end_time, time_zone)",
+            "working_hours = body.get(\"working_hours\") or {}",
+            "time_zone = working_hours.get(\"time_zone\") or \"UTC\"",
+            "body.update({\"startTime\": start_epoch, \"endTime\": end_epoch})"
           ],
           "after": "def add_approval(self, **kwargs)"
         },
@@ -126,7 +141,10 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/pra_approval.py",
           "quotes": [
-            "start_epoch, end_epoch = validate_and_convert_times(start_time, end_time, time_zone)"
+            "start_epoch, end_epoch = validate_and_convert_times(start_time, end_time, time_zone)",
+            "if start_time and end_time:",
+            "time_zone = working_hours.get(\"time_zone\") or \"UTC\"",
+            "body.update({\"startTime\": start_epoch, \"endTime\": end_epoch})"
           ],
           "after": "def update_approval(self, approval_id: str, **kwargs)"
         }
@@ -144,9 +162,18 @@
             "\"type\": rule[\"type\"],",
             "\"lhs\": condition[\"lhs\"],",
             "\"op\": condition[\"op\"],",
-            "\"rhs\": condition[\"rhs\"],"
+            "\"rhs\": condition[\"rhs\"],",
+            "if \"names\" in rule: rule_set[\"names\"] = rule[\"names\"]"
           ],
           "after": "def _create_rule(rule: dict)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_protection.py",
+          "quotes": [
+            "kwargs[\"rules\"] = [self._create_rule(rule) for rule in rules]"
+          ],
+          "after": "def add_custom_control(self, **kwargs)"
         }
       ],
       "conditions": "The KeyError and the dropped keys follow from the dictionary indexing and the fixed keys copied; they were not run."

@@ -61,7 +61,7 @@
             "You require at least one /24 subnet for each Zscaler data center where you need dedicated IP addresses to be provisioned.",
             "You must subscribe to the Zscaler dedicated IP service, which provisions dedicated IP addresses at a single Zscaler data center.",
             "Customer-owned IP addresses must be verified using cryptographic Route Origin Authorization (ROA) for integration into Zscaler's dedicated IP service.",
-            "The IP address prefix must be registered with your Regional Internet Registry (RIR)"
+            "The IP address prefix must be registered with your Regional Internet Registry (RIR), which manages the allocation of numbered resources like IP addresses, and associated with an Autonomous System Number (ASN)."
           ]
         }
       ]
@@ -92,6 +92,9 @@
           "quotes": [
             "Create a self-signed x.509 certificate",
             "attach the public certificate to your netblock where the BYOIP prefix is allocated, in the comment or remarks section of your RIR:",
+            "ARIN: Edit the comments of the prefix record",
+            "RIPE: Edit the remarks of the inetnum record",
+            "APNIC: Edit the remarks of the inetnum record",
             "create a Zscaler BYOIP message with the following format: <version>|<prefix>|<mesg_expire_date>",
             "openssl dgst -sha256 -sigopt rsa_padding_mode:pss",
             "Zscaler recommends setting the expiration date at least one month ahead of creating the message"
@@ -108,6 +111,8 @@
           "path": "zia-dedicated-ip-using-customer-owned-ip-addresses.json",
           "quotes": [
             "After signing your BYOIP message, submit a Zscaler Support ticket with the following information:",
+            "The list of Zscaler data centers where the IP prefixes need to be advertised.",
+            "The Zscaler BYOIP text message and signed message.",
             "the Zscaler Support team validates the authenticity of the routes, advertises the routes from the requested data centers, and provisions the IP addresses from the prefix to your Zscaler tenant."
           ]
         }

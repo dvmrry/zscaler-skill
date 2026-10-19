@@ -74,7 +74,8 @@
           "source": "zscaler-help",
           "path": "configuring-virtual-service-edge-clusters-internet-saas.json",
           "quotes": [
-            "Network Interfaces: 3 interfaces (one for Management, one for the Virtual Service Edge, and one for the LB). These interfaces should be on the same VLAN."
+            "Network Interfaces: 3 interfaces (one for Management, one for the Virtual Service Edge, and one for the LB). These interfaces should be on the same VLAN.",
+            "This VLAN should be accessible by user traffic and have outbound access to the internet."
           ]
         }
       ]
@@ -92,10 +93,13 @@
           "path": "configuring-virtual-service-edge-clusters-internet-saas.json",
           "quotes": [
             "This is used to make an SSH connection to the Virtual Service Edge VM for management.",
+            "It is also used to download Virtual Service Edge builds from the Zscaler cloud.",
             "Health monitoring by the LB",
+            "Outbound data connection (proxied traffic)",
+            "In a Virtual Service Edge standalone, it is used to listen for user traffic",
             "This is used to make an outbound control connection to the Zscaler cloud, as well as to receive initial requests from users.",
-            "It must be in the same subnet as the proxy and cluster IP addresses.",
-            "It must be in the same VLAN as the proxy and LB IP addresses."
+            "It must be in the same subnet as the proxy and cluster IP addresses. It is not required for a Virtual Service Edge standalone.",
+            "In a Virtual Service Edge cluster, it provides fault tolerance and is used to listen for user traffic. This interface does not explicitly get an IP address. | It must be in the same VLAN as the proxy and LB IP addresses. It is not required for a Virtual Service Edge standalone."
           ]
         }
       ]
@@ -130,7 +134,11 @@
           "quotes": [
             "If you want to establish Virtual Service Edge communication with Zscaler cloud on port 443 instead of ports 9422, 9431, and 9442",
             "sudo vzen enable-stdport",
+            "ca: Enables Virtual Service Edge to authenticate and retrieve policy on port 443.",
+            "cds: Enables Virtual Service Edge to download the Virtual Service Edge network configuration on port 443.",
             "smsm: Enables Virtual Service Edge to transmit logs to Zscaler nanolog for analytics on port 443.",
+            "all: Enables Virtual Service Edge to authenticate and retrieve policy, download the Virtual Service Edge network configuration, and transmit logs to Zscaler nanolog for analytics on port 443.",
+            "Restart the Virtual Service Edge using the following command: - sudo vzen restart - Your firewall configuration must be updated",
             "Your firewall configuration must be updated to allow outbound connections from the Virtual Service Edge only on port 443 (replacing 9422, 9431 and 9442)."
           ]
         }
@@ -150,14 +158,22 @@
       ]
     },
     "cluster-article-firewall-page": {
-      "statement": "The Virtual Service Edge cluster configuration article tells the reader to view the firewall requirements at config.zscaler.com/<Zscaler Cloud Name>/fcr, a different address from the config page named for outbound connections.",
+      "statement": "The Virtual Service Edge cluster configuration article tells the reader to view the firewall requirements at config.zscaler.com/<Zscaler Cloud Name>/fcr, a different address from the Virtual Service Edge config page (config.zscaler.com/<Zscaler Cloud Name>/zia-v-sedge) that its own port-443 section and the About Virtual Service Edges article name.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "configuring-virtual-service-edge-clusters-internet-saas.json",
           "quotes": [
-            "To view the firewall requirements, go to config.zscaler.com/<Zscaler Cloud Name>/fcr."
+            "To view the firewall requirements, go to config.zscaler.com/<Zscaler Cloud Name>/fcr.",
+            "ports 9422, 9431, and 9442 listed in the Zscaler config page (https://config.zscaler.com/<Zscaler Cloud Name>/zia-v-sedge)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.json",
+          "quotes": [
+            "Ensure that your firewall allows the outbound connections listed on the Virtual Service Edge config page (i.e., config.zscaler.com/<Zscaler Cloud Name>/zia-v-sedge)"
           ]
         }
       ]

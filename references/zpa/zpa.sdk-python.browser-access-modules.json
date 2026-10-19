@@ -74,7 +74,10 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_ba.py",
           "quotes": [
-            "request, error = self._request_executor.create_request(http_method, api_url, params=query_params)"
+            "request, error = self._request_executor.create_request(http_method, api_url, params=query_params)",
+            "http_method = \"get\".upper()",
+            "{self._zpa_base_endpoint} /application",
+            "query_params = query_params or {}"
           ],
           "after": "def list_segments_ba("
         },
@@ -82,7 +85,11 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_ba_v2.py",
           "quotes": [
-            "query_params.update(kwargs)"
+            "query_params.update(kwargs)",
+            "http_method = \"get\".upper()",
+            "{self._zpa_base_endpoint} /application",
+            "query_params = query_params or {}",
+            "request, error = self._request_executor.create_request(http_method, api_url, body={}, headers={}, params=query_params)"
           ],
           "after": "def list_segments_ba("
         },
@@ -90,7 +97,10 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/application_segment.py",
           "quotes": [
-            "{self._zpa_base_endpoint} /application"
+            "{self._zpa_base_endpoint} /application",
+            "http_method = \"get\".upper()",
+            "query_params = query_params or {}",
+            "request, error = self._request_executor.create_request(http_method, api_url, params=query_params)"
           ],
           "after": "def list_segments(self, query_params"
         }
@@ -112,7 +122,9 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/application_segment.py",
           "quotes": [
-            "from zscaler.zpa.app_segment_by_type import ApplicationSegmentByTypeAPI"
+            "from zscaler.zpa.app_segment_by_type import ApplicationSegmentByTypeAPI",
+            "app_segment_api = ApplicationSegmentByTypeAPI(self._request_executor, self.config)",
+            "segments_list, _, err = app_segment_api.get_segments_by_type(application_type=\"BROWSER_ACCESS\")"
           ]
         }
       ]
@@ -126,7 +138,10 @@
           "path": "zscaler/zpa/app_segments_ba.py",
           "quotes": [
             "segments_list, _, err = app_segment_api.get_segments_by_type(application_type=\"BROWSER_ACCESS\")",
-            "seg.domain == app.get(\"domain\") and str(seg.app_id) == segment_id"
+            "seg.domain == app.get(\"domain\") and str(seg.app_id) == segment_id",
+            "if \"clientless_app_ids\" in body:",
+            "clientless_apps = body.pop(\"clientless_app_ids\")",
+            "body[\"clientlessApps\"] = []"
           ],
           "after": "def update_segment_ba("
         }

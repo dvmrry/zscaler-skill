@@ -54,7 +54,7 @@
     },
     {
       "label": "Crashes on update.",
-      "text": "{{sandbox-update-index-after-logged-error}} {{update-index-panic-sites}} {{update-parks-at-last-rule-order}} URL Filtering is covered in [[zia.terraform.rule-order]]."
+      "text": "{{sandbox-update-index-after-logged-error}} {{update-index-panic-sites}} {{update-parks-at-last-rule-order}} {{update-parks-sites}} URL Filtering is covered in [[zia.terraform.rule-order]]."
     },
     {
       "label": "Empty update replies.",
@@ -106,7 +106,8 @@
           ],
           "quotes": [
             "resp, err := ftp_control_policy.GetFTPControlPolicy(ctx, service)",
-            "return nil"
+            "return nil",
+            "resp, err := ftp_control_policy.GetFTPControlPolicy(ctx, service) if err != nil { return nil } if resp != nil { d.SetId(\"ftp_control\")"
           ],
           "after": "func resourceFTPControlPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         },
@@ -183,7 +184,9 @@
           "quotes": [
             "if _, err := rule_labels.Get(ctx, service, id); err != nil {",
             "if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {",
-            "if _, _, err := rule_labels.Update(ctx, service, id, &req); err != nil {"
+            "if _, _, err := rule_labels.Update(ctx, service, id, &req); err != nil {",
+            "req := expandRuleLabels(d)",
+            "if _, err := rule_labels.Get(ctx, service, id); err != nil { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() { d.SetId(\"\") return nil } } if _, _, err := rule_labels.Update(ctx, service, id, &req); err != nil {"
           ],
           "after": "func resourceRuleLabelsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
@@ -224,7 +227,7 @@
       ]
     },
     "not-found-destroy-keeps-id": {
-      "statement": "When the DLP web rule delete call fails with RESOURCE_NOT_FOUND, Delete treats the rule as already gone and returns `nil` diagnostics, which Terraform accepts as a successful destroy. That is the right outcome; the one difference from the success path is that it returns before the activation step, so nothing triggers activation for this destroy.",
+      "statement": "When the DLP web rule delete call fails with RESOURCE_NOT_FOUND, Delete treats the rule as already gone and returns `nil` diagnostics, which Terraform accepts as a successful destroy. It returns before `d.SetId(\"\")` and before the activation step, so nothing triggers activation for this destroy.",
       "tier": "A",
       "evidence": [
         {
@@ -238,7 +241,8 @@
             "if _, err := dlp_web_rules.Delete(ctx, service, id); err != nil {",
             "if strings.Contains(err.Error(), \"RESOURCE_NOT_FOUND\") {",
             "return nil",
-            "// Check if ZIA_ACTIVATION is set to a truthy value before triggering activation"
+            "// Check if ZIA_ACTIVATION is set to a truthy value before triggering activation",
+            "if strings.Contains(err.Error(), \"RESOURCE_NOT_FOUND\") { log.Printf(\"[INFO] web dlp rule %d not found, skipping deletion\", id) return nil } return diag.FromErr(err) } d.SetId(\"\")"
           ],
           "after": "func resourceDlpWebRulesDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
@@ -281,7 +285,11 @@
             "resp, err := dlp_web_rules.Create(ctx, service, &req)",
             "if diags := resourceDlpWebRulesRead(ctx, d, meta); diags.HasError() {",
             "time.Sleep(10 * time.Second)",
-            "continue"
+            "continue",
+            "for { dlpWebRulesLock.Lock() if isSubRule {",
+            "if dlpWebStartingOrder == 0 {",
+            "dlpWebRulesLock.Unlock() startWithoutLocking := time.Now() order := req.Order if isSubRule { req.Order = dlpWebSubRulesStartingOrder[req.ParentRule] } else { req.Order = dlpWebStartingOrder } resp, err := dlp_web_rules.Create(ctx, service, &req)",
+            "d.SetId(strconv.Itoa(resp.ID)) _ = d.Set(\"rule_id\", resp.ID) if diags := resourceDlpWebRulesRead(ctx, d, meta); diags.HasError() { if time.Since(start) < timeout { time.Sleep(10 * time.Second) continue } return diags }"
           ],
           "after": "func resourceDlpWebRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
@@ -350,7 +358,10 @@
           "quotes": [
             "list, _ := bandwidth_control_rules.GetAll(ctx, service)",
             "bandwidthControlStartingOrder = 1",
-            "req.Order = bandwidthControlStartingOrder"
+            "req.Order = bandwidthControlStartingOrder",
+            "for _, r := range list {",
+            "if bandwidthControlStartingOrder == 0 { bandwidthControlStartingOrder = 1 }",
+            "req.Order = bandwidthControlStartingOrder resp, err := bandwidth_control_rules.Create(ctx, service, &req)"
           ],
           "after": "func resourceBandwdithControlRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
@@ -399,12 +410,14 @@
           "path": "zia/resource_zia_sandbox_rules.go",
           "at": [
             "v4.8.3",
-            "v4.8.8"
+            "v4.8.8",
+            "v4.8.10"
           ],
           "quotes": [
             "log.Printf(\"[ERROR] error getting all sandbox rules: %v\", err)",
             "existingRules = filterOutDefaultRule(existingRules)",
-            "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order",
+            "if err != nil { log.Printf(\"[ERROR] error getting all sandbox rules: %v\", err) } // Filter out Default BA Rule before sorting existingRules = filterOutDefaultRule(existingRules) sort.Slice(existingRules, func(i, j int) bool {"
           ],
           "after": "existingRules, err := sandbox_rules.GetAll(ctx, service)"
         },
@@ -414,9 +427,22 @@
           "quotes": [
             "return diag.FromErr(fmt.Errorf(\"error getting all sandbox rules: %w\", err))",
             "existingRules = filterOutDefaultRule(existingRules)",
-            "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order",
+            "if err != nil { return diag.FromErr(fmt.Errorf(\"error getting all sandbox rules: %w\", err)) } // Filter out Default BA Rule before sorting existingRules = filterOutDefaultRule(existingRules) sort.Slice(existingRules, func(i, j int) bool {"
           ],
-          "after": "existingRules, err := sandbox_rules.GetAll(ctx, service)"
+          "after": "existingRules, err := sandbox_rules.GetAll(ctx, service)",
+          "at": [
+            "v4.8.11",
+            "HEAD"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 4.8.11 (October 8, 2026)",
+            "if the list of existing rules could not be retrieved. The API error is now reported instead."
+          ]
         }
       ],
       "upstream": [
@@ -504,6 +530,18 @@
             "updatedRuleLabel.ID"
           ],
           "after": "func Update(ctx context.Context, service *zscaler.Service, ruleLabelID int, ruleLabels *RuleLabels) (*RuleLabels, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, ruleID int, rules *URLFilteringRule) (*URLFilteringRule, error) {",
+          "quotes": [
+            "updatedRules, _ := resp.(*URLFilteringRule) service.Client.GetLogger().Printf(\"[DEBUG]returning firewall rule from update: %d\", updatedRules.ID)"
+          ]
         }
       ],
       "upstream": [
@@ -612,7 +650,7 @@
       ]
     },
     "update-parks-at-last-rule-order": {
-      "statement": "In the sandbox rules and firewall DNS rules update paths, the order of the last rule in the sorted list of existing rules is taken as `nextAvailableOrder`, and the rule is then updated with rank 7 and that order, so it is parked at the end of the policy before the reorder helper is called. The same three-line sequence follows the same index in the other rule resources listed under the index-panic claim.",
+      "statement": "In the sandbox rules and firewall DNS rules update paths, the order of the last rule in the sorted list of existing rules is taken as `nextAvailableOrder`, and the rule is then updated with rank 7 and that order, so it is parked at the end of the policy before the reorder helper is called.",
       "tier": "A",
       "evidence": [
         {
@@ -624,7 +662,9 @@
           ],
           "quotes": [
             "req.Rank = 7",
-            "req.Order = nextAvailableOrder"
+            "req.Order = nextAvailableOrder",
+            "req.Order = nextAvailableOrder _, err = sandbox_rules.Update(ctx, service, id, &req)",
+            "reorderWithBeforeReorder(OrderRule{Order: intendedOrder, Rank: intendedRank}, req.ID, \"sandbox_rules\","
           ],
           "after": "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
         },
@@ -637,9 +677,35 @@
           ],
           "quotes": [
             "req.Rank = 7",
-            "req.Order = nextAvailableOrder"
+            "req.Order = nextAvailableOrder",
+            "req.Order = nextAvailableOrder _, err = firewalldnscontrolpolicies.Update(ctx, service, id, &req)",
+            "reorderWithBeforeReorder("
           ],
           "after": "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "existingRules, err := sandbox_rules.GetAll(ctx, service)",
+          "quotes": [
+            "sort.Slice(existingRules, func(i, j int) bool { return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order) })"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_dns_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "existingRules, err := firewalldnscontrolpolicies.GetAll(ctx, service)",
+          "quotes": [
+            "sort.Slice(existingRules, func(i, j int) bool { return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order) })"
+          ]
         }
       ]
     },
@@ -651,6 +717,15 @@
         "empty-body-panic-sites"
       ],
       "conditions": "Assumes the empty body arrives with a success status such as 204, which is the case the helper treats as a nil result with a nil error; whether any ZIA update endpoint answers that way is open (gap zia.sdk-go.write-encoding:rule-update-empty-body)."
+    },
+    "update-parks-sites": {
+      "statement": "The same park-at-the-end sequence (`nextAvailableOrder` from the last element, rank 7, that order) follows the same index in the other rule resources listed under the index-panic claim.",
+      "tier": "B",
+      "derived_from": [
+        "update-parks-at-last-rule-order",
+        "update-index-panic-sites"
+      ],
+      "conditions": "Found by a pattern search over the provider's rule resource files at the pinned ref (each has `req.Rank = 7` and `req.Order = nextAvailableOrder` after the index); not quoted."
     }
   },
   "gaps": {

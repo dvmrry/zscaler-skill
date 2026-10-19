@@ -127,7 +127,9 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_application_segment.md",
           "quotes": [
-            "We recommend this model as opposed of the legacy model via `tcp_port_ranges` and or `udp_port_ranges`."
+            "We recommend this model as opposed of the legacy model via `tcp_port_ranges` and or `udp_port_ranges`.",
+            "- `tcp_port_ranges` - (List of String) TCP port ranges used to access the app.",
+            "- `udp_port_ranges` - (List of String) UDP port ranges used to access the app."
           ]
         }
       ]
@@ -197,6 +199,14 @@
             "return fmt.Errorf(\"certificate ID should not be set when 'application_protocol' is HTTP\")",
             "if protocol == \"HTTPS\" && !autoAppProtectEnabled && (!hasCertID || certID.(string) == \"\") {"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 4.4.12 (October 1, 2026)",
+            "- [PR #690](https://github.com/zscaler/terraform-provider-zpa/pull/690) -  Added plan-time validation to `zpa_application_segment_inspection` requiring `certificate_id`"
+          ]
         }
       ],
       "conditions": "Changed upstream in v4.4.12 (checked 2026-10-18): previously \"On an inspection segment the nested app's certificate_id is required when application_protocol is HTTPS and not supported when it is HTTP.\""
@@ -243,6 +253,14 @@
             "if err := validateTCPQuickAck(req); err != nil {"
           ],
           "after": "req := expandAppConnectorGroup(d)\n\tlog.Printf(\"[INFO] Creating zpa app connector group with request"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "after": "func resourceAppConnectorGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := validateTCPQuickAck(req); err != nil {"
+          ]
         }
       ]
     },
@@ -276,7 +294,8 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_app_connector_assistant_schedule.md",
           "quotes": [
-            "When enabling the Assistant Schedule for the first time, you must provide the `customer_id` information."
+            "When enabling the Assistant Schedule for the first time, you must provide the `customer_id` information.",
+            "and the provider will automatically use the value from the environment variable `ZPA_CUSTOMER_ID`"
           ],
           "after": "### Required"
         },
@@ -284,7 +303,8 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_service_edge_assistant_schedule.md",
           "quotes": [
-            "When enabling the Assistant Schedule for the first time, you must provide the `customer_id` information."
+            "When enabling the Assistant Schedule for the first time, you must provide the `customer_id` information.",
+            "and the provider will automatically use the value from the environment variable `ZPA_CUSTOMER_ID`"
           ],
           "after": "### Required"
         }
@@ -305,7 +325,7 @@
       ]
     },
     "provisioning-key-in-state": {
-      "statement": "The provisioning_key value is stored in Terraform state in clear text even though the attribute is marked sensitive; the doc says the ZPA API returns it in clear text and advises an encrypted remote backend, max_usage limits and ip_acl.",
+      "statement": "The provisioning_key value is stored in Terraform state even though the attribute is marked sensitive; the doc says the ZPA API returns it in clear text and advises an encrypted remote backend, max_usage limits and ip_acl.",
       "tier": "A",
       "evidence": [
         {
@@ -314,7 +334,11 @@
           "quotes": [
             "The provisioning key is stored in the Terraform state file.",
             "The ZPA API returns the provisioning key in clear text because it's a necessary operational value",
-            "Enable `ip_acl` to restrict where the key can be used from"
+            "Enable `ip_acl` to restrict where the key can be used from",
+            "This is standard Terraform behavior for all resource attributes, including sensitive ones.",
+            "The attribute is marked as sensitive to prevent accidental exposure in logs and console output",
+            "Use remote state backends with encryption at rest",
+            "Use `max_usage` limits to control key reuse"
           ]
         }
       ]
@@ -346,7 +370,8 @@
             "_ = d.Set(\"name\", resp.Name)",
             "_ = d.Set(\"description\", resp.Description)",
             "_ = d.Set(\"certificate\", resp.Certificate)",
-            "_ = d.Set(\"microtenant_id\", resp.MicrotenantID)"
+            "_ = d.Set(\"microtenant_id\", resp.MicrotenantID)",
+            "\"cert_blob\": { Type: schema.TypeString, Optional: true, ForceNew: true,"
           ]
         }
       ]
@@ -413,7 +438,8 @@
           "path": "docs/resources/zpa_tag_key.md",
           "quotes": [
             "`namespace_id` - (Required, ForceNew) The ID of the tag namespace this key belongs to.",
-            "can be imported by using the composite format `<NAMESPACE ID>/<TAG KEY ID>` or `<NAMESPACE ID>/<TAG KEY NAME>` as the import ID."
+            "can be imported by using the composite format `<NAMESPACE ID>/<TAG KEY ID>` or `<NAMESPACE ID>/<TAG KEY NAME>` as the import ID.",
+            "NOTE: This an Early Access feature."
           ]
         },
         {
@@ -446,7 +472,7 @@
       ]
     },
     "pra-console-application-is-apps-config-id": {
-      "statement": "A PRA console's pra_application.id is the ID of an apps_config entry inside the segment's common_apps_dto, not the segment ID.",
+      "statement": "A PRA console's pra_application.id is documented as the ID of an apps_config block inside the segment's common_apps_dto.",
       "tier": "A",
       "evidence": [
         {
@@ -495,7 +521,8 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_inspection_custom_controls.md",
           "quotes": [
-            "This is used to provide the redirect URL if the default action is set to `REDIRECT`"
+            "This is used to provide the redirect URL if the default action is set to `REDIRECT`",
+            "- `default_action` - (Required) The performed action. Supported values: `PASS`, `BLOCK` and `REDIRECT`"
           ]
         },
         {
@@ -545,7 +572,9 @@
           "quotes": [
             "\"zscalerthree\",",
             "\"zspreview\",",
-            "// Ensure the domain ends with .net"
+            "// Ensure the domain ends with .net",
+            "ValidateFunc: validation.StringInSlice([]string{ \"zscaler\", \"zscloud\", \"zscalerone\", \"zscalertwo\", \"zscalerthree\", \"zscalerbeta\", \"zscalergov\", \"zscalerten\", \"zspreview\", }, false),",
+            "Description: \"ZIA cloud domain (without .net suffix)."
           ]
         },
         {
@@ -553,6 +582,15 @@
           "path": "zpa/resource_zpa_cloud_config.go",
           "quotes": [
             "return domain + \".net\""
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_cloud_config.go",
+          "after": "func resourceZiaCloudConfigCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "domain = domain + \".net\"",
+            "ZIACloudDomain:        domain,"
           ]
         }
       ]
@@ -565,7 +603,11 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_zia_cloud_config.md",
           "quotes": [
-            "This resource is required when configuring the policy type resource `zpa_policy_capabilities_rule`."
+            "This resource is required when configuring the policy type resource `zpa_policy_capabilities_rule`.",
+            "configures the Zscaler Cloud Sandbox Settings in the Zscaler Private Access cloud.",
+            "* `zia_username` - (String) The ZIA admin username with permission to use the api key",
+            "* `zia_password` - (String) The ZIA admin password with permission to use the api key",
+            "* `zia_sandbox_api_token` - (String) The ZIA Sandbox API token"
           ]
         }
       ]
@@ -578,14 +620,16 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_lss_audit_logs.md",
           "quotes": [
-            "resource \"zpa_lss_config_controller\" \"lss_audit_logs\" {"
+            "resource \"zpa_lss_config_controller\" \"lss_audit_logs\" {",
+            "source_log_type = \"zpn_audit_log\""
           ]
         },
         {
           "source": "tf-zpa",
           "path": "docs/resources/zpa_lss_web_browser.md",
           "quotes": [
-            "resource \"zpa_lss_config_controller\" \"lss_browser_access\" {"
+            "resource \"zpa_lss_config_controller\" \"lss_browser_access\" {",
+            "source_log_type = \"zpn_http_trans_log\""
           ]
         },
         {
@@ -595,6 +639,62 @@
             "\"zpa_lss_config_controller\":                    resourceLSSConfigController(),"
           ],
           "after": "ResourcesMap: map[string]*schema.Resource{"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_lss_app_connector_metrics.md",
+          "quotes": [
+            "resource \"zpa_lss_config_controller\" \"lss_app_connector_metrics\" {",
+            "source_log_type = \"zpn_ast_comprehensive_stats\""
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_lss_app_connector_status.md",
+          "quotes": [
+            "resource \"zpa_lss_config_controller\" \"lss_app_connector_status\" {",
+            "source_log_type = \"zpn_ast_auth_log\""
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_lss_app_protection.md",
+          "quotes": [
+            "resource \"zpa_lss_config_controller\" \"lss_app_protection\" {",
+            "source_log_type = \"zpn_waf_http_exchanges_log\""
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_lss_config_user_activity.md",
+          "quotes": [
+            "resource \"zpa_lss_config_controller\" \"lss_user_activity\" {",
+            "source_log_type = \"zpn_trans_log\""
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_lss_config_user_status.md",
+          "quotes": [
+            "resource \"zpa_lss_config_controller\" \"lss_user_activity\" {",
+            "source_log_type = \"zpn_auth_log\""
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_lss_private_service_edge_status.md",
+          "quotes": [
+            "resource \"zpa_lss_config_controller\" \"lss_private_service_edge_group\" {",
+            "source_log_type = \"zpn_sys_auth_log\""
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_lss_private_service_metrics.md",
+          "quotes": [
+            "resource \"zpa_lss_config_controller\" \"lss_app_connector_metrics\" {",
+            "source_log_type = \"zpn_pbroker_comprehensive_stats\""
+          ]
         }
       ]
     },

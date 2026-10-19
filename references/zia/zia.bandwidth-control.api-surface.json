@@ -258,6 +258,16 @@
             "type": "boolean",
             "description": "A Boolean value that indicates whether the rule is a default rule"
           }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-bandwidth-control-policy.json",
+          "quotes": [
+            "The logical relationship between the categories is AND, and the rule conditions within each category have their own set of logical operators applied, explained as follows:",
+            "Where [ Locations OR Location Groups ] AND",
+            "When: [ Time ] AND",
+            "What: [ Bandwidth Classes AND Protocols ]"
+          ]
         }
       ]
     },
@@ -316,9 +326,28 @@
           "source": "tf-zia",
           "path": "zia/validator.go",
           "quotes": [
-            "\"HTTP_PROXY\", \"FOHTTP_RULE\", \"FTP_RULE\", \"HTTPS_RULE\", \"HTTP_RULE\", \"SSL_RULE\", \"TUNNEL_RULE\", \"WEBSOCKETSSL_RULE\","
+            "\"SMRULEF_ZPA_BROKERS_RULE\", \"ANY_RULE\", \"TCP_RULE\", \"UDP_RULE\", \"DOHTTPS_RULE\", \"TUNNELSSL_RULE\", \"HTTP_PROXY\", \"FOHTTP_RULE\", \"FTP_RULE\", \"HTTPS_RULE\", \"HTTP_RULE\", \"SSL_RULE\", \"TUNNEL_RULE\", \"WEBSOCKETSSL_RULE\", \"WEBSOCKET_RULE\", }"
           ],
           "after": "var supportedURLFilteringProtocols = []string{"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1bandwidthControlRules/post/requestBody/content/application~1json/schema/properties/protocols/items",
+          "expect": {
+            "enum": [
+              "ANY_RULE",
+              "DOHTTPS_RULE",
+              "TUNNELSSL_RULE",
+              "HTTP_PROXY",
+              "FOHTTP_RULE",
+              "FTP_RULE",
+              "HTTPS_RULE",
+              "HTTP_RULE",
+              "SSL_RULE",
+              "TUNNEL_RULE"
+            ]
+          }
         }
       ]
     },
@@ -380,7 +409,7 @@
       "conditions": "Derived by matching the type names to the Help class names and the count of eight; no source states the mapping. How a custom class is typed on the wire is not shown."
     },
     "file-size-enum": {
-      "statement": "The Large Files size values are ANY, NONE, FILE_5MB, FILE_10MB, FILE_50MB, FILE_100MB, FILE_250MB, FILE_500MB and FILE_1GB in the API; the Terraform resource accepts FILE_5MB through FILE_1GB.",
+      "statement": "The Large Files size values are ANY, NONE, FILE_5MB, FILE_10MB, FILE_50MB, FILE_100MB, FILE_250MB, FILE_500MB and FILE_1GB in the API; the Terraform resource accepts FILE_5MB, FILE_10MB, FILE_50MB, FILE_100MB, FILE_250MB, FILE_500MB and FILE_1GB (not ANY or NONE).",
       "tier": "A",
       "binds": [
         "zia/bandwidth-classes#fileSize"
@@ -408,14 +437,14 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_bandwidth_classes_file_size.go",
           "quotes": [
-            "\"FILE_5MB\",",
-            "\"FILE_1GB\","
+            "\"file_size\": {",
+            "ValidateFunc: validation.StringInSlice([]string{ \"FILE_5MB\", \"FILE_10MB\", \"FILE_50MB\", \"FILE_100MB\", \"FILE_250MB\", \"FILE_500MB\", \"FILE_1GB\", }, false),"
           ]
         }
       ]
     },
     "application-values": {
-      "statement": "The class applications field takes ANY, NONE, NETSUITE, DROPBOX, BOXNET, YOUTUBE, METACAFE, HULU, DAILYMOTION, SHOUTCAST, SALESFORCE_1, SKYPE, WEBEX, GOTOMEETING, LIVEMEETING, CONNECT and INTERCALL. Terraform accepts only WEBEX, GOTOMEETING, LIVEMEETING, INTERCALL and CONNECT for a web conferencing class, and SKYPE for a VoIP class.",
+      "statement": "The class applications field takes ANY, NONE, NETSUITE, DROPBOX, BOXNET, YOUTUBE, METACAFE, HULU, DAILYMOTION, SHOUTCAST, SALESFORCE_1, SKYPE, WEBEX, GOTOMEETING, LIVEMEETING, CONNECT and INTERCALL. Terraform accepts only WEBEX, GOTOMEETING, LIVEMEETING, INTERCALL and CONNECT for a web conferencing class, and only SKYPE (or an empty value) for a VoIP class.",
       "tier": "A",
       "binds": [
         "zia/bandwidth-classes#applications"
@@ -451,10 +480,10 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_bandwidth_classes_web_conferencing.go",
           "quotes": [
-            "case \"BANDWIDTH_CAT_WEBCONF\":",
-            "\"INTERCALL\":   {},",
-            "case \"BANDWIDTH_CAT_VOIP\":",
-            "\"SKYPE\": {},"
+            "case \"BANDWIDTH_CAT_WEBCONF\": validApps = map[string]struct{}{ \"WEBEX\": {}, \"GOTOMEETING\": {}, \"LIVEMEETING\": {}, \"INTERCALL\": {}, \"CONNECT\": {}, }",
+            "case \"BANDWIDTH_CAT_VOIP\": validApps = map[string]struct{}{ \"SKYPE\": {}, \"\": {}, }",
+            "if _, ok := validApps[app]; !ok {",
+            "return fmt.Errorf(\"application %q is not valid for type %q\", app, classType)"
           ],
           "after": "switch classType {"
         }
@@ -468,8 +497,17 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_bandwidth_classes.go",
           "quotes": [
-            "\"web_applications\": {",
-            "\"url_categories\": {"
+            "\"urls\": {",
+            "\"url_categories\": {",
+            "\"web_applications\": {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_bandwidth_classes.go",
+          "quotes": [
+            "Schema: map[string]*schema.Schema{ \"id\": {",
+            "\"web_applications\": { Type: schema.TypeSet, Optional: true, Elem: &schema.Schema{Type: schema.TypeString}, }, }, } }"
           ]
         },
         {
@@ -484,9 +522,17 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_bandwidth_classes_web_conferencing.go",
           "quotes": [
+            "\"BANDWIDTH_CAT_WEBCONF\",",
             "\"BANDWIDTH_CAT_VOIP\","
           ],
           "after": "\"type\": {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_bandwidth_classes_web_conferencing.go",
+          "quotes": [
+            "\"applications\": {"
+          ]
         }
       ]
     },

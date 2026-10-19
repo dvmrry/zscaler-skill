@@ -42,7 +42,7 @@
     },
     {
       "label": "At creation.",
-      "text": "{{type-assigns-predefined}} {{workload-default}} {{profile-default}} {{omitted-profile-picks-group}}"
+      "text": "{{type-assigns-predefined}} {{type-policy-from-creation}} {{workload-default}} {{profile-default}} {{omitted-profile-picks-group}}"
     },
     {
       "label": "Over time.",
@@ -62,7 +62,7 @@
   ],
   "claims": {
     "type-assigns-predefined": {
-      "statement": "Choosing a Location Type on a location or sublocation assigns it to the matching predefined group automatically, so it is subject to every policy scoped to that group from creation, without an explicit membership choice.",
+      "statement": "Choosing a Location Type on a location or sublocation assigns it to the matching predefined group automatically, without an explicit membership choice.",
       "tier": "A",
       "evidence": [
         {
@@ -82,8 +82,16 @@
       ],
       "binds": [
         "zia/locations#profile"
+      ]
+    },
+    "type-policy-from-creation": {
+      "statement": "A location with a Location Type is therefore subject to every policy scoped to that predefined group from creation.",
+      "tier": "B",
+      "derived_from": [
+        "type-assigns-predefined",
+        "zia.locations.rule-scoping:rules-take-both"
       ],
-      "conditions": "That policies scoped to the group then apply is derived from group scoping, not stated here."
+      "conditions": "Derived from automatic assignment and rules scoping by location group; no source states that policies scoped to the group apply from creation."
     },
     "workload-default": {
       "statement": "A sublocation added to a location created in the Zscaler Admin Console gets the Workload traffic type and the Workload Traffic Group by default; a sublocation added to an Extranet-type location gets the Extranet type and uses the extranet location's DNS server and traffic selector.",
@@ -164,14 +172,16 @@
           "source": "zscaler-help",
           "path": "configuring-locations.json",
           "quotes": [
-            "Exclude from Manual Location Groups: Enable or disable the switch. If enabled, the location cannot be added to manual location groups. The location is also removed from any manual groups it's already assigned to."
+            "Exclude from Manual Location Groups: Enable or disable the switch. If enabled, the location cannot be added to manual location groups. The location is also removed from any manual groups it's already assigned to.",
+            "Exclude from Dynamic Location Groups: Enable or disable this option. If enabled, the location is not assigned to any matching dynamic location groups automatically. The location is also removed from any dynamic groups it is already assigned to."
           ]
         },
         {
           "source": "tf-zia",
           "path": "docs/resources/zia_location_management.md",
           "quotes": [
-            "* `exclude_from_manual_groups` - (Boolean) Enable to prevent the location from being added to manual groups and to remove it from any manual groups it's already assigned to"
+            "* `exclude_from_manual_groups` - (Boolean) Enable to prevent the location from being added to manual groups and to remove it from any manual groups it's already assigned to",
+            "* `exclude_from_dynamic_groups` - (Boolean) Enable to prevent the location from being assigned to any dynamic groups and to remove it from any dynamic groups it's already assigned to"
           ]
         }
       ]
@@ -191,6 +201,7 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_location_management.go",
           "quotes": [
+            "CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {",
             "return errors.New(\"static_location_groups cannot be set when exclude_from_manual_groups is set to true\")",
             "// return errors.New(\"dynamic_location_groups cannot be set when exclude_from_dynamic_groups is set to true\")"
           ]
@@ -206,7 +217,11 @@
           "path": "zia/resource_zia_location_management.go",
           "quotes": [
             "//\"dynamic_location_groups\": setIDsSchemaTypeCustomSpecial(nil, \"Name-ID pairs of locations for which rule must be applied\"),",
-            "// DynamiclocationGroups: expandIDNameExtensionsSet(d, \"dynamic_location_groups\"),"
+            "// DynamiclocationGroups: expandIDNameExtensionsSet(d, \"dynamic_location_groups\"),",
+            "// if err := d.Set(\"dynamic_location_groups\", flattenIDExtensionsListIDs(resp.DynamiclocationGroups)); err != nil {",
+            "\"static_location_groups\": setIDsSchemaTypeCustomSpecial(nil, \"Name-ID pairs of locations for which rule must be applied\"),",
+            "if err := d.Set(\"static_location_groups\", flattenIDExtensionsListIDs(resp.StaticLocationGroups)); err != nil {",
+            "StaticLocationGroups: expandIDNameExtensionsSet(d, \"static_location_groups\"),"
           ]
         },
         {
@@ -222,19 +237,21 @@
       ]
     },
     "ansible-reads-exclude-flags": {
-      "statement": "The ZIA Ansible location module lists both exclude flags in the computed values it strips before its idempotency comparison, so they are read-side only there.",
+      "statement": "The ZIA Ansible location module lists both exclude flags in the computed values it strips from the desired and current location before its idempotency comparison, so a difference in them is never detected.",
       "tier": "A",
       "evidence": [
         {
           "source": "ansible-zia",
           "path": "plugins/modules/zia_location_management.py",
           "quotes": [
-            "\"exclude_from_dynamic_groups\", \"exclude_from_manual_groups\","
+            "\"exclude_from_dynamic_groups\", \"exclude_from_manual_groups\",",
+            "desired_location = normalize_location(location_mgmt)",
+            "current_location = normalize_location(existing_location) if existing_location else {}",
+            "# Compare differences"
           ],
           "after": "Normalize location data by removing computed values."
         }
-      ],
-      "conditions": "Absence from the module's settable arguments is inferred from this list; the argument spec was not enumerated for this claim."
+      ]
     },
     "tf-static-drift-fix": {
       "statement": "The provider changelog records a fix for drift in `static_location_groups` on `zia_location_management` (PR 496, release 4.6.0).",
@@ -244,7 +261,7 @@
           "source": "tf-zia",
           "path": "CHANGELOG.md",
           "quotes": [
-            "Fixed drift with attribute `static_location_groups` in the resource `zia_location_management`"
+            "[PR #496](https://github.com/zscaler/terraform-provider-zia/pull/496) - Fixed drift with attribute `static_location_groups` in the resource `zia_location_management`"
           ]
         }
       ]

@@ -77,7 +77,7 @@
   ],
   "claims": {
     "sends-id-list-only": {
-      "statement": "The ZPA reorder resource does not write a position per rule. `BulkReorder` reads the policy set and every rule of the policy type, sorts the IDs locally, and sends one PUT to the policy set's `reorder` endpoint whose body is a bare ordered list of rule IDs. The configured numbers never go on the wire. The provider's only reorder resource, `zpa_policy_access_rule_reorder`, calls the version 1 policy-set controller's `BulkReorder`; the version 2 controller's `BulkReorder` is not used and not covered here.",
+      "statement": "The ZPA reorder resource does not write a position per rule. `BulkReorder` reads the policy set and every rule of the policy type, sorts the IDs locally, and sends one PUT to the policy set's `reorder` endpoint whose body is a bare ordered list of rule IDs. The configured numbers never go on the wire. The reorder resource `zpa_policy_access_rule_reorder` imports and calls the version 1 policy-set controller (`policysetcontroller`, not `policysetcontrollerv2`); the version 2 controller's `BulkReorder` is not covered here.",
       "tier": "A",
       "evidence": [
         {
@@ -91,7 +91,10 @@
           "quotes": [
             "var ruleIdsOrdered []string",
             "path := fmt.Sprintf(mgmtConfig+service.Client.GetCustomerID()+\"/policySet/%s/reorder\", policySet.ID)",
-            "resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, ruleIdsOrdered, nil)"
+            "resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, ruleIdsOrdered, nil)",
+            "policySet, resp, err := GetByPolicyType(context.Background(), service, policySetType)",
+            "all, resp, err := GetAllByType(context.Background(), service, policySetType)",
+            "sort.SliceStable(all, func(i, j int) bool {"
           ],
           "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
         },
@@ -106,6 +109,29 @@
             "if _, err := policysetcontroller.BulkReorder(ctx, service, d.Get(\"policy_type\").(string), ruleIdToOrder); err != nil {"
           ],
           "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation\" \"github.com/zscaler/zscaler-sdk-go/v3/zscaler/zpa/services/policysetcontroller\" )"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "ResourcesMap: map[string]*schema.Resource{",
+          "quotes": [
+            "\"zpa_policy_access_rule_reorder\":               resourcePolicyAccessRuleReorder(),"
+          ]
         }
       ]
     },
@@ -122,7 +148,8 @@
           ],
           "quotes": [
             "log.Printf(\"[ERROR] Bulk reordering rules failed: %v\", err)",
-            "return resourcePolicyAccessReorderRead(ctx, d, meta)"
+            "return resourcePolicyAccessReorderRead(ctx, d, meta)",
+            "if _, err := policysetcontroller.BulkReorder(ctx, service, d.Get(\"policy_type\").(string), ruleIdToOrder); err != nil { log.Printf(\"[ERROR] Bulk reordering rules failed: %v\", err) return diag.FromErr(err) }"
           ],
           "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         },
@@ -135,9 +162,21 @@
             "HEAD"
           ],
           "quotes": [
-            "return resp, fmt.Errorf(\"API request failed with status code %d: %s\", resp.StatusCode, string(bodyBytes))"
+            "return resp, fmt.Errorf(\"API request failed with status code %d: %s\", resp.StatusCode, string(bodyBytes))",
+            "resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, ruleIdsOrdered, nil) if err != nil { return nil, err }"
           ],
           "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "// reorderAll runs as a background goroutine and reconciles the desired // order of every rule registered for resourceType against the API's"
+          ]
         }
       ]
     },
@@ -193,9 +232,25 @@
           ],
           "quotes": [
             "if rule.Name == \"Default_Rule\" {",
-            "ruleIdsOrdered = append(ruleIdsOrdered, defaultRuleID)"
+            "ruleIdsOrdered = append(ruleIdsOrdered, defaultRuleID)",
+            "sort.SliceStable(all, func(i, j int) bool {",
+            "for _, rule := range all { // Check if this is the Default_Rule if rule.Name == \"Default_Rule\" { defaultRuleID = rule.ID continue } // Add all other rules to the ordered list ruleIdsOrdered = append(ruleIdsOrdered, rule.ID) }",
+            "// Append the Default_Rule to the end if it exists if defaultRuleID != \"\" {",
+            "// If neither rule exists in the map, maintain their relative order return i <= j })"
           ],
           "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "_, managedByTerraform := userDefinedRules.Orders[deceptionID] if !managedByTerraform { ruleIdToOrder[deceptionID] = 1 }"
+          ]
         }
       ]
     },
@@ -213,7 +268,12 @@
           "quotes": [
             "ruleIdToOrder := make(map[string]int)",
             "ruleIdToOrder[deceptionID] = 1",
-            "ruleIdToOrder[id] = order + 1"
+            "ruleIdToOrder[id] = order + 1",
+            "if rule.Name == \"Zscaler Deception\" && rule.RuleOrder == \"1\" {",
+            "_, managedByTerraform := userDefinedRules.Orders[deceptionID] if !managedByTerraform { ruleIdToOrder[deceptionID] = 1 }",
+            "for id, order := range userDefinedRules.Orders { if id == deceptionID { continue } if deceptionAtOne { ruleIdToOrder[id] = order + 1 } else { ruleIdToOrder[id] = order } }",
+            "userDefinedRules, err := getRules(d)",
+            "if _, err := policysetcontroller.BulkReorder(ctx, service, d.Get(\"policy_type\").(string), ruleIdToOrder); err != nil {"
           ],
           "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
@@ -297,7 +357,9 @@
           ],
           "quotes": [
             "for _, rule := range all {",
-            "ruleIdsOrdered = append(ruleIdsOrdered, rule.ID)"
+            "ruleIdsOrdered = append(ruleIdsOrdered, rule.ID)",
+            "all, resp, err := GetAllByType(context.Background(), service, policySetType)",
+            "resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, ruleIdsOrdered, nil)"
           ],
           "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
         }
@@ -336,7 +398,10 @@
           ],
           "quotes": [
             "if currentOrder, exists := currentOrderMap[id]; exists {",
-            "\"order\": strconv.Itoa(order),"
+            "\"order\": strconv.Itoa(order),",
+            "for id := range configuredRules.Orders { if currentOrder, exists := currentOrderMap[id]; exists { configuredRules.Orders[id] = currentOrder } }",
+            "for id, order := range configuredRules.Orders { rulesMap = append(rulesMap, map[string]interface{}{ \"id\": id, \"order\": strconv.Itoa(order), }) }",
+            "if err := d.Set(\"rules\", rulesMap); err != nil {"
           ],
           "after": "func resourcePolicyAccessReorderRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
@@ -422,7 +487,8 @@
           ],
           "after": "// ❌ REMOVE THIS FAULTY SKIP",
           "quotes": [
-            "orders.Orders[id] = order"
+            "orders.Orders[id] = order",
+            "orders.Orders[id] = order } } return &orders, nil }"
           ]
         },
         {
@@ -433,9 +499,22 @@
             "HEAD"
           ],
           "quotes": [
-            "if err := validateRuleOrders(userDefinedRules); err != nil {"
+            "if err := validateRuleOrders(userDefinedRules); err != nil {",
+            "userDefinedRules, err := getRules(d)"
           ],
           "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"rules\": { Type: schema.TypeSet,",
+            "rulesSet, ok := d.Get(\"rules\").(*schema.Set) if ok && rulesSet != nil { for _, r := range rulesSet.List() { rule, ok := r.(map[string]interface{}) if !ok || rule == nil { continue } id := rule[\"id\"].(string) order, _ := strconv.Atoi(rule[\"order\"].(string)) // ❌ REMOVE THIS FAULTY SKIP"
+          ]
         }
       ]
     },
@@ -494,7 +573,10 @@
           ],
           "quotes": [
             "if order, err := strconv.Atoi(rule.RuleOrder); err == nil {",
-            "currentOrderMap[rule.ID] = order"
+            "currentOrderMap[rule.ID] = order",
+            "currentOrderMap := make(map[string]int) for _, rule := range currentRules { if order, err := strconv.Atoi(rule.RuleOrder); err == nil { currentOrderMap[rule.ID] = order } }",
+            "for id := range configuredRules.Orders { if currentOrder, exists := currentOrderMap[id]; exists { configuredRules.Orders[id] = currentOrder } }",
+            "for id, order := range configuredRules.Orders { rulesMap = append(rulesMap, map[string]interface{}{ \"id\": id, \"order\": strconv.Itoa(order), }) }"
           ],
           "after": "func resourcePolicyAccessReorderRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }

@@ -101,6 +101,22 @@
           "expect": {
             "description": "Gets the configured posture profile for the specified ID."
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1posture/get/parameters/[name=page]",
+          "expect": {
+            "description": "Specifies the page number."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1posture/get/parameters/[name=search]",
+          "expect": {
+            "description": "The search string used to support search by features and fields for the API."
+          }
         }
       ]
     },
@@ -134,6 +150,14 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1posture/get/parameters/[name=page]",
+          "expect": {
+            "description": "Specifies the page number."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1posture/get/parameters/[name=pagesize]",
           "expect": {
             "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500."
@@ -150,7 +174,7 @@
       ]
     },
     "go-functions": {
-      "statement": "The Go SDK's postureprofile package has Get (v1 by id), and GetByPostureUDID, GetByName and GetAll on the v2 list; GetByPostureUDID reads the whole list and compares postureUdid, since there is no UDID endpoint.",
+      "statement": "The Go SDK's postureprofile package has Get (v1 by id), and GetByPostureUDID, GetByName and GetAll on the v2 list; GetByPostureUDID reads the whole list and compares postureUdid.",
       "tier": "A",
       "evidence": [
         {
@@ -161,8 +185,36 @@
             "func GetByPostureUDID(ctx context.Context, service *zscaler.Service, postureUDID string)",
             "func GetByName(ctx context.Context, service *zscaler.Service, postureName string)",
             "func GetAll(ctx context.Context, service *zscaler.Service)",
-            "if postureProfile.PostureudID == postureUDID {"
+            "if postureProfile.PostureudID == postureUDID {",
+            "mgmtConfigV1           = \"/zpa/mgmtconfig/v1/admin/customers/\"",
+            "mgmtConfigV2           = \"/zpa/mgmtconfig/v2/admin/customers/\"",
+            "relativeURL := fmt.Sprintf(\"%s/%s\", mgmtConfigV1+service.Client.GetCustomerID()+postureProfileEndpoint, id)"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/postureprofile/zpa_posture_profile.go",
+          "quotes": [
+            "relativeURL := mgmtConfigV2 + service.Client.GetCustomerID() + postureProfileEndpoint",
+            "list, resp, err := common.GetAllPagesGeneric[PostureProfile](ctx, service.Client, relativeURL, \"\")"
+          ],
+          "after": "func GetByPostureUDID(ctx context.Context, service *zscaler.Service, postureUDID string)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/postureprofile/zpa_posture_profile.go",
+          "quotes": [
+            "relativeURL := mgmtConfigV2 + service.Client.GetCustomerID() + postureProfileEndpoint"
+          ],
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, postureName string)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/postureprofile/zpa_posture_profile.go",
+          "quotes": [
+            "relativeURL := mgmtConfigV2 + service.Client.GetCustomerID() + postureProfileEndpoint"
+          ],
+          "after": "func GetAll(ctx context.Context, service *zscaler.Service)"
         }
       ]
     },
@@ -175,7 +227,11 @@
           "path": "zscaler/zpa/posture_profiles.py",
           "quotes": [
             "def list_posture_profiles(self, query_params: Optional[dict] = None)",
-            "def get_profile(self, profile_id: str)"
+            "def get_profile(self, profile_id: str)",
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\"",
+            "self._zpa_base_endpoint_v2 = f\"/zpa/mgmtconfig/v2/admin/customers/{customer_id}\"",
+            "{self._zpa_base_endpoint_v2} /posture",
+            "{self._zpa_base_endpoint} /posture/{profile_id}"
           ]
         }
       ],

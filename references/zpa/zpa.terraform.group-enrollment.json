@@ -72,22 +72,28 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_app_connector_group.go",
           "quotes": [
+            "Type: schema.TypeString, Optional: true, Computed: true,",
             "If not set, the provider will automatically look up the 'Connector' enrollment certificate by name."
-          ]
+          ],
+          "after": "\"enrollment_cert_id\": {"
         },
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_service_edge_group.go",
           "quotes": [
+            "Type: schema.TypeString, Optional: true, Computed: true,",
             "If not set, the provider will automatically look up the 'Service Edge' enrollment certificate by name."
-          ]
+          ],
+          "after": "\"enrollment_cert_id\": {"
         },
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_private_cloud_group.go",
           "quotes": [
+            "Type: schema.TypeString, Optional: true, Computed: true,",
             "ID of the enrollment certificate that can be used for OAuth2 enrollment. If not set, the provider will automatically look up the 'Connector' enrollment certificate by name."
-          ]
+          ],
+          "after": "\"enrollment_cert_id\": {"
         }
       ]
     },
@@ -99,7 +105,32 @@
           "source": "tf-zpa",
           "path": "zpa/utils.go",
           "quotes": [
-            "if v, ok := d.GetOk(\"enrollment_cert_id\"); ok && v.(string) != \"\" {"
+            "if v, ok := d.GetOk(\"enrollment_cert_id\"); ok && v.(string) != \"\" { return nil }"
+          ],
+          "after": "func resolveEnrollmentCertID(ctx context.Context, d *schema.ResourceData, service *zscaler.Service, certName string) error {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "after": "func resourceAppConnectorGroupCreate(",
+          "quotes": [
+            "if err := resolveEnrollmentCertID(ctx, d, service, \"Connector\"); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "after": "func resourceServiceEdgeGroupCreate(",
+          "quotes": [
+            "if err := resolveEnrollmentCertID(ctx, d, service, \"Service Edge\"); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_private_cloud_group.go",
+          "after": "func resourcePrivateCloudGroupCreate(",
+          "quotes": [
+            "if err := resolveEnrollmentCertID(ctx, d, service, \"Connector\"); err != nil {"
           ]
         }
       ]
@@ -201,6 +232,54 @@
           "quotes": [
             "The resolution now also runs on update for the resources `zpa_app_connector_group`, `zpa_service_edge_group`, and `zpa_private_cloud_group`"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "after": "func resourceAppConnectorGroupCreate(",
+          "quotes": [
+            "if err := resolveEnrollmentCertID(ctx, d, service, \"Connector\"); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "after": "func resourceAppConnectorGroupUpdate(",
+          "quotes": [
+            "if err := resolveEnrollmentCertID(ctx, d, service, \"Connector\"); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "after": "func resourceServiceEdgeGroupCreate(",
+          "quotes": [
+            "if err := resolveEnrollmentCertID(ctx, d, service, \"Service Edge\"); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "after": "func resourceServiceEdgeGroupUpdate(",
+          "quotes": [
+            "if err := resolveEnrollmentCertID(ctx, d, service, \"Service Edge\"); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_private_cloud_group.go",
+          "after": "func resourcePrivateCloudGroupCreate(",
+          "quotes": [
+            "if err := resolveEnrollmentCertID(ctx, d, service, \"Connector\"); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_private_cloud_group.go",
+          "after": "func resourcePrivateCloudGroupUpdate(",
+          "quotes": [
+            "if err := resolveEnrollmentCertID(ctx, d, service, \"Connector\"); err != nil {"
+          ]
         }
       ]
     },
@@ -248,15 +327,15 @@
       "conditions": "Follows from the resolver being called only in the create and update functions. The healing needs an update to be planned for the resource; whether a plain refresh-only plan never does so is Terraform behavior, not shown in a source."
     },
     "import-skips-resolver": {
-      "statement": "The App Connector group importer accepts a numeric ID or a name, resolves the name to an ID, and returns; it does not call the enrollment-certificate resolver, and the imported state is hydrated by Read.",
+      "statement": "The App Connector group importer accepts a numeric ID or a name, resolves the name to an ID, and returns; it does not call the enrollment-certificate resolver.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_app_connector_group.go",
           "quotes": [
-            "resp, _, err := appconnectorgroup.GetByName(ctx, service, id)",
-            "return []*schema.ResourceData{d}, nil"
+            "_, parseIDErr := strconv.ParseInt(id, 10, 64) if parseIDErr == nil { // assume if the passed value is an int _ = d.Set(\"id\", id) } else {",
+            "resp, _, err := appconnectorgroup.GetByName(ctx, service, id) if err == nil { d.SetId(resp.ID) _ = d.Set(\"id\", resp.ID) } else { return []*schema.ResourceData{d}, err } } return []*schema.ResourceData{d}, nil }"
           ],
           "after": "StateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {"
         }

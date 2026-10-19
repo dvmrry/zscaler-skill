@@ -35,7 +35,7 @@
   ],
   "claims": {
     "activation-env-gate": {
-      "statement": "The ZIA provider activates configuration after a write only when the `ZIA_ACTIVATION` environment variable parses as true; otherwise changes are left staged.",
+      "statement": "The ZIA provider's in-flight activation after a write runs only when the `ZIA_ACTIVATION` environment variable parses as true; otherwise the provider does not activate and the changes stay pending.",
       "tier": "A",
       "evidence": [
         {
@@ -47,7 +47,22 @@
           ],
           "quotes": [
             "activationEnv, exists := os.LookupEnv(\"ZIA_ACTIVATION\")",
-            "activationBool, err := strconv.ParseBool(activationEnv)"
+            "activationBool, err := strconv.ParseBool(activationEnv)",
+            "// Helper function to check if we should activate based on the ZIA_ACTIVATION environment variable",
+            "if !exists { return false }",
+            "return activationBool"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/zia-activator-overview.md",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "ZIA saves those changes into a pending state.",
+            "Set `ZIA_ACTIVATION=true` and the provider activates in-flight as resources are configured."
           ]
         }
       ]
@@ -101,7 +116,7 @@
       ]
     },
     "auth-settings-update-unconditional": {
-      "statement": "`zia_auth_settings_urls` is the one resource that activates implicitly without checking `ZIA_ACTIVATION`: its create honors the variable, its update always activates.",
+      "statement": "`zia_auth_settings_urls` activates implicitly on update without checking `ZIA_ACTIVATION`: its create honors the variable, its update always activates.",
       "tier": "A",
       "evidence": [
         {
@@ -126,7 +141,8 @@
           "after": "func resourceAuthSettingsUrlsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "// Trigger activation after creating the rule label",
-            "if activationErr := triggerActivation(ctx, zClient); activationErr != nil {"
+            "if activationErr := triggerActivation(ctx, zClient); activationErr != nil {",
+            "_, err := user_authentication_settings.Update(ctx, service, urls) if err != nil { return diag.FromErr(err) } // Trigger activation after creating the rule label if activationErr := triggerActivation(ctx, zClient); activationErr != nil {"
           ]
         }
       ],

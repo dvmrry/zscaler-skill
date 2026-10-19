@@ -86,7 +86,7 @@
           "path": "docs/resources/zia_url_filtering_rules.md",
           "quotes": [
             "Rule orders must always be contiguous (no gaps).",
-            "Deleting a rule must be followed by order number re-adjustment of the remaining rules"
+            "Deleting a rule must be followed by order number re-adjustment of the remaining rules to ensure the API honours the required order."
           ]
         }
       ]
@@ -99,8 +99,8 @@
           "source": "tf-zia",
           "path": "docs/resources/zia_url_filtering_rules.md",
           "quotes": [
-            "`destroy` operations are not supported for predefined rules",
-            "use the Terraform `-target` flag to target the specific rule to be removed"
+            "Predefined rules can be managed via the Terraform provider for reordering purposes; however, `destroy` operations are not supported for predefined rules, and not all attributes available on custom rules apply to them.",
+            "When deleting existing custom rules, use the Terraform `-target` flag to target the specific rule to be removed."
           ]
         }
       ]
@@ -127,27 +127,31 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_firewall_filtering_rules.go",
           "quotes": [
-            "fmt.Errorf(\"deletion of predefined rule '%s' is not allowed\", rule.Name)"
+            "if err := validateFirewallRule(*rule); err != nil {",
+            "if rule.Predefined { return diag.FromErr(fmt.Errorf(\"deletion of predefined rule '%s' is not allowed\", rule.Name))"
           ]
         },
         {
           "source": "tf-zia",
           "path": "zia/resource_zia_firewall_filtering_rules.go",
           "quotes": [
+            "if req.Name == \"Office 365 One Click Rule\" || req.Name == \"UCaaS One Click Rule\" {",
+            "if req.Name == \"Block All IPv6\" || req.Name == \"Block malicious IPs and domains\" {",
             "req.Name == \"Default Firewall Filtering Rule\""
           ]
         }
       ]
     },
     "firewall-predefined-import-then-destroy-fails": {
-      "statement": "A predefined firewall rule can be imported into state, but `terraform destroy` then fails; the documented route is to remove the custom rules you want deleted and re-apply.",
+      "statement": "A predefined firewall rule can be imported into state, but `terraform destroy` then fails; the documented route is to remove the rules you want to delete and re-run `terraform apply`.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zia",
           "path": "docs/resources/zia_firewall_filtering_rule.md",
           "quotes": [
-            "the provider will fail when executing `terraform destroy`"
+            "The import of `predefined` rules is still possible in case you want o have them under the Terraform management; however, remember that these rules cannot be deleted.",
+            "the provider will fail when executing `terraform destroy`; hence, you must remove the rules you want to delete, and re-run `terraform apply` instead."
           ]
         }
       ]

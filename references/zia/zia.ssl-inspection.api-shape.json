@@ -39,7 +39,7 @@
     },
     {
       "label": "Tokens.",
-      "text": "{{server-certificates-tokens}} {{tls-version-tokens}}"
+      "text": "{{server-certificates-tokens}} {{pass-thru-console-name}} {{tls-version-tokens}}"
     },
     {
       "label": "Validator rules not recorded elsewhere.",
@@ -364,7 +364,7 @@
       ]
     },
     "server-certificates-tokens": {
-      "statement": "`serverCertificates` takes `ALLOW`, `BLOCK` or `PASS_THRU` under `decryptSubActions`, but only `ALLOW` or `BLOCK` under `doNotDecryptSubActions`. The console's Pass Through is the token `PASS_THRU`, so a filter on `PASSTHROUGH` never matches.",
+      "statement": "`serverCertificates` takes `ALLOW`, `BLOCK` or `PASS_THRU` under `decryptSubActions`, but only `ALLOW` or `BLOCK` under `doNotDecryptSubActions`.",
       "tier": "A",
       "binds": [
         "zia/ssl-inspection-rules#action"
@@ -498,7 +498,16 @@
           "source": "sdk-python",
           "path": "zscaler/zia/models/ssl_inspection_rules.py",
           "quotes": [
-            "self.show_eun = next((config[k] for k in [\"show_eun\", \"showEun\", \"showEUN\"] if k in config), False)"
+            "self.show_eun = next((config[k] for k in [\"show_eun\", \"showEun\", \"showEUN\"] if k in config), False)",
+            "config.get(\"show_eun\")  # ← used by the converted keys"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "\"show_eun\": \"showEUN\",",
+            "\"show_eunatp\": \"showEUNATP\","
           ]
         }
       ],
@@ -507,7 +516,7 @@
       ]
     },
     "python-kwargs-casing": {
-      "statement": "The Python SDK takes snake_case keyword arguments and camelCases the whole request body before sending; an explicit exception table makes `show_eun`, `show_eunatp`, `min_tls_version`, `min_client_tls_version` and `min_server_tls_version` become the contract spellings, so jq queries on snapshot data must use the camelCase names.",
+      "statement": "The Python SDK takes snake_case keyword arguments and camelCases the whole request body before sending; an explicit exception table makes `show_eun`, `show_eunatp`, `min_tls_version`, `min_client_tls_version` and `min_server_tls_version` become the contract spellings.",
       "tier": "A",
       "conditions": "The jq statement is advice following from the wire being camelCase; snapshot data comes from the API, not from the Python SDK.",
       "evidence": [
@@ -517,7 +526,9 @@
           "quotes": [
             "\"show_eun\": \"showEUN\",",
             "\"show_eunatp\": \"showEUNATP\",",
-            "\"min_client_tls_version\": \"minClientTLSVersion\","
+            "\"min_client_tls_version\": \"minClientTLSVersion\",",
+            "\"min_tls_version\": \"minTLSVersion\",",
+            "\"min_server_tls_version\": \"minServerTLSVersion\","
           ]
         },
         {
@@ -531,7 +542,7 @@
       ]
     },
     "python-no-client-validation": {
-      "statement": "Apart from key and ID rewriting, the Python SDK sends the caller's keyword arguments as the request body without checking the action: `add_rule` assigns `body = kwargs`, so a `decryptSubActions` block on a `DO_NOT_DECRYPT` rule, or any of the combinations the Go SDK rejects, reaches the API unchecked.",
+      "statement": "Apart from turning `enabled` into `state`, rewriting ID fields and camelCasing keys, the Python SDK sends the caller's keyword arguments as the request body without checking the action: `add_rule` assigns `body = kwargs`, so a `decryptSubActions` block on a `DO_NOT_DECRYPT` rule, or any of the combinations the Go SDK rejects, reaches the API unchecked.",
       "tier": "A",
       "conditions": "Code read: no validation step appears between kwargs and the request. What the API itself does with such a body is gap zia.sdk-go.service-defects:ssl-action-api-contract.",
       "evidence": [
@@ -539,9 +550,30 @@
           "source": "sdk-python",
           "path": "zscaler/zia/ssl_inspection_rules.py",
           "quotes": [
-            "body = kwargs"
+            "body = kwargs",
+            "if \"enabled\" in body:",
+            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\"",
+            "local_reformat_params = [param for param in reformat_params if param[0] != \"url_categories\"]",
+            "transform_common_id_fields(local_reformat_params, body, body)",
+            "request, error = self._request_executor.create_request("
           ],
           "after": "Adds a new ssl inspection filter rule."
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "body = convert_keys_to_camel_case(body)"
+          ],
+          "after": "# Preserve existing logic for other services"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+          "quotes": [
+            "when action.type is 'BLOCK', neither decryptSubActions nor doNotDecryptSubActions can be set",
+            "when action.type is 'DECRYPT', neither showEUN nor showEUNATP can be set"
+          ]
         }
       ],
       "gaps": [
@@ -549,7 +581,7 @@
       ]
     },
     "go-validator-block-and-cert-rules": {
-      "statement": "Beyond the required-field rules recorded in the SDK defects, the Go validator also rejects a `DECRYPT` rule that sets `showEUN` or `showEUNATP`, a `BLOCK` rule that carries either sub-action block or sets `showEUNATP`, and any rule with `overrideDefaultCertificate` false that attaches `sslInterceptionCert`.",
+      "statement": "Beyond the required-field rules recorded in the SDK defects, the Go validator also rejects a `DECRYPT` rule that sets `showEUN` or `showEUNATP`, a `BLOCK` rule that carries either sub-action block or sets `showEUNATP`, and a `DECRYPT` or `BLOCK` rule with `overrideDefaultCertificate` false that attaches `sslInterceptionCert`.",
       "tier": "A",
       "binds": [
         "zia/ssl-inspection-rules#action",
@@ -564,7 +596,8 @@
             "when action.type is 'DECRYPT', neither showEUN nor showEUNATP can be set",
             "when action.type is 'BLOCK', neither decryptSubActions nor doNotDecryptSubActions can be set",
             "when action.type is 'BLOCK', showEUNATP cannot be set",
-            "when action.type is 'BLOCK' and overrideDefaultCertificate is false, sslInterceptionCert cannot be set"
+            "when action.type is 'BLOCK' and overrideDefaultCertificate is false, sslInterceptionCert cannot be set",
+            "when action.type is 'DECRYPT' and overrideDefaultCertificate is false, sslInterceptionCert cannot be set"
           ]
         }
       ],
@@ -615,7 +648,7 @@
       ]
     },
     "mcp-list-query": {
-      "statement": "The SSL rule list tool takes no filter arguments because the API offers neither server-side search nor pagination; the MCP bridge adds an optional JMESPath `query` that filters client-side after the SDK call, and its keys are the returned records' keys, usually snake_case even where the API documents camelCase.",
+      "statement": "The SSL rule list tool takes no filter arguments because the API offers neither server-side search nor pagination; the MCP bridge adds an optional JMESPath `query` that filters client-side after the API call, and its keys are the returned records' keys, usually snake_case even where the API documents camelCase.",
       "tier": "A",
       "evidence": [
         {
@@ -631,9 +664,20 @@
           "quotes": [
             "call, for client-side filtering and projection.",
             "of the returned records, which are usually snake_case",
-            "even where the Zscaler API documents camelCase"
+            "even where the Zscaler API documents camelCase",
+            "_QUERY_PARAM = \"query\"",
+            "\"Optional JMESPath expression applied to the results after the API \""
           ]
         }
+      ]
+    },
+    "pass-thru-console-name": {
+      "statement": "The console's Pass Through option is the token `PASS_THRU`, so a filter on `PASSTHROUGH` never matches.",
+      "tier": "B",
+      "conditions": "Inferred from the parallel lists: the console offers Allow, Pass Through and Block on an Inspect rule and only Allow and Block on a Do Not Inspect + Evaluate rule, matching the two enums; no source names the mapping.",
+      "derived_from": [
+        "zia.ssl-inspection.api-shape:server-certificates-tokens",
+        "zia.ssl-inspection.actions:untrusted-certs"
       ]
     }
   },

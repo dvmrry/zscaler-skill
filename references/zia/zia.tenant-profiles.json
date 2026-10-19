@@ -145,7 +145,9 @@
           "source": "zscaler-help",
           "path": "about-tenant-profiles.json",
           "quotes": [
-            "Cloud Application: The cloud application for which the tenant profile is created (e.g., Dropbox, Google, Microsoft Login Services)."
+            "Cloud Application: The cloud application for which the tenant profile is created (e.g., Dropbox, Google, Microsoft Login Services).",
+            "For each tenant profile, you can see the following:",
+            "Details: The configuration details of the tenant profile."
           ]
         }
       ],
@@ -172,7 +174,8 @@
           "quotes": [
             "In the Tenant Profile Name field, enter a unique name for the tenant profile.",
             "This name is displayed while configuring the respective Cloud App Control policy rules.",
-            "The description cannot exceed 10,240 characters."
+            "The description cannot exceed 10,240 characters.",
+            "Description: (Optional) Enter any additional comments or information."
           ]
         }
       ]
@@ -185,7 +188,15 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
           "quotes": [
-            "TenancyProfileIDs []common.IDNameExtensions"
+            "TenancyProfileIDs []common.IDNameExtensions",
+            "TenancyProfileIDs []common.IDNameExtensions `json:\"tenancyProfileIds,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "quotes": [
+            "d.Set(\"tenancy_profile_ids\", flattenIDExtensionsListIDs(resp.TenancyProfileIDs))"
           ]
         }
       ],
@@ -214,7 +225,8 @@
           "source": "zscaler-help",
           "path": "adding-tenant-profiles.json",
           "quotes": [
-            "However, for YouTube and Amazon Web Services, subsequent policies are evaluated, so an explicit block policy is required to block other tenants for them."
+            "However, for YouTube and Amazon Web Services, subsequent policies are evaluated, so an explicit block policy is required to block other tenants for them.",
+            "Allowing a specific tenant automatically blocks other tenants for most of the cloud applications, and subsequent policies are not evaluated."
           ]
         }
       ]

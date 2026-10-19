@@ -110,7 +110,9 @@
           "quotes": [
             "func CreateUser(ctx context.Context, service *zscaler.ScimZPAService, scimUser *ScimUser)",
             "func DeleteUser(ctx context.Context, service *zscaler.ScimZPAService, userID string)",
-            "relativeURL := fmt.Sprintf(\"%s%s/%s\", service.Client.ScimConfig.IDPId, userScimConfigEndpoint, userID)"
+            "relativeURL := fmt.Sprintf(\"%s%s/%s\", service.Client.ScimConfig.IDPId, userScimConfigEndpoint, userID)",
+            "func UpdateUser(ctx context.Context, service *zscaler.ScimZPAService, userID string, scimUser *ScimUser)",
+            "func GetAllUsers(ctx context.Context, service *zscaler.ScimZPAService, count ...int)"
           ],
           "after": "func GetUser(ctx context.Context"
         },
@@ -153,21 +155,23 @@
       ]
     },
     "pra-cbi-layout": {
-      "statement": "The Go SDK nests PRA and CBI services in privilegedremoteaccess and cloudbrowserisolation package trees with the same routes the Python pra_* and cbi_* modules use, so the difference is layout, not API coverage.",
+      "statement": "The Go SDK nests PRA and CBI services in privilegedremoteaccess and cloudbrowserisolation package trees; the PRA portal and CBI region services use the same routes as the Python pra_portal and cbi_region modules.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/privilegedremoteaccess/praportal/praportal.go",
           "quotes": [
-            "praPortalEndpoint = \"/praPortal\""
+            "praPortalEndpoint = \"/praPortal\"",
+            "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\""
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/cloudbrowserisolation/cbiregions/cbiregions.go",
           "quotes": [
-            "cbiRegionsEndpoint = \"/regions\""
+            "cbiRegionsEndpoint = \"/regions\"",
+            "cbiConfig = \"/zpa/cbiconfig/cbi/api/customers/\""
           ]
         },
         {
@@ -176,6 +180,22 @@
           "quotes": [
             "def pra_portal(self) -> PRAPortalAPI:",
             "def cbi_region(self) -> CBIRegionAPI:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_portal.py",
+          "quotes": [
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\"",
+            "{self._zpa_base_endpoint} /praPortal \"\"\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/cbi_region.py",
+          "quotes": [
+            "self._cbi_base_endpoint = f\"/zpa/cbiconfig/cbi/api/customers/{customer_id}\"",
+            "/regions"
           ]
         }
       ]
@@ -190,14 +210,22 @@
           "quotes": [
             "def add_group(self, group_set_id: str, **kwargs)",
             "def search_groups(self, group_set_id: str, **kwargs)",
-            "def reorder_group(self, group_set_id: str, group_id: str, new_order: str"
+            "def reorder_group(self, group_set_id: str, group_id: str, new_order: str",
+            "def list_groups(self, group_set_id: str, query_params: Optional[dict] = None)",
+            "def delete_group(self, group_set_id: str, group_id: str, microtenant_id: str = None)",
+            "def get_group(self, group_set_id: str, group_id: str, query_params: Optional[dict] = None)",
+            "def update_group(self, group_set_id: str, group_id: str, **kwargs)"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/policy_group_rule.py",
           "quotes": [
-            "def add_rule(self, group_set_id: str, group_id: str, **kwargs)"
+            "def add_rule(self, group_set_id: str, group_id: str, **kwargs)",
+            "def list_rules(self, group_set_id: str, group_id: str, query_params: Optional[dict] = None)",
+            "def delete_rule(self, group_set_id: str, group_id: str, rule_id: str, microtenant_id: str = None)",
+            "def get_rule(",
+            "def reorder_rule("
           ]
         },
         {
@@ -205,7 +233,10 @@
           "path": "zscaler/zpa/policy_group_set.py",
           "quotes": [
             "def get_set_summary_stats(",
-            "def get_set(self, group_set_id: str"
+            "def get_set(self, group_set_id: str",
+            "def list_sets(self, query_params: Optional[dict] = None)",
+            "def get_set_by_policy_type(",
+            "def get_set_summary(self, policy_type: str, query_params: Optional[dict] = None)"
           ]
         }
       ]
@@ -222,6 +253,17 @@
             "func AddZIACloudConfig(",
             "func UpdateSessionTerminationOnReath("
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/zia_customer_config.py",
+          "quotes": [
+            "http_method = \"get\".upper() api_url = format_url(f\"\"\" {self._zpa_base_endpoint} /config/isZiaCloudConfigAvailable",
+            "http_method = \"get\".upper() api_url = format_url(f\"\"\" {self._zpa_base_endpoint} /config/ziaCloudConfig",
+            "http_method = \"post\".upper() api_url = format_url(f\"\"\" {self._zpa_base_endpoint} /config/ziaCloudConfig",
+            "http_method = \"get\".upper() api_url = format_url(f\"\"\" {self._zpa_base_endpoint} /config/sessionTerminationOnReauth",
+            "http_method = \"put\".upper() api_url = format_url(f\"\"\" {self._zpa_base_endpoint} /config/sessionTerminationOnReauth"
+          ]
         }
       ]
     },
@@ -237,7 +279,9 @@
             "func Create(",
             "func Update(",
             "func Delete(",
-            "func GetAll("
+            "func GetAll(",
+            "func Get(ctx context.Context, service *zscaler.Service, aupID string)",
+            "func GetByName(ctx context.Context, service *zscaler.Service, userPortalName string)"
           ]
         }
       ]

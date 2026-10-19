@@ -116,8 +116,9 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go",
           "quotes": [
-            "scheduleEndpoint = \"/connectorSchedule\""
-          ]
+            "import ( \"context\" \"fmt\" \"net/http\" \"github.com/zscaler/zscaler-sdk-go/v3/zscaler\" ) const ( mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\" scheduleEndpoint = \"/connectorSchedule\" )"
+          ],
+          "note": "the schedule package declares its own scheduleEndpoint and does not import appconnectorcontroller"
         },
         {
           "source": "sdk-go",
@@ -142,6 +143,14 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connectorSchedule/get",
+          "expect": {
+            "operationId": "Get a Configured App Connector schedule frequency."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connectorSchedule/post/parameters/[name=customerId]",
           "expect": {
             "in": "path"
@@ -150,10 +159,54 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connectorSchedule",
+          "expect_absent": [
+            "put",
+            "delete",
+            "patch"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule/get",
+          "expect": {
+            "operationId": "Get Private Broker Schedule"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule/post",
+          "expect": {
+            "operationId": "Save Private Broker Schedule"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule",
+          "expect_absent": [
+            "put",
+            "delete",
+            "patch"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule~1{id}/put/parameters/[name=customerId]",
           "expect": {
             "in": "path"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/mgmtconfig/v1/admin/customers/{customerId}/connectorSchedule/{id}"
+          ]
         }
       ]
     },
@@ -166,27 +219,42 @@
           "path": "zscaler/zpa/services/oauth2_user/oauth2_user.go",
           "quotes": [
             "relativeURL := fmt.Sprintf(\"%s%s/%s/usercodes\", mgmtConfig, service.Client.GetCustomerID(), associationType)",
-            "relativeURL := fmt.Sprintf(\"%s%s/%s/usercodes/status\", mgmtConfig, service.Client.GetCustomerID(), associationType)"
+            "relativeURL := fmt.Sprintf(\"%s%s/%s/usercodes/status\", mgmtConfig, service.Client.GetCustomerID(), associationType)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()}, request, &v)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()}, requestBody, &v)"
           ]
         }
       ]
     },
     "stepup-no-writes": {
-      "statement": "Neither the Go step_up_auth service nor the Python stepup_auth_level module has a create, update or delete call, and the OpenAPI document has no step-up route.",
+      "statement": "Neither the Go step_up_auth service nor the Python stepup_auth_level module has a create, update or delete call, and the OpenAPI document has no route at their /stepupauthlevel path.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/step_up_auth/step_up_auth.go",
           "quotes": [
-            "func GetStepupAuthLevel(ctx context.Context, service *zscaler.Service) ([]string, *http.Response, error)"
-          ]
+            "func GetStepupAuthLevel(ctx context.Context, service *zscaler.Service) ([]string, *http.Response, error)",
+            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + \"/stepupauthlevel\""
+          ],
+          "note": "GetStepupAuthLevel is the only func in the package"
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/stepup_auth_level.py",
           "quotes": [
-            "def get_step_up_auth_levels(self, query_params: Optional[dict] = None)"
+            "def __init__(self, request_executor, config):",
+            "def get_step_up_auth_levels(self, query_params: Optional[dict] = None)",
+            "/stepupauthlevel"
+          ],
+          "note": "the module's complete method list: __init__ and one read"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/mgmtconfig/v1/admin/customers/{customerId}/stepupauthlevel"
           ]
         }
       ]

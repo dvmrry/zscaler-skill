@@ -186,6 +186,14 @@
           "expect": {
             "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500."
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/parameters/[name=page]",
+          "expect": {
+            "description": "Specifies the page number."
+          }
         }
       ]
     },
@@ -251,6 +259,38 @@
           "expect": {
             "type": "string"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/responses/200/content/*~1*/schema/properties/list/items/properties",
+          "expect": {
+            "id": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            },
+            "idpId": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "idpGroupId": {
+              "type": "string"
+            },
+            "internalId": {
+              "type": "string"
+            },
+            "creationTime": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "modifiedTime": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
         }
       ]
     },
@@ -278,6 +318,50 @@
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}~1scimattribute/get/responses/200/content/*~1*/schema/properties/list/items/properties/caseSensitive",
           "expect": {
             "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}~1scimattribute/get/responses/200/content/*~1*/schema/properties/list/items/properties",
+          "expect": {
+            "name": {
+              "type": "string"
+            },
+            "idpId": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "dataType": {
+              "type": "string"
+            },
+            "schemaURI": {
+              "type": "string"
+            },
+            "multivalued": {
+              "type": "boolean"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "caseSensitive": {
+              "type": "boolean"
+            },
+            "mutability": {
+              "type": "string"
+            },
+            "returned": {
+              "type": "string"
+            },
+            "uniqueness": {
+              "type": "boolean"
+            },
+            "canonicalValues": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
           }
         }
       ]
@@ -312,7 +396,10 @@
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/scimgroup/zpa_scim_group.go",
-          "at": ["v3.8.48", "HEAD"],
+          "at": [
+            "v3.8.48",
+            "HEAD"
+          ],
           "quotes": [
             "func Get(ctx context.Context, service *zscaler.Service, scimGroupID string)",
             "func GetByName(ctx context.Context, service *zscaler.Service, scimName, idpId string)",
@@ -331,13 +418,18 @@
           "source": "sdk-go",
           "path": "CHANGELOG.md",
           "quotes": [
-            "Added `IamIdpID` and `IamIdpName` to `scimgroup.ScimGroup`, and the function `scimgroup.GetByNameAndIamIdp`"
+            "Added `IamIdpID` and `IamIdpName` to `scimgroup.ScimGroup`, and the function `scimgroup.GetByNameAndIamIdp`",
+            "[PR #465](https://github.com/zscaler/zscaler-sdk-go/pull/465)",
+            "# 3.8.50 (October 1, 2026)"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/scimattributeheader/zpa_scim_attribute_header.go",
           "quotes": [
+            "func Get(ctx context.Context, service *zscaler.Service, idpId, scimAttrHeaderID string)",
+            "func GetByName(ctx context.Context, service *zscaler.Service, scimAttributeName, IdpId string)",
+            "func GetAllByIdpId(ctx context.Context, service *zscaler.Service, IdpId string)",
             "func GetValues(ctx context.Context, service *zscaler.Service, idpId, ScimAttrHeaderID string)",
             "func SearchValues(ctx context.Context, service *zscaler.Service, idpId, ScimAttrHeaderID, searchQuery string)"
           ]
@@ -368,6 +460,15 @@
           "quotes": [
             "if strings.EqualFold(scimAttribute.Name, scimAttributeName) {"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimattributeheader/zpa_scim_attribute_header.go",
+          "quotes": [
+            "relativeURL := fmt.Sprintf(\"%s/%s%s\", mgmtConfig+service.Client.GetCustomerID()+idpId, IdpId, scimAttrEndpoint)",
+            "list, resp, err := common.GetAllPagesGeneric[ScimAttributeHeader](ctx, service.Client, relativeURL, \"\")"
+          ],
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, scimAttributeName, IdpId string)"
         }
       ]
     },
@@ -394,7 +495,10 @@
           "path": "zpa/data_source_zpa_scim_group.go",
           "quotes": [
             "return diag.FromErr(fmt.Errorf(\"IDP name or ID is required\"))",
-            "if idExists && id != \"\" {"
+            "if idExists && id != \"\" {",
+            "res, _, err := scimgroup.Get(ctx, service, id)",
+            "} else if nameExists && name != \"\" && idpResp != nil {",
+            "res, _, err = scimgroup.GetByName(ctx, service, name, idpResp.ID)"
           ]
         },
         {
@@ -402,7 +506,12 @@
           "path": "zpa/data_source_zpa_scim_attribute_header.go",
           "quotes": [
             "return diag.FromErr(fmt.Errorf(\"IDP name or ID is required\"))",
-            "values, err := scimattributeheader.GetValues(ctx, service, resp.IdpID, resp.ID)"
+            "values, err := scimattributeheader.GetValues(ctx, service, resp.IdpID, resp.ID)",
+            "if idExists && id != \"\" {",
+            "res, _, err := scimattributeheader.Get(ctx, service, idpResp.ID, id)",
+            "} else if nameExists && name != \"\" {",
+            "res, _, err := scimattributeheader.GetByName(ctx, service, name, idpResp.ID)",
+            "_ = d.Set(\"values\", values)"
           ]
         }
       ]

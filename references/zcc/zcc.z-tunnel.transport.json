@@ -108,7 +108,7 @@
           "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
           "after": "DTLS Connection Timeout: Enter any value from 5 to 60 seconds.",
           "quotes": [
-            "TLS Connection Timeout: Enter any value from 5 to 60 seconds."
+            "TLS Connection Timeout: Enter any value from 5 to 60 seconds. This setting determines how long Zscaler Client Connector waits before falling back to another transport mechanism."
           ]
         }
       ]
@@ -136,13 +136,14 @@
           "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
           "quotes": [
             "Enable DTLS Instability Detection and Fallback: If DTLS is set as your primary transport selection and Allow TLS Fallback is enabled, you can enable this option to have Zscaler Client Connector monitor the stability of the DTLS connection and automatically switch to TLS if a data transfer rate restriction is detected",
-            "Applies only to Zscaler Client Connector version 4.8 and later for Windows. Contact Zscaler Support to enable this feature."
+            "Applies only to Zscaler Client Connector version 4.8 and later for Windows. Contact Zscaler Support to enable this feature.",
+            "(e.g., throttling due to a misconfigured network device or a network policy)"
           ]
         }
       ]
     },
     "mtu": {
-      "statement": "MTU for Zscaler Adapter (client 2.1.2+) sets the Z-Tunnel 2.0 inner packet MTU between 800 and 1400 (1300 to 1400 for IPv6); the setting defaults to 0, and the default MTU is 1400 for a direct connection and 1360 or 1300 behind GRE or IPSec tunnels.",
+      "statement": "MTU for Zscaler Adapter (client 2.1.2+) sets the Z-Tunnel 2.0 inner packet MTU between 800 and 1400 (1300 to 1400 for IPv6); the setting defaults to 0, and the default MTU is 1400 for a direct connection and 1360 behind GRE or 1300 behind IPSec tunnels.",
       "tier": "A",
       "evidence": [
         {
@@ -150,7 +151,8 @@
           "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
           "quotes": [
             "Select Maximum Transmission Unit (MTU) value between 800 and 1400 for Z-Tunnel 2.0 inner IP packet. The default value is 0 (zero). The default value for a direct connection is 1400 and 1360/1300 for GRE/IPSec tunnels, respectively.",
-            "For IPv6, the acceptable range is 1300–1400."
+            "For IPv6, the acceptable range is 1300–1400.",
+            "MTU for Zscaler Adapter: (Optional) This option is only applicable if you’re using Zscaler Client Connector version 2.1.2 or later."
           ]
         }
       ]
@@ -223,6 +225,21 @@
           "path": "docs/resources/zcc_forwarding_profile.md",
           "quotes": [
             "| `tunnel2_fallback_type` | Number | Behavior when the Tunnel 2.0 transport fails. |"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "quotes": [
+            "Tunnel2FallbackType: int(a.Tunnel2FallbackType.ValueInt64()),"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "after": "type ForwardingProfileAction struct {",
+          "quotes": [
+            "Tunnel2FallbackType int `json:\"tunnel2FallbackType\"`"
           ]
         }
       ]

@@ -74,6 +74,7 @@
           "path": "configuring-private-access-gateway.json",
           "quotes": [
             "You need to configure Private Access (ZPA) gateways in the Zscaler Admin Console to map them to the Private Access server groups and its associated application segments that require Source IP Anchoring.",
+            "Go to Infrastructure > Internet & SaaS > Private Access GW.",
             "To forward traffic through Private Access gateways, ensure that your Internet & SaaS (ZIA) tenant is paired with your Private Access tenant with Source IP Anchoring enabled."
           ]
         }
@@ -106,17 +107,13 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_forwarding_control_zpa_gateway.go",
           "quotes": [
-            "Required: true,"
-          ],
-          "after": "\"zpa_server_group\": {"
-        },
-        {
-          "source": "tf-zia",
-          "path": "zia/resource_zia_forwarding_control_zpa_gateway.go",
-          "quotes": [
-            "Description: \"Indicates whether the ZPA gateway is configured for Zscaler Internet Access (using option ZPA) or Zscaler Cloud Connector (using option ECZPA)\",",
-            "Description: \"The ZPA Server Group that is configured for Source IP Anchoring\",",
-            "Description: \"The Application Segments to associate with this ZPA Gateway\","
+            "\"name\": { Type: schema.TypeString, Required: true, Description: \"The name of the ZPA gateway\",",
+            "\"description\": { Type: schema.TypeString, Optional: true, Description: \"Additional details about the ZPA gateway\",",
+            "\"type\": { Type: schema.TypeString, Optional: true, Description: \"Indicates whether the ZPA gateway is configured for Zscaler Internet Access (using option ZPA) or Zscaler Cloud Connector (using option ECZPA)\",",
+            "\"zpa_server_group\": { Type: schema.TypeList, Required: true, MaxItems: 1, Description: \"The ZPA Server Group that is configured for Source IP Anchoring\",",
+            "\"external_id\": { Type: schema.TypeString, Required: true, Description: \"ID of the ZPA Gateway.\", }, \"name\": { Type: schema.TypeString, Required: true, Description: \"Name of the ZPA Gateway.\",",
+            "\"zpa_app_segments\": { Type: schema.TypeSet, Optional: true, Description: \"The Application Segments to associate with this ZPA Gateway\",",
+            "\"name\": { Type: schema.TypeString, Required: true, Description: \"Name of the application segment.\", }, \"external_id\": { Type: schema.TypeString, Required: true, Description: \"External ID of the application segment.\","
           ]
         },
         {
@@ -154,6 +151,13 @@
             "return (None, None, ValueError(\"zpa_app_segments is required\"))"
           ],
           "after": "def update_gateway("
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_zpa_gateway.go",
+          "quotes": [
+            "\"zpa_app_segments\": { Type: schema.TypeSet, Optional: true,"
+          ]
         }
       ],
       "binds": [
@@ -161,14 +165,15 @@
       ]
     },
     "rule-needs-common-gateway": {
-      "statement": "In a ZPA forwarding rule the Forward to ZPA Gateway field is enabled only when the selected application segments require Source IP Anchoring and share a common gateway; an empty list means no common gateway exists for the selected segments.",
+      "statement": "In a ZPA forwarding rule the Forward to Gateway field is enabled only when the selected application segments require Source IP Anchoring and share a common Private Access gateway; an empty list means no common gateway exists for the selected segments.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "configuring-forwarding-policy.json",
           "quotes": [
-            "those application segments are associated with a common Private Access gateway.",
+            "Forward to Gateway: Choose the appropriate Private Access gateway.",
+            "This field is enabled only if you have selected application segments that require Source IP Anchoring in the Application Segment field, and those application segments are associated with a common Private Access gateway.",
             "An empty list indicates that there is no common gateway configured for the selected application segments."
           ]
         }
@@ -188,6 +193,14 @@
           "quotes": [
             "You must use the [ZPA provider](https://registry.terraform.io/providers/zscaler/zpa/latest/docs) in combination with the ZIA Terraform Provider to successfully configure a Forwarding control rule where the `forward_method` is `ZPA`"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_forwarding_control_zpa_gateway.md",
+          "quotes": [
+            "This resource requires **both** the ZIA and ZPA providers in the same configuration.",
+            "The `external_id` and `name` values inside `zpa_server_group` and `zpa_app_segments` identify objects that live in ZPA, not ZIA, so they must be read from the ZPA provider (as shown below) rather than entered by hand."
+          ]
         }
       ]
     },
@@ -199,7 +212,7 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_forwarding_control_zpa_gateway.go",
           "quotes": [
-            "if req.Name == \"Auto ZPA Gateway\" {"
+            "if req.Name == \"Auto ZPA Gateway\" { return fmt.Errorf(\"predefined zpa gateway '%s' cannot be deleted\", req.Name)"
           ]
         },
         {
@@ -244,8 +257,10 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_forwarding_control_zpa_gateway.go",
           "quotes": [
-            "// Use GetAll to avoid API bug where GetByName returns incorrect app segments"
-          ]
+            "// Use GetAll to avoid API bug where GetByName returns incorrect app segments allGateways, err := zpa_gateways.GetAll(ctx, service)",
+            "if strings.EqualFold(gateway.Name, id) {"
+          ],
+          "after": "Importer: &schema.ResourceImporter{"
         }
       ],
       "binds": [

@@ -110,7 +110,7 @@
       ]
     },
     "oauth-name-format": {
-      "statement": "OAuth-enrolled App Connectors are added with a name of the form GroupName-UserCode-TimeStamp.",
+      "statement": "OAuth-enabled App Connectors are added with a name of the form GroupName-UserCode-TimeStamp.",
       "tier": "A",
       "evidence": [
         {
@@ -224,7 +224,8 @@
             "This feature is used to add a layer of security to the App Connector enrollment process, in addition to the provisioning key and signing certificate.",
             "App Connector enrollment stays pending if the App Connector IP address is not configured in the App Connector Allow List field.",
             "If the IP address of the App Connector group changes due to Dynamic Host Configuration Protocol (DHCP) or other network changes, then the App Connector groups fail to enroll.",
-            "This feature is in limited availability."
+            "This feature is in limited availability.",
+            "Enter the IP address or subnet of a deployed App Connector group to allow the App Connector group on a specific IP address."
           ]
         }
       ],
@@ -254,7 +255,10 @@
           "path": "troubleshooting-app-connectors.json",
           "quotes": [
             "This error often occurs when an App Connector is deleted from the Zscaler Admin Console accidently. Private Access immediately recognizes that it should not communicate with the App Connector, and it breaks the active connection. There is no way to recover the App Connector.",
-            "Restart the process of configuring an App Connector and deploying on a platform."
+            "Restart the process of configuring an App Connector and deploying on a platform.",
+            "Remove the App Connector on the deployed platform.",
+            "Enter the following command to delete the App Connector:",
+            "[root@zpa-connector ~]$ rm -rf /opt/zscaler/var/*"
           ]
         }
       ]
@@ -297,7 +301,8 @@
           "path": "troubleshooting-app-connectors.json",
           "quotes": [
             "If an App Connector was provisioned in an AWS IMDSv2 required environment with App Connector version 24.566.1 or earlier, a new App Connector is automatically created during re-enrollment due to a hardware fingerprint change.",
-            "Zscaler recommends that you manually delete the original App Connector from the Zscaler Admin Console to avoid consuming provisioning keys."
+            "Zscaler recommends that you manually delete the original App Connector from the Zscaler Admin Console to avoid consuming provisioning keys.",
+            "This is because IMDSv2 support was added on App Connector version 24.650.1 and later."
           ],
           "after": "IMDSv2 Migrated App Connector Fails to Enroll to Private Access"
         }
@@ -313,7 +318,9 @@
           "quotes": [
             "On the App Connector Provisioning Keys page, verify that the number of provisioning keys in the # of Enrolled Connectors column is less than the number in the Maximum # of Connectors column for the provisioning key.",
             "[admin@zpa-connector ~]$ sudo touch /opt/zscaler/var/provision_key",
-            "Start the App Connector. The App Connector service should pick up the provisioning key and re-enroll the App Connector under the appropriate App Connector group."
+            "Start the App Connector. The App Connector service should pick up the provisioning key and re-enroll the App Connector under the appropriate App Connector group.",
+            "Wipe the configuration directory.",
+            "[root@zpa-connector admin]# rm -rf /opt/zscaler/var/*"
           ]
         }
       ]
@@ -344,14 +351,16 @@
           "source": "tfmod-aws-zpa-app-connector",
           "path": "README.md",
           "quotes": [
-            "Each VM publishes its user code (from `/etc/issue`) to AWS SSM Parameter Store using its instance role"
+            "Each VM publishes its user code (from `/etc/issue`) to AWS SSM Parameter Store using its instance role",
+            "Terraform reads the codes back and creates the App Connector Group with the collected `user_codes`."
           ]
         },
         {
           "source": "tfmod-azure-zpa-app-connector",
           "path": "README.md",
           "quotes": [
-            "publishes it to an Azure Key Vault secret via the VM's user-assigned Managed Identity"
+            "publishes it to an Azure Key Vault secret via the VM's user-assigned Managed Identity",
+            "and Terraform reads it back to create the App Connector Group."
           ]
         }
       ]

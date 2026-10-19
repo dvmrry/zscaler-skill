@@ -149,7 +149,8 @@
           "after": "select one of the following forwarding profile actions for each network type:",
           "quotes": [
             "Tunnel with Local Proxy",
-            "Enforce Proxy"
+            "Enforce Proxy",
+            "- Tunnel - Tunnel with Local Proxy - Enforce Proxy - None"
           ]
         }
       ]
@@ -255,13 +256,15 @@
           "quotes": [
             "On-Trusted Network: When the user is connected to a trusted network, Zscaler Client Connector uses the Tunnel mode to forward user traffic to Zscaler. It also disables System Proxy settings",
             "VPN-Trusted Network: When a VPN client on the user's device is running in full-tunnel mode, the app does not forward user traffic to Zscaler. All proxy settings are disabled to ensure users do not send their traffic to a different proxy.",
-            "Off-Trusted Network: When the user is off a trusted network, the app uses the Tunnel mode to forward user traffic to Zscaler."
+            "Off-Trusted Network: When the user is off a trusted network, the app uses the Tunnel mode to forward user traffic to Zscaler.",
+            "It also disables System Proxy settings so that users cannot change proxy settings to bypass Zscaler Client Connector for internet security.",
+            "It also disables System Proxy settings so that users cannot change proxy settings to bypass the app for internet security."
           ]
         }
       ]
     },
     "driver-types": {
-      "statement": "The profile's Tunnel Driver Type applies to Windows devices in Tunnel mode: Route-Based creates a virtual network adapter and uses OS routing; Packet Filter-Based, the default, uses Windows filtering, gives more granular control, reduces interoperability issues with VPN clients and network-managing applications, and is required for packet capture.",
+      "statement": "The profile's Tunnel Driver Type applies to Windows devices in Tunnel mode: Route-Based creates a virtual network adapter and uses OS routing; Packet Filter-Based, the default, uses Windows filtering, allows more granular control over traffic, reduces interoperability issues for applications that manage network adapters, lets VPN clients interoperate better with the app, and is required for packet capture.",
       "tier": "A",
       "evidence": [
         {
@@ -271,7 +274,8 @@
             "Select the Tunnel Driver Type to use when handling traffic for Windows devices when in Tunnel mode:",
             "Route-Based: Zscaler Client Connector creates a virtual network adapter. The app uses OS routing to forward traffic via this interface to the Zscaler service.",
             "Packet Filter-Based: Zscaler Client Connector uses Windows filtering to capture and forward traffic to the Zscaler service.",
-            "You must use this driver if you enable packet capture. This is the default value."
+            "You must use this driver if you enable packet capture. This is the default value.",
+            "This option allows for more granular control over traffic, reduces interoperability issues for applications that manage network adapters on the system, and allows VPN clients to better interoperate with the app."
           ]
         }
       ]
@@ -301,6 +305,14 @@
             "Apply on Trusted Network Type Change: If you select this option, Zscaler Client Connector only applies your proxy settings when the network type changes.",
             "Apply on Any Network Change: If you select this option, Zscaler Client Connector only applies your proxy settings if there is any network change, but does not monitor for proxy changes afterward."
           ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "after": "Apply on Any Network Change: If you select this option, Zscaler Client Connector only applies your proxy settings if there is any network change, but does not monitor for proxy changes afterward.",
+          "quotes": [
+            "Never: If you select this option, Zscaler Client Connector never alters your proxy settings."
+          ]
         }
       ]
     },
@@ -313,7 +325,11 @@
           "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
           "quotes": [
             "In the Proxy Action Type drop-down menu, the Enforce option is selected by default and cannot be changed.",
-            "Proxy Action Type: The Enforce option is selected by default and cannot be changed."
+            "Proxy Action Type: The Enforce option is selected by default and cannot be changed.",
+            "In Tunnel with Local Proxy mode, Zscaler Client Connector sets proxy settings on user devices so that all proxy-aware traffic is tunneled to Zscaler.",
+            "Configure System Proxy Settings: In the Proxy Action Type drop-down menu, the Enforce option is selected by default and cannot be changed. This option allows Zscaler Client Connector to enforce your proxy settings by monitoring for network changes and reapplying settings.",
+            "In Enforce Proxy mode, Zscaler Client Connector enforces system proxy settings as specified, without tunneling any traffic.",
+            "Proxy Action Type: The Enforce option is selected by default and cannot be changed. This option allows Zscaler Client Connector to enforce your proxy settings by monitoring for network changes and reapplying settings. Zscaler Client Connector also ensures that users cannot tamper with their proxy settings."
           ]
         }
       ]
@@ -391,7 +407,7 @@
       ]
     },
     "drop-ipv6-include": {
-      "statement": "Drop IPv6 Include Traffic When not supported, a Z-Tunnel 2.0 setting, drops IPv6 traffic that matches the destination inclusions when IPv6 is not provisioned for the company or the Public Service Edge.",
+      "statement": "Drop IPv6 Include Traffic When not supported drops IPv6 traffic that matches the destination inclusions when IPv6 is not provisioned for the company or the Public Service Edge.",
       "tier": "A",
       "evidence": [
         {
@@ -435,7 +451,8 @@
           "after": "Choose a time between 30 to 600 seconds. The default is 60 seconds.",
           "quotes": [
             "Probe Sample Size: The number of retries required to establish a connection before a failover. The default is 5 times.",
-            "If the value exceeds the threshold limit, the switch is made from the primary to the secondary Service Edge, or vice versa. Rank 1 is a minimum change, which is the most aggressive for switching from the primary to the secondary Service Edge."
+            "If the value exceeds the threshold limit, the switch is made from the primary to the secondary Service Edge, or vice versa. Rank 1 is a minimum change, which is the most aggressive for switching from the primary to the secondary Service Edge.",
+            "Threshold Rank: Ranks the change in latency of the primary and secondary Public Service Edges, Private Service Edges, or Virtual Service Edges. Select a rank from 1 to 5 from the drop-down menu."
           ]
         }
       ]

@@ -100,6 +100,14 @@
             "Given Privileged credential pool id gets mapped privileged credential info",
             "/credential-pool/{pool_id}/credential"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_credential_pool.py",
+          "quotes": [
+            "http_method = \"get\".upper()"
+          ],
+          "after": "def get_credential_pool_info(self, pool_id: str"
         }
       ]
     },
@@ -115,6 +123,14 @@
             "Deletes all expired privileged approvals.",
             "/approval/expired"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_approval.py",
+          "quotes": [
+            "http_method = \"delete\".upper()"
+          ],
+          "after": "def expired_approval(self, microtenant_id: str = None)"
         }
       ]
     },
@@ -130,6 +146,14 @@
             "Adds multiple Privileged Remote Access (PRA) consoles in bulk.",
             "/praConsole/bulk"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_console.py",
+          "quotes": [
+            "http_method = \"post\".upper()"
+          ],
+          "after": "def add_bulk_console(self, consoles: list, **kwargs)"
         }
       ]
     },
@@ -166,8 +190,10 @@
           "source": "ansible-zpa",
           "path": "CHANGELOG.md",
           "quotes": [
-            "made `working_hours` truly optional so approvals can be created and updated without it."
-          ]
+            "made `working_hours` truly optional so approvals can be created and updated without it.",
+            "Fixed `zpa_pra_approval` update to send the intended payload instead of the raw existing approval"
+          ],
+          "after": "## v2.2.5 (July 1, 2026)"
         },
         {
           "source": "ansible-zpa",
@@ -188,7 +214,11 @@
           "quotes": [
             "# applications the approval grants access to. The same email can hold",
             "# several approvals, one per application segment, so matching on",
-            "if current_application_ids != sorted(desired_application_ids):"
+            "# email_ids alone would select an unrelated approval and update it in",
+            "# place instead of creating the approval that was asked for.",
+            "for approval_ in result: if sorted(approval_.email_ids or []) != sorted(email_ids or []): continue",
+            "if desired_application_ids is not None: current_application_ids = sorted( app.get(\"id\") for app in (approval_.applications or []) if app.get(\"id\") )",
+            "if current_application_ids != sorted(desired_application_ids): continue existing_approval = approval_.as_dict() break"
           ]
         }
       ]
@@ -201,8 +231,9 @@
           "source": "ansible-zpa",
           "path": "plugins/modules/zpa_pra_approval.py",
           "quotes": [
-            "if sorted(approval_.email_ids or []) != sorted(email_ids or []):",
-            "if current_application_ids != sorted(desired_application_ids):"
+            "for approval_ in result: if sorted(approval_.email_ids or []) != sorted(email_ids or []): continue",
+            "if desired_application_ids is not None: current_application_ids = sorted( app.get(\"id\") for app in (approval_.applications or []) if app.get(\"id\") )",
+            "if current_application_ids != sorted(desired_application_ids): continue existing_approval = approval_.as_dict() break"
           ]
         }
       ],

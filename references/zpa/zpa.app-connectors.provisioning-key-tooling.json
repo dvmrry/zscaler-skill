@@ -161,6 +161,14 @@
           "quotes": [
             "ProvisioningKey string `json:\"provisioningKey,omitempty\"`"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zpa/cassettes/TestAppConnectorGroupProvisioningKey.yaml",
+          "quotes": [
+            "\"enrollmentCertName\":\"Connector\",\"provisioningKey\":\"3|api.private.zscaler.com|"
+          ],
+          "after": "/associationType/CONNECTOR_GRP/provisioningKey/58856 response: body: string: '{\"id\":\"58856\""
         }
       ],
       "binds": [
@@ -176,6 +184,15 @@
           "path": "zpa/resource_zpa_provisioning_key.go",
           "quotes": [
             "the value is stored in the Terraform state file and can be retrieved using 'terraform output' or by referencing the attribute in other resources."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_provisioning_key.go",
+          "after": "\"provisioning_key\": {",
+          "quotes": [
+            "Sensitive: true,",
+            "Although marked as sensitive to prevent exposure in logs and console output"
           ]
         }
       ]
@@ -216,7 +233,8 @@
           "path": "zscaler/zpa/provisioning.py",
           "quotes": [
             "if key_type == \"connector\":",
-            "raise ValueError(\"Unexpected key type.\")"
+            "raise ValueError(\"Unexpected key type.\")",
+            "if key_type == \"connector\": return \"CONNECTOR_GRP\" elif key_type == \"service_edge\": return \"SERVICE_EDGE_GRP\" else: raise ValueError(\"Unexpected key type.\")"
           ]
         },
         {
@@ -239,6 +257,14 @@
             "The supported values are CONNECTOR_GRP and SERVICE_EDGE_GRP.",
             "\"CONNECTOR_GRP\", \"SERVICE_EDGE_GRP\","
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_provisioning_key.go",
+          "after": "\"association_type\": {",
+          "quotes": [
+            "\"CONNECTOR_GRP\", \"SERVICE_EDGE_GRP\", \"SITE_CONTROLLER_GRP\", \"EXPORTER_GRP\", \"NP_ASSISTANT_GRP\","
+          ]
         }
       ],
       "conditions": "The five-value resource schema is held in zpa.sdk-go.service-defects:provider-provisioning-key-schema-and-importer."
@@ -252,7 +278,18 @@
           "path": "src/zscaler_mcp/tools/zpa/provisioning_key.py",
           "quotes": [
             "`enrollment_cert_id` is required when `key_type` is 'connector'.",
-            "raise ValueError(\"enrollment_cert_id is required for 'connector' key_type\")"
+            "raise ValueError(\"enrollment_cert_id is required for 'connector' key_type\")",
+            "if args.key_type == \"connector\" and not args.enrollment_cert_id:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "after": "def add_provisioning_key(self, key_type: str, **kwargs)",
+          "quotes": [
+            "if not key_type: raise ValueError(\"key_type must be provided.\") http_method = \"post\".upper() api_url = format_url(f\"\"\"{ self._zpa_base_endpoint} /associationType/{simplify_key_type(key_type)}/provisioningKey \"\"\") body = kwargs microtenant_id = body.get(\"microtenant_id\") params = {\"microtenantId\":",
+            "microtenant_id} if microtenant_id else {} name = body.pop(\"name\", None) max_usage = body.pop(\"max_usage\", None) enrollment_cert_id = body.get(\"enrollment_cert_id\") component_id = body.get(\"component_id\") body.update( {\"name\": name, \"maxUsage\": max_usage, \"enrollmentCertId\": enrollment_cert_id,",
+            "\"zcomponentId\": component_id} ) request, error = self._request_executor.create_request(http_method, api_url, body=body, params=params)"
           ]
         }
       ],
@@ -261,7 +298,7 @@
       ]
     },
     "mcp-delete-masks-lookup-errors": {
-      "statement": "The MCP delete tool looks the key up first and, if the lookup returns an error or no object, reports success with 'does not exist or was already deleted' without calling delete; any lookup error, including authentication or transport failures, is therefore reported as an already-deleted key.",
+      "statement": "The MCP delete tool looks the key up first and, if the lookup returns an error or no object, reports success with 'does not exist or was already deleted' without calling delete; any lookup error is therefore reported as an already-deleted key.",
       "tier": "A",
       "evidence": [
         {
@@ -269,7 +306,8 @@
           "path": "src/zscaler_mcp/tools/zpa/provisioning_key.py",
           "quotes": [
             "if err or not existing:",
-            "message=f\"Provisioning key {args.key_id} does not exist or was already deleted.\","
+            "message=f\"Provisioning key {args.key_id} does not exist or was already deleted.\",",
+            "return OperationResult( success=True, message=f\"Provisioning key {args.key_id} does not exist or was already deleted.\","
           ]
         }
       ]
@@ -298,14 +336,16 @@
           "source": "tfmod-aws-zpa-app-connector",
           "path": "modules/terraform-zpa-provisioning-key/variables.tf",
           "quotes": [
-            "var.provisioning_key_association_type == \"CONNECTOR_GRP\"\n    )"
+            "var.provisioning_key_association_type == \"CONNECTOR_GRP\"\n    )",
+            "condition = ( var.provisioning_key_association_type == \"CONNECTOR_GRP\" ) error_message"
           ]
         },
         {
           "source": "tfmod-azure-zpa-app-connector",
           "path": "modules/terraform-zpa-provisioning-key/variables.tf",
           "quotes": [
-            "var.provisioning_key_association_type == \"SERVICE_EDGE_GRP\""
+            "var.provisioning_key_association_type == \"SERVICE_EDGE_GRP\"",
+            "condition = ( var.provisioning_key_association_type == \"CONNECTOR_GRP\" || var.provisioning_key_association_type == \"SERVICE_EDGE_GRP\" )"
           ]
         }
       ]

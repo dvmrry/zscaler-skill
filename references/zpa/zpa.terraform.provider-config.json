@@ -88,14 +88,18 @@
           "path": "zpa/provider.go",
           "quotes": [
             "// Skip mode: never construct the SDK client. The OneAPI SDK authenticates",
-            "Summary:  \"ZPA credentials were not validated\","
+            "Summary:  \"ZPA credentials were not validated\",",
+            "// inside its constructor, so building a client without valid credentials",
+            "if config.skipCredentialsValidation {",
+            "Severity: diag.Warning,"
           ]
         },
         {
           "source": "tf-zpa",
           "path": "zpa/config.go",
           "quotes": [
-            "building the client. Resources receive an inert *Client and fail"
+            "building the client. Resources receive an inert *Client and fail",
+            "if val, ok := d.GetOk(\"skip_credentials_validation\"); ok {"
           ]
         }
       ]
@@ -110,7 +114,13 @@
           "quotes": [
             "r.CreateContext = wrap(r.CreateContext)",
             "r.DeleteContext = wrap(r.DeleteContext)",
-            "cannot import: the ZPA provider was configured with skip_credentials_validation"
+            "cannot import: the ZPA provider was configured with skip_credentials_validation",
+            "r.ReadContext = wrap(r.ReadContext)",
+            "r.UpdateContext = wrap(r.UpdateContext)",
+            "// Guard every resource and data source against the inert client returned // when skip_credentials_validation is enabled, so an accidental API call // yields a descriptive error instead of a nil-pointer panic.",
+            "for _, r := range p.ResourcesMap { guardResourceAgainstInertClient(r) } for _, ds := range p.DataSourcesMap { guardResourceAgainstInertClient(ds) }",
+            "if isInertClient(meta) { return inertClientDiag() }",
+            "This resource or data source attempted a ZPA API call, but the provider was configured with"
           ]
         }
       ]
@@ -124,7 +134,8 @@
           "path": "zpa/provider.go",
           "quotes": [
             "Intended for configurations where every zpa_* resource and data source is conditionally disabled",
-            "ZSCALER_SKIP_CREDENTIALS_VALIDATION environment variable."
+            "ZSCALER_SKIP_CREDENTIALS_VALIDATION environment variable.",
+            "(e.g., count = 0) and no API call will ever be made"
           ]
         }
       ]
@@ -194,7 +205,9 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "Removed the legacy guidance recommending that the number of concurrent API calls be limited to one",
-            "cannot be scoped to individual resource types, and significantly slows large deployments."
+            "cannot be scoped to individual resource types, and significantly slows large deployments.",
+            "when provisioning the resources `zpa_policy_access_rule`, `zpa_policy_inspection_rule`, `zpa_policy_timeout_rule`, `zpa_policy_forwarding_rule`, and `zpa_policy_isolation_rule`.",
+            "Lowering Terraform's `-parallelism` flag applies to an entire run,"
           ]
         }
       ]
@@ -208,20 +221,23 @@
           "path": "zpa/config.go",
           "quotes": [
             "if val, ok := d.GetOk(\"use_legacy_client\"); ok {",
-            "config.useLegacyClient = strings.ToLower(os.Getenv(\"ZSCALER_USE_LEGACY_CLIENT\")) == \"true\""
+            "config.useLegacyClient = strings.ToLower(os.Getenv(\"ZSCALER_USE_LEGACY_CLIENT\")) == \"true\"",
+            "config.useLegacyClient = val.(bool) } else if os.Getenv(\"ZSCALER_USE_LEGACY_CLIENT\") != \"\" {"
           ]
         }
       ]
     },
     "legacy-since-4-0": {
-      "statement": "Provider v4.0.0 is the first version that offers OneAPI (OAuth 2.0 through Zidentity) alongside the legacy ZPA API framework, and the docs recommend the legacy framework for tenants not yet migrated to Zidentity.",
+      "statement": "From provider v4.0.0 the provider offers OneAPI (OAuth 2.0 through Zidentity) alongside the legacy ZPA API framework, and the docs recommend the legacy framework for tenants not yet migrated to Zidentity.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zpa",
           "path": "docs/index.md",
           "quotes": [
-            "As of version v4.0.0, this provider supports authentication via the new Zscaler API framework"
+            "As of version v4.0.0, this provider supports authentication via the new Zscaler API framework",
+            "Oauth2 authentication through [Zidentity](https://help.zscaler.com/zidentity/what-zidentity).",
+            "Zscaler OneAPI uses the OAuth 2.0 authorization framework"
           ]
         },
         {
@@ -244,7 +260,9 @@
           "path": "docs/index.md",
           "quotes": [
             "Supported Zidentity Gov Cloud `gov` or `govus`",
-            "FedRAMP cloud is only supported when upgrading to the provider version `>=v4.4.6`. Earlier versions are NOT supported."
+            "FedRAMP cloud is only supported when upgrading to the provider version `>=v4.4.6`. Earlier versions are NOT supported.",
+            "To authenticate, set the `cloud` attribute (or `ZSCALER_CLOUD` environment variable) to one of the supported government values:",
+            "| `zscaler_cloud` | _(String)_ Supported Zidentity Gov Cloud `gov` or `govus` | `ZSCALER_CLOUD` |"
           ]
         }
       ]
@@ -258,7 +276,9 @@
           "path": "docs/index.md",
           "quotes": [
             "The `zscaler_cloud` is optional for production comercial Clouds and ONLY required when authenticating to other environments.",
-            "- Test (Beta) Commercial Clouds: `beta`"
+            "- Test (Beta) Commercial Clouds: `beta`",
+            "- Production Commericial Clouds: The cloud parameter `IS NOT` required.",
+            "- FedRAMP Clouds: `gov` or `govus`"
           ]
         }
       ]
@@ -327,7 +347,9 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "Fixed a provider panic ([Issue #670](https://github.com/zscaler/terraform-provider-zpa/issues/670)) caused by an unguarded error type assertion in the read functions",
-            "are now surfaced as recoverable Terraform errors instead of crashing the provider."
+            "are now surfaced as recoverable Terraform errors instead of crashing the provider.",
+            "of `zpa_application_segment`, `zpa_server_group`, `zpa_service_edge_group`, and `zpa_lss_config_controller`.",
+            "Transient API errors (e.g. cancelled/timed-out requests)"
           ]
         }
       ]
@@ -358,6 +380,18 @@
             "if config.vanityDomain == \"\" && os.Getenv(\"ZSCALER_VANITY_DOMAIN\") != \"\" {",
             "if config.httpProxy == \"\" && os.Getenv(\"ZSCALER_HTTP_PROXY\") != \"\" {"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "quotes": [
+            "\"client_id\": { Type: schema.TypeString, Optional: true, Description: \"zpa client id\", },",
+            "\"client_secret\": { Type: schema.TypeString, Optional: true, Sensitive: true, Description: \"zpa client secret\", ConflictsWith: []string{\"private_key\"}, },",
+            "\"private_key\": { Type: schema.TypeString, Optional: true, Sensitive: true, Description: \"zpa private key\", ConflictsWith: []string{\"client_secret\"}, },",
+            "\"vanity_domain\": { Type: schema.TypeString, Optional: true, Sensitive: true, Description: \"Zscaler Vanity Domain\", },",
+            "\"zscaler_cloud\": { Type: schema.TypeString, Optional: true, Sensitive: true, Description: \"Zscaler Cloud Name\", },",
+            "\"http_proxy\": { Type: schema.TypeString, Optional: true, Description: \"Alternate HTTP proxy of scheme://hostname or scheme://hostname:port format\", },"
+          ]
         }
       ],
       "conditions": "Added ZSCALER_PRIVATE_KEY and ZSCALER_HTTP_PROXY from docs/index.md, and that config.go reads the ZSCALER_* variables, since they are not schema defaults."
@@ -379,7 +413,9 @@
           "path": "docs/index.md",
           "quotes": [
             "Default and maximum: `100`.",
-            "Default: `240`. Accepted values: `0`-`300`, where `0` selects the SDK's built-in 60-second timeout."
+            "Default: `240`. Accepted values: `0`-`300`, where `0` selects the SDK's built-in 60-second timeout.",
+            "`max_retries` - (Optional) Maximum number of times a rate-limited or transiently failing request is retried before the operation fails.",
+            "`request_timeout` - (Optional) Timeout in seconds for a single HTTP request to the ZPA API."
           ]
         }
       ]
@@ -393,7 +429,8 @@
           "path": "docs/index.md",
           "quotes": [
             "certain features or attributes available via the Zscaler UI may not be immediately available through the API",
-            "we implement only the features that are currently exposed by the public API."
+            "we implement only the features that are currently exposed by the public API.",
+            "This does not indicate that the provider is lagging behind"
           ]
         }
       ]

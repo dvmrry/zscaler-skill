@@ -110,7 +110,7 @@
       ]
     },
     "stops-on-short-page": {
-      "statement": "The README says paging stops when fewer results than the page size are returned; in code this applies only when the caller supplied a page size, otherwise it stops on an empty page.",
+      "statement": "The README says paging stops when fewer results than the page size are returned; in code, for ZIA, that applies only after the first page and only when the caller supplied a page size; otherwise paging continues while a page returns results and stops on an empty page.",
       "tier": "A",
       "evidence": [
         {
@@ -125,6 +125,16 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "Improved pagination termination logic to stop when partial pages are returned"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "# For ZIA/ZCC with paginated responses (dict with \"list\" field):",
+            "if self._pages_fetched == 1: # First page - continue if we got any results has_next = bool(self._list)",
+            "if self._limit: has_next = len(self._list) >= self._limit else: # No explicit limit set - assume more pages exist if we got results",
+            "# If we got results, try one more page. The next call will return empty and stop."
           ]
         }
       ]
@@ -150,21 +160,24 @@
           "source": "sdk-python",
           "path": "CHANGELOG.md",
           "quotes": [
-            "Fixed ZIA pagination to use correct API parameter names (`page` and `pageSize` instead of `pageNumber`)."
+            "Fixed ZIA pagination to use correct API parameter names (`page` and `pageSize` instead of `pageNumber`).",
+            "[PR #393](https://github.com/zscaler/zscaler-sdk-python/pull/393) - Fixed ZIA pagination to use correct API parameter names"
           ]
         },
         {
           "source": "sdk-python",
           "path": "CHANGELOG.md",
           "quotes": [
-            "Fixed pagination `has_next()` returning `True` for flat list API responses causing infinite loops."
+            "Fixed pagination `has_next()` returning `True` for flat list API responses causing infinite loops.",
+            "[PR #426](https://github.com/zscaler/zscaler-sdk-python/pull/426) - Fixed pagination `has_next()` returning `True` for flat list API responses"
           ]
         },
         {
           "source": "sdk-python",
           "path": "CHANGELOG.md",
           "quotes": [
-            "Fixed ZIA pagination where `has_next()` returned `False` after the first page for flat-list endpoints."
+            "Fixed ZIA pagination where `has_next()` returned `False` after the first page for flat-list endpoints.",
+            "[PR #478](https://github.com/zscaler/zscaler-sdk-python/pull/478) - Fixed ZIA pagination where `has_next()` returned `False` after the first page"
           ]
         }
       ]

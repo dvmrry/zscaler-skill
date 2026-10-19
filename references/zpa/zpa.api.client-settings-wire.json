@@ -83,7 +83,9 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/client_settings/client_settings.go",
           "quotes": [
-            "resp, err := service.Client.NewRequestDo(ctx, \"GET\", baseURL, nil, &settings, nil)"
+            "resp, err := service.Client.NewRequestDo(ctx, \"GET\", baseURL, nil, &settings, nil)",
+            "var settings []ClientSettings",
+            "return settings, resp, nil"
           ]
         },
         {
@@ -104,6 +106,7 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/client_settings/client_settings.go",
           "quotes": [
+            "v := new(ClientSettings)",
             "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+clientSettingEndpoint, settings, v, nil)"
           ],
           "after": "func Create("
@@ -130,7 +133,7 @@
           "quotes": [
             "t := strings.ToUpper(strings.TrimSpace(*clientType))",
             "return nil, nil, fmt.Errorf(\"invalid client setting type: %s\", t)",
-            "\"ISOLATION_CLIENT\": true,"
+            "var supportedClientSettingTypes = map[string]bool{ \"ZAPP_CLIENT\": true, \"ISOLATION_CLIENT\": true, \"APP_PROTECTION\": true, }"
           ]
         },
         {
@@ -153,19 +156,51 @@
           "quotes": [
             "baseURL += \"?type=\" + url.QueryEscape(t)",
             "relativeURL := mgmtConfig + service.Client.GetCustomerID() + clientSettingEndpoint + \"/all\"",
-            "path := mgmtConfig + service.Client.GetCustomerID() + clientSettingEndpoint"
-          ]
+            "path := mgmtConfig + service.Client.GetCustomerID() + clientSettingEndpoint",
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+clientSettingEndpoint, settings, v, nil)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"DELETE\", path, nil, nil, nil)",
+            "func GetClientSettings(ctx context.Context, service *zscaler.Service, clientType *string) ([]ClientSettings, *http.Response, error) {",
+            "func GetAllClientSettings(ctx context.Context, service *zscaler.Service) (*ClientSettings, *http.Response, error) {",
+            "func Create(ctx context.Context, service *zscaler.Service, settings *ClientSettings) (*ClientSettings, *http.Response, error) {",
+            "func Delete(ctx context.Context, service *zscaler.Service) (*http.Response, error) {"
+          ],
+          "note": "the Go package's complete function list: two reads, Create and Delete"
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/client_settings.py",
           "quotes": [
             "http_method = \"delete\".upper()",
-            "/clientSetting/all"
+            "/clientSetting/all",
+            "def get_client_settings(self, query_params: Optional[dict] = None) -> APIResult[dict]:",
+            "def get_all_client_settings(self) -> APIResult[dict]:",
+            "def add_client_setting(self, **kwargs) -> APIResult[dict]:",
+            "def delete_client_setting(self) -> APIResult[None]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/client_settings.py",
+          "after": "def get_client_settings(",
+          "quotes": [
+            "``[query_params.type]`` {str}: Available values:",
+            "http_method = \"get\".upper()",
+            "/clientSetting",
+            "request, error = self._request_executor.create_request(http_method, api_url, params=query_params)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/client_settings.py",
+          "after": "def add_client_setting(",
+          "quotes": [
+            "http_method = \"post\".upper()",
+            "/clientSetting",
+            "request, error = self._request_executor.create_request(http_method, api_url, body=body)"
           ]
         }
       ],
-      "conditions": "SDK behavior only. Neither the OpenAPI document nor the Postman collection at the pin defines a clientSetting path (gap client-settings-api-contract)."
+      "conditions": "SDK behavior only. Neither the OpenAPI document nor the Postman collection at the pin defines a clientSetting path (gap client-settings-api-contract). That neither SDK has an update call follows from the complete function lists quoted above."
     },
     "singning-key-spelling": {
       "statement": "Both SDKs spell the signing certificate expiry key singningCertExpiryInEpochSec, with the misspelling, on the client setting model.",
@@ -204,9 +239,10 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/client_settings/client_settings.go",
           "quotes": [
-            "EnrollmentCertName string `json:\"enrollmentCertName,omitempty\"` }"
+            "type ClientSettings struct { ID string `json:\"id,omitempty\"` CreationTime string `json:\"creationTime,omitempty\"` ModifiedBy string `json:\"modifiedBy,omitempty\"` ClientCertificateType string `json:\"clientCertificateType,omitempty\"`",
+            "SingningCertExpiryInEpochSec string `json:\"singningCertExpiryInEpochSec,omitempty\"` Name string `json:\"name,omitempty\"` EnrollmentCertId string `json:\"enrollmentCertId,omitempty\"` EnrollmentCertName string `json:\"enrollmentCertName,omitempty\"` }"
           ],
-          "after": "type ClientSettings struct {"
+          "note": "the complete ClientSettings struct, with no microtenant member"
         }
       ]
     },

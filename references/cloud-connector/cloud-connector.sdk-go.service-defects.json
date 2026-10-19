@@ -118,8 +118,7 @@
             "HEAD"
           ],
           "quotes": [
-            "res, _ := resp.(AdminUsers)",
-            "return &res, err"
+            "resp, err := service.Client.UpdateWithPutResource(ctx, path, adminUser) if err != nil { return nil, err } res, _ := resp.(AdminUsers) return &res, err"
           ],
           "after": "func UpdateAdminUser(ctx context.Context, service *zscaler.Service, adminUserID int, adminUser AdminUsers) (*AdminUsers, error) {"
         },
@@ -143,7 +142,9 @@
             "HEAD"
           ],
           "quotes": [
-            "responseObject := reflect.New(t).Interface()"
+            "return nil, nil // Return nil for responseObject and no error",
+            "responseObject := reflect.New(t).Interface()",
+            "return responseObject, nil"
           ],
           "after": "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) {"
         }
@@ -195,15 +196,26 @@
         },
         {
           "source": "sdk-go",
+          "path": "zscaler/ztwrequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "return c.updateGeneric(ctx, endpoint, o, \"PUT\", contentTypeJSON)"
+          ],
+          "after": "func (c *Client) UpdateWithPutResource(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {"
+        },
+        {
+          "source": "sdk-go",
           "path": "zscaler/ziarequests.go",
           "at": [
             "v3.8.40",
             "HEAD"
           ],
           "quotes": [
-            "return nil, errors.New(\"tried to update with a nil payload not a Struct\")"
-          ],
-          "after": "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) {"
+            "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) { if o == nil { return nil, errors.New(\"tried to update with a nil payload not a Struct\")"
+          ]
         },
         {
           "source": "sdk-go",
@@ -213,9 +225,8 @@
             "HEAD"
           ],
           "quotes": [
-            "return nil, errors.New(\"tried to update with a nil payload not a Struct\")"
-          ],
-          "after": "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) {"
+            "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) { if o == nil { return nil, errors.New(\"tried to update with a nil payload not a Struct\")"
+          ]
         }
       ],
       "conditions": "The enable flag travels in the query string, so the missing body is the only thing that blocks the call; whether the API would accept an empty-body PUT to that endpoint is not established here.",
@@ -248,7 +259,7 @@
       "conditions": "Absence claim from a search: `git -C vendor/terraform-provider-ztc grep -n 'UpdatePublicCloudChangeState' <ref>` returns no match at v0.2.0 or HEAD."
     },
     "ztw-services-use-generic-legacy-path": {
-      "statement": "Several ZTW services call the generic `Read`, `Create`, `UpdateWithPut`, and `Delete` on the client, which are the ZIA request methods. In legacy-client mode those hand the call to the ZIA legacy client (`LegacyClient.ZiaClient`), while the ZTW-specific `...Resource` methods hand it to the ZTW legacy client. The affected services are activation, the provisioning URL, workload groups, and the shared `ReadPage` helper that the ZPA-resource lookup uses.",
+      "statement": "Several ZTW services call the generic `Read`, `Create`, `UpdateWithPut`, and `Delete` on the client, which are the ZIA request methods. In legacy-client mode those hand the call to the ZIA legacy client (`LegacyClient.ZiaClient`), while their ZTW counterparts `ReadResource`, `CreateResource`, `UpdateWithPutResource`, and `DeleteResource` hand it to the ZTW legacy client. The affected services are activation, the provisioning URL, workload groups, and the shared `ReadPage` helper that the ZPA-resource lookup uses.",
       "tier": "A",
       "evidence": [
         {
@@ -277,6 +288,32 @@
         },
         {
           "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "return c.oauth2Credentials.LegacyClient.ZiaClient.Create(ctx, removeOneApiEndpointPrefix(endpoint), o)",
+            "return c.oauth2Credentials.LegacyClient.ZiaClient.UpdateWithPut(ctx, removeOneApiEndpointPrefix(endpoint), o)",
+            "return c.oauth2Credentials.LegacyClient.ZiaClient.Delete(ctx, removeOneApiEndpointPrefix(endpoint))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztwrequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "return c.oauth2Credentials.LegacyClient.ZtwClient.Create(ctx, removeOneApiEndpointPrefix(endpoint), o)",
+            "return c.oauth2Credentials.LegacyClient.ZtwClient.UpdateWithPut(ctx, removeOneApiEndpointPrefix(endpoint), o)",
+            "return c.oauth2Credentials.LegacyClient.ZtwClient.Delete(ctx, removeOneApiEndpointPrefix(endpoint))"
+          ]
+        },
+        {
+          "source": "sdk-go",
           "path": "zscaler/ztw/services/activation/activation.go",
           "at": [
             "v3.8.40",
@@ -295,6 +332,7 @@
           ],
           "quotes": [
             "resp, err := service.Client.Create(ctx, provisioningUrlEndpoint, *ProvURL)",
+            "resp, err := service.Client.UpdateWithPut(ctx, fmt.Sprintf(\"%s/%d\", provisioningUrlEndpoint, provisioningUrlID), *provisioningUrl)",
             "err := service.Client.Delete(ctx, fmt.Sprintf(\"%s/%d\", provisioningUrlEndpoint, provisioningUrlID))"
           ]
         },
@@ -306,7 +344,8 @@
             "HEAD"
           ],
           "quotes": [
-            "err := service.Client.Read(ctx, fmt.Sprintf(\"%s/%d\", workloadGroupsEndpoint, workloadID), &workloadGroup)"
+            "err := service.Client.Read(ctx, fmt.Sprintf(\"%s/%d\", workloadGroupsEndpoint, workloadID), &workloadGroup)",
+            "resp, err := service.Client.UpdateWithPut(ctx, fmt.Sprintf(\"%s/%d\", workloadGroupsEndpoint, workloadGroupID), *workloadGroup)"
           ]
         },
         {
@@ -320,6 +359,17 @@
             "err = client.Read(ctx, u.String(), &pageItems)"
           ],
           "after": "func ReadPage[T any](ctx context.Context, client *zscaler.Client, endpoint string, page int, list *[]T) error {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policyresources/zparesources/zparesources.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "err := common.ReadPage(ctx, service.Client, endpointWithSearch, page, &groups)"
+          ]
         }
       ],
       "conditions": "This is the ZTW instance of the routing defect described for ZCC in [[zcc.sdk-go.legacy-routing]]. Search: `git -C vendor/zscaler-sdk-go grep -n -E 'Client\\.(Read|Create|UpdateWithPut|Update|Delete)\\(' v3.8.40 -- zscaler/ztw` lists these call sites; the `...Resource` methods used by the other ZTW services were not listed. The list is not claimed to be exhaustive for the generic slice-payload and raw-payload methods.",
@@ -691,7 +741,7 @@
       "conditions": "Same search as for the update call sites (`git grep -n -E '\\.(Update|Create)[A-Za-z]*\\(ctx' v0.2.0 -- ztc`); every match reviewed passes `&req`, `&rule`, or a rule variable from the enclosing list loop. The loop variables were not traced to a possible nil, so this is a code-reading result, not a proof."
     },
     "location-vpc-info-value-structs": {
-      "statement": "The ZTW location request holds `VPCInfo` by value with `omitempty`, and `VPCInfo` holds `CloudMeta` by value with `omitempty`. Every member of both is itself `omitempty`, so a location whose VPC information is unset still has two struct-valued fields that Go's JSON encoder never omits.",
+      "statement": "The ZTW location request holds `VPCInfo` by value with `omitempty`, and `VPCInfo` holds `CloudMeta` by value with `omitempty`. Every member of both structs is itself `omitempty`.",
       "tier": "A",
       "evidence": [
         {
@@ -706,6 +756,32 @@
             "CloudMeta CloudMeta `json:\"cloudMeta,omitempty\"`",
             "CloudProvider string `json:\"cloudProvider,omitempty\"`"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/locationmanagement/location/location.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "CloudProvider string `json:\"cloudProvider,omitempty\"`",
+            "CloudMeta CloudMeta `json:\"cloudMeta,omitempty\"` }"
+          ],
+          "after": "type VPCInfo struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/locationmanagement/location/location.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "ID int `json:\"id,omitempty\"`",
+            "Name string `json:\"name,omitempty\"` }"
+          ],
+          "after": "type CloudMeta struct {"
         }
       ],
       "upstream": [
@@ -833,6 +909,18 @@
             "HEAD"
           ],
           "quotes": [
+            "var errLegacyClientNotSet = fmt.Errorf(\"legacy client is not set\")"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "if c.oauth2Credentials.UseLegacyClient { if c.oauth2Credentials.LegacyClient == nil || c.oauth2Credentials.LegacyClient.ZiaClient == nil { return errLegacyClientNotSet",
             "resp, _, _, err := c.ExecuteRequest(ctx, \"GET\", endpoint, nil, nil, contentTypeJSON)"
           ],
           "after": "func (c *Client) Read(ctx context.Context, endpoint string, o interface{}) error {"
@@ -845,18 +933,7 @@
             "HEAD"
           ],
           "quotes": [
-            "if c.oauth2Credentials.UseLegacyClient {"
-          ],
-          "after": "func (c *Client) Read(ctx context.Context, endpoint string, o interface{}) error {"
-        },
-        {
-          "source": "sdk-go",
-          "path": "zscaler/ziarequests.go",
-          "at": [
-            "v3.8.40",
-            "HEAD"
-          ],
-          "quotes": [
+            "if c.oauth2Credentials.UseLegacyClient { if c.oauth2Credentials.LegacyClient == nil || c.oauth2Credentials.LegacyClient.ZiaClient == nil { return nil, errLegacyClientNotSet",
             "respBody, response, _, err := c.ExecuteRequest(ctx, \"POST\", endpoint, bytes.NewReader(data), nil, contentTypeJSON)"
           ],
           "after": "func (c *Client) Create(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {"
@@ -869,7 +946,33 @@
             "HEAD"
           ],
           "quotes": [
-            "if c.oauth2Credentials.UseLegacyClient {"
+            "if c.oauth2Credentials.UseLegacyClient { if c.oauth2Credentials.LegacyClient == nil || c.oauth2Credentials.LegacyClient.ZiaClient == nil { return nil, errLegacyClientNotSet",
+            "return c.updateGeneric(ctx, endpoint, o, \"PUT\", contentTypeJSON)"
+          ],
+          "after": "func (c *Client) UpdateWithPut(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, _, _, err := c.ExecuteRequest(ctx, method, endpoint, bytes.NewReader(data), nil, contentType)"
+          ],
+          "after": "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "if c.oauth2Credentials.UseLegacyClient { if c.oauth2Credentials.LegacyClient == nil || c.oauth2Credentials.LegacyClient.ZiaClient == nil { return errLegacyClientNotSet",
+            "_, _, _, err := c.ExecuteRequest(ctx, \"DELETE\", endpoint, nil, nil, contentTypeJSON)"
           ],
           "after": "func (c *Client) Delete(ctx context.Context, endpoint string) error {"
         },
@@ -881,7 +984,7 @@
             "HEAD"
           ],
           "quotes": [
-            "Description: \"Enable ZTW API via Legacy Mode\","
+            "\"use_legacy_client\": { Type: schema.TypeBool, Optional: true, Description: \"Enable ZTW API via Legacy Mode\", }, \"http_proxy\": {"
           ]
         }
       ]

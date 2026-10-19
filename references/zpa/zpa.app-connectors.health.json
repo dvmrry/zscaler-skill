@@ -137,7 +137,8 @@
           "source": "zscaler-help",
           "path": "about-app-connectors.json",
           "quotes": [
-            "If any App Connectors have been disconnected for one year or more, an alert appears when you log in to the Zscaler Admin Console."
+            "If any App Connectors have been disconnected for one year or more, an alert appears when you log in to the Zscaler Admin Console.",
+            "Click the number of disconnected App Connectors in the alert to open this page, which is filtered by the disconnected App Connectors so you can review or delete them."
           ]
         }
       ]
@@ -153,7 +154,9 @@
             "The expected value for this field is ZPN_ASSISTANT_BROKER_CONTROL, which denotes the session from the App Connector towards the closest Public Service Edge for Private Access.",
             "ZPN_STATUS_AUTHENTICATED: App Connector successfully authenticated in Private Access",
             "ZPN_STATUS_AUTH_FAILED: App Connector failed to authenticate in Private Access",
-            "ZPN_STATUS_DISCONNECTED: App Connector disconnected from a Service Edge for Private Access"
+            "ZPN_STATUS_DISCONNECTED: App Connector disconnected from a Service Edge for Private Access",
+            "The status of the session. The expected values for this field are:",
+            "ZPN_STATUS_DISCONNECTED: App Connector disconnected from a Service Edge for Private Access |"
           ]
         }
       ],
@@ -268,7 +271,8 @@
           "source": "mcp-server",
           "path": "commands/troubleshoot-connector.md",
           "quotes": [
-            "`ZPN_STATUS_NOT_ENROLLED` = enrollment failed"
+            "`ZPN_STATUS_NOT_ENROLLED` = enrollment failed",
+            "Check `runtime_status`: - `ZPN_STATUS_AUTHENTICATED` = healthy - `ZPN_STATUS_DISCONNECTED` = lost connection - `ZPN_STATUS_NOT_ENROLLED` = enrollment failed Also check `current_version`"
           ]
         }
       ],
@@ -370,7 +374,11 @@
             "self.expected_version = config[\"expectedVersion\"] if \"expectedVersion\" in config else None",
             "self.last_upgrade_time = config[\"lastUpgradeTime\"] if \"lastUpgradeTime\" in config else None",
             "self.last_broker_connect_time = config[\"lastBrokerConnectTime\"] if \"lastBrokerConnectTime\" in config else None",
-            "self.sarge_upgrade_status = config[\"sargeUpgradeStatus\"] if \"sargeUpgradeStatus\" in config else None"
+            "self.sarge_upgrade_status = config[\"sargeUpgradeStatus\"] if \"sargeUpgradeStatus\" in config else None",
+            "self.last_broker_connect_time_duration = ( config[\"lastBrokerConnectTimeDuration\"] if \"lastBrokerConnectTimeDuration\" in config else None )",
+            "self.last_broker_disconnect_time = ( config[\"lastBrokerDisconnectTime\"] if \"lastBrokerDisconnectTime\" in config else None )",
+            "self.last_broker_disconnect_time_duration = ( config[\"lastBrokerDisconnectTimeDuration\"] if \"lastBrokerDisconnectTimeDuration\" in config else None )",
+            "self.platform = config[\"platform\"] if \"platform\" in config else None"
           ],
           "after": "class AppConnectorController(ZscalerObject):"
         }
@@ -406,7 +414,9 @@
             "PAUSE_REASON_CERT_EXPIRY: Certificate expiry",
             "PAUSE_REASON_UPGRADE: Software upgrade",
             "sudo journalctl | grep \"entering PAUSE mode because of\"",
-            "entity is currently in paused mode, not taking any probe commands"
+            "entity is currently in paused mode, not taking any probe commands",
+            "PAUSE_REASON_ADMIN_PROBE_PROCESS_RESTART: Session process restart",
+            "PAUSE_REASON_ADMIN_PROBE_SYSTEM_RESTART: Session system restart"
           ]
         }
       ],
@@ -421,7 +431,8 @@
           "path": "troubleshooting-app-connectors.json",
           "quotes": [
             "there is most likely an issue with the connector process not getting CPU cycles on the virtual machine (VM) or the VM is frozen.",
-            "To resolve this issue, try stopping the VM and restarting it again."
+            "To resolve this issue, try stopping the VM and restarting it again.",
+            "If an App Connector successfully logged a connection but the App Connector shows as disconnected in the Zscaler Admin Console"
           ]
         }
       ]
@@ -443,7 +454,10 @@
           "path": "troubleshooting-app-connectors.json",
           "quotes": [
             "A successful TLS connection results in a certificate subject string returned from the Public Service Edge.",
-            "Make sure all the IP address ranges allowed by the firewall match those in the Private Access firewall policies"
+            "Make sure all the IP address ranges allowed by the firewall match those in the Private Access firewall policies",
+            "Test connectivity to the upstream Public Service Edge for Private Access by querying the DNS address co2br.prod.zpath.net",
+            "Test if the App Connector can make a TLS connection to a Public Service Edge using the openssl command.",
+            "Make sure all the IP address ranges allowed by the firewall match those in the Private Access firewall policies: config.zscaler.com/private.zscaler.com/zpa"
           ]
         }
       ]

@@ -261,7 +261,8 @@
           "path": "CHANGELOG.md",
           "after": "## 1.9.25 (April 30, 2026)",
           "quotes": [
-            "requests carry flat `groupIds: list[int]` / `userIds: list[str]` lists, while responses return nested `groups` / `users` objects"
+            "requests carry flat `groupIds: list[int]` / `userIds: list[str]` lists, while responses return nested `groups` / `users` objects",
+            "Reworked `web_policy_edit` to reflect the ZCC API's request/response asymmetry:"
           ]
         },
         {
@@ -316,7 +317,14 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
-            "empty blocks for the other four — the API rejects extra OS blocks // with a 400."
+            "empty blocks for the other four — the API rejects extra OS blocks // with a 400.",
+            "The five per-OS policy blocks are pointer-typed with `omitempty` so // that a payload created for one device type does not also include",
+            "Per-OS embedded policy blocks (only one is non-nil at a time)",
+            "AndroidPolicy *AndroidPolicy `json:\"androidPolicy,omitempty\"`",
+            "IosPolicy *IosPolicy `json:\"iosPolicy,omitempty\"`",
+            "LinuxPolicy *LinuxPolicy `json:\"linuxPolicy,omitempty\"`",
+            "MacPolicy *MacPolicy `json:\"macPolicy,omitempty\"`",
+            "WindowsPolicy *WindowsPolicy `json:\"windowsPolicy,omitempty\"`"
           ]
         }
       ]
@@ -329,7 +337,9 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
-            "every POST/PUT endpoint requires a JSON number, but the GET response // quotes some of them as strings"
+            "every POST/PUT endpoint requires a JSON number, but the GET response // quotes some of them as strings",
+            "The integer-on-the-wire scalars (ruleOrder, logMode, logLevel, etc.) // are typed as common.IntOrString because the ZCC API is inconsistent:",
+            "IntOrString marshals // as a number and unmarshals from either form"
           ]
         }
       ]
@@ -343,7 +353,10 @@
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
             "Many fields appear twice on the wire — once at the top level and once // inside policyExtension",
-            "The ZCC UI generates both, and // the API expects both."
+            "The ZCC UI generates both, and // the API expects both.",
+            "with subtly different types (top-level int // vs string inside the extension, etc.)",
+            "a Go // field name suffixed with `Top` lives at the WebPolicy level",
+            "These keys appear in the iOS UI // capture (payload-ios.json) at the WebPolicy root, IN ADDITION to // their counterparts inside the iosPolicy block."
           ]
         }
       ]
@@ -357,7 +370,10 @@
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
             "the /web/policy/edit endpoint then expects to see echoed back in the // PUT body",
-            "some pickers use integer values"
+            "some pickers use integer values",
+            "LabelValuePair models the `{label, value}` form-state objects the ZCC // UI generates for every dropdown / autocomplete it renders",
+            "PUT body (ruleOrderSelectedOption, logModeSelected, ipv6ModeSelected, // billingDaySelectedOption, browserAuthType, ziaDRMethod, etc.).",
+            "some pickers use integer values ({\"label\":\"Debug\",\"value\":3}) and // others use strings ({\"label\":\"1\",\"value\":\"1\"})"
           ]
         }
       ]
@@ -370,7 +386,9 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
-            "Both nested entries are present even when no ruleset is bound (their // `id` is then 0), so the wire shape is fixed."
+            "Both nested entries are present even when no ruleset is bound (their // `id` is then 0), so the wire shape is fixed.",
+            "LocationRulesetEntry / LocationRulesetPolicies model the small // locationRulesetPolicies block the API expects inside policyExtension.",
+            "LocationRulesetPolicies LocationRulesetPolicies `json:\"locationRulesetPolicies\"`"
           ]
         }
       ]
@@ -384,7 +402,8 @@
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
             "camelCase tags which the API silently ignored, leading to // {\"success\":\"false\",\"id\":0} on /edit.",
-            "install_ssl_certs is a JSON number, not a string."
+            "install_ssl_certs is a JSON number, not a string.",
+            "the password/cert fields are serialized in snake_case"
           ]
         },
         {
@@ -393,7 +412,9 @@
           "after": "type MacPolicy struct {",
           "quotes": [
             "DisablePassword string `json:\"disable_password\"`",
-            "InstallSslCerts common.IntOrString `json:\"install_ssl_certs\"`"
+            "InstallSslCerts common.IntOrString `json:\"install_ssl_certs\"`",
+            "LogoutPassword string `json:\"logout_password\"`",
+            "UninstallPassword string `json:\"uninstall_password\"`"
           ]
         }
       ]
@@ -415,7 +436,8 @@
           "after": "type MacPolicy struct {",
           "quotes": [
             "BrowserAuthType int `json:\"browserAuthType\"`",
-            "UseDefaultBrowser int `json:\"useDefaultBrowser\"`"
+            "UseDefaultBrowser int `json:\"useDefaultBrowser\"`",
+            "CaptivePortalConfig string `json:\"captivePortalConfig\"`"
           ]
         }
       ]
@@ -559,7 +581,8 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
-            "disable_password / logout_password / uninstall_password / passcode // are serialized in snake_case (matching the API verbatim);"
+            "disable_password / logout_password / uninstall_password / passcode // are serialized in snake_case (matching the API verbatim);",
+            "IosPolicy models the iosPolicy block of a ZCC web policy."
           ]
         },
         {
@@ -590,7 +613,10 @@
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
             "the 0/1 flags are quoted strings",
-            "The macOS UI capture does not include this block, so the field is // pointer-typed with `omitempty` on the WebPolicy parent — only iOS // payloads emit the key."
+            "The macOS UI capture does not include this block, so the field is // pointer-typed with `omitempty` on the WebPolicy parent — only iOS // payloads emit the key.",
+            "NotificationTemplateContract models the notificationTemplateContract // block the iOS web policy carries at the WebPolicy root.",
+            "the four counters (id, zpaReauthNotificationTime, customTimer, // delayPostureFailureNotificationSeconds) are JSON numbers;",
+            "NotificationTemplateContract *NotificationTemplateContract `json:\"notificationTemplateContract,omitempty\"`"
           ]
         }
       ]
@@ -613,14 +639,18 @@
           "path": "zscaler/zcc/_serialize.py",
           "quotes": [
             "WindowsPolicy.disable_password`` -> ``disable_password`` (snake on the wire) vs ``LinuxPolicy.disable_password`` -> ``disablePassword``",
-            "if provided_key in _legacy_snake_preserve_keys():"
+            "if provided_key in _legacy_snake_preserve_keys():",
+            "preserved on the wire (currently ``WebPolicy.SNAKE_CASE_KEYS``).",
+            "Treated as a transitional fallback: any key listed here passes through",
+            "the serializer unchanged when the per-class model does not declare it."
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zcc/web_policy.py",
           "quotes": [
-            "body = zcc_to_wire(body, WebPolicy)"
+            "body = zcc_to_wire(body, WebPolicy)",
+            "self._zcc_base_endpoint = \"/zcc/papi/public/v1\""
           ]
         }
       ]
@@ -707,7 +737,8 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
-            "DeviceTypeAlt int `json:\"deviceType,omitempty\"`"
+            "DeviceTypeAlt int `json:\"deviceType,omitempty\"`",
+            "DeviceType int `json:\"device_type\"`"
           ]
         }
       ]
@@ -722,7 +753,13 @@
           "quotes": [
             "real /listByCompany response): ziaDRMethod (not ziaDRRecoveryMethod)",
             "the supplemental ziaCustomDbUrl field that custom DR setups use.",
-            "ZiaCustomDbUrl   string `json:\"ziaCustomDbUrl\"`"
+            "ZiaCustomDbUrl   string `json:\"ziaCustomDbUrl\"`",
+            "ziaRSAPubKeyName / ziaRSAPubKey, zpaRSAPubKeyName / zpaRSAPubKey, and",
+            "ZiaDRMethod int `json:\"ziaDRMethod\"`",
+            "ZiaRSAPubKey string `json:\"ziaRSAPubKey\"`",
+            "ZiaRSAPubKeyName string `json:\"ziaRSAPubKeyName\"`",
+            "ZpaRSAPubKey string `json:\"zpaRSAPubKey\"`",
+            "ZpaRSAPubKeyName string `json:\"zpaRSAPubKeyName\"`"
           ]
         },
         {
@@ -739,7 +776,10 @@
           "after": "class DisasterRecovery(ZscalerObject):",
           "quotes": [
             "\"ziaDRMethod\": self.zia_dr_method,",
-            "\"ziaRSAPubKey\": self.zia_rsa_pub_key,"
+            "\"ziaRSAPubKey\": self.zia_rsa_pub_key,",
+            "\"ziaRSAPubKeyName\": self.zia_rsa_pub_key_name,",
+            "\"zpaRSAPubKeyName\": self.zpa_rsa_pub_key_name,",
+            "\"zpaRSAPubKey\": self.zpa_rsa_pub_key,"
           ]
         }
       ]
@@ -752,13 +792,19 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
-            "omitempty because the UI capture never emits them in a fresh create // body — they're populated on read responses but absent on writes."
+            "omitempty because the UI capture never emits them in a fresh create // body — they're populated on read responses but absent on writes.",
+            "DisasterRecovery models the disasterRecovery block inside a WebPolicy.",
+            "PolicyId / ZiaGlobalDbURL / ZiaGlobalDbURLV2 / ZiaPacURL are",
+            "PolicyId string `json:\"policyId,omitempty\"`",
+            "ZiaGlobalDbURL string `json:\"ziaGlobalDbUrl,omitempty\"`",
+            "ZiaGlobalDbURLV2 string `json:\"ziaGlobalDbUrlv2,omitempty\"`",
+            "ZiaPacURL string `json:\"ziaPacUrl,omitempty\"`"
           ]
         }
       ]
     },
     "snake-case-top-level": {
-      "statement": "The contract's edit body defines three snake_case top-level keys, `pac_url`, `reauth_period` and `device_type`. The Go struct sends these and nine more at the top level that the contract lacks (`exit_password`, `billing_day`, `allowed_apps`, `custom_text`, `bypass_mms_apps`, `quota_in_roaming`, `wifi_ssid`, `bypass_android_apps` and `install_ssl_certs`), and the Python SDK keeps the same keys in snake_case: all but `exit_password` are in its `SNAKE_CASE_KEYS`, and its key converter maps `exit_password` to itself.",
+      "statement": "The contract's edit body defines three snake_case top-level keys, `pac_url`, `reauth_period` and `device_type`. The Go struct sends these and nine more at the top level that the contract lacks (`exit_password`, `billing_day`, `allowed_apps`, `custom_text`, `bypass_mms_apps`, `quota_in_roaming`, `wifi_ssid`, `bypass_android_apps` and `install_ssl_certs`), and the Python SDK keeps the same keys in snake_case: its `SNAKE_CASE_KEYS` lists the other eleven, and its key converter maps `exit_password` to itself.",
       "tier": "A",
       "conditions": "Restated per verifier: the earlier statement said the contract and Go agree on three keys, but Go and Python send more. Python's preservation applies on the OneAPI client only (python-legacy-camelcases-web-policy).",
       "binds": [
@@ -796,7 +842,8 @@
             "QuotaInRoaming    int    `json:\"quota_in_roaming\"`",
             "WifiSSID          string `json:\"wifi_ssid\"`",
             "BypassAndroidApps []int  `json:\"bypass_android_apps\"`",
-            "InstallSslCertsTop                common.IntOrString `json:\"install_ssl_certs\"`"
+            "InstallSslCertsTop                common.IntOrString `json:\"install_ssl_certs\"`",
+            "DeviceType int `json:\"device_type\"`"
           ]
         },
         {
@@ -824,7 +871,13 @@
             "\"reauth_period\",",
             "\"billing_day\",",
             "\"bypass_mms_apps\",",
-            "\"bypass_android_apps\","
+            "\"bypass_android_apps\",",
+            "\"device_type\",",
+            "\"install_ssl_certs\",",
+            "\"quota_in_roaming\",",
+            "\"wifi_ssid\",",
+            "\"allowed_apps\",",
+            "\"custom_text\","
           ]
         },
         {
@@ -845,6 +898,22 @@
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
             "InstallSslCertsTop                common.IntOrString `json:\"install_ssl_certs\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "after": "type MacPolicy struct {",
+          "quotes": [
+            "InstallSslCerts common.IntOrString `json:\"install_ssl_certs\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "after": "type LinuxPolicy struct {",
+          "quotes": [
+            "InstallCerts string `json:\"installCerts\"`"
           ]
         }
       ]
@@ -871,13 +940,29 @@
           "quotes": [
             "capture (payload-ios.json) at the WebPolicy root, IN ADDITION to",
             "emitted as a JSON number (`0`) while the same name inside",
-            "iosPolicy is a quoted string (\"0\"). The SDK mirrors both wire"
+            "iosPolicy is a quoted string (\"0\"). The SDK mirrors both wire",
+            "iOS-specific top-level fields. These keys appear in the iOS UI",
+            "their counterparts inside the iosPolicy block.",
+            "Note on the legacy \"useTunnelSDK4_3\" key: the top-level form is",
+            "Ipv6ModeTop int `json:\"ipv6Mode,omitempty\"`",
+            "ShowVPNTunNotificationTop string `json:\"showVPNTunNotification,omitempty\"`",
+            "UseTunnelSDK43Top int `json:\"useTunnelSDK4_3,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "after": "type IosPolicy struct {",
+          "quotes": [
+            "Ipv6Mode int `json:\"ipv6Mode\"`",
+            "ShowVPNTunNotification string `json:\"showVPNTunNotification\"`",
+            "UseTunnelSDK43 string `json:\"useTunnelSDK4_3\"`"
           ]
         }
       ]
     },
     "zia-posture-omitted-on-create": {
-      "statement": "The Go SDK leaves `ziaPostureConfigId` out of a body when unset, because the console's create body does not include it.",
+      "statement": "The Go SDK leaves `ziaPostureConfigId` out of a body when unset; its comment gives the reason that a captured create body (`test.json`) does not include it.",
       "tier": "A",
       "binds": [
         "zcc/application-profiles#ziaPostureConfigId"
@@ -887,7 +972,9 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
-            "because test.json does not surface it on a fresh create; we still"
+            "because test.json does not surface it on a fresh create; we still",
+            "Forwarding / posture profiles. ZiaPostureConfigId is omitempty",
+            "ZiaPostureConfigId int `json:\"ziaPostureConfigId,omitempty\"`"
           ]
         }
       ]
@@ -915,13 +1002,27 @@
           "path": "zscaler/utils.py",
           "quotes": [
             "raise ValueError(\"Invalid `device_type` provided. Valid options: ios, android, windows, macos, linux.\")",
-            "mapped_params[\"deviceType\"] = \",\".join(mapped)"
+            "mapped_params[\"deviceType\"] = \",\".join(mapped)",
+            "# Accept str (\"windows\"), int (3, matching the API's numeric",
+            "str(zcc_param_map[\"os\"].get(dt.lower()) if isinstance(dt, str) else dt)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "after": "zcc_param_map = {",
+          "quotes": [
+            "\"ios\": 1,",
+            "\"android\": 2,",
+            "\"windows\": 3,",
+            "\"macos\": 4,",
+            "\"linux\": 5,"
           ]
         }
       ]
     },
     "edit-response": {
-      "statement": "The edit response carries only `success` and the policy `id` (for example `{\"success\":\"true\",\"id\":205241}`); the Go SDK treats any `success` other than \"true\" as a rejection.",
+      "statement": "The Go SDK models the edit response as a bare object carrying only `success` and the policy `id` (for example `{\"success\":\"true\",\"id\":205241}`), and treats any `success` other than \"true\" as a rejection.",
       "tier": "A",
       "evidence": [
         {
@@ -929,7 +1030,18 @@
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
             "unquoted integer ({\"success\":\"true\",\"id\":205241}), while the listByCompany",
-            "return nil, fmt.Errorf(\"API rejected web policy update (success=%q)\", resp.Success)"
+            "return nil, fmt.Errorf(\"API rejected web policy update (success=%q)\", resp.Success)",
+            "EditResponse models the bare response returned by PUT /edit, which is of // the form {\"success\":\"true\",\"id\":205241}.",
+            "if resp.Success != \"true\" {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "after": "type EditResponse struct {",
+          "quotes": [
+            "Success string `json:\"success\"`",
+            "ID json.Number `json:\"id\"`"
           ]
         }
       ]
@@ -946,7 +1058,16 @@
             "GetWebPolicyByID fetches a single web policy filtered by its id within a",
             "name, description, device_type, active) together with the",
             "either blank (the listByCompany endpoint sometimes drops the // numeric id when the entry came from a fresh /edit write).",
-            "policy.ID = id"
+            "policy.ID = id",
+            "device type. The underlying listByCompany endpoint returns untyped maps",
+            "raw, err := GetPolicyListByCompanyID(ctx, service, nil, nil, nil, nil, &dt)",
+            "if normalizeWebPolicyID(m[\"id\"]) != id {",
+            "type mismatch, return a minimal hydration from the raw map (id,",
+            "return minimalWebPolicyFromRaw(m, id, deviceType), fmt.Errorf(\"%w: %v\", ErrWebPolicyPartialDecode, unmarshalErr)",
+            "url := fmt.Sprintf(\"%s/listByCompany\", baseWebPolicyEndpoint)",
+            "url := fmt.Sprintf(\"%s/activate\", baseWebPolicyEndpoint)",
+            "url := fmt.Sprintf(\"%s/edit\", baseWebPolicyEndpoint)",
+            "endpoint := fmt.Sprintf(\"%s/%d/delete\", baseWebPolicyEndpoint, policyID)"
           ]
         }
       ]
@@ -1012,11 +1133,33 @@
             "allowZiaDisableWithoutPassword",
             "allowZdxDisableWithoutPassword"
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/generateCliPasswordContract",
+          "expect": {
+            "properties": {
+              "allowZpaDisableWithoutPassword": {
+                "description": "Indicates whether Allow ZPA Disable without Password is enabled.",
+                "type": "boolean"
+              },
+              "enableCli": {
+                "description": "Indicates whether CLI is enabled.",
+                "type": "boolean"
+              },
+              "policyId": {
+                "description": "ID of the policy.",
+                "format": "int64",
+                "type": "integer"
+              }
+            }
+          }
         }
       ]
     },
     "application-profiles-surface": {
-      "statement": "A second surface, `/application-profiles`, lists application profile policies, reads one by profile ID and patches one by profile ID. The PATCH accepts only an allowlist of properties (bypass, DNS and include or exclude lists, groups and user IDs, passwords, device type), and for arrays and comma-separated strings the existing values must be sent with the new ones.",
+      "statement": "A second surface, `/application-profiles`, lists application profile policies, has a GET that takes a profile ID in the path, and patches one by profile ID. The PATCH accepts only an allowlist of properties (bypass, DNS and include or exclude lists, groups and user IDs, passwords, device type), and for arrays and comma-separated strings the existing values must be sent with the new ones.",
       "tier": "A",
       "binds": [
         "zcc/application-profiles"
@@ -1036,6 +1179,15 @@
           "pointer": "/paths/~1papi~1public~1v1~1application-profiles~1{profileId}/patch",
           "expect": {
             "description": "<p>Update the properties of the application profile using profile ID. </p> <p><strong>Note:</strong>You can update only the following allowlisted properties. For array or comma-separated strings, ensure to include existing values along with the new values.</p> <ul>\n <li>packetTunnelExcludeList</li>\n <li>packetTunnelExcludeListForIPv6</li>\n <li>packetTunnelIncludeList</li>\n <li>packetTunnelIncludeListForIPv6</li>\n <li>vpnGateways</li>\n <li>sourcePortBasedBypasses</li>\n <li>disableParallelIpv4AndIPv6</li>\n <li>dnsPriorityOrderingForTrustedDnsCriteria</li>\n <li>useDefaultAdapterForDNS</li>\n <li>updateDnsSearchOrder</li>\n <li>disableDNSRouteExclusion</li>\n <li>enforceSplitDNS</li>\n <li>bypassDNSTrafficUsingUDPProxy</li>\n <li>truncateLargeUDPDNSResponse</li>\n <li>prioritizeDnsExclusions</li>\n <li>packetTunnelDnsExcludeList</li>\n <li>packetTunnelDnsIncludeList</li>\n <li>dnsPriorityOrdering</li>\n <li>customDNS</li>\n <li>appServiceIds</li>\n <li>bypassAppIds</li>\n <li>bypassCustomAppIds</li>\n <li>groups</li>\n <li>groupAll</li>\n <li>userIds</li>\n <li>logoutpassword</li>\n <li>uninstallpassword</li>\n <li>disablepassword</li>\n <li>exitPassword</li>\n <li>zdxDisablePassword</li>\n <li>zdDisablePassword</li>\n <li>zpaDisablePassword</li>\n <li>zdpDisablePassword</li>\n <li>zccRevertPassword</li>\n <li>zccFailCloseSettingsExitUninstallPassword</li>\n <li>deviceType</li></ul>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles~1{profileId}/get/parameters/[name=profileId]",
+          "expect": {
+            "description": "ID of the profile",
+            "in": "path"
           }
         }
       ]
@@ -1094,6 +1246,61 @@
           "expect": {
             "type": "array"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get/responses/200/content/application~1json/schema/properties/policies/items/properties/onNetPolicy",
+          "expect": {
+            "title": "PublicWebForwardingProfileContract",
+            "type": "object"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get/responses/200/content/application~1json/schema/properties/policies/items/properties/onNetPolicy/properties",
+          "expect": {
+            "dnsServers": {
+              "description": "The DNS servers where your corporate network sends DNS requests.",
+              "type": "string"
+            },
+            "dnsSearchDomains": {
+              "description": "The search domains configured as the primary domains for the network adapter used for connecting to Zscaler.",
+              "type": "string"
+            },
+            "hostname": {
+              "description": "The hostname of the network.",
+              "type": "string"
+            },
+            "resolvedIpsForHostname": {
+              "description": "The IP addresses that the hostname resolves to.",
+              "type": "string"
+            },
+            "trustedSubnets": {
+              "description": "The subnet of the trusted network.",
+              "type": "string"
+            },
+            "trustedGateways": {
+              "description": "The IP address of the default gateway.",
+              "type": "string"
+            },
+            "trustedDhcpServers": {
+              "description": "The DHCP server of the trusted network.",
+              "type": "string"
+            },
+            "trustedEgressIps": {
+              "description": "The egress IP address of the network.",
+              "type": "string"
+            },
+            "trustedNetworks": {
+              "description": "Specifies the list of trusted networks.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          }
         }
       ]
     },
@@ -1148,7 +1355,12 @@
           "source": "sdk-python",
           "path": "zscaler/zcc/models/webpolicy.py",
           "quotes": [
-            "self.enable_zia_dr = config[\"enableZiaDR\"] if \"enableZiaDR\" in config else None"
+            "self.enable_zia_dr = config[\"enableZiaDR\"] if \"enableZiaDR\" in config else None",
+            "self.enable_zpa_dr = config[\"enableZpaDR\"] if \"enableZpaDR\" in config else None",
+            "self.zia_dr_method = config[\"ziaDRMethod\"] if \"ziaDRMethod\" in config else None",
+            "self.use_zia_global_db = config[\"useZiaGlobalDb\"] if \"useZiaGlobalDb\" in config else None",
+            "self.allow_zia_test = config[\"allowZiaTest\"] if \"allowZiaTest\" in config else None",
+            "self.allow_zpa_test = config[\"allowZpaTest\"] if \"allowZpaTest\" in config else None"
           ]
         }
       ]
@@ -1163,6 +1375,13 @@
           "quotes": [
             "reactivate_web_security_minutes (str): Minutes after which Web",
             "Security is reactivated when disabled by the user."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/webpolicy.py",
+          "quotes": [
+            "\"reactivateWebSecurityMinutes\": self.reactivate_web_security_minutes,"
           ]
         }
       ]

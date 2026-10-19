@@ -75,6 +75,8 @@
           ],
           "after": "func resourceURLFilteringRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
+            "return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order)",
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order",
             "// always start rank 7 rules at the next available order after all ranked rules",
             "req.Rank = 7",
             "req.Order = nextAvailableOrder",
@@ -114,6 +116,10 @@
           "quotes": [
             "return diag.FromErr(fmt.Errorf(\"error getting all url filtering rules: %w\", err))",
             "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
+          ],
+          "at": [
+            "v4.8.11",
+            "HEAD"
           ]
         },
         {
@@ -125,6 +131,14 @@
           ],
           "quotes": [
             "*list = append(*list, pageItems...)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 4.8.11 (October 8, 2026)",
+            "if the list of existing rules could not be retrieved. The API error is now reported instead."
           ]
         }
       ],
@@ -172,6 +186,20 @@
             "var reorderTickInterval = 30 * time.Second",
             "time.Sleep(reorderTickInterval / 2)"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "// reorderAll runs as a background goroutine and reconciles the desired // order of every rule registered for resourceType against the API's",
+            "Each pass calls getCurrent ONCE to fetch {ruleID -> {Order, Rank}}",
+            "// Reorder goroutine still running — just register, don't start another",
+            "current, err := getCurrent()"
+          ]
         }
       ]
     },
@@ -203,6 +231,18 @@
             "close(doneCh)",
             "func waitForReorder(resourceType string) {"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "func reorderAll( resourceType string, getCurrent func() (map[int]OrderRule, error), updateOrder func(id int, order OrderRule) error, beforeReorder func(), ) {",
+            "go func() { reorderAll(resourceType, getCurrent, updateOrder, beforeReorder) close(doneCh) }()"
+          ]
         }
       ],
       "upstream": [
@@ -213,7 +253,7 @@
       ]
     },
     "converges-on-registered-rules-only": {
-      "statement": "A pass is judged only on the rules registered by this apply: it is \"clean\" when none of them needed a move, was skipped, or failed. Rules the apply did not touch, including a terminal deny, are never checked.",
+      "statement": "A pass is judged only on the rules registered by this apply: it is \"clean\" when none of them needed a move, was skipped, or failed. Rules the apply did not register are never checked.",
       "tier": "A",
       "evidence": [
         {
@@ -224,6 +264,7 @@
             "HEAD"
           ],
           "quotes": [
+            "sorted := sortOrders(rules.orders[resourceType])",
             "for _, v := range sorted {",
             "cleanPass := putsIssued == 0 && skipped == 0 && puterrs == 0 && size == lastSize"
           ]
@@ -242,8 +283,11 @@
             "HEAD"
           ],
           "quotes": [
+            "Each pass calls getCurrent ONCE to fetch {ruleID -> {Order, Rank}}",
+            "current, err := getCurrent()",
             "cur, exists := current[v.ID]",
-            "if cur.Order == desired.Order && cur.Rank == desired.Rank {"
+            "if cur.Order == desired.Order && cur.Rank == desired.Rank {",
+            "if err := updateOrder(v.ID, desired); err != nil {"
           ]
         }
       ]
@@ -275,7 +319,7 @@
           "quotes": [
             "if readFailures >= maxNoProgressTicks {",
             "could not read the current rule order for %d consecutive passes, giving up.",
-            "// The waiting Create/Update then reads the rule back and"
+            "// The waiting Create/Update then reads the rule back and // reports the API error to Terraform."
           ]
         },
         {
@@ -287,7 +331,9 @@
           ],
           "quotes": [
             "const maxNoProgressTicks = 6",
-            "const maxStuckOnSkippedTicks = 2"
+            "const maxStuckOnSkippedTicks = 2",
+            "} else if skipped > 0 || puterrs > 0 { noProgressTicks++",
+            "if skipped > 0 && inRangeAtTarget && !progressedThisPass && puterrs == 0 {"
           ]
         },
         {
@@ -310,6 +356,27 @@
           ],
           "quotes": [
             "// maxNonImprovingPutTicks is the oscillation breaker (SUP-4231). When the"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "func reorderAll( resourceType string, getCurrent func() (map[int]OrderRule, error), updateOrder func(id int, order OrderRule) error, beforeReorder func(), ) {",
+            "go func() { reorderAll(resourceType, getCurrent, updateOrder, beforeReorder) close(doneCh) }()",
+            "ch := rules.reorderDone[resourceType] rules.Unlock() if ch != nil { <-ch }"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 4.8.11 (October 8, 2026)",
+            "Fixed rule-based resources hanging indefinitely while placing rules in their declared order when the current rule order could not be read from the API. After repeated failed reads the provider now stops waiting and reports the API error."
           ]
         }
       ]

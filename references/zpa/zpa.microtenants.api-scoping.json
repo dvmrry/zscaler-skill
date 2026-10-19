@@ -146,7 +146,8 @@
           "after": "def add_microtenant(self, **kwargs)",
           "quotes": [
             "# Construct the body from kwargs (as a dictionary)",
-            "body = kwargs"
+            "body = kwargs",
+            "request, error = self._request_executor.create_request(http_method, api_url, body=body)"
           ]
         },
         {
@@ -156,6 +157,26 @@
           "expect": {
             "in": "path",
             "required": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants/post",
+          "expect": {
+            "parameters": [
+              {
+                "description": "The unique identifier of the ZPA tenant.",
+                "explode": false,
+                "in": "path",
+                "name": "customerId",
+                "required": true,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer"
+                }
+              }
+            ]
           }
         }
       ]
@@ -170,6 +191,46 @@
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants~1search/post/requestBody/content/application~1json/schema",
           "expect": {
             "title": "FilterAndSortDto"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants~1search/post/requestBody/content/application~1json/schema/properties/filterBy/items/properties",
+          "expect": {
+            "filterName": {
+              "type": "string"
+            },
+            "operator": {
+              "type": "string"
+            },
+            "values": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants~1search/post/requestBody/content/application~1json/schema/properties/pageBy",
+          "expect": {
+            "title": "PaginationDto"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants~1search/post/requestBody/content/application~1json/schema/properties/sortBy/properties",
+          "expect": {
+            "sortName": {
+              "type": "string"
+            },
+            "sortOrder": {
+              "type": "string"
+            }
           }
         },
         {

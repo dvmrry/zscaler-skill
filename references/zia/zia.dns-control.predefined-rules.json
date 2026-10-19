@@ -121,6 +121,7 @@
           "path": "about-dns-control.json",
           "quotes": [
             "If your organization has Extranet Application Support enabled, ZPA Resolver for Extranet Locations is added as a default rule",
+            "A default IP pool is created for extranet traffic",
             "To access Extranet Application Support, contact your Zscaler Account team."
           ]
         }
@@ -154,7 +155,7 @@
       ]
     },
     "road-warrior-above-locations": {
-      "statement": "The Road Warrior resolver rule must sit at a higher rule (lower number) than the Locations resolver rule; for example Road Warrior at rule 4 and Locations at rule 5 or later.",
+      "statement": "The Road Warrior resolver rule should be a higher rule (lower number) than the Locations resolver rule; for example Road Warrior at rule 4 and Locations at rule 5 or later.",
       "tier": "A",
       "evidence": [
         {
@@ -225,6 +226,10 @@
             "| Fallback ZPA Resolver for Locations |",
             "| Fallback ZPA Resolver for Road Warrior |",
             "| Critical Risk DNS Categories |",
+            "| Critical Risk DNS Tunnels |",
+            "| High-Risk DNS Categories |",
+            "| High-Risk DNS Tunnels |",
+            "| Risky DNS Categories |",
             "| Risky DNS Tunnels |"
           ]
         }
@@ -259,6 +264,14 @@
           "quotes": [
             "The Fallback ZPA Resolver for Road Warrior rule is predefined to redirect source IP anchored traffic of remote users to the preconfigured IP pools during control plane maintenance."
           ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "modifying-default-dns-control-rule.json",
+          "quotes": [
+            "This rule is disabled by default and cannot be deleted. It is only enabled during control plane maintenance to ensure the resiliency of the Source IP Anchoring feature."
+          ],
+          "after": "The Fallback ZPA Resolver for Road Warrior rule is predefined to redirect"
         }
       ]
     },
@@ -271,6 +284,7 @@
           "path": "modifying-default-dns-control-rule.json",
           "quotes": [
             "Predefined DNS rules can be enabled or disabled based on your organization's requirements. However, these rules cannot be deleted unless specified otherwise.",
+            "certain rules contain system-defined Rule Order (i.e., default Rule Order), which cannot be modified by admins.",
             "These rules with default Rule Order always maintain the lowest precedence.",
             "you can either create custom rules using higher ranks or disable the rule that's causing the false positives."
           ]
@@ -289,8 +303,9 @@
           "source": "zscaler-help",
           "path": "configuring-dns-control-policy.json",
           "quotes": [
-            "for policies configured for remote users to take effect.",
-            "also apply to remote user traffic from those locations."
+            "To apply this rule only to remote user traffic, select Road Warrior for Locations.",
+            "You must also ensure that you have enabled the Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors option in Advanced Settings for policies configured for remote users to take effect.",
+            "Rules configured for locations other than Road Warrior also apply to remote user traffic from those locations."
           ]
         }
       ],

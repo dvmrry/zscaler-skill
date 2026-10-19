@@ -133,7 +133,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/application_segment.py",
           "quotes": [
-            "return None, None, ValueError(\"Cannot use both 'tcp_port_ranges' and 'tcp_port_range' in the same request.\")"
+            "return None, None, ValueError(\"Cannot use both 'tcp_port_ranges' and 'tcp_port_range' in the same request.\")",
+            "return None, None, ValueError(\"Cannot use both 'udp_port_ranges' and 'udp_port_range' in the same request.\")"
           ],
           "after": "def add_segment(self, **kwargs)"
         },
@@ -141,7 +142,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/application_segment.py",
           "quotes": [
-            "return None, None, ValueError(\"Cannot use both 'udp_port_ranges' and 'udp_port_range' in the same request.\")"
+            "return None, None, ValueError(\"Cannot use both 'udp_port_ranges' and 'udp_port_range' in the same request.\")",
+            "return None, None, ValueError(\"Cannot use both 'tcp_port_ranges' and 'tcp_port_range' in the same request.\")"
           ],
           "after": "def update_segment(self, segment_id: str, **kwargs)"
         }
@@ -204,7 +206,8 @@
           "source": "sdk-python",
           "path": "CHANGELOG.md",
           "quotes": [
-            "Fixed ZPA `update_segment` failing whenever `clientless_app_ids` is passed; Browser Access apps are now matched by domain and segment ID."
+            "Fixed ZPA `update_segment` failing whenever `clientless_app_ids` is passed; Browser Access apps are now matched by domain and segment ID.",
+            "[Issue #581](https://github.com/zscaler/zscaler-sdk-python/issues/581)"
           ],
           "after": "## 1.11.1 (October 6 2026)"
         },
@@ -212,7 +215,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/application_segment.py",
           "quotes": [
-            "body[\"clientlessApps\"] = body.pop(\"clientless_app_ids\")"
+            "body[\"clientlessApps\"] = body.pop(\"clientless_app_ids\")",
+            "if \"clientless_app_ids\" in body: body[\"clientlessApps\"] = body.pop(\"clientless_app_ids\") transform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)"
           ],
           "after": "def add_segment(self, **kwargs)"
         }
@@ -230,7 +234,8 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "Removed the `clientless_app_ids` parameter from `zpa_create_application_segment` and `zpa_update_application_segment`.",
-            "previously triggered a stray `BROWSER_ACCESS` lookup when passed against a standard segment."
+            "previously triggered a stray `BROWSER_ACCESS` lookup when passed against a standard segment.",
+            "Browser Access workloads are now served by the dedicated `zpa_*_application_segment_ba` tools"
           ]
         }
       ]
@@ -281,7 +286,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/models/application_segment.py",
           "quotes": [
-            "self.enabled = config[\"enabled\"] if \"enabled\" in config else True"
+            "self.enabled = config[\"enabled\"] if \"enabled\" in config else True",
+            "self.guest_details = [] self.enabled = None self.double_encrypt = None"
           ],
           "after": "class ApplicationSegments(ZscalerObject):"
         }
@@ -295,7 +301,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_inspection.py",
           "quotes": [
-            "body = kwargs"
+            "body = kwargs",
+            "http_method = \"post\".upper() api_url = format_url(f\"\"\" {self._zpa_base_endpoint} /application \"\"\")"
           ],
           "after": "print(f\"segment created successfully: {added_segment.as_dict()}\")"
         },
@@ -303,7 +310,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_pra.py",
           "quotes": [
-            "body = kwargs"
+            "body = kwargs",
+            "http_method = \"post\".upper() api_url = format_url(f\"\"\" {self._zpa_base_endpoint} /application \"\"\")"
           ],
           "after": "print(f\"Segment created successfully: {added_segment.as_dict()}\")"
         }

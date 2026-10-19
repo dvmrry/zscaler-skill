@@ -98,7 +98,10 @@
           "quotes": [
             "the v1 endpoints — which return a bare JSON array — every v2 list endpoint // wraps the records in an object that also carries pagination metadata",
             "Items  []T `json:\"items\"`",
-            "Count  int `json:\"count\"`"
+            "Count  int `json:\"count\"`",
+            "Total  int `json:\"total\"`",
+            "Offset int `json:\"offset\"`",
+            "Limit  int `json:\"limit\"`"
           ]
         }
       ],
@@ -113,14 +116,27 @@
           "path": "zscaler/zcc/services/notification_template/notification_template.go",
           "quotes": [
             "still done client-side because keyword is substring, not equality.",
-            "if strings.EqualFold(template.Name, templateName) {"
+            "if strings.EqualFold(template.Name, templateName) {",
+            "Narrow the server-side search via keyword; final exact match is"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
           "quotes": [
-            "still done client-side because keyword is substring, not equality."
+            "still done client-side because keyword is substring, not equality.",
+            "Narrow the server-side search via keyword; final exact match is",
+            "if strings.EqualFold(posture.Name, postureName) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go",
+          "quotes": [
+            "Narrow the server-side search to the NAME field. Final exact",
+            "match is still done client-side because keyword is a substring",
+            "Keyword: networkName,",
+            "if strings.EqualFold(network.Name, networkName) {"
           ]
         }
       ]
@@ -136,7 +152,51 @@
             "Platform            int                 `json:\"platform,omitempty\"`",
             "HighTrustCriteria   HighTrustCriteria   `json:\"highTrustCriteria,omitempty\"`",
             "Cn []TrustCriterion `json:\"cn,omitempty\"`",
-            "UDID string `json:\"udid,omitempty\"`"
+            "UDID string `json:\"udid,omitempty\"`",
+            "ID int `json:\"id,omitempty\"`",
+            "MediumTrustCriteria MediumTrustCriteria `json:\"mediumTrustCriteria,omitempty\"`",
+            "LowTrustCriteria LowTrustCriteria `json:\"lowTrustCriteria,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
+          "after": "type ZIAPosture struct {",
+          "quotes": [
+            "Name string `json:\"name,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
+          "after": "type HighTrustCriteria struct {",
+          "quotes": [
+            "Cs []TrustCriteriaSet `json:\"cs,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
+          "after": "type MediumTrustCriteria struct {",
+          "quotes": [
+            "Cs []TrustCriteriaSet `json:\"cs,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
+          "after": "type LowTrustCriteria struct {",
+          "quotes": [
+            "Cs []TrustCriteriaSet `json:\"cs,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
+          "after": "type TrustCriterion struct {",
+          "quotes": [
+            "ID string `json:\"id,omitempty\"`",
+            "Name string `json:\"name,omitempty\"`"
           ]
         }
       ]
@@ -164,14 +224,18 @@
           "path": "zscaler/zcc/services/notification_template/notification_template.go",
           "quotes": [
             "EnableClient            bool                    `json:\"enableClient\"`",
-            "ZIANotificationTemplate ZIANotificationTemplate `json:\"ziaNotificationTemplate\"`"
+            "ZIANotificationTemplate ZIANotificationTemplate `json:\"ziaNotificationTemplate\"`",
+            "ZPANotificationTemplate ZPANotificationTemplate `json:\"zpaNotificationTemplate\"`"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
-            "the 0/1 flags are quoted strings"
+            "the 0/1 flags are quoted strings",
+            "NotificationTemplateContract models the notificationTemplateContract",
+            "block the iOS web policy carries at the WebPolicy root.",
+            "EnableClientNotification string `json:\"enableClientNotification\"`"
           ]
         }
       ]

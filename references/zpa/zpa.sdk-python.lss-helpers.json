@@ -73,7 +73,10 @@
           "path": "zscaler/zpa/lss.py",
           "quotes": [
             "/clientTypes",
-            "reverse_map = {v.lower().replace(\" \", \"_\"): k for k, v in client_types.items()}"
+            "reverse_map = {v.lower().replace(\" \", \"_\"): k for k, v in client_types.items()}",
+            "http_method = \"get\".upper()",
+            "{self._zpa_lss_endpoint_v2} /clientTypes",
+            "client_types = response.get_body()"
           ],
           "after": "def get_client_types(self, client_type=None)"
         },
@@ -82,6 +85,13 @@
           "path": "zscaler/zpa/lss.py",
           "quotes": [
             "reverse_map = {v.lower().replace(\" \", \"_\"): k for k, v in client_types.items()}"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "self._zpa_lss_endpoint_v2 = f\"/zpa/mgmtconfig/v2/admin/lssConfig/customers/{customer_id}\""
           ]
         }
       ]
@@ -119,7 +129,10 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/lss.py",
           "quotes": [
-            "return None"
+            "request, error = self._request_executor.create_request(http_method, api_url) if error: return None",
+            "response, error = self._request_executor.execute(request) if error: return None",
+            "return {client_type: reverse_map[client_type]}",
+            "return reverse_map"
           ],
           "after": "def get_client_types(self, client_type=None)"
         },
@@ -127,6 +140,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/lss.py",
           "quotes": [
+            "request, error = self._request_executor.create_request(http_method, api_url, params=query_params) if error: return None",
+            "response, error = self._request_executor.execute(request) if error: return None",
             "return response.get_body()"
           ],
           "after": "def get_all_log_formats(self, log_type=None, query_params=None)"
@@ -135,7 +150,10 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/lss.py",
           "quotes": [
-            "return None"
+            "request, error = self._request_executor.create_request(http_method, api_url) if error: return None",
+            "response, error = self._request_executor.execute(request) if error: return None",
+            "return all_status_codes",
+            "return filtered_status_codes"
           ],
           "after": "def get_status_codes(self, log_type: str = \"all\")"
         }
@@ -150,7 +168,10 @@
           "path": "zscaler/zpa/lss.py",
           "quotes": [
             "log_stream_content = self.get_all_log_formats()[source_log_type][source_log_format]",
-            "source_log_format: str = \"csv\","
+            "source_log_format: str = \"csv\",",
+            "if kwargs.get(\"log_stream_content\"):",
+            "log_stream_content = kwargs.pop(\"log_stream_content\")",
+            "\"format\": log_stream_content,"
           ],
           "after": "def add_lss_config("
         },
@@ -162,6 +183,14 @@
             "log_stream_content = self.get_all_log_formats()[source_log_type][source_log_format]"
           ],
           "after": "def add_lss_config("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "response, error = self._request_executor.execute(request) if error: return None"
+          ],
+          "after": "def get_all_log_formats(self, log_type=None, query_params=None)"
         }
       ],
       "conditions": "The failure on None follows from subscripting the return value; it was not run."
@@ -176,7 +205,9 @@
           "quotes": [
             "policy_set_id, err = self._get_siem_policy_set_id()",
             "\"name\": kwargs.get(\"policy_name\", \"SIEM_POLICY\"),",
-            "\"policySetId\": policy_set_id,"
+            "\"policySetId\": policy_set_id,",
+            "if kwargs.get(\"policy_rules\"):",
+            "# When policy_rules is set, the payload's policyRuleResource must"
           ],
           "after": "def add_lss_config("
         }
@@ -192,7 +223,9 @@
           "quotes": [
             "log_type_key = self.source_log_map.get(log_type)",
             "raise ValueError(\"Incorrect log_type provided.\")",
-            "if log_type_key in details.get(\"log_types\", [])"
+            "if log_type_key in details.get(\"log_types\", [])",
+            "if log_type == \"all\": return all_status_codes",
+            "if not log_type_key:"
           ],
           "after": "def get_status_codes(self, log_type: str = \"all\")"
         }

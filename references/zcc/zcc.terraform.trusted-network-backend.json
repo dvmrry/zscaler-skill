@@ -105,7 +105,9 @@
           "quotes": [
             "if respErr.Parsed != nil && respErr.Parsed.ID == \"resource.not.found\" {",
             "case http.StatusBadRequest, http.StatusForbidden, http.StatusNotFound,",
-            "http.StatusMethodNotAllowed, http.StatusNotImplemented:"
+            "http.StatusMethodNotAllowed, http.StatusNotImplemented:",
+            "if errors.As(err, &respErr) && v2EndpointUnavailable(respErr) { return false, nil }",
+            "if available { backend = &v2Backend{svc: svc} } else { backend = &v1Backend{svc: svc} }"
           ]
         },
         {
@@ -127,7 +129,17 @@
           "path": "internal/framework/tnbackend/tnbackend.go",
           "quotes": [
             "unable to detect the trusted-network API version for this tenant: %w",
-            "// Transport failures, 5xx, auth errors on the token flow, … — do not"
+            "// Transport failures, 5xx, auth errors on the token flow, … — do not",
+            "available, err := probeV2(ctx, svc) if err != nil { return nil, fmt.Errorf(\"unable to detect the trusted-network API version for this tenant: %w\", err) }",
+            "silently pick a version off an ambiguous signal."
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/tnbackend.go",
+          "after": "func probeV2(",
+          "quotes": [
+            "return false, err"
           ]
         }
       ]
@@ -153,7 +165,10 @@
             "v1ConditionTypeAll = 0",
             "v1ConditionTypeAny = 1",
             "The mapping (0=ALL, 1=ANY) is field-verified against a tenant serving",
-            "return strconv.Itoa(n)"
+            "return strconv.Itoa(n)",
+            "Numeric strings are passed through verbatim as an",
+            "if n, err := strconv.Atoi(trimmed); err == nil { return n, nil }",
+            "both endpoint generations: the same record reads conditionType 0 via"
           ]
         }
       ]
@@ -184,7 +199,10 @@
           "quotes": [
             "if strings.EqualFold(c.Name, name) {",
             "return partial[0], nil",
-            "multiple trusted networks match name %q (%s): use the exact name or the numeric id"
+            "multiple trusted networks match name %q (%s): use the exact name or the numeric id",
+            "if containsFold(c.Name, name) {",
+            "return nil, fmt.Errorf(\"no trusted network found with name %q: %w\", name, ErrNotFound)",
+            "return strings.Contains(strings.ToLower(haystack), strings.ToLower(needle))"
           ]
         }
       ]
@@ -207,6 +225,25 @@
           "quotes": [
             "Type:    trusted_network_v2.FilterTypeName,"
           ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/backend_v1.go",
+          "after": "func (b *v1Backend) GetByName(",
+          "quotes": [
+            "pageSize := v1PageSize",
+            "if len(res.TrustedNetworkContracts) < pageSize { break } page++",
+            "return pickByName(name, candidates)"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/backend_v2.go",
+          "after": "func (b *v2Backend) GetByName(",
+          "quotes": [
+            "Keyword: name,",
+            "return pickByName(name, candidates)"
+          ]
         }
       ]
     },
@@ -219,14 +256,24 @@
           "path": "internal/framework/tnbackend/backend_v1.go",
           "quotes": [
             "func (b *v1Backend) SupportsGetByID() bool { return false }",
-            "return nil, ErrNotFound"
+            "return nil, ErrNotFound",
+            "SupportsGetByID is false: reads are list scans, so the pre-delete GET",
+            "if len(res.TrustedNetworkContracts) < pageSize { return nil, ErrNotFound }"
           ]
         },
         {
           "source": "tf-zcc",
           "path": "internal/framework/resources/trusted_network.go",
           "quotes": [
-            "if backend.SupportsGetByID() {"
+            "if backend.SupportsGetByID() {",
+            "if backend.SupportsGetByID() { if _, err := backend.Get(ctx, id); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/backend_v2.go",
+          "quotes": [
+            "func (b *v2Backend) SupportsGetByID() bool { return true }"
           ]
         }
       ]
@@ -240,6 +287,18 @@
           "path": "internal/framework/tnbackend/backend_v1.go",
           "quotes": [
             "`name` must be set: this tenant is served by the v1 trusted-network API, whose create call is resolved by network name"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/backend_v1.go",
+          "after": "func (b *v1Backend) Create(",
+          "quotes": [
+            "if payload.NetworkName == \"\" {",
+            "The v1 create response has no id; the SDK resolves the new",
+            "record by name, so an unnamed network could never be found",
+            "again. Fail before touching the API.",
+            "created, _, err := tnv1.CreateTrustedNetwork(ctx, b.svc, payload)"
           ]
         }
       ]
@@ -283,6 +342,13 @@
           "quotes": [
             "stringplanmodifier.UseStateForUnknown(),"
           ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "stopped `hostname`/`ssid` from showing `(known after apply)` on update plans when not set in the configuration."
+          ]
         }
       ]
     },
@@ -296,7 +362,9 @@
           "quotes": [
             "Whitespace around items is trimmed",
             "returns values like \"10.0.0.5, 10.0.0.6\") and empty segments are",
-            "return strings.Join(splitCSV(strings.Join(items, \",\")), \",\")"
+            "return strings.Join(splitCSV(strings.Join(items, \",\")), \",\")",
+            "if part = strings.TrimSpace(part); part != \"\" {",
+            "dropped, so \"\" becomes an empty"
           ]
         }
       ]

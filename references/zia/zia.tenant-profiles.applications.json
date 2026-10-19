@@ -52,7 +52,7 @@
     },
     {
       "label": "How that is stored.",
-      "text": "{{shared-item-members}} Only Microsoft has a confirmed pairing; see [[zia.tenant-profiles.microsoft]] and gap `item-type-per-app`."
+      "text": "{{shared-item-members}} Which `itemType` token each Help field maps to is not published, and only Microsoft has a confirmed pairing, in [[zia.tenant-profiles.microsoft]] {{gap:item-type-per-app}}."
     },
     {
       "text": "The AI & ML rule flow, where ChatGPT profiles surface in the rule UI, is covered in [[zia.cloud-app-control.ai-ml-rules]]. Per-application options and traps: [[zia.tenant-profiles.app-specifics]]. Caps per application: [[zia.tenant-profiles.limits]]. Wire format: [[zia.tenant-profiles.api-surface]]."
@@ -90,7 +90,8 @@
             "To configure the tenant profile for Webex Teams and Webex Meetings",
             "To configure the tenant profile for YouTube",
             "To configure the tenant profile for Zoho Login Services",
-            "To configure a tenant profile for Zoom"
+            "To configure a tenant profile for Zoom",
+            "Webex Login Services - To configure the tenant profile for Webex Teams and Webex Meetings"
           ]
         }
       ]
@@ -152,6 +153,13 @@
           "path": "zia/resource_zia_tenant_restriction_profile.go",
           "quotes": [
             "Restricted tenant profile application type."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_tenant_restriction_profile.go",
+          "quotes": [
+            "\"app_type\": { Type: schema.TypeString, Optional: true, Description: `Restricted tenant profile application type."
           ]
         }
       ],
@@ -215,13 +223,20 @@
             "in the Webex Tenants(Webex Teams and Meetings) field",
             "in the Zoho ID field",
             "in the Policy Label field",
-            "In the YouTube Channel ID field, enter the YouTube channel IDs"
+            "In the YouTube Channel ID field, enter the YouTube channel IDs",
+            "To configure the tenant profile for Amazon Web Services, in the Account IDs field",
+            "To configure a tenant profile for Zoom, in the Policy Label field",
+            "In the YouTube School ID field, enter the IDs YouTube assigned to your school network",
+            "In the YouTube Category ID field, select the required categories",
+            "In the Tenant Directory ID field, enter the tenant directory ID",
+            "In the Office 365 Tenants or Tenant IDs field, enter the tenant names or tenant IDs",
+            "Version 1 - To configure Version 1 tenant profile for Microsoft Login Services:"
           ]
         }
       ]
     },
     "shared-item-members": {
-      "statement": "A profile's identifiers are stored in the same API members whatever the application: `itemTypePrimary` and `itemDataPrimary`, optionally `itemTypeSecondary` and `itemDataSecondary`, plus `itemValue` for YouTube categories. Which `itemType` token each Help field maps to is not published.",
+      "statement": "A profile's identifiers are stored in the same API members whatever the application: `itemTypePrimary` and `itemDataPrimary`, optionally `itemTypeSecondary` and `itemDataSecondary`, plus `itemValue` for YouTube categories.",
       "tier": "A",
       "evidence": [
         {
@@ -240,6 +255,42 @@
           "expect": {
             "description": "Tenant profile secondary item data",
             "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1tenancyRestrictionProfile/post/requestBody/content/application~1json/schema/properties/itemTypePrimary",
+          "expect": {
+            "description": "Tenant profile primary item type",
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1tenancyRestrictionProfile/post/requestBody/content/application~1json/schema/properties/itemTypeSecondary",
+          "expect": {
+            "description": "Tenant profile secondary item type",
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1tenancyRestrictionProfile/post/requestBody/content/application~1json/schema/properties/itemValue",
+          "expect": {
+            "description": "Tenant profile item value for YouTube category",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1tenancyRestrictionProfile/post/requestBody/content/application~1json/schema/properties/appType",
+          "expect": {
+            "description": "Tenant profile application type",
+            "type": "string"
           }
         }
       ],

@@ -185,9 +185,29 @@
           "source": "tf-zpa",
           "path": "zpa/common.go",
           "quotes": [
+            "func ValidateConditions(ctx context.Context, conditions []policysetcontroller.Conditions, zClient *Client, microtenantID string) error {",
             "_, _, err := postureprofile.GetByPostureUDID(ctx, zClient.Service, operand.LHS)",
+            "return lhsWarn(operand.ObjectType, \"valid posture network ID\", operand.LHS, err)",
             "if !contains([]string{\"true\", \"false\"}, operand.RHS) {"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "quotes": [
+            "if err := ValidateConditions(ctx, req.Conditions, zClient, microTenantID); err != nil {",
+            "return diag.FromErr(err)"
+          ],
+          "after": "func resourcePolicyAccessCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "quotes": [
+            "if err := ValidateConditions(ctx, req.Conditions, zClient, microTenantID); err != nil {",
+            "return diag.FromErr(err)"
+          ],
+          "after": "func resourcePolicyAccessUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
       ]
     },
@@ -199,9 +219,29 @@
           "source": "tf-zpa",
           "path": "zpa/common.go",
           "quotes": [
+            "func ValidatePolicyRuleConditions(d *schema.ResourceData) error {",
             "return fmt.Errorf(\"LHS must be a valid Posture UDID and cannot be empty for POSTURE object_type\")",
             "return fmt.Errorf(\"rhs value must be 'true' or 'false' for POSTURE object_type\")"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "case \"POSTURE\": entryValuesSet, ok := operandMap[\"entry_values\"].(*schema.Set) if !ok || entryValuesSet.Len() == 0 { return fmt.Errorf(\"please provide a valid Posture UDID\") }",
+            "for _, ev := range entryValuesSet.List() { evMap := ev.(map[string]interface{}) lhs, lhsOk := evMap[\"lhs\"].(string) rhs, rhsOk := evMap[\"rhs\"].(string) if !lhsOk || lhs == \"\" {",
+            "return fmt.Errorf(\"LHS must be a valid Posture UDID and cannot be empty for POSTURE object_type\") } if !rhsOk || (rhs != \"true\" && rhs != \"false\") {",
+            "return fmt.Errorf(\"rhs value must be 'true' or 'false' for POSTURE object_type\") } } case \"TRUSTED_NETWORK\":"
+          ],
+          "after": "func ValidatePolicyRuleConditions(d *schema.ResourceData) error {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "quotes": [
+            "if err := ValidatePolicyRuleConditions(d); err != nil {"
+          ],
+          "after": "func resourcePolicyAccessV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
       ],
       "conditions": "ValidatePolicyRuleConditions is the v2 validator; the v1 resources call ValidateConditions, which does the lookup (same split as zpa.saml-attributes.policy-criteria:v1-validates-lookup)."

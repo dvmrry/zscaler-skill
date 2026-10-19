@@ -102,8 +102,58 @@
           "path": "zscaler/zpa/provisioning.py",
           "quotes": [
             "return \"CONNECTOR_GRP\"",
-            "return \"SERVICE_EDGE_GRP\""
+            "return \"SERVICE_EDGE_GRP\"",
+            "if key_type == \"connector\":",
+            "elif key_type == \"service_edge\":"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "{self._zpa_base_endpoint} /associationType/{simplify_key_type(key_type)}/provisioningKey"
+          ],
+          "after": "def list_provisioning_keys("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "/associationType/{simplify_key_type(key_type)}/provisioningKey/{key_id}"
+          ],
+          "after": "def get_provisioning_key("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "/associationType/{simplify_key_type(key_type)}zcomponent/{zcomponent_id}/provisioningKey"
+          ],
+          "after": "def get_provisioning_key_by_zcomponent("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "/associationType/{simplify_key_type(key_type)}/provisioningKey"
+          ],
+          "after": "def add_provisioning_key("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "/associationType/{simplify_key_type(key_type)}/provisioningKey/{key_id}"
+          ],
+          "after": "def update_provisioning_key("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "/associationType/{simplify_key_type(key_type)}/provisioningKey/{key_id}"
+          ],
+          "after": "def delete_provisioning_key("
         }
       ]
     },
@@ -116,7 +166,9 @@
           "path": "zscaler/zpa/oauth2_user_code.py",
           "quotes": [
             "return \"NP_ASSISTANT_GRP\"",
-            "return \"SITE_CONTROLLER_GRP\""
+            "return \"SITE_CONTROLLER_GRP\"",
+            "elif key_type == \"assistant_group\":",
+            "elif key_type == \"site_controller_group\":"
           ]
         }
       ]
@@ -139,6 +191,15 @@
             "raise ValueError(\"key_type must be provided.\")"
           ],
           "after": "def add_provisioning_key("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "if not key_type:",
+            "raise ValueError(\"key_type must be provided.\")"
+          ],
+          "after": "def update_provisioning_key("
         }
       ]
     },
@@ -167,14 +228,17 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/provisioning.py",
           "quotes": [
-            "request, error = self._request_executor.create_request(http_method, api_url, body, params, {})"
-          ]
+            "request, error = self._request_executor.create_request(http_method, api_url, body, params, {})",
+            "params = {\"microtenantId\": microtenant_id} if microtenant_id else {}"
+          ],
+          "after": "def update_provisioning_key("
         },
         {
           "source": "sdk-python",
           "path": "zscaler/request_executor.py",
           "quotes": [
-            "body: dict = None, headers: dict = None, params: dict = None,"
+            "body: dict = None, headers: dict = None, params: dict = None,",
+            "method: str, endpoint: str, body: dict = None, headers: dict = None, params: dict = None,"
           ],
           "after": "def create_request("
         }
@@ -202,7 +266,12 @@
           "path": "zscaler/zpa/provisioning.py",
           "quotes": [
             "{\"name\": name, \"maxUsage\": max_usage, \"enrollmentCertId\": enrollment_cert_id, \"zcomponentId\": component_id}",
-            "enrollment_cert_id = body.get(\"enrollment_cert_id\")"
+            "enrollment_cert_id = body.get(\"enrollment_cert_id\")",
+            "body = kwargs",
+            "name = body.pop(\"name\", None)",
+            "max_usage = body.pop(\"max_usage\", None)",
+            "component_id = body.get(\"component_id\")",
+            "request, error = self._request_executor.create_request(http_method, api_url, body=body, params=params)"
           ],
           "after": "def add_provisioning_key(self, key_type: str, **kwargs)"
         },
@@ -236,6 +305,23 @@
             "body = convert_keys_to_camel_case(body)"
           ],
           "after": "# Preserve existing logic for other services"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "result[to_lower_camel_case(k)] = convert_keys_to_camel_case(v)"
+          ],
+          "after": "def convert_keys_to_camel_case(data):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "components = string.split(\"_\")",
+            "converted.append(comp.capitalize())"
+          ],
+          "after": "def to_lower_camel_case(string):"
         }
       ],
       "conditions": "Whether the server ignores the extra componentId member is not shown. Corrected because the snake_case keys do not reach the wire as such; previously \"The Python add_provisioning_key reads component_id and enrollment_cert_id with body.get rather than pop, so those snake_case keys stay in the body next to the camelCase keys that are added.\""
@@ -261,6 +347,31 @@
             "body = convert_keys_to_camel_case(body)"
           ],
           "after": "# Preserve existing logic for other services"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "{\"name\": name, \"maxUsage\": max_usage, \"enrollmentCertId\": enrollment_cert_id, \"zcomponentId\": component_id}"
+          ],
+          "after": "def add_provisioning_key("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "result[to_lower_camel_case(k)] = convert_keys_to_camel_case(v)"
+          ],
+          "after": "def convert_keys_to_camel_case(data):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "components = string.split(\"_\")",
+            "converted.append(comp.capitalize())"
+          ],
+          "after": "def to_lower_camel_case(string):"
         }
       ],
       "conditions": "That no code in the function maps component_id rests on reading it. Corrected because the executor camel-cases the body (zpa.sdk-python.microtenant-scoping:body-camel), so only component_id is affected; previously \"The Python update_provisioning_key sends its keyword arguments as the body with no key remapping, so a caller must supply the wire-cased keys, unlike add_provisioning_key, which accepts snake_case arguments.\""
@@ -274,7 +385,8 @@
           "path": "zscaler/request_executor.py",
           "quotes": [
             "params = self._prepare_params(service_type, endpoint, params, body)",
-            "json_payload = self._prepare_body(endpoint, body)"
+            "json_payload = self._prepare_body(endpoint, body)",
+            "headers = headers or {} params = params or {}"
           ],
           "after": "def create_request("
         },
@@ -292,7 +404,8 @@
           "path": "zscaler/zpa/provisioning.py",
           "quotes": [
             "microtenant_id = body.get(\"microtenant_id\")",
-            "request, error = self._request_executor.create_request(http_method, api_url, body, params, {})"
+            "request, error = self._request_executor.create_request(http_method, api_url, body, params, {})",
+            "params = {\"microtenantId\": microtenant_id} if microtenant_id else {}"
           ],
           "after": "def update_provisioning_key(self, key_id"
         }

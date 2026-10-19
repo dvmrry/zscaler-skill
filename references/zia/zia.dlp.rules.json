@@ -149,20 +149,23 @@
           "path": "configuring-dlp-policy-rules-content-inspection.json",
           "quotes": [
             "select an admin rank 0 to 7 (0 is the highest rank) from the drop-down menu.",
-            "so that a rule with a higher admin rank always precedes a rule with a lower admin rank."
+            "so that a rule with a higher admin rank always precedes a rule with a lower admin rank.",
+            "if you enabled Admin Rank, your assigned admin rank determines the rule order values you can select.",
+            "The rule's admin rank determines the value you can select for rule order,"
           ]
         }
       ]
     },
     "rule-cap": {
-      "statement": "DLP shares the generic policy rule limit of 1,024 rules per type, which the Zscaler Account team can raise to 2,048.",
+      "statement": "DLP policy falls under the limit for all other policy rules, 1,024 rules, which the Zscaler Account team can raise to 2,048.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "ranges-limitations-zia.json",
           "quotes": [
-            "Contact your Zscaler Account team for a possible increase in this limit from 1,024 rules to 2,048 rules."
+            "Contact your Zscaler Account team for a possible increase in this limit from 1,024 rules to 2,048 rules.",
+            "All Other Policy Rules (i.e., DLP Policy, Inline Web DLP Policy, IPS Control Policy, etc.) | 1,024 rules"
           ]
         }
       ]
@@ -290,7 +293,10 @@
             "Location Groups: Select up to 32 location groups to which the rule applies.",
             "Select up to two time intervals during which the rule applies.",
             "or select up to 255 Private Access application segments.",
-            "Contact Zscaler Support to increase the default limit for Users, Groups, Departments, or User Risk Profile:"
+            "Contact Zscaler Support to increase the default limit for Users, Groups, Departments, or User Risk Profile:",
+            "Choose Exclude to apply the rule to all other users and not selected users.",
+            "Choose Exclude to apply the rule to all other groups and not selected groups.",
+            "Choose Exclude to apply the rule to all other departments and not selected departments."
           ]
         },
         {
@@ -299,7 +305,10 @@
           "quotes": [
             "You can select up to 8 domain profiles",
             "You can select a maximum of 8 instances per rule.",
-            "Select up to 8 workload groups for which you want to apply the rule."
+            "Select up to 8 workload groups for which you want to apply the rule.",
+            "choose Any to apply the rule to all users or select up to 32 users.",
+            "choose Any to apply the rule to all groups or select up to 32 groups.",
+            "choose Any to apply the rule to all departments or select up to 32 departments."
           ],
           "after": "3. On the Add Rule page, you can configure the following sections:"
         }
@@ -345,7 +354,8 @@
           "quotes": [
             "If this option is enabled, you must also choose Any for URL Categories and at least one cloud app for Cloud Application.",
             "If disabled, the DLP rule only applies to content being sent to cloud apps.",
-            "The Inspect Downloads feature does not apply to Exact Data Match (EDM) or Indexed Data Matching (IDM) engines."
+            "The Inspect Downloads feature does not apply to Exact Data Match (EDM) or Indexed Data Matching (IDM) engines.",
+            "Inspect Downloads: Enable this option to allow DLP inspection for content downloaded from specific cloud apps."
           ]
         }
       ]
@@ -426,14 +436,16 @@
           "source": "zscaler-help",
           "path": "configuring-dlp-policy-rules-content-inspection.json",
           "quotes": [
-            "The default minimum data size, 0 KB, means there is no minimum data size requirement."
+            "The default minimum data size, 0 KB, means there is no minimum data size requirement.",
+            "Minimum Data Size (KB): Enter the minimum size requirement that data must meet before the DLP rule applies."
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go",
           "quotes": [
-            "// The minimum file size (in KB) used for evaluation of the DLP policy rule."
+            "// The minimum file size (in KB) used for evaluation of the DLP policy rule.",
+            "MinSize int `json:\"minSize,omitempty\"`"
           ]
         }
       ]
@@ -517,7 +529,7 @@
       "conditions": "Confirm is documented in the Evaluate All Rules mode article; the default-mode article (recaptured 2026-10-18) lists only Allow and Block."
     },
     "confirm-timeout-cancels": {
-      "statement": "If the Confirm message times out without the user acting, the service automatically cancels the transaction. Confirm is therefore a hard block when nobody answers.",
+      "statement": "If the Confirm message times out without the user acting, the service automatically cancels the transaction.",
       "tier": "A",
       "binds": [
         "zia/dlp-web-rules#action"

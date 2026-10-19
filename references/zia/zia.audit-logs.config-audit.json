@@ -51,7 +51,7 @@
   ],
   "claims": {
     "not-a-trail": {
-      "statement": "The configAudit endpoint returns the System Audit Report, a graded assessment of the current configuration, not a log of who changed what.",
+      "statement": "The configAudit endpoint returns the System Audit Report, which grades the configuration overall and in each area it checks: GRE tunnels, PAC files, authentication frequency, PAC file sizes, Microsoft 365 One Click and IP visibility.",
       "tier": "A",
       "evidence": [
         {
@@ -66,7 +66,8 @@
           "source": "zscaler-help",
           "path": "about-system-audit-report.json",
           "quotes": [
-            "The System Audit Report highlights the status of GRE tunnels, PAC files, authentication frequency, PAC file sizes, Microsoft 365 One Click, and IP visibility."
+            "The System Audit Report highlights the status of GRE tunnels, PAC files, authentication frequency, PAC file sizes, Microsoft 365 One Click, and IP visibility.",
+            "View your overall grade and grades in each area"
           ]
         }
       ]
@@ -110,6 +111,7 @@
           "path": "about-system-audit-report.json",
           "quotes": [
             "The report runs on the first of every month, and the analysis is presented on everything as of that date.",
+            "In some cases, the previous month's report will be unavailable to view.",
             "you'll be shown the month prior to the previous month's report"
           ]
         }
@@ -135,6 +137,45 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/highAvailabilityGrade",
+          "expect": {
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "NONE"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/userPerformanceGrade",
+          "expect": {
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "NONE"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/otherGrade",
+          "expect": {
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "NONE"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/greTunnelGrade",
           "expect": {
             "enum": [
@@ -148,7 +189,46 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/pacFileGrade",
+          "expect": {
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "NONE"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/authFrequencyGrade",
+          "expect": {
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "NONE"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/pacfileSizeGrade",
+          "expect": {
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "NONE"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/office365Grade",
           "expect": {
             "enum": [
               "A",
@@ -188,6 +268,54 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/pacFileRecommendedConfiguration",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/authFrequencyRecommendedConfiguration",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/pacFileSizeRecommendedConfiguration",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/office365RecommendedConfiguration",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/ipVisibilityRecommendedConfiguration",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/office365Flag",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/dataPresent",
           "expect": {
             "type": "boolean"
@@ -213,6 +341,14 @@
               "CUSTOM_COOKIE"
             ]
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1configAudit/get/responses/200/content/application~1json/schema/properties/authFrequency/properties/authCustomFrequency",
+          "expect": {
+            "type": "integer"
+          }
         }
       ]
     },
@@ -223,9 +359,23 @@
         {
           "source": "zscaler-help",
           "path": "about-system-audit-report.json",
+          "after": "Information is sorted on Failover missing, followed by Primary missing, followed by both tunnels missing.",
           "quotes": [
+            "| No GRE tunnels | No Grade |",
             "| Issues with less than 10% of all GRE tunnels | A |",
+            "| Other issues between 10% and 90% of all GRE tunnels | B |",
             "| Issues with more than 90% of all GRE tunnels | C |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-system-audit-report.json",
+          "after": "In this section, Zscaler checks all PAC files to see if they use",
+          "quotes": [
+            "| No PAC files | No Grade |",
+            "| Issues with less than 10% of all PAC files | A |",
+            "| Other issues between 10% and 90% of all PAC files | B |",
+            "| Issues with more than 90% of all PAC files | C |"
           ]
         }
       ]
@@ -251,16 +401,30 @@
           "source": "sdk-python",
           "path": "zscaler/zia/models/system_audit.py",
           "quotes": [
+            "class AuthFrequency(ZscalerObject):",
+            "class IPVisibility(ZscalerObject):",
+            "self.total_gre_locations = config[\"totalGreLocations\"] if \"totalGreLocations\" in config else None",
+            "self.recommendation = config[\"recommendation\"] if \"recommendation\" in config else None",
+            "self.details = config[\"details\"] if \"details\" in config else None",
+            "config[\"locationsWithNat\"] if \"locationsWithNat\" in config else [], str",
+            "class PacFile(ZscalerObject):",
             "self.total_pac_files = config[\"totalPacFiles\"]",
-            "self.pac_with_static_ips = ZscalerCollection.form_list(",
-            "class IPVisibility(ZscalerObject):"
+            "self.pac_with_static_ips = ZscalerCollection.form_list("
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zia/system_audit.py",
           "quotes": [
+            "class SystemAuditReportAPI(APIClient):",
             "def get_config_audit(self, query_params: Optional[dict] = None)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/zia_service.py",
+          "quotes": [
+            "def system_audit(self) -> SystemAuditReportAPI:"
           ]
         }
       ]

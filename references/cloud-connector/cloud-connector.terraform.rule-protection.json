@@ -84,9 +84,9 @@
             "HEAD"
           ],
           "quotes": [
-            "func validatePredefinedRules(req forwarding_rules.ForwardingRules) error {",
-            "req.Name == \"ZPA Forwarding Rule\" || req.Name == \"Direct rule for Zscaler Cloud Endpoints\"",
-            "req.Name == \"Client Connector to ZPA\" || req.Name == \"ZPA Pool For Stray Traffic\""
+            "func validatePredefinedRules(req forwarding_rules.ForwardingRules) error { if req.Name == \"ZPA Forwarding Rule\" || req.Name == \"Direct rule for Zscaler Cloud Endpoints\" { return fmt.Errorf(\"predefined rule '%s' cannot be deleted\", req.Name) }",
+            "if req.Name == \"Direct rule for WAN Destinations Group\" || req.Name == \"Direct rule for LAN Destinations Group\" { return fmt.Errorf(\"predefined rule '%s' cannot be deleted\", req.Name) }",
+            "if req.Name == \"Client Connector to ZPA\" || req.Name == \"ZPA Pool For Stray Traffic\" { return fmt.Errorf(\"predefined rule '%s' cannot be deleted\", req.Name) } return nil }"
           ]
         },
         {
@@ -97,14 +97,13 @@
             "HEAD"
           ],
           "quotes": [
-            "func validatePredefinedDNSRules(req traffic_dns_rules.ECDNSRules) error {",
-            "req.Name == \"ZPA Resolver\" || req.Name == \"Redirect Resolution of Zscaler Domains to WAN CTR\""
+            "func validatePredefinedDNSRules(req traffic_dns_rules.ECDNSRules) error { if req.Name == \"ZPA Resolver\" || req.Name == \"Redirect Resolution of Zscaler Domains to WAN CTR\" { return fmt.Errorf(\"predefined rule '%s' cannot be deleted\", req.Name) } return nil }"
           ]
         }
       ]
     },
     "log-guard-uses-dns-names": {
-      "statement": "The log-forwarding validator tests for the same two names as the DNS-rule validator (\"ZPA Resolver\" and \"Redirect Resolution of Zscaler Domains to WAN CTR\"), not for any name written for log rules.",
+      "statement": "The log-forwarding validator tests for the same two names as the DNS-rule validator (\"ZPA Resolver\" and \"Redirect Resolution of Zscaler Domains to WAN CTR\") and for no other name.",
       "tier": "A",
       "evidence": [
         {
@@ -115,8 +114,18 @@
             "HEAD"
           ],
           "quotes": [
-            "func validatePredefinedLogRules(req traffic_log_rules.ECTrafficLogRules) error {",
-            "req.Name == \"ZPA Resolver\" || req.Name == \"Redirect Resolution of Zscaler Domains to WAN CTR\""
+            "func validatePredefinedLogRules(req traffic_log_rules.ECTrafficLogRules) error { if req.Name == \"ZPA Resolver\" || req.Name == \"Redirect Resolution of Zscaler Domains to WAN CTR\" { return fmt.Errorf(\"predefined rule '%s' cannot be deleted\", req.Name) } return nil }"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "func validatePredefinedDNSRules(req traffic_dns_rules.ECDNSRules) error { if req.Name == \"ZPA Resolver\" || req.Name == \"Redirect Resolution of Zscaler Domains to WAN CTR\" {"
           ]
         }
       ],

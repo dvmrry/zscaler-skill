@@ -90,7 +90,9 @@
           "quotes": [
             "pac_version_status must be DEPLOYED when creating a PAC file",
             "pac_version cannot be declared when creating a PAC file",
-            "req.PACVersionStatus = \"DEPLOYED\""
+            "req.PACVersionStatus = \"DEPLOYED\"",
+            "pac_version_status must be DEPLOYED when creating a PAC file: the initial version is always deployed.",
+            "The initial version is always deployed; `STAGE`, `LKG`, and `UNSTAGED` can be applied to subsequent versions."
           ]
         }
       ]
@@ -106,8 +108,35 @@
             "HEAD"
           ],
           "quotes": [
+            "// runPacContentValidation runs the PAC content through the service's // validation endpoint and returns an error carrying the validation messages",
+            "msgs = append(msgs, fmt.Sprintf(\"line %d, column %d: %s\", m.Line, m.Column, m.Message))",
             "PAC content failed validation with %d error(s): %s",
-            "[WARN] PAC content validated with %d warning(s): %+v"
+            "if result.WarningCount > 0 { log.Printf(\"[WARN] PAC content validated with %d warning(s): %+v\", result.WarningCount, result.Messages) } return nil",
+            "Both // callers (Create and the new-version path in Update) run the content // through the validation endpoint first and abort on errors"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "after": "func resourcePacFilesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := runPacContentValidation(ctx, zClient, d.Get(\"pac_content\").(string)); err != nil { return diag.FromErr(err) }",
+            "resp, err := pacfiles.CreatePacFile(ctx, service, req)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "after": "// Content is immutable per version: save the change as a new",
+          "quotes": [
+            "if err := runPacContentValidation(ctx, zClient, d.Get(\"pac_content\").(string)); err != nil { return diag.FromErr(err) }",
+            "cloned, err := pacfiles.CreateClonedPacFileVersion(ctx, service, id, currentVersion, deleteVersion, req)"
           ]
         }
       ]
@@ -124,8 +153,13 @@
           ],
           "quotes": [
             "contentChanged := d.HasChanges(\"pac_content\", \"name\", \"description\", \"domain\", \"pac_url_obfuscated\")",
-            "// Content is immutable per version: save the change as a new",
-            "// Commit message changes are intentionally NOT a clone trigger: the"
+            "// Commit message changes are intentionally NOT a clone trigger: the",
+            "if versionDeclared {",
+            "contentChanged = false",
+            "if contentChanged { // Content is immutable per version: save the change as a new",
+            "// version cloned from the currently tracked version.",
+            "cloned, err := pacfiles.CreateClonedPacFileVersion(ctx, service, id, currentVersion, deleteVersion, req)",
+            "if err := applyPacVersionAction(ctx, zClient, id, trackedVersion, desiredStatus, d.Get(\"pac_commit_message\").(string)); err != nil {"
           ]
         }
       ]
@@ -142,7 +176,14 @@
           ],
           "quotes": [
             "if d.HasChange(\"pac_content\") && !d.HasChanges(\"name\", \"description\", \"domain\", \"pac_url_obfuscated\") {",
-            "pac_content must match the declared version's content exactly"
+            "pac_content must match the declared version's content exactly",
+            "// A version declared in the configuration pins the status action to that",
+            "Declare pac_version only to target an existing version with a status transition.",
+            "pac_version %d is declared, but the configuration does not match that version.",
+            "contentChanged = false",
+            "trackedVersion = declaredVersion",
+            "if contentChanged { // Content is immutable per version: save the change as a new",
+            "if err := applyPacVersionAction(ctx, zClient, id, trackedVersion, desiredStatus, d.Get(\"pac_commit_message\").(string)); err != nil {"
           ]
         }
       ]
@@ -160,7 +201,12 @@
           "quotes": [
             "already has status %s; no transition needed",
             "// The service refuses to stage or unstage the currently deployed",
-            "action = \"REMOVE_LKG\""
+            "action = \"REMOVE_LKG\"",
+            "current, err := pacfiles.GetPacVersionID(ctx, service, pacID, pacVersion, \"\")",
+            "if currentStatus == desiredStatus && commitMessage == current.PACCommitMessage {",
+            "if currentStatus == \"DEPLOYED\" && (desiredStatus == \"STAGE\" || desiredStatus == \"UNSTAGED\") {",
+            "\"UNSTAGED\": \"UNSTAGE\",",
+            "if currentStatus == \"LKG\" && desiredStatus == \"UNSTAGED\" {"
           ]
         }
       ]
@@ -211,7 +257,32 @@
           ],
           "quotes": [
             "// Adopt the deployed version as the tracked version.",
-            "resp, err := pacfiles.GetPacFileByName(ctx, service, id)"
+            "resp, err := pacfiles.GetPacFileByName(ctx, service, id)",
+            "// Read the tracked version, not the deployed list: when the tracked"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "after": "StateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {",
+          "quotes": [
+            "idInt, parseIDErr := strconv.ParseInt(id, 10, strconv.IntSize)",
+            "if parseIDErr == nil { allFiles, err := pacfiles.GetPacFiles(ctx, service, \"\")",
+            "_ = d.Set(\"pac_version\", foundFile.PACVersion)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_pac_files.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "List of PAC files in deployed state, including default and custom PAC files.",
+            "allFiles, err := pacfiles.GetPacFiles(ctx, service, filter)"
           ]
         }
       ]
@@ -227,9 +298,14 @@
             "HEAD"
           ],
           "quotes": [
+            "// Read the tracked version, not the deployed list: when the tracked",
             "// version is staged, the deployed list would return another version's",
+            "resp, err = pacfiles.GetPacVersionID(ctx, service, id, version, \"\")",
+            "if err != nil && !isPacResourceNotFound(err) {",
             "// No tracked version, or the tracked version no longer exists: re-sync",
-            "// to the file's deployed version, and remove the resource from state"
+            "// to the file's deployed version, and remove the resource from state",
+            "// only when the file itself is gone.",
+            "log.Printf(\"[WARN] Removing PAC file %d from state because it no longer exists in ZIA\", id)"
           ]
         }
       ]
@@ -247,7 +323,9 @@
           "quotes": [
             "List of PAC files in deployed state, including default and custom PAC files.",
             "When set to `pac_content`, the PAC file content is omitted from the results.",
-            "// The name lookup always returns the full object; honour the"
+            "// The name lookup always returns the full object; honour the",
+            "The unique identifier of the PAC file to retrieve. When set, only the matching PAC file is returned.",
+            "The name of the PAC file to retrieve. When set, only the matching PAC file is returned."
           ]
         }
       ]

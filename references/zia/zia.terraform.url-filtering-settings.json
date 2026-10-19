@@ -97,7 +97,7 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_url_filtering_and_cloud_app_settings.go",
           "quotes": [
-            "_, _, err := urlfilteringpolicies.UpdateUrlAndAppSettings(ctx, service, req)"
+            "req := expandURLFilteringCloudAppSettings(d) _, _, err := urlfilteringpolicies.UpdateUrlAndAppSettings(ctx, service, req)"
           ],
           "after": "func resourceURLFilteringCloludAppSettingsCreate"
         },
@@ -107,6 +107,22 @@
           "quotes": [
             "// URLAdvancedPolicySettings is the full set of advanced URL filtering and cloud",
             "The booleans deliberately omit omitempty: a caller disabling a setting sends"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_and_cloud_app_settings.go",
+          "after": "func resourceURLFilteringCloludAppSettingsUpdate",
+          "quotes": [
+            "req := expandURLFilteringCloudAppSettings(d)",
+            "_, _, err := urlfilteringpolicies.UpdateUrlAndAppSettings(ctx, service, req)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_and_cloud_app_settings.go",
+          "quotes": [
+            "func expandURLFilteringCloudAppSettings(d *schema.ResourceData) urlfilteringpolicies.URLAdvancedPolicySettings {"
           ]
         }
       ]
@@ -120,7 +136,8 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "rejected updates with `Request body is invalid.` and could not turn a setting back off.",
-            "`safe_search_apps` is sent only when applications are specified."
+            "`safe_search_apps` is sent only when applications are specified.",
+            "Updates now carry every supported setting, so disabling one takes effect;"
           ]
         }
       ]
@@ -146,7 +163,7 @@
           "source": "tf-zia",
           "path": "zia/data_source_zia_url_filtering_and_cloud_app_settings.go",
           "quotes": [
-            "\"enable_creative_commons_search_results\": {",
+            "\"enable_creative_commons_search_results\": { Type: schema.TypeBool, Computed: true,",
             "_ = d.Set(\"enable_creative_commons_search_results\", resp.EnableCreativeCommonsSearchResults)"
           ]
         }

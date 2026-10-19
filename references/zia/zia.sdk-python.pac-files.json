@@ -79,7 +79,10 @@
           "path": "zscaler/zia/pac_files.py",
           "quotes": [
             "raise ValueError(\"Missing required parameter: pac_content\")",
-            "raise Exception(f\"PAC content validation failed: {validation_result}\")"
+            "raise Exception(f\"PAC content validation failed: {validation_result}\")",
+            "pac_content = kwargs.get(\"pac_content\") if not pac_content:",
+            "validation_result, _, validation_error = self.validate_pac_file(pac_file_content=pac_content) if validation_error or not validation_result.get(\"success\", False):",
+            "http_method = \"post\".upper()"
           ],
           "after": "def add_pac_file(self, **kwargs)"
         }
@@ -95,6 +98,22 @@
           "quotes": [
             "Retrieves all versions of a PAC file based on the specified ID"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/pac_files.py",
+          "after": "def get_pac_file(",
+          "quotes": [
+            "/pacFiles/{pac_id}/version"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/pac_files.py",
+          "after": "def get_pac_file_version(",
+          "quotes": [
+            "/pacFiles/{pac_id}/version/{pac_version}"
+          ]
         }
       ]
     },
@@ -107,7 +126,9 @@
           "path": "zscaler/zia/pac_files.py",
           "quotes": [
             "Sending parent-level fields (name/description/domain/...) or the path parameter ``pacVersion`` in the body causes the API to reject the request with a misleading 400 RESOURCE_NOT_FOUND",
-            "Only version-level fields go in the body"
+            "Only version-level fields go in the body",
+            "instead of a proper INVALID_INPUT_ARGUMENT, which is why this function is a strict signature -- not ``**kwargs`` -- so callers",
+            "def clone_pac_file( self, pac_id: int, pac_version: str, pac_content: str, pac_version_status: str,"
           ]
         }
       ]
@@ -121,7 +142,9 @@
           "path": "zscaler/zia/pac_files.py",
           "quotes": [
             "The clone POST must be made against COMMITTED state.",
-            "otherwise the parent will not yet be visible to the clone endpoint"
+            "otherwise the parent will not yet be visible to the clone endpoint",
+            "created the parent earlier in the same session, call ``client.zia.activate.activate()`` BEFORE calling this method,",
+            "endpoint and you will get the same 400 RESOURCE_NOT_FOUND."
           ]
         }
       ]
@@ -135,7 +158,9 @@
           "path": "zscaler/zia/pac_files.py",
           "quotes": [
             "ZIA caps each PAC file at 10",
-            "evict = delete_version if delete_version is not None else min(pac_versions)"
+            "evict = delete_version if delete_version is not None else min(pac_versions)",
+            "if total_versions >= 10:",
+            "/pacFiles/{pac_id}/version/{pac_version}?deleteVersion={evict}"
           ]
         }
       ]
@@ -149,14 +174,17 @@
           "path": "zscaler/zia/pac_files.py",
           "quotes": [
             "# Send the PAC content as raw data",
-            "pac = textwrap.dedent(pac_file_content).lstrip(\"\\r\\n\")"
+            "pac = textwrap.dedent(pac_file_content).lstrip(\"\\r\\n\")",
+            "body=pac,"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/request_executor.py",
           "quotes": [
-            "# For PAC file validation, send as raw data without any modification"
+            "# For PAC file validation, send as raw data without any modification",
+            "if \"/pacFiles/validate\" in endpoint and service_type == \"zia\":",
+            "# For PAC file validation, send as raw data without any modification request[\"data\"] = body"
           ]
         }
       ]
@@ -170,7 +198,9 @@
           "path": "zscaler/zia/pac_files.py",
           "quotes": [
             "# Construct the body from kwargs",
-            "pac_commit_message (str): Commit message for the PAC file."
+            "pac_commit_message (str): Commit message for the PAC file.",
+            "/pacFiles/{pac_id}/version/{pac_version}/action/{pac_version_action}",
+            "# Construct the body from kwargs body = {} body.update(kwargs)"
           ]
         },
         {
@@ -193,7 +223,9 @@
           "quotes": [
             "commit message as the raw request body (not a JSON object); sending a",
             "serialized object corrupts the version's stored commit message.",
-            "body = strings.NewReader(commitMessage)"
+            "body = strings.NewReader(commitMessage)",
+            "commitMessage: the commit message for the version. The endpoint expects the",
+            "pacVersionAction string, commitMessage string, newLKGVer *int)"
           ]
         }
       ]
@@ -208,6 +240,45 @@
           "pointer": "/paths/~1pacFiles~1{pacId}~1version~1{pacVersion}~1action~1{pacVersionAction}/put",
           "expect": {
             "operationId": "Pac Resource Update Pac Version Flag"
+          },
+          "expect_absent": [
+            "requestBody"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1pacFiles~1{pacId}~1version~1{pacVersion}~1action~1{pacVersionAction}/put/parameters/[name=newLKGVer]",
+          "expect": {
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1pacFiles~1{pacId}~1version~1{pacVersion}~1action~1{pacVersionAction}/put/parameters/[name=pacId]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1pacFiles~1{pacId}~1version~1{pacVersion}~1action~1{pacVersionAction}/put/parameters/[name=pacVersion]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1pacFiles~1{pacId}~1version~1{pacVersion}~1action~1{pacVersionAction}/put/parameters/[name=pacVersionAction]",
+          "expect": {
+            "in": "path",
+            "required": true
           }
         }
       ]

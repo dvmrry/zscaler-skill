@@ -114,13 +114,14 @@
           "quotes": [
             "Otherwise, it is a sub-location whose parent has this ID.",
             "**zia_location_management** can be imported by using `<LOCATION_ID>` or `<LOCATION_NAME>` as the import ID.",
-            "If set to true, indicates that this is a default sub-location created by the Zscaler service to accommodate IPv4 addresses that are not part of any user-defined sub-locations."
+            "`other_sub_location` - (Boolean) If set to true, indicates that this is a default sub-location created by the Zscaler service to accommodate IPv4 addresses that are not part of any user-defined sub-locations.",
+            "`other6_sub_location` - (Boolean) If set to true, indicates that this is a default sub-location created by the Zscaler service to accommodate IPv6 addresses that are not part of any user-defined sub-locations."
           ]
         }
       ]
     },
     "tf-sublocation-search": {
-      "statement": "The Terraform `zia_location_management` data source also finds sublocations; the provider has no `zia_sub_location_management` data source in this version, and `parent_name` lets a lookup span parents when names repeat.",
+      "statement": "The Terraform `zia_location_management` data source also finds sublocations, and `parent_name` lets a lookup span parents when names repeat.",
       "tier": "A",
       "evidence": [
         {
@@ -136,9 +137,16 @@
           "quotes": [
             "specially when overlapping names are in use"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_location_management.md",
+          "quotes": [
+            "`parent_name` - (Optional) - The name of the parent location. Use this when looking up a sub-location.",
+            "it is required when overlapping sub-location names exist across multiple parent locations."
+          ]
         }
-      ],
-      "conditions": "The absence of a `zia_sub_location_management` data source rests on a search of the provider's docs and source, not on a statement."
+      ]
     },
     "profile-values": {
       "statement": "Terraform lists `profile` values NONE, CORPORATE, SERVER, GUESTWIFI, IOT and WORKLOAD; the Ansible module lists NONE, CORPORATE, SERVER, GUESTWIFI, IOT and EXTRANET.",
@@ -164,15 +172,18 @@
       ]
     },
     "ansible-extranet-fields": {
-      "statement": "The Ansible module takes `extranet`, `extranet_dns`, `extranet_ip_pool`, `default_extranet_dns` and `default_extranet_ts_pool` only when `profile` is EXTRANET; they are extranet-location fields, not group membership.",
+      "statement": "The Ansible module takes `extranet`, `extranet_dns`, `extranet_ip_pool`, `default_extranet_dns` and `default_extranet_ts_pool` only when `profile` is EXTRANET; they assign the location's extranet resource, DNS server configuration and traffic selector IP pool.",
       "tier": "A",
       "evidence": [
         {
           "source": "ansible-zia",
           "path": "plugins/modules/zia_location_management.py",
           "quotes": [
-            "- The extranet resource that is assigned to the location.",
-            "- Indicates whether the default DNS server of the assigned extranet is used for the location."
+            "- Indicates whether the default DNS server of the assigned extranet is used for the location. - Applicable only when C(profile) is set to C(EXTRANET).",
+            "- Indicates whether the default traffic selector IP pool of the assigned extranet is used for the location. - Applicable only when C(profile) is set to C(EXTRANET).",
+            "- The extranet resource that is assigned to the location. - Applicable only when C(profile) is set to C(EXTRANET).",
+            "- The extranet DNS server configuration that is assigned to the location. - Applicable only when C(profile) is set to C(EXTRANET).",
+            "- The extranet traffic selector IP pool that is assigned to the location. - Applicable only when C(profile) is set to C(EXTRANET)."
           ]
         }
       ],

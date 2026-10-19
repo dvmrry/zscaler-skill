@@ -45,7 +45,7 @@
     },
     {
       "label": "Blocks built from zero values.",
-      "text": "{{lss-empty-config-becomes-a-block}} {{app-connector-assistant-version-always-a-block}} {{service-edge-group-brokers-always-blocks}} {{cbi-external-profile-empty-objects-become-blocks}} {{customer-version-profile-empty-side-becomes-empty-id}}"
+      "text": "{{lss-empty-config-becomes-a-block}} {{app-connector-assistant-version-always-a-block}} {{service-edge-group-brokers-always-blocks}} {{cbi-external-profile-empty-objects-become-blocks}} {{customer-version-profile-empty-side-becomes-empty-id}} {{customer-version-profile-one-side-empty-id}}"
     },
     {
       "heading": "Fields that never arrive"
@@ -89,7 +89,8 @@
         "app-connector-assistant-version-always-a-block",
         "service-edge-group-brokers-always-blocks",
         "cbi-external-profile-empty-objects-become-blocks",
-        "customer-version-profile-empty-side-becomes-empty-id"
+        "customer-version-profile-empty-side-becomes-empty-id",
+        "customer-version-profile-one-side-empty-id"
       ]
     },
     {
@@ -212,7 +213,8 @@
           ],
           "after": "func flattenLSSConfig(",
           "quotes": [
-            "html.UnescapeString(lssConfig.AuditMessage)"
+            "html.UnescapeString(lssConfig.AuditMessage)",
+            "lssConfig *lssconfigcontroller.LSSConfig) interface{} { return []map[string]interface{}{"
           ]
         },
         {
@@ -224,7 +226,7 @@
           ],
           "after": "type LSSResource struct {",
           "quotes": [
-            "json:\"config\""
+            "LSSConfig *LSSConfig `json:\"config\"`"
           ]
         }
       ],
@@ -252,7 +254,20 @@
           ],
           "after": "func GetByName(",
           "quotes": [
-            "if strings.EqualFold(lss.LSSConfig.Name, lssName) {"
+            "list, resp, err := common.GetAllPagesGeneric[LSSResource](ctx, service.Client, relativeURL, \"\")",
+            "for _, lss := range list { if strings.EqualFold(lss.LSSConfig.Name, lssName) { return &lss, resp, nil"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type LSSResource struct {",
+          "quotes": [
+            "LSSConfig *LSSConfig `json:\"config\"`"
           ]
         }
       ],
@@ -280,7 +295,8 @@
           ],
           "after": "func flattenLSSConditionOperands(",
           "quotes": [
-            "len(*operands.Operands)"
+            "len(*operands.Operands)",
+            "for i, conditionOperand := range *operands.Operands {"
           ]
         },
         {
@@ -292,7 +308,7 @@
           ],
           "after": "type Conditions struct {",
           "quotes": [
-            "*[]Operands"
+            "Operands *[]Operands `json:\"operands,omitempty\"`"
           ]
         }
       ],
@@ -320,7 +336,7 @@
           ],
           "after": "func flattenLSSConfig(",
           "quotes": [
-            "return []map[string]interface{}{"
+            "lssConfig *lssconfigcontroller.LSSConfig) interface{} { return []map[string]interface{}{ { \"audit_message\": html.UnescapeString(lssConfig.AuditMessage), \"description\": lssConfig.Description, \"enabled\": lssConfig.Enabled,"
           ]
         },
         {
@@ -332,7 +348,7 @@
           ],
           "after": "func flattenLSSPolicyRule(",
           "quotes": [
-            "if policySetRules == nil {"
+            "if policySetRules == nil { return nil }"
           ]
         }
       ],
@@ -368,8 +384,8 @@
           ],
           "after": "func flattenAssistantVersion(",
           "quotes": [
-            "if assistantVersion == nil {",
-            "result := make(map[string]interface{})"
+            "if assistantVersion == nil { return []interface{}{} } result := make(map[string]interface{})",
+            "return []interface{}{result}"
           ]
         },
         {
@@ -381,7 +397,8 @@
           ],
           "after": "type AppConnector struct {",
           "quotes": [
-            "json:\"assistantVersion,omitempty\""
+            "json:\"assistantVersion,omitempty\"",
+            "AssistantVersion AssistantVersion `json:\"assistantVersion,omitempty\"`"
           ]
         }
       ],
@@ -417,8 +434,19 @@
             "HEAD"
           ],
           "quotes": [
-            "if privateBrokerVersion == nil {",
-            "if resp.PrivateBrokerVersion.ID != \"\" {"
+            "if resp.PrivateBrokerVersion.ID != \"\" { _ = d.Set(\"private_broker_version\", flattenPrivateBrokerVersion(&resp.PrivateBrokerVersion))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_service_edge.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenPrivateBrokerVersion(",
+          "quotes": [
+            "if privateBrokerVersion == nil { return []interface{}{} } result := make(map[string]interface{})"
           ]
         },
         {
@@ -429,7 +457,7 @@
             "HEAD"
           ],
           "quotes": [
-            "json:\"privateBrokerVersion,omitempty\""
+            "PrivateBrokerVersion PrivateBrokerVersion `json:\"privateBrokerVersion,omitempty\"`"
           ]
         }
       ],
@@ -441,7 +469,7 @@
       ]
     },
     "customer-version-profile-empty-side-becomes-empty-id": {
-      "statement": "The customer version profile flattener returns a block when either request-ID string is non-empty and then calls `strings.Split(..., \",\")` on both. Go returns `[\"\"]` for an empty string, so a profile with only one side set reports the other side as a list holding one empty customer ID.",
+      "statement": "The customer version profile flattener returns a block when either request-ID string is non-empty and then calls `strings.Split(..., \",\")` on both.",
       "tier": "A",
       "evidence": [
         {
@@ -453,8 +481,9 @@
           ],
           "after": "func flattenScopeRequestCustomerIDs(",
           "quotes": [
-            "if requestIDs.AddCustomerIDs == \"\" && requestIDs.DeletecustomerIDs == \"\" {",
-            "strings.Split(requestIDs.DeletecustomerIDs, \",\")"
+            "if requestIDs.AddCustomerIDs == \"\" && requestIDs.DeletecustomerIDs == \"\" { return nil",
+            "\"add_customer_ids\": strings.Split(requestIDs.AddCustomerIDs, \",\"),",
+            "\"delete_customer_ids\": strings.Split(requestIDs.DeletecustomerIDs, \",\"),"
           ]
         }
       ],
@@ -464,6 +493,14 @@
           "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
         }
       ]
+    },
+    "customer-version-profile-one-side-empty-id": {
+      "statement": "Go's `strings.Split` returns `[\"\"]` for an empty string, so a profile with only one side set reports the other side as a list holding one empty customer ID.",
+      "tier": "B",
+      "derived_from": [
+        "customer-version-profile-empty-side-becomes-empty-id"
+      ],
+      "conditions": "Rests on the Go standard library's documented behavior for splitting an empty string, which is not a captured source; not run against a tenant. Split out of customer-version-profile-empty-side-becomes-empty-id."
     },
     "cbi-external-profile-empty-objects-become-blocks": {
       "statement": "The CBI external profile data source flattens `security_controls` and `user_experience` whenever the SDK pointer is non-nil, and each flattener returns one outer block with every scalar copied. A decoded empty object therefore appears as a block of zero values. The same file's `flattenDebugMode` also builds its block from whatever it is given, so the three blocks cannot tell \"not configured\" from \"all off\".",
@@ -479,7 +516,8 @@
           "after": "func dataSourceCBIExternalProfileRead(",
           "quotes": [
             "if resp.SecurityControls != nil {",
-            "if resp.UserExperience != nil {"
+            "if resp.UserExperience != nil {",
+            "if resp.DebugMode != nil {"
           ]
         },
         {
@@ -491,7 +529,8 @@
           ],
           "after": "func flattenSecurityControls(",
           "quotes": [
-            "\"copy_paste\":          securityControls.CopyPaste,"
+            "return []interface{}{ map[string]interface{}{ \"copy_paste\": securityControls.CopyPaste, \"upload_download\": securityControls.UploadDownload, \"document_viewer\": securityControls.DocumentViewer, \"local_render\": securityControls.LocalRender,",
+            "\"allow_printing\": securityControls.AllowPrinting, \"restrict_keystrokes\": securityControls.RestrictKeystrokes, \"deep_link\": deepLink, \"flattened_pdf\": securityControls.FlattenedPdf, \"watermark\": watermark, }, }"
           ]
         },
         {
@@ -503,7 +542,20 @@
           ],
           "after": "func flattenUserExperience(",
           "quotes": [
-            "\"zgpu\":                  userExperience.ZGPU,"
+            "return []interface{}{ map[string]interface{}{ \"zgpu\": userExperience.ZGPU, \"forward_to_zia\": forwardToZia, \"browser_in_browser\": userExperience.BrowserInBrowser,",
+            "\"persist_isolation_bar\": userExperience.PersistIsolationBar, \"translate\": userExperience.Translate, \"session_persistence\": userExperience.SessionPersistence, }, }"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_cloud_browser_isolation_external_profile.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func flattenDebugMode(",
+          "quotes": [
+            "return []interface{}{ map[string]interface{}{ \"allowed\": debugMode.Allowed, \"file_password\": debugMode.FilePassword, }, }"
           ]
         }
       ],
@@ -690,7 +742,9 @@
           ],
           "quotes": [
             "\"modifiedby\": {",
-            "\"phone_number\": {\n\t\t\t\t\t\t\tType:     schema.TypeBool,"
+            "\"phone_number\": {\n\t\t\t\t\t\t\tType:     schema.TypeBool,",
+            "\"pin_session\": { Type: schema.TypeString,",
+            "\"role_id\": { Type: schema.TypeBool,"
           ]
         },
         {
@@ -703,7 +757,8 @@
           "after": "type UserResource struct {",
           "quotes": [
             "PhoneNumber        string   `json:\"phoneNumber,omitempty\"`",
-            "PinSession         bool     `json:\"pinSession,omitempty\"`"
+            "PinSession         bool     `json:\"pinSession,omitempty\"`",
+            "RoleID string `json:\"roleId,omitempty\"`"
           ]
         }
       ],
@@ -807,6 +862,18 @@
           ],
           "quotes": [
             "if err := d.Set(\"rules\", flattenPolicySetRules(resp)); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_app_connector_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := d.Set(\"zpn_sub_module_upgrade_list\", flattenZPNSubModuleUpgrade(resp.ZPNSubModuleUpgrade)); err != nil {",
+            "if err := d.Set(\"assistant_version\", flattenAssistantVersion(&resp.AssistantVersion)); err != nil {"
           ]
         }
       ],

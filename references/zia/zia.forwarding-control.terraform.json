@@ -90,7 +90,8 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_forwarding_control_rule.go",
           "quotes": [
-            "strings.Contains(respErr.Message, \"is no longer an active Source IP Anchored App Segment\")",
+            "if forwardMethod == \"ZPA\" { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.Response.StatusCode == 400 && strings.Contains(respErr.Message, \"is no longer an active Source IP Anchored App Segment\") {",
+            "for i := 0; i < 3; i++ {",
             "time.Sleep(30 * time.Second) // Wait for 30 seconds before retrying"
           ],
           "after": "func resourceForwardingControlRuleCreate("
@@ -99,7 +100,8 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_forwarding_control_rule.go",
           "quotes": [
-            "strings.Contains(respErr.Message, \"is no longer an active Source IP Anchored App Segment\")",
+            "if forwardMethod == \"ZPA\" { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.Response.StatusCode == 400 && strings.Contains(respErr.Message, \"is no longer an active Source IP Anchored App Segment\") {",
+            "for i := 0; i < 3; i++ {",
             "time.Sleep(30 * time.Second) // Wait for 30 seconds before retrying"
           ],
           "after": "func resourceForwardingControlRuleUpdate("
@@ -126,6 +128,26 @@
           "quotes": [
             "This behavior does not affect forwarding rules configured with other forward_methods such as `DIRECT`."
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "if forwardMethod == \"ZPA\" { // Sleep for 60 seconds before invoking Create time.Sleep(60 * time.Second) }",
+            "if forwardMethod == \"ZPA\" { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.Response.StatusCode == 400 && strings.Contains(respErr.Message, \"is no longer an active Source IP Anchored App Segment\") {",
+            "time.Sleep(30 * time.Second) // Wait for 30 seconds before retrying continue } } return diag.FromErr(err) }"
+          ],
+          "after": "func resourceForwardingControlRuleCreate("
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "if forwardMethod == \"ZPA\" { // Sleep for 60 seconds before invoking Update time.Sleep(60 * time.Second) }",
+            "if forwardMethod == \"ZPA\" { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.Response.StatusCode == 400 && strings.Contains(respErr.Message, \"is no longer an active Source IP Anchored App Segment\") {",
+            "time.Sleep(30 * time.Second) // Wait for 30 seconds before retrying continue } } return diag.FromErr(err) }"
+          ],
+          "after": "func resourceForwardingControlRuleUpdate("
         }
       ]
     },

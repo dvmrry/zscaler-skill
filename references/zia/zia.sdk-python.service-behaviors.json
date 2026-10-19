@@ -53,7 +53,7 @@
     },
     {
       "label": "Dedicated IP gateways.",
-      "text": "{{dedicated-ip-lite-only}}"
+      "text": "{{dedicated-ip-lite-only}} {{dedicated-ip-no-crud}}"
     }
   ],
   "checks": [
@@ -84,6 +84,15 @@
             "if \"feature_permissions\" in body and isinstance(body[\"feature_permissions\"], dict):",
             "body[\"featurePermissions\"] = body.pop(\"feature_permissions\")"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/admin_roles.py",
+          "after": "def update_role(",
+          "quotes": [
+            "if \"feature_permissions\" in body and isinstance(body[\"feature_permissions\"], dict):",
+            "body[\"featurePermissions\"] = body.pop(\"feature_permissions\")"
+          ]
         }
       ]
     },
@@ -104,7 +113,18 @@
           "path": "zscaler/zia/admin_users.py",
           "after": "def add_admin_user(",
           "quotes": [
-            "be provided if the admin user's scope is set to ``ORGANIZATION``."
+            "be provided if the admin user's scope is set to ``ORGANIZATION``.",
+            "scope_entity_ids (list):",
+            "**NOTE**: This param doesn't need to"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/admin_users.py",
+          "after": "def update_admin_user(",
+          "quotes": [
+            "if \"role_id\" in body: body[\"role\"] = {\"id\": body.pop(\"role_id\")}",
+            "**NOTE**: This param doesn't need to be provided if the admin user's scope is set to ``ORGANIZATION``."
           ]
         }
       ]
@@ -139,6 +159,25 @@
           "path": "zscaler/zia/bandwidth_control_rules.py",
           "quotes": [
             "body[\"id\"] = rule_id"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/alert_subscriptions.py",
+          "after": "def update_alert_subscription(",
+          "quotes": [
+            "http_method = \"put\".upper()",
+            "body = kwargs body[\"id\"] = subscription_id request, error = self._request_executor.create_request(http_method, api_url, body, {}, {})"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/bandwidth_control_rules.py",
+          "after": "def update_rule(",
+          "quotes": [
+            "http_method = \"put\".upper()",
+            "body = kwargs body[\"id\"] = rule_id",
+            "request, error = self._request_executor.create_request( method=http_method, endpoint=api_url, body=body,"
           ]
         }
       ]
@@ -211,6 +250,32 @@
           "quotes": [
             "const browserControlSettingsEndpoint = \"/zia/api/v1/browserControlSettings\""
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/browser_control_settings.py",
+          "after": "def update_browser_control_settings(",
+          "quotes": [
+            "http_method = \"put\".upper()",
+            "/browserControlSettings"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/secure_browsing.py",
+          "after": "def update_browser_control_settings(",
+          "quotes": [
+            "http_method = \"put\".upper()",
+            "/browserControlSettings"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "### New ZIA Endpoint - Browser Control Policy",
+            "Added the following new ZIA Secure Browsing V2 Endpoints"
+          ]
         }
       ]
     },
@@ -259,13 +324,14 @@
           "path": "zscaler/zia/dlp_web_rules.py",
           "quotes": [
             "Returns a DLP policy rule, excluding SaaS Security API DLP policy rules.",
-            "Updates an existing DLP policy rule. Not applicable to SaaS Security API DLP policy rules."
+            "Updates an existing DLP policy rule. Not applicable to SaaS Security API DLP policy rules.",
+            "Lists name and ID for all DLP policy rules, excluding SaaS Security API DLP policy rules"
           ]
         }
       ]
     },
     "dedicated-ip-lite-only": {
-      "statement": "The Python dedicated IP gateway client has one method, `list_dedicated_ip_gw_lite`, which reads `/dedicatedIPGateways/lite`; it has no get, add, update or delete.",
+      "statement": "The Python dedicated IP gateway client defines `list_dedicated_ip_gw_lite`, which reads `/dedicatedIPGateways/lite`.",
       "tier": "A",
       "evidence": [
         {
@@ -273,9 +339,19 @@
           "path": "zscaler/zia/dedicated_ip_gateways.py",
           "quotes": [
             "def list_dedicated_ip_gw_lite(",
-            "/dedicatedIPGateways/lite"
+            "/dedicatedIPGateways/lite",
+            "class DedicatedIPGatewaysAPI(APIClient):",
+            "http_method = \"get\".upper()"
           ]
         }
+      ]
+    },
+    "dedicated-ip-no-crud": {
+      "statement": "The Python dedicated IP gateway client has no get, add, update or delete method.",
+      "tier": "B",
+      "conditions": "The client file at the pinned SDK defines only the constructor and `list_dedicated_ip_gw_lite`; a quote cannot pin the absence of further methods in code, so this rests on reading the whole file.",
+      "derived_from": [
+        "zia.sdk-python.service-behaviors:dedicated-ip-lite-only"
       ]
     }
   },

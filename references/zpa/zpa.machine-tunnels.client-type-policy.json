@@ -209,7 +209,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/policies.py",
           "quotes": [
-            "\"zpn_client_type_zapp_partner\",\n        ]"
+            "valid_client_types = [\n\"zpn_client_type_edge_connector\",\n\"zpn_client_type_branch_connector\",\n\"zpn_client_type_machine_tunnel\",\n\"zpn_client_type_zapp\",\n\"zpn_client_type_zapp_partner\",\n]",
+            "raise ValueError(f\"Invalid client_type value: {operand['values'][0]}. Must be one of {valid_client_types}\")"
           ],
           "after": "def add_redirection_rule_v2(self, name: str, action: str, service_edge_group_ids: list = [], **kwargs)"
         }
@@ -227,10 +228,27 @@
           "source": "tf-zpa",
           "path": "zpa/common.go",
           "quotes": [
-            "id != \"zpn_client_type_machine_tunnel\" &&",
-            "id != \"zpn_client_type_vdi\" {"
+            "if id != \"zpn_client_type_zapp\" &&\nid != \"zpn_client_type_exporter\" &&\nid != \"zpn_client_type_exporter_noauth\" &&\nid != \"zpn_client_type_ip_anchoring\" &&\nid != \"zpn_client_type_browser_isolation\" &&\nid != \"zpn_client_type_machine_tunnel\" &&",
+            "id != \"zpn_client_type_machine_tunnel\" &&\nid != \"zpn_client_type_edge_connector\" &&\nid != \"zpn_client_type_slogger\" &&\nid != \"zpn_client_type_branch_connector\" &&\nid != \"zpn_client_type_zapp_partner\" &&\nid != \"zpn_client_type_vdi\" {"
           ],
           "after": "func validateOperand(ctx context.Context, operand policysetcontroller.Operands, zClient *Client, microtenantID string) error {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "after": "func ValidateConditions(ctx context.Context, conditions []policysetcontroller.Conditions, zClient *Client, microtenantID string) error {",
+          "quotes": [
+            "if err := validateOperands(ctx, condition.Operands, zClient, microtenantID); err != nil {",
+            "if err := validateOperand(ctx, operand, zClient, microtenantID); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "after": "func resourcePolicyAccessCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := ValidateConditions(ctx, req.Conditions, zClient, microTenantID); err != nil {"
+          ]
         }
       ]
     },
@@ -246,15 +264,23 @@
           "source": "tf-zpa",
           "path": "zpa/common.go",
           "quotes": [
-            "validClientTypes := []string{",
-            "\"zpn_client_type_zia_inspection\","
+            "validClientTypes := []string{\n\"zpn_client_type_exporter\",\n\"zpn_client_type_exporter_noauth\",\n\"zpn_client_type_machine_tunnel\",\n\"zpn_client_type_edge_connector\",\n\"zpn_client_type_zia_inspection\",\n\"zpn_client_type_vdi\",",
+            "\"zpn_client_type_vdi\",\n\"zpn_client_type_zapp\",\n\"zpn_client_type_slogger\",\n\"zpn_client_type_browser_isolation\",\n\"zpn_client_type_ip_anchoring\",\n\"zpn_client_type_zapp_partner\",\n\"zpn_client_type_branch_connector\",\n}"
           ],
           "after": "func ValidatePolicyRuleConditions(d *schema.ResourceData) error {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "after": "func resourcePolicyAccessV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := ValidatePolicyRuleConditions(d); err != nil {"
+          ]
         }
       ]
     },
     "tf-lss-validator": {
-      "statement": "The provider's twelve-value `supportedClientTypes` map is consulted when validating log receiver filters (the `zpn_auth_log` and `zpn_trans_log` source types), not policy rule operands.",
+      "statement": "The provider's twelve-value `supportedClientTypes` map is consulted when validating log receiver filters (the `zpn_auth_log` and `zpn_trans_log` source types); the v1 and v2 policy rule validators check client types against their own lists.",
       "tier": "A",
       "binds": [
         "zpa/client-types#zpn_client_type_machine_tunnel",
@@ -265,8 +291,26 @@
           "source": "tf-zpa",
           "path": "zpa/validator.go",
           "quotes": [
-            "case \"zpn_trans_log\":\n\t\t\tvalidObjectTypes = validObjectTypesForTransLog",
+            "var supportedClientTypes = map[string]struct{}{\n\"zpn_client_type_exporter\": {},\n\"zpn_client_type_exporter_noauth\": {},\n\"zpn_client_type_machine_tunnel\": {},\n\"zpn_client_type_edge_connector\": {},\n\"zpn_client_type_zia_inspection\": {},\n\"zpn_client_type_vdi\": {},",
+            "\"zpn_client_type_vdi\": {},\n\"zpn_client_type_zapp\": {},\n\"zpn_client_type_slogger\": {},\n\"zpn_client_type_browser_isolation\": {},\n\"zpn_client_type_ip_anchoring\": {},\n\"zpn_client_type_zapp_partner\": {},\n\"zpn_client_type_branch_connector\": {},\n}",
+            "case \"zpn_auth_log\":\nvalidObjectTypes = validObjectTypesForAuthLog\ncase \"zpn_trans_log\":\nvalidObjectTypes = validObjectTypesForTransLog",
             "if _, exists := supportedClientTypes[value]; !exists {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "after": "func ValidatePolicyRuleConditions(d *schema.ResourceData) error {",
+          "quotes": [
+            "validClientTypes := []string{"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "after": "func validateOperand(ctx context.Context, operand policysetcontroller.Operands, zClient *Client, microtenantID string) error {",
+          "quotes": [
+            "case \"CLIENT_TYPE\":\nreturn customValidate(operand, []string{\"id\"},"
           ]
         }
       ]

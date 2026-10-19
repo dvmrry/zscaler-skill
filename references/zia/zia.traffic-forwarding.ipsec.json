@@ -71,7 +71,7 @@
   ],
   "claims": {
     "when-ipsec": {
-      "statement": "IPSec is the tunnel to use when the router does not support GRE or the site has dynamic IP addresses. Compared with GRE it adds processing overhead on the customer's equipment, and the vendor must provide a VPN failover mechanism.",
+      "statement": "IPSec tunnels are the option when the router does not support GRE or the site has dynamic IP addresses. Compared with GRE it adds processing overhead on the customer's equipment, and the vendor must provide a VPN failover mechanism.",
       "tier": "A",
       "evidence": [
         {
@@ -94,7 +94,7 @@
           "path": "configuring-ipsec-vpn-tunnel.json",
           "quotes": [
             "Zscaler recommends configuring two separate VPNs to two different Public Service Edges for high availability.",
-            "all traffic is then rerouted through the backup IPSec VPN tunnel to the backup Public Service Edge"
+            "If the primary IPSec VPN tunnel or if an intermediate connection goes down, all traffic is then rerouted through the backup IPSec VPN tunnel to the backup Public Service Edge."
           ]
         }
       ]
@@ -109,7 +109,8 @@
           "quotes": [
             "Zscaler IPSec tunnels support a limit of 400 Mbps for each public source IP address.",
             "Configure multiple IPSec VPN tunnels with the same public source IP address using NAT-T and source port randomization with IKEv2 for all the configured tunnels.",
-            "if your organization forwards 800 Mbps of traffic, you can configure two primary VPN tunnels and two backup VPN tunnels"
+            "if your organization forwards 800 Mbps of traffic, you can configure two primary VPN tunnels and two backup VPN tunnels",
+            "Configure multiple IPSec tunnels with different public source IP addresses."
           ]
         }
       ]
@@ -160,7 +161,8 @@
             "| Diffie-Hellman Group | 2 5 14 19 (ECP256) 20 (ECP384) 21 (ECP521) | 2 5 14 19 (ECP256) 20 (ECP384) 21 (ECP521) |",
             "| Total Child SAs Supported | N/A | 8 |",
             "| SA Lifetime | 24 Hours | 8 Hours |",
-            "| DPD Timeout Interval | 20 Seconds | N/A |"
+            "| DPD Timeout Interval | 20 Seconds | N/A |",
+            "| Encapsulation Mode | N/A | Tunnel Mode |"
           ],
           "after": "| IKEv2 Supported Parameters | | |"
         }
@@ -176,9 +178,20 @@
           "path": "understanding-ipsec-vpns.json",
           "quotes": [
             "| Maximum Transmission Unit (MTU) | N/A | Your Optimal MTU 1400 Bytes |",
-            "| Maximum Segment Size (MSS) | N/A | 1360 Bytes |"
+            "| Maximum Segment Size (MSS) | N/A | 1360 Bytes |",
+            "| Components | Phase 1 | Phase 2 |"
           ],
           "after": "| IKEv2 Supported Parameters | | |"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-ipsec-vpns.json",
+          "after": "| IKEv1 Supported Parameters | | |",
+          "quotes": [
+            "| Components | Phase 1 | Phase 2 |",
+            "| Maximum Transmission Unit (MTU) | N/A | Your Optimal MTU 1400 Bytes |",
+            "| Maximum Segment Size (MSS) | N/A | 1360 Bytes |"
+          ]
         }
       ]
     },
@@ -206,14 +219,15 @@
           "path": "understanding-ipsec-vpns.json",
           "quotes": [
             "Zscaler recommends a minimum of 10-second to a maximum of 20-second DPD intervals with at least 3 retries.",
-            "you must ensure to allowlist the Zscaler IP address so that DPD initiated by Zscaler is not blocked, and a response is received. If there is no response, Zscaler cleans up the connection.",
+            "If the periodic liveliness check is not supported (i.e., only on-demand check is supported), you must ensure to allowlist the Zscaler IP address so that DPD initiated by Zscaler is not blocked, and a response is received.",
+            "If there is no response, Zscaler cleans up the connection.",
             "Zscaler does not consider the ongoing flow of traffic between two peers as proof of the liveliness of a peer."
           ]
         }
       ]
     },
     "local-id": {
-      "statement": "The device's local ID can be a private IP address only when the VPN credential in the Admin Console is an FQDN; otherwise it must be the public IP provisioned as a static IP. A private local ID with a public IP credential makes the negotiation fail.",
+      "statement": "The device's local ID can be a private IP address only when the VPN credential in the Admin Console is an FQDN; otherwise it should be the public IP provisioned as a static IP. A private local ID with a public IP credential makes the negotiation fail.",
       "tier": "A",
       "evidence": [
         {
@@ -221,7 +235,8 @@
           "path": "understanding-ipsec-vpns.json",
           "quotes": [
             "the local ID of the peer device on the client side can be a private IP address if the VPN credential configured in the Zscaler Admin Console is a fully qualified domain name (FQDN).",
-            "If the local ID is a private IP address and a public IP address is configured in the Zscaler Admin Console, then the negotiation fails."
+            "If the local ID is a private IP address and a public IP address is configured in the Zscaler Admin Console, then the negotiation fails.",
+            "Otherwise, the local ID should be a public IP address. The public IP address is provisioned as a static IP address, which is then used to add a VPN credential to the Zscaler Admin Console."
           ]
         }
       ]

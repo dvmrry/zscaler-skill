@@ -100,6 +100,14 @@
           "expect": {
             "operationId": "Time Interval Resource Delete Time Interval"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/timeIntervals/lite"
+          ]
         }
       ]
     },
@@ -167,8 +175,11 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/time_intervals/time_intervals.go",
           "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, timeIntervalEndpoint, &timeInterval)",
+            "for _, timeInterval := range timeInterval {",
             "if strings.EqualFold(timeInterval.Name, timeIntervalName) {"
-          ]
+          ],
+          "after": "func GetTimeIntervalByName(ctx context.Context, service *zscaler.Service, timeIntervalName string) (*TimeInterval, error) {"
         }
       ]
     },
@@ -181,7 +192,8 @@
           "path": "docs/guides/zia-activator-overview.md",
           "quotes": [
             "Pending changes are activated automatically when a session ends",
-            "It accepts **5 to 20 minutes and defaults to 5**."
+            "It accepts **5 to 20 minutes and defaults to 5**.",
+            "The platform activates pending changes automatically when a session ends, either because an admin logged out or because an API session reached its timeout."
           ]
         }
       ]
@@ -194,7 +206,15 @@
           "source": "mcp-server",
           "path": "src/zscaler_mcp/tools/zia/time_intervals.py",
           "quotes": [
-            "\"\"\"Create a ZIA time interval (write). Activate after.\"\"\""
+            "\"\"\"Create a ZIA time interval (write). Activate after.\"\"\"",
+            "\"\"\"Update a ZIA time interval (PUT-replace; backfills omitted fields). Activate after.\"\"\""
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "quotes": [
+            "For ZIA and Cloud & Branch Connector APIs, configuration changes must be explicitly activated with a POST to /status/activate or /ecAdminActivateStatus/activate, respectively."
           ]
         }
       ]

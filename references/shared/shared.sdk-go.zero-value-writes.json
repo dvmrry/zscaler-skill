@@ -131,7 +131,7 @@
   ],
   "claims": {
     "zpa-writes-marshal-caller-struct": {
-      "statement": "ZPA creates, updates and deletes go through one request function that serializes the caller's struct directly with `json.Marshal`, so each field's JSON tag alone decides whether it is sent.",
+      "statement": "ZPA service creates, updates and deletes (for example the segment group's) call the one request function `NewRequestDo`, which serializes the caller's struct directly with `json.Marshal`, so the struct's JSON encoding decides which fields are sent.",
       "tier": "A",
       "evidence": [
         {
@@ -143,13 +143,40 @@
           ],
           "after": "func (client *Client) NewRequestDo(ctx context.Context, method, endpoint string, options, body, v interface{}) (*http.Response, error) {",
           "quotes": [
-            "bodyBytes, err := json.Marshal(body)"
+            "var bodyReader io.Reader\n\tif body != nil {\n\t\tbodyBytes, err := json.Marshal(body)",
+            "bodyReader = bytes.NewBuffer(bodyBytes)",
+            "respBody, _, _, err := client.ExecuteRequest(ctx, method, endpoint, bodyReader, nil, contentTypeJSON)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfigV1+service.Client.GetCustomerID()+segmentGroupEndpoint, common.Filter{MicroTenantID: service.MicroTenantID()}, segmentGroup, &v)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"DELETE\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, nil, nil)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, segmentGroupId string, segmentGroupRequest *SegmentGroup) (*http.Response, error) {",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, segmentGroupRequest, nil)"
           ]
         }
-      ]
+      ],
+      "conditions": "Search: `git -C vendor/zscaler-sdk-go grep -n -E '\"(POST|PUT|DELETE|PATCH)\"' v3.8.42 -- zscaler/zpa/services` finds only `NewRequestDo` calls; the example quoted is the segment group service."
     },
     "ztw-writes-marshal-caller-struct": {
-      "statement": "Cloud and Branch Connector (ZTW) writes serialize the caller's struct directly with `json.Marshal`, and the PUT helper that most ZTW services use sends the whole struct.",
+      "statement": "Cloud and Branch Connector (ZTW) writes serialize the caller's struct directly with `json.Marshal`, and the PUT helper `UpdateWithPutResource`, which ZTW services such as locations, forwarding rules and IP groups use for updates, sends the whole struct.",
       "tier": "A",
       "evidence": [
         {
@@ -174,6 +201,39 @@
           "after": "func (c *Client) UpdateWithPutResource(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {",
           "quotes": [
             "return c.updateGeneric(ctx, endpoint, o, \"PUT\", contentTypeJSON)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/locationmanagement/location/location.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.UpdateWithPutResource(ctx, fmt.Sprintf(\"%s/%d\", locationsEndpoint, locationID), *locations)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.UpdateWithPutResource(ctx, fmt.Sprintf(\"%s/%d\", forwardingRulesEndpoint, ruleID), *rules)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/policyresources/ipgroups/ipgroups.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.UpdateWithPutResource(ctx, fmt.Sprintf(\"%s/%d\", ipGroupsEndpoint, ipGroupID), *ipGroup)"
           ]
         }
       ]

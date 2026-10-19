@@ -124,7 +124,7 @@
           "source": "zscaler-help",
           "path": "about-url-categories.json",
           "quotes": [
-            "you can also specify whether you want it to retain its original parent category."
+            "If you manually add a URL or subdomain to an existing super category, category, or custom category, you can also specify whether you want it to retain its original parent category."
           ]
         }
       ]
@@ -142,7 +142,9 @@
           "path": "zscaler/zia/services/urlcategories/urlcategories.go",
           "quotes": [
             "URLs added to a custom URL category are also retained under the original parent URL category",
-            "The URLs entered are covered by policies that reference the original parent URL category as well as those that reference the custom URL category."
+            "The URLs entered are covered by policies that reference the original parent URL category as well as those that reference the custom URL category.",
+            "DBCategorizedUrls []string `json:\"dbCategorizedUrls\"`",
+            "Urls []string `json:\"urls\"`"
           ]
         },
         {
@@ -194,6 +196,16 @@
             "IPRangesRetainingParentCategoryCount int `json:\"ipRangesRetainingParentCategoryCount\"`",
             "RetainParentKeywordCount int `json:\"retainParentKeywordCount,omitempty\"`"
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1urlCategories/get/responses/200/content/application~1json/schema/items/properties",
+          "expect_absent": [
+            "patternsRetainingParentCategoryCount",
+            "keywordsRetainingParentCategoryCount"
+          ],
+          "note": "the URL category schema has urlsRetainingParentCategoryCount and ipRangesRetainingParentCategoryCount but no patterns or keywords retaining-parent count"
         }
       ]
     },

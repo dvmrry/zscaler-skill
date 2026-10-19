@@ -103,6 +103,15 @@
             "description": "The time interval end time",
             "type": "integer"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/post/requestBody/content/application~1json/schema/properties/daysOfWeek",
+          "expect": {
+            "description": "Specifies which days of the week apply to the time interval. If set to EVERYDAY, all the days of the week are chosen.",
+            "type": "array"
+          }
         }
       ]
     },
@@ -128,6 +137,24 @@
             "end_time='1439',"
           ],
           "after": "def add_time_intervals(self, **kwargs)"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/post/requestBody/content/application~1json/schema/properties/startTime",
+          "expect": {
+            "description": "The time interval start time",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1timeIntervals/post/requestBody/content/application~1json/schema/properties/endTime",
+          "expect": {
+            "description": "The time interval end time",
+            "type": "integer"
+          }
         }
       ]
     },
@@ -211,7 +238,7 @@
       "conditions": "Absence from the five-field schema and the console drawer."
     },
     "go-starttime-always-sent": {
-      "statement": "In the Go SDK `startTime` has no `omitempty` while `endTime`, `id`, `name` and `daysOfWeek` do, so a zero start (midnight) is always sent and a zero end is dropped from the body. The Python model sends all five unconditionally.",
+      "statement": "In the Go SDK `startTime` has no `omitempty` while `endTime`, `id`, `name` and `daysOfWeek` do, so a zero start (midnight) is always sent and a zero end is dropped from the body. The Python model's request format lists all five keys with no condition, but the Python add and update calls send the caller's keyword arguments as the body.",
       "tier": "A",
       "evidence": [
         {
@@ -219,15 +246,33 @@
           "path": "zscaler/zia/services/time_intervals/time_intervals.go",
           "quotes": [
             "StartTime int `json:\"startTime\"`",
-            "EndTime int `json:\"endTime,omitempty\"`"
+            "EndTime int `json:\"endTime,omitempty\"`",
+            "ID int `json:\"id,omitempty\"`",
+            "Name string `json:\"name,omitempty\"`",
+            "DaysOfWeek []string `json:\"daysOfWeek,omitempty\"`"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zia/models/time_intervals.py",
           "quotes": [
-            "\"startTime\": self.start_time,",
-            "\"endTime\": self.end_time,"
+            "current_obj_format = { \"id\": self.id, \"name\": self.name, \"startTime\": self.start_time, \"endTime\": self.end_time, \"daysOfWeek\": self.days_of_week, }"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/time_intervals.py",
+          "after": "def add_time_intervals(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "body = kwargs"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/time_intervals.py",
+          "after": "def update_time_intervals(self, interval_id: int, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "body = {} body.update(kwargs)"
           ]
         }
       ]

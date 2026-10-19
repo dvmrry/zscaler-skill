@@ -140,7 +140,9 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/dlp/dlpdictionaries/dlpdictionaries.go",
           "quotes": [
-            "Only a limited set of identification-based predefined dictionaries (e.g., Credit Cards, Social Security Numbers, National Identification Numbers, etc.) can be cloned. Up to 4 clones can be created from a predefined dictionary."
+            "Only a limited set of identification-based predefined dictionaries (e.g., Credit Cards, Social Security Numbers, National Identification Numbers, etc.) can be cloned. Up to 4 clones can be created from a predefined dictionary.",
+            "ID of the predefined dictionary (original source dictionary) that is used for cloning. This field is applicable only to cloned dictionaries.",
+            "DictTemplateId int `json:\"dictTemplateId,omitempty\"`"
           ]
         }
       ]
@@ -315,7 +317,8 @@
           "path": "zscaler/zia/dlp_dictionary.py",
           "quotes": [
             "This endpoint is returning a valid response but validation isn't failing for obvious wrong patterns. Use at",
-            "/dlpDictionaries/validateDlpPattern"
+            "/dlpDictionaries/validateDlpPattern",
+            "Note: The ZIA API documentation doesn't provide information on how to structure a request for this API endpoint."
           ]
         }
       ]
@@ -356,6 +359,22 @@
           "expect": {
             "description": "Indexed Document Match (IDM) template (or profile) match accuracy details."
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dlpDictionaries/post/requestBody/content/application~1json/schema/properties/exactDataMatchDetails/items/properties/primaryField",
+          "expect": {
+            "description": "The EDM template's primary field."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dlpDictionaries/post/requestBody/content/application~1json/schema/properties/exactDataMatchDetails/items/properties/secondaryFields",
+          "expect": {
+            "description": "The EDM template's secondary fields."
+          }
         }
       ]
     },
@@ -367,6 +386,15 @@
           "source": "sdk-python",
           "path": "zscaler/zia/dlp_dictionary.py",
           "after": "def add_dict(",
+          "quotes": [
+            "payload[\"phrases\"] = [{\"action\": action, \"phrase\": phrase} for action, phrase in payload[\"phrases\"]]",
+            "payload[\"patterns\"] = [{\"action\": action, \"pattern\": pattern} for action, pattern in payload[\"patterns\"]]"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/dlp_dictionary.py",
+          "after": "def update_dict(",
           "quotes": [
             "payload[\"phrases\"] = [{\"action\": action, \"phrase\": phrase} for action, phrase in payload[\"phrases\"]]",
             "payload[\"patterns\"] = [{\"action\": action, \"pattern\": pattern} for action, pattern in payload[\"patterns\"]]"
@@ -385,7 +413,8 @@
           "quotes": [
             "dictionaries, response, error = self.list_dicts()",
             "dictionary = next((d for d in dictionaries if d.name == dict_name), None)",
-            "`ASPP_LEAKAGE`, `CRED_LEAKAGE`, `EUIBAN_LEAKAGE`, `PPEU_LEAKAGE`, `USDL_LEAKAGE`"
+            "`ASPP_LEAKAGE`, `CRED_LEAKAGE`, `EUIBAN_LEAKAGE`, `PPEU_LEAKAGE`, `USDL_LEAKAGE`",
+            "return (None, response, ValueError(f\"No dictionary found with the name: {dict_name}\"))"
           ]
         }
       ]

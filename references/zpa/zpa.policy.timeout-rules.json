@@ -121,6 +121,7 @@
           "source": "zscaler-help",
           "path": "about-timeout-policy.json",
           "quotes": [
+            "When a user reauthenticates to continue with an application session, Private Access gets a new SAML assertion.",
             "This means that a single reauthentication resets the reauthentication timer for all applications."
           ]
         }
@@ -160,10 +161,12 @@
           "source": "mcp-server",
           "path": "skills/zpa/create-timeout-policy-rule/SKILL.md",
           "quotes": [
+            "**Timeout format:** `\"<number> Minutes\"`, `\"<number> Hours\"`, `\"<number> Days\"`, `\"Never\"`",
             "| `<number> Minutes` | `\"30 Minutes\"`, `\"60 Minutes\"` | Session expires after N minutes |",
             "| `<number> Days` | `\"1 Days\"`, `\"10 Days\"`, `\"30 Days\"` | Session expires after N days |",
             "| `Never` | `\"Never\"` | Session never expires (not recommended for sensitive apps) |",
-            "Minimum: 10 minutes. Default: `\"600\"` (seconds, i.e., 10 minutes)."
+            "Minimum: 10 minutes. Default: `\"600\"` (seconds, i.e., 10 minutes).",
+            "Minimum: 10 minutes. Default: `\"172800\"` (seconds, i.e., 2 days)."
           ]
         }
       ]
@@ -176,7 +179,8 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_policy_access_timeout_rule_v2.go",
           "quotes": [
-            "if resp.ReauthIdleTimeout == \"-1\" {",
+            "if resp.ReauthIdleTimeout == \"-1\" { _ = d.Set(\"reauth_idle_timeout\", \"never\")",
+            "if resp.ReauthTimeout == \"-1\" { _ = d.Set(\"reauth_timeout\", \"never\")",
             "_ = d.Set(\"reauth_timeout\", secondsToHumanReadable(resp.ReauthTimeout))"
           ]
         }
@@ -205,6 +209,17 @@
           "quotes": [
             "Devices that pass a posture check get a longer timeout; non-compliant devices get a shorter one."
           ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-timeout-policy-rule/SKILL.md",
+          "quotes": [
+            "Compliant devices (longer timeout):",
+            "\"object_type\": \"POSTURE\", \"entry_values\": [ {\"lhs\": \"<posture_udid>\", \"rhs\": \"true\"} ]",
+            "Non-compliant devices (shorter timeout):",
+            "\"object_type\": \"POSTURE\", \"entry_values\": [ {\"lhs\": \"<posture_udid>\", \"rhs\": \"false\"} ]"
+          ],
+          "after": "### Example 6: Posture-Based Timeout"
         }
       ]
     },

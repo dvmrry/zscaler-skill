@@ -103,15 +103,25 @@
           "source": "zscaler-help",
           "path": "about-log-streaming-service.json",
           "quotes": [
-            "A log receiver can capture several log types.",
-            "AppProtection: Information related to AppProtection policy activity in your organization.",
+            "A log receiver can capture several log types.\n- View the log types.\n- AppProtection: Information related to AppProtection policy activity in your organization.",
+            "Audit Logs: Session information for all admins accessing the Zscaler Admin Console.",
+            "App Connector Metrics: Information related to an App Connector's metrics.",
+            "App Connector Status: Information related to an App Connector's availability and connection to Private Access.",
+            "Browser Access Logs: HTTP log information related to Browser Access.",
             "Business Continuity Event Log Fields: Information related to Business Continuity Events activity.",
+            "KRB Inspection Logs: Information related to Kerberos inspection log activity in your organization.",
+            "LDAP Inspection Logs: Information related to LDAP inspection log activity in your organization.",
             "Microsegmentation: Information related to Microsegmentation Flow activity.",
-            "User Status - VPN Service Edge (IP Address Reservation): Information related to a user status for VPN (ZPA Service Edge).",
-            "Traffic Flow - VPN: Information related to VPN traffic flow metrics.",
             "Private Cloud Controller Metrics: Information related to a Private Cloud Controller's metrics.",
+            "Private Cloud Controller Status: Information related to a Private Cloud Controller's availability and connection to Private Access.",
+            "User Status - VPN Service Edge (IP Address Reservation): Information related to a user status for VPN (ZPA Service Edge).",
+            "User Status - [[variable:vpn-service-edge]]: Information related to a user status for VPN Service Edge.",
+            "Traffic Flow - VPN: Information related to VPN traffic flow metrics.",
+            "Private Service Edge Metrics: Information related to a Private Service Edge's metrics.",
+            "Private Service Edge Status: Information related to a Private Service Edge's availability and connection to Private Access.",
             "SMB Inspection Logs: Information related to SMB inspection log activity in your organization.",
-            "User Activity: Information on end user requests to applications."
+            "User Activity: Information on end user requests to applications.",
+            "User Status: Information related to an end user's availability and connection to Private Access. To learn more, see Understanding User Status Log Fields.\nAfter you select which log type to capture"
           ]
         }
       ]
@@ -175,7 +185,18 @@
             "\"user_activity\": \"zpn_trans_log\",",
             "\"user_status\": \"zpn_auth_log\",",
             "\"web_inspection\": \"zpn_waf_http_exchanges_log\",",
-            "if source_log_type not in self.source_log_map:"
+            "if source_log_type not in self.source_log_map:",
+            "class LSSConfigControllerAPI(APIClient):\nsource_log_map = {",
+            "\"web_inspection\": \"zpn_waf_http_exchanges_log\",\n}",
+            "return (None, None, f\"Invalid source_log_type: {source_log_type!r}\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "after": "def add_lss_config(",
+          "quotes": [
+            "source_log_type = self.source_log_map[source_log_type]"
           ]
         }
       ]
@@ -209,14 +230,15 @@
           "source": "tf-zpa",
           "path": "zpa/data_source_zpa_lss_config_log_types_formats.go",
           "quotes": [
-            "\"zpn_smb_inspection_log\",",
-            "\"zpn_auth_log_1id\",",
-            "\"zpn_sitec_auth_log\",",
-            "\"zpn_sitec_comprehensive_stats\",",
-            "\"zpn_ldap_inspection_log\",",
-            "\"zms_flow_log\",",
-            "\"zpn_krb_inspection_log\",",
-            "\"zpn_pbroker_comprehensive_stats\","
+            "ValidateFunc: validation.StringInSlice([]string{ \"zpn_ast_comprehensive_stats\", \"zpn_auth_log\", \"zpn_pbroker_comprehensive_stats\", \"zpn_ast_auth_log\", \"zpn_audit_log\", \"zpn_trans_log\", \"zpn_http_trans_log\", \"zpn_waf_http_exchanges_log\", \"zpn_sys_auth_log\",",
+            "\"zpn_sys_auth_log\", \"zpn_smb_inspection_log\", \"zpn_auth_log_1id\", \"zpn_sitec_auth_log\", \"zpn_sitec_comprehensive_stats\", \"zpn_ldap_inspection_log\", \"zms_flow_log\", \"zpn_krb_inspection_log\", }, false),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_lss_config_controller.go",
+          "quotes": [
+            "Description: \"Log type of the LSS configuration\", ValidateFunc: validation.StringInSlice([]string{ \"zpn_trans_log\", \"zpn_auth_log\", \"zpn_ast_auth_log\", \"zpn_http_trans_log\", \"zpn_audit_log\", \"zpn_ast_comprehensive_stats\", \"zpn_sys_auth_log\", \"zpn_waf_http_exchanges_log\", \"zpn_pbroker_comprehensive_stats\", }, false),"
           ]
         }
       ]

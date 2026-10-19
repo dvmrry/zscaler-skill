@@ -66,14 +66,16 @@
   ],
   "claims": {
     "app-profiles-envelope": {
-      "statement": "The application-profiles list is an exception: it returns a `policies` envelope, which `list_application_profiles` unwraps itself.",
+      "statement": "The application-profiles list is an exception: it returns a `policies` envelope, which `get_application_profiles` unwraps itself.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zcc/application_profiles.py",
           "quotes": [
-            "items = response_body.get(\"policies\", []) or []"
+            "items = response_body.get(\"policies\", []) or []",
+            "def get_application_profiles(self, query_params: Optional[dict] = None) -> APIResult[dict]:",
+            "result = [ApplicationProfile(item) for item in items if isinstance(item, dict)]"
           ]
         },
         {
@@ -123,7 +125,8 @@
           "path": "zscaler/oneapi_response.py",
           "quotes": [
             "self._limit = self.validate_page_size(raw_page_size, service_type)",
-            "validated_size = min(max(int(page_size), min_page_size), max_page_size)"
+            "validated_size = min(max(int(page_size), min_page_size), max_page_size)",
+            "\"zcc\": {\"default\": 50, \"max\": 5000, \"min\": 1},"
           ]
         },
         {
@@ -131,7 +134,18 @@
           "path": "zscaler/request_executor.py",
           "after": "# Normal param conversion if not ZPA",
           "quotes": [
-            "params = convert_keys_to_camel_case(params)"
+            "params = convert_keys_to_camel_case(params)",
+            "params.pop(\"microtenantId\", None)",
+            "return params"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "response_data = convert_keys_to_snake_case(response_data)",
+          "quotes": [
+            "res_details=response,",
+            "response_body=response_body,"
           ]
         }
       ]
@@ -166,7 +180,17 @@
           "path": "zscaler/oneapi_response.py",
           "quotes": [
             "self._params.get(\"pageSize\")",
-            "or self._params.get(\"pagesize\")"
+            "or self._params.get(\"pagesize\")",
+            "or self._params.get(\"limit\")",
+            "if page_size is None:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "# Normal param conversion if not ZPA",
+          "quotes": [
+            "params = convert_keys_to_camel_case(params)"
           ]
         }
       ]
@@ -179,7 +203,9 @@
           "source": "sdk-python",
           "path": "CHANGELOG.md",
           "quotes": [
-            "Fixed ZCC pagination so `has_next()`/`next()` properly traverse all pages on flat-array list endpoints (e.g. `list_devices`)."
+            "Fixed ZCC pagination so `has_next()`/`next()` properly traverse all pages on flat-array list endpoints (e.g. `list_devices`).",
+            "## 1.9.42 (August 18 2026)",
+            "[PR #564](https://github.com/zscaler/zscaler-sdk-python/pull/564)"
           ]
         },
         {
@@ -202,6 +228,24 @@
             "if self._service_type == \"zcc\" and \"page\" in self._params:",
             "self._page = int(self._params[\"page\"])"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "if self._service_type == \"zcc\" and \"page\" in self._params:",
+          "quotes": [
+            "except Exception:",
+            "self._page = 1"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "logger.debug(\"[DEBUG] Taking ZPA/other pagination branch.\")",
+          "quotes": [
+            "self._page += 1",
+            "self._params[\"page\"] = self._page"
+          ]
         }
       ]
     },
@@ -215,7 +259,20 @@
           "after": "logger.debug(\"[DEBUG] Taking ZPA/other pagination branch.\")",
           "quotes": [
             "self._page += 1",
-            "self._params[\"page\"] = self._page"
+            "self._params[\"page\"] = self._page",
+            "\"params\": self._params,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "def _fetch_next_page(self) -> Tuple[List[Any], Optional[Exception]]:",
+          "quotes": [
+            "if self._service_type == \"zdx\":",
+            "elif self._service_type == \"zcell\":",
+            "elif self._service_type == \"zia\":",
+            "elif self._service_type == \"ziam\":",
+            "logger.debug(\"[DEBUG] Taking ZPA/other pagination branch.\")"
           ]
         }
       ]
@@ -252,7 +309,15 @@
           "after": "# If user provided limit, only continue if last page was \"full\"",
           "quotes": [
             "has_next = len(self._list) >= self._limit",
-            "has_next = bool(self._list)"
+            "has_next = bool(self._list)",
+            "# This may result in one extra empty API call, but respects API defaults"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "# If we got results, try one more page. The next call will return empty and stop."
           ]
         }
       ]
@@ -268,7 +333,8 @@
           "quotes": [
             "raise StopIteration(\"No more pages available.\")",
             "if not results:",
-            "return None, self, None"
+            "return None, self, None",
+            "if not self.has_next():"
           ]
         }
       ]

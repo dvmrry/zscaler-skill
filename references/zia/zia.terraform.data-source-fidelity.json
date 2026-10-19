@@ -48,7 +48,7 @@
     },
     {
       "label": "Panicking reads.",
-      "text": "{{sandbox-rss-signature-sources-scalar-in-set}} {{sandbox-rss-scalar-set-panics}} {{gre-vip-negative-required-count-slices}}"
+      "text": "{{sandbox-rss-signature-sources-scalar-in-set}} {{sandbox-rss-scalar-set-panics}} {{gre-vip-negative-required-count-slices}} {{gre-vip-negative-count-panics}}"
     },
     {
       "label": "Undeclared keys.",
@@ -71,7 +71,7 @@
     },
     {
       "label": "Filters built with GetOk.",
-      "text": "{{gre-vip-false-and-zero-filters-dropped}}"
+      "text": "{{gre-vip-false-and-zero-filters-dropped}} {{gre-vip-false-zero-inverted}}"
     },
     {
       "label": "GRE VIP source IP.",
@@ -227,7 +227,7 @@
       ]
     },
     "gre-vip-negative-required-count-slices": {
-      "statement": "`required_count` in the GRE VIP recommendation data source has a default of 5 and no validation. After the SDK call the code compares the list length with it and slices `[:requiredCount]`; a negative value always passes the comparison and makes the slice expression panic (Go rejects a negative slice bound at run time).",
+      "statement": "`required_count` in the GRE VIP recommendation data source has a default of 5 and no validation. After the SDK call the code compares the list length with it and slices `[:requiredCount]`, so a negative value always passes the comparison and reaches the slice expression.",
       "tier": "A",
       "evidence": [
         {
@@ -273,7 +273,12 @@
             "HEAD"
           ],
           "quotes": [
-            "Description: \"The name-ID pairs of the users that are excluded from the DLP policy rule.\", Elem: &schema.Resource{ Schema: map[string]*schema.Schema{ \"id\": { Type: schema.TypeInt, Computed: true, Description: \"Identifier that uniquely identifies an entity\", }, \"extensions\": {"
+            "Description: \"The name-ID pairs of the users that are excluded from the DLP policy rule.\", Elem: &schema.Resource{ Schema: map[string]*schema.Schema{ \"id\": { Type: schema.TypeInt, Computed: true, Description: \"Identifier that uniquely identifies an entity\", }, \"extensions\": {",
+            "Description: \"The name-ID pairs of the groups that are excluded from the DLP policy rule.\", Elem: &schema.Resource{ Schema: map[string]*schema.Schema{ \"id\": { Type: schema.TypeInt, Computed: true, Description: \"Identifier that uniquely identifies an entity\", }, \"extensions\": {",
+            "Description: \"The name-ID pairs of the departments that are excluded from the DLP policy rule.\", Elem: &schema.Resource{ Schema: map[string]*schema.Schema{ \"id\": { Type: schema.TypeInt, Computed: true, Description: \"Identifier that uniquely identifies an entity\", }, \"extensions\": {",
+            "Type: schema.TypeString, }, }, }, }, }, \"excluded_departments\": {",
+            "Type: schema.TypeString, }, }, }, }, }, \"excluded_users\": {",
+            "Type: schema.TypeString, }, }, }, }, }, \"included_domain_profiles\": {"
           ]
         },
         {
@@ -284,7 +289,9 @@
             "HEAD"
           ],
           "quotes": [
-            "if err := d.Set(\"excluded_users\", flattenIDExtensions(resp.ExcludedUsers)); err != nil {"
+            "if err := d.Set(\"excluded_users\", flattenIDExtensions(resp.ExcludedUsers)); err != nil {",
+            "if err := d.Set(\"excluded_groups\", flattenIDExtensions(resp.ExcludedGroups)); err != nil {",
+            "if err := d.Set(\"excluded_departments\", flattenIDExtensions(resp.ExcludedDepartments)); err != nil {"
           ]
         },
         {
@@ -296,7 +303,8 @@
           ],
           "after": "func flattenIDExtensions(list []common.IDNameExtensions) []interface{} {",
           "quotes": [
-            "\"name\": val.Name, \"extensions\": val.Extensions,"
+            "\"name\": val.Name, \"extensions\": val.Extensions,",
+            "\"id\": val.ID,"
           ]
         },
         {
@@ -307,7 +315,9 @@
             "HEAD"
           ],
           "quotes": [
-            "ExcludedUsers []common.IDNameExtensions `json:\"excludedUsers,omitempty\"`"
+            "ExcludedUsers []common.IDNameExtensions `json:\"excludedUsers,omitempty\"`",
+            "ExcludedGroups []common.IDNameExtensions `json:\"excludedGroups,omitempty\"`",
+            "ExcludedDepartments []common.IDNameExtensions `json:\"excludedDepartments,omitempty\"`"
           ]
         }
       ],
@@ -319,7 +329,7 @@
       ]
     },
     "forwarding-control-segment-key-misspelled-and-extensions": {
-      "statement": "The forwarding control rule data source declares the ECZPA application segment description under the key `ddescription` while its flattener emits `description`. Separately, `ec_groups`, `locations` and `location_groups` declare only `id` and `name` (`ec_groups` is quoted), but those blocks are filled by `flattenIDNameExtensions`, which adds an `extensions` key whenever the SDK object carries a non-nil extensions map.",
+      "statement": "The forwarding control rule data source declares the ECZPA application segment description under the key `ddescription` while its flattener emits `description`. Separately, `ec_groups`, `locations` and `location_groups` declare only `id` and `name`, but those blocks are filled by `flattenIDNameExtensions`, which adds an `extensions` key whenever the SDK object carries a non-nil extensions map.",
       "tier": "A",
       "evidence": [
         {
@@ -365,7 +375,9 @@
             "HEAD"
           ],
           "quotes": [
-            "if err := d.Set(\"ec_groups\", flattenIDNameExtensions(resp.ECGroups)); err != nil {"
+            "if err := d.Set(\"ec_groups\", flattenIDNameExtensions(resp.ECGroups)); err != nil {",
+            "if err := d.Set(\"locations\", flattenIDNameExtensions(resp.Locations)); err != nil {",
+            "if err := d.Set(\"location_groups\", flattenIDNameExtensions(resp.LocationsGroups)); err != nil {"
           ]
         },
         {
@@ -378,6 +390,30 @@
           "after": "func flattenIDNameExtensions(list []common.IDNameExtensions) []interface{} {",
           "quotes": [
             "if val.Extensions != nil { r[\"extensions\"] = val.Extensions }"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_forwarding_control_rule.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "\"locations\": {",
+          "quotes": [
+            "\"id\": { Type: schema.TypeInt, Computed: true, Description: \"Identifier that uniquely identifies an entity\", }, \"name\": { Type: schema.TypeString, Computed: true, Description: \"The configured name of the entity\", }, }, }, },"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_forwarding_control_rule.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "\"location_groups\": {",
+          "quotes": [
+            "\"id\": { Type: schema.TypeInt, Computed: true, Description: \"Identifier that uniquely identifies an entity\", }, \"name\": { Type: schema.TypeString, Computed: true, Description: \"The configured name of the entity\", }, }, }, },"
           ]
         }
       ],
@@ -506,7 +542,10 @@
           ],
           "after": "func flattenIDExtensionsListIDs(list []common.IDNameExtensions) []interface{} {",
           "quotes": [
-            "\"id\": ids,"
+            "\"id\": ids,",
+            "ids := []int{}",
+            "ids = append(ids, item.ID)",
+            "return []interface{}{ map[string]interface{}{ \"id\": ids, }, }"
           ]
         },
         {
@@ -530,6 +569,17 @@
           "quotes": [
             "func flattenCloudAppControlCBIProfile(cbiProfile *cloudappcontrol.CBIProfile) map[string]interface{} {",
             "\"profile_seq\": cbiProfile.ProfileSeq,"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_ssl_inspection_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := d.Set(\"proxy_gateways\", flattenIDExtensionsListIDs(resp.ProxyGateways)); err != nil {"
           ]
         }
       ],
@@ -633,7 +683,9 @@
             "HEAD"
           ],
           "quotes": [
-            "if matched == 1 { d.SetId(strconv.Itoa(lastID)) } else { d.SetId(string(channel)) }"
+            "if matched == 1 { d.SetId(strconv.Itoa(lastID)) } else { d.SetId(string(channel)) }",
+            "} else { // Retrieve the channel's tag catalog and optionally filter by name.",
+            "\"PRINTING\", \"REMOVABLE_DRIVE_TRANSFER\","
           ]
         }
       ],
@@ -671,7 +723,23 @@
           ],
           "quotes": [
             "specified DLP resource is associated.",
-            "endpoint := fmt.Sprintf(\"%s/%d/groups\", dlpEndpointResourceEndpoint, id)"
+            "endpoint := fmt.Sprintf(\"%s/%d/groups\", dlpEndpointResourceEndpoint, id)",
+            "endPointDlpResourceGroupsEndpoint = \"/zia/api/v1/endPointDlpResourceGroups\"",
+            "dlpEndpointResourceEndpoint = \"/zia/api/v1/dlpEndpointResource\"",
+            "endpoint := fmt.Sprintf(\"%s/%s\", endPointDlpResourceGroupsEndpoint, url.PathEscape(string(channel)))"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_dlp_endpoint_resource_group_tag.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "Description: \"The unique identifier of a specific tag to return.",
+            "// Retrieve the channel's tag catalog and optionally filter by name.",
+            "list, err := endpoint_resource_group.GetResourceGroupTagsList(ctx, service, channel, opts)"
           ]
         }
       ],
@@ -683,7 +751,7 @@
       ]
     },
     "devices-unused-selectors-fall-back-to-first-device": {
-      "statement": "The devices data source declares `hostname` and `device_group_type` as optional selectors, but its lookup branches and its \"nothing was given\" fallback test only name, model, owner, OS type and OS version. A configuration that sets only `hostname` or only `device_group_type` therefore takes the fallback, lists every device and binds to the first one. If that list is empty the read returns without setting an ID and without an error.",
+      "statement": "The devices data source declares `hostname` and `device_group_type` as optional selectors, but its lookup branches test only ID, name, model, owner, OS type and OS version, and its \"nothing was given\" fallback tests only name, model, owner, OS type and OS version. A configuration that sets only `hostname` or only `device_group_type` therefore takes the fallback, lists every device and binds to the first one. If that list is empty the read returns without setting an ID and without an error.",
       "tier": "A",
       "evidence": [
         {
@@ -709,7 +777,15 @@
           "quotes": [
             "if resp == nil && name == \"\" && model == \"\" && owner == \"\" && osType == \"\" && osVersion == \"\" {",
             "resp = &allDevices[0]",
-            "// No devices found, do not set ID"
+            "// No devices found, do not set ID",
+            "id, ok := getIntFromResourceData(d, \"id\")",
+            "if resp == nil && name != \"\" {",
+            "if resp == nil && model != \"\" {",
+            "if resp == nil && owner != \"\" {",
+            "if resp == nil && osType != \"\" {",
+            "if resp == nil && osVersion != \"\" {",
+            "allDevices, err := devicegroups.GetAllDevices(ctx, service)",
+            "if len(allDevices) > 0 { resp = &allDevices[0] } else { // No devices found, do not set ID return nil }"
           ]
         }
       ],
@@ -763,7 +839,9 @@
           "quotes": [
             "if parsed, err := strconv.Atoi(idStr.(string)); err == nil {",
             "filtered := all",
-            "if hasID || hasName {"
+            "if hasID || hasName {",
+            "if idStr, ok := d.GetOk(\"id\"); ok && idStr.(string) != \"\" { if parsed, err := strconv.Atoi(idStr.(string)); err == nil { filterID = parsed hasID = true } } if !hasID {",
+            "if err := d.Set(\"exclusions\", flattenDCExclusions(filtered)); err != nil {"
           ]
         }
       ],
@@ -787,7 +865,8 @@
           ],
           "quotes": [
             "if idOk && label.ID == id {",
-            "if name != \"\" && label.Name == name {"
+            "if name != \"\" && label.Name == name {",
+            "for _, label := range labels { // Match by ID (if provided) if idOk && label.ID == id { matched = &label break } // Match by name (if ID not matched or not provided) if name != \"\" && label.Name == name { matched = &label break } }"
           ]
         },
         {
@@ -799,7 +878,8 @@
           ],
           "quotes": [
             "if idOk && template.ID == id {",
-            "if name != \"\" && template.Name == name {"
+            "if name != \"\" && template.Name == name {",
+            "for _, template := range templates { if idOk && template.ID == id { matched = &template break } if name != \"\" && template.Name == name { matched = &template break } }"
           ]
         }
       ],
@@ -848,7 +928,7 @@
       ]
     },
     "gre-vip-false-and-zero-filters-dropped": {
-      "statement": "The GRE VIP recommendation data source adds each boolean and coordinate filter only when `d.GetOk` reports it set, and `GetOk` is false for an explicit `false` or `0`. For `within_country_only = false` the option is never added, and the SDK then fills the missing parameter with `true`, so the opposite of the configured value is requested. Zero latitude or longitude is dropped the same way.",
+      "statement": "The GRE VIP recommendation data source adds each boolean and coordinate filter, among them `within_country_only`, `latitude` and `longitude`, only when `d.GetOk` reports it set, and when `withinCountryOnly` is missing from the query the SDK sets it to `true`.",
       "tier": "A",
       "evidence": [
         {
@@ -860,7 +940,9 @@
           ],
           "quotes": [
             "if v, ok := d.GetOk(\"within_country_only\"); ok {",
-            "if v, ok := d.GetOk(\"latitude\"); ok {"
+            "if v, ok := d.GetOk(\"latitude\"); ok {",
+            "if v, ok := d.GetOk(\"longitude\"); ok {",
+            "if v, ok := d.GetOk(\"routable_ip\"); ok {"
           ]
         },
         {
@@ -895,7 +977,9 @@
           ],
           "quotes": [
             "\"source_ip\": { Type: schema.TypeString, Optional: true, },",
-            "d.SetId(sourceIP)"
+            "d.SetId(sourceIP)",
+            "sourceIP := d.Get(\"source_ip\").(string)",
+            "d.SetId(sourceIP) _ = d.Set(\"list\", flattenVIPList(*resp)) return nil }"
           ]
         }
       ],
@@ -991,6 +1075,53 @@
           "quotes": [
             "return diag.FromErr(fmt.Errorf(\"type must be specified\"))"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_casb_malware_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func dataSourceCasbMalwareRulesRead(",
+          "quotes": [
+            "service := zClient.Service ruleType, ok := d.Get(\"type\").(string) if !ok || ruleType == \"\" { return diag.FromErr(fmt.Errorf(\"type must be specified\")) }"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_casb_malware_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"type\": { Type: schema.TypeString, Optional: true, Computed: true, Description: \"The type of SaaS Security Data at Rest Scanning Malware rule\","
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_cloud_app_control_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"type\": { Type: schema.TypeString, Optional: true, Description: \"The unique identifier for the device.\",",
+            "ruleType, ok := d.Get(\"type\").(string) if !ok || ruleType == \"\" { return diag.FromErr(fmt.Errorf(\"type must be specified\")) }"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_casb_dlp_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func dataSourceCasbDlpRulesRead(",
+          "quotes": [
+            "service := zClient.Service ruleType, ok := d.Get(\"type\").(string) if !ok || ruleType == \"\" { return diag.FromErr(fmt.Errorf(\"type must be specified\")) }"
+          ]
         }
       ]
     },
@@ -1009,7 +1140,10 @@
           "quotes": [
             "if resp, ok := rawResp.([]cloudapplications.CloudApplications); ok && len(resp) > 0 {",
             "if hasAppName && app.AppName != appNameFilter.(string) {",
-            "if err := d.Set(\"applications\", applications); err != nil {"
+            "if err := d.Set(\"applications\", applications); err != nil {",
+            "d.SetId(policyType)",
+            "applications := make([]map[string]interface{}, 0)",
+            "} else { return diag.FromErr(fmt.Errorf(\"no data found for provided parameters\")) } return nil }"
           ]
         }
       ],
@@ -1033,7 +1167,11 @@
           ],
           "quotes": [
             "d.SetId(fmt.Sprintf(\"name-%s\", filterName.(string)))",
-            "filtered = result"
+            "filtered = result",
+            "var result []dc_exclusions.Datacenter",
+            "d.SetId(fmt.Sprintf(\"id-%d\", filterID.(int)))",
+            "d.SetId(fmt.Sprintf(\"city-%s\", filterCity.(string)))",
+            "if err := d.Set(\"datacenters\", flattenDatacenters(filtered)); err != nil {"
           ]
         },
         {
@@ -1045,7 +1183,10 @@
           ],
           "quotes": [
             "if hasID && len(filtered) == 0 {",
-            "d.SetId(fmt.Sprintf(\"name-%s\", filterName.(string)))"
+            "d.SetId(fmt.Sprintf(\"name-%s\", filterName.(string)))",
+            "return diag.FromErr(fmt.Errorf(\"no DC exclusion found with datacenter id %d\", filterID))",
+            "var result []dc_exclusions.DCExclusions",
+            "if err := d.Set(\"exclusions\", flattenDCExclusions(filtered)); err != nil {"
           ]
         }
       ],
@@ -1070,7 +1211,19 @@
           "after": "allEnums := []string{\"ZSCALERDLP\", \"EXTERNALDLP\", \"FILETYPECATEGORYFORFILETYPECONTROL\"}",
           "quotes": [
             "log.Printf(\"[WARN] Failed to get file type categories for enum %s: %v\", enumVal, err) continue",
-            "if resp == nil { return diag.FromErr(fmt.Errorf(\"couldn't find any file type category with id '%d'\", id)) }"
+            "if resp == nil { return diag.FromErr(fmt.Errorf(\"couldn't find any file type category with id '%d'\", id)) }",
+            "return diag.FromErr(fmt.Errorf(\"couldn't find any file type category with name '%s'\", name))"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_file_type_categories.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if (hasID || name != \"\") && !enumSpecified {"
           ]
         }
       ],
@@ -1093,7 +1246,9 @@
             "HEAD"
           ],
           "quotes": [
-            "d.Set(\"summary\", []interface{}{flattenSummaryDetail(resp.Details.Summary)})"
+            "d.Set(\"summary\", []interface{}{flattenSummaryDetail(resp.Details.Summary)})",
+            "d.Set(\"classification\", []interface{}{flattenClassification(resp.Details.Classification)})",
+            "d.Set(\"file_properties\", []interface{}{flattenFileProperties(&resp.Details.FileProperties)})"
           ]
         },
         {
@@ -1105,7 +1260,9 @@
           ],
           "after": "type FullDetails struct {",
           "quotes": [
-            "Summary SummaryDetail `json:\"Summary,omitempty\"`"
+            "Summary SummaryDetail `json:\"Summary,omitempty\"`",
+            "Classification Classification `json:\"Classification,omitempty\"`",
+            "FileProperties FileProperties `json:\"FileProperties,omitempty\"`"
           ]
         },
         {
@@ -1117,7 +1274,8 @@
           ],
           "quotes": [
             "if err := d.Set(\"action\", flattenSSLInspectionAction(resp.Action)); err != nil {",
-            "func flattenSSLInspectionAction(action sslinspection.Action) []interface{} {"
+            "func flattenSSLInspectionAction(action sslinspection.Action) []interface{} {",
+            "a[\"decrypt_sub_actions\"] = flattenDecryptSubActions(action.DecryptSubActions) return []interface{}{a} }"
           ]
         },
         {
@@ -1266,7 +1424,7 @@
       ]
     },
     "ssl-inspection-fields-switched-off-in-source": {
-      "statement": "The SSL inspection rules data source has its `access_control` attribute and the matching `d.Set` commented out, although the SDK model carries `accessControl`. It declares `time_windows` but never sets it.",
+      "statement": "The SSL inspection rules data source has its `access_control` attribute and the matching `d.Set` commented out, although the SDK model carries `accessControl`.",
       "tier": "A",
       "evidence": [
         {
@@ -1359,6 +1517,54 @@
           "quotes": [
             "WorkloadGroups []common.IDName `json:\"workloadGroups,omitempty\"`"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_ssl_inspection_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "\"workload_groups\": {",
+          "quotes": [
+            "\"description\": {",
+            "\"expression\": {",
+            "\"expression_json\": {",
+            "\"last_modified_time\": {",
+            "\"last_modified_by\": {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_traffic_capture_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "\"workload_groups\": {",
+          "quotes": [
+            "\"description\": {",
+            "\"expression\": {",
+            "\"expression_json\": {",
+            "\"last_modified_time\": {",
+            "\"last_modified_by\": {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_url_filtering_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "\"workload_groups\": {",
+          "quotes": [
+            "\"description\": {",
+            "\"expression\": {",
+            "\"expression_json\": {",
+            "\"last_modified_time\": {",
+            "\"last_modified_by\": {"
+          ]
         }
       ],
       "upstream": [
@@ -1404,7 +1610,9 @@
             "HEAD"
           ],
           "quotes": [
-            "result[\"zscaler_app_tenant_id\"] = flattenIDExtensionsList(entity.ZscalerAppTenantID)"
+            "result[\"zscaler_app_tenant_id\"] = flattenIDExtensionsList(entity.ZscalerAppTenantID)",
+            "Description: \"Zscaler app tenant ID information\",",
+            "\"external_id\": { Type: schema.TypeString, Computed: true, Description: \"External identifier for the Zscaler app tenant\","
           ]
         },
         {
@@ -1428,6 +1636,19 @@
           ],
           "quotes": [
             "type IDNameExtensions struct { ID int `json:\"id,omitempty\"` Name string `json:\"name,omitempty\"` Extensions map[string]interface{} `json:\"extensions,omitempty\"` }"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_dlp_web_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "Description: \"Tenant information for the receiver\",",
+            "\"external_id\": { Type: schema.TypeString, Computed: true, Description: \"External identifier for the tenant\",",
+            "if err := d.Set(\"receiver\", flattenReceiver(resp.Receiver)); err != nil {"
           ]
         }
       ],
@@ -1508,6 +1729,35 @@
           "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
         }
       ]
+    },
+    "gre-vip-false-zero-inverted": {
+      "statement": "Because `GetOk` reports an explicit `false` or `0` as not set, `within_country_only = false` is never sent and the SDK then requests `true`, the opposite of the configured value; zero latitude or longitude is dropped the same way.",
+      "tier": "B",
+      "derived_from": [
+        "gre-vip-false-and-zero-filters-dropped"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "go.mod",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "github.com/hashicorp/terraform-plugin-sdk/v2 v2.40.1"
+          ]
+        }
+      ],
+      "conditions": "Depends on terraform-plugin-sdk v2 `GetOk` treating a zero value as unset; the module is not vendored in this repository, so no captured source states it."
+    },
+    "gre-vip-negative-count-panics": {
+      "statement": "A negative `required_count` makes that slice expression panic, crashing the provider during the read.",
+      "tier": "B",
+      "derived_from": [
+        "gre-vip-negative-required-count-slices"
+      ],
+      "conditions": "Go rejects a negative slice bound at run time with a panic; that is language behaviour, not stated in any captured source."
     }
   },
   "gaps": {

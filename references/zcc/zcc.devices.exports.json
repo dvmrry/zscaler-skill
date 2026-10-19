@@ -108,6 +108,30 @@
           "expect": {
             "description": "<p>Filter the list of devices by operating systems. The default value is null, which represents ALL OS types. The following values represent different OS types:</p><ul><li>1 - iOS</li><li>2 - Android</li><li>3 - Windows</li><li>4 - macOS</li><li>5 - Linux</li></ul><p>A sample API call: https://api-mobile.zscalerbeta.net/papi/public/v1/downloadDevices?osTypes=1,2</p> "
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1downloadDevices/get/parameters/[name=registrationTypes]",
+          "expect": {
+            "description": "<p>Filter the list of devices by registration types or states. The following values represent different device states:</p><ul><li>0 - All states except Removed</li><li>1 - Registered</li><li>3 - Removal pending</li><li>4 - Unregistered</li><li>5 - Removed</li><li>6 - Quarantined</li></ul><p>A sample API call:   https://api-mobile.zscalerbeta.net/papi/public/v1/downloadDevices?registrationTypes=1,3</p>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1downloadServiceStatus/get/parameters/[name=osTypes]",
+          "expect": {
+            "description": "<p>Filter the list by operating systems. The default value is null, which represents ALL OS types. The following values represent different OS types:</p><ul><li>1 - iOS</li><li>2 - Android</li><li>3 - Windows</li><li>4 - macOS</li><li>5 - Linux</li></ul><p>A sample API call: https://api-mobile.zscalerbeta.net/papi/public/v1/downloadServiceStatus?osTypes=1,2</p> "
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1downloadServiceStatus/get/parameters/[name=registrationTypes]",
+          "expect": {
+            "description": "<p>Filter the list by registration types or states. The following values represent different device states:</p><ul><li>0 - All states except Removed</li><li>1 - Registered</li><li>3 - Removal pending</li><li>4 - Unregistered</li><li>5 - Removed</li><li>6 - Quarantined</li></ul><p>A sample API call:   https://api-mobile.zscalerbeta.net/papi/public/v1/downloadServiceStatus?registrationTypes=1,3</p>"
+          }
         }
       ]
     },
@@ -163,6 +187,15 @@
             "in": "header",
             "required": false
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1downloadDisableReasons/get/parameters/[name=osTypes]",
+          "expect": {
+            "in": "query",
+            "required": false
+          }
         }
       ]
     },
@@ -173,9 +206,11 @@
         {
           "source": "sdk-python",
           "path": "zscaler/zcc/devices.py",
+          "after": "def download_disable_reasons(self, query_params=None, filename: str = None):",
           "quotes": [
             "params = query_params.copy()",
-            "headers[\"Time-Zone\"] = params.pop(\"Time-Zone\")"
+            "headers[\"Time-Zone\"] = params.pop(\"Time-Zone\")",
+            "request, error = self._request_executor.create_request(http_method, api_url, params=params, headers=headers)"
           ]
         },
         {
@@ -184,7 +219,9 @@
           "after": "def zcc_param_mapper(func):",
           "quotes": [
             "mapped_params[\"startDate\"] = validate_and_format_date(start_date)",
-            "mapped_params[\"Time-Zone\"] = validate_time_zone(time_zone)"
+            "mapped_params[\"Time-Zone\"] = validate_time_zone(time_zone)",
+            "mapped_params[\"endDate\"] = validate_and_format_date(end_date)",
+            "query_params.update(mapped_params)"
           ]
         }
       ]
@@ -200,7 +237,14 @@
           "quotes": [
             "query_params = kwargs.get(\"query_params\", {}) or {}",
             "query_params.pop(key, None)",
-            "query_params.update(mapped_params)"
+            "query_params.update(mapped_params)",
+            "def wrapper(self, *args, **kwargs):",
+            "mapped_params[\"osTypes\"] = \",\".join(mapped)",
+            "mapped_params[\"registrationTypes\"] = \",\".join(mapped)",
+            "\"os_types\",",
+            "\"registration_types\",",
+            "kwargs[\"query_params\"] = query_params",
+            "return func(self, *args, **kwargs)"
           ]
         },
         {
@@ -210,6 +254,20 @@
           "quotes": [
             "os_types = query_params.get(\"os_types\")",
             "params[\"osTypes\"] = \",\".join(os_types_resolved)",
+            "request, error = self._request_executor.create_request(http_method, api_url, params=params, headers={\"Accept\": \"*/*\"})",
+            "registration_types = query_params.get(\"registration_types\")",
+            "params[\"registrationTypes\"] = \",\".join(reg_types_resolved)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "after": "def download_service_status(self, query_params=None, filename: str = None):",
+          "quotes": [
+            "os_types = query_params.get(\"os_types\")",
+            "params[\"osTypes\"] = \",\".join(os_types_resolved)",
+            "registration_types = query_params.get(\"registration_types\")",
+            "params[\"registrationTypes\"] = \",\".join(reg_types_resolved)",
             "request, error = self._request_executor.create_request(http_method, api_url, params=params, headers={\"Accept\": \"*/*\"})"
           ]
         }
@@ -225,7 +283,8 @@
           "quotes": [
             "\"all\": 0,",
             "str(zcc_param_map[\"reg_type\"].get(rt.lower())) for rt in raw_reg if zcc_param_map[\"reg_type\"].get(rt.lower())",
-            "raise ValueError(\"Invalid `registration_type(s)` provided.\")"
+            "raise ValueError(\"Invalid `registration_type(s)` provided.\")",
+            "for rt in raw_reg if zcc_param_map[\"reg_type\"].get(rt.lower()) ] if not mapped: raise ValueError(\"Invalid `registration_type(s)` provided.\")"
           ]
         }
       ]

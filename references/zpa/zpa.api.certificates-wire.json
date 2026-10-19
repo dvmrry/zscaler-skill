@@ -119,6 +119,33 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
           "quotes": [
+            "mgmtConfigV1 = \"/zpa/mgmtconfig/v1/admin/customers/\"",
+            "mgmtConfigV2 = \"/zpa/mgmtconfig/v2/admin/customers/\"",
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfigV1+service.Client.GetCustomerID()+enrollmentCertEndpoint, nil, cert, v)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfigV1+service.Client.GetCustomerID()+enrollmentCertEndpoint+\"/csr/generate\", nil, cert, v)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfigV1+service.Client.GetCustomerID()+enrollmentCertEndpoint+\"/selfsigned/generate\", nil, cert, v)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+          "after": "func Update(",
+          "quotes": [
+            "path := fmt.Sprintf(\"%v/%v\", mgmtConfigV1+service.Client.GetCustomerID()+enrollmentCertEndpoint, certID)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+          "after": "func Delete(",
+          "quotes": [
+            "path := fmt.Sprintf(\"%v/%v\", mgmtConfigV1+service.Client.GetCustomerID()+enrollmentCertEndpoint, certID)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+          "quotes": [
             "relativeURL := mgmtConfigV2 + service.Client.GetCustomerID() + enrollmentCertEndpoint"
           ],
           "after": "func GetByName(ctx context.Context, service *zscaler.Service, certName string)"
@@ -157,8 +184,9 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
           "quotes": [
-            "enrollmentCertEndpoint+\"/csr/generate\"",
-            "enrollmentCertEndpoint+\"/selfsigned/generate\""
+            "mgmtConfigV1 = \"/zpa/mgmtconfig/v1/admin/customers/\"",
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfigV1+service.Client.GetCustomerID()+enrollmentCertEndpoint+\"/csr/generate\", nil, cert, v)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfigV1+service.Client.GetCustomerID()+enrollmentCertEndpoint+\"/selfsigned/generate\", nil, cert, v)"
           ]
         },
         {
@@ -247,7 +275,7 @@
       ]
     },
     "python-enrollment-model-gaps": {
-      "statement": "The Python EnrollmentCertificate model never reads `description` from a response and does not emit it in request_format, so a caller who serializes a model instance with request_format and sends the result loses the description; the SDK's own add and update methods send their keyword arguments and never call request_format. Its no-config branch also names an attribute `zrsaencryptedprivate_key`, which differs from the `zrsaencryptedprivatekey` that request_format reads, so request_format on an empty instance raises AttributeError.",
+      "statement": "The Python EnrollmentCertificate model never reads `description` from a response and does not emit it in request_format, so a caller who serializes a model instance with request_format and sends the result loses the description; the SDK's own add and update methods send their keyword arguments as the body. Its no-config branch also names an attribute `zrsaencryptedprivate_key`, which differs from the `zrsaencryptedprivatekey` that request_format reads, so request_format on an empty instance raises AttributeError.",
       "tier": "A",
       "evidence": [
         {
@@ -265,6 +293,50 @@
             "self.description = None",
             "\"name\": self.name,",
             "\"allowSigning\": self.allow_signing,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/enrollment_certificates.py",
+          "quotes": [
+            "if config: self.id = config[\"id\"] if config and \"id\" in config else None self.modified_time = config[\"modifiedTime\"] if config and \"modifiedTime\" in config else None self.creation_time = config[\"creationTime\"] if config and \"creationTime\" in config else None",
+            "self.modified_by = config[\"modifiedBy\"] if config and \"modifiedBy\" in config else None self.get_cname = config[\"getcName\"] if config and \"getcName\" in config else None self.valid_from_in_epoch_sec = ( config[\"validFromInEpochSec\"] if config and \"validFromInEpochSec\" in config else None )",
+            "self.valid_to_in_epoch_sec = config[\"validToInEpochSec\"] if config and \"validToInEpochSec\" in config else None self.certificate = config[\"certificate\"] if config and \"certificate\" in config else None self.issued_to = config[\"issuedTo\"] if config and \"issuedTo\" in config else None",
+            "self.issued_by = config[\"issuedBy\"] if config and \"issuedBy\" in config else None self.serial_no = config[\"serialNo\"] if config and \"serialNo\" in config else None self.name = config[\"name\"] if config and \"name\" in config else None",
+            "self.allow_signing = config[\"allowSigning\"] if config and \"allowSigning\" in config else None self.private_key_present = config[\"privateKeyPresent\"] if config and \"privateKeyPresent\" in config else None",
+            "self.client_cert_type = config[\"clientCertType\"] if config and \"clientCertType\" in config else None self.csr = config[\"csr\"] if config and \"csr\" in config else None self.parent_cert_id = config[\"parentCertId\"] if config and \"parentCertId\" in config else None",
+            "self.parent_cert_name = config[\"parentCertName\"] if config and \"parentCertName\" in config else None self.zrsaencryptedprivatekey = ( config[\"zrsaencryptedprivatekey\"] if config and \"zrsaencryptedprivatekey\" in config else None ) self.zrsaencryptedsessionkey = (",
+            "config[\"zrsaencryptedsessionkey\"] if config and \"zrsaencryptedsessionkey\" in config else None ) self.microtenant_id = config[\"microtenantId\"] if \"microtenantId\" in config else None self.root_certificate_id = config[\"rootCertificateId\"] if config and \"rootCertificateId\" in config else None"
+          ],
+          "note": "the complete config branch of __init__, which reads no description"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/enrollment_certificates.py",
+          "quotes": [
+            "current_obj_format = { \"id\": self.id, \"modifiedTime\": self.modified_time, \"creationTime\": self.creation_time, \"modifiedBy\": self.modified_by, \"getcName\": self.get_cname, \"validFromInEpochSec\": self.valid_from_in_epoch_sec, \"validToInEpochSec\": self.valid_to_in_epoch_sec,",
+            "\"certificate\": self.certificate, \"issuedTo\": self.issued_to, \"issuedBy\": self.issued_by, \"serialNo\": self.serial_no, \"name\": self.name, \"allowSigning\": self.allow_signing, \"privateKeyPresent\": self.private_key_present, \"clientCertType\": self.client_cert_type, \"csr\": self.csr,",
+            "\"parentCertId\": self.parent_cert_id, \"parentCertName\": self.parent_cert_name, \"zrsaencryptedprivatekey\": self.zrsaencryptedprivatekey, \"zrsaencryptedsessionkey\": self.zrsaencryptedsessionkey, \"rootCertificateId\": self.root_certificate_id, \"microtenantId\": self.microtenant_id, }"
+          ],
+          "note": "the complete request_format dict, which has no description key"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/enrollment_certificates.py",
+          "after": "def add_enrollment_cert(self, **kwargs)",
+          "quotes": [
+            "body = kwargs",
+            "request, error = self._request_executor.create_request(http_method, api_url, body=body)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/enrollment_certificates.py",
+          "after": "def update_enrollment(",
+          "quotes": [
+            "body = {}",
+            "body.update(kwargs)",
+            "request, error = self._request_executor.create_request(http_method, api_url, body, {}, {})"
           ]
         }
       ],
@@ -319,6 +391,16 @@
             "if time_zone_str not in pytz.all_timezones:"
           ],
           "after": "def validate_and_convert_times(start_time_str, end_time_str, time_zone_str)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+          "quotes": [
+            "func Create(ctx context.Context, service *zscaler.Service, cert *EnrollmentCert) (*EnrollmentCert, *http.Response, error) { v := new(EnrollmentCert) resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfigV1+service.Client.GetCustomerID()+enrollmentCertEndpoint, nil, cert, v)",
+            "func Update(ctx context.Context, service *zscaler.Service, certID string, cert *EnrollmentCert) (*http.Response, error) { path := fmt.Sprintf(\"%v/%v\", mgmtConfigV1+service.Client.GetCustomerID()+enrollmentCertEndpoint, certID) resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, nil, cert, nil)",
+            "(*GenerateSelfSignedCert, *http.Response, error) { v := new(GenerateSelfSignedCert) resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfigV1+service.Client.GetCustomerID()+enrollmentCertEndpoint+\"/selfsigned/generate\", nil, cert, v)"
+          ],
+          "note": "the Go write functions pass the struct straight to the request with no validation"
         }
       ],
       "conditions": "Statement changed per verifier: it said all Python writes send the epoch values; update_enrollment converts into kwargs after body has already copied them, and pops the raw keys from kwargs only, so its body keeps them (camel-cased by the executor, [[zpa.sdk-python.microtenant-scoping:body-camel]]). generate_self_signed was added because it converts like add_enrollment_cert. The Go statement rests on reading the enrollmentcert package, which converts nothing and validates nothing before the request. The OpenAPI schema says validFromInEpochSec is not applicable for put and post calls because the value is extracted from the certificate."
@@ -344,7 +426,11 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert_test.go",
           "quotes": [
-            "requiredNames := []string{\"Root\", \"Client\", \"Connector\", \"Service Edge\", \"Isolation Client\"}"
+            "service, err := tests.NewOneAPIClient()",
+            "certificates, _, err := GetAll(context.Background(), service)",
+            "// Check if GetAll returns specific certificate names",
+            "requiredNames := []string{\"Root\", \"Client\", \"Connector\", \"Service Edge\", \"Isolation Client\"}",
+            "t.Errorf(\"Expected certificate with name %s not found in GetAll response\", reqName)"
           ],
           "after": "func TestEnrollmentCert(t *testing.T)"
         }
@@ -391,6 +477,14 @@
             "\"PUT\", path, nil, cert, nil)",
             "\"DELETE\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, nil, nil)"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+          "after": "func GetAll(ctx context.Context, service *zscaler.Service)",
+          "quotes": [
+            "list, resp, err := common.GetAllPagesGenericWithCustomFilters[EnrollmentCert](ctx, service.Client, relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()})"
+          ]
         }
       ],
       "conditions": "Passing nil does not mean Create and Update send no microtenantId: NewRequestDo still adds one from the body, then ZPA_MICROTENANT_ID, then the client configuration ([[zpa.terraform.data-source-selection:inject-precedence-env-over-config]]), never from the service-level microtenant that Get, Delete and GetAll use. Whether a microtenant-scoped create or update lands in the wrong scope is not shown; the struct carries a microtenantId field in the body."
@@ -431,6 +525,223 @@
           }
         },
         {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1clientlessCertificate~1issued/get/responses/200",
+          "expect": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "properties": {
+                    "currentCount": {
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "list": {
+                      "items": {
+                        "properties": {
+                          "cName": {
+                            "type": "string"
+                          },
+                          "certChain": {
+                            "type": "string"
+                          },
+                          "certificate": {
+                            "description": "The certificate text is in PEM format.",
+                            "type": "string"
+                          },
+                          "creationTime": {
+                            "format": "int32",
+                            "type": "integer"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "format": "int64",
+                            "type": "integer"
+                          },
+                          "issuedBy": {
+                            "type": "string"
+                          },
+                          "issuedTo": {
+                            "type": "string"
+                          },
+                          "microtenantId": {
+                            "format": "int64",
+                            "type": "integer"
+                          },
+                          "microtenantName": {
+                            "type": "string"
+                          },
+                          "modifiedBy": {
+                            "format": "int64",
+                            "type": "integer"
+                          },
+                          "modifiedTime": {
+                            "format": "int32",
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "publicKey": {
+                            "type": "string"
+                          },
+                          "san": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "serialNo": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "validFromInEpochSec": {
+                            "format": "int64",
+                            "type": "integer"
+                          },
+                          "validToInEpochSec": {
+                            "format": "int64",
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "certificate",
+                          "name"
+                        ],
+                        "title": "Certificate"
+                      },
+                      "type": "array"
+                    },
+                    "totalCount": {
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "totalPages": {
+                      "format": "int32",
+                      "type": "integer"
+                    }
+                  },
+                  "title": "PageListBACertificate"
+                }
+              }
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1certificate~1issued/get/responses/200",
+          "expect": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "properties": {
+                    "currentCount": {
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "list": {
+                      "items": {
+                        "properties": {
+                          "cName": {
+                            "type": "string"
+                          },
+                          "certChain": {
+                            "type": "string"
+                          },
+                          "certificate": {
+                            "description": "The certificate text is in PEM format.",
+                            "type": "string"
+                          },
+                          "creationTime": {
+                            "format": "int32",
+                            "type": "integer"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "format": "int64",
+                            "type": "integer"
+                          },
+                          "issuedBy": {
+                            "type": "string"
+                          },
+                          "issuedTo": {
+                            "type": "string"
+                          },
+                          "microtenantId": {
+                            "format": "int64",
+                            "type": "integer"
+                          },
+                          "microtenantName": {
+                            "type": "string"
+                          },
+                          "modifiedBy": {
+                            "format": "int64",
+                            "type": "integer"
+                          },
+                          "modifiedTime": {
+                            "format": "int32",
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "publicKey": {
+                            "type": "string"
+                          },
+                          "san": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "serialNo": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "validFromInEpochSec": {
+                            "format": "int64",
+                            "type": "integer"
+                          },
+                          "validToInEpochSec": {
+                            "format": "int64",
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "certificate",
+                          "name"
+                        ],
+                        "title": "Certificate"
+                      },
+                      "type": "array"
+                    },
+                    "totalCount": {
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "totalPages": {
+                      "format": "int32",
+                      "type": "integer"
+                    }
+                  },
+                  "title": "PageListBACertificate"
+                }
+              }
+            }
+          },
+          "note": "the same response content as the deprecated clientlessCertificate/issued operation"
+        },
+        {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/bacertificate/zpa_ba_certificate.go",
           "quotes": [
@@ -449,14 +760,15 @@
       "conditions": "Statement changed per verifier: it said the contract names certificate/issued as the path to use, but the deprecated operation's text names no replacement. That the two 200 responses are identical was read by comparing the two response objects in the OpenAPI document."
     },
     "ba-delete-then-get-400": {
-      "statement": "The Go integration test expects a Get of a Browser Access certificate after its deletion to fail with an error containing 400, not a not-found error.",
+      "statement": "The Go integration test expects a Get of a Browser Access certificate after its deletion to fail with an error containing 400.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/bacertificate/zpa_ba_certificate_test.go",
           "quotes": [
-            "if err == nil || !strings.Contains(err.Error(), \"400\") {"
+            "_, err = Delete(context.Background(), service, createdCert.ID)",
+            "// Verify deletion _, _, err = Get(context.Background(), service, createdCert.ID) if err == nil || !strings.Contains(err.Error(), \"400\") {"
           ]
         }
       ],
@@ -470,6 +782,7 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/bacertificate/zpa_ba_certificate_test.go",
           "quotes": [
+            "certPEM := pem.EncodeToMemory(&pem.Block{Type: \"CERTIFICATE\", Bytes: certBytes})",
             "keyPEM := pem.EncodeToMemory(&pem.Block{Type: \"RSA PRIVATE KEY\", Bytes: x509.MarshalPKCS1PrivateKey(privateKey)})",
             "fullCert := string(certPEM) + string(keyPEM)",
             "CertBlob:    \"\", // Invalid as it's empty"
@@ -479,6 +792,22 @@
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1certificate/post/requestBody/content/application~1json/schema/properties/certBlob",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1certificate/post/requestBody/content/application~1json/schema/properties/name",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1certificate/post/requestBody/content/application~1json/schema/properties/description",
           "expect": {
             "type": "string"
           }
@@ -493,8 +822,24 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/bacertificate/zpa_ba_certificate.go",
           "quotes": [
-            "func Delete(ctx context.Context, service *zscaler.Service, baCertificateID string) (*http.Response, error) {"
-          ]
+            "func Get(ctx context.Context, service *zscaler.Service, baCertificateID string) (*BaCertificate, *http.Response, error) {",
+            "func GetIssuedByName(ctx context.Context, service *zscaler.Service, CertName string) (*BaCertificate, *http.Response, error) {",
+            "func Create(ctx context.Context, service *zscaler.Service, baCertificate BaCertificate) (*BaCertificate, *http.Response, error) {",
+            "func Delete(ctx context.Context, service *zscaler.Service, baCertificateID string) (*http.Response, error) {",
+            "func GetAll(ctx context.Context, service *zscaler.Service) ([]BaCertificate, *http.Response, error) {"
+          ],
+          "note": "the package's complete function list, with no Update"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1certificate~1{certificateId}",
+          "expect_absent": [
+            "put",
+            "post",
+            "patch"
+          ],
+          "note": "the path object holds only get and delete"
         },
         {
           "source": "sdk-python",
@@ -506,7 +851,7 @@
           "after": "def update_certificate(self, certificate_id: str, **kwargs)"
         }
       ],
-      "conditions": "The absence of an Update in the Go package and of put in the OpenAPI path was read from the whole package and path object.",
+      "conditions": "The absence of an Update in the Go package follows from its complete function list quoted above (zpa_ba_certificate.go is the package's only non-test file); the OpenAPI path object has no put.",
       "gaps": [
         "ba-certificate-put-valid"
       ]
@@ -526,7 +871,16 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/models/certificates.py",
           "quotes": [
+            "self.cname = config[\"cName\"] if \"cName\" in config else None",
             "\"cName\": self.cname,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/certificates.py",
+          "quotes": [
+            "from zscaler.zpa.models.certificates import Certificate",
+            "def get_certificate(self, certificate_id: str, query_params: Optional[dict] = None) -> APIResult[dict]:"
           ]
         },
         {

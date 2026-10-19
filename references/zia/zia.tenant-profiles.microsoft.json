@@ -86,7 +86,7 @@
   ],
   "claims": {
     "two-versions": {
-      "statement": "A Microsoft Login Services profile is Version 1 or Version 2. Version 1 takes a Tenant Directory ID plus Office 365 tenant names or IDs. Version 2 takes a single Tenant Directory ID:Policy ID value.",
+      "statement": "A Microsoft Login Services profile is Version 1 or Version 2. Version 1 takes a Tenant Directory ID plus Office 365 tenant names or IDs. Version 2 takes a Tenant Directory ID:Policy ID value, the tenant directory ID followed by the policy ID with a colon in between.",
       "tier": "A",
       "evidence": [
         {
@@ -95,7 +95,11 @@
           "quotes": [
             "You can configure the following tenant profile types for Microsoft Login Services:",
             "In the Tenant Directory ID field, enter the tenant directory ID",
-            "In the Tenant Directory ID:Policy ID field, enter the tenant directory ID of your organization"
+            "In the Tenant Directory ID:Policy ID field, enter the tenant directory ID of your organization",
+            "Version 1 - To configure Version 1 tenant profile for Microsoft Login Services:",
+            "In the Office 365 Tenants or Tenant IDs field, enter the tenant names or tenant IDs",
+            "Version 2 - In the Tenant Directory ID:Policy ID field",
+            "followed by the policy ID with a colon in between (e.g., f4c77d8d-6bb8-41a2-a3c9-69dd3edaa158:quadsj) to configure the Version 2 tenant profile for Microsoft Login Services."
           ]
         }
       ],
@@ -112,7 +116,8 @@
           "path": "adding-tenant-profiles.json",
           "quotes": [
             "Policy ID: Call the following API endpoint: /crosstenantaccesspolicy/default. Use the id field value in the Response preview.",
-            "Tenant Directory ID: Log in as an administrator to the Azure Active Directory portal, select Azure Active Directory, and then select Properties."
+            "Tenant Directory ID: Log in as an administrator to the Azure Active Directory portal, select Azure Active Directory, and then select Properties.",
+            "to configure the Version 2 tenant profile for Microsoft Login Services. To learn more, refer to the Microsoft documentation. - The Tenant Directory ID and Policy ID are GUIDs from your tenant on the Azure Active Directory portal. You can find these GUIDs as follows:"
           ]
         }
       ]
@@ -139,7 +144,8 @@
           "path": "adding-tenant-profiles.json",
           "quotes": [
             "This field is set to Yes by default.",
-            "select No to block the personal Office 365 domains in the tenant profile."
+            "select No to block the personal Office 365 domains in the tenant profile.",
+            "The Zscaler service inserts the sec-Restrict-Tenant-Access-Policy header when this field is set as No and users attempt to sign in to Microsoft personal account. This header is inserted only for login.live.com traffic."
           ]
         }
       ]
@@ -205,7 +211,11 @@
           "path": "zscaler/zia/tenancy_restriction_profile.py",
           "quotes": [
             "item_type_primary='TENANT_RESTRICTION_TENANT_DIRECTORY',",
-            "item_type_secondary=\"TENANT_RESTRICTION_TENANT_NAME\","
+            "item_type_secondary=\"TENANT_RESTRICTION_TENANT_NAME\",",
+            "Add a new restricted tenant profile",
+            "app_type='MSLOGINSERVICES',",
+            "item_data_primary=[\"76b66e9c-201a-49dc-bb7e-e9d77604a4c2\"],",
+            "item_data_secondary=[ \"securitygeek.dev\", \"securitygeekio.ca\"]"
           ],
           "after": "def add_restriction_profile"
         }

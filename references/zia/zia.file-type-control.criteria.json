@@ -105,7 +105,7 @@
       ]
     },
     "empty-criteria-ignored": {
-      "statement": "For cloud applications, devices, device groups, device trust level and the file size bounds, selecting no value ignores the criterion. File Types is the one required criterion.",
+      "statement": "For cloud applications, devices, device groups, device trust level and the file size bounds, selecting no value ignores the criterion. File Types is a required criterion.",
       "tier": "A",
       "binds": [
         "zia/file-type-rules#fileTypes",
@@ -121,7 +121,9 @@
             "Entering no value ignores the criteria in the policy evaluation.",
             "Devices: Select the devices for which you want to apply the rule. You can also search for a device. Selecting no value ignores the criterion in the policy evaluation.",
             "Unknown evaluation applies to all traffic. Selecting no value ignores the criterion in the policy evaluation.",
-            "Select Cloud Browser Isolation or No Client Connector to apply the rule to isolation traffic or to traffic that is not tunneled through Zscaler Client Connector, respectively. You can also search for a device group. Selecting no value ignores the criterion in the policy evaluation."
+            "Select Cloud Browser Isolation or No Client Connector to apply the rule to isolation traffic or to traffic that is not tunneled through Zscaler Client Connector, respectively. You can also search for a device group. Selecting no value ignores the criterion in the policy evaluation.",
+            "Device Trust Level: Select the device trust level values (High Trust, Medium Trust, Low Trust, or Unknown) to which the rule applies.",
+            "Minimum/Maximum File Size: Enter a number value between 0 and 409,600 (KB) to apply a minimum and a maximum file size limit."
           ]
         }
       ]
@@ -285,7 +287,10 @@
           "path": "zia/resource_zia_file_type_control_rules.go",
           "quotes": [
             "\"attribute 'active_content' can only be enabled when 'file_types' contains only the following: %v. Invalid value: %s\",",
-            "\"attribute 'unscannable' cannot be enabled when 'active_content' is enabled\","
+            "\"attribute 'unscannable' cannot be enabled when 'active_content' is enabled\",",
+            "CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {",
+            "allowedFileTypes := []string{ \"FTCATEGORY_MS_WORD\", \"FTCATEGORY_MS_POWERPOINT\", \"FTCATEGORY_PDF_DOCUMENT\", \"FTCATEGORY_MS_EXCEL\", }",
+            "\"attribute 'active_content' requires 'file_types' to be set with one of the following values: %v\","
           ]
         }
       ],

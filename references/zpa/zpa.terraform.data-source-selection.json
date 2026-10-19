@@ -43,7 +43,7 @@
       "heading": "Microtenant scope"
     },
     {
-      "text": "{{microtenant-input-computed-only-pra-approval}} {{microtenant-input-unavailable-pattern}} {{managed-browser-profile-never-scoped}} {{reads-run-unscoped-wrong-microtenant}} What a read with no microtenant returns is open {{gap:api-unscoped-read-scope}}."
+      "text": "{{microtenant-input-computed-only-pra-approval}} {{microtenant-input-pra-approval-not-settable}} {{microtenant-input-unavailable-pattern}} {{managed-browser-profile-never-scoped}} {{reads-run-unscoped-wrong-microtenant}} What a read with no microtenant returns is open {{gap:api-unscoped-read-scope}}."
     },
     {
       "label": "Request microtenant precedence.",
@@ -67,7 +67,8 @@
       "uses": [
         "microtenant-input-unavailable-pattern",
         "microtenant-input-computed-only-pra-approval",
-        "reads-run-unscoped-wrong-microtenant"
+        "reads-run-unscoped-wrong-microtenant",
+        "microtenant-input-pra-approval-not-settable"
       ]
     },
     {
@@ -152,7 +153,9 @@
           "after": "func dataSourceCBIRegionsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "if resp == nil && nameOk && name != \"\" {",
-            "// Check if searching by name (only if ID search didn't find anything)"
+            "// Check if searching by name (only if ID search didn't find anything)",
+            "allRegions, _, err := cbiregions.GetAll(ctx, service)",
+            "for _, region := range allRegions { if region.ID == id { resp = &region break } } }"
           ]
         }
       ],
@@ -177,7 +180,9 @@
           "after": "func dataSourceIsolationProfileRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "if resp == nil && nameOk && name != \"\" {",
-            "// Check if searching by name (only if ID search didn't find anything)"
+            "// Check if searching by name (only if ID search didn't find anything)",
+            "allProfiles, _, err := isolationprofile.GetAll(ctx, service)",
+            "for _, profile := range allProfiles { if profile.ID == id { resp = &profile break } } }"
           ]
         }
       ],
@@ -240,7 +245,8 @@
           ],
           "after": "fetching default schedule\")",
           "quotes": [
-            "appconnectorschedule.GetSchedule(ctx, service)"
+            "appconnectorschedule.GetSchedule(ctx, service)",
+            "if resp != nil { d.SetId(resp.ID) _ = d.Set(\"customer_id\", resp.CustomerID)"
           ]
         },
         {
@@ -316,7 +322,8 @@
           "quotes": [
             "resp, _, err := applicationsegmentbytype.GetByApplicationType(ctx, service, name, applicationType, true)",
             "// Assuming we are only interested in the first result for simplicity",
-            "appSegment := resp[0]"
+            "appSegment := resp[0]",
+            "name := d.Get(\"name\").(string)"
           ]
         },
         {
@@ -328,8 +335,44 @@
           ],
           "after": "func GetByApplicationType(ctx context.Context, service *zscaler.Service, appName, applicationType string, expandAll bool) ([]AppSegmentBaseAppDto, *http.Response, error) {",
           "quotes": [
-            "query.Set(\"search\", appName)",
+            "if appName != \"\" { query.Set(\"search\", appName) }",
+            "if appName != \"\" { filter.Search = appName }",
             "list, resp, err := common.GetAllPagesGenericWithCustomFilters[AppSegmentBaseAppDto](ctx, service.Client, constructedURL, filter)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbytype/applicationsegmentbytype.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "if isZPAEndpoint(relativeURL) && !isSCIMEndpoint(relativeURL) { filters.Search = convertZPASearchToFilter(filters.Search)",
+            "return strings.Contains(url, \"/zpa/\") || strings.Contains(url, \"/mgmtconfig/\")"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "func convertZPASearchToFilter(",
+          "quotes": [
+            "filterFormat := fmt.Sprintf(\"name+EQ+%s\", sanitizedValue)"
           ]
         }
       ],
@@ -379,7 +422,7 @@
       ]
     },
     "microtenant-input-computed-only-pra-approval": {
-      "statement": "The PRA approval data source declares `microtenant_id` as Computed only, so it cannot be set in configuration, yet its read branches on `d.Get(\"microtenant_id\")` to scope the service to a microtenant.",
+      "statement": "The PRA approval data source declares `microtenant_id` as Computed only, with no Optional, yet its read branches on `d.Get(\"microtenant_id\")` to scope the service to a microtenant.",
       "tier": "A",
       "evidence": [
         {
@@ -391,7 +434,7 @@
           ],
           "after": "\"microtenant_id\": {",
           "quotes": [
-            "Computed:    true,"
+            "Type: schema.TypeString, Computed: true, Description: \"The unique identifier of the Microtenant for the ZPA tenant."
           ]
         },
         {
@@ -413,6 +456,14 @@
           "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
         }
       ]
+    },
+    "microtenant-input-pra-approval-not-settable": {
+      "statement": "A computed-only attribute cannot be set in configuration, so that microtenant branch cannot be driven from the configuration.",
+      "tier": "B",
+      "derived_from": [
+        "microtenant-input-computed-only-pra-approval"
+      ],
+      "conditions": "Rests on Terraform plugin SDK schema behavior for an attribute that is Computed without Optional or Required, which is not a captured source. Split out of microtenant-input-computed-only-pra-approval."
     },
     "microtenant-input-unavailable-pattern": {
       "statement": "The same dead input recurs: `microtenant_id` is Computed only for the BA certificate, PRA approval, PRA console, PRA credential controller, PRA credential pool, PRA portal controller and User Portal AUP data sources, and is missing from the top-level schema for application segment inspection, multimatch bulk, service edge group and trusted network, while each of those reads `d.Get(\"microtenant_id\")`.",
@@ -485,8 +536,22 @@
           ],
           "after": "func InjectMicrotentantID(body interface{}, q url.Values, microtenantIDFromConfig string) url.Values {",
           "quotes": [
-            "microTenantID = getMicrotenantIDFromEnvVar()",
+            "if q.Has(\"microtenantId\") && q.Get(\"microtenantId\") != \"\" { return q }",
+            "microTenantID := getMicrotenantIDFromBody(body) if microTenantID != \"\" { q.Add(\"microtenantId\", microTenantID) return q }",
+            "microTenantID = getMicrotenantIDFromEnvVar() if microTenantID != \"\" {",
             "microTenantID = microtenantIDFromConfig"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/common/zpa.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "func getMicrotenantIDFromEnvVar() string {",
+          "quotes": [
+            "return os.Getenv(\"ZPA_MICROTENANT_ID\")"
           ]
         },
         {
@@ -534,7 +599,22 @@
           "after": "func getMicrotenantIDFromBody(body interface{}) string {",
           "quotes": [
             "if microTenantID, ok := dataMap[\"microtenantId\"]; ok && microTenantID != nil && microTenantID != \"\" {",
-            "return fmt.Sprintf(\"%v\", microTenantID)"
+            "return fmt.Sprintf(\"%v\", microTenantID)",
+            "dataMap := map[string]interface{}{} err = json.Unmarshal(d, &dataMap)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/common/zpa.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "func InjectMicrotentantID(body interface{}, q url.Values, microtenantIDFromConfig string) url.Values {",
+          "quotes": [
+            "microTenantID := getMicrotenantIDFromBody(body) if microTenantID != \"\" { q.Add(\"microtenantId\", microTenantID) return q }",
+            "microTenantID = getMicrotenantIDFromEnvVar()",
+            "microTenantID = microtenantIDFromConfig"
           ]
         }
       ],
@@ -562,9 +642,7 @@
           ],
           "after": "mt, resp, err := getMicroTenantByName(ctx, client, *filters.MicroTenantName)",
           "quotes": [
-            "if err == nil {",
-            "return nil, resp, err",
-            "filters.MicroTenantID = &mt.ID"
+            "if err == nil { return nil, resp, err } if mt != nil { filters.MicroTenantID = &mt.ID }"
           ]
         }
       ],
@@ -588,7 +666,7 @@
           ],
           "after": "mt, resp, err := getMicroTenantByName(ctx, client, *filters.MicroTenantName)",
           "quotes": [
-            "if mt != nil {",
+            "if err == nil { return nil, resp, err } if mt != nil { filters.MicroTenantID = &mt.ID } }",
             "// Ensure Search term is sanitized correctly (prevent double encoding)"
           ]
         },
@@ -601,7 +679,31 @@
           ],
           "after": "// Build pagination struct with search filter (already converted to filter format)",
           "quotes": [
-            "MicroTenantID: filters.MicroTenantID,"
+            "MicroTenantID: filters.MicroTenantID,",
+            "resp, err := client.NewRequestDo(ctx, \"GET\", relativeURL, pagination, nil, &paged)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type Pagination struct {",
+          "quotes": [
+            "MicroTenantID *string `url:\"microtenantId,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "q = common.InjectMicrotentantID(body, q, client.oauth2Credentials.Zscaler.Client.MicrotenantID)"
           ]
         }
       ],
@@ -651,7 +753,8 @@
           ],
           "quotes": [
             "if idOk && id != \"\" {",
-            "} else if nameOk && name != \"\" {"
+            "} else if nameOk && name != \"\" {",
+            "\"id\": { Type: schema.TypeString, Optional: true, }, \"name\": { Type: schema.TypeString, Optional: true, },"
           ]
         },
         {
@@ -663,7 +766,8 @@
           ],
           "quotes": [
             "if idExists && id != \"\" {",
-            "} else if nameExists && name != \"\" && idpResp != nil {"
+            "} else if nameExists && name != \"\" && idpResp != nil {",
+            "\"id\": { Type: schema.TypeString, Optional: true, }, \"name\": { Type: schema.TypeString, Optional: true, },"
           ]
         },
         {
@@ -675,7 +779,8 @@
           ],
           "quotes": [
             "if idOk && id != \"\" {",
-            "} else if nameOk && name != \"\" {"
+            "} else if nameOk && name != \"\" {",
+            "\"id\": { Type: schema.TypeString, Optional: true, Description: \"The unique identifier of the location.\", }, \"name\": { Type: schema.TypeString, Optional: true, Description: \"Name of the location.\", },"
           ]
         }
       ]

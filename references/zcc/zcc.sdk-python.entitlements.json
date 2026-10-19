@@ -74,7 +74,8 @@
           "source": "sdk-python",
           "path": "zscaler/zcc/models/zpagroupentitlements.py",
           "quotes": [
-            "self.group_list = ZscalerCollection.form_list(config[\"groupList\"] if \"groupList\" in config else [], str)"
+            "self.group_list = ZscalerCollection.form_list(config[\"groupList\"] if \"groupList\" in config else [], str)",
+            "config[\"deviceGroupList\"] if \"deviceGroupList\" in config else [], str"
           ]
         },
         {
@@ -82,6 +83,14 @@
           "path": "zscaler/oneapi_collection.py",
           "quotes": [
             "collection[index] = data_type(collection[index])"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/zdxgroupentitlements.py",
+          "quotes": [
+            "config[\"upmDeviceGroupList\"] if \"upmDeviceGroupList\" in config else [], str",
+            "self.upm_group_list = ZscalerCollection.form_list(config[\"upmGroupList\"] if \"upmGroupList\" in config else [], str)"
           ]
         }
       ]
@@ -103,7 +112,17 @@
           "path": "zscaler/zcc/entitlements.py",
           "after": "def update_zpa_group_entitlement(self) -> APIResult[dict]:",
           "quotes": [
-            "body = {}"
+            "body = {}",
+            "request, error = self._request_executor.create_request(http_method, api_url, body, {}, {})"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/entitlements.py",
+          "after": "def update_zdx_group_entitlement(self) -> APIResult[dict]:",
+          "quotes": [
+            "body = {}",
+            "request, error = self._request_executor.create_request(http_method, api_url, body, {}, {})"
           ]
         }
       ]

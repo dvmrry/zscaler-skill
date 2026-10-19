@@ -88,14 +88,25 @@
           "path": "zscaler/zia/services/scim_api/scim_user_api.go",
           "quotes": [
             "func GetAllUsers(ctx context.Context, service *zscaler.ScimZIAService)",
-            "resp, err := service.Client.DoRequest(ctx, http.MethodPut, relativeURL, scimUser, nil)"
+            "resp, err := service.Client.DoRequest(ctx, http.MethodPut, relativeURL, scimUser, nil)",
+            "func GetUser(ctx context.Context, service *zscaler.ScimZIAService, userID string)",
+            "func GetUserByName(ctx context.Context, service *zscaler.ScimZIAService, displayName string)",
+            "resp, err := service.Client.DoRequest(ctx, http.MethodPost, relativeURL, scimUser, v)",
+            "func DeleteUser(ctx context.Context, service *zscaler.ScimZIAService, userID string)",
+            "resp, err := service.Client.DoRequest(ctx, http.MethodDelete, relativeURL, nil, nil)"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zia/services/scim_api/scim_group_api.go",
           "quotes": [
-            "func GetAllGroups(ctx context.Context, service *zscaler.ScimZIAService)"
+            "func GetAllGroups(ctx context.Context, service *zscaler.ScimZIAService)",
+            "func GetGroup(ctx context.Context, service *zscaler.ScimZIAService, groupID string)",
+            "func GetGroupByName(ctx context.Context, service *zscaler.ScimZIAService, displayName string)",
+            "resp, err := service.Client.DoRequest(ctx, http.MethodPost, relativeURL, group, v)",
+            "resp, err := service.Client.DoRequest(ctx, http.MethodPut, relativeURL, scimGroup, nil)",
+            "func DeleteGroup(ctx context.Context, service *zscaler.ScimZIAService, groupID string)",
+            "resp, err := service.Client.DoRequest(ctx, http.MethodDelete, relativeURL, nil, nil)"
           ]
         }
       ]
@@ -130,9 +141,8 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/scim_api/scim_user_api.go",
           "quotes": [
-            "UserName string `json:\"userName,omitempty\"`",
-            "DisplayName string `json:\"displayName,omitempty\"`",
-            "Meta *Meta `json:\"meta,omitempty\"`"
+            "type SCIMUser struct { Schemas []string `json:\"schemas,omitempty\"` ID string `json:\"id,omitempty\"` UserName string `json:\"userName,omitempty\"` DisplayName string `json:\"displayName,omitempty\"`",
+            "EnterpriseExtension *EnterpriseUser `json:\"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User,omitempty\"` Meta *Meta `json:\"meta,omitempty\"` }"
           ]
         }
       ]
@@ -154,7 +164,16 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/scim_api/scim_user_api.go",
           "quotes": [
-            "func GetAllUsers(ctx context.Context, service *zscaler.ScimZIAService) ([]SCIMGroup, *http.Response, error) {"
+            "func GetAllUsers(ctx context.Context, service *zscaler.ScimZIAService) ([]SCIMGroup, *http.Response, error) {",
+            "type SCIMUser struct { Schemas []string `json:\"schemas,omitempty\"` ID string `json:\"id,omitempty\"` UserName string `json:\"userName,omitempty\"`",
+            "EnterpriseExtension *EnterpriseUser `json:\"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/scim_api/scim_group_api.go",
+          "quotes": [
+            "type SCIMGroup struct { Schemas []string `json:\"schemas,omitempty\"` ID string `json:\"id,omitempty\"` DisplayName string `json:\"displayName,omitempty\"` ExternalID string `json:\"externalId,omitempty\"` Members []SCIMGroupMember `json:\"members,omitempty\"` Meta *Meta `json:\"meta,omitempty\"` }"
           ]
         }
       ],
@@ -173,7 +192,19 @@
           "path": "zscaler/zia/services/scim_api/scim_user_api.go",
           "quotes": [
             "func GetUserByName(ctx context.Context, service *zscaler.ScimZIAService, displayName string)",
-            "return strings.EqualFold(g.DisplayName, displayName)"
+            "return strings.EqualFold(g.DisplayName, displayName)",
+            "common.GetAllPagesScimPostWithSearch( ctx, service.Client, \"/Users/.search\"",
+            "return &list[0], resp, nil"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/scim_api/scim_group_api.go",
+          "quotes": [
+            "func GetGroupByName(ctx context.Context, service *zscaler.ScimZIAService, displayName string)",
+            "common.GetAllPagesScimPostWithSearch( ctx, service.Client, \"/Groups/.search\"",
+            "return strings.EqualFold(g.DisplayName, displayName)",
+            "return &list[0], resp, nil"
           ]
         }
       ]
@@ -188,7 +219,8 @@
           "quotes": [
             "if itemsPerPage <= 0 || itemsPerPage > 100 {",
             "if startIndex+itemsPerPage > result.TotalResults || len(result.Resources) == 0 {",
-            "startIndex += itemsPerPage"
+            "startIndex += itemsPerPage",
+            "resp, err := client.DoRequest(ctx, http.MethodPost, searchEndpoint, body, &result)"
           ],
           "after": "func GetAllPagesScimPostWithSearch[T any]("
         },
@@ -196,7 +228,17 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/scim_api/scim_group_api.go",
           "quotes": [
-            "100, // max per Zscaler SCIM API"
+            "100, // max per Zscaler SCIM API",
+            "common.GetAllPagesScimPostWithSearch( ctx, service.Client, \"/Groups/.search\"",
+            "common.GetAllPagesScimPostWithSearch[SCIMGroup]( ctx, service.Client, \"/Groups/.search\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/scim_api/scim_user_api.go",
+          "quotes": [
+            "common.GetAllPagesScimPostWithSearch( ctx, service.Client, \"/Users/.search\"",
+            "common.GetAllPagesScimPostWithSearch[SCIMGroup]( ctx, service.Client, \"/Users/.search\""
           ]
         }
       ]
@@ -221,7 +263,17 @@
           "quotes": [
             "ZIA_SCIM_API_TOKEN = \"ZIA_SCIM_API_TOKEN\"",
             "rawURL := fmt.Sprintf(\"https://scim.%s.net/%s/scim\", cloud, globalScimConfig.ZIAScim.Client.ZIAScimTenantID)",
-            "req.Header.Add(\"Content-Type\", \"application/scim+json\")"
+            "req.Header.Add(\"Content-Type\", \"application/scim+json\")",
+            "ZIA_SCIM_TENANT_ID = \"ZIA_SCIM_TENANT_ID\"",
+            "type ScimZiaClient struct { ScimConfig *ZIAScimConfig }",
+            "req.Header.Add(\"Authorization\", fmt.Sprintf(\"Bearer %s\", c.ScimConfig.AuthToken))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/service.go",
+          "quotes": [
+            "type ScimZIAService struct { Config *zia.ScimConfiguration Client *zia.ScimZiaClient }"
           ]
         }
       ]

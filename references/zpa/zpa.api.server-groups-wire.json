@@ -114,7 +114,7 @@
   ],
   "claims": {
     "put-returns-no-content": {
-      "statement": "The API answers a PUT on a server group and on an application server with 204 No Content. The Go server group update passes no response target and returns only the HTTP response, and the Python update_server returns a stub holding only the id, so the updated state must be read back with a GET.",
+      "statement": "The API answers a PUT on a server group and on an application server with 204 No Content. The Go server group update passes no response target and returns only the HTTP response, and the Python update_server returns a stub holding only the id, so neither call returns the updated object.",
       "tier": "A",
       "evidence": [
         {
@@ -165,6 +165,14 @@
             "ZscalerManaged bool `json:\"zscalerManaged,omitempty\"`"
           ],
           "after": "type ServerGroup struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+serverGroupEndpoint, common.Filter{MicroTenantID: service.MicroTenantID()}, serverGroup, &v)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, serverGroup, nil)"
+          ]
         }
       ],
       "conditions": "The wire shape only. What the API does with a PUT that carries an empty or missing list is not established here; see gap servers-omitted-update-effect in zpa.server-groups.update-payload. The enabled, dynamicDiscovery and extranetEnabled tags are covered in shared.sdk-go.zero-value-writes."
@@ -185,11 +193,19 @@
             "ModifiedTime string `json:\"modifiedTime\"`"
           ],
           "after": "type ApplicationServer struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
+          "after": "type ServerGroup struct {",
+          "quotes": [
+            "Servers []appservercontroller.ApplicationServer `json:\"servers\"`"
+          ]
         }
       ]
     },
     "server-group-package-unused-copies": {
-      "statement": "The Go servergroup package defines its own ApplicationServer (address tagged omitempty), AppConnectorGroups (latitude and longitude as strings) and Connectors (latitude and longitude as float64) types, but the ServerGroup type does not use them: its servers list is the appservercontroller type and its connector groups are the appconnectorgroup type. Only a ZIA test file and the examples README refer to the servergroup AppConnectorGroups copy, and both assign it to ServerGroup.AppConnectorGroups, which no longer has that type.",
+      "statement": "The Go servergroup package defines its own ApplicationServer (address tagged omitempty), AppConnectorGroups (latitude and longitude as strings) and Connectors (latitude and longitude as float64) types, but the ServerGroup type does not use them: its servers list is the appservercontroller type and its connector groups are the appconnectorgroup type. A ZIA test file and the examples README refer to the servergroup AppConnectorGroups copy, and both assign it to ServerGroup.AppConnectorGroups, which no longer has that type.",
       "tier": "A",
       "evidence": [
         {
@@ -204,7 +220,8 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
           "quotes": [
-            "Latitude string `json:\"latitude,omitempty\"`"
+            "Latitude string `json:\"latitude,omitempty\"`",
+            "Longitude string `json:\"longitude,omitempty\"`"
           ],
           "after": "type AppConnectorGroups struct {"
         },
@@ -212,7 +229,8 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
           "quotes": [
-            "Latitude float64 `json:\"latitude,omitempty\"`"
+            "Latitude float64 `json:\"latitude,omitempty\"`",
+            "Longitude float64 `json:\"longitude,omitempty\"`"
           ],
           "after": "type Connectors struct {"
         },
@@ -281,7 +299,9 @@
           "path": "zscaler/zpa/services/appservercontroller/zpa_app_server_controller.go",
           "quotes": [
             "MicroTenantID string `json:\"microtenantId,omitempty\"`",
-            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+appServerControllerEndpoint, common.Filter{MicroTenantID: service.MicroTenantID()}, server, &v)"
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+appServerControllerEndpoint, common.Filter{MicroTenantID: service.MicroTenantID()}, server, &v)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, appServer, nil)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"DELETE\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, nil, nil)"
           ],
           "after": "type ApplicationServer struct {"
         },
@@ -289,9 +309,20 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/servers.py",
           "quotes": [
-            "params = {\"microtenantId\": microtenant_id} if microtenant_id else {}"
+            "params = {\"microtenantId\": microtenant_id} if microtenant_id else {}",
+            "microtenant_id = body.get(\"microtenant_id\", None)"
           ],
           "after": "def add_server(self, **kwargs) -> APIResult[dict]:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_servers.py",
+          "after": "class AppServers(ZscalerObject):",
+          "quotes": [
+            "if config: self.id = config[\"id\"] if \"id\" in config else None self.name = config[\"name\"] if \"name\" in config else None self.address = config[\"address\"] if \"address\" in config else None # Using .get() with default values for booleans and lists self.enabled = config.get(\"enabled\", True)",
+            "self.description = config[\"description\"] if \"description\" in config else None self.app_server_group_ids = config[\"appServerGroupIds\"] if \"appServerGroupIds\" in config else [] self.config_space = config[\"configSpace\"] if \"configSpace\" in config else \"DEFAULT\"",
+            "current_obj_format = { \"id\": self.id, \"name\": self.name, \"address\": self.address, \"enabled\": self.enabled, \"description\": self.description, \"appServerGroupIds\": self.app_server_group_ids, \"configSpace\": self.config_space, }"
+          ]
         }
       ],
       "conditions": "Added from verification v3 to hold the legacy ApplicationServer.MicroTenantID heading. The absence was read with `grep -i microtenant` over zscaler/zpa/models/application_servers.py at HEAD (no hits). The legacy advice to use the canonical Go struct for scoped writes is not carried over, since both SDKs scope writes by query parameter."
@@ -410,6 +441,33 @@
             "self.weight = config[\"weight\"] if \"weight\" in config else None",
             "\"weight\": self.weight,"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
+          "after": "type AppServerGroup struct {",
+          "quotes": [
+            "ConfigSpace string `json:\"configSpace,omitempty\"` CreationTime string `json:\"creationTime,omitempty\"` Description string `json:\"description,omitempty\"` Enabled bool `json:\"enabled,omitempty\"` ID string `json:\"id,omitempty\"` DynamicDiscovery bool `json:\"dynamicDiscovery,omitempty\"`",
+            "ModifiedBy string `json:\"modifiedBy,omitempty\"` ModifiedTime string `json:\"modifiedTime,omitempty\"` Name string `json:\"name,omitempty\"` }"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/server_group.py",
+          "after": "class ServerGroup(ZscalerObject):",
+          "quotes": [
+            "if config: self.id = config[\"id\"] if \"id\" in config else None self.modified_time = config[\"modifiedTime\"] if \"modifiedTime\" in config else None self.creation_time = config[\"creationTime\"] if \"creationTime\" in config else None",
+            "self.modified_by = config[\"modifiedBy\"] if \"modifiedBy\" in config else None self.enabled = config[\"enabled\"] if \"enabled\" in config else True self.name = config[\"name\"] if \"name\" in config else None self.description = config[\"description\"] if \"description\" in config else None",
+            "self.ip_anchored = config[\"ipAnchored\"] if \"ipAnchored\" in config else None self.config_space = config[\"configSpace\"] if \"configSpace\" in config else None self.weight = config[\"weight\"] if \"weight\" in config else None",
+            "self.extranet_enabled = config[\"extranetEnabled\"] if \"extranetEnabled\" in config else None self.microtenant_id = config[\"microtenantId\"] if \"microtenantId\" in config else None self.microtenant_name = config[\"microtenantName\"] if \"microtenantName\" in config else None",
+            "self.dynamic_discovery = config[\"dynamicDiscovery\"] if \"dynamicDiscovery\" in config else True self.read_only = config[\"readOnly\"] if \"readOnly\" in config else None self.restriction_type = config[\"restrictionType\"] if \"restrictionType\" in config else None",
+            "self.zscaler_managed = config[\"zscalerManaged\"] if \"zscalerManaged\" in config else None self.applications = ZscalerCollection.form_list( config[\"applications\"] if \"applications\" in config else [], application_segment.ApplicationSegments )",
+            "self.app_connector_groups = ZscalerCollection.form_list( config[\"appConnectorGroups\"] if \"appConnectorGroups\" in config else [], app_connector_groups.AppConnectorGroup ) if \"extranetDTO\" in config: if isinstance(config[\"extranetDTO\"], common.ExtranetDTO):",
+            "self.extranet_dto = config[\"extranetDTO\"] elif config[\"extranetDTO\"] is not None: self.extranet_dto = common.ExtranetDTO(config[\"extranetDTO\"]) else: self.extranet_dto = None",
+            "current_obj_format = { \"id\": self.id, \"modifiedTime\": self.modified_time, \"creationTime\": self.creation_time, \"modifiedBy\": self.modified_by, \"enabled\": self.enabled, \"name\": self.name, \"description\": self.description, \"ipAnchored\": self.ip_anchored, \"configSpace\": self.config_space,",
+            "\"weight\": self.weight, \"extranetEnabled\": self.extranet_enabled, \"microtenantName\": self.microtenant_name, \"extranetDTO\": self.extranet_dto, \"readOnly\": self.read_only, \"restrictionType\": self.restriction_type, \"zscalerManaged\": self.zscaler_managed,",
+            "\"dynamicDiscovery\": True if self.dynamic_discovery else False, \"applications\": [app.request_format() for app in self.applications], \"appConnectorGroups\": [group.request_format() for group in self.app_connector_groups], }"
+          ]
         }
       ],
       "conditions": "Absence in the Go type and the Python model is read from the full struct and model source at the pin (git grep -i passive over the servergroup Go package and the Python server_group model finds nothing). The server group weight set through an application segment is a separate mapping, see zpa.server-groups.multiple-on-segment."
@@ -428,6 +486,14 @@
             "ZpnErID string `json:\"zpnErId,omitempty\"`"
           ],
           "after": "type ExtranetDTO struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "after": "type ExtranetDTO struct {",
+          "quotes": [
+            "LocationDTO []LocationDTO `json:\"locationDTO,omitempty\"` LocationGroupDTO []LocationGroupDTO `json:\"locationGroupDTO,omitempty\"` ZiaErName string `json:\"ziaErName,omitempty\"` ZpnErID string `json:\"zpnErId,omitempty\"` }"
+          ]
         }
       ]
     },
@@ -443,6 +509,16 @@
             "config[\"locationGroupDTO\"] if \"locationGroupDTO\" in config else [], LocationGroupDTO"
           ],
           "after": "class ExtranetDTO(ZscalerObject):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/common.py",
+          "after": "class ExtranetDTO(ZscalerObject):",
+          "quotes": [
+            "if config: self.id = config[\"id\"] if \"id\" in config else None self.modified_time = config[\"modifiedTime\"] if \"modifiedTime\" in config else None self.creation_time = config[\"creationTime\"] if \"creationTime\" in config else None",
+            "self.modified_by = config[\"modifiedBy\"] if \"modifiedBy\" in config else None self.zia_er_name = config[\"ziaErName\"] if \"ziaErName\" in config else None self.zia_er_id = config[\"ziaErId\"] if \"ziaErId\" in config else None",
+            "self.location_dto = ZscalerCollection.form_list( config[\"locationDTO\"] if \"locationDTO\" in config else [], CommonIDName ) self.location_group_dto = ZscalerCollection.form_list( config[\"locationGroupDTO\"] if \"locationGroupDTO\" in config else [], LocationGroupDTO )"
+          ]
         }
       ],
       "conditions": "No zpnErId appears in the ExtranetDTO class; the separate ZPNERID model elsewhere in the file is not part of it."
@@ -503,6 +579,15 @@
             },
             "type": "array"
           }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/common.py",
+          "after": "class ExtranetDTO(ZscalerObject):",
+          "quotes": [
+            "current_obj_format = { \"id\": self.id, \"modifiedTime\": self.modified_time, \"creationTime\": self.creation_time, \"modifiedBy\": self.modified_by, \"ziaErName\": self.zia_er_name, \"ziaErId\": self.zia_er_id, \"locationDTO\": self.location_dto, }",
+            "else: self.id = None self.modified_time = None self.creation_time = None self.modified_by = None self.zia_er_name = None self.zia_er_id = None self.location_dto = [] def request_format(self) -> Dict[str, Any]:"
+          ]
         }
       ],
       "conditions": "The API document lists locationGroupDTO as a request property of the extranetDTO object, which is why the omission matters."
@@ -515,14 +600,18 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/appservercontroller/zpa_app_server_controller.go",
           "quotes": [
-            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + appServerControllerEndpoint + \"/summary\""
+            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + appServerControllerEndpoint + \"/summary\"",
+            "func GetServerSummary(ctx context.Context, service *zscaler.Service) ([]common.CommonSummary, *http.Response, error) {",
+            "list, resp, err := common.GetAllPagesGenericWithCustomFilters[common.CommonSummary](ctx, service.Client, relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()})"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/servers.py",
           "quotes": [
-            "/server/summary"
+            "/server/summary",
+            "def list_servers_summary(self, query_params: Optional[dict] = None)",
+            "http_method = \"get\".upper() api_url = format_url(f\"\"\" {self._zpa_base_endpoint} /server/summary"
           ]
         }
       ]
@@ -635,7 +724,10 @@
           "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup/post/requestBody/content/application~1json/schema",
           "expect": {
-            "required": ["configSpace", "name"]
+            "required": [
+              "configSpace",
+              "name"
+            ]
           }
         },
         {
@@ -643,7 +735,10 @@
           "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup~1{groupId}/put/requestBody/content/application~1json/schema",
           "expect": {
-            "required": ["configSpace", "name"]
+            "required": [
+              "configSpace",
+              "name"
+            ]
           }
         },
         {
@@ -651,7 +746,10 @@
           "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1server/post/requestBody/content/application~1json/schema",
           "expect": {
-            "required": ["enabled", "name"]
+            "required": [
+              "enabled",
+              "name"
+            ]
           }
         },
         {
@@ -701,7 +799,11 @@
           "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup/post/requestBody/content/application~1json/schema/properties/extranetDTO",
           "expect": {
-            "required": ["locationDTO", "locationGroupDTO", "zpnErId"],
+            "required": [
+              "locationDTO",
+              "locationGroupDTO",
+              "zpnErId"
+            ],
             "title": "ExtranetDTO"
           }
         },
@@ -710,7 +812,12 @@
           "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1appConnectorGroup~1{appConnectorGroupId}/get/responses/200/content/*~1*/schema/properties/serverGroups/items/properties/zpnErId",
           "expect": {
-            "required": ["ziaCloud", "ziaErId", "ziaErName", "ziaOrgId"],
+            "required": [
+              "ziaCloud",
+              "ziaErId",
+              "ziaErName",
+              "ziaOrgId"
+            ],
             "title": "ZpnExtranetResource"
           }
         },

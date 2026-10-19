@@ -90,6 +90,21 @@
           "quotes": [
             "resp.TypeName = req.ProviderTypeName + \"_company_info\""
           ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/provider.go",
+          "quotes": [
+            "resources.NewTrustedNetworkResource, resources.NewNotificationTemplateResource, resources.NewZIAPostureResource, resources.NewForwardingProfileResource, resources.NewFailOpenPolicyResource, resources.NewDeviceCleanupResource, resources.NewWebPrivacyResource, }"
+          ],
+          "after": "func (p *ZCCProvider) Resources(ctx context.Context) []func() resource.Resource {"
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/provider.go",
+          "quotes": [
+            "datasources.NewCompanyInfoDataSource,"
+          ]
         }
       ]
     },
@@ -103,7 +118,11 @@
           "quotes": [
             "setCompanyInfoEndpoint = \"/zcc/papi/public/v1/setCompanyInfo\"",
             "if resp.Success != \"true\" {",
-            "updated, err := GetCompanyInfo(ctx, service)"
+            "updated, err := GetCompanyInfo(ctx, service)",
+            "accepted by the PUT /setCompanyInfo",
+            "_, err := service.Client.NewZccRequestDo(ctx, \"PUT\", setCompanyInfoEndpoint, nil, companyInfo, &resp)",
+            "return nil, fmt.Errorf(\"API rejected company info update (error: %s)\", resp.Error)",
+            "return updated, nil"
           ]
         }
       ]
@@ -125,8 +144,17 @@
           "source": "sdk-python",
           "path": "zscaler/zcc/company.py",
           "quotes": [
-            "def get_company_info(self) -> APIResult[dict]:"
+            "def get_company_info(self) -> APIResult[dict]:",
+            "http_method = \"get\".upper()"
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getCompanyInfo/get",
+          "expect": {
+            "operationId": "Gets information about your organization"
+          }
         }
       ]
     },
@@ -141,7 +169,10 @@
             "are returned as numeric strings like \"0\"/\"1\" while others are integers).",
             "ProxyEnabled                             string                   `json:\"proxyEnabled\"`",
             "SupportEnabled                           int                      `json:\"supportEnabled\"`",
-            "DisableLoggingControls                   int                      `json:\"disableLoggingControls\"`"
+            "DisableLoggingControls                   int                      `json:\"disableLoggingControls\"`",
+            "Field types intentionally mirror the API payload (some flags",
+            "FetchLogsForAdminsEnabled                int                      `json:\"fetchLogsForAdminsEnabled\"`",
+            "SupportTicketEnabled                     int                      `json:\"supportTicketEnabled\"`"
           ]
         }
       ]
@@ -165,11 +196,104 @@
           "expect": {
             "type": "string"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1managePass/post/requestBody/content/application~1json/schema/properties/companyId",
+          "expect": {
+            "description": "Organization ID for the device."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1managePass/post/requestBody/content/application~1json/schema/properties/deviceType",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1managePass/post/requestBody/content/application~1json/schema/properties/exitPass",
+          "expect": {
+            "description": "Password to exit Zscaler Client Connector."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1managePass/post/requestBody/content/application~1json/schema/properties/logoutPass",
+          "expect": {
+            "description": "Password to log out of Zscaler Client Connector."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1managePass/post/requestBody/content/application~1json/schema/properties/uninstallPass",
+          "expect": {
+            "description": "Password to uninstall Zscaler Client Connector."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1managePass/post/requestBody/content/application~1json/schema/properties/ziaDisablePass",
+          "expect": {
+            "description": "Password to disable ZIA."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1managePass/post/requestBody/content/application~1json/schema/properties/zpaDisablePass",
+          "expect": {
+            "description": "Password to disable ZPA."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1managePass/post/requestBody/content/application~1json/schema/properties/zdxDisablePass",
+          "expect": {
+            "description": "Password to disable ZDX."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1managePass/post/requestBody/content/application~1json/schema/properties/zdpDisablePass",
+          "expect": {
+            "description": "Password to disable Zscaler Deception."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1managePass/post/requestBody/content/application~1json/schema/properties/zadDisablePass",
+          "expect": {
+            "description": "Password to disable Zscaler Active Defense (ZAD)."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1managePass/post/responses/200/content/application~1json/schema",
+          "expect": {
+            "properties": {
+              "errorMessage": {
+                "description": "Response error message.",
+                "type": "string"
+              }
+            }
+          }
         }
       ]
     },
     "manage-pass-python-model-only": {
-      "statement": "The Python SDK ships a `ManagePass` model but no service method that sends it, so `managePass` cannot be called through the Python SDK.",
+      "statement": "The Python SDK ships a `ManagePass` model but no service method that sends it.",
       "tier": "A",
       "conditions": "Absence: no module under zscaler/zcc other than the model references ManagePass, and ZCCService has no manage-pass property.",
       "evidence": [
@@ -178,6 +302,16 @@
           "path": "zscaler/zcc/models/manage_pass.py",
           "quotes": [
             "class ManagePass(ZscalerObject):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/zcc_service.py",
+          "quotes": [
+            "from zscaler.zcc.admin_user import AdminUserAPI from zscaler.zcc.application_profiles import ApplicationProfilesAPI from zscaler.zcc.company import CompanyInfoAPI from zscaler.zcc.custom_ip_base_apps import CustomIPBasedAppsAPI from zscaler.zcc.devices import DevicesAPI",
+            "from zscaler.zcc.devices import DevicesAPI from zscaler.zcc.entitlements import EntitlementAPI from zscaler.zcc.fail_open_policy import FailOpenPolicyAPI from zscaler.zcc.forwarding_profile import ForwardingProfileAPI from zscaler.zcc.predefined_ip_based_apps import PredefinedIPBasedAppsAPI",
+            "from zscaler.zcc.predefined_ip_based_apps import PredefinedIPBasedAppsAPI from zscaler.zcc.process_based_apps import ProcessBasedAppsAPI from zscaler.zcc.secrets import SecretsAPI from zscaler.zcc.trusted_networks import TrustedNetworksAPI from zscaler.zcc.web_app_service import WebAppServiceAPI",
+            "from zscaler.zcc.web_app_service import WebAppServiceAPI from zscaler.zcc.web_policy import WebPolicyAPI from zscaler.zcc.web_privacy import WebPrivacyAPI"
           ]
         }
       ]

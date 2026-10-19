@@ -48,7 +48,7 @@
   ],
   "claims": {
     "submit": {
-      "statement": "The submit call sends a raw or archive file for full analysis (up to 100 files per day). Files are scanned by Zscaler antivirus and sent to the sandbox; the `force` parameter makes the sandbox reanalyze a file that already has a verdict. The verdict is read afterwards from the report endpoint.",
+      "statement": "The submit call sends a raw or archive file to Sandbox for analysis (up to 100 files per day). Files are scanned by Zscaler antivirus and sent to the sandbox; the `force` parameter makes the sandbox reanalyze a file that already has a verdict. The verdict is read afterwards from the report endpoint.",
       "tier": "A",
       "evidence": [
         {
@@ -57,7 +57,10 @@
           "quotes": [
             "You can submit up to 100 files per day",
             "you can use the 'force' parameter to make the sandbox to reanalyze it",
-            "After files are sent for analysis, you must use GET /sandbox/report/{md5Hash} in order to retrieve the verdict."
+            "After files are sent for analysis, you must use GET /sandbox/report/{md5Hash} in order to retrieve the verdict.",
+            "Submit: Submits raw or archive files (e.g., ZIP) to Sandbox for analysis.",
+            "By default, files are scanned by Zscaler antivirus (AV) and submitted directly to the sandbox in order to obtain a verdict.",
+            "However, if a verdict already exists for the file"
           ]
         }
       ]
@@ -70,13 +73,15 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go",
           "quotes": [
-            "If not, an 'Unknown' message is shown in the response."
+            "If not, an 'Unknown' message is shown in the response.",
+            "You must have a Sandbox policy rule configured within the ZIA Admin Portal in order to analyze files that aren't present in the default policy rule.",
+            "Ensure that you have explicitly added Sandbox policy rules that include the appropriate file types within your request."
           ]
         }
       ]
     },
     "discan": {
-      "statement": "Discan submits a file for out-of-band inspection that yields a real-time verdict for known and unknown files, using Malware Prevention, Advanced Threat Prevention, the Sandbox cloud effect, AI/ML analysis and third-party threat intelligence. It supports the file types of the Malware Protection and ATP policies, limits each file to 400 MB, and includes no dynamic file analysis, so it cannot catch what only detonation reveals. The Go SDK calls it `Discan` (POST /zscsb/discan); the Python SDK calls it `submit_file_for_inspection`.",
+      "statement": "Discan submits a file for out-of-band inspection that yields a real-time verdict for known and unknown files, using Malware Prevention, Advanced Threat Prevention, the Sandbox cloud effect, AI/ML analysis and third-party threat intelligence. It supports the file types of the Malware Protection and ATP policies, limits each file to 400 MB, and includes no dynamic file analysis. The Go SDK calls it `Discan` (POST /zscsb/discan); the Python SDK calls it `submit_file_for_inspection`.",
       "tier": "A",
       "evidence": [
         {
@@ -85,7 +90,14 @@
           "quotes": [
             "Sandbox cloud effect, AI/ML-driven file analysis, and integrated third-party threat intelligence feeds",
             "each file is limited to a size of 400 MB",
-            "Note: Dynamic file analysis is not included in out-of-band file inspection."
+            "Note: Dynamic file analysis is not included in out-of-band file inspection.",
+            "Discan Submits raw or archive files (e.g., ZIP) to the Zscaler service for out-of-band file inspection to generate real-time verdicts for known and unknown files.",
+            "It leverages capabilities such as Malware Prevention, Advanced Threat Prevention,",
+            "All file types that are currently supported by the Malware Protection policy and Advanced Threat Protection policy are supported for inspection",
+            "discanEndpoint = \"/zscsb/discan\"",
+            "func Discan(ctx context.Context, service *zscaler.Service, filename string, file io.Reader) (*ScanResult, error) {",
+            "return scanFile(ctx, service, filename, file, \"\", discanEndpoint)",
+            "data, _, _, err := service.Client.ExecuteRequest(ctx, \"POST\", endpoint, &gzippedFile, urlParams, contentType)"
           ]
         },
         {
@@ -93,7 +105,8 @@
           "path": "zscaler/zia/sandbox.py",
           "quotes": [
             "def submit_file_for_inspection(self, file_path: str)",
-            "_sandbox_base_endpoint = \"/zscsb\""
+            "_sandbox_base_endpoint = \"/zscsb\"",
+            "/discan \"\"\")"
           ]
         }
       ]

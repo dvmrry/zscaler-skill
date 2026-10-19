@@ -80,13 +80,14 @@
           "source": "zscaler-help",
           "path": "configuring-dlp-policy-rules-content-inspection.json",
           "quotes": [
-            "You can use the Zscaler Data Loss Prevention (DLP) engines to detect data, allow or block transactions, and notify your organization's auditor when a user's transaction triggers a DLP rule."
+            "You can use the Zscaler Data Loss Prevention (DLP) engines to detect data, allow or block transactions, and notify your organization's auditor when a user's transaction triggers a DLP rule.",
+            "Zscaler only monitors or blocks content according to the policy you configure, then forwards information about transactions so that your organization can take the necessary remediation steps."
           ]
         }
       ]
     },
     "icap-one-way": {
-      "statement": "A rule can forward information about a violating transaction to a third-party DLP solution over secure ICAP, but Zscaler does not take ICAP responses back. Zscaler decides by its own policy and the third party receives a copy for remediation.",
+      "statement": "A rule can forward information about a violating transaction to a third-party DLP solution over secure ICAP, but Zscaler does not take ICAP responses back. Zscaler decides by its own policy and forwards the transaction information so the organization can remediate.",
       "tier": "A",
       "evidence": [
         {
@@ -94,7 +95,8 @@
           "path": "configuring-dlp-policy-rules-content-inspection.json",
           "quotes": [
             "However, Zscaler does not take ICAP responses from your DLP solution.",
-            "Zscaler only monitors or blocks content according to the policy you configure, then forwards information about transactions so that your organization can take the necessary remediation steps."
+            "Zscaler only monitors or blocks content according to the policy you configure, then forwards information about transactions so that your organization can take the necessary remediation steps.",
+            "Zscaler can forward information about transactions that trigger DLP policy to your third-party solution via secure Internet Content Adaptation Protocol (ICAP)."
           ]
         }
       ]
@@ -108,7 +110,9 @@
           "path": "configuring-dlp-policy-rules-content-inspection.json",
           "quotes": [
             "Ensure that in your third-party DLP solution, you configured a rule that detects the same data type as the rule you configure here.",
-            "However, the rules do not need to correspond exactly."
+            "However, the rules do not need to correspond exactly.",
+            "Otherwise, the information Zscaler sends to your solution regarding a particular rule violation does not appear in your on-premises solution's dashboard.",
+            "You don't need to ensure that other criteria for the rules, beyond the data type, correspond."
           ]
         }
       ]
@@ -121,7 +125,8 @@
           "source": "zscaler-help",
           "path": "configuring-dlp-policy-rules-content-inspection.json",
           "quotes": [
-            "Zscaler does not take ICAP responses from your Incident Receiver; instead,"
+            "Zscaler does not take ICAP responses from your Incident Receiver; instead,",
+            "(Optional) Configure a Zscaler Incident Receiver to forward information about content that triggers an outbound email policy rule to your Incident Receiver via secure ICAP."
           ]
         }
       ]
@@ -221,7 +226,7 @@
       ]
     },
     "end-user-notification": {
-      "statement": "In default mode, a rule can enable an end user notification (EUN) on the endpoint when content triggers it, with a default or custom message, and EUN is supported only with Block actions. The Evaluate All Rules article describes the same setting as a Show/Hide choice whose message type depends on the rule's action.",
+      "statement": "In default mode, a rule can enable an end user notification (EUN) triggered by the rule, with a default or custom message displayed to users, and EUN is supported only with Block actions. The Evaluate All Rules article describes the same setting as a Show/Hide choice for an EUN message on endpoints, whose message type depends on the rule's action.",
       "tier": "A",
       "binds": [
         "zia/dlp-web-rules#eunTemplateId"
@@ -232,7 +237,18 @@
           "path": "configuring-dlp-policy-rules-content-inspection.json",
           "quotes": [
             "EUN is supported only with Block actions and requires Advanced DLP rule.",
-            "You can select from default and custom notification messages to display for users."
+            "You can select from default and custom notification messages to display for users.",
+            "This article does not apply to organizations with Evaluate All Rules mode enabled.",
+            "In the Notification section, you can enable end user notifications (EUNs) and Auditor to be triggered by the rule when Block actions are configured and select the notification message that appears:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "after": "This article applies only to organizations with Evaluate All Rules mode enabled.",
+          "quotes": [
+            "The type of EUN messages that appear on the endpoint depends on the Action configured for the rule.",
+            "End User Notification: Select Show to show an EUN message on endpoints when content triggers the DLP policy rule, or select Hide if you don't want an EUN message to appear."
           ]
         }
       ],

@@ -137,7 +137,7 @@
           "source": "zscaler-help",
           "path": "nss-feed-output-format-web-logs.json",
           "quotes": [
-            "| The destination server IP address. This displays 0.0.0.0 if the request was blocked."
+            "| %s{sip} | The destination server IP address. This displays 0.0.0.0 if the request was blocked."
           ]
         }
       ]
@@ -183,7 +183,7 @@
           "path": "nss-feed-output-format-web-logs.json",
           "quotes": [
             "It can be the internal IP address if it's visible (e.g., traffic sent through a GRE tunnel or an internal IP address indicated using XFF). Otherwise, it is the same as %s{cintip}.",
-            "This is different from the %s{cip} value if the internal IP address is visible."
+            "| %s{cintip} | The client's internet (NATed Public) IP address. This is different from the %s{cip} value if the internal IP address is visible. Otherwise, it is the same as %s{cip}."
           ]
         }
       ]
@@ -246,7 +246,7 @@
           "source": "zscaler-help",
           "path": "nss-feed-output-format-web-logs.json",
           "quotes": [
-            "due to an FQDN mismatch between the request URL and the request's host header."
+            "due to an FQDN mismatch between the request URL and the request's host header. The field is present in the logs only if there is a mismatch."
           ]
         }
       ]
@@ -263,6 +263,7 @@
           "source": "zscaler-help",
           "path": "nss-feed-output-format-web-logs.json",
           "quotes": [
+            "| %s{userlocationname} | Applicable to the web traffic processed via Zero Trust Browser (formerly Isolation).",
             "The field shows the actual traffic origination point, whereas the %s{location} field displays the isolation location.",
             "When the web traffic is not handled by Zero Trust Browser, the field value is None."
           ]
@@ -281,8 +282,8 @@
           "source": "zscaler-help",
           "path": "nss-feed-output-format-web-logs.json",
           "quotes": [
-            "the field displays None.",
-            "This displays None if the user agent token doesn't exist."
+            "| %s{app_risk_score} | The computed or assigned risk index for the cloud application, with 1 being the lowest risk and 5 being the highest. If the risk index is not available, the field displays None.",
+            "| %s{ua_token} | The user agent token. This displays None if the user agent token doesn't exist."
           ]
         }
       ]
@@ -298,7 +299,8 @@
           "source": "zscaler-help",
           "path": "nss-feed-output-format-web-logs.json",
           "quotes": [
-            "The service computes risk for each page by weighing several factors, including page locations, reputation of destination, and content that may look suspicious."
+            "| %d{riskscore} | The Page Risk Index score of the destination URL. The service computes risk for each page by weighing several factors, including page locations, reputation of destination, and content that may look suspicious.",
+            "The range is 0–100, from the lowest to the highest risk."
           ]
         }
       ]
@@ -315,8 +317,7 @@
           "source": "zscaler-help",
           "path": "nss-feed-output-format-web-logs.json",
           "quotes": [
-            "The severity relates to the Page Risk Index score.",
-            "then the value of %s{threatseverity} is Critical."
+            "The severity relates to the Page Risk Index score. For example, if the value of %d{riskscore} is between 90 and 100, then the value of %s{threatseverity} is Critical."
           ]
         }
       ]
@@ -332,7 +333,7 @@
           "source": "zscaler-help",
           "path": "nss-feed-output-format-web-logs.json",
           "quotes": [
-            "Also indicates if a file was submitted to the Sandbox engine for analysis and the result of the analysis."
+            "| %s{malwarecat} | The category of malware that was detected in the transaction, if any. Also indicates if a file was submitted to the Sandbox engine for analysis and the result of the analysis."
           ]
         }
       ]
@@ -351,8 +352,8 @@
           "source": "zscaler-help",
           "path": "nss-feed-output-format-web-logs.json",
           "quotes": [
-            "not Block.",
-            "which can be either allowed or blocked.",
+            "| %s{dlprulename} | The name of the DLP rule applied to the transaction. Applies only to Allow rules, not Block.",
+            "| %s{trig_dlprulename} | The name of the DLP rule that triggered a transaction, which can be either allowed or blocked.",
             "This field is a combination of %s{other_dlprulenames} and %s{trig_dlprulename}."
           ]
         }

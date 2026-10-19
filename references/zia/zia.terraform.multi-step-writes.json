@@ -129,8 +129,9 @@
           "quotes": [
             "currentUrls, err := GetMaliciousURLs(ctx, service)",
             "newUrls := zscaler.Difference(urls.MaliciousUrls, currentUrls.MaliciousUrls)",
-            "fmt.Sprintf(\"%s?action=ADD_TO_LIST\", maliciousUrlsEndpoint), MaliciousURLs{newUrls})",
-            "fmt.Sprintf(\"%s?action=REMOVE_FROM_LIST\", maliciousUrlsEndpoint), MaliciousURLs{removedUrls})"
+            "removedUrls := zscaler.Difference(currentUrls.MaliciousUrls, urls.MaliciousUrls)",
+            "fmt.Sprintf(\"%s?action=ADD_TO_LIST\", maliciousUrlsEndpoint), MaliciousURLs{newUrls}) if err != nil { return nil, err }",
+            "fmt.Sprintf(\"%s?action=REMOVE_FROM_LIST\", maliciousUrlsEndpoint), MaliciousURLs{removedUrls}) if err != nil { return nil, err }"
           ]
         },
         {
@@ -143,8 +144,10 @@
           "after": "func Update(ctx context.Context, service *zscaler.Service, urls ExemptedUrls) (*ExemptedUrls, error) {",
           "quotes": [
             "currentUrls, err := Get(ctx, service)",
-            "fmt.Sprintf(\"%s?action=ADD_TO_LIST\", exemptedUrlsEndpoint), ExemptedUrls{newUrls})",
-            "fmt.Sprintf(\"%s?action=REMOVE_FROM_LIST\", exemptedUrlsEndpoint), ExemptedUrls{removedUrls})"
+            "newUrls := zscaler.Difference(urls.URLs, currentUrls.URLs)",
+            "removedUrls := zscaler.Difference(currentUrls.URLs, urls.URLs)",
+            "fmt.Sprintf(\"%s?action=ADD_TO_LIST\", exemptedUrlsEndpoint), ExemptedUrls{newUrls}) if err != nil { return nil, err }",
+            "fmt.Sprintf(\"%s?action=REMOVE_FROM_LIST\", exemptedUrlsEndpoint), ExemptedUrls{removedUrls}) if err != nil { return nil, err }"
           ]
         }
       ],
@@ -168,7 +171,8 @@
           ],
           "after": "func resourceATPMaliciousUrlsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "_, err := advancedthreatsettings.UpdateMaliciousURLs(ctx, service, maliciousUrls)"
+            "_, err := advancedthreatsettings.UpdateMaliciousURLs(ctx, service, maliciousUrls)",
+            "maliciousUrls := expandATPMaliciousURLs(d)"
           ]
         },
         {
@@ -180,7 +184,84 @@
           ],
           "after": "func resourceAuthSettingsUrlsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
+            "_, err := user_authentication_settings.Update(ctx, service, urls)",
+            "urls := expandAuthSettingsUrls(d)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_atp_malicious_urls.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceATPMaliciousUrlsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "maliciousUrls := expandATPMaliciousURLs(d)",
+            "_, err := advancedthreatsettings.UpdateMaliciousURLs(ctx, service, maliciousUrls)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_atp_malicious_urls.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "MaliciousUrls: SetToStringList(d, \"malicious_urls\"),"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_auth_settings_urls.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceAuthSettingsUrlsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "urls := expandAuthSettingsUrls(d)",
             "_, err := user_authentication_settings.Update(ctx, service, urls)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_auth_settings_urls.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "URLs: SetToStringList(d, \"urls\"),"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func UpdateMaliciousURLs(ctx context.Context, service *zscaler.Service, urls MaliciousURLs) (*MaliciousURLs, error) {",
+          "quotes": [
+            "currentUrls, err := GetMaliciousURLs(ctx, service)",
+            "if len(newUrls) > 0 {",
+            "if len(removedUrls) > 0 {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/user_authentication_settings/user_authentication_settings.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, urls ExemptedUrls) (*ExemptedUrls, error) {",
+          "quotes": [
+            "currentUrls, err := Get(ctx, service)",
+            "if len(newUrls) > 0 {",
+            "if len(removedUrls) > 0 {"
           ]
         }
       ],
@@ -238,8 +319,8 @@
           ],
           "after": "func UpdateListUrls(ctx context.Context, service *zscaler.Service, listUrls ListUrls) (*ListUrls, error) {",
           "quotes": [
-            "whitelist, err := UpdateWhiteListUrls(ctx, service, ListUrls{White: listUrls.White})",
-            "blacklist, err := UpdateBlackListUrls(ctx, service, ListUrls{Black: listUrls.Black})"
+            "whitelist, err := UpdateWhiteListUrls(ctx, service, ListUrls{White: listUrls.White}) if err != nil { return nil, err }",
+            "blacklist, err := UpdateBlackListUrls(ctx, service, ListUrls{Black: listUrls.Black}) if err != nil { return nil, err }"
           ]
         },
         {
@@ -250,7 +331,10 @@
             "HEAD"
           ],
           "quotes": [
-            "securityAdvancedEndpoint = \"/zia/api/v1/security/advanced\""
+            "securityAdvancedEndpoint = \"/zia/api/v1/security/advanced\"",
+            "securityEndpoint = \"/zia/api/v1/security\"",
+            "_, err := service.Client.UpdateWithPut(ctx, securityEndpoint, list)",
+            "_, err := service.Client.UpdateWithPut(ctx, securityAdvancedEndpoint, list)"
           ]
         },
         {
@@ -287,7 +371,8 @@
           "after": "func resourceBrowserControlPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "if _, _, err := browser_control_settings.UpdateBrowserControlSettings(ctx, service, expandBrowserControlBaseSettings(d)); err != nil {",
-            "if _, _, err := secure_browsing.UpdateSmartIsolation(ctx, service, expandSmartIsolation(d)); err != nil {"
+            "if _, _, err := secure_browsing.UpdateSmartIsolation(ctx, service, expandSmartIsolation(d)); err != nil {",
+            "if shouldUpdateSmartIsolation(d) {"
           ]
         },
         {
@@ -299,7 +384,11 @@
           ],
           "after": "func resourceBrowserControlPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "// The base endpoint above does not actually persist the Smart Isolation"
+            "// The base endpoint above does not actually persist the Smart Isolation",
+            "if _, _, err := browser_control_settings.UpdateBrowserControlSettings(ctx, service, expandBrowserControlBaseSettings(d)); err != nil {",
+            "// separate endpoint, which we only call when the user has actually",
+            "if shouldUpdateSmartIsolation(d) {",
+            "if _, _, err := secure_browsing.UpdateSmartIsolation(ctx, service, expandSmartIsolation(d)); err != nil {"
           ]
         },
         {
@@ -322,6 +411,17 @@
           ],
           "quotes": [
             "resp, err := service.Client.UpdateWithPut(ctx, browserControlSettingsEndpoint+\"/smartIsolation\", settings)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_browser_control_policy.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "// PUT to the Smart Isolation endpoint. It returns true when the user has // opted into Smart Isolation by setting any of the smart_isolation_* fields // to a non-zero value, OR when an Update is removing previously configured // Smart Isolation values"
           ]
         }
       ],
@@ -360,7 +460,9 @@
           ],
           "after": "func resourceVZENClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "if _, err := vzen_clusters.Delete(ctx, service, id); err != nil {"
+            "if _, err := vzen_clusters.Delete(ctx, service, id); err != nil {",
+            "d.SetId(\"\") log.Printf(\"[INFO] zia vzen cluster deleted\")",
+            "if shouldActivate() {"
           ]
         }
       ],
@@ -487,8 +589,9 @@
           ],
           "after": "func autoPopulateCoordinates(ctx context.Context, d *schema.ResourceData, service *Client) error {",
           "quotes": [
-            "existingIP, err := staticips.GetByIPAddress(ctx, svc, ipAddress)",
-            "// IP doesn't exist yet - create with geo_override=false first to get coordinates"
+            "existingIP, err := staticips.GetByIPAddress(ctx, svc, ipAddress) if err == nil {",
+            "// IP doesn't exist yet - create with geo_override=false first to get coordinates",
+            "log.Printf(\"[DEBUG] Creating temporary IP to determine coordinates\")"
           ]
         },
         {
@@ -500,7 +603,7 @@
           ],
           "after": "func GetByIPAddress(ctx context.Context, service *zscaler.Service, address string) (*StaticIP, error) {",
           "quotes": [
-            "err := common.ReadAllPages(ctx, service.Client, staticIPEndpoint, &staticIPs)",
+            "err := common.ReadAllPages(ctx, service.Client, staticIPEndpoint, &staticIPs) if err != nil { return nil, err }",
             "return nil, fmt.Errorf(\"no device group found with name: %s\", address)"
           ]
         }
@@ -528,7 +631,21 @@
             "tempResp, _, err := staticips.Create(ctx, svc, &tempReq)",
             "ipWithCoords, err := staticips.Get(ctx, svc, tempResp.ID)",
             "_, _, err = staticips.Update(ctx, svc, tempResp.ID, &updateReq)",
-            "d.SetId(strconv.Itoa(tempResp.ID))"
+            "d.SetId(strconv.Itoa(tempResp.ID))",
+            "return fmt.Errorf(\"failed to fetch static IP coordinates: %w\", err)",
+            "return fmt.Errorf(\"failed to update static IP with geo_override: %w\", err)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_traffic_forwarding_static_ips.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingStaticIPCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := autoPopulateCoordinates(ctx, d, zClient); err != nil { return diag.FromErr(err) }"
           ]
         }
       ],
@@ -587,7 +704,9 @@
             "// First, remove URLs (send full desired category structure for other attribute updates)",
             "removeCategory.Urls = urlsToRemove",
             "addCategory.Urls = urlsToAdd",
-            "return diag.FromErr(fmt.Errorf(\"failed to add URLs: %w\", err))"
+            "return diag.FromErr(fmt.Errorf(\"failed to add URLs: %w\", err))",
+            "if _, _, err := urlcategories.UpdateURLCategories(ctx, service, id, &removeCategory, \"REMOVE_FROM_LIST\"); err != nil {",
+            "if _, _, err := urlcategories.UpdateURLCategories(ctx, service, id, &addCategory, \"ADD_TO_LIST\"); err != nil {"
           ]
         },
         {
@@ -641,7 +760,15 @@
             "if incrementalAdds > 0 {",
             "if keywordsChanged || kwRetChanged {",
             "failed to remove items from predefined category: %w",
-            "failed to update keywords for predefined category: %w"
+            "failed to update keywords for predefined category: %w",
+            "incrementalRemoves := len(urlsToRemove) + len(ipToRemove) + len(ipRetToRemove)",
+            "incrementalAdds := len(urlsToAdd) + len(ipToAdd) + len(ipRetToAdd)",
+            "if _, _, err := urlcategories.UpdateURLCategories(ctx, service, categoryID, &removeCategory, \"REMOVE_FROM_LIST\"); err != nil {",
+            "if _, _, err := urlcategories.UpdateURLCategories(ctx, service, categoryID, &addCategory, \"ADD_TO_LIST\"); err != nil {",
+            "failed to add items to predefined category: %w",
+            "log.Printf(\"[INFO] Using plain PUT to update keyword fields (replacement semantics)\")",
+            "kwCategory.Keywords = desired.Keywords",
+            "if _, _, err := urlcategories.UpdateURLCategories(ctx, service, categoryID, &kwCategory, \"\"); err != nil {"
           ]
         }
       ],
@@ -666,7 +793,8 @@
           "after": "func resourceUserManagementCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "_, err = users.EnrollUser(ctx, service, resp.ID, users.EnrollUserRequest{",
-            "log.Printf(\"[ERROR] enrolling user failed: %v\\n\", err)"
+            "if err != nil { log.Printf(\"[ERROR] enrolling user failed: %v\\n\", err) } } d.SetId(strconv.Itoa(resp.ID))",
+            "return resourceUserManagementRead(ctx, d, meta)"
           ]
         },
         {
@@ -679,7 +807,8 @@
           "after": "func resourceUserManagementUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "if (d.HasChange(\"password\") || d.HasChange(\"auth_methods\")) && len(authMethods) > 0 {",
-            "log.Printf(\"[ERROR] enrolling user failed: %v\\n\", err)"
+            "if err != nil { log.Printf(\"[ERROR] enrolling user failed: %v\\n\", err) } }",
+            "return resourceUserManagementRead(ctx, d, meta)"
           ]
         }
       ],
@@ -703,7 +832,7 @@
           ],
           "after": "func resourceUserManagementCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "if len(authMethods) > 0 {"
+            "authMethods := SetToStringList(d, \"auth_methods\") if len(authMethods) > 0 { _, err = users.EnrollUser(ctx, service, resp.ID, users.EnrollUserRequest{"
           ]
         },
         {
@@ -715,7 +844,7 @@
           ],
           "after": "func resourceUserManagementUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "&& len(authMethods) > 0 {"
+            "authMethods := SetToStringList(d, \"auth_methods\") if (d.HasChange(\"password\") || d.HasChange(\"auth_methods\")) && len(authMethods) > 0 { _, err := users.EnrollUser(ctx, service, id, users.EnrollUserRequest{"
           ]
         }
       ],
@@ -791,7 +920,7 @@
       ]
     },
     "detach-writes-list-snapshot": {
-      "statement": "Deleting a custom URL category first detaches it from rules by listing the rules of each type and writing back every rule that references it, using the object from that list. The URL Filtering detacher does this per rule with no re-read before the write. All detachers run concurrently, and an error from one is reported only after all finish.",
+      "statement": "Deleting a custom URL category first detaches it from the URL filtering, SSL inspection, sandbox, file type control, firewall DNS, firewall IPS and DLP web rules, the bandwidth classes and the FTP control policy, by listing each type and writing back every object that references it, using the object from that list. The URL Filtering detacher does this per rule with no re-read before the write. All detachers run concurrently, and an error from one is reported only after all finish.",
       "tier": "A",
       "evidence": [
         {
@@ -816,7 +945,12 @@
           ],
           "after": "func detachURLCategoryFromAllResources(ctx context.Context, client *Client, categoryID string) error {",
           "quotes": [
-            "go func(f func(context.Context, *Client, string) (bool, error)) {"
+            "go func(f func(context.Context, *Client, string) (bool, error)) {",
+            "detachCategoryFromURLFilteringRules, detachCategoryFromSSLInspectionRules, detachCategoryFromSandboxRules, detachCategoryFromFileTypeControlRules, detachCategoryFromBandwidthClasses,",
+            "detachCategoryFromFirewallDNSRules, detachCategoryFromFirewallIPSRules, detachCategoryFromFTPControlPolicy, detachCategoryFromDLPWebRules,",
+            "for _, fn := range detachers {",
+            "for range detachers { r := <-results if r.err != nil && firstErr == nil { firstErr = r.err }",
+            "if firstErr != nil { return firstErr }"
           ]
         },
         {

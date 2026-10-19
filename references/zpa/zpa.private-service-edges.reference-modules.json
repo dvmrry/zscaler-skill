@@ -83,7 +83,7 @@
           "path": "modules/terraform-zspse-psevm-aws/variables.tf",
           "quotes": [
             "default     = \"m5.large\"",
-            "var.psevm_instance_type == \"t3.xlarge\" ||"
+            "var.psevm_instance_type == \"t3.xlarge\" ||\n      var.psevm_instance_type == \"m5.large\" ||\n      var.psevm_instance_type == \"m5.xlarge\" ||\n      var.psevm_instance_type == \"m5.2xlarge\" ||\n      var.psevm_instance_type == \"m5.4xlarge\""
           ]
         }
       ]
@@ -98,7 +98,7 @@
           "quotes": [
             "description = \"Mininum number of Service Edges to maintain in Autoscaling group\"\n  default     = 2",
             "description = \"Maxinum number of Service Edges to maintain in Autoscaling group\"\n  default     = 4",
-            "default     = 50"
+            "description = \"Target value number for autoscaling policy CPU utilization target tracking. ie: trigger a scale in/out to keep average CPU Utliization percentage across all instances at/under this number\"\n  default     = 50"
           ]
         }
       ]
@@ -112,7 +112,7 @@
           "path": "modules/terraform-zpse-vm-azure/variables.tf",
           "quotes": [
             "default     = \"Standard_D4s_v3\"",
-            "var.psevm_instance_type == \"Standard_F4s_v2\""
+            "var.psevm_instance_type == \"Standard_D2s_v3\" ||\n      var.psevm_instance_type == \"Standard_D4s_v3\" ||\n      var.psevm_instance_type == \"Standard_F4s_v2\""
           ]
         }
       ]
@@ -140,7 +140,7 @@
           "path": "README.md",
           "quotes": [
             "**Default (recommended)**",
-            "publishes the code to **AWS SSM Parameter Store**.",
+            "Each Service Edge boots, generates its OAuth2 user code (written to `/etc/issue` on the VM), and publishes the code to **AWS SSM Parameter Store**.",
             "This module requires the ZPA Terraform provider `>= 4.4.0` for OAuth2 user-code onboarding."
           ]
         }
@@ -155,6 +155,7 @@
           "path": "examples/pse_vmss/variables.tf",
           "quotes": [
             "default     = \"oauth\"",
+            "enrolls Service Edges via OAuth2 user codes relayed through Azure Key Vault.",
             "\\\"provisioning_key\\\" uses the legacy provisioning key flow."
           ]
         }
@@ -169,6 +170,7 @@
           "path": "modules/terraform-zpa-service-edge-group/variables.tf",
           "quotes": [
             "description = \"Whether this Private Service Edge Group is enabled or not\"\n  default     = true",
+            "description = \"(Optional) Enable or disable public access for the Service Edge Group. Default value is false\"\n  default     = false",
             "Whether the default version profile of the Private Service Edge Group is applied or overridden. Default: false",
             "default     = \"66600\""
           ]

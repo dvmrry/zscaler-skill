@@ -82,13 +82,14 @@
             "Zscaler cannot inspect SSL traffic from sites or applications that use certificate pinning (e.g., Apple, many Microsoft 365 apps, Adobe, Cisco WebEx, Dropbox app,",
             "This method is common with iOS and Android applications, which can make it more difficult to manage those environments.",
             "Replace the application or bypass the traffic if you encounter certificate pinning.",
-            "Otherwise, deny the traffic."
+            "Otherwise, deny the traffic.",
+            "Bypass the traffic only if the application is of such high value to the organization that it’s worth the risks associated with not inspecting the application traffic."
           ]
         }
       ]
     },
     "pinning-exempt-by-app-or-domain": {
-      "statement": "When an application breaks because of pinning, exempt it by removing the cloud application from SSL inspection or the individual domains, using custom URL categories; for mobile apps, SaaS Security can inspect the data at rest instead of in transit.",
+      "statement": "When certificate pinning is in place, exempt the application by removing the cloud application from SSL inspection or the individual domains, using custom URL categories; for mobile apps, SaaS Security can inspect the data at rest instead of in transit.",
       "tier": "A",
       "evidence": [
         {
@@ -96,7 +97,8 @@
           "path": "SSL_Inspection_Deployment_and_Operations_Guide.txt",
           "quotes": [
             "If certificate pinning is in place, exempt the applications from SSL Inspection by removing the cloud application from SSL Inspection or the individual domains from SSL Inspection, using the custom URL categories.",
-            "Instead of inspecting data in transit, you might consider leveraging SaaS Security functionality to inspect data at rest."
+            "Instead of inspecting data in transit, you might consider leveraging SaaS Security functionality to inspect data at rest.",
+            "Remember that mobile applications often use certificate pinning, which prevents SSL Inspection from working correctly."
           ]
         }
       ]
@@ -116,7 +118,7 @@
       ]
     },
     "quic": {
-      "statement": "QUIC (HTTP/3) skips the TCP handshake and uses UDP while Zscaler's inspection relies on TCP session information, so Zscaler recommends blocking QUIC; the browser or device then falls back to TCP and can be inspected. Both the Zscaler firewall and Client Connector can block it.",
+      "statement": "Google's QUIC protocol skips the TCP handshake and uses UDP while Zscaler's inspection relies on TCP session information, so Zscaler recommends blocking QUIC; the browser or device then falls back to TCP connections. Both the Zscaler firewall and Client Connector can block it.",
       "tier": "A",
       "evidence": [
         {
@@ -125,7 +127,9 @@
           "quotes": [
             "relies on TCP session information, so Zscaler recommends blocking Google QUIC.",
             "When blocked, the browser or device falls back on TCP connections.",
-            "Client Connector both support blocking QUIC connections."
+            "Client Connector both support blocking QUIC connections.",
+            "This is accomplished by skipping the TCP handshake and using UDP instead.",
+            "Zscaler’s firewall and Zscaler Client Connector both support blocking QUIC connections."
           ]
         }
       ]
@@ -139,7 +143,8 @@
           "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
           "quotes": [
             "Ensure any BYOD and guest networks are completely segmented away from your organization",
-            "with no chance of accessing anything other than the internet."
+            "with no chance of accessing anything other than the internet.",
+            "BYOD and guest network traffic are generally impossible to inspect because the Root CA Certificate cannot be installed on these devices."
           ]
         }
       ]
@@ -153,7 +158,8 @@
           "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
           "quotes": [
             "Internet of Things (IoT) devices are in a similar state to BYOD and guest networks.",
-            "though it is likely that a custom policy is required along with the creation of one or more sublocations specific to these nodes."
+            "though it is likely that a custom policy is required along with the creation of one or more sublocations specific to these nodes.",
+            "most of them don’t accept modifications to the certificate trust store."
           ]
         }
       ]
