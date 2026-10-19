@@ -125,8 +125,19 @@
           "path": "docs/resources/zia_sub_cloud.md",
           "quotes": [
             "cloud_id = data.zia_sub_cloud.lookup.id",
-            "data.zia_datacenters.this.datacenters[0].id",
+            "exclusions { datacenter { id = data.zia_datacenters.this.datacenters[0].id",
             "data \"zia_sub_cloud\" \"lookup\" { name = \"BIZDevZSThree01\" }"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_sub_cloud.md",
+          "after": "### Optional",
+          "quotes": [
+            "* `exclusions` - (List) List of data centers excluded from the subcloud.",
+            "* `datacenter` - (List, Required, MaxItems: 1) The excluded datacenter reference.",
+            "* `id` - (Integer, Required) Unique identifier for the datacenter.",
+            "Use the datasource `zia_datacenters` to retrieve the list of available datacenter IDs"
           ]
         }
       ]
@@ -152,6 +163,8 @@
           "source": "tf-zia",
           "path": "docs/resources/zia_dc_exclusions.md",
           "quotes": [
+            "* `start_time` - (Integer, Optional/Computed) Unix timestamp when the exclusion window starts.",
+            "* `end_time` - (Integer, Optional/Computed) Unix timestamp when the exclusion window ends.",
             "Exclusion window start (UTC). Format: `MM/DD/YYYY HH:MM am/pm`. If set, overrides `start_time`.",
             "Either `start_time` or `start_time_utc` must be set.",
             "Either `end_time` or `end_time_utc` must be set.",

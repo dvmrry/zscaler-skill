@@ -89,6 +89,43 @@
             "authToken, err := Authenticate(c.oauth2Credentials.Context, c.oauth2Credentials, c.oauth2Credentials.Logger)"
           ],
           "after": "func (c *Client) authenticate() error {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "case <-ticker.C:",
+            "authToken, err := Authenticate(c.oauth2Credentials.Context, c.oauth2Credentials, c.oauth2Credentials.Logger)"
+          ],
+          "after": "func (c *Client) startTokenRenewalTicker() {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "c.Lock() // Prevent concurrent token refresh authToken, err := Authenticate(c.oauth2Credentials.Context, c.oauth2Credentials, c.oauth2Credentials.Logger)"
+          ],
+          "after": "// Session invalidation means the server considers the token invalid"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "req, err = c.buildRequest(ctx, method, endpoint, bytes.NewReader(requestBodyBytes), urlParams, contentType)"
+          ],
+          "after": "func (c *Client) ExecuteRequest(ctx context.Context, method, endpoint string, body io.Reader, urlParams url.Values, contentType string) ([]byte, *http.Response, *http.Request, error) {"
         }
       ]
     },
@@ -120,7 +157,7 @@
             "c.Lock() // Prevent concurrent token refresh",
             "c.oauth2Credentials.Logger.Printf(\"[INFO] Token refreshed successfully, retrying request...\")",
             "// Add a small delay before retrying to avoid overwhelming the server",
-            "time.Sleep(time.Second * 2)"
+            "beforeWait := time.Now() time.Sleep(time.Second * 2) totalWaitTime += time.Since(beforeWait)"
           ]
         }
       ]

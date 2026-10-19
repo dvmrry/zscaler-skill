@@ -242,7 +242,9 @@
             "if strings.Contains(err.Error(), \"RESOURCE_NOT_FOUND\") {",
             "return nil",
             "// Check if ZIA_ACTIVATION is set to a truthy value before triggering activation",
-            "if strings.Contains(err.Error(), \"RESOURCE_NOT_FOUND\") { log.Printf(\"[INFO] web dlp rule %d not found, skipping deletion\", id) return nil } return diag.FromErr(err) } d.SetId(\"\")"
+            "if strings.Contains(err.Error(), \"RESOURCE_NOT_FOUND\") { log.Printf(\"[INFO] web dlp rule %d not found, skipping deletion\", id) return nil } return diag.FromErr(err) } d.SetId(\"\")",
+            "d.SetId(\"\") log.Printf(\"[INFO] web dlp rule deleted\") // Check if ZIA_ACTIVATION is set to a truthy value before triggering activation if shouldActivate() {",
+            "if activationErr := triggerActivation(ctx, zClient); activationErr != nil {"
           ],
           "after": "func resourceDlpWebRulesDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
@@ -282,6 +284,9 @@
             "HEAD"
           ],
           "quotes": [
+            "req := expandDlpWebRules(d)",
+            "isSubRule := req.ParentRule != 0 for { dlpWebRulesLock.Lock() if isSubRule { if dlpWebSubRulesStartingOrder[req.ParentRule] == 0 {",
+            "if dlpWebStartingOrder == 0 { list, _ := dlp_web_rules.GetAll(ctx, service)",
             "resp, err := dlp_web_rules.Create(ctx, service, &req)",
             "if diags := resourceDlpWebRulesRead(ctx, d, meta); diags.HasError() {",
             "time.Sleep(10 * time.Second)",
@@ -441,7 +446,8 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "## 4.8.11 (October 8, 2026)",
-            "if the list of existing rules could not be retrieved. The API error is now reported instead."
+            "[PR #610](https://github.com/zscaler/terraform-provider-zia/pull/610) - Fixed a provider crash when updating rule-based resources (`zia_firewall_filtering_rule`,",
+            "`zia_sandbox_rules`, `zia_forwarding_control_rule`, `zia_traffic_capture_rules`, `zia_cloud_app_control_rule`) if the list of existing rules could not be retrieved. The API error is now reported instead."
           ]
         }
       ],

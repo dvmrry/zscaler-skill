@@ -306,6 +306,14 @@
           "after": "type ApplicationServer struct {"
         },
         {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "after": "type Filter struct {",
+          "quotes": [
+            "MicroTenantID   *string `url:\"microtenantId,omitempty\"`"
+          ]
+        },
+        {
           "source": "sdk-python",
           "path": "zscaler/zpa/servers.py",
           "quotes": [
@@ -313,6 +321,22 @@
             "microtenant_id = body.get(\"microtenant_id\", None)"
           ],
           "after": "def add_server(self, **kwargs) -> APIResult[dict]:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/servers.py",
+          "after": "def update_server(self, server_id: str, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "microtenant_id = body.get(\"microtenant_id\", None) params = {\"microtenantId\": microtenant_id} if microtenant_id else {}"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/servers.py",
+          "after": "def delete_server(self, server_id: str, microtenant_id: str = None) -> APIResult[dict]:",
+          "quotes": [
+            "params = {\"microtenantId\": microtenant_id} if microtenant_id else {}"
+          ]
         },
         {
           "source": "sdk-python",
@@ -517,8 +541,10 @@
           "quotes": [
             "if config: self.id = config[\"id\"] if \"id\" in config else None self.modified_time = config[\"modifiedTime\"] if \"modifiedTime\" in config else None self.creation_time = config[\"creationTime\"] if \"creationTime\" in config else None",
             "self.modified_by = config[\"modifiedBy\"] if \"modifiedBy\" in config else None self.zia_er_name = config[\"ziaErName\"] if \"ziaErName\" in config else None self.zia_er_id = config[\"ziaErId\"] if \"ziaErId\" in config else None",
-            "self.location_dto = ZscalerCollection.form_list( config[\"locationDTO\"] if \"locationDTO\" in config else [], CommonIDName ) self.location_group_dto = ZscalerCollection.form_list( config[\"locationGroupDTO\"] if \"locationGroupDTO\" in config else [], LocationGroupDTO )"
-          ]
+            "self.location_dto = ZscalerCollection.form_list( config[\"locationDTO\"] if \"locationDTO\" in config else [], CommonIDName ) self.location_group_dto = ZscalerCollection.form_list( config[\"locationGroupDTO\"] if \"locationGroupDTO\" in config else [], LocationGroupDTO )",
+            "current_obj_format = { \"id\": self.id, \"modifiedTime\": self.modified_time, \"creationTime\": self.creation_time, \"modifiedBy\": self.modified_by, \"ziaErName\": self.zia_er_name, \"ziaErId\": self.zia_er_id, \"locationDTO\": self.location_dto, }"
+          ],
+          "note": "every config read in the class (8 of 8) and its whole request_format dict; neither has zpnErId"
         }
       ],
       "conditions": "No zpnErId appears in the ExtranetDTO class; the separate ZPNERID model elsewhere in the file is not part of it."
@@ -600,10 +626,20 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/appservercontroller/zpa_app_server_controller.go",
           "quotes": [
+            "appServerControllerEndpoint = \"/server\"",
             "relativeURL := mgmtConfig + service.Client.GetCustomerID() + appServerControllerEndpoint + \"/summary\"",
             "func GetServerSummary(ctx context.Context, service *zscaler.Service) ([]common.CommonSummary, *http.Response, error) {",
             "list, resp, err := common.GetAllPagesGenericWithCustomFilters[common.CommonSummary](ctx, service.Client, relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()})"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "totalPages, result, resp, err := getAllPagesGenericWithCustomFilters[T](ctx, client, relativeURL, 1, DefaultPageSize, filters)",
+            "resp, err := client.NewRequestDo(ctx, \"GET\", relativeURL, pagination, nil, &paged)"
+          ],
+          "note": "GetAllPagesGenericWithCustomFilters pages through getAllPagesGenericWithCustomFilters, which issues GET"
         },
         {
           "source": "sdk-python",

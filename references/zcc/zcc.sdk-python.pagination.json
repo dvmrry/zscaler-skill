@@ -66,7 +66,7 @@
   ],
   "claims": {
     "app-profiles-envelope": {
-      "statement": "The application-profiles list is an exception: it returns a `policies` envelope, which `get_application_profiles` unwraps itself.",
+      "statement": "The application-profiles list returns a `policies` envelope, which `get_application_profiles` unwraps itself.",
       "tier": "A",
       "evidence": [
         {
@@ -117,7 +117,7 @@
       ]
     },
     "limit-clamp-local-only": {
-      "statement": "A caller-supplied page size is clamped into that range only for the response object's own continuation limit. The request has already gone out with the caller's value, because ZCC query parameters are only camel-cased, not checked, so a `page_size` of 6000 is sent as `pageSize=6000`.",
+      "statement": "A caller-supplied page size is clamped into that range only for the response object's own continuation limit. The request has already gone out with the caller's value, because ZCC query parameters are only camel-cased, not checked, so a `page_size` above the maximum is sent unchanged as `pageSize`.",
       "tier": "A",
       "evidence": [
         {
@@ -126,7 +126,17 @@
           "quotes": [
             "self._limit = self.validate_page_size(raw_page_size, service_type)",
             "validated_size = min(max(int(page_size), min_page_size), max_page_size)",
-            "\"zcc\": {\"default\": 50, \"max\": 5000, \"min\": 1},"
+            "\"zcc\": {\"default\": 50, \"max\": 5000, \"min\": 1},",
+            "def validate_page_size(self, page_size: Optional[int], service_type: str) -> Optional[int]:",
+            "limits = self.SERVICE_PAGE_LIMITS.get(service_type, {}) max_page_size = limits.get(\"max\", 100) min_page_size = limits.get(\"min\", 1) validated_size = min(max(int(page_size), min_page_size), max_page_size) logger.debug(\"Validated page size: %d (user provided: %s)\", validated_size, page_size) return validated_size"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "def _prepare_params(self, service_type, endpoint, params, body):",
+            "if service_type.lower() == \"zpa\":"
           ]
         },
         {
@@ -146,6 +156,14 @@
           "quotes": [
             "res_details=response,",
             "response_body=response_body,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def execute(",
+          "quotes": [
+            "request, response, response_body, error = self.fire_request(request)"
           ]
         }
       ]
@@ -225,17 +243,15 @@
           "source": "sdk-python",
           "path": "zscaler/oneapi_response.py",
           "quotes": [
-            "if self._service_type == \"zcc\" and \"page\" in self._params:",
-            "self._page = int(self._params[\"page\"])"
+            "if self._service_type == \"zcc\" and \"page\" in self._params: try: self._page = int(self._params[\"page\"]) except Exception: self._page = 1 # Resolve the user-supplied page size from the correct param key per service."
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/oneapi_response.py",
-          "after": "if self._service_type == \"zcc\" and \"page\" in self._params:",
           "quotes": [
-            "except Exception:",
-            "self._page = 1"
+            "def next(self) -> Tuple[Optional[List[Any]], \"ZscalerAPIResponse\", Optional[Exception]]:",
+            "results, error = self._fetch_next_page()"
           ]
         },
         {
@@ -272,7 +288,7 @@
             "elif self._service_type == \"zcell\":",
             "elif self._service_type == \"zia\":",
             "elif self._service_type == \"ziam\":",
-            "logger.debug(\"[DEBUG] Taking ZPA/other pagination branch.\")"
+            "else: logger.debug(\"[DEBUG] Taking ZPA/other pagination branch.\")"
           ]
         }
       ]
@@ -300,7 +316,7 @@
       ]
     },
     "has-next-later-pages": {
-      "statement": "On later pages, with a page size given, `has_next()` is true only when the last page was at least that size; without one, any non-empty page continues, so the walk always ends with one extra request that returns an empty page.",
+      "statement": "On later pages, with a page size given, `has_next()` is true only when the last page was at least that size; without one, any non-empty page continues, so the walk stops only after a request returns an empty page.",
       "tier": "A",
       "evidence": [
         {
@@ -317,6 +333,7 @@
           "source": "sdk-python",
           "path": "zscaler/oneapi_response.py",
           "quotes": [
+            "# Subsequent pages - if no explicit limit, use heuristic based on results returned",
             "# If we got results, try one more page. The next call will return empty and stop."
           ]
         }

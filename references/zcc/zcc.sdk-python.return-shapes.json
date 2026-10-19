@@ -76,13 +76,13 @@
           "quotes": [
             "request, error = self._request_executor.create_request(http_method, api_url, body, headers) if error: return None",
             "response, error = self._request_executor.execute(request) if error: return None",
-            "except Exception as error: return None"
+            "try: result = self.form_response_body(response.get_body()) except Exception as error: return None"
           ]
         }
       ]
     },
     "web-privacy-get-dict": {
-      "statement": "On success `get_web_privacy` returns the camel-cased response dictionary itself, not a `WebPrivacy` model or a tuple, so it carries any key the API sends, including ones the model lacks.",
+      "statement": "On success `get_web_privacy` returns the camel-cased response dictionary itself, not a `WebPrivacy` model or a tuple, so it carries any non-null key the API sends, including ones the model lacks.",
       "tier": "A",
       "evidence": [
         {
@@ -90,14 +90,22 @@
           "path": "zscaler/zcc/web_privacy.py",
           "after": "def get_web_privacy(self) -> APIResult[dict]:",
           "quotes": [
-            "result = self.form_response_body(response.get_body())",
-            "return result"
+            "try: result = self.form_response_body(response.get_body()) except Exception as error: return None return result"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_privacy.py",
+          "quotes": [
+            "from zscaler.zcc.models.webprivacy import WebPrivacy",
+            "result = WebPrivacy(self.form_response_body(response.get_body()))"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/api_client.py",
           "quotes": [
+            "for key, val in body.items(): if val is None: continue",
             "result[_to_camel(key)] = val"
           ],
           "after": "def form_response_body(body: Union[Dict[str, Any], List[Any], Any]) -> Union[Dict[str, Any], List[Any], Any]:"
@@ -182,6 +190,7 @@
           "source": "sdk-python",
           "path": "zscaler/zcc/devices.py",
           "quotes": [
+            "def get_device_details(self, query_params: Optional[dict] = None) -> APIResult[dict]:",
             "# Handle single object response directly since getDeviceDetails returns a single object",
             "result = DeviceDetails(self.form_response_body(response.get_body()))"
           ]
@@ -197,6 +206,7 @@
           "source": "sdk-python",
           "path": "zscaler/zcc/company.py",
           "quotes": [
+            "def get_company_info(self) -> APIResult[dict]:",
             "response, error = self._request_executor.execute(request, CompanyInfo)",
             "for item in response.get_results():",
             "result.append(CompanyInfo(self.form_response_body(item)))",
@@ -379,6 +389,7 @@
           "source": "sdk-python",
           "path": "zscaler/zcc/web_privacy.py",
           "quotes": [
+            "def set_web_privacy_info(self, **kwargs) -> APIResult[dict]:",
             "body.update(kwargs)",
             "result = WebPrivacy(self.form_response_body(response.get_body()))"
           ]

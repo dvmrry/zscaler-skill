@@ -85,7 +85,7 @@
   ],
   "claims": {
     "v1-update-sends-fresh-request": {
-      "statement": "A v1 policy rule update builds a new request from Terraform state only; it does not read the existing rule and merge. The v1 forwarding rule is the example: its expander sets a handful of scalar fields and the conditions, and its update calls the SDK without a preceding read. The SDK request type tags `devicePostureFailureNotificationEnabled`, `appServerGroups`, `appConnectorGroups` and `serviceEdgeGroups` without `omitempty`, so they are always serialized, as `false` and `null` when the provider left them unset.",
+      "statement": "The v1 forwarding rule update builds its request from Terraform state only and does not read the existing rule to merge: its expander sets a handful of scalar fields and the conditions, and its update calls the SDK without a preceding read. The SDK request type tags `devicePostureFailureNotificationEnabled`, `appServerGroups`, `appConnectorGroups` and `serviceEdgeGroups` without `omitempty`, so they are always serialized, including when the provider left them unset.",
       "tier": "A",
       "evidence": [
         {
@@ -115,8 +115,8 @@
           ],
           "after": "func resourcePolicyForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "req, err := expandCreatePolicyForwardingRule(d, policySetID)",
-            "if _, err := policysetcontroller.UpdateRule(ctx, service, policySetID, ruleID, req); err != nil {"
+            "req, err := expandCreatePolicyForwardingRule(d, policySetID) if err != nil { return diag.FromErr(err) } if err := ValidateConditions(ctx, req.Conditions, zClient, GetString(d.Get(\"microtenant_id\"))); err != nil {",
+            "return diag.FromErr(err) } if _, err := policysetcontroller.UpdateRule(ctx, service, policySetID, ruleID, req); err != nil {"
           ]
         },
         {
@@ -130,7 +130,22 @@
             "DevicePostureFailureNotificationEnabled bool `json:\"devicePostureFailureNotificationEnabled\"`",
             "AppServerGroups []servergroup.ServerGroup `json:\"appServerGroups\"`",
             "ServiceEdgeGroups []serviceedgegroup.ServiceEdgeGroup `json:\"serviceEdgeGroups\"`",
-            "AppConnectorGroups []appconnectorgroup.AppConnectorGroup `json:\"appConnectorGroups\"`"
+            "AppConnectorGroups []appconnectorgroup.AppConnectorGroup `json:\"appConnectorGroups\"`",
+            "Description string `json:\"description,omitempty\"`"
+          ],
+          "after": "type PolicyRule struct {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "ResourcesMap: map[string]*schema.Resource{",
+          "quotes": [
+            "\"zpa_policy_forwarding_rule\": resourcePolicyForwardingRule(),",
+            "\"zpa_policy_forwarding_rule_v2\": resourcePolicyForwardingRuleV2(),"
           ]
         }
       ],
@@ -234,10 +249,22 @@
             "v3.8.42",
             "HEAD"
           ],
+          "quotes": [
+            "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
           "after": "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {",
           "quotes": [
-            "if operand.Name != \"\" {",
-            "condtion.Operands[i].Name = \"\""
+            "for i, condtion := range policySetRule.Conditions {",
+            "for i, operand := range condtion.Operands { if operand.Name != \"\" { condtion.Operands[i].Name = \"\" } }",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, policySetRule, nil)"
           ]
         },
         {
@@ -863,7 +890,7 @@
           "after": "func detachPRACredentialFromPolicy(ctx context.Context, id string, policySetControllerService *zscaler.Service) error {",
           "quotes": [
             "types := []string{\"CREDENTIAL_POLICY\"}",
-            "if op.ObjectType == \"APP\" && op.LHS == \"id\" && op.RHS == id {",
+            "if op.ObjectType == \"APP\" && op.LHS == \"id\" && op.RHS == id { changed = true continue } operands = append(operands, op)",
             "r, _, err := policysetcontroller.GetAllByType(ctx, policySetControllerService, t)"
           ]
         },
@@ -889,6 +916,17 @@
           "after": "func resourcePRACredentialControllerDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "if err := detachPRACredentialFromPolicy(ctx, d.Id(), service); err != nil {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\""
           ]
         }
       ],
@@ -968,7 +1006,8 @@
             "req.CredentialPool = resp.CredentialPool",
             "if id, ok := m[\"id\"].(string); ok && id != \"\" {",
             "credential = &policysetcontrollerv2.Credential{ID: id}",
-            "if req.Credential == nil && req.CredentialPool == nil {"
+            "if req.Credential == nil && req.CredentialPool == nil {",
+            "return diag.Errorf(\"either credential or credential_pool block must be present and contain an ID during update\")"
           ]
         }
       ],

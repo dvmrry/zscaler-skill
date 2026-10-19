@@ -120,7 +120,8 @@
           ],
           "after": "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) {",
           "quotes": [
-            "responseObject := reflect.New(t).Interface()"
+            "responseObject := reflect.New(t).Interface()",
+            "return responseObject, nil"
           ]
         },
         {
@@ -132,7 +133,8 @@
           ],
           "after": "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) {",
           "quotes": [
-            "responseObject := reflect.New(t).Interface()"
+            "responseObject := reflect.New(t).Interface()",
+            "return responseObject, nil"
           ]
         }
       ],
@@ -163,7 +165,7 @@
       "conditions": "No other provider call to `UpdateAdminUser` was found at v4.8.3 or HEAD (git grep in zia/), so the defect matters to other SDK callers."
     },
     "sub-location-lookups-swallow-errors": {
-      "statement": "Sub-location lookups by ID and by name treat an API error as \"keep looking\". `GetSubLocationBySubID` ignores the error from each parent's lookup and only returns on success, and `GetSubLocationByName` discards the error from listing sub-locations outright. A permission, rate-limit, or server error on every parent ends as the synthetic \"not found\" error (by ID) or \"no sublocation found\" (by name). `GetLocationOrSublocationByID` and `...ByName` do the same with their first lookup, falling through to the sub-location search on any error. By name, an error listing the parent locations themselves is still returned; only the per-parent sub-location errors are dropped.",
+      "statement": "Sub-location lookups by ID and by name treat an API error as \"keep looking\". `GetSubLocationBySubID` ignores the error from each parent's lookup and only returns on success, and `GetSubLocationByName` discards the error from listing sub-locations outright. An API error on every parent, whatever its status, ends as the synthetic \"not found\" error (by ID) or \"no sublocation found\" (by name). `GetLocationOrSublocationByID` and `...ByName` do the same with their first lookup, falling through to the sub-location search on any error. By name, an error listing the parent locations themselves is still returned; only the per-parent sub-location errors are dropped.",
       "tier": "A",
       "evidence": [
         {
@@ -174,13 +176,16 @@
             "HEAD"
           ],
           "quotes": [
+            "func GetSubLocationBySubID(ctx context.Context, service *zscaler.Service, subLocationID int) (*Locations, error) {",
             "if err == nil && subLoc != nil {",
             "return nil, fmt.Errorf(\"sublocation not found: %d\", subLocationID)\n}\n\n// GetSublocations gets all",
             "subLocs, _ := GetSublocations(context.Background(), service, location.ID)",
+            "func GetLocationOrSublocationByID(ctx context.Context, service *zscaler.Service, id int) (*Locations, error) {",
             "location, err := GetLocation(context.Background(), service, id)\n\tif err == nil && location != nil {",
             "func GetSubLocationByName(ctx context.Context, service *zscaler.Service, subLocatioName string) (*Locations, error) { locations, err := GetAll(ctx, service) if err != nil { return nil, err }",
             "return nil, fmt.Errorf(\"no sublocation found with name: %s\", subLocatioName)",
             "return GetSubLocationBySubID(context.Background(), service, id)",
+            "func GetLocationOrSublocationByName(ctx context.Context, service *zscaler.Service, name string) (*Locations, error) {",
             "location, err := GetLocationByName(context.Background(), service, name) if err == nil && location != nil { return location, nil } return GetSubLocationByName(context.Background(), service, name)"
           ]
         }
@@ -205,7 +210,9 @@
             "HEAD"
           ],
           "quotes": [
+            "func GetSubLocation(ctx context.Context, service *zscaler.Service, locationID, subLocationID int) (*Locations, error) {",
             "locations, err := GetSublocations(context.Background(), service, locationID)",
+            "func GetSubLocationByNames(ctx context.Context, service *zscaler.Service, locationName, subLocatioName string) (*Locations, error) {",
             "location, err := GetLocationByName(context.Background(), service, locationName)"
           ]
         }
@@ -273,7 +280,11 @@
           ],
           "quotes": [
             "func GetSubLocationByNames(ctx context.Context, service *zscaler.Service, locationName, subLocatioName string) (*Locations, error) { location, err := GetLocationByName(context.Background(), service, locationName) if err != nil { return nil, err }",
-            "subLocations, err := GetSublocations(context.Background(), service, location.ID) if err != nil { return nil, err }"
+            "subLocations, err := GetSublocations(context.Background(), service, location.ID) if err != nil { return nil, err }",
+            "func GetLocationOrSublocationByID(ctx context.Context, service *zscaler.Service, id int) (*Locations, error) { location, err := GetLocation(context.Background(), service, id) if err == nil && location != nil { return location, nil } return GetSubLocationBySubID(context.Background(), service, id)",
+            "func GetLocationOrSublocationByName(ctx context.Context, service *zscaler.Service, name string) (*Locations, error) { location, err := GetLocationByName(context.Background(), service, name) if err == nil && location != nil { return location, nil } return GetSubLocationByName(context.Background(), service, name)",
+            "subLocs, _ := GetSublocations(context.Background(), service, location.ID)",
+            "subLoc, err := GetSubLocation(context.Background(), service, location.ID, subLocationID) if err == nil && subLoc != nil { return subLoc, nil }"
           ]
         }
       ]
@@ -290,6 +301,7 @@
             "HEAD"
           ],
           "quotes": [
+            "func UpdateURLReview(ctx context.Context, service *zscaler.Service, reviews []URLReview) error {",
             "resp, err := service.Client.UpdateWithSlicePayload(context.Background(), urlCategoriesEndpoint+\"/review/domains\", reviews)"
           ]
         }
@@ -344,7 +356,8 @@
             "return &rule, nil",
             "if rule.Action == \"ISOLATE\" && rule.CBIProfile == nil && rule.CBIProfileID != 0 {",
             "allRules, getAllErr := GetAll(ctx, service) if getAllErr == nil {",
-            "if allRules[i].ID == ruleID && allRules[i].CBIProfile != nil { rule.CBIProfile = allRules[i].CBIProfile"
+            "if allRules[i].ID == ruleID && allRules[i].CBIProfile != nil { rule.CBIProfile = allRules[i].CBIProfile",
+            "break } } } } service.Client.GetLogger().Printf(\"[DEBUG]Returning url filtering rules from Get: %d\", rule.ID) return &rule, nil }"
           ]
         }
       ],
@@ -525,6 +538,7 @@
             "HEAD"
           ],
           "quotes": [
+            "func CreateDuplicate(ctx context.Context, service *zscaler.Service, ruleType string, ruleID int, newName string) (*WebApplicationRules, error) {",
             "url := fmt.Sprintf(\"%s/%s/duplicate/%d?name=%s\", webApplicationRulesEndpoint, ruleType, ruleID, newName)",
             "resp, err := service.Client.Create(ctx, url, nil)"
           ]
@@ -537,6 +551,7 @@
             "HEAD"
           ],
           "quotes": [
+            "func (c *Client) Create(ctx context.Context, endpoint string, o interface{}) (interface{}, error) { if c.oauth2Credentials.UseLegacyClient {",
             "return nil, errors.New(\"tried to create with a nil payload not a Struct\")",
             "return c.oauth2Credentials.LegacyClient.ZiaClient.Create(ctx, removeOneApiEndpointPrefix(endpoint), o)"
           ]

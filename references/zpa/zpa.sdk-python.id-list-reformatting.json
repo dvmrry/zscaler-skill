@@ -60,6 +60,7 @@
           "quotes": [
             "id_groups: list, source_dict: dict, target_dict: dict, coerce_ids: bool = True",
             "id_groups: List of ``(snake_case_key, wire_key)`` tuples to remap.",
+            "convert that list/dict to the final ``{\"id\": ...}`` structure,",
             "value = source_dict.pop(key)",
             "final_list.append({\"id\": _maybe_coerce(item)})",
             "elif isinstance(item, dict) and \"id\" in item:",
@@ -95,19 +96,17 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/server_groups.py",
           "quotes": [
-            "(\"server_ids\", \"servers\"),",
-            "(\"app_connector_group_ids\", \"appConnectorGroups\"),"
+            "reformat_params = [ (\"server_ids\", \"servers\"), (\"app_connector_group_ids\", \"appConnectorGroups\"), ]"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/server_groups.py",
           "quotes": [
+            "body = kwargs",
             "body[\"appConnectorGroups\"] = [{\"id\": group_id} for group_id in body.pop(\"app_connector_group_ids\")]",
-            "body[\"servers\"] = [{\"id\": group_id} for group_id in body.pop(\"server_ids\")]",
-            "transform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)",
-            "if \"app_connector_group_ids\" in body:",
-            "if \"server_ids\" in body:"
+            "if \"server_ids\" in body: body[\"servers\"] = [{\"id\": group_id} for group_id in body.pop(\"server_ids\")] transform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)",
+            "if \"app_connector_group_ids\" in body:"
           ],
           "after": "def add_group("
         }
@@ -122,7 +121,7 @@
           "source": "sdk-python",
           "path": "zscaler/utils.py",
           "quotes": [
-            "if kwargs.get(entry[0]):"
+            "for entry in id_groups: if kwargs.get(entry[0]): payload[entry[1]] = [{\"id\": param_id} for param_id in kwargs.pop(entry[0])] return"
           ],
           "after": "def add_id_groups("
         },
@@ -265,9 +264,26 @@
           "source": "sdk-python",
           "path": "CHANGELOG.md",
           "quotes": [
-            "Fixed ZPA application segment add/update functions raising `TypeError` when `server_group_ids=None` is passed; `None` is now treated as not supplied."
+            "Fixed ZPA application segment add/update functions raising `TypeError` when `server_group_ids=None` is passed; `None` is now treated as not supplied.",
+            "Issue #575"
           ],
           "after": "## 1.11.1 (October 6 2026)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "convert that list/dict to the final ``{\"id\": ...}`` structure,"
+          ],
+          "after": "def transform_common_id_fields("
+        },
+        {
+          "source": "sdk-python",
+          "path": "CLAUDE.md",
+          "quotes": [
+            "Exception: the application segment resources (`application_segment.py`, `app_segments_ba.py`, `app_segments_ba_v2.py`, `app_segments_inspection.py`, `app_segments_pra.py`)",
+            "no longer have a manual `server_group_ids` block in their add/update paths — the helper handles it, which also makes `server_group_ids=None` a no-op instead of a `TypeError` (#575)"
+          ]
         }
       ]
     }

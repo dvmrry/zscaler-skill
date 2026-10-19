@@ -397,6 +397,34 @@
             "SrcIpGroups []common.IDNameExtensions `json:\"srcIpGroups,omitempty\"`",
             "DestIpGroups []common.IDNameExtensions `json:\"destIpGroups,omitempty\"`"
           ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_source_groups.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "err := DetachRuleIDNameExtensions(",
+            "return r.SrcIpGroups",
+            "r.SrcIpGroups = ids"
+          ],
+          "after": "func resourceIPSourceGroupsGroupsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_destination_groups.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "err := DetachRuleIDNameExtensions(",
+            "return r.DestIpGroups",
+            "r.DestIpGroups = ids"
+          ],
+          "after": "func resourceIPDestinationGroupsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
       ]
     },
@@ -509,7 +537,7 @@
           "quotes": [
             "for _, rule := range rules {",
             "for _, destGroup := range getResources(&rule) { if destGroup.ID != id { ids = append(ids, destGroup) } else { shouldUpdate = true } }",
-            "if shouldUpdate { setResources(&rule, ids) time.Sleep(time.Second * 5) _, err = forwarding_rules.Get(ctx, service, rule.ID) if err == nil {"
+            "if shouldUpdate { setResources(&rule, ids) time.Sleep(time.Second * 5) _, err = forwarding_rules.Get(ctx, service, rule.ID) if err == nil { _, err = forwarding_rules.Update(ctx, service, rule.ID, &rule)"
           ],
           "after": "func DetachRuleIDNameExtensions("
         }

@@ -190,8 +190,9 @@
           "source": "sdk-python",
           "path": "zscaler/zia/apptotal.py",
           "quotes": [
-            "returned. If not, the app is submitted for analysis. After analysis is complete, a subsequent GET request is"
-          ]
+            "Searches the AppTotal App Catalog by app ID. If the app exists in the catalog, the app's information is returned. If not, the app is submitted for analysis. After analysis is complete, a subsequent GET request is required to fetch the app's information."
+          ],
+          "after": "def get_app(self, app_id: str, verbose: bool = False)"
         }
       ]
     },
@@ -218,7 +219,7 @@
       ]
     },
     "browser-control-shared-endpoint": {
-      "statement": "The older `browser_control_settings` client and the newer `secure_browsing` client both read and write the same path `/browserControlSettings`; the Go `browser_control_settings` and `secure_browsing` packages use that path too. The older Python client does not use a `/browserControl` path.",
+      "statement": "The older `browser_control_settings` client and the newer `secure_browsing` client both read and write the same path `/browserControlSettings`; the Go `browser_control_settings` and `secure_browsing` packages use that path too.",
       "tier": "A",
       "evidence": [
         {
@@ -286,6 +287,13 @@
         {
           "source": "sdk-python",
           "path": "zscaler/zia/secure_browsing.py",
+          "quotes": [
+            "def update_smart_isolation(self, **kwargs) -> APIResult[dict]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/secure_browsing.py",
           "after": "/browserControlSettings/smartIsolation",
           "quotes": [
             "transform_common_id_fields(reformat_params, body, body)"
@@ -310,8 +318,11 @@
           "path": "zscaler/zia/secure_browsing.py",
           "quotes": [
             "smart_isolation_users_ids (list[str]): IDs of users for which the rule is applied.",
-            "smart_isolation_groups_ids (list[str]): IDs of groups for which the rule is applied."
-          ]
+            "smart_isolation_groups_ids (list[str]): IDs of groups for which the rule is applied.",
+            "...     smart_isolation_users_ids=[12345, 67890],",
+            "...     smart_isolation_groups_ids=[24680, 24681],"
+          ],
+          "after": "def update_smart_isolation(self, **kwargs) -> APIResult[dict]:"
         }
       ]
     },

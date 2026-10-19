@@ -45,7 +45,7 @@
     },
     {
       "label": "Accessor names.",
-      "text": "{{url-filtering-accessor}} {{categories-accessor}} {{activation-accessor}} {{activation-accessor-no-activation}}"
+      "text": "{{url-filtering-accessor}} {{url-filtering-accessor-no-rules-property}} {{categories-accessor}} {{activation-accessor}} {{activation-accessor-no-get-status}} {{activation-accessor-no-activation}}"
     },
     {
       "label": "Errors.",
@@ -92,7 +92,7 @@
   ],
   "claims": {
     "accessor-new-instance": {
-      "statement": "The OneAPI client builds one `ZIAService` and keeps it, but each service property on that object (for example `user_management`) constructs a new API client object on every access; nothing is cached below the service object.",
+      "statement": "The OneAPI client builds one `ZIAService` and keeps it. `ZIAService` stores only the request executor, and its service properties, such as `user_management` and `activate`, construct a new API client object on each access, so nothing is cached below the service object.",
       "tier": "A",
       "evidence": [
         {
@@ -109,7 +109,8 @@
           "quotes": [
             "return UserManagementAPI(self._request_executor)",
             "def __init__(self, request_executor: RequestExecutor) -> None: # Ensure the service gets the request executor from the Client object self._request_executor = request_executor",
-            "@property def user_management(self) -> UserManagementAPI:"
+            "@property def user_management(self) -> UserManagementAPI:",
+            "@property def activate(self) -> ActivationAPI: \"\"\" The interface object for the :ref:`ZIA Activation interface <zia-activate>`. \"\"\" return ActivationAPI(self._request_executor)"
           ]
         }
       ]
@@ -318,7 +319,7 @@
       ]
     },
     "url-filtering-accessor": {
-      "statement": "The URL Filtering rules client is the `url_filtering` property of the ZIA service (not `url_filtering_rules`), and its rule methods are list_rules, get_rule, add_rule, update_rule and delete_rule.",
+      "statement": "The URL Filtering rules client is the `url_filtering` property of the ZIA service, and its rule methods are list_rules, get_rule, add_rule, update_rule and delete_rule.",
       "tier": "A",
       "evidence": [
         {
@@ -339,6 +340,14 @@
             "def delete_rule(self, rule_id: str)"
           ]
         }
+      ]
+    },
+    "url-filtering-accessor-no-rules-property": {
+      "statement": "There is no `url_filtering_rules` property on the ZIA service; that name is the URL filtering model module, and the client is `url_filtering`.",
+      "tier": "B",
+      "conditions": "The ZIA service class at the pinned SDK defines a `url_filtering` property and no `url_filtering_rules` property, and `url_filtering.py` imports its model from `zscaler.zia.models.url_filtering_rules`; a quote cannot pin the absence of a property in code, so this rests on reading the whole file.",
+      "derived_from": [
+        "zia.sdk-python.client-errors-and-accessors:url-filtering-accessor"
       ]
     },
     "categories-accessor": {
@@ -364,7 +373,7 @@
       ]
     },
     "activation-accessor": {
-      "statement": "Activation is `client.zia.activate`, whose class defines only `status`, `activate`, `get_eusa_status` and `update_eusa_status`; there is no `get_status` method.",
+      "statement": "Activation is `client.zia.activate`, whose class defines only the methods `status`, `activate`, `get_eusa_status` and `update_eusa_status`.",
       "tier": "A",
       "evidence": [
         {
@@ -378,12 +387,28 @@
           "source": "sdk-python",
           "path": "zscaler/zia/activate.py",
           "quotes": [
+            "class ActivationAPI(APIClient):",
             "def status(self) -> APIResult[Activation]:",
             "def activate(self) -> APIResult[Activation]:",
             "def get_eusa_status(self) -> APIResult[EusaStatus]:",
             "def update_eusa_status(self, status_id: int, **kwargs) -> APIResult[EusaStatus]:"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zia/test_activation.py",
+          "quotes": [
+            "config_status, _, error = client.zia.activate.status()"
+          ]
         }
+      ]
+    },
+    "activation-accessor-no-get-status": {
+      "statement": "The activation class has no `get_status` method; the activation status call is `status`.",
+      "tier": "B",
+      "conditions": "Rests on the complete list of methods the activation class defines at the pinned SDK; a quote cannot pin the absence of a method in code.",
+      "derived_from": [
+        "zia.sdk-python.client-errors-and-accessors:activation-accessor"
       ]
     },
     "activation-accessor-no-activation": {

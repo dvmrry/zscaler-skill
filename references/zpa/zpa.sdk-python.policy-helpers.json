@@ -169,6 +169,7 @@
             "elif isinstance(condition, dict):",
             "operator = \"OR\"  # Default operator if none specified",
             "if isinstance(condition, tuple) and isinstance(condition[0], str) and condition[0].upper() in [\"AND\", \"OR\"]:",
+            "operator = condition[0].upper() condition = condition[1]  # The second element is the actual condition",
             "object_type = condition[0].upper()",
             "lhs = condition[1]",
             "rhs = condition[2]",
@@ -225,11 +226,9 @@
             "object_type = condition[0].lower()",
             "values = condition[1:]",
             "elif object_type in [\"app\", \"app_group\"]:",
-            "elif object_type in [\"console\", \"location\", \"machine_grp\", \"client_type\", \"user_portal\"]:",
+            "# Handle individual conditions (each in their own block) elif object_type in [\"console\", \"location\", \"machine_grp\", \"client_type\", \"user_portal\"]: individual_conditions.append( { \"operator\": operator, \"operands\": [ {",
             "for lhs, rhs in values[0]:",
             "criteria_conditions.setdefault(key, []).append({\"lhs\": lhs, \"rhs\": rhs})",
-            "# Handle individual conditions (each in their own block)",
-            "\"operator\": operator,",
             "result.extend(individual_conditions)",
             "if object_type.lower() in [ \"posture\", \"trusted_network\", \"country_code\", \"platform\", \"risk_factor_type\", \"saml\", \"scim\", \"scim_group\", ]:",
             "\"entryValues\": [v if isinstance(v, dict) else {\"lhs\": v[0], \"rhs\": v[1]} for v in values],"
@@ -342,7 +341,7 @@
       ]
     },
     "python-isolation-client-type": {
-      "statement": "If an isolation rule or a v2 browser protection rule built by the Python SDK has no `CLIENT_TYPE` condition, the builder appends an OR condition for `zpn_client_type_exporter` (flat lhs/rhs in v1, a `values` list in v2) without warning. The Go SDK adds nothing to rule conditions.",
+      "statement": "If an isolation rule or a v2 browser protection rule built by the Python SDK has no `CLIENT_TYPE` condition, the builder appends an OR condition for `zpn_client_type_exporter` (flat lhs/rhs in v1, a `values` list in v2) without warning. The Go SDK's `CreateRule` and `UpdateRule`, in both policy packages, add no condition.",
       "tier": "A",
       "evidence": [
         {
@@ -477,13 +476,12 @@
           "quotes": [
             "if action.lower() == \"redirect_default\" and service_edge_group_ids:",
             "elif action.lower() in [\"redirect_preferred\", \"redirect_always\"] and not service_edge_group_ids:",
-            "if val in (\"zpn_client_type_branch_connector\", \"zpn_client_type_edge_connector\"):",
+            "if action.lower() == \"redirect_always\": for condition in payload[\"conditions\"]: for operand in condition.get(\"operands\", []): if operand.get(\"objectType\") == \"CLIENT_TYPE\": for val in operand.get(\"values\", []): if val in (\"zpn_client_type_branch_connector\", \"zpn_client_type_edge_connector\"): raise ValueError(",
             "\"action\": action.upper(),",
             "if operand[\"objectType\"] == \"CLIENT_TYPE\" and operand[\"values\"][0] not in valid_client_types:",
             "raise ValueError(\"service_edge_group_ids cannot be set when action is 'redirect_default'.\")",
             "raise ValueError(\"service_edge_group_ids must be set when action is 'redirect_preferred' or 'redirect_always'.\")",
             "valid_client_types = [ \"zpn_client_type_edge_connector\", \"zpn_client_type_branch_connector\", \"zpn_client_type_machine_tunnel\", \"zpn_client_type_zapp\", \"zpn_client_type_zapp_partner\", ]",
-            "if action.lower() == \"redirect_always\":",
             "\"'zpn_client_type_edge_connector' when action is 'REDIRECT_ALWAYS'.\""
           ],
           "after": "def add_redirection_rule_v2(self, name: str, action: str, service_edge_group_ids: list = [], **kwargs)"
@@ -565,7 +563,8 @@
           "quotes": [
             "\"appConnectorGroups\": [{\"id\": group_id} for group_id in app_connector_group_ids],",
             "app_connector_group_ids: list = [],",
-            "transform_common_id_fields(self.reformat_params, kwargs, payload, coerce_ids=False)"
+            "transform_common_id_fields(self.reformat_params, kwargs, payload, coerce_ids=False)",
+            "\"appServerGroups\": [{\"id\": group_id} for group_id in app_server_group_ids], } body = kwargs microtenant_id = body.get(\"microtenant_id\", None) params = {\"microtenantId\": microtenant_id} if microtenant_id else {} transform_common_id_fields(self.reformat_params, kwargs, payload, coerce_ids=False)"
           ],
           "after": "def add_access_rule("
         },
@@ -575,7 +574,8 @@
           "quotes": [
             "app_connector_group_ids: list = None,",
             "\"appConnectorGroups\": [{\"id\": group_id} for group_id in (app_connector_group_ids or [])],",
-            "transform_common_id_fields(self.reformat_params, kwargs, payload, coerce_ids=False)"
+            "transform_common_id_fields(self.reformat_params, kwargs, payload, coerce_ids=False)",
+            "\"appServerGroups\": [{\"id\": group_id} for group_id in (app_server_group_ids or [])], } # Add remaining attributes from kwargs, transforming them to camel case transform_common_id_fields(self.reformat_params, kwargs, payload, coerce_ids=False)"
           ],
           "after": "def update_access_rule("
         }
@@ -624,27 +624,35 @@
       ]
     },
     "python-bulk-reorder-passthrough": {
-      "statement": "The Python `bulk_reorder_rules` PUTs the caller's `rules_orders` list to the policy set's `reorder` endpoint unmodified: it does not look for or move `Default_Rule`.",
+      "statement": "The Python `bulk_reorder_rules` PUTs the caller's `rules_orders` list to the policy set's `reorder` endpoint unmodified: it does not look for or move `Default_Rule`, which the Go SDK's `BulkReorder` takes out and appends last.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/policies.py",
           "quotes": [
-            "request, error = self._request_executor.create_request(http_method, api_url, body=rules_orders, params=params)"
-          ]
-        },
-        {
-          "source": "sdk-python",
-          "path": "zscaler/zpa/policies.py",
-          "quotes": [
-            "/policySet/{policy_set_id}/reorder",
-            "http_method = \"put\".upper()"
+            "http_method = \"put\".upper() policy_data, _, err = self.get_policy(policy_type) if err or not policy_data: return (None, None, f\"Error retrieving policy for {policy_type}: {err}\") policy_set_id = policy_data.get(\"id\")",
+            "if not policy_set_id: return (None, None, f\"No policy ID found for policy_type: {policy_type}\") api_url = format_url(f\"\"\" {self._zpa_base_endpoint_v1} /policySet/{policy_set_id}/reorder \"\"\")",
+            "microtenant_id = kwargs.pop(\"microtenant_id\", None) params = {\"microtenantId\": microtenant_id} if microtenant_id else {} request, error = self._request_executor.create_request(http_method, api_url, body=rules_orders, params=params)",
+            "response, error = self._request_executor.execute(request) if error: return (None, response, error) return (None, response, None)"
           ],
           "after": "def bulk_reorder_rules(self, policy_type: str, rules_orders: list[str], **kwargs)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "for _, rule := range all { // Check if this is the Default_Rule if rule.Name == \"Default_Rule\" { defaultRuleID = rule.ID continue }",
+            "// Append the Default_Rule to the end if it exists if defaultRuleID != \"\" {"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
         }
       ],
-      "conditions": "That the function never references Default_Rule is a negative read of the pinned file (a grep for Default_Rule in policies.py finds nothing)."
+      "conditions": "That the function never references Default_Rule is a negative read of the pinned file (a grep for Default_Rule in policies.py finds nothing); the quoted body from the method to its return covers every statement after the docstring."
     },
     "generic-calls-use-map": {
       "statement": "`get_policy` and `list_rules` look the type up in `POLICY_MAP` without further filtering, and `delete_rule` resolves its policy set through `get_policy(policy_type, ...)`.",

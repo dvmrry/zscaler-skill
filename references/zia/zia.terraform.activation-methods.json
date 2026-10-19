@@ -85,6 +85,7 @@
           "quotes": [
             "The provider supports three activation methods, described below in order of preference.",
             "### Method 1 — Out-of-band activation with the `ziaActivator` CLI (recommended)",
+            "### Method 2 — The `zia_activation_status` resource",
             "### Method 3 — The `ZIA_ACTIVATION` environment variable (discouraged)"
           ]
         }
@@ -98,10 +99,10 @@
           "source": "tf-zia",
           "path": "docs/index.md",
           "quotes": [
-            "This is the recommended method for CI/CD pipelines and for large configurations.",
-            "It issues exactly one activation call for the entire run",
-            "adds no activation traffic to the apply itself"
-          ]
+            "Compile the dedicated activation binary and run it once, after Terraform has finished:",
+            "This is the recommended method for CI/CD pipelines and for large configurations. It issues exactly one activation call for the entire run, keeps activation timing explicitly under your control, and adds no activation traffic to the apply itself."
+          ],
+          "after": "### Method 1 — Out-of-band activation with the `ziaActivator` CLI (recommended)"
         }
       ]
     },
@@ -113,10 +114,10 @@
           "source": "tf-zia",
           "path": "docs/index.md",
           "quotes": [
-            "`depends_on` cannot be inferred",
-            "every resource whose changes must be activated has to be listed explicitly",
-            "therefore left pending"
-          ]
+            "it carries an important limitation: `depends_on` cannot be inferred, so **every resource whose changes must be activated has to be listed explicitly**.",
+            "Any resource you forget may be applied *after* activation and therefore left pending."
+          ],
+          "after": "### Method 2 — The `zia_activation_status` resource"
         }
       ]
     },
@@ -262,10 +263,8 @@
           "source": "tf-zia",
           "path": "docs/guides/zia-activator-overview.md",
           "quotes": [
-            "`EDIT_LOCK_NOT_AVAILABLE`, `Resource Access Blocked`, or `Failed during enter Org barrier`",
-            "contention typically appears as a progressively slower run rather than an immediate failure",
-            "requests that cannot acquire it are rejected with",
-            "The provider retries these automatically"
+            "Separately, the platform serialises configuration changes at the tenant level using a single write lock. Concurrent runs contend for it, and requests that cannot acquire it are rejected with `EDIT_LOCK_NOT_AVAILABLE`, `Resource Access Blocked`, or `Failed during enter Org barrier`.",
+            "The provider retries these automatically, so contention typically appears as a progressively slower run rather than an immediate failure."
           ]
         }
       ]
@@ -301,15 +300,14 @@
       ]
     },
     "queue-publishes-partial-runs": {
-      "statement": "When the queue clears, all pending tenant changes are published, including those from a run still in progress or one that failed part-way, so a partially created rule set can take effect with incomplete ordering.",
+      "statement": "When the queue clears, all pending tenant changes are published, including those from a run still in progress or one that failed part-way, so for rule-based resources a partially created rule set can take effect with incomplete ordering.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zia",
           "path": "docs/guides/zia-activator-overview.md",
           "quotes": [
-            "a partially created rule set can take effect with incomplete ordering",
-            "When the queue clears, all pending tenant changes are published — including those written by a run still in progress, or one that failed part-way through."
+            "When the queue clears, all pending tenant changes are published — including those written by a run still in progress, or one that failed part-way through. For rule-based resources, a partially created rule set can take effect with incomplete ordering."
           ]
         }
       ]
@@ -322,8 +320,7 @@
           "source": "tf-zia",
           "path": "docs/guides/zia-activator-overview.md",
           "quotes": [
-            "a separate tenant is the only boundary that provides it",
-            "as each tenant has its own write lock and activation queue."
+            "If truly concurrent execution is required, a separate tenant is the only boundary that provides it, as each tenant has its own write lock and activation queue."
           ]
         }
       ]

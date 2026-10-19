@@ -279,7 +279,8 @@
           "quotes": [
             "`enrollment_cert_id` is required when `key_type` is 'connector'.",
             "raise ValueError(\"enrollment_cert_id is required for 'connector' key_type\")",
-            "if args.key_type == \"connector\" and not args.enrollment_cert_id:"
+            "if args.key_type == \"connector\" and not args.enrollment_cert_id:",
+            "Field(default=None, description=\"Enrollment certificate ID (required for 'connector').\"),"
           ]
         },
         {
@@ -305,10 +306,10 @@
           "source": "mcp-server",
           "path": "src/zscaler_mcp/tools/zpa/provisioning_key.py",
           "quotes": [
-            "if err or not existing:",
-            "message=f\"Provisioning key {args.key_id} does not exist or was already deleted.\",",
-            "return OperationResult( success=True, message=f\"Provisioning key {args.key_id} does not exist or was already deleted.\","
-          ]
+            "existing, _, err = client.zpa.provisioning.get_provisioning_key( key_id=args.key_id, key_type=args.key_type, query_params=None ) if err or not existing:",
+            "return OperationResult( success=True, message=f\"Provisioning key {args.key_id} does not exist or was already deleted.\", ).model_dump() _, _, err = client.zpa.provisioning.delete_provisioning_key("
+          ],
+          "after": "def zpa_delete_provisioning_key(args: DeleteKeyInput) -> dict[str, Any]:"
         }
       ]
     },

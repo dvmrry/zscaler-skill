@@ -145,7 +145,7 @@
       ]
     },
     "summary-endpoint": {
-      "statement": "The Go and Python SDKs also call `GET /machineGroup/summary`, a name-and-ID listing; the OpenAPI capture does not list that path.",
+      "statement": "The Go and Python SDKs also call `/machineGroup/summary` (the Python SDK with a GET), a name-and-ID listing; the OpenAPI capture does not list that path.",
       "tier": "A",
       "binds": [
         "zpa/machine-groups"
@@ -155,15 +155,17 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/machinegroup/zpa_machine_group.go",
           "quotes": [
-            "machineGroupEndpoint + \"/summary\""
+            "machineGroupEndpoint string = \"/machineGroup\"",
+            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + machineGroupEndpoint + \"/summary\""
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/machine_groups.py",
           "quotes": [
-            "/machineGroup/summary"
-          ]
+            "http_method = \"get\".upper() api_url = format_url(f\"\"\" {self._zpa_base_endpoint} /machineGroup/summary"
+          ],
+          "after": "def list_machine_group_summary("
         },
         {
           "source": "sdk-python",

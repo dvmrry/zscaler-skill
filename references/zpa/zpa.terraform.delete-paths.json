@@ -155,8 +155,8 @@
           "after": "func detachAndCleanUpPRAPortals(ctx context.Context, portalID string, consoleService *zscaler.Service) error {",
           "quotes": [
             "for _, console := range consoles {",
-            "return fmt.Errorf(\"failed to update PRAConsoleController with ID %s: %s\", console.ID, err)",
-            "return fmt.Errorf(\"failed to delete PRAConsoleController with ID %s: %s\", console.ID, err)"
+            "_, err = praconsole.Update(ctx, consoleService, console.ID, &console) if err != nil { return fmt.Errorf(\"failed to update PRAConsoleController with ID %s: %s\", console.ID, err) }",
+            "_, err = praconsole.Delete(ctx, consoleService, console.ID) if err != nil { return fmt.Errorf(\"failed to delete PRAConsoleController with ID %s: %s\", console.ID, err) }"
           ]
         },
         {
@@ -169,6 +169,7 @@
           "after": "func resourcePRAPortalControllerDelete(",
           "quotes": [
             "if err := detachAndCleanUpPRAPortals(ctx, portalID, consoleService); err != nil { return diag.FromErr(fmt.Errorf(\"error detaching PRAPortal with ID %s from PRAConsoleControllers: %s\", portalID, err)) }",
+            "// Proceed with deletion of the portal after successful detachment.",
             "if _, err := praportal.Delete(ctx, service, portalID); err != nil {"
           ]
         }

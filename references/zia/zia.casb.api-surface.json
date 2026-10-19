@@ -607,7 +607,7 @@
       ]
     },
     "go-rule-reads": {
-      "statement": "In the Go SDK, `GetByRuleType` and `GetByRuleID` make a single read for one rule type, while `GetAll` pages through `/all` with the all-pages helper; Update sends the rule to `/{id}` with no `ruleType`, and Delete requires the rule type.",
+      "statement": "In the Go SDK, `GetByRuleType` and `GetByRuleID` make a single read for one rule type, while `GetAll` pages through `/all` with the all-pages helper; Update sends the rule to the `/%d` rule-ID path with no `ruleType`, and Delete requires the rule type.",
       "tier": "A",
       "evidence": [
         {
@@ -634,7 +634,10 @@
           "quotes": [
             "err := common.ReadAllPages(ctx, service.Client, casbDlpRulesEndpoint+\"/all\", &rules)",
             "url := fmt.Sprintf(\"%s/%d\", casbDlpRulesEndpoint, ruleID)",
-            "func Delete(ctx context.Context, service *zscaler.Service, ruleType string, ruleID int) (*http.Response, error) {"
+            "func Delete(ctx context.Context, service *zscaler.Service, ruleType string, ruleID int) (*http.Response, error) {",
+            "func GetAll(ctx context.Context, service *zscaler.Service) ([]CasbDLPRules, error) {",
+            "func Update(ctx context.Context, service *zscaler.Service, ruleID int, rules *CasbDLPRules) (*CasbDLPRules, error) {",
+            "resp, err := service.Client.UpdateWithPut(ctx, url, *rules)"
           ]
         },
         {

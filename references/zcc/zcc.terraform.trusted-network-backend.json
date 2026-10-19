@@ -107,7 +107,9 @@
             "case http.StatusBadRequest, http.StatusForbidden, http.StatusNotFound,",
             "http.StatusMethodNotAllowed, http.StatusNotImplemented:",
             "if errors.As(err, &respErr) && v2EndpointUnavailable(respErr) { return false, nil }",
-            "if available { backend = &v2Backend{svc: svc} } else { backend = &v1Backend{svc: svc} }"
+            "if available { backend = &v2Backend{svc: svc} } else { backend = &v1Backend{svc: svc} }",
+            "trusted-network operation probes the v2 list endpoint once and caches",
+            "const v2Endpoint = \"/zcc/papi/public/v2/trusted-networks\""
           ]
         },
         {
@@ -310,14 +312,20 @@
         {
           "source": "tf-zcc",
           "path": "internal/framework/tnbackend/backend_v1.go",
+          "after": "func (b *v1Backend) Update(",
           "quotes": [
-            "payload.ID = id"
+            "payload.ID = id updated, _, err := tnv1.UpdateTrustedNetwork(ctx, b.svc, payload)"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "after": "func UpdateTrustedNetwork(",
           "quotes": [
+            "if network.ID == \"\" { return nil, nil, errors.New(\"network ID is required for update\")",
+            "url := fmt.Sprintf(\"%s/edit\", trustedNetworkEndpoint)",
+            "resp, err := service.Client.NewZccRequestDo(ctx, \"PUT\", url, nil, network, &apiResp)",
+            "// PUT returns only success/errorCode, not the contract; re-fetch by id (id must be set on the request body).",
             "refreshed, _, refreshErr := GetTrustedNetworkByID(ctx, service, network.ID)"
           ]
         }

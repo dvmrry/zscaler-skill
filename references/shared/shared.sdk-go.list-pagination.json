@@ -182,6 +182,29 @@
             "v3.8.42",
             "HEAD"
           ],
+          "after": "func getAllPagesGeneric[T any](ctx context.Context, client *zscaler.Client, relativeURL string, page, pageSize int, filters Filter) (int, []T, *http.Response, error) {",
+          "quotes": [
+            "return getAllPagesGenericWithCustomFilters[T]("
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "var paged struct { TotalPages interface{} `json:\"totalPages\"` List       []T         `json:\"list\"` } // Build pagination struct with search filter (already converted to filter format)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
           "after": "// Build pagination struct with search filter (already converted to filter format)",
           "quotes": [
             "pages := fmt.Sprintf(\"%v\", paged.TotalPages)",
@@ -392,10 +415,8 @@
           "quotes": [
             "perPage = clampPageSize(perPage)",
             "params.PerPage = perPage",
-            "if page.Count == 0 || len(page.Items) == 0 {",
-            "if page.Limit > 0 && page.Count < page.Limit {",
-            "if page.Total > 0 && len(allResults) >= page.Total {",
-            "params.Skip += perPage"
+            "if params.Skip < 0 { params.Skip = 0 }",
+            "if page.Count == 0 || len(page.Items) == 0 { break } if page.Limit > 0 && page.Count < page.Limit { break } if page.Total > 0 && len(allResults) >= page.Total { break } params.Skip += perPage }"
           ],
           "after": "func ReadAllPagesV2[T any](ctx context.Context, client *zscaler.Client, endpoint string, params QueryParamsV2, perPage int) ([]T, error) {"
         }
@@ -557,7 +578,10 @@
             "HEAD"
           ],
           "quotes": [
-            "_, err := service.Client.NewZccRequestDo(ctx, \"GET\", endpoint, queryParams, nil, &profiles)"
+            "endpoint := fmt.Sprintf(\"%s/listByCompany\", webForwardingProfileEndpoint)",
+            "Page     int    `url:\"page,omitempty\"` PageSize int    `url:\"pageSize,omitempty\"`",
+            "_, err := service.Client.NewZccRequestDo(ctx, \"GET\", endpoint, queryParams, nil, &profiles)",
+            "return profiles, nil"
           ],
           "after": "func GetForwardingProfileByCompanyID(ctx context.Context, service *zscaler.Service, search string, page, pageSize *int) ([]ForwardingProfile, error) {"
         },
@@ -661,6 +685,19 @@
           "after": "func findProfileByID(ctx context.Context, service *zscaler.Service, id int) (*forwarding_profile.ForwardingProfile, error) {",
           "quotes": [
             "for attempt := 0; attempt < 5; attempt++ {"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func (r *ForwardingProfileResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {",
+          "quotes": [
+            "profiles, err := forwarding_profile.GetForwardingProfileByCompanyID(ctx, service, \"\", nil, nil)",
+            "for i := range profiles { if int(profiles[i].ID) == idInt { profile = &profiles[i] break } } if profile == nil {"
           ]
         }
       ]

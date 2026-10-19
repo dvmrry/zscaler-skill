@@ -34,7 +34,7 @@
     },
     {
       "label": "SDKs.",
-      "text": "{{go-functions}} {{python-methods}} {{no-sdk-writes}}"
+      "text": "{{go-functions}} {{python-methods}} {{python-no-lookup}} {{no-sdk-writes}}"
     },
     {
       "label": "Terraform.",
@@ -62,6 +62,7 @@
       "uses": [
         "go-functions",
         "python-methods",
+        "python-no-lookup",
         "tf-lookup",
         "zpa.posture-profiles.object-model:name-suffix-stripped"
       ]
@@ -219,7 +220,7 @@
       ]
     },
     "python-methods": {
-      "statement": "The Python SDK's PostureProfilesAPI has list_posture_profiles(query_params) on the v2 path and get_profile(profile_id), with no query_params argument, on the v1 path, and no lookup by name or UDID.",
+      "statement": "The Python SDK's PostureProfilesAPI has list_posture_profiles(query_params) on the v2 path and get_profile(profile_id), with no query_params argument, on the v1 path.",
       "tier": "A",
       "evidence": [
         {
@@ -234,8 +235,15 @@
             "{self._zpa_base_endpoint} /posture/{profile_id}"
           ]
         }
-      ],
-      "conditions": "The no-lookup part is an absence read of posture_profiles.py: the two methods are its only public ones."
+      ]
+    },
+    "python-no-lookup": {
+      "statement": "The Python SDK's PostureProfilesAPI has no lookup by name or UDID.",
+      "tier": "B",
+      "conditions": "Absence read of posture_profiles.py at the pinned SDK: besides the constructor, list_posture_profiles and get_profile are its only methods; a quote cannot pin the absence of further methods in code.",
+      "derived_from": [
+        "zpa.posture-profiles.api-surface:python-methods"
+      ]
     },
     "no-sdk-writes": {
       "statement": "Neither SDK has a create, update or delete function for posture profiles.",

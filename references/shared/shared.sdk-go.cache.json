@@ -253,6 +253,19 @@
           "quotes": [
             "firewallRulesEndpoint = \"/zia/api/v1/firewallFilteringRules\""
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "// Check cache first",
+          "quotes": [
+            "cachedResp := c.oauth2Credentials.CacheManager.Get(key) if cachedResp != nil {",
+            "// Check if there's an in-flight request for the same URL"
+          ]
         }
       ]
     },
@@ -269,10 +282,7 @@
           ],
           "after": "// Check cache first",
           "quotes": [
-            "respData, err := io.ReadAll(cachedResp.Body)",
-            "if err == nil {",
-            "cachedResp.Body = io.NopCloser(bytes.NewBuffer(respData))",
-            "return respData, cachedResp, req, nil"
+            "respData, err := io.ReadAll(cachedResp.Body) if err == nil { cachedResp.Body = io.NopCloser(bytes.NewBuffer(respData)) } c.oauth2Credentials.Logger.Printf(\"[INFO] served from cache, key:%s\\n\", key) return respData, cachedResp, req, nil"
           ]
         }
       ]

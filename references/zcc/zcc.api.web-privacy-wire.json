@@ -286,6 +286,7 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/web_privacy/web_privacy.go",
           "quotes": [
+            "func UpdateWebPrivacyInfo(ctx context.Context, service *zscaler.Service, info *WebPrivacyInfo) (*WebPrivacyInfo, error) {",
             "_, err := service.Client.NewZccRequestDo(ctx, \"PUT\", setWebPrivacyInfoEndpoint, nil, info, nil)",
             "return GetWebPrivacyInfo(ctx, service)"
           ]
@@ -293,7 +294,7 @@
       ]
     },
     "single-object": {
-      "statement": "Web privacy is one object per tenant: the API document's GET returns an object, and the Go SDK returns a single struct.",
+      "statement": "Web privacy is a single settings record, not a list: the API document's GET takes no parameters and returns an object, the Go SDK returns a single struct, and the Terraform provider documents it as a singleton.",
       "tier": "A",
       "evidence": [
         {
@@ -318,6 +319,13 @@
           "expect_absent": [
             "parameters",
             "requestBody"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "docs/resources/zcc_web_privacy.md",
+          "quotes": [
+            "Manages the singleton ZCC web privacy settings (logging, packet capture, and information-collection toggles)."
           ]
         }
       ]

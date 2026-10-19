@@ -115,9 +115,19 @@
             "if time_zone_str not in pytz.all_timezones:",
             "raise ValueError(\"Start time cannot be more than 1 hour in the past.\")",
             "raise ValueError(\"Start time and end time range cannot exceed 1 year.\")",
-            "Invalid time zone. Please visit the following site for reference"
+            "Invalid time zone. Please visit the following site for reference",
+            "if start_time < (now_in_tz - datetime.timedelta(hours=1)):",
+            "if end_time > (start_time + datetime.timedelta(days=365)):"
           ],
           "after": "def validate_and_convert_times("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_approval.py",
+          "quotes": [
+            "start_epoch, end_epoch = validate_and_convert_times(start_time, end_time, time_zone)"
+          ],
+          "after": "def add_approval("
         }
       ]
     },

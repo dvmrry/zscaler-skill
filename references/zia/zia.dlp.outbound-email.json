@@ -51,7 +51,10 @@
             "func Create(ctx context.Context, service *zscaler.Service, dlpRule *OutboundEmailDlp) (*OutboundEmailDlp, *http.Response, error) {",
             "func Update(ctx context.Context, service *zscaler.Service, ruleID int, dlpRule *OutboundEmailDlp) (*OutboundEmailDlp, *http.Response, error) {",
             "func Delete(ctx context.Context, service *zscaler.Service, profileID int) (*http.Response, error) {",
-            "func GetActions(ctx context.Context, service *zscaler.Service, tenantIDs []int) ([]byte, error) {"
+            "func GetActions(ctx context.Context, service *zscaler.Service, tenantIDs []int) ([]byte, error) {",
+            "returned as raw bytes.",
+            "endpoint := emailDlpRulesEndpoint + \"/actions\"",
+            "return service.Client.ReadRaw(ctx, endpoint, \"\")"
           ]
         }
       ]
@@ -67,6 +70,15 @@
             "The response body is a CSV file.",
             "/emailDlpRules/actions",
             "tuple: A 2-tuple of (the CSV mapping of supported outbound email DLP rule actions as bytes, error)."
+          ],
+          "after": "def get_actions(self, query_params: Optional[dict] = None, output_file: str = None) -> APIResult[bytes]:"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go",
+          "quotes": [
+            "emailDlpRulesEndpoint = \"/zia/api/v1/emailDlpRules\"",
+            "endpoint := emailDlpRulesEndpoint + \"/actions\""
           ]
         }
       ]
@@ -148,7 +160,8 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "Added the resource and data source `zia_outbound_email_dlp`"
-          ]
+          ],
+          "after": "## 4.8.0 (July, 20 2026)"
         }
       ]
     }

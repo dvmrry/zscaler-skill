@@ -37,7 +37,7 @@
     },
     {
       "label": "Public access.",
-      "text": "[[zpa.private-service-edges.client-selection:publicly-accessible]] {{is-public-field}} {{is-public-wire}} Off-network routing with the setting off is open {{gap:off-network-fallback}}."
+      "text": "[[zpa.private-service-edges.client-selection:publicly-accessible]] {{is-public-field}} {{is-public-wire}} {{is-public-wire-values}} Off-network routing with the setting off is open {{gap:off-network-fallback}}."
     },
     {
       "label": "In Terraform.",
@@ -62,7 +62,8 @@
       "uses": [
         "zpa.private-service-edges.client-selection:publicly-accessible",
         "is-public-field",
-        "is-public-wire"
+        "is-public-wire",
+        "is-public-wire-values"
       ]
     },
     {
@@ -110,7 +111,7 @@
       ]
     },
     "is-public-wire": {
-      "statement": "The Go SDK carries `isPublic` as a string. The Terraform provider writes it as `\"TRUE\"` or `\"FALSE\"` and parses it back with ParseBool, ignoring a parse error.",
+      "statement": "The Go SDK carries `isPublic` as a string. The Terraform provider writes it as the upper-cased `strconv.FormatBool` of `is_public` and parses it back with ParseBool, ignoring a parse error.",
       "tier": "A",
       "binds": [
         "zpa/service-edge-groups#isPublic"
@@ -132,6 +133,14 @@
           ]
         }
       ]
+    },
+    "is-public-wire-values": {
+      "statement": "So the provider sends `isPublic` as `\"TRUE\"` or `\"FALSE\"`.",
+      "tier": "B",
+      "derived_from": [
+        "is-public-wire"
+      ],
+      "conditions": "Follows from Go's `strconv.FormatBool` returning \"true\" or \"false\" and `strings.ToUpper`; no captured source spells out the provider's two wire values."
     },
     "tf-sends-object-id": {
       "statement": "The Terraform `trusted_networks` block on a service edge group takes trusted network `id` values, and the provider sends each as the SDK trusted network's `ID`; this is the object `id`, not the `network_id` that policy conditions use.",

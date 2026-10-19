@@ -76,7 +76,7 @@
   ],
   "claims": {
     "formats-endpoint": {
-      "statement": "The formats endpoint returns, for each log type, the default templates in tsv, csv and json form, and the Terraform data source exposes them as tsv, csv and json attributes.",
+      "statement": "The formats endpoint returns the pre-configured log formats for a requested log type; the Go SDK models the response as tsv, csv and json strings, and the Terraform data source exposes them as tsv, csv and json attributes.",
       "tier": "A",
       "evidence": [
         {
@@ -86,6 +86,15 @@
           "expect": {
             "operationId": "Gets all LSS log formats."
           }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_formats.go",
+          "quotes": [
+            "type LSSFormats struct { Csv string `json:\"csv\"` Tsv string `json:\"tsv\"` Json string `json:\"json\"` }",
+            "relativeURL := fmt.Sprintf(\"%slssConfig/logType/formats\", mgmtConfigTypesAndFormats)",
+            "LogType string `url:\"logType\"`"
+          ]
         },
         {
           "source": "tf-zpa",
@@ -101,7 +110,8 @@
           "path": "zscaler/zpa/lss.py",
           "after": "def get_all_log_formats(self, log_type=None, query_params=None) -> dict:",
           "quotes": [
-            "Returns all available pre-configured LSS Log Formats or a specific log format if specified."
+            "Returns all available pre-configured LSS Log Formats or a specific log format if specified.",
+            "Dictionary containing pre-configured LSS Log Formats."
           ]
         }
       ]

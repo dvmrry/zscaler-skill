@@ -151,6 +151,7 @@
             "For an organization, the system rate limits all endpoints called from a given IP address to 100 API calls per hour except for the /downloadDevices, /downloadServiceStatus, and /downloadDisableReasons endpoints, for which the rate limit is 3 API calls per day.",
             "All rate limits start as soon as the first call is executed. Calls can occur more than once per second, but no more than the limits for each operation type.",
             "Rate Limit headers in the response provide information about the current status of API rate limits.",
+            "This helps users plan ahead for their API integrations to avoid reaching the rate limit and receiving the 429 (Too Many Requests) error code.",
             "The system sets the following headers when rate limits are enforced:",
             "X-Rate-Limit-Remaining: Indicates the number of API requests remaining within the current rate limit window.",
             "X-Rate-Limit-Retry-After-Seconds: Specifies the number of seconds the client must wait before making another API call if the rate limit has exceeded."
@@ -167,6 +168,7 @@
           "source": "sdk-python",
           "path": "zscaler/zcc/legacy.py",
           "quotes": [
+            "def check_rate_limit(self, path):",
             "RATE_LIMIT = 100  # 100 API calls per hour",
             "DOWNLOAD_DEVICES_LIMIT = 3  # 3 calls per day",
             "if \"/downloadDevices\" in path:",
@@ -176,17 +178,35 @@
             "self.download_devices_count += 1 # ----- increment generic counter --------------------------- self.request_count += 1",
             "# ---------- pre-flight local quota ------------------------- try: self.check_rate_limit(path)"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/legacy.py",
+          "after": "def check_rate_limit(self, path):",
+          "quotes": [
+            "now = datetime.utcnow() # ----- hourly generic limit --------------------------------- if now - self.last_request_time >= self.RATE_LIMIT_RESET_TIME: self.request_count = 0 self.last_request_time = now if self.request_count >= self.RATE_LIMIT: raise RateLimitExceededError(\"IP address exceeded 100 calls per hour\")",
+            "# ----- /downloadDevices daily limit ------------------------ if \"/downloadDevices\" in path: if now - self.download_devices_last_reset >= self.DOWNLOAD_DEVICES_RESET_TIME: self.download_devices_count = 0 self.download_devices_last_reset = now",
+            "if self.download_devices_count >= self.DOWNLOAD_DEVICES_LIMIT: raise RateLimitExceededError(\"/downloadDevices exceeded 3 calls per day\") self.download_devices_count += 1 # ----- increment generic counter --------------------------- self.request_count += 1"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-understanding-rate-limiting-zcc.json",
+          "quotes": [
+            "except for the /downloadDevices, /downloadServiceStatus, and /downloadDisableReasons endpoints, for which the rate limit is 3 API calls per day."
+          ]
         }
       ]
     },
     "legacy-429-retry": {
-      "statement": "On a 429 from any path other than the two named download endpoints, the Python legacy client waits the `X-Rate-Limit-Retry-After-Seconds` value plus one second, or 60 seconds when the header is absent, and gives up when the third 429 arrives.",
+      "statement": "On a 429 from any path other than `/downloadDevices` and `/downloadServiceStatus`, the Python legacy client waits the `X-Rate-Limit-Retry-After-Seconds` value plus one second, or 60 seconds when the header is absent, and gives up when the third 429 arrives.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zcc/legacy.py",
           "quotes": [
+            "retry_after_sec = response.headers.get(\"X-Rate-Limit-Retry-After-Seconds\")",
             "return int(retry_after_sec) + 1  # 1-second pad",
             "max_attempts = 3",
             "backoff = self._get_backoff_seconds(response, default=60)",
@@ -199,6 +219,7 @@
           "after": "# ---------- 429 handling -----------------------------",
           "quotes": [
             "if response.status_code == 429:",
+            "if \"/downloadDevices\" in path or \"/downloadServiceStatus\" in path: retry_after = self._get_backoff_seconds(response, default=86400)",
             "# for all other paths, allow limited retry attempts += 1 if attempts == max_attempts: raise ValueError(\"Specific IP addresses are subjected to a rate limit of 100 calls per hour.\")",
             "time.sleep(backoff) continue"
           ]
@@ -258,6 +279,7 @@
           "path": "zscaler/zcc/legacy.py",
           "after": "# ---------- proactive check of Remaining header ------",
           "quotes": [
+            "remaining = response.headers.get(\"X-Rate-Limit-Remaining\")",
             "# treat as a soft-429 attempts += 1 if attempts == max_attempts: raise ValueError(\"Specific IP addresses are subjected to a rate limit of 100 calls per hour.\") logger.warning(\"Server reports 0 remaining calls. Retrying in 60 seconds …\") time.sleep(60)",
             "# ---------- API-level errors ------------------------- _, err = check_response_for_error(url, response, response.text)"
           ]
@@ -268,7 +290,8 @@
           "quotes": [
             "while True: try: self.refreshToken()",
             "response = requests.request( method=method, url=url, json=json, headers=headers_with_user_agent, stream=stream, timeout=self.timeout, )",
-            "time.sleep(backoff) continue # ---------- proactive check of Remaining header ------"
+            "time.sleep(backoff) continue # ---------- proactive check of Remaining header ------",
+            "if response.status_code == 429:"
           ]
         }
       ],
@@ -288,13 +311,14 @@
             "HTTPStatus.TOO_MANY_REQUESTS,",
             "# ZCC Specific Rate Limiting Headers (LegacyZCCClientHelper)",
             "retry_after = headers.get(\"Retry-After\") or headers.get(\"retry-after\")",
-            "elif retry_limit_reset_header is not None:"
+            "elif retry_limit_reset_header is not None:",
+            "Retryable statuses: 429, 500, 502, 503, 504"
           ]
         }
       ]
     },
     "oneapi-retry-budget": {
-      "statement": "The OneAPI executor retries at most `rateLimit.maxRetries` times, 2 by default, and raises `RetryTooLong` instead of waiting when a computed wait exceeds a configured `rateLimit.maxRetrySeconds`.",
+      "statement": "The Python SDK's request executor retries at most `rateLimit.maxRetries` times, 2 by default, and raises `RetryTooLong` instead of waiting when a computed wait exceeds a configured `rateLimit.maxRetrySeconds`.",
       "tier": "A",
       "evidence": [
         {

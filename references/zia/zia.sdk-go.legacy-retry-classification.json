@@ -86,6 +86,10 @@
           "source": "sdk-go",
           "path": "zscaler/zia/v2_client.go",
           "quotes": [
+            "retryableClient.CheckRetry = checkRetry",
+            "func checkRetry(ctx context.Context, resp *http.Response, err error) (bool, error) {",
+            "func getRetryOnStatusCodes() []int { return []int{http.StatusTooManyRequests} }",
+            "if resp != nil && (resp.StatusCode == http.StatusPreconditionFailed || resp.StatusCode == http.StatusConflict || resp.StatusCode == http.StatusUnauthorized) {",
             "return errorx.IsRetryableServerError(resp), nil",
             "if err == nil && resp != nil && resp.StatusCode >= 500 {"
           ]
@@ -94,6 +98,8 @@
           "source": "sdk-go",
           "path": "zscaler/errorx/errors.go",
           "quotes": [
+            "func IsRetryableServerError(res *http.Response) bool {",
+            "// 501 Not Implemented is a permanent condition, matching the upstream",
             "if res.StatusCode < 500 || res.StatusCode == http.StatusNotImplemented {",
             "502 / 503 / 504 are infrastructure signals, never API verdicts: retry them",
             "for _, msg := range transientServerErrorMessages {",
@@ -133,12 +139,15 @@
           "source": "sdk-go",
           "path": "zscaler/zia/v2_client.go",
           "quotes": [
+            "retryableClient.CheckRetry = checkRetry",
             "if err == nil && resp != nil {",
             "giving up after %d attempt(s); surfacing API response status %d",
             "drain the body and return a bare \"giving up after N attempt(s)\" error with a",
             "retryableClient.ErrorHandler = func(resp *http.Response, err error, numTries int) (*http.Response, error) {",
-            "surfacing API response status %d\", numTries, resp.StatusCode) return resp, nil"
-          ]
+            "surfacing API response status %d\", numTries, resp.StatusCode) return resp, nil",
+            "Any non-nil err is a genuine failure (transport error, cancelled or"
+          ],
+          "after": "func getHTTPClient(l logger.Logger, rateLimiter *rl.RateLimiter, cfg *Configuration) *http.Client {"
         },
         {
           "source": "sdk-go",

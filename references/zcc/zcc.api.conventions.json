@@ -130,13 +130,30 @@
           "source": "sdk-python",
           "path": "zscaler/helpers.py",
           "quotes": [
-            "Converts snake_case to camelCase with support for known edge-case field mappings."
+            "Converts snake_case to camelCase with support for known edge-case field mappings.",
+            "\"internal_ip_range\" -> \"internalIpRange\""
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "after": "def convert_keys_to_camel_case(data):",
+          "quotes": [
+            "Recursively convert all keys in a dictionary or list to camelCase."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/admin_user.py",
+          "quotes": [
+            "``[query_params.page_size]`` {int}: Specifies the page size."
+          ],
+          "after": "def list_admin_users(self, query_params: Optional[dict] = None) -> APIResult[List[AdminUser]]:"
         }
       ]
     },
     "python-body-casing": {
-      "statement": "On the OneAPI client, the Python SDK camel-cases ZCC request body keys except those in `WebPolicy.SNAKE_CASE_KEYS`, and sends a body already serialized by the ZCC model serializer unchanged. On the legacy client the `/zcc` prefix is stripped before the body is prepared, so every ZCC body, serialized or not, is camel-cased in full; only a key the converter maps to itself, such as `exit_password`, keeps its form.",
+      "statement": "On the OneAPI client, the Python SDK camel-cases ZCC request body keys except those in `WebPolicy.SNAKE_CASE_KEYS`, and sends a body already serialized by the ZCC model serializer unchanged. On the legacy client the `/zcc` prefix is stripped before the body is prepared, so every ZCC body, serialized or not, goes through the general `convert_keys_to_camel_case`, which converts all keys recursively; a key the converter maps to itself, such as `exit_password`, keeps its form.",
       "tier": "A",
       "conditions": "Narrowed per verifier to the OneAPI client, and the legacy-client path added; traced, not sent.",
       "evidence": [
@@ -165,7 +182,27 @@
           "source": "sdk-python",
           "path": "zscaler/helpers.py",
           "quotes": [
+            "def convert_keys_to_camel_case(data):",
+            "Recursively convert all keys in a dictionary or list to camelCase.",
             "\"exit_password\": \"exit_password\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def create_request(",
+          "quotes": [
+            "if self.use_legacy_client: endpoint = self.remove_oneapi_endpoint_prefix(endpoint)",
+            "json_payload = self._prepare_body(endpoint, body)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def remove_oneapi_endpoint_prefix(self, endpoint: str) -> str:",
+          "quotes": [
+            "\"/zpa\", \"/zcc\", \"/ztw\",",
+            "if endpoint.startswith(prefix): return endpoint[len(prefix) :]"
           ]
         }
       ]
@@ -225,6 +262,7 @@
           "path": "zscaler/zcc/secrets.py",
           "after": "def get_otp(self, query_params: Optional[dict] = None) -> APIResult[dict]:",
           "quotes": [
+            "http_method = \"get\".upper() api_url = format_url(f\"\"\" {self._zcc_base_endpoint} /getOtp \"\"\")",
             "query_params = query_params or {} if \"device_id\" in query_params and \"udid\" not in query_params: query_params[\"udid\"] = query_params.pop(\"device_id\") body = {} headers = {} request, error = self._request_executor.create_request(http_method, api_url, body, headers, params=query_params)"
           ]
         }

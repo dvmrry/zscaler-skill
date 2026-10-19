@@ -550,12 +550,17 @@
           "source": "sdk-python",
           "path": "zscaler/zia/ssl_inspection_rules.py",
           "quotes": [
-            "body = kwargs",
-            "if \"enabled\" in body:",
-            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\"",
-            "local_reformat_params = [param for param in reformat_params if param[0] != \"url_categories\"]",
-            "transform_common_id_fields(local_reformat_params, body, body)",
-            "request, error = self._request_executor.create_request("
+            "def add_rule( self, **kwargs, ) -> APIResult[dict]: \"\"\" Adds a new ssl inspection filter rule."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/ssl_inspection_rules.py",
+          "quotes": [
+            "\"type\": \"DO_NOT_DECRYPT\",",
+            "body = kwargs # Convert 'enabled' to 'state' (ENABLED/DISABLED) if it's present in the payload if \"enabled\" in body: body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\"",
+            "# Filter out the url_categories mapping so it doesn't get processed local_reformat_params = [param for param in reformat_params if param[0] != \"url_categories\"]",
+            "transform_common_id_fields(local_reformat_params, body, body) request, error = self._request_executor.create_request( method=http_method, endpoint=api_url, body=body, )"
           ],
           "after": "Adds a new ssl inspection filter rule."
         },
@@ -630,6 +635,22 @@
           "path": "src/zscaler_mcp/shaping/helpers.py",
           "quotes": [
             "Nothing is dropped; the shaper can only ADD to or NORMALIZE the record,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_object.py",
+          "after": "def as_dict(self) -> Dict[str, Any]:",
+          "quotes": [
+            "for key, val in self.request_format().items(): if val is None: continue"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/ssl_inspection_rules.py",
+          "quotes": [
+            "\"action\": self.action,",
+            "\"decryptSubActions\": (self.decrypt_sub_actions.request_format() if self.decrypt_sub_actions else None),"
           ]
         }
       ]

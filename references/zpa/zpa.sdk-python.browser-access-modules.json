@@ -130,13 +130,14 @@
       ]
     },
     "v1-clientless-lookup": {
-      "statement": "In the v1 module `update_segment_ba` expands `clientless_app_ids` by fetching the BROWSER_ACCESS segments and matching on domain and parent segment ID.",
+      "statement": "In the v1 module `update_segment_ba` expands `clientless_app_ids` by fetching the BROWSER_ACCESS segments and matching on domain and on the ID of the segment being updated.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_ba.py",
           "quotes": [
+            "segment_id (str): The unique identifier of the application segment.",
             "segments_list, _, err = app_segment_api.get_segments_by_type(application_type=\"BROWSER_ACCESS\")",
             "seg.domain == app.get(\"domain\") and str(seg.app_id) == segment_id",
             "if \"clientless_app_ids\" in body:",
@@ -144,6 +145,13 @@
             "body[\"clientlessApps\"] = []"
           ],
           "after": "def update_segment_ba("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba.py",
+          "quotes": [
+            "def update_segment_ba(self, segment_id: str, **kwargs) -> APIResult[dict]:"
+          ]
         }
       ]
     },

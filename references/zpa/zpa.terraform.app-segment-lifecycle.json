@@ -121,7 +121,8 @@
             "ExtranetEnabled bool `json:\"extranetEnabled\"`",
             "AutoAppProtectEnabled bool `json:\"autoAppProtectEnabled\"`",
             "ADPEnabled bool `json:\"adpEnabled\"`",
-            "APIProtectionEnabled bool `json:\"apiProtectionEnabled\"`"
+            "APIProtectionEnabled bool `json:\"apiProtectionEnabled\"`",
+            "BypassType string `json:\"bypassType,omitempty\"`"
           ]
         },
         {
@@ -134,7 +135,8 @@
           "quotes": [
             "ExtranetEnabled bool `json:\"extranetEnabled\"`",
             "APIProtectionEnabled bool `json:\"apiProtectionEnabled\"`",
-            "BypassOnReauth bool `json:\"bypassOnReauth\"`"
+            "BypassOnReauth bool `json:\"bypassOnReauth\"`",
+            "SegmentGroupID string `json:\"segmentGroupId,omitempty\"`"
           ]
         },
         {
@@ -146,7 +148,8 @@
           ],
           "quotes": [
             "APIProtectionEnabled bool `json:\"apiProtectionEnabled\"`",
-            "ExtranetEnabled bool `json:\"extranetEnabled\"`"
+            "ExtranetEnabled bool `json:\"extranetEnabled\"`",
+            "BypassOnReauth bool `json:\"bypassOnReauth,omitempty\"`"
           ]
         },
         {
@@ -158,7 +161,8 @@
           ],
           "quotes": [
             "ExtranetEnabled bool `json:\"extranetEnabled\"`",
-            "APIProtectionEnabled bool `json:\"apiProtectionEnabled\"`"
+            "APIProtectionEnabled bool `json:\"apiProtectionEnabled\"`",
+            "BypassOnReauth bool `json:\"bypassOnReauth,omitempty\"`"
           ]
         }
       ]
@@ -354,7 +358,8 @@
             "Hidden bool `json:\"hidden\"`",
             "Portal bool `json:\"portal\"`",
             "Enabled bool `json:\"enabled\"`",
-            "TrustUntrustedCert bool `json:\"trustUntrustedCert\"`"
+            "TrustUntrustedCert bool `json:\"trustUntrustedCert\"`",
+            "Name string `json:\"name,omitempty\"`"
           ]
         },
         {
@@ -366,6 +371,7 @@
           ],
           "after": "func Update(ctx context.Context, service *zscaler.Service, id string, appSegmentInspection *AppSegmentInspection)",
           "quotes": [
+            "for i, appConfig := range appSegmentInspection.CommonAppsDto.AppsConfig {",
             "appSegmentInspection.CommonAppsDto.AppsConfig[i].InspectAppID = existingApp.ID",
             "if existingApp, ok := existingInspectionApps[appConfig.Name]; ok { appSegmentInspection.CommonAppsDto.AppsConfig[i].AppID = existingResource.ID"
           ]
@@ -561,6 +567,7 @@
           "after": "func resourceApplicationSegmentBrowserAccessUpdate(",
           "quotes": [
             "existingClientlessByName[existing.Name] = existing",
+            "for i := range req.ClientlessApps {",
             "if existing, ok := existingClientlessByName[req.ClientlessApps[i].Name]; ok {",
             "req.ClientlessApps[i].ID = existing.ID"
           ]
@@ -720,6 +727,7 @@
           ],
           "after": "func expandCommonServerGroups(",
           "quotes": [
+            "raw, ok := d.GetOk(\"server_groups\")",
             "block, ok := blocks[0].(map[string]interface{})",
             "d *schema.ResourceData) []servergroup.ServerGroup {",
             "idRaw, ok := block[\"id\"]",
@@ -777,6 +785,19 @@
             "r, _, err := policysetcontroller.GetAllByType(ctx, policySetControllerService, t) if err != nil { continue }",
             "if _, err := policysetcontroller.UpdateRule(ctx, policySetControllerService, rule.PolicySetID, rule.ID, &rule); err != nil { continue }",
             "policySetControllerService *zscaler.Service) {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachAppConnectorGroupFromV1Policies(",
+          "quotes": [
+            "accessPolicySet, _, err := policysetcontroller.GetByPolicyType(ctx, service, \"ACCESS_POLICY\")",
+            "log.Printf(\"[WARN] Failed to get v1 access policy set: %v\", err)"
           ]
         }
       ],
@@ -1010,8 +1031,9 @@
           "after": "func updateInspectionProfile(",
           "quotes": [
             "log.Printf(\"[ERROR] Error fetching inspection custom control: %s\", err) return",
+            "for _, profileName := range req.AssociatedInspectionProfileNames {",
             "log.Printf(\"[ERROR] Error fetching inspection profile: %s\", err) continue",
-            "if _, err := inspection_profile.Patch(ctx, zClient.Service, profile.ID, updateProfile); err != nil { log.Printf(\"[ERROR] Error patching inspection profile: %s\", err) }"
+            "if _, err := inspection_profile.Patch(ctx, zClient.Service, profile.ID, updateProfile); err != nil { log.Printf(\"[ERROR] Error patching inspection profile: %s\", err) } } }"
           ]
         },
         {

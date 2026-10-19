@@ -156,7 +156,7 @@
       ]
     },
     "v2-restful": {
-      "statement": "The Go SDK's v2 trusted networks live at `/zcc/papi/public/v2/trusted-networks` and use RESTful verbs: POST to the collection to create, and GET, PUT, PATCH and DELETE on `/{id}`.",
+      "statement": "The Go SDK's v2 trusted networks live at `/zcc/papi/public/v2/trusted-networks` and use RESTful verbs: POST to the collection to create, and GET, PUT, PATCH and DELETE on the collection path followed by the numeric ID (`%s/%d`).",
       "tier": "A",
       "evidence": [
         {
@@ -186,11 +186,19 @@
           "quotes": [
             "resp, _, _, err := c.ExecuteRequest(ctx, \"GET\", endpoint, nil, nil, contentTypeJSON)"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go",
+          "after": "func PartialUpdate(ctx context.Context, service *zscaler.Service, networkID int, network *TrustedNetworkV2)",
+          "quotes": [
+            "endpoint := fmt.Sprintf(\"%s/%d\", trustedNetworkEndpointV2, networkID)"
+          ]
         }
       ]
     },
     "v2-record-shape": {
-      "statement": "A v2 trusted network as the Go SDK models it has an integer `id`, a string `conditionType`, a `name`, and its criteria as string arrays under different keys from v1 (`dnsServerIps`, `trustedSubnetIps`, `trustedGatewayIps`, `trustedDhcpServersIps`, `trustedEgressIps`, `resolvedIpsForHostname`).",
+      "statement": "A v2 trusted network as the Go SDK models it has an integer `id`, a string `conditionType`, a `name`, and its criteria as string arrays (`dnsServerIps`, `trustedSubnetIps`, `trustedGatewayIps`, `trustedDhcpServersIps`, `trustedEgressIps`, `resolvedIpsForHostname`); the v1 type holds its criteria as single strings, four of them under other keys (`dnsServers`, `trustedSubnets`, `trustedGateways`, `trustedDhcpServers`).",
       "tier": "A",
       "evidence": [
         {
@@ -208,11 +216,24 @@
             "TrustedEgressIPs []string `json:\"trustedEgressIps,omitempty\"`",
             "TrustedGatewayIPs []string `json:\"trustedGatewayIps,omitempty\"`"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "after": "type TrustedNetwork struct {",
+          "quotes": [
+            "DnsServers string `json:\"dnsServers\"`",
+            "ResolvedIpsForHostname string `json:\"resolvedIpsForHostname\"`",
+            "TrustedDhcpServers string `json:\"trustedDhcpServers\"`",
+            "TrustedEgressIps string `json:\"trustedEgressIps,omitempty\"`",
+            "TrustedGateways string `json:\"trustedGateways\"`",
+            "TrustedSubnets string `json:\"trustedSubnets\"`"
+          ]
         }
       ]
     },
     "v2-type-filter": {
-      "statement": "The Go SDK says the v2 list endpoint's `type` parameter scopes the keyword search to one field, one of `NAME`, `DNS_SERVERS`, `DNS_SEARCH_DOMAINS`, `HOST_NAME_IP`, `TRUSTED_SUBNETS`, `TRUSTED_GATEWAYS`, `TRUSTED_DHCP_SERVERS`, `TRUSTED_EGRESS_IPS` or `SSID`, and that the keyword is a substring match, so its name lookup still compares names exactly on the client.",
+      "statement": "The Go SDK says the v2 list endpoint's `type` parameter scopes the keyword search to one field, one of `NAME`, `DNS_SERVERS`, `DNS_SEARCH_DOMAINS`, `HOST_NAME_IP`, `TRUSTED_SUBNETS`, `TRUSTED_GATEWAYS`, `TRUSTED_DHCP_SERVERS`, `TRUSTED_EGRESS_IPS` or `SSID`, and that the keyword is a substring match, so its name lookup still matches the whole name on the client, ignoring case (`strings.EqualFold`).",
       "tier": "A",
       "evidence": [
         {
@@ -230,6 +251,15 @@
             "FilterTypeTrustedGateways = \"TRUSTED_GATEWAYS\"",
             "FilterTypeTrustedDHCPServers = \"TRUSTED_DHCP_SERVERS\"",
             "FilterTypeTrustedEgressIPs = \"TRUSTED_EGRESS_IPS\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go",
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, networkName string) (*TrustedNetworkV2, error) {",
+          "quotes": [
+            "// Narrow the server-side search to the NAME field. Final exact",
+            "if strings.EqualFold(network.Name, networkName) {"
           ]
         }
       ]
@@ -306,6 +336,7 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
           "quotes": [
+            "// TrustedNetworkMutationResponse is the JSON body returned by POST /webTrustedNetwork/create and",
             "PUT /webTrustedNetwork/edit on 200 OK (e.g. {\"success\":\"true\",\"errorCode\":\"0\"}).",
             "The contract (id, networkName, etc.) is not returned; resolve the resource via GetTrustedNetworkByName",
             "trustedNetworkEndpoint = \"/zcc/papi/public/v1/webTrustedNetwork\"",

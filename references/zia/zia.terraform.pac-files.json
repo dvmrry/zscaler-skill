@@ -152,6 +152,7 @@
             "HEAD"
           ],
           "quotes": [
+            "if v := raw.GetAttr(\"pac_version\"); !v.IsNull() { versionDeclared = true }",
             "contentChanged := d.HasChanges(\"pac_content\", \"name\", \"description\", \"domain\", \"pac_url_obfuscated\")",
             "// Commit message changes are intentionally NOT a clone trigger: the",
             "if versionDeclared {",
@@ -175,7 +176,10 @@
             "HEAD"
           ],
           "quotes": [
-            "if d.HasChange(\"pac_content\") && !d.HasChanges(\"name\", \"description\", \"domain\", \"pac_url_obfuscated\") {",
+            "if versionDeclared { declaredVersion := d.Get(\"pac_version\").(int) if contentChanged {",
+            "pinnedMatches := false if d.HasChange(\"pac_content\") && !d.HasChanges(\"name\", \"description\", \"domain\", \"pac_url_obfuscated\") {",
+            "pinnedMatches = pinned.PACContent == d.Get(\"pac_content\").(string)",
+            "if !pinnedMatches { return diag.Errorf(\"pac_version %d is declared, but the configuration does not match that version.",
             "pac_content must match the declared version's content exactly",
             "// A version declared in the configuration pins the status action to that",
             "Declare pac_version only to target an existing version with a status transition.",
@@ -288,7 +292,7 @@
       ]
     },
     "read-tracks-version": {
-      "statement": "Read refreshes the tracked version, and falls back to the file's deployed version only when the tracked version no longer exists, removing the resource from state only when the file itself is gone.",
+      "statement": "Read refreshes the tracked version, and falls back to the file's deployed version only when no version is tracked or the tracked version no longer exists, removing the resource from state only when the file itself is gone.",
       "tier": "A",
       "evidence": [
         {
@@ -305,7 +309,9 @@
             "// No tracked version, or the tracked version no longer exists: re-sync",
             "// to the file's deployed version, and remove the resource from state",
             "// only when the file itself is gone.",
-            "log.Printf(\"[WARN] Removing PAC file %d from state because it no longer exists in ZIA\", id)"
+            "log.Printf(\"[WARN] Removing PAC file %d from state because it no longer exists in ZIA\", id)",
+            "if resp == nil { allFiles, err := pacfiles.GetPacFiles(ctx, service, \"\")",
+            "if versionSet { log.Printf(\"[WARN] PAC file %d version %d no longer exists; re-syncing state to the deployed version %d\", id, version, resp.PACVersion)"
           ]
         }
       ]
@@ -323,7 +329,8 @@
           "quotes": [
             "List of PAC files in deployed state, including default and custom PAC files.",
             "When set to `pac_content`, the PAC file content is omitted from the results.",
-            "// The name lookup always returns the full object; honour the",
+            "foundFile, err := pacfiles.GetPacFileByName(ctx, service, name.(string))",
+            "if filter == \"pac_content\" { // The name lookup always returns the full object; honour the // filter by omitting the content, matching the list behaviour. foundFile.PACContent = \"\"",
             "The unique identifier of the PAC file to retrieve. When set, only the matching PAC file is returned.",
             "The name of the PAC file to retrieve. When set, only the matching PAC file is returned."
           ]

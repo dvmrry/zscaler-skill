@@ -59,7 +59,22 @@
           "source": "sdk-python",
           "path": "zscaler/zia/audit_logs.py",
           "quotes": [
-            "return response.get_status()",
+            "class AuditLogsAPI(APIClient):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "after": "def create(self, start_time: str, end_time: str)",
+          "quotes": [
+            "time.sleep(2) return response.get_status()"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "after": "def cancel(self)",
+          "quotes": [
             "return response.status_code"
           ]
         }
@@ -73,8 +88,16 @@
           "source": "sdk-python",
           "path": "zscaler/zia/audit_logs.py",
           "quotes": [
+            "class AuditLogsAPI(APIClient):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/audit_logs.py",
+          "quotes": [
             "if error: return None",
-            "http_method = \"get\".upper()"
+            "http_method = \"get\".upper()",
+            "request, error = self._request_executor.create_request(http_method, api_url, {}, {}, {}) if error: return None response, error = self._request_executor.execute(request) if error: return None"
           ],
           "after": "def get_status(self)"
         },
@@ -84,7 +107,8 @@
           "after": "def create(self, start_time: str, end_time: str)",
           "quotes": [
             "request, error = self._request_executor.create_request(",
-            "if error: return None response, error = self._request_executor.execute(request, None) if error: return None"
+            "if error: return None response, error = self._request_executor.execute(request, None) if error: return None",
+            "request, error = self._request_executor.create_request(http_method, api_url, payload, {}, {}) if error: return None"
           ]
         },
         {
@@ -92,6 +116,7 @@
           "path": "zscaler/zia/audit_logs.py",
           "after": "def cancel(self)",
           "quotes": [
+            "request, error = self._request_executor.create_request(http_method, api_url, {}, {}, {}) if error: return None",
             "if error: return None response, error = self._request_executor.execute(request, None) if error: return None"
           ]
         },
@@ -100,6 +125,7 @@
           "path": "zscaler/zia/audit_logs.py",
           "after": "def get_report(self)",
           "quotes": [
+            "request, error = self._request_executor.create_request(http_method, api_url, {}, {}, {}) if error: return None",
             "if error: return None response, error = self._request_executor.execute(request, None) if error: return None"
           ]
         }
@@ -113,6 +139,7 @@
           "source": "sdk-python",
           "path": "zscaler/oneapi_response.py",
           "quotes": [
+            "class ZscalerAPIResponse:",
             "self._status = res_details.status_code if res_details and hasattr(res_details, \"status_code\") else None",
             "def get_status(self) -> Optional[int]:"
           ]
@@ -152,6 +179,7 @@
           "source": "sdk-python",
           "path": "zscaler/utils.py",
           "quotes": [
+            "def format_url(base_string):",
             "return \"\".join([line.strip() for line in base_string.splitlines()])"
           ]
         },

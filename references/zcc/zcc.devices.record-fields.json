@@ -211,7 +211,7 @@
             "ZIA Enabled: Displays True if the user is entitled for the Internet & SaaS (ZIA) service in Zscaler Client Connector.",
             "ZIA Health: Displays Active if Zscaler Client Connector is connected to Internet & SaaS. Displays Inactive if Zscaler Client Connector is not connected to Internet & SaaS.",
             "Last Seen Connected to ZPA: The last known date and time of connection to Private Access.",
-            "Zscaler Deception Health: Displays Active if Zscaler Client Connector is connected to Deception.",
+            "Zscaler Deception Health: Displays Active if Zscaler Client Connector is connected to Deception. Displays Inactive if Zscaler Client Connector is not connected to Deception.",
             "Last Seen Connected to ZIA: The last known date and time of connection to Internet & SaaS.",
             "ZPA Enabled: Displays True if the user is entitled for the Private Access service in Zscaler Client Connector.",
             "ZPA Health: Displays Active if Zscaler Client Connector is connected to Private Access. Displays Inactive if Zscaler Client Connector is not connected to Private Access.",
@@ -327,7 +327,7 @@
       ]
     },
     "python-details-extra-keys": {
-      "statement": "The Python `DeviceDetails` model reads keys that neither the details contract nor the Go struct has, among them `serialNumber`, the per-service `ziaEnabled`/`ziaHealth`/`zpaHealth`/`zdxHealth` and `zd*`/`zdp*` fields, `deviceTrust`, `antiTamperingStatus`, `expectedZCCVersion`, `zccUpgradeStatus`, `deviceOtpArray` and `logFetchInfo`.",
+      "statement": "The Python `DeviceDetails` model reads keys that neither the details contract nor the Go struct has, among them `serialNumber`, the per-service `ziaEnabled`/`ziaHealth`/`zpaHealth`/`zdxHealth`, `zdEnabled`, `zdHealth`, `zdLastSeenTime`, `zdpEnabled`, `zdpHealth`, `zdpVersion`, `zdpLastSeenTime`, `deviceTrust`, `antiTamperingStatus`, `expectedZCCVersion`, `zccUpgradeStatus`, `deviceOtpArray` and `logFetchInfo`.",
       "tier": "A",
       "evidence": [
         {
@@ -375,8 +375,11 @@
             "zdxHealth",
             "zdEnabled",
             "zdHealth",
+            "zdLastSeenTime",
             "zdpEnabled",
             "zdpHealth",
+            "zdpLastSeenTime",
+            "zdpVersion",
             "deviceTrust",
             "antiTamperingStatus",
             "expectedZCCVersion",
@@ -411,7 +414,8 @@
             "\"serialNumber\":\"F99LXTG6YY\",\"ziaEnabled\":\"true\"",
             "\"deviceTrust\":0",
             "\"lastLocationSourceUsed\":\"Source IP\"}'"
-          ]
+          ],
+          "after": "/zcc/papi/public/v1/getDeviceDetails?udid="
         },
         {
           "source": "sdk-python",
@@ -463,7 +467,7 @@
       ]
     },
     "python-internal-model-never-read": {
-      "statement": "The Python details call camel-cases every response key before building `DeviceDetails`, but the model looks `internal_model` up in snake_case, so that attribute is always None; a recorded details response carries the key as `internal_model`, so it reaches the model as `internalModel`.",
+      "statement": "The Python details call camel-cases every response key before building `DeviceDetails`, but the model looks `internal_model` up in snake_case, so that attribute is always None; a recorded details response carries the key as `internal_model`, which the camel-casing renames before the model sees it.",
       "tier": "A",
       "conditions": "Extended per verifier with recorded data: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette).",
       "evidence": [
@@ -472,7 +476,8 @@
           "path": "tests/integration/zcc/cassettes/TestDevice.yaml",
           "quotes": [
             "\"internal_model\":\"Mac16,7\""
-          ]
+          ],
+          "after": "/zcc/papi/public/v1/getDeviceDetails?udid="
         },
         {
           "source": "sdk-python",
@@ -486,7 +491,17 @@
           "path": "zscaler/api_client.py",
           "after": "def form_response_body(body: Union[Dict[str, Any], List[Any], Any]) -> Union[Dict[str, Any], List[Any], Any]:",
           "quotes": [
+            "result[_to_camel(key)] = APIClient.form_response_body(val)",
+            "result[_to_camel(key)] = processed_list",
             "result[_to_camel(key)] = val"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/api_client.py",
+          "after": "def _to_camel(key: Any) -> Any:",
+          "quotes": [
+            "Normalize a dict key to camelCase using the project's own ``to_lower_camel_case``"
           ]
         },
         {
@@ -506,13 +521,20 @@
           "source": "sdk-python",
           "path": "zscaler/zcc/models/devices.py",
           "quotes": [
+            "self.log_fetch_info = LogFetchInfo(config[\"logFetchInfo\"])"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/devices.py",
+          "after": "class LogFetchInfo(ZscalerObject):",
+          "quotes": [
             "self.log_ts = config[\"logTs\"] if \"logTs\" in config else None",
             "self.log_ack_ts = config[\"logAckTs\"] if \"logAckTs\" in config else None",
             "self.log_fetch_pcap_enabled = config[\"logFetchPCAPEnabled\"] if \"logFetchPCAPEnabled\" in config else None",
             "self.log_fetch_from_no_of_days = config[\"logFetchFromNoOfDays\"] if \"logFetchFromNoOfDays\" in config else None",
             "self.error = config[\"error\"] if \"error\" in config else None",
-            "self.log_fetch_db_enabled = config[\"logFetchDBEnabled\"] if \"logFetchDBEnabled\" in config else None",
-            "self.log_fetch_info = LogFetchInfo(config[\"logFetchInfo\"])"
+            "self.log_fetch_db_enabled = config[\"logFetchDBEnabled\"] if \"logFetchDBEnabled\" in config else None"
           ]
         }
       ]

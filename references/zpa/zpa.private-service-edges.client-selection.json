@@ -227,7 +227,7 @@
       ]
     },
     "grace-distance-fields": {
-      "statement": "grace_distance_value is the maximum distance and grace_distance_value_unit is MILES or KMS; the three grace distance fields must be set together.",
+      "statement": "grace_distance_value is the maximum distance and grace_distance_value_unit is MILES or KMS; in the Terraform schema, setting grace_distance_value or grace_distance_value_unit requires the other two grace distance fields (grace_distance_enabled carries no such constraint).",
       "tier": "A",
       "evidence": [
         {
@@ -242,7 +242,9 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_service_edge_group.go",
           "quotes": [
-            "RequiredWith: []string{\"grace_distance_enabled\", \"grace_distance_value_unit\"},",
+            "\"grace_distance_value\": { Type: schema.TypeString, Optional: true, Computed: true, RequiredWith: []string{\"grace_distance_enabled\", \"grace_distance_value_unit\"},",
+            "\"grace_distance_value_unit\": { Type: schema.TypeString, Optional: true, Computed: true, RequiredWith: []string{\"grace_distance_enabled\", \"grace_distance_value\"},",
+            "\"grace_distance_enabled\": { Type: schema.TypeBool, Optional: true, Computed: true, Description: \"If enabled, allows ZPA Private Service Edge Groups within the specified distance to be prioritized over a closer ZPA Public Service Edge.\", },",
             "\"MILES\", \"KMS\","
           ]
         }

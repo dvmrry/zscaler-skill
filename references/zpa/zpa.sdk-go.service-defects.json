@@ -65,10 +65,10 @@
       "text": "{{application-type-lookup-duplicate-search}}"
     },
     {
-      "text": "{{predefined-control-name-escaped-twice}}"
+      "text": "{{predefined-control-name-escaped-twice}} {{predefined-control-plus-wire-form}}"
     },
     {
-      "text": "{{search-sanitizer-strips-name-characters}} {{provider-segment-group-lookups-use-sanitized-search}}"
+      "text": "{{search-sanitizer-strips-name-characters}} {{search-sanitizer-example}} {{provider-segment-group-lookups-use-sanitized-search}}"
     },
     {
       "text": "{{query-encoder-emits-plus-for-space}} {{query-encoder-space-as-plus}} How the list search treats `+` versus `%20` and the removed characters is open {{gap:search-filter-semantics}}."
@@ -206,8 +206,10 @@
             "HEAD"
           ],
           "quotes": [
+            "Importer: &schema.ResourceImporter{",
             "_, parseIDErr := strconv.ParseInt(id, 10, 64)",
             "_, associationTypeSet := d.GetOk(\"association_type\")",
+            "if parseIDErr == nil { // assume if the passed value is an int",
             "if !associationTypeSet { _, assoc_type, _, err := provisioningkey.GetByIDAllAssociations(ctx, service, id)",
             "} else { resp, assoc_type, _, err := provisioningkey.GetByNameAllAssociations(ctx, service, id)"
           ]
@@ -225,6 +227,29 @@
             "if _, err := provisioningkey.Update(ctx, service, associationType, id, &req); err != nil {",
             "if _, err := provisioningkey.Delete(ctx, service, associationType, d.Id()); err != nil {"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "var ProvisioningKeyAssociationTypes []string = []string{ \"CONNECTOR_GRP\", \"SERVICE_EDGE_GRP\", \"NP_ASSISTANT_GRP\", }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "for _, associationType := range ProvisioningKeyAssociationTypes { p, resp, err = GetByName(ctx, service, associationType, name) if err == nil { assoc_type = associationType break } }"
+          ],
+          "after": "func GetByNameAllAssociations(ctx context.Context, service *zscaler.Service, name string) (p *ProvisioningKey, assoc_type string, resp *http.Response, err error) {"
         }
       ],
       "conditions": "Reached at v4.4.10: yes, through import only. The statement that create/read/update/delete avoid the helpers rests on the grep `git -C vendor/terraform-provider-zpa grep -n 'AllAssociations' v4.4.10 -- zpa`, which matched only the two importer lines.",
@@ -352,8 +377,10 @@
           ],
           "quotes": [
             "if !assistantSchedule.Enabled {",
-            "return nil, fmt.Errorf(\"cannot update a disabled schedule\")"
-          ]
+            "return nil, fmt.Errorf(\"cannot update a disabled schedule\")",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", relativeURL, nil, assistantSchedule, nil)"
+          ],
+          "after": "func UpdateSchedule(ctx context.Context, service *zscaler.Service, schedulerID string, assistantSchedule *AssistantSchedule) (*http.Response, error) {"
         },
         {
           "source": "sdk-go",
@@ -364,7 +391,31 @@
           ],
           "quotes": [
             "if !assistantSchedule.Enabled {",
-            "return nil, fmt.Errorf(\"cannot update a disabled schedule\")"
+            "return nil, fmt.Errorf(\"cannot update a disabled schedule\")",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", relativeURL, nil, assistantSchedule, nil)"
+          ],
+          "after": "func UpdateSchedule(ctx context.Context, service *zscaler.Service, schedulerID string, assistantSchedule *AssistantSchedule) (*http.Response, error) {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_assistant_schedule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, err := appconnectorschedule.UpdateSchedule(ctx, service, id, &req); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_assistant_schedule.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if _, err := serviceedgeschedule.UpdateSchedule(ctx, service, id, &req); err != nil {"
           ]
         }
       ],
@@ -380,7 +431,7 @@
       ]
     },
     "provider-schedule-resources-pass-enabled-through": {
-      "statement": "Both provider assistant-schedule resources declare `enabled` as Optional without a default, copy `d.Get(\"enabled\").(bool)` into the request, and call the SDK update. So `enabled = false`, and an omitted `enabled` (which reads as false), make every update of the resource fail in the SDK, before any request. An empty or invalid `frequency_interval` fails the same way, and a create that finds the schedule already exists falls into this update path; a first create with `enabled = false` can succeed, since create has no such check.",
+      "statement": "Both provider assistant-schedule resources declare `enabled` as Optional without a default, copy `d.Get(\"enabled\").(bool)` into the request, and call the SDK update. So `enabled = false`, and an omitted `enabled` (which reads as false), make every update that reaches the SDK update fail there, before its PUT is sent. An empty or invalid `frequency_interval` fails the same way, and a create that finds the schedule already exists falls into this update path; a first create with `enabled = false` can succeed, since create has no such check.",
       "tier": "A",
       "derived_from": [
         "assistant-schedule-update-rejects-disabled"
@@ -395,6 +446,8 @@
           ],
           "quotes": [
             "\"enabled\": { Type: schema.TypeBool, Optional: true, },",
+            "FrequencyInterval: d.Get(\"frequency_interval\").(string),",
+            "func resourceAppConnectorAssistantScheduleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
             "Enabled:           d.Get(\"enabled\").(bool),",
             "if _, err := appconnectorschedule.UpdateSchedule(ctx, service, id, &req); err != nil {",
             "if strings.Contains(errStr, \"resource.already.exist\") {",
@@ -410,6 +463,8 @@
           ],
           "quotes": [
             "\"enabled\": { Type: schema.TypeBool, Optional: true, },",
+            "FrequencyInterval: d.Get(\"frequency_interval\").(string),",
+            "func resourceServiceEdgeAssistantScheduleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
             "Enabled:           d.Get(\"enabled\").(bool),",
             "if _, err := serviceedgeschedule.UpdateSchedule(ctx, service, id, &req); err != nil {",
             "if strings.Contains(errStr, \"resource.already.exist\") {",
@@ -534,7 +589,7 @@
       ]
     },
     "predefined-control-name-escaped-twice": {
-      "statement": "`inspection_predefined_controls.GetByName` applies `url.QueryEscape` to the name and then stores the result with `queryParams.Set`, whose `Encode` escapes it again. A `+` in the name becomes `%252B` on the wire. The request path re-parses and re-encodes the query but does not undo the first escape.",
+      "statement": "`inspection_predefined_controls.GetByName` applies `url.QueryEscape` to the name and then stores the result with `queryParams.Set`, whose `Encode` escapes it again. A `+` in the name is therefore escaped twice on the wire. The request path re-parses and re-encodes the query but does not undo the first escape.",
       "tier": "A",
       "evidence": [
         {
@@ -584,8 +639,32 @@
         }
       ]
     },
+    "predefined-control-plus-wire-form": {
+      "statement": "A `+` in a predefined control name is sent as `%252B` on the wire (`url.QueryEscape` gives `%2B`, and `Encode` escapes its `%` as `%25`).",
+      "tier": "B",
+      "derived_from": [
+        "predefined-control-name-escaped-twice"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_predefined_controls/zpa_inspection_predefined_controls.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "search := fmt.Sprintf(\"name+EQ+%s\", url.QueryEscape(name))",
+            "queryParams.Set(\"search\", search)",
+            "queryParams.Encode())"
+          ],
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, name, version string) (*PredefinedControls, *http.Response, error) {"
+        }
+      ],
+      "conditions": "Derived by applying the two quoted escapes; reproduced with a Go snippet (`v.Set(\"search\", \"name+EQ+\"+url.QueryEscape(\"a+b\")); v.Encode()` gives `search=name%2BEQ%2Ba%252Bb`). Not observed in a captured request."
+    },
     "search-sanitizer-strips-name-characters": {
-      "statement": "For ZPA list endpoints (other than SCIM) the shared pager rewrites a plain search string into `name+EQ+<value>` after deleting every character outside letters, digits, whitespace, `_`, `/`, `-` and `.`. A name such as `a+b (prod)` is searched as `ab prod`. The lookups then compare the listed results to the original name case-insensitively.",
+      "statement": "For ZPA list endpoints (other than SCIM) the shared pager rewrites a plain search string into `name+EQ+<value>` after deleting every character outside letters, digits, whitespace, `_`, `/`, `-` and `.`. The lookups then compare the listed results to the original name case-insensitively.",
       "tier": "A",
       "evidence": [
         {
@@ -639,6 +718,30 @@
         }
       ]
     },
+    "search-sanitizer-example": {
+      "statement": "A name such as `a+b (prod)` is therefore searched as `ab prod`: the sanitizer deletes `+`, `(` and `)` and keeps the space.",
+      "tier": "B",
+      "derived_from": [
+        "search-sanitizer-strips-name-characters"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "re := regexp.MustCompile(`[^a-zA-Z0-9\\s_/\\-\\.]`)",
+            "sanitizedValue = re.ReplaceAllString(sanitizedValue, \"\")",
+            "filterFormat := fmt.Sprintf(\"name+EQ+%s\", sanitizedValue)"
+          ],
+          "after": "func convertZPASearchToFilter(search string) string {"
+        }
+      ],
+      "conditions": "Worked example derived by applying the quoted regular expression `[^a-zA-Z0-9\\s_/\\-\\.]` to the name; not observed in a captured request."
+    },
     "provider-segment-group-lookups-use-sanitized-search": {
       "statement": "The provider's segment group importer by name and its data source by name call `segmentgroup.GetByName`, so a segment group whose name contains characters the sanitizer removes goes through the altered search.",
       "tier": "A",
@@ -679,6 +782,32 @@
             "common.Filter{Search: segmentName, MicroTenantID: service.MicroTenantID()})"
           ],
           "after": "func GetByName(ctx context.Context, service *zscaler.Service, segmentName string) (*SegmentGroup, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "re := regexp.MustCompile(`[^a-zA-Z0-9\\s_/\\-\\.]`)",
+            "sanitizedValue = re.ReplaceAllString(sanitizedValue, \"\")",
+            "filterFormat := fmt.Sprintf(\"name+EQ+%s\", sanitizedValue)"
+          ],
+          "after": "func convertZPASearchToFilter(search string) string {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "// Exception: SCIM endpoints use plain search strings",
+            "if isZPAEndpoint(relativeURL) && !isSCIMEndpoint(relativeURL) { filters.Search = convertZPASearchToFilter(filters.Search)"
+          ]
         }
       ],
       "conditions": "One example of many; the same helper style is used by the other ZPA name lookups (see search-sanitizer-strips-name-characters conditions). Not traced for each resource.",
@@ -752,7 +881,7 @@
       ]
     },
     "policy-type-lookups-drop-context": {
-      "statement": "`GetByNameAndTypes` in both policy set controller packages receives a caller `ctx` and calls `GetByNameAndType` with `context.Background()` for each policy type it tries, so cancellation and deadlines do not reach those requests. The provider reaches them only through import by name.",
+      "statement": "`GetByNameAndTypes` in both policy set controller packages receives a caller `ctx` and calls `GetByNameAndType` with `context.Background()` for each policy type it tries, so cancellation and deadlines do not reach those requests. The provider calls them from its policy rule importers when importing by name.",
       "tier": "A",
       "evidence": [
         {
@@ -849,7 +978,8 @@
             "if policySetRule != nil && len(policySetRule.Conditions) == 0 {",
             "for i, condtion := range policySetRule.Conditions {",
             "if policySetRule != nil && len(policySetRule.Conditions) == 0 { policySetRule.Conditions = []Conditions{} } else { for i, condtion := range policySetRule.Conditions {"
-          ]
+          ],
+          "after": "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {"
         },
         {
           "source": "sdk-go",
@@ -862,7 +992,8 @@
             "if policySetRule != nil && len(policySetRule.Conditions) == 0 {",
             "for i, condition := range policySetRule.Conditions {",
             "if policySetRule != nil && len(policySetRule.Conditions) == 0 { policySetRule.Conditions = []PolicyRuleResourceConditions{} } else { for i, condition := range policySetRule.Conditions {"
-          ]
+          ],
+          "after": "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {"
         }
       ],
       "conditions": "The provider's call sites pass an address of a local rule or the pointer returned by an expand function (for example `req` in zpa/resource_zpa_policy_access_rule.go, whose `req.Conditions` is read just before). No call site was found passing nil, but all were not individually traced, so the provider is not shown to reach this.",

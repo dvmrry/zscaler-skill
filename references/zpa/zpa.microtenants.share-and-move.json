@@ -286,6 +286,7 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/applicationsegment_move/applicationsegment_move.go",
           "quotes": [
+            "func AppSegmentMicrotenantMove(ctx context.Context, service *zscaler.Service, applicationID string, move AppSegmentMicrotenantMoveRequest) (*http.Response, error) {",
             "appSegmentEndpoint = \"/application\"",
             "microTenantID := move.MicroTenantID\nif microTenantID == \"\" && service.MicroTenantID() != nil {\nmicroTenantID = *service.MicroTenantID()",
             "relativeURL := fmt.Sprintf(\"%s%s%s/%s/move\", mgmtConfig, service.Client.GetCustomerID(), appSegmentEndpoint, applicationID)",
@@ -297,11 +298,20 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/applicationsegment_share/applicationsegment_share.go",
           "quotes": [
+            "func AppSegmentMicrotenantShare(ctx context.Context, service *zscaler.Service, applicationID string, appSegmentRequest AppSegmentSharedToMicrotenant) (*http.Response, error) {",
             "appSegmentEndpoint = \"/application\"",
             "microTenantID := appSegmentRequest.MicroTenantID\nif microTenantID == \"\" && service.MicroTenantID() != nil {\nmicroTenantID = *service.MicroTenantID()",
             "relativeURL := fmt.Sprintf(\"%s%s%s/%s/share\", mgmtConfig, service.Client.GetCustomerID(), appSegmentEndpoint, applicationID)",
             "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", relativeURL, filter, appSegmentRequest, nil)",
             "filter.MicroTenantID = &microTenantID"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "after": "type Filter struct {",
+          "quotes": [
+            "MicroTenantID *string `url:\"microtenantId,omitempty\"`"
           ]
         }
       ]

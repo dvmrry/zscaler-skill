@@ -72,6 +72,7 @@
           "after": "func checkRetry(ctx context.Context, resp *http.Response, err error) (bool, error) {",
           "quotes": [
             "// Only retry a 5xx when the body does not carry a deterministic API verdict.",
+            "// The upstream policy retries every 5xx except 501, which makes a permanent",
             "if err == nil && resp != nil && resp.StatusCode >= 500 {",
             "return errorx.IsRetryableServerError(resp), nil"
           ]
@@ -113,6 +114,7 @@
             "// Don't retry if the error was due to an invalid header.",
             "// Don't retry if the error was due to TLS cert verification failure.",
             "// The error is likely recoverable so retry.",
+            "// 429 Too Many Requests is recoverable.",
             "if resp.StatusCode == http.StatusTooManyRequests {",
             "if resp.StatusCode == 0 || (resp.StatusCode >= 500 && resp.StatusCode != http.StatusNotImplemented) {"
           ]
@@ -134,6 +136,7 @@
             "HEAD"
           ],
           "quotes": [
+            "func (c *Client) ExecuteRequest(ctx context.Context, method, endpoint string, body io.Reader, urlParams url.Values, contentType string) ([]byte, *http.Response, *http.Request, error) {",
             "requestBodyBytes, err = io.ReadAll(body)",
             "req, err := c.buildRequest(ctx, method, endpoint, bytes.NewReader(requestBodyBytes), urlParams, contentType)",
             "return retryableClient.StandardClient()"
@@ -201,7 +204,7 @@
       ]
     },
     "exhaustion-hid-api-error-before-3-8-43": {
-      "statement": "Before v3.8.43, when retries ran out the SDK returned retryablehttp's bare \"giving up after N attempt(s)\" error and lost the API's status and error body, and it retried every 5xx including permanent errors. v3.8.43 (#449) hands the final response back and stops retrying deterministic 5xx.",
+      "statement": "Before v3.8.43, when retries ran out the SDK returned retryablehttp's bare \"giving up after N attempt(s)\" error and lost the API's status and error body, and it retried 5xx responses that were permanent errors: the retry policy retried every 5xx except 501, and the OneAPI outer retry loop retried every 5xx. v3.8.43 (#449) hands the final response back and stops retrying deterministic 5xx.",
       "tier": "A",
       "evidence": [
         {
@@ -220,6 +223,20 @@
             "// The upstream policy retries every 5xx except 501, which makes a permanent",
             "// 500 UNEXPECTED_ERROR (e.g. an unknown URL category) burn the entire retry",
             "return errorx.IsRetryableServerError(resp), nil"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "at": [
+            "v3.8.43",
+            "HEAD"
+          ],
+          "after": "# 3.8.43 (July 27, 2026)",
+          "quotes": [
+            "Fixed [Issue #449](https://github.com/zscaler/zscaler-sdk-go/issues/449).",
+            "All of them previously discarded the API error payload on retry exhaustion and retried every `5xx` except `501`. Each client now installs the response-preserving `ErrorHandler` and only retries a `5xx` whose body does not carry a deterministic API verdict.",
+            "Fixed two additional defects in the OneAPI `ExecuteRequest` outer retry loop. Exhausting the outer loop returned a bare `max retries exceeded` error instead of the API's own status, code and message, and the loop retried every `5xx` unconditionally regardless of whether the failure was permanent."
           ]
         }
       ],
@@ -284,6 +301,19 @@
           ],
           "quotes": [
             "## 0.2.0 (June 29, 2026)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "at": [
+            "v3.8.43",
+            "HEAD"
+          ],
+          "quotes": [
+            "# 3.8.43 (July 27, 2026)",
+            "Fixed [Issue #449](https://github.com/zscaler/zscaler-sdk-go/issues/449). The ZIA Legacy client no longer discards the API error payload when its retry budget is exhausted.",
+            "Applied the same two fixes to **every** remaining client: OneAPI, ZPA, ZCC, ZDX, ZTW and ZWA."
           ]
         }
       ]

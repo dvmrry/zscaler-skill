@@ -120,7 +120,8 @@
             "// Guard every resource and data source against the inert client returned // when skip_credentials_validation is enabled, so an accidental API call // yields a descriptive error instead of a nil-pointer panic.",
             "for _, r := range p.ResourcesMap { guardResourceAgainstInertClient(r) } for _, ds := range p.DataSourcesMap { guardResourceAgainstInertClient(ds) }",
             "if isInertClient(meta) { return inertClientDiag() }",
-            "This resource or data source attempted a ZPA API call, but the provider was configured with"
+            "This resource or data source attempted a ZPA API call, but the provider was configured with",
+            "if r.Importer != nil && r.Importer.StateContext != nil { importer := r.Importer.StateContext r.Importer.StateContext = func(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) { if isInertClient(meta) {"
           ]
         }
       ]
@@ -208,7 +209,8 @@
             "cannot be scoped to individual resource types, and significantly slows large deployments.",
             "when provisioning the resources `zpa_policy_access_rule`, `zpa_policy_inspection_rule`, `zpa_policy_timeout_rule`, `zpa_policy_forwarding_rule`, and `zpa_policy_isolation_rule`.",
             "Lowering Terraform's `-parallelism` flag applies to an entire run,"
-          ]
+          ],
+          "after": "## 4.4.11 (August 18, 2026)"
         }
       ]
     },
@@ -350,7 +352,8 @@
             "are now surfaced as recoverable Terraform errors instead of crashing the provider.",
             "of `zpa_application_segment`, `zpa_server_group`, `zpa_service_edge_group`, and `zpa_lss_config_controller`.",
             "Transient API errors (e.g. cancelled/timed-out requests)"
-          ]
+          ],
+          "after": "## 4.4.7 (July 15, 2026)"
         }
       ]
     },

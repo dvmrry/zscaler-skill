@@ -170,15 +170,14 @@
       ]
     },
     "operand-microtenant-unsupported-types": {
-      "statement": "The v1 access rule doc says microtenant_id is not supported inside operands when object_type is SAML, SCIM, SCIM_GROUP, IDP, POSTURE or TRUSTED_NETWORK, and gives as the reason that ZPA automatically assumes the posture profile ID that belongs to the parent tenant.",
+      "statement": "The v1 access rule doc says microtenant_id is not supported inside operands when object_type is SAML, SCIM, SCIM_GROUP, IDP, POSTURE or TRUSTED_NETWORK, and follows it directly with the sentence that ZPA automatically assumes the posture profile ID that belongs to the parent tenant.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_access_rule.md",
           "quotes": [
-            "is not supported within the `operands` block when the `object_type` is set to `SAML`, `SCIM`, `SCIM_GROUP`, `IDP`, `POSTURE`, `TRUSTED_NETWORK`",
-            "ZPA automatically assumes the posture profile ID that belongs to the parent tenant."
+            "The attribute ``microtenant_id`` is not supported within the `operands` block when the `object_type` is set to `SAML`, `SCIM`, `SCIM_GROUP`, `IDP`, `POSTURE`, `TRUSTED_NETWORK` . ZPA automatically assumes the posture profile ID that belongs to the parent tenant."
           ]
         },
         {
@@ -364,7 +363,8 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "Added support to attribute `devicePosture_failure_notification_enabled` on resources `zpa_policy_access_rule_v2` and `zpa_policy_access_rule`."
-          ]
+          ],
+          "after": "## 4.4.9 (July 24, 2026)"
         },
         {
           "source": "tf-zpa",
@@ -376,6 +376,15 @@
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_policy_access_rule.go",
+          "quotes": [
+            "_ = d.Set(\"device_posture_failure_notification_enabled\", resp.DevicePostureFailureNotificationEnabled)"
+          ],
+          "after": "func resourcePolicyAccessRead("
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "after": "func expandCreatePolicyRule(",
           "quotes": [
             "DevicePostureFailureNotificationEnabled: d.Get(\"device_posture_failure_notification_enabled\").(bool),"
           ]
@@ -403,7 +412,8 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "options `JOIN_SESSION`, and `CONTROL_SESSION` to resource `zpa_policy_capabilities_rule`"
-          ]
+          ],
+          "after": "## 4.4.8 (July 20, 2026)"
         }
       ]
     },
@@ -451,7 +461,8 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "Added new `privileged_portal_capabilities` options `UPLOAD_INSPECTED_SANDBOX`, and `UPLOAD_INSPECTED_SCAN` to resource `zpa_policy_portal_access_rule`"
-          ]
+          ],
+          "after": "## 4.4.7 (July 15, 2026)"
         },
         {
           "source": "tf-zpa",
@@ -586,15 +597,17 @@
           "source": "tf-zpa",
           "path": "zpa/common.go",
           "quotes": [
-            "a Branch Connector Group ID must be provided when object_type = BRANCH_CONNECTOR_GROUP"
-          ]
+            "case \"BRANCH_CONNECTOR_GROUP\": if !valuesPresent || valuesSet.Len() == 0 { return fmt.Errorf(\"a Branch Connector Group ID must be provided when object_type = BRANCH_CONNECTOR_GROUP\") } case \"USER_PORTAL\":"
+          ],
+          "after": "func ValidatePolicyRuleConditions("
         },
         {
           "source": "tf-zpa",
           "path": "zpa/common.go",
           "quotes": [
             "case \"APP\", \"APP_GROUP\", \"CONSOLE\", \"CHROME_POSTURE_PROFILE\", \"MACHINE_GRP\", \"LOCATION\", \"BRANCH_CONNECTOR_GROUP\", \"EDGE_CONNECTOR_GROUP\", \"CLIENT_TYPE\", \"USER_PORTAL\", \"PRIVILEGE_PORTAL\":"
-          ]
+          ],
+          "after": "func ConvertV1ResponseToV2Request("
         }
       ]
     },
@@ -693,7 +706,8 @@
           "quotes": [
             "\"zpa_policy_access_rule_reorder\": resourcePolicyAccessRuleReorder(), \"zpa_policy_access_rule\": resourcePolicyAccessRule(),",
             "\"zpa_policy_access_rule_v2\": resourcePolicyAccessRuleV2(),"
-          ]
+          ],
+          "after": "ResourcesMap: map[string]*schema.Resource{"
         }
       ],
       "conditions": "That no resource is registered under a variant name rests on the provider's resource map, whose zpa_policy_access_rule entries are only the base, v2 and reorder resources."

@@ -49,7 +49,7 @@
       "heading": "Policy rule resource"
     },
     {
-      "text": "{{python-siem-lookup-v1}} {{action-log-only}} {{policy-negated-always-sent}}"
+      "text": "{{python-siem-lookup-v1}} {{action-log-only}} {{policy-negated-always-sent}} {{policy-negated-false-sent}}"
     },
     {
       "text": "{{entry-values-rules}} {{python-condition-templates}} The IDP shape differs between the two tools {{divergence:idp-operand-shape}}."
@@ -115,7 +115,7 @@
       "conditions": "The general omitempty mechanism is in shared.sdk-go.zero-value-writes. Whether the provider reaches this with a false value was not traced here."
     },
     "policy-negated-always-sent": {
-      "statement": "On the receiver's policy condition structs, `negated` is tagged without omitempty in both the legacy `Conditions` struct and `PolicyRuleResourceConditions`, so false is always sent; the other condition fields are omitempty.",
+      "statement": "In the Go LSS config controller's policy condition structs, `negated` is tagged without omitempty in both the legacy `Conditions` struct and `PolicyRuleResourceConditions`, while the other condition fields are omitempty.",
       "tier": "A",
       "evidence": [
         {
@@ -137,6 +137,14 @@
           "note": "the complete PolicyRuleResourceConditions struct"
         }
       ]
+    },
+    "policy-negated-false-sent": {
+      "statement": "A body marshalled from either struct therefore always carries `negated`, false included.",
+      "tier": "B",
+      "derived_from": [
+        "policy-negated-always-sent"
+      ],
+      "conditions": "Follows from Go encoding/json semantics: a bool field without omitempty is marshalled even when false. No captured source states this for these structs. Split from policy-negated-always-sent, whose Tier A statement keeps only the tags."
     },
     "config-key-always-present": {
       "statement": "The Go receiver request tags `config` without omitempty, so the key is always in the body even when the pointer is nil, while connectorGroups, policyRule and policyRuleResource are omitempty.",

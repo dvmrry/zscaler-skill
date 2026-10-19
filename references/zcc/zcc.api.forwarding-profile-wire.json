@@ -174,6 +174,9 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
           "quotes": [
+            "webForwardingProfileEndpoint = \"/zcc/papi/public/v1/webForwardingProfile\"",
+            "func CreateForwardingProfile(ctx context.Context, service *zscaler.Service, request *ForwardingProfileRequest) (*CreateUpdateResponse, error) {",
+            "url := fmt.Sprintf(\"%s/edit\", webForwardingProfileEndpoint)",
             "_, err := service.Client.NewZccRequestDo(ctx, \"POST\", url, nil, request, &response)",
             "failed to create/update forwarding profile: %w"
           ]
@@ -183,7 +186,8 @@
           "path": "zscaler/zcc/forwarding_profile.py",
           "after": "def update_forwarding_profile(",
           "quotes": [
-            "http_method = \"post\".upper()"
+            "http_method = \"post\".upper()",
+            "/webForwardingProfile/edit"
           ]
         },
         {
@@ -482,11 +486,19 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
           "quotes": [
-            "DropIpv6Traffic IntOrString `json:\"dropIpv6Traffic\"`",
-            "RedirectWebTraffic IntOrString `json:\"redirectWebTraffic\"`",
-            "LatencyBasedZenEnablement IntOrString `json:\"latencyBasedZenEnablement\"`",
+            "ForwardingProfileActions []ForwardingProfileAction `json:\"forwardingProfileActions\"`",
             "parsedNum, err := strconv.Atoi(str)",
             "return fmt.Errorf(\"invalid value for IntOrString: %s\", string(data))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "after": "type ForwardingProfileAction struct {",
+          "quotes": [
+            "DropIpv6Traffic IntOrString `json:\"dropIpv6Traffic\"`",
+            "RedirectWebTraffic IntOrString `json:\"redirectWebTraffic\"`",
+            "LatencyBasedZenEnablement IntOrString `json:\"latencyBasedZenEnablement\"`"
           ]
         },
         {
@@ -496,6 +508,14 @@
           "quotes": [
             "var num int if err := json.Unmarshal(data, &num); err == nil { *i = IntOrString(num) return nil }"
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get/responses/200/content/application~1json/schema/properties/policies/items/properties/onNetPolicy/properties/forwardingProfileActions",
+          "expect": {
+            "description": "Specifies the forwarding profile actions how Zscaler Client Connector treats traffic from the users' systems for the ZIA service for On-Trusted Network, VPN-Trusted Network, Off-Trusted Network, or Split VPN-Trusted Network types."
+          }
         }
       ]
     },
@@ -559,6 +579,7 @@
           "source": "sdk-python",
           "path": "zscaler/zcc/forwarding_profile.py",
           "quotes": [
+            "def update_forwarding_profile(self, **kwargs) -> APIResult[dict]:",
             "body = zcc_to_wire(body, ForwardingProfile)"
           ]
         },
@@ -608,18 +629,7 @@
           "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
           "quotes": [
             "EnableUnifiedTunnel int `json:\"enableUnifiedTunnel\"`",
-            "UnifiedTunnel []UnifiedTunnel `json:\"unifiedTunnel\"`",
-            "ActionTypeZIA int `json:\"actionTypeZIA\"`",
-            "ActionTypeZPA int `json:\"actionTypeZPA\"`",
-            "SameAsOnTrusted int `json:\"sameAsOnTrusted\"`"
-          ]
-        },
-        {
-          "source": "sdk-python",
-          "path": "zscaler/zcc/models/forwardingprofile.py",
-          "quotes": [
-            "self.action_type_zia = config[\"actionTypeZIA\"] if \"actionTypeZIA\" in config else None",
-            "self.action_type_zpa = config[\"actionTypeZPA\"] if \"actionTypeZPA\" in config else None"
+            "UnifiedTunnel []UnifiedTunnel `json:\"unifiedTunnel\"`"
           ]
         },
         {
@@ -634,7 +644,10 @@
             "Tunnel2FallbackType int `json:\"tunnel2FallbackType\"`",
             "DropIpv6Traffic int `json:\"dropIpv6Traffic\"`",
             "SendAllDNSToTrustedServer int `json:\"sendAllDNSToTrustedServer\"`",
-            "SystemProxyData SystemProxyData `json:\"systemProxyData\"`"
+            "SystemProxyData SystemProxyData `json:\"systemProxyData\"`",
+            "ActionTypeZIA int `json:\"actionTypeZIA\"`",
+            "ActionTypeZPA int `json:\"actionTypeZPA\"`",
+            "SameAsOnTrusted int `json:\"sameAsOnTrusted\"`"
           ]
         },
         {
@@ -657,7 +670,9 @@
             "self.tunnel2_fallback_type = config[\"tunnel2FallbackType\"] if \"tunnel2FallbackType\" in config else None",
             "self.system_proxy_data = SystemProxyData(config[\"systemProxyData\"]) if \"systemProxyData\" in config else None",
             "self.network_type = config[\"networkType\"] if \"networkType\" in config else None",
-            "self.same_as_on_trusted = config[\"sameAsOnTrusted\"] if \"sameAsOnTrusted\" in config else None"
+            "self.same_as_on_trusted = config[\"sameAsOnTrusted\"] if \"sameAsOnTrusted\" in config else None",
+            "self.action_type_zia = config[\"actionTypeZIA\"] if \"actionTypeZIA\" in config else None",
+            "self.action_type_zpa = config[\"actionTypeZPA\"] if \"actionTypeZPA\" in config else None"
           ]
         }
       ]

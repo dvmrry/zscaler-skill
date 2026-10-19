@@ -119,7 +119,7 @@
       ]
     },
     "operand-v1": {
-      "statement": "In v1 policy rule resources a trusted network condition is an operand with `object_type = \"TRUSTED_NETWORK\"`, `lhs` set to the trusted network's `network_id` and `rhs = \"true\"`.",
+      "statement": "In the v1 access, forwarding, inspection and isolation rule resources (`zpa_policy_access_rule`, `zpa_policy_forwarding_rule`, `zpa_policy_inspection_rule`, `zpa_policy_isolation_rule`), a trusted network condition is an operand with `object_type = \"TRUSTED_NETWORK\"`, `lhs` set to the trusted network's `network_id` and `rhs = \"true\"`.",
       "tier": "A",
       "binds": [
         "zpa/trusted-networks#networkId"
@@ -129,6 +129,8 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_access_rule.md",
           "quotes": [
+            "- `lhs` (String) LHS must always carry the string value ``id`` or the attribute ID of the resource being associated with the rule.",
+            "| Object Type | LHS| RHS",
             "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network) | ``network_id``  | ``\"true\"`` |"
           ]
         },
@@ -136,6 +138,8 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_forwarding_rule.md",
           "quotes": [
+            "- `lhs` (String) LHS must always carry the string value ``id`` or the attribute ID of the resource being associated with the rule.",
+            "| Object Type | LHS| RHS",
             "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network) | ``network_id``  | ``\"true\"`` |"
           ]
         },
@@ -143,6 +147,8 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_inspection_rule.md",
           "quotes": [
+            "- `lhs` (String) LHS must always carry the string value ``id`` or the attribute ID of the resource being associated with the rule.",
+            "| Object Type | LHS| RHS",
             "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network) | ``network_id``  | ``\"true\"`` |"
           ]
         },
@@ -150,7 +156,23 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_isolation_rule.md",
           "quotes": [
+            "- `lhs` (String) LHS must always carry the string value ``id`` or the attribute ID of the resource being associated with the rule.",
+            "| Object Type | LHS| RHS",
             "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network) | ``network_id``  | ``\"true\"`` |"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "after": "ResourcesMap: map[string]*schema.Resource{",
+          "quotes": [
+            "\"zpa_policy_access_rule\": resourcePolicyAccessRule(),",
+            "\"zpa_policy_access_rule_v2\": resourcePolicyAccessRuleV2(),",
+            "\"zpa_policy_forwarding_rule\": resourcePolicyForwardingRule(),",
+            "\"zpa_policy_forwarding_rule_v2\": resourcePolicyForwardingRuleV2(),",
+            "\"zpa_policy_inspection_rule\": resourcePolicyInspectionRule(),",
+            "\"zpa_policy_isolation_rule\": resourcePolicyIsolationRule(),",
+            "\"zpa_policy_isolation_rule_v2\": resourcePolicyIsolationRuleV2(), \"zpa_policy_inspection_rule_v2\": resourcePolicyInspectionRuleV2(),"
           ]
         }
       ]
@@ -166,6 +188,7 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_access_rule_v2.md",
           "quotes": [
+            "- `entry_values` (Block Set)",
             "`lhs` (String) -  The Trusted Network `network_id` value.",
             "- `rhs` (String) - Supported values: `\"true\"` or `\"false\"`"
           ],
@@ -313,6 +336,13 @@
           "after": "func resourcePolicyTimeoutRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "if err := ValidateConditions(ctx, req.Conditions, zClient, microTenantID); err != nil {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\""
           ]
         }
       ]

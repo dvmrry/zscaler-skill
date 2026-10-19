@@ -249,6 +249,22 @@
           "quotes": [
             "if err := ValidateConditions(ctx, req.Conditions, zClient, microTenantID); err != nil {"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "quotes": [
+            "\"zpa_policy_access_rule\": resourcePolicyAccessRule(),",
+            "\"zpa_policy_access_rule_v2\": resourcePolicyAccessRuleV2(),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/validator.go",
+          "quotes": [
+            "\"zpn_client_type_zia_inspection\": {},"
+          ],
+          "after": "var supportedClientTypes = map[string]struct{}{"
         }
       ]
     },
@@ -310,7 +326,32 @@
           "path": "zpa/common.go",
           "after": "func validateOperand(ctx context.Context, operand policysetcontroller.Operands, zClient *Client, microtenantID string) error {",
           "quotes": [
-            "case \"CLIENT_TYPE\":\nreturn customValidate(operand, []string{\"id\"},"
+            "case \"CLIENT_TYPE\":\nreturn customValidate(operand, []string{\"id\"},",
+            "if id != \"zpn_client_type_zapp\" &&"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "quotes": [
+            "\"zpa_policy_access_rule\": resourcePolicyAccessRule(),",
+            "\"zpa_policy_access_rule_v2\": resourcePolicyAccessRuleV2(),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "after": "func resourcePolicyAccessCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := ValidateConditions(ctx, req.Conditions, zClient, microTenantID); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "after": "func resourcePolicyAccessV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := ValidatePolicyRuleConditions(d); err != nil {"
           ]
         }
       ]

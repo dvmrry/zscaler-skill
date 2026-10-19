@@ -165,7 +165,7 @@
       "conditions": "Derived; no source names `other` as a dynamic group member."
     },
     "exclude-flags": {
-      "statement": "Exclude from Manual Location Groups and Exclude from Dynamic Location Groups (`excludeFromManualGroups`, `excludeFromDynamicGroups`) stop a location being added to groups and remove it from groups it is already in. In Terraform they are `exclude_from_manual_groups` and `exclude_from_dynamic_groups`. (Dynamic scope: see divergence `exclude-dynamic-reach`.)",
+      "statement": "Exclude from Manual Location Groups and Exclude from Dynamic Location Groups (`excludeFromManualGroups`, `excludeFromDynamicGroups`) stop a location being added to groups and remove it from groups it is already in. In Terraform they are `exclude_from_manual_groups` and `exclude_from_dynamic_groups`.",
       "tier": "A",
       "evidence": [
         {
@@ -183,18 +183,27 @@
             "* `exclude_from_manual_groups` - (Boolean) Enable to prevent the location from being added to manual groups and to remove it from any manual groups it's already assigned to",
             "* `exclude_from_dynamic_groups` - (Boolean) Enable to prevent the location from being assigned to any dynamic groups and to remove it from any dynamic groups it's already assigned to"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/location_management.py",
+          "quotes": [
+            "\"excludeFromDynamicGroups\": self.exclude_from_dynamic_groups,",
+            "\"excludeFromManualGroups\": self.exclude_from_manual_groups,"
+          ],
+          "after": "class LocationManagement(ZscalerObject):"
         }
       ]
     },
     "tf-exclusive-enforced-one-side": {
-      "statement": "Terraform's docs say `dynamic_location_groups` and `static_location_groups` cannot be set when the matching exclude flag is true; the provider enforces only the manual side, with a plan-time error when `static_location_groups` is set alongside `exclude_from_manual_groups = true`. The dynamic-side check is commented out in the source.",
+      "statement": "Terraform's docs say `dynamic_location_groups` and `static_location_groups` cannot be set when `exclude_from_dynamic_groups` and/or `exclude_from_manual_groups` is true; the provider enforces only the manual side, with a plan-time error when `static_location_groups` is set alongside `exclude_from_manual_groups = true`. The dynamic-side check is commented out in the source.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zia",
           "path": "docs/resources/zia_location_management.md",
           "quotes": [
-            "CANNOT be configured if the attributes `exclude_from_dynamic_groups` and/or `exclude_from_manual_groups` are set to `true`"
+            "The attributes, ``dynamic_location_groups``, and ``static_location_groups`` CANNOT be configured if the attributes `exclude_from_dynamic_groups` and/or `exclude_from_manual_groups` are set to `true`"
           ]
         },
         {
@@ -203,6 +212,7 @@
           "quotes": [
             "CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {",
             "return errors.New(\"static_location_groups cannot be set when exclude_from_manual_groups is set to true\")",
+            "if d.Get(\"exclude_from_manual_groups\").(bool) && d.HasChange(\"static_location_groups\") {",
             "// return errors.New(\"dynamic_location_groups cannot be set when exclude_from_dynamic_groups is set to true\")"
           ]
         }
@@ -262,7 +272,8 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "[PR #496](https://github.com/zscaler/terraform-provider-zia/pull/496) - Fixed drift with attribute `static_location_groups` in the resource `zia_location_management`"
-          ]
+          ],
+          "after": "## 4.6.0 (November, 19 2025)"
         }
       ]
     }

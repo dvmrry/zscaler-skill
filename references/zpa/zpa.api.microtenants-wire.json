@@ -255,8 +255,10 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/microtenants.py",
           "quotes": [
+            "body.update(kwargs)",
             "# Use get instead of pop to keep microtenant_id in the body",
             "microtenant_id = body.get(\"microtenant_id\", None)",
+            "# Handle case where no content is returned (204 No Content)",
             "return (Microtenant({\"id\": microtenant_id}), response, None)"
           ],
           "after": "def update_microtenant(self, microtenant_id: str, **kwargs)"
@@ -293,6 +295,14 @@
             "return resp, err"
           ],
           "after": "func Update(ctx context.Context, service *zscaler.Service, microTenantID string, microTenant *MicroTenant) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/microtenants/microtenants.go",
+          "quotes": [
+            "func Update(ctx context.Context, service *zscaler.Service, microTenantID string, microTenant *MicroTenant) (*http.Response, error) {"
+          ],
+          "note": "the signature returns only the HTTP response and an error"
         }
       ]
     },
@@ -300,6 +310,13 @@
       "statement": "The Go microtenants package has two name lookups. GetByName lists with GET using the name as the search text and matches case-insensitively on the client; GetMicrotenantByName posts a name-equals search to /microtenants/search with the service's microtenant as a query parameter and matches case-insensitively on the client.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/microtenants/microtenants.go",
+          "quotes": [
+            "microtenantsEndpoint = \"/microtenants\""
+          ]
+        },
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/microtenants/microtenants.go",
@@ -334,6 +351,15 @@
           "path": "zscaler/zpa/services/common/common.go",
           "quotes": [
             "// The filter parameter is passed as query params (for microTenantID)."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "totalPages, result, resp, err := getAllPagesGeneric[T](ctx, client, relativeURL, 1, DefaultPageSize, Filter{Search: searchQuery})",
+            "return getAllPagesGenericWithCustomFilters[T](",
+            "resp, err := client.NewRequestDo(ctx, \"GET\", relativeURL, pagination, nil, &paged)"
           ]
         }
       ]

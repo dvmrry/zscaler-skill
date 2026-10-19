@@ -192,7 +192,9 @@
             "func Reorder(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, order int) (*http.Response, error) {",
             "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, nil, nil)",
             "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {",
-            "resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, ruleIdsOrdered, nil)"
+            "resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, ruleIdsOrdered, nil)",
+            "path := fmt.Sprintf(mgmtConfigV1+service.Client.GetCustomerID()+\"/policySet/%s/rule/%s/reorder/%d\", policySetID, ruleId, order) resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path,",
+            "path := fmt.Sprintf(mgmtConfigV1+service.Client.GetCustomerID()+\"/policySet/%s/reorder\", policySet.ID) // Create a new PUT request resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path,"
           ]
         }
       ]
@@ -214,7 +216,8 @@
           "path": "zscaler/zpa/policies.py",
           "after": "def reorder_rule(self, policy_type: str, rule_id: str, rule_order: str, **kwargs)",
           "quotes": [
-            "The policy type. Accepted values:\n- ``access``\n- ``timeout``\n- ``client_forwarding``\n- ``isolation``\n- ``inspection``\n- ``redirection``\n- ``credential``\n- ``capabilities``\n- ``siem``"
+            "The policy type. Accepted values:\n- ``access``\n- ``timeout``\n- ``client_forwarding``\n- ``isolation``\n- ``inspection``\n- ``redirection``\n- ``credential``\n- ``capabilities``\n- ``siem``",
+            "http_method = \"put\".upper()"
           ]
         }
       ]

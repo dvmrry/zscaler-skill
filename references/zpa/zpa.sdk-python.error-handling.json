@@ -86,11 +86,8 @@
           "source": "sdk-python",
           "path": "zscaler/request_executor.py",
           "quotes": [
-            "logger.error(f\"Exception during HTTP request: {ex}\")",
-            "logger.error(f\"Exception while checking response for errors: {ex}\")",
-            "request, response, response_body, error = self.fire_request(request)",
-            "return None, ex",
-            "response_data, error = check_response_for_error(request[\"url\"], response, response_body)"
+            "try: request, response, response_body, error = self.fire_request(request) except Exception as ex: logger.error(f\"Exception during HTTP request: {ex}\") return None, ex",
+            "try: response_data, error = check_response_for_error(request[\"url\"], response, response_body) except Exception as ex: logger.error(f\"Exception while checking response for errors: {ex}\") return None, ex"
           ],
           "after": "def execute("
         }

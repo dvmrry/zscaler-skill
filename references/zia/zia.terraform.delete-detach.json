@@ -142,7 +142,8 @@
           "after": "func DetachRuleIDNameExtensions(",
           "quotes": [
             "rules, err := filteringrules.GetAll(ctx, service, nil)",
-            "getResources func(*filteringrules.FirewallFilteringRules) []common.IDNameExtensions, setResources func(*filteringrules.FirewallFilteringRules, []common.IDNameExtensions)) error {"
+            "getResources func(*filteringrules.FirewallFilteringRules) []common.IDNameExtensions, setResources func(*filteringrules.FirewallFilteringRules, []common.IDNameExtensions)) error {",
+            "for _, rule := range rules {"
           ]
         }
       ]
@@ -405,6 +406,9 @@
           ],
           "after": "func DetachRuleIDNameExtensions(",
           "quotes": [
+            "for _, rule := range rules {",
+            "for _, destGroup := range getResources(&rule) { if destGroup.ID != id { ids = append(ids, destGroup) } else { shouldUpdate = true } }",
+            "if shouldUpdate {",
             "_, err = filteringrules.Get(ctx, service, rule.ID)",
             "if err == nil {",
             "if err == nil { _, err = filteringrules.Update(ctx, service, rule.ID, &rule) if err != nil { return err } } } } return nil }"
@@ -454,6 +458,7 @@
           "quotes": [
             "time.Sleep(time.Second * 5)",
             "for _, rule := range rules {",
+            "for _, destGroup := range getResources(&rule) { if destGroup.ID != id { ids = append(ids, destGroup) } else { shouldUpdate = true } }",
             "if shouldUpdate { setResources(&rule, ids) time.Sleep(time.Second * 5) _, err = filteringrules.Get(ctx, service, rule.ID) if err == nil {"
           ]
         }
@@ -472,6 +477,7 @@
           ],
           "after": "func resourceDNSApplicationGroupsDelete(",
           "quotes": [
+            "err := DetachRuleIDNameExtensions(",
             "if _, err := dns_application_groups.Delete(ctx, service, id); err != nil {",
             "if err != nil { return diag.FromErr(err) } if _, err := dns_application_groups.Delete(ctx, service, id); err != nil {"
           ]
@@ -485,6 +491,7 @@
           ],
           "after": "func resourceFWNetworkServiceGroupsDelete(",
           "quotes": [
+            "err := DetachRuleIDNameExtensions(",
             "if _, err := networkservicegroups.DeleteNetworkServiceGroups(ctx, service, id); err != nil {",
             "if err != nil { return diag.FromErr(err) } if _, err := networkservicegroups.DeleteNetworkServiceGroups(ctx, service, id); err != nil {"
           ]
@@ -498,6 +505,7 @@
           ],
           "after": "func DetachRuleIDNameExtensions(",
           "quotes": [
+            "_, err = filteringrules.Get(ctx, service, rule.ID) if err == nil {",
             "if err == nil { _, err = filteringrules.Update(ctx, service, rule.ID, &rule) if err != nil { return err } } } } return nil }"
           ]
         }

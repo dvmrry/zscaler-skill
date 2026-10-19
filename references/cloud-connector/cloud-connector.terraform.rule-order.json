@@ -607,7 +607,7 @@
       ]
     },
     "worker-cannot-report-failure": {
-      "statement": "The worker has no way to report failure: `reorderAll` returns no value, and waiting resources are released by closing a channel that carries no result. Whatever the worker did, a waiter proceeds.",
+      "statement": "The worker has no way to report failure: `reorderAll` returns no value, and waiting resources are released by closing a channel that carries no result. The channel is closed whenever `reorderAll` returns, so a waiter then proceeds whatever the worker did.",
       "tier": "A",
       "evidence": [
         {
@@ -630,7 +630,7 @@
           ],
           "quotes": [
             "reorderDone map[string]chan struct{}",
-            "close(doneCh)",
+            "go func() { reorderAll(resourceType, getCount, updateOrder, beforeReorder) close(doneCh) }()",
             "func waitForReorder(resourceType string) { rules.Lock() ch := rules.reorderDone[resourceType] rules.Unlock() if ch != nil { <-ch } }"
           ]
         },
@@ -765,7 +765,7 @@
       ]
     },
     "completes-on-quiet-ticks": {
-      "statement": "A write pass runs only once every registered rule is marked done and the number of registered rules differs from the number at the last pass. After that, the worker returns once three further ticks see the same number, and a pass that was skipped or failed makes no difference. The worker never reads positions back, so it cannot tell whether a write took effect.",
+      "statement": "A write pass runs only once every registered rule is marked done and the number of registered rules differs from the number at the last pass. After that, the worker returns once three further ticks see the same number, even if the pass skipped some writes or some writes failed. The worker does not read a rule back after writing it, so beyond the write error it cannot tell whether a write took effect.",
       "tier": "A",
       "evidence": [
         {
@@ -868,6 +868,19 @@
             "} else { // Same size as last reorder — count towards stability stableAfterReorder++"
           ],
           "after": "func reorderAll(resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/common.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "default: // Reorder goroutine still running — just register, don't start another shouldCallReorder = false",
+            "rules.orders[resourceType][id] = orderWithState{order, false} rules.Unlock() if shouldCallReorder {"
+          ],
+          "after": "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
         }
       ],
       "upstream": [
@@ -903,7 +916,8 @@
             "HEAD"
           ],
           "quotes": [
-            "allRules, err := traffic_dns_rules.GetAll(ctx, service) if err != nil { return 0, err } // Count all rules including predefined ones for proper ordering return len(allRules), nil"
+            "allRules, err := traffic_dns_rules.GetAll(ctx, service) if err != nil { return 0, err } // Count all rules including predefined ones for proper ordering return len(allRules), nil",
+            "nil, // Remove beforeReorder function to avoid adding too many rules to the map"
           ],
           "after": "func resourceTrafficForwardingDNSRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         },
@@ -915,7 +929,8 @@
             "HEAD"
           ],
           "quotes": [
-            "allRules, err := forwarding_rules.GetAll(ctx, service) if err != nil { return 0, err } // Count all rules including predefined ones for proper ordering return len(allRules), nil"
+            "allRules, err := forwarding_rules.GetAll(ctx, service) if err != nil { return 0, err } // Count all rules including predefined ones for proper ordering return len(allRules), nil",
+            "nil, // Remove beforeReorder function to avoid adding too many rules to the map"
           ],
           "after": "func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         },
@@ -927,7 +942,8 @@
             "HEAD"
           ],
           "quotes": [
-            "allRules, err := traffic_log_rules.GetAll(ctx, service) if err != nil { return 0, err } // Count all rules including predefined ones for proper ordering return len(allRules), nil"
+            "allRules, err := traffic_log_rules.GetAll(ctx, service) if err != nil { return 0, err } // Count all rules including predefined ones for proper ordering return len(allRules), nil",
+            "nil, // Remove beforeReorder function to avoid adding too many rules to the map"
           ],
           "after": "func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
@@ -969,7 +985,8 @@
             "HEAD"
           ],
           "quotes": [
-            "rules.Lock() shouldCallReorder := false"
+            "rules.Lock() shouldCallReorder := false",
+            "rules.orders[resourceType][id] = orderWithState{order, false} rules.Unlock()"
           ],
           "after": "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
         },

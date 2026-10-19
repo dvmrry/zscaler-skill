@@ -361,7 +361,7 @@
       "conditions": "A name that ends in a parenthesised token for another reason, such as (prod), loses it as well, since the pattern does not check for a cloud domain."
     },
     "mcp-list-tools-same-inputs": {
-      "statement": "The MCP list tools for BA certificates, AppProtection profiles, enrollment certificates, posture profiles, SAML attributes, SCIM attributes, SCIM groups, trusted networks, PRA credentials, PRA portals and provisioning keys each declare `page` and `page_size` with the same bounds (1 to 500, API default 20) and forward `page_size` to the SDK as a string.",
+      "statement": "The MCP list tools for BA certificates, AppProtection profiles, enrollment certificates, posture profiles, SAML attributes, SCIM attributes, SCIM groups, trusted networks, PRA credentials, PRA portals and provisioning keys each declare the same `page` (at least 1) and `page_size` (1 to 500, API default 20) inputs and forward `page_size` to the SDK as a string.",
       "tier": "A",
       "evidence": [
         {
@@ -369,7 +369,7 @@
           "path": "src/zscaler_mcp/tools/zpa/ba_certificate.py",
           "quotes": [
             "page: Annotated[Optional[int], Field(default=None, ge=1, description=\"Page number.\")] = None",
-            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "page_size: Annotated[ Optional[int], Field(default=None, ge=1, le=500, description=\"Items per page (API default 20, max 500).\"),",
             "qp[\"page_size\"] = str(args.page_size)"
           ]
         },
@@ -378,7 +378,7 @@
           "path": "src/zscaler_mcp/tools/zpa/get_app_protection_profile.py",
           "quotes": [
             "page: Annotated[Optional[int], Field(default=None, ge=1, description=\"Page number.\")] = None",
-            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "page_size: Annotated[ Optional[int], Field(default=None, ge=1, le=500, description=\"Items per page (API default 20, max 500).\"),",
             "qp[\"page_size\"] = str(args.page_size)"
           ]
         },
@@ -387,7 +387,7 @@
           "path": "src/zscaler_mcp/tools/zpa/get_enrollment_certificate.py",
           "quotes": [
             "page: Annotated[Optional[int], Field(default=None, ge=1, description=\"Page number.\")] = None",
-            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "page_size: Annotated[ Optional[int], Field(default=None, ge=1, le=500, description=\"Items per page (API default 20, max 500).\"),",
             "qp[\"page_size\"] = str(args.page_size)"
           ]
         },
@@ -396,7 +396,7 @@
           "path": "src/zscaler_mcp/tools/zpa/get_posture_profiles.py",
           "quotes": [
             "page: Annotated[Optional[int], Field(default=None, ge=1, description=\"Page number.\")] = None",
-            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "page_size: Annotated[ Optional[int], Field(default=None, ge=1, le=500, description=\"Items per page (API default 20, max 500).\"),",
             "qp[\"page_size\"] = str(args.page_size)"
           ]
         },
@@ -405,7 +405,7 @@
           "path": "src/zscaler_mcp/tools/zpa/get_saml_attributes.py",
           "quotes": [
             "page: Annotated[Optional[int], Field(default=None, ge=1, description=\"Page number.\")] = None",
-            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "page_size: Annotated[ Optional[int], Field(default=None, ge=1, le=500, description=\"Items per page (API default 20, max 500).\"),",
             "qp[\"page_size\"] = str(args.page_size)"
           ]
         },
@@ -414,7 +414,7 @@
           "path": "src/zscaler_mcp/tools/zpa/get_scim_attributes.py",
           "quotes": [
             "page: Annotated[Optional[int], Field(default=None, ge=1, description=\"Page number.\")] = None",
-            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "page_size: Annotated[ Optional[int], Field(default=None, ge=1, le=500, description=\"Items per page (API default 20, max 500).\"),",
             "qp[\"page_size\"] = str(args.page_size)"
           ]
         },
@@ -423,7 +423,7 @@
           "path": "src/zscaler_mcp/tools/zpa/get_scim_groups.py",
           "quotes": [
             "page: Annotated[Optional[int], Field(default=None, ge=1, description=\"Page number.\")] = None",
-            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "page_size: Annotated[ Optional[int], Field(default=None, ge=1, le=500, description=\"Items per page (API default 20, max 500).\"),",
             "qp[\"page_size\"] = str(args.page_size)"
           ]
         },
@@ -432,7 +432,7 @@
           "path": "src/zscaler_mcp/tools/zpa/get_trusted_networks.py",
           "quotes": [
             "page: Annotated[Optional[int], Field(default=None, ge=1, description=\"Page number.\")] = None",
-            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "page_size: Annotated[ Optional[int], Field(default=None, ge=1, le=500, description=\"Items per page (API default 20, max 500).\"),",
             "qp[\"page_size\"] = str(args.page_size)"
           ]
         },
@@ -441,7 +441,7 @@
           "path": "src/zscaler_mcp/tools/zpa/pra_credential.py",
           "quotes": [
             "page: Annotated[Optional[int], Field(default=None, ge=1, description=\"Page number.\")] = None",
-            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "page_size: Annotated[ Optional[int], Field(default=None, ge=1, le=500, description=\"Items per page (API default 20, max 500).\"),",
             "qp[\"page_size\"] = str(args.page_size)"
           ]
         },
@@ -450,7 +450,7 @@
           "path": "src/zscaler_mcp/tools/zpa/pra_portal.py",
           "quotes": [
             "page: Annotated[Optional[int], Field(default=None, ge=1, description=\"Page number.\")] = None",
-            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "page_size: Annotated[ Optional[int], Field(default=None, ge=1, le=500, description=\"Items per page (API default 20, max 500).\"),",
             "qp[\"page_size\"] = str(args.page_size)"
           ]
         },
@@ -459,16 +459,7 @@
           "path": "src/zscaler_mcp/tools/zpa/provisioning_key.py",
           "quotes": [
             "page: Annotated[Optional[int], Field(default=None, ge=1, description=\"Page number.\")] = None",
-            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
-            "qp[\"page_size\"] = str(args.page_size)"
-          ]
-        },
-        {
-          "source": "mcp-server",
-          "path": "src/zscaler_mcp/tools/zpa/provisioning_key.py",
-          "quotes": [
-            "page: Annotated[Optional[int], Field(default=None, ge=1, description=\"Page number.\")] = None",
-            "Field(default=None, ge=1, le=500, description=\"Items per page (API default 20, max 500).\")",
+            "page_size: Annotated[ Optional[int], Field(default=None, ge=1, le=500, description=\"Items per page (API default 20, max 500).\"),",
             "qp[\"page_size\"] = str(args.page_size)"
           ]
         }

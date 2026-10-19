@@ -229,7 +229,7 @@
       ]
     },
     "v1-validates-lookup": {
-      "statement": "When a v1 policy resource is created or updated, the provider looks the SAML operand's lhs up with samlattribute.Get and fails on an unknown ID or an empty rhs; the v2 resources only check that lhs and rhs are not empty.",
+      "statement": "When a v1 policy resource is created or updated, the provider looks the SAML operand's lhs up with samlattribute.Get and fails on an unknown ID or an empty rhs; the v2 resources only check that entry_values is present and that lhs and rhs are not empty.",
       "tier": "A",
       "evidence": [
         {
@@ -237,7 +237,7 @@
           "path": "zpa/common.go",
           "quotes": [
             "_, _, err := samlattribute.Get(ctx, zClient.Service, operand.LHS)",
-            "return lhsWarn(operand.ObjectType, \"valid SAML Attribute ID\", operand.LHS, err)",
+            "return lhsWarn(operand.ObjectType, \"valid SAML Attribute ID\", operand.LHS, err) } if operand.RHS == \"\" {",
             "return rhsWarn(operand.ObjectType, \"SAML Attribute Value\", operand.RHS, nil)"
           ]
         },
@@ -262,6 +262,7 @@
           "path": "zpa/common.go",
           "quotes": [
             "return fmt.Errorf(\"LHS must be a valid SAML attribute ID and cannot be empty for SAML object_type\")",
+            "if !lhsOk || lhs == \"\" { return fmt.Errorf(\"LHS must be a valid SAML attribute ID and cannot be empty for SAML object_type\") } if rhs == \"\" {",
             "return fmt.Errorf(\"entry_values must be provided for SAML object_type\")",
             "return fmt.Errorf(\"RHS must be a valid string i.e email adddress, department, group etc and cannot be empty for SAML object_type\")"
           ]
@@ -296,7 +297,8 @@
             "Rules that combine *different* object types within one block",
             "the GUI may silently drop the operands it cannot render",
             "using the `OR` operator are valid via Terraform and the API, but the ZPA Admin GUI's",
-            "criteria builder cannot always represent them."
+            "criteria builder cannot always represent them.",
+            "If such a rule is opened and re-saved"
           ]
         }
       ]

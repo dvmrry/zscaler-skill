@@ -401,9 +401,19 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
+            "// MacPolicy models the macPolicy block of a ZCC web policy.",
             "camelCase tags which the API silently ignored, leading to // {\"success\":\"false\",\"id\":0} on /edit.",
             "install_ssl_certs is a JSON number, not a string.",
             "the password/cert fields are serialized in snake_case"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "after": "// MacPolicy models the macPolicy block of a ZCC web policy.",
+          "quotes": [
+            "(disable_password / install_ssl_certs / logout_password / // uninstall_password); earlier versions of this struct used // camelCase tags which the API silently ignored, leading to // {\"success\":\"false\",\"id\":0} on /edit.",
+            "- install_ssl_certs is a JSON number, not a string."
           ]
         },
         {
@@ -588,6 +598,14 @@
         {
           "source": "sdk-go",
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "after": "// IosPolicy models the iosPolicy block of a ZCC web policy.",
+          "quotes": [
+            "- disable_password / logout_password / uninstall_password / passcode // are serialized in snake_case (matching the API verbatim);"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "after": "type IosPolicy struct {",
           "quotes": [
             "DisablePassword string `json:\"disablePassword\"`"
@@ -618,6 +636,15 @@
             "the four counters (id, zpaReauthNotificationTime, customTimer, // delayPostureFailureNotificationSeconds) are JSON numbers;",
             "NotificationTemplateContract *NotificationTemplateContract `json:\"notificationTemplateContract,omitempty\"`"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "after": "// NotificationTemplateContract models the notificationTemplateContract",
+          "quotes": [
+            "- the 0/1 flags are quoted strings (`\"0\"` / `\"1\"`), not JSON // numbers, so they keep their `string` Go type;",
+            "- the four counters (id, zpaReauthNotificationTime, customTimer, // delayPostureFailureNotificationSeconds) are JSON numbers;"
+          ]
         }
       ]
     },
@@ -631,7 +658,9 @@
           "path": "zscaler/request_executor.py",
           "quotes": [
             "if \"/zcc/\" in endpoint and body:",
-            "if isinstance(body, _ZccWireBody):"
+            "if isinstance(body, _ZccWireBody):",
+            "if self.use_legacy_client: endpoint = self.remove_oneapi_endpoint_prefix(endpoint)",
+            "\"/zpa\", \"/zcc\", \"/ztw\","
           ]
         },
         {
@@ -898,6 +927,14 @@
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
             "InstallSslCertsTop                common.IntOrString `json:\"install_ssl_certs\"`"
+          ],
+          "after": "type WebPolicy struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "// MacPolicy models the macPolicy block of a ZCC web policy."
           ]
         },
         {
@@ -1373,6 +1410,7 @@
           "source": "sdk-python",
           "path": "zscaler/zcc/web_policy.py",
           "quotes": [
+            "def web_policy_edit(self, **kwargs) -> APIResult[dict]:",
             "reactivate_web_security_minutes (str): Minutes after which Web",
             "Security is reactivated when disabled by the user."
           ]

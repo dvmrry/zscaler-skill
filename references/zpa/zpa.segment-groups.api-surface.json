@@ -370,7 +370,7 @@
       ]
     },
     "tf-resource-schema": {
-      "statement": "The Terraform resource takes a required `name` and optional `description`, `enabled`, `microtenant_id` and an `applications` list of `{id}` objects; an `enabled` left out is sent as false. Before v4.4.14 only each application's ID was sent on every write; v4.4.14 deprecates `applications`, sends the application IDs only on create, never sends them on update, and rejects adding or removing applications on an existing group at plan time (#695).",
+      "statement": "The Terraform resource takes a required `name` and optional `description`, `enabled`, `microtenant_id` and an `applications` list of objects with a single `id` attribute; an `enabled` left out is sent as false. Before v4.4.14 only each application's ID was sent on every write; v4.4.14 deprecates `applications`, sends the application IDs only on create, never sends them on update, and rejects adding or removing applications on an existing group at plan time (#695).",
       "tier": "A",
       "evidence": [
         {
@@ -461,6 +461,14 @@
             "[PR #695](https://github.com/zscaler/terraform-provider-zpa/pull/695) - Fixed `zpa_segment_group` updates failing"
           ],
           "after": "## 4.4.14 (October 8, 2026)"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "quotes": [
+            "\"applications\": { Type: schema.TypeList, Optional: true, Computed: true,",
+            "Elem: &schema.Resource{ Schema: map[string]*schema.Schema{ \"id\": { Type: schema.TypeString, Optional: true, }, }, },"
+          ]
         }
       ],
       "conditions": "Changed upstream in v4.4.14 (checked 2026-10-18): previously \"The Terraform resource takes a required `name` and optional `description`, `enabled`, `microtenant_id` and an `applications` list of `{id}` objects; an `enabled` left out is sent as false, and only each application's ID is sent on write.\""

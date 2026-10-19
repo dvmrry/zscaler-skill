@@ -81,8 +81,7 @@
           "source": "sdk-python",
           "path": "zscaler/oneapi_client.py",
           "quotes": [
-            "return self._require_legacy_client(\"ZCC\", self.zcc_legacy_client)",
-            "self._zcc = ZCCService(self)",
+            "def zcc(self): if self.use_legacy_client: return self._require_legacy_client(\"ZCC\", self.zcc_legacy_client) if self._zcc is None: self._zcc = ZCCService(self) return self._zcc",
             "Legacy {service_name} client requested but no legacy client instance was provided."
           ]
         },
@@ -103,6 +102,7 @@
         {
           "source": "sdk-python",
           "path": "zscaler/oneapi_client.py",
+          "after": "class LegacyZCCClient(Client):",
           "quotes": [
             "api_key = config.get(\"api_key\", os.getenv(\"ZCC_CLIENT_ID\"))",
             "secret_key = config.get(\"secret_key\", os.getenv(\"ZCC_CLIENT_SECRET\"))",
@@ -127,7 +127,22 @@
           "source": "sdk-python",
           "path": "zscaler/zcc/zcc_service.py",
           "quotes": [
-            "def secrets(self) -> SecretsAPI:"
+            "class ZCCService:",
+            "def devices(self) -> DevicesAPI:",
+            "def secrets(self) -> SecretsAPI:",
+            "def admin_user(self) -> AdminUserAPI:",
+            "def company(self) -> CompanyInfoAPI:",
+            "def entitlements(self) -> EntitlementAPI:",
+            "def forwarding_profile(self) -> ForwardingProfileAPI:",
+            "def fail_open_policy(self) -> FailOpenPolicyAPI:",
+            "def web_policy(self) -> WebPolicyAPI:",
+            "def web_app_service(self) -> WebAppServiceAPI:",
+            "def web_privacy(self) -> WebPrivacyAPI:",
+            "def trusted_networks(self) -> TrustedNetworksAPI:",
+            "def application_profiles(self) -> ApplicationProfilesAPI:",
+            "def custom_ip_base_apps(self) -> CustomIPBasedAppsAPI:",
+            "def predefined_ip_based_apps(self) -> PredefinedIPBasedAppsAPI:",
+            "def process_based_apps(self) -> ProcessBasedAppsAPI:"
           ]
         },
         {
@@ -190,7 +205,7 @@
       ]
     },
     "legacy-exit-no-logout": {
-      "statement": "Leaving a `with` block on the legacy ZCC helper only writes a debug log line; unlike the ZIA legacy client it sends no logout request.",
+      "statement": "Exiting the legacy ZCC helper as a context manager (its `__exit__`) only writes a debug log line; unlike the ZIA legacy client it sends no logout request.",
       "tier": "A",
       "evidence": [
         {
@@ -198,7 +213,7 @@
           "path": "zscaler/zcc/legacy.py",
           "after": "def __exit__(self, exc_type, exc_val, exc_tb):",
           "quotes": [
-            "logger.debug(\"Deauthenticating...\")"
+            "logger.debug(\"Deauthenticating...\") def refreshToken(self):"
           ]
         },
         {
@@ -207,6 +222,15 @@
           "after": "def __exit__(",
           "quotes": [
             "self.deauthenticate()"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/legacy.py",
+          "after": "def deauthenticate(self) -> bool:",
+          "quotes": [
+            "logout_url = self.url + \"/api/v1/authenticatedSession\"",
+            "response = requests.delete(logout_url, headers=headers, timeout=self.timeout)"
           ]
         }
       ]

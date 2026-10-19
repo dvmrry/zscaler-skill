@@ -159,6 +159,14 @@
             "psize_value = params.pop(\"page_size\")",
             "converted[\"pagesize\"] = psize_value"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "results, error = self._fetch_next_page()"
+          ],
+          "after": "def next(self) -> Tuple[Optional[List[Any]], \"ZscalerAPIResponse\", Optional[Exception]]:"
         }
       ]
     },
@@ -361,11 +369,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/tag_group.py",
           "quotes": [
-            "search_body = {\"sortBy\": {\"sortName\": \"name\", \"sortOrder\": \"ASC\"}}",
-            "req_params = {\"microtenantId\": microtenant_id} if microtenant_id else {}",
-            "params = query_params or {}",
-            "microtenant_id = params.get(\"microtenant_id\")",
-            "return _post_search_all_pages("
+            "params = query_params or {} microtenant_id = params.get(\"microtenant_id\") req_params = {\"microtenantId\": microtenant_id} if microtenant_id else {} search_body = {\"sortBy\": {\"sortName\": \"name\", \"sortOrder\": \"ASC\"}} try:",
+            "return _post_search_all_pages( self._request_executor, self._tag_group_search_endpoint, TagGroup, search_body, req_params, self.form_response_body, ) except Exception as error: return (None, None, error)"
           ],
           "after": "def list_tag_groups("
         }
@@ -436,6 +441,8 @@
           "source": "sdk-python",
           "path": "zscaler/request_executor.py",
           "quotes": [
+            "# If it's ZPA, handle pagesize special rules if service_type.lower() == \"zpa\":",
+            "# Handle search parameter for ZPA - the API now uses a filtering/query parameter format.",
             "search_value = params[\"search\"].strip()",
             "filter_operators = [ \"+EQ+\", \"+NE+\", \"+GT+\", \"+LT+\", \"+GE+\", \"+LE+\", \"+CONTAINS+\", \"+STARTSWITH+\", \"+ENDSWITH+\", \"%2BEQ%2B\", \"%2BNE%2B\", \"%2BGT%2B\", \"%2BLT%2B\", \"%2BGE%2B\", \"%2BLE%2B\", ]",
             "params[\"search\"] = f\"name+EQ+{search_value}\"",
@@ -496,10 +503,8 @@
           "source": "sdk-python",
           "path": "zscaler/oneapi_response.py",
           "quotes": [
-            "if \"pageNumber\" in self._params:",
-            "self._page = int(self._params[\"pageNumber\"])",
             "if self._service_type == \"zia\": # Normalize page_size → pageSize if still in snake_case",
-            "# If user supplied pageNumber, initialize self._page accordingly"
+            "# If user supplied pageNumber, initialize self._page accordingly if \"pageNumber\" in self._params: try: self._page = int(self._params[\"pageNumber\"])"
           ]
         }
       ],

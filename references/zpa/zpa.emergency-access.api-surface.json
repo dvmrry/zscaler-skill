@@ -251,9 +251,7 @@
           "source": "sdk-python",
           "path": "zscaler/request_executor.py",
           "quotes": [
-            "body: dict = None,",
-            "headers: dict = None,",
-            "params: dict = None,",
+            "self, method: str, endpoint: str, body: dict = None, headers: dict = None, params: dict = None,",
             "headers = self._prepare_headers(headers, endpoint)"
           ],
           "after": "def create_request("
@@ -309,8 +307,16 @@
       "evidence": [
         {
           "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "quotes": [
+            "\"zpa_emergency_access_user\": resourceEmergencyAccess(),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
           "path": "zpa/resource_zpa_emergency_access.go",
           "quotes": [
+            "func resourceEmergencyAccess() *schema.Resource {",
             "DeleteContext: resourceEmergencyAccessDeactivated,",
             "if _, err := emergencyaccess.Deactivate(ctx, service, d.Id()); err != nil {"
           ]
@@ -415,9 +421,24 @@
       ]
     },
     "terraform-no-microtenant-attribute": {
-      "statement": "The zpa_emergency_access_user resource schema defines only user_id, email_id, first_name and last_name, while its create, read, update and delete functions read microtenant_id from the resource data, so a configuration cannot set it.",
+      "statement": "The zpa_emergency_access_user resource schema defines only user_id, email_id, first_name and last_name, while its create, read, update and delete functions read microtenant_id from the resource data.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "quotes": [
+            "\"zpa_emergency_access_user\": resourceEmergencyAccess(),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_emergency_access.go",
+          "quotes": [
+            "func resourceEmergencyAccess() *schema.Resource {",
+            "DeleteContext: resourceEmergencyAccessDeactivated,"
+          ]
+        },
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_emergency_access.go",

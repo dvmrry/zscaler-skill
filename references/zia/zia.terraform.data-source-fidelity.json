@@ -495,8 +495,10 @@
             "HEAD"
           ],
           "quotes": [
-            "\"primary_field\": { Type: schema.TypeInt,"
-          ]
+            "\"primary_field\": { Type: schema.TypeInt,",
+            "if err := d.Set(\"exact_data_match_details\", flattenEDMDetails(resp)); err != nil {"
+          ],
+          "after": "\"exact_data_match_details\": {"
         },
         {
           "source": "tf-zia",
@@ -567,6 +569,7 @@
             "HEAD"
           ],
           "quotes": [
+            "if err := d.Set(\"cbi_profile\", flattenCloudAppControlCBIProfile(&resp.CBIProfile)); err != nil {",
             "func flattenCloudAppControlCBIProfile(cbiProfile *cloudappcontrol.CBIProfile) map[string]interface{} {",
             "\"profile_seq\": cbiProfile.ProfileSeq,"
           ]
@@ -661,7 +664,7 @@
       ]
     },
     "endpoint-tag-multi-result-id-not-numeric": {
-      "statement": "The DLP endpoint resource group tag data source declares its `id` as an integer, but when the result is not exactly one tag (the normal unfiltered channel read) it sets the resource ID to the channel name, for example `PRINTING`.",
+      "statement": "The DLP endpoint resource group tag data source declares its `id` as an integer, but when the result is not exactly one tag (as on an unfiltered channel read that returns several tags) it sets the resource ID to the channel name, for example `PRINTING`.",
       "tier": "A",
       "evidence": [
         {
@@ -685,7 +688,8 @@
           "quotes": [
             "if matched == 1 { d.SetId(strconv.Itoa(lastID)) } else { d.SetId(string(channel)) }",
             "} else { // Retrieve the channel's tag catalog and optionally filter by name.",
-            "\"PRINTING\", \"REMOVABLE_DRIVE_TRANSFER\","
+            "\"PRINTING\", \"REMOVABLE_DRIVE_TRANSFER\",",
+            "opts := &endpoint_resource_group.GetResourceTagsListFilterOptions{} if name != \"\" {"
           ]
         }
       ],
@@ -976,6 +980,7 @@
             "HEAD"
           ],
           "quotes": [
+            "func dataSourceTrafficForwardingGreVipRecommendedListRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
             "\"source_ip\": { Type: schema.TypeString, Optional: true, },",
             "d.SetId(sourceIP)",
             "sourceIP := d.Get(\"source_ip\").(string)",
@@ -1138,6 +1143,7 @@
           ],
           "after": "func dataSourceCloudApplicationsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
+            "appNameFilter, hasAppName := d.GetOk(\"app_name\")",
             "if resp, ok := rawResp.([]cloudapplications.CloudApplications); ok && len(resp) > 0 {",
             "if hasAppName && app.AppName != appNameFilter.(string) {",
             "if err := d.Set(\"applications\", applications); err != nil {",
@@ -1155,7 +1161,7 @@
       ]
     },
     "datacenter-lookups-no-match-succeed": {
-      "statement": "The datacenters data source and the name filter of the DC exclusions data source filter a fetched list and, when nothing matches, set a synthetic ID built from the filter (`name-...`, `city-...`, `id-...`) and an empty list, with no not-found error. Only the ID filter of the DC exclusions data source errors on an empty result.",
+      "statement": "The datacenters data source and the name filter of the DC exclusions data source filter a fetched list and, when nothing matches, set a synthetic ID built from the filter (`name-%s`, `city-%s`, `id-%d`) and an empty list, with no not-found error. Only the ID filter of the DC exclusions data source errors on an empty result.",
       "tier": "A",
       "evidence": [
         {
@@ -1198,7 +1204,7 @@
       ]
     },
     "file-type-categories-swallow-enum-failure": {
-      "statement": "To look a category up by ID or name without an enum, the file type categories data source queries three enum scopes. A failure of any one scope is logged as a warning and skipped. If the category lives in the failed scope the result is a not-found error, and otherwise the data source succeeds on an incomplete set.",
+      "statement": "To look a category up by ID or name without an enum, the file type categories data source queries three enum scopes. A failure of any one scope is logged as a warning and skipped. If the category lives in the failed scope the result is a not-found error, and otherwise the lookup succeeds from the scopes that answered, with the failure shown only as a logged warning.",
       "tier": "A",
       "evidence": [
         {
@@ -1212,7 +1218,8 @@
           "quotes": [
             "log.Printf(\"[WARN] Failed to get file type categories for enum %s: %v\", enumVal, err) continue",
             "if resp == nil { return diag.FromErr(fmt.Errorf(\"couldn't find any file type category with id '%d'\", id)) }",
-            "return diag.FromErr(fmt.Errorf(\"couldn't find any file type category with name '%s'\", name))"
+            "return diag.FromErr(fmt.Errorf(\"couldn't find any file type category with name '%s'\", name))",
+            "d.SetId(fmt.Sprintf(\"%d\", resp.ID)) _ = d.Set(\"id\", resp.ID) _ = d.Set(\"name\", resp.Name) _ = d.Set(\"parent\", resp.Parent) _ = d.Set(\"categories\", []interface{}{}) return nil }"
           ]
         },
         {
@@ -1624,7 +1631,7 @@
           ],
           "after": "func flattenIDExtensionsList(idNameExtension *common.IDNameExtensions) []interface{} {",
           "quotes": [
-            "\"id\": idNameExtension.ID, \"name\": idNameExtension.Name, \"extensions\": idNameExtension.Extensions,"
+            "flattenedList = append(flattenedList, map[string]interface{}{ \"id\": idNameExtension.ID, \"name\": idNameExtension.Name, \"extensions\": idNameExtension.Extensions, })"
           ]
         },
         {

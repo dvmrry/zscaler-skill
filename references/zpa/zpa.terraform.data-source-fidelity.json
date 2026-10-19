@@ -226,7 +226,8 @@
           ],
           "after": "type LSSResource struct {",
           "quotes": [
-            "LSSConfig *LSSConfig `json:\"config\"`"
+            "LSSConfig *LSSConfig `json:\"config\"`",
+            "PolicyRule *PolicyRule `json:\"policyRule,omitempty\"`"
           ]
         }
       ],
@@ -310,6 +311,18 @@
           "quotes": [
             "Operands *[]Operands `json:\"operands,omitempty\"`"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type PolicyRule struct {",
+          "quotes": [
+            "Conditions []Conditions `json:\"conditions,omitempty\"`"
+          ]
         }
       ],
       "conditions": "Needs a condition with null or missing `operands` in the API response (gap api-omits-nested-objects).",
@@ -372,7 +385,7 @@
           ],
           "after": "func dataSourceAppConnectorControllerRead(",
           "quotes": [
-            "flattenAssistantVersion(&resp.AssistantVersion)"
+            "if err := d.Set(\"assistant_version\", flattenAssistantVersion(&resp.AssistantVersion)); err != nil {"
           ]
         },
         {
@@ -515,8 +528,8 @@
           ],
           "after": "func dataSourceCBIExternalProfileRead(",
           "quotes": [
-            "if resp.SecurityControls != nil {",
-            "if resp.UserExperience != nil {",
+            "if resp.SecurityControls != nil { _ = d.Set(\"security_controls\", flattenSecurityControls(resp.SecurityControls)) }",
+            "if resp.UserExperience != nil { _ = d.Set(\"user_experience\", flattenUserExperience(resp.UserExperience)) }",
             "if resp.DebugMode != nil {"
           ]
         },
@@ -556,6 +569,31 @@
           "after": "func flattenDebugMode(",
           "quotes": [
             "return []interface{}{ map[string]interface{}{ \"allowed\": debugMode.Allowed, \"file_password\": debugMode.FilePassword, }, }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type SecurityControls struct {",
+          "quotes": [
+            "DocumentViewer bool `json:\"documentViewer,omitempty\"` AllowPrinting bool `json:\"allowPrinting,omitempty\"` Watermark *Watermark `json:\"watermark,omitempty\"` FlattenedPdf bool `json:\"flattenedPdf,omitempty\"`",
+            "UploadDownload string `json:\"uploadDownload,omitempty\"` RestrictKeystrokes bool `json:\"restrictKeystrokes,omitempty\"` CopyPaste string `json:\"copyPaste,omitempty\"` LocalRender bool `json:\"localRender,omitempty\"` DeepLink *DeepLink `json:\"deepLink,omitempty\"` }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type UserExperience struct {",
+          "quotes": [
+            "SessionPersistence bool `json:\"sessionPersistence\"` BrowserInBrowser bool `json:\"browserInBrowser\"` PersistIsolationBar bool `json:\"persistIsolationBar\"` Translate bool `json:\"translate\"` ZGPU bool `json:\"zgpu,omitempty\"` ForwardToZia *ForwardToZia `json:\"forwardToZia,omitempty\"` }"
           ]
         }
       ],

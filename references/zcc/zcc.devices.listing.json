@@ -65,6 +65,8 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/devices/devices.go",
           "quotes": [
+            "package devices",
+            "func GetAll(ctx context.Context, service *zscaler.Service, username, osType string) ([]GetDevices, error) {",
             "return common.ReadAllPages[GetDevices](ctx, service.Client, getDevicesEndpoint, params, 1000)"
           ]
         },
@@ -73,8 +75,23 @@
           "path": "zscaler/zcc/services/common/common.go",
           "after": "func ReadAllPages[T any](ctx context.Context, client *zscaler.Client, endpoint string, params QueryParams, pageSize int) ([]T, error) {",
           "quotes": [
-            "params.Page = 1",
+            "pageSize = clampPageSize(pageSize) params.PageSize = pageSize params.Page = 1",
             "if len(pageResults) < pageSize {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "after": "func clampPageSize(pageSize int) int {",
+          "quotes": [
+            "if pageSize > MaxPageSize { return MaxPageSize }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "quotes": [
+            "MaxPageSize     = 5000"
           ]
         }
       ]

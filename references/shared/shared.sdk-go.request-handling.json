@@ -102,9 +102,7 @@
           ],
           "after": "func NewConfiguration(conf ...ConfigSetter) (*Configuration, error) {",
           "quotes": [
-            "setHttpClients(cfg)",
-            "// Apply each ConfigSetter function.",
-            "confSetter(cfg)"
+            "setHttpClients(cfg) // Apply each ConfigSetter function. for _, confSetter := range conf { confSetter(cfg) }"
           ]
         },
         {
@@ -125,6 +123,21 @@
             "cfg.ZPAHTTPClient = getHTTPClient(cfg.Logger, zpaRateLimiter, cfg)",
             "cfg.ZCCHTTPClient = getHTTPClient(cfg.Logger, zccRateLimiter, cfg)",
             "cfg.ZDXHTTPClient = getHTTPClient(cfg.Logger, zdxRateLimiter, cfg)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.37",
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func WithRequestTimeout(requestTimeout time.Duration) ConfigSetter {",
+          "quotes": [
+            "c.Zscaler.Client.RequestTimeout = requestTimeout setHttpClients(c)"
           ]
         }
       ],
@@ -257,6 +270,22 @@
             "c.Zscaler.Client.RateLimit.RetryRemainingThreshold = threshold",
             "setHttpClients(c)"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func getHTTPClient(l logger.Logger, rateLimiter *rl.RateLimiter, cfg *Configuration) *http.Client {",
+          "quotes": [
+            "retryableClient := retryablehttp.NewClient()",
+            "retryableClient.RetryWaitMin = cfg.Zscaler.Client.RateLimit.RetryWaitMin retryableClient.RetryWaitMax = cfg.Zscaler.Client.RateLimit.RetryWaitMax",
+            "retryableClient.HTTPClient.Timeout = cfg.Zscaler.Client.RequestTimeout",
+            "return retryableClient.StandardClient()"
+          ]
         }
       ]
     },
@@ -305,6 +334,33 @@
           ],
           "quotes": [
             "httpClient := c.getServiceHTTPClient(endpoint)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func (client *Client) getServiceHTTPClient(endpoint string) *http.Client {",
+          "quotes": [
+            "service, err := detectServiceType(endpoint) if err != nil { return client.oauth2Credentials.HTTPClient } switch service {",
+            "default: return client.oauth2Credentials.HTTPClient } }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func NewConfiguration(conf ...ConfigSetter) (*Configuration, error) {",
+          "quotes": [
+            "setHttpClients(cfg) // Apply each ConfigSetter function. for _, confSetter := range conf { confSetter(cfg) }"
           ]
         }
       ],
@@ -448,7 +504,7 @@
       ]
     },
     "request-do-fabricates-200": {
-      "statement": "The ZPA, ZCC and ZDX request helpers discard the response object that `ExecuteRequest` returns and build a new `http.Response` holding only `StatusCode: 200` and the body. A 201, 202 or 204 reaches the caller as 200, and response headers are lost.",
+      "statement": "The ZPA, ZCC and ZDX request helpers discard the response object that `ExecuteRequest` returns and build a new `http.Response` holding only `StatusCode: http.StatusOK` and the body. Whatever success status the API sent, such as Created or No Content, reaches the caller as `http.StatusOK`, and response headers are lost.",
       "tier": "A",
       "evidence": [
         {
@@ -587,6 +643,17 @@
             "return responseObject, nil",
             "} else {",
             "return response, nil"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "func (c *Client) ExecuteRequest(ctx context.Context, method, endpoint string, body io.Reader, urlParams url.Values, contentType string) ([]byte, *http.Response, *http.Request, error) {"
           ]
         }
       ],
@@ -729,7 +796,7 @@
       ]
     },
     "bulk-delete-helpers-truncate-ids": {
-      "statement": "Three ZIA bulk-delete helpers cut the ID list to a local maximum (100 for locations and VPN credentials, 500 for users) and send only the first IDs. They return no error and do not chunk the rest; the only trace is an INFO log line. The users helper's comment says \"first 100\" while its constant is 500.",
+      "statement": "Three ZIA bulk-delete helpers cut the ID list to a local maximum (100 for locations and VPN credentials, 500 for users) and send only the first IDs. They do not chunk the rest and report nothing about the dropped IDs: they return only the bulk-delete call's own result, and the only trace is an INFO log line. The users helper's comment says \"first 100\" while its constant is 500.",
       "tier": "A",
       "evidence": [
         {
@@ -741,9 +808,7 @@
           ],
           "quotes": [
             "maxBulkDeleteIDs           = 100",
-            "if len(ids) > maxBulkDeleteIDs {",
-            "ids = ids[:maxBulkDeleteIDs]",
-            "service.Client.GetLogger().Printf(\"[INFO] Truncating IDs list to the first %d items\", maxBulkDeleteIDs)",
+            "if len(ids) > maxBulkDeleteIDs { // Truncate the list to the first 100 IDs ids = ids[:maxBulkDeleteIDs] service.Client.GetLogger().Printf(\"[INFO] Truncating IDs list to the first %d items\", maxBulkDeleteIDs) } // Define the payload payload := map[string][]int{ \"ids\": ids, }",
             "return service.Client.BulkDelete(ctx, locationsEndpoint+\"/bulkDelete\", payload)"
           ]
         },
@@ -756,9 +821,7 @@
           ],
           "quotes": [
             "maxBulkDeleteIDs       = 100",
-            "if len(ids) > maxBulkDeleteIDs {",
-            "ids = ids[:maxBulkDeleteIDs]",
-            "service.Client.GetLogger().Printf(\"[INFO] Truncating IDs list to the first %d items\", maxBulkDeleteIDs)",
+            "if len(ids) > maxBulkDeleteIDs { // Truncate the list to the first 100 IDs ids = ids[:maxBulkDeleteIDs] service.Client.GetLogger().Printf(\"[INFO] Truncating IDs list to the first %d items\", maxBulkDeleteIDs) } // Define the payload payload := map[string][]int{ \"ids\": ids, }",
             "return service.Client.BulkDelete(ctx, vpnCredentialsEndpoint+\"/bulkDelete\", payload)"
           ]
         },
@@ -771,10 +834,7 @@
           ],
           "quotes": [
             "maxBulkDeleteIDs = 500",
-            "// Truncate the list to the first 100 IDs",
-            "if len(ids) > maxBulkDeleteIDs {",
-            "ids = ids[:maxBulkDeleteIDs]",
-            "service.Client.GetLogger().Printf(\"[INFO] Truncating IDs list to the first %d items\", maxBulkDeleteIDs)",
+            "if len(ids) > maxBulkDeleteIDs { // Truncate the list to the first 100 IDs ids = ids[:maxBulkDeleteIDs] service.Client.GetLogger().Printf(\"[INFO] Truncating IDs list to the first %d items\", maxBulkDeleteIDs) } // Define the payload payload := map[string][]int{ \"ids\": ids, }",
             "return service.Client.BulkDelete(ctx, usersEndpoint+\"/bulkDelete\", payload)"
           ]
         }
@@ -842,8 +902,8 @@
           ],
           "after": "// Check if context is still valid before sleeping",
           "quotes": [
-            "case <-ctx.Done():",
-            "time.Sleep(sleepFor)"
+            "select { case <-ctx.Done(): return nil, resp, nil, fmt.Errorf(\"context cancelled while waiting for rate limit: %w\", ctx.Err()) default:",
+            "beforeWait := time.Now() time.Sleep(sleepFor) totalWaitTime += time.Since(beforeWait)"
           ]
         },
         {

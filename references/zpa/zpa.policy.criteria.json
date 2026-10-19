@@ -262,7 +262,10 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
           "quotes": [
-            "relativeURL := mgmtConfigV2 + service.Client.GetCustomerID() + \"/riskScoreValues\""
+            "func GetRiskScoreValues(ctx context.Context, service *zscaler.Service, excludeUnknown *bool) ([]string, *http.Response, error) {",
+            "relativeURL := mgmtConfigV2 + service.Client.GetCustomerID() + \"/riskScoreValues\"",
+            "if excludeUnknown != nil { relativeURL = fmt.Sprintf(\"%s?excludeUnknown=%t\", relativeURL, *excludeUnknown) }",
+            "resp, err := service.Client.NewRequestDo(ctx, \"GET\", relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()}, nil, &result)"
           ]
         }
       ]

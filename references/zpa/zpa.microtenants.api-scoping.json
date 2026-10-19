@@ -145,9 +145,16 @@
           "path": "zscaler/zpa/microtenants.py",
           "after": "def add_microtenant(self, **kwargs)",
           "quotes": [
-            "# Construct the body from kwargs (as a dictionary)",
-            "body = kwargs",
-            "request, error = self._request_executor.create_request(http_method, api_url, body=body)"
+            "http_method = \"post\".upper() api_url = format_url(f\"\"\"{ self._zpa_base_endpoint} /microtenants \"\"\") # Construct the body from kwargs (as a dictionary) body = kwargs request, error = self._request_executor.create_request(http_method, api_url, body=body) if error: return (None, None, error)",
+            "response, error = self._request_executor.execute(request, Microtenant) if error: return (None, response, error) try: result = Microtenant(self.form_response_body(response.get_body())) except Exception as error: return (None, response, error) return (result, response, None)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/microtenants.py",
+          "after": "def update_microtenant(self, microtenant_id: str, **kwargs)",
+          "quotes": [
+            "params = {\"microtenantId\": microtenant_id} if microtenant_id else {}"
           ]
         },
         {

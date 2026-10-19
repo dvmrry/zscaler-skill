@@ -142,7 +142,8 @@
           "path": "zscaler/zia/services/scim_api/scim_user_api.go",
           "quotes": [
             "type SCIMUser struct { Schemas []string `json:\"schemas,omitempty\"` ID string `json:\"id,omitempty\"` UserName string `json:\"userName,omitempty\"` DisplayName string `json:\"displayName,omitempty\"`",
-            "EnterpriseExtension *EnterpriseUser `json:\"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User,omitempty\"` Meta *Meta `json:\"meta,omitempty\"` }"
+            "EnterpriseExtension *EnterpriseUser `json:\"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User,omitempty\"` Meta *Meta `json:\"meta,omitempty\"` }",
+            "type EnterpriseUser struct { Department string `json:\"department,omitempty\"` }"
           ]
         }
       ]
@@ -192,7 +193,7 @@
           "path": "zscaler/zia/services/scim_api/scim_user_api.go",
           "quotes": [
             "func GetUserByName(ctx context.Context, service *zscaler.ScimZIAService, displayName string)",
-            "return strings.EqualFold(g.DisplayName, displayName)",
+            "func(g SCIMUser) bool { return strings.EqualFold(g.DisplayName, displayName) },",
             "common.GetAllPagesScimPostWithSearch( ctx, service.Client, \"/Users/.search\"",
             "return &list[0], resp, nil"
           ]
@@ -262,6 +263,7 @@
           "path": "zscaler/zia/v1_client_scim.go",
           "quotes": [
             "ZIA_SCIM_API_TOKEN = \"ZIA_SCIM_API_TOKEN\"",
+            "ZIA_SCIM_CLOUD     = \"ZIA_SCIM_CLOUD\"",
             "rawURL := fmt.Sprintf(\"https://scim.%s.net/%s/scim\", cloud, globalScimConfig.ZIAScim.Client.ZIAScimTenantID)",
             "req.Header.Add(\"Content-Type\", \"application/scim+json\")",
             "ZIA_SCIM_TENANT_ID = \"ZIA_SCIM_TENANT_ID\"",
@@ -273,6 +275,7 @@
           "source": "sdk-go",
           "path": "zscaler/service.go",
           "quotes": [
+            "// Service defines the structure that contains the common client type Service struct { Client        *Client // use the common Zscaler OneAPI Client here",
             "type ScimZIAService struct { Config *zia.ScimConfiguration Client *zia.ScimZiaClient }"
           ]
         }

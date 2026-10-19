@@ -121,7 +121,8 @@
           "path": "zscaler/zpa/models/application_segment.py",
           "quotes": [
             "self.enabled = config[\"enabled\"] if \"enabled\" in config else True"
-          ]
+          ],
+          "after": "class ApplicationSegments(ZscalerObject):"
         }
       ]
     },
@@ -171,7 +172,7 @@
       ]
     },
     "python-clientless-key-presence": {
-      "statement": "In the Python SDK `update_segment` tests whether the key `clientless_app_ids` is present, not whether it has a value, and a present key triggers a `BROWSER_ACCESS` lookup. Up to v1.10.0 that path returned 'No matching clientless App found with appId' (the v1.11.1 changelog says the update failed whenever `clientless_app_ids` was passed, #581); v1.11.1 matches each supplied app by domain and segment ID and returns 'No matching clientless App found for domain' only for an entry with no match. `add_segment` only renames the key to `clientlessApps`.",
+      "statement": "In the Python SDK `update_segment` tests whether the key `clientless_app_ids` is present, not whether it has a value, and a present key triggers a `BROWSER_ACCESS` lookup. Up to v1.10.0 that path returned 'No matching clientless App found with appId' (the v1.11.1 changelog says the update failed whenever `clientless_app_ids` was passed, #581); v1.11.1 matches each supplied app by domain and segment ID and returns 'No matching clientless App found for domain' only for an entry with no match. `add_segment` renames the key to `clientlessApps`.",
       "tier": "A",
       "binds": [
         "zpa/browser-access#clientlessApps"
@@ -197,7 +198,7 @@
           "quotes": [
             "if \"clientless_app_ids\" in body:",
             "get_segments_by_type(application_type=\"BROWSER_ACCESS\")",
-            "seg.domain == app.get(\"domain\") and str(seg.app_id) == segment_id",
+            "matched_segment = next( (seg for seg in segments_list if seg.domain == app.get(\"domain\") and str(seg.app_id) == segment_id), None ) if not matched_segment: return ( None, None, f\"Error: No matching clientless App found for domain",
             "No matching clientless App found for domain"
           ],
           "after": "def update_segment(self, segment_id: str, **kwargs)"

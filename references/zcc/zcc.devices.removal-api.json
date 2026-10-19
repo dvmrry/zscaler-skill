@@ -169,6 +169,7 @@
           "path": "zscaler/utils.py",
           "after": "def zcc_param_mapper(func):",
           "quotes": [
+            "raw_os = query_params.get(\"os_type\") or query_params.get(\"os_types\") or body.get(\"os_type\") or body.get(\"os_types\")",
             "mapped_params[\"osType\"] = \",\".join(mapped)",
             "if \"query_params\" in kwargs:",
             "kwargs.update(mapped_params)",
@@ -228,8 +229,16 @@
         {
           "source": "sdk-python",
           "path": "zscaler/zcc/devices.py",
+          "after": "def remove_devices(self, query_params: Optional[dict] = None, **kwargs) -> APIResult[dict]:",
           "quotes": [
-            "...     username='jdoe@acme.com'",
+            "...     username='jdoe@acme.com'"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "after": "def force_remove_devices(self, query_params: Optional[dict] = None, **kwargs) -> APIResult[dict]:",
+          "quotes": [
             "...     user_name='jdoe@acme.com'"
           ]
         },
@@ -277,7 +286,8 @@
           "path": "zscaler/zcc/devices.py",
           "quotes": [
             "...     os_type='3',"
-          ]
+          ],
+          "after": "def remove_devices(self, query_params: Optional[dict] = None, **kwargs) -> APIResult[dict]:"
         },
         {
           "source": "sdk-python",
@@ -293,6 +303,7 @@
           "path": "zscaler/utils.py",
           "after": "zcc_param_map = {",
           "quotes": [
+            "\"os\": { \"ios\": 1, \"android\": 2, \"windows\": 3, \"macos\": 4, \"linux\": 5, },",
             "\"ios\": 1,",
             "\"linux\": 5,",
             "\"android\": 2,",
@@ -367,6 +378,7 @@
           "source": "sdk-python",
           "path": "zscaler/zcc/devices.py",
           "quotes": [
+            "def remove_machine_tunnel(self, query_params: Optional[dict] = None, **kwargs) -> APIResult[dict]:",
             "query_params = convert_keys_to_camel_case(query_params or {})",
             "body = convert_keys_to_camel_case(kwargs or {})",
             "...     host_names=['FXJ14JLFQW'],",

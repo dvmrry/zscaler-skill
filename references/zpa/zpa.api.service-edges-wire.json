@@ -151,14 +151,15 @@
             "create_request(http_method, api_url, body, {}, params)",
             "payload = { \"customerId\": customer_id, \"frequency\": body.get(\"frequency\"), \"frequencyInterval\": body.get(\"frequency_interval\"), }"
           ],
-          "after": "/serviceEdgeSchedule/{scheduler_id}"
+          "after": "def update_service_edge_schedule(self, scheduler_id: str, schedule) -> APIResult[dict]:"
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/service_edge_schedule.py",
           "quotes": [
             "create_request(http_method, api_url, body=payload, params=params)"
-          ]
+          ],
+          "after": "def add_service_edge_schedule(self, schedule) -> APIResult[dict]:"
         },
         {
           "source": "sdk-python",
@@ -268,9 +269,7 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/models/private_cloud_controller.py",
           "quotes": [
-            "config.get(\"runtime_os\")",
-            "config.get(\"runtimeOs\")",
-            "config.get(\"runtimeOS\")",
+            "config.get(\"runtime_os\")  # ← used by the converted keys or config.get(\"runtimeOs\")  # ← if not snake_cased or config.get(\"runtimeOS\")",
             "\"runtimeOS\": self.runtime_os,"
           ],
           "after": "class PrivateCloudController(ZscalerObject):"
@@ -429,7 +428,7 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/private_cloud_controller.py",
           "quotes": [
-            "Default: `dsc`."
+            "``[query_params.sort_dir]`` {(str, optional): Sort results by ascending (`asc`) or descending (`dsc`) order. Default: `dsc`."
           ]
         }
       ]
@@ -511,7 +510,8 @@
           "quotes": [
             "# Handle case where no content is returned (204 No Content)",
             "return (ServiceEdgeSchedule({\"id\": scheduler_id}), response, None)"
-          ]
+          ],
+          "after": "def update_service_edge_schedule(self, scheduler_id: str, schedule) -> APIResult[dict]:"
         },
         {
           "source": "api-specs",

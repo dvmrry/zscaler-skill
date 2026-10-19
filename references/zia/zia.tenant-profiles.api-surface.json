@@ -53,7 +53,7 @@
     },
     {
       "label": "Booleans.",
-      "text": "{{go-omits-false-flags}} The general mechanism is in [[shared.sdk-go.zero-value-writes]]. What the server does with an omitted false is open {{gap:omitted-false-server-reaction}}."
+      "text": "{{go-omits-false-flags}} {{go-false-not-sent}} The general mechanism is in [[shared.sdk-go.zero-value-writes]]. What the server does with an omitted false is open {{gap:omitted-false-server-reaction}}."
     },
     {
       "label": "Audit fields.",
@@ -114,7 +114,8 @@
             "def add_restriction_profile(self, **kwargs)",
             "def update_restriction_profile(self, profile_id: int, **kwargs)",
             "def delete_restriction_profile(self, profile_id: int)",
-            "def list_app_item_count("
+            "def list_app_item_count(",
+            ">>> profile_list, _, error = client.zia.tenancy_restriction_profile.list_restriction_profile()"
           ]
         }
       ]
@@ -279,7 +280,7 @@
       ]
     },
     "go-omits-false-flags": {
-      "statement": "The Go SDK tags all five boolean flags (`restrictPersonalO365Domains`, `allowGoogleConsumers`, `msLoginServicesTrV2`, `allowGoogleVisitors`, `allowGcpCloudStorageRead`) with `omitempty`, and the Terraform resource builds the struct directly from state. A flag set to false is therefore not sent, so Terraform or Go cannot write false explicitly.",
+      "statement": "The Go SDK tags all five boolean flags (`restrictPersonalO365Domains`, `allowGoogleConsumers`, `msLoginServicesTrV2`, `allowGoogleVisitors`, `allowGcpCloudStorageRead`) with `omitempty`, and the Terraform resource builds the struct directly from state.",
       "tier": "A",
       "evidence": [
         {
@@ -302,15 +303,21 @@
           ]
         }
       ],
-      "derived_from": [
-        "shared.sdk-go.zero-value-writes:omitempty-drops-zero-values"
-      ],
-      "gaps": [
-        "omitted-false-server-reaction"
-      ],
       "binds": [
         "zia/tenancy-restriction-profiles#restrictPersonalO365Domains",
         "zia/tenancy-restriction-profiles#msLoginServicesTrV2"
+      ]
+    },
+    "go-false-not-sent": {
+      "statement": "So a flag set to false is not sent, and Terraform or Go cannot write false explicitly.",
+      "tier": "B",
+      "derived_from": [
+        "go-omits-false-flags",
+        "shared.sdk-go.zero-value-writes:omitempty-drops-zero-values"
+      ],
+      "conditions": "Follows from the tags and Go's encoding/json dropping a false field tagged omitempty (the general mechanism claim). Not observed on the wire for this resource.",
+      "gaps": [
+        "omitted-false-server-reaction"
       ]
     },
     "last-modified-fields": {
@@ -379,7 +386,8 @@
           "quotes": [
             "Removed `MaxItems` from attribute `tenancy_profile_ids` and `cloud_app_instances`",
             "in the resource `zia_cloud_app_control_rule` to allow API own limit delegation."
-          ]
+          ],
+          "after": "## 4.7.23 (May, 28 2026)"
         },
         {
           "source": "zscaler-help",

@@ -333,7 +333,7 @@
       ]
     },
     "ruletype-scoped-calls": {
-      "statement": "The rule endpoints take `ruleType` as an optional query parameter on list, get and delete. The Go SDK's GetByRuleType, GetByRuleID and Delete each send one ruleType, and the Terraform DLP rule resource reads rules through GetByRuleType and GetByRuleID with the rule's type; the Python SDK requires rule_type to list rules and makes it optional on get and delete.",
+      "statement": "The rule endpoints take `ruleType` as an optional query parameter on list, get and delete. The Go SDK's GetByRuleType, GetByRuleID and Delete each send one ruleType, and the Terraform DLP rule resource reads a rule through GetByRuleID with the rule's type and, on create, lists the rules of the new rule's type through GetByRuleType; the Python SDK requires rule_type to list rules and makes it optional on get and delete.",
       "tier": "A",
       "evidence": [
         {
@@ -386,7 +386,8 @@
           "path": "zia/resource_zia_casb_dlp_rules.go",
           "quotes": [
             "rules, _ := casb_dlp_rules.GetByRuleType(ctx, service, req.Type)"
-          ]
+          ],
+          "after": "func resourceCasbDlpRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         },
         {
           "source": "sdk-python",

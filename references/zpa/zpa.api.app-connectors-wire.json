@@ -310,8 +310,10 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/customerversionprofile/zpa_customer_version_profile.go",
           "quotes": [
-            "`json:\"version_profile_gid\"`",
-            "`json:\"restartAfterUptimeInDays\"`"
+            "Versions []Versions `json:\"versions\"`",
+            "type Versions struct {",
+            "RestartAfterUptimeInDays string `json:\"restartAfterUptimeInDays\"`",
+            "VersionProfileGID string `json:\"version_profile_gid\"`"
           ]
         },
         {
@@ -334,6 +336,8 @@
           "source": "sdk-python",
           "path": "zscaler/api_client.py",
           "quotes": [
+            "result[_to_camel(key)] = APIClient.form_response_body(val)",
+            "result[_to_camel(key)] = processed_list",
             "result[_to_camel(key)] = val"
           ],
           "after": "def form_response_body("
@@ -417,6 +421,7 @@
           "source": "sdk-python",
           "path": "zscaler/utils.py",
           "quotes": [
+            "def pick_version_profile(kwargs: list, payload: list):",
             "version_profile = kwargs.pop(\"version_profile\", None)",
             "payload[\"overrideVersionProfile\"] = True",
             "if version_profile == \"default\":",
@@ -431,9 +436,15 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_connector_groups.py",
           "quotes": [
-            "from zscaler.utils import format_url"
+            "from typing import List, Optional",
+            "from zscaler.api_client import APIClient",
+            "from zscaler.request_executor import RequestExecutor",
+            "from zscaler.types import APIResult",
+            "from zscaler.utils import format_url",
+            "from zscaler.zpa.enrollment_certificates import EnrollmentCertificateAPI",
+            "from zscaler.zpa.models.app_connector_groups import AppConnectorGroup"
           ],
-          "note": "the module imports only format_url from zscaler.utils, so pick_version_profile is not called here"
+          "note": "the module's complete import list (seven lines); none imports pick_version_profile, and the name appears nowhere in the module"
         },
         {
           "source": "sdk-python",
@@ -467,6 +478,7 @@
           "quotes": [
             "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\"",
             "customerVersionProfileEndpoint = \"/visible/versionProfiles\"",
+            "func Update(ctx context.Context, service *zscaler.Service, profileID string, versionProfile *CustomerVersionProfile) (*http.Response, error) {",
             "path := fmt.Sprintf(\"%v/%v\", mgmtConfig+service.Client.GetCustomerID()+customerVersionProfileEndpoint, profileID)",
             "\"PUT\", path, common.Filter{}, versionProfile, nil)"
           ]
@@ -519,6 +531,16 @@
           "quotes": [
             "type CommonSummary struct { ID string `json:\"id,omitempty\"` Name string `json:\"name,omitempty\"` Enabled bool `json:\"enabled,omitempty\"` }"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "after": "def get_connector_group_sg(",
+          "quotes": [
+            "Fetches a specific connector group by ID with server group details",
+            "/appConnectorGroup/{group_id}/sg"
+          ],
+          "note": "the Python SDK documents the same /sg endpoint as returning the group with server group details"
         }
       ]
     },

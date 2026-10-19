@@ -80,10 +80,12 @@
           "source": "sdk-go",
           "path": "zscaler/zccrequests.go",
           "quotes": [
+            "func (client *Client) NewZccRequestDo(ctx context.Context, method, endpoint string, options, body, v interface{}) (*http.Response, error) {",
             "q, err := query.Values(options)",
             "if err := decodeJSON(respBody, v); err != nil {",
             "bodyBytes, err := json.Marshal(body)",
-            "respBody, _, _, err := client.ExecuteRequest(ctx, method, endpoint, bodyReader, nil, contentTypeJSON)"
+            "respBody, _, _, err := client.ExecuteRequest(ctx, method, endpoint, bodyReader, nil, contentTypeJSON)",
+            "if v != nil {"
           ]
         }
       ]
@@ -189,11 +191,16 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/common/common.go",
           "quotes": [
+            "package common",
+            "type IntOrString int",
+            "func (i IntOrString) MarshalJSON() ([]byte, error) {",
             "return json.Marshal(int(i))",
-            "if len(trimmed) == 0 || bytes.Equal(trimmed, []byte(\"null\")) || bytes.Equal(trimmed, []byte(`\"\"`)) {",
+            "if len(trimmed) == 0 || bytes.Equal(trimmed, []byte(\"null\")) || bytes.Equal(trimmed, []byte(`\"\"`)) { *i = 0",
             "quoted-int strings are rejected with a silent",
             "{\"success\":\"false\",\"id\":0} on the web_policy /edit endpoint),",
-            "// - serialize as a JSON number (the form every ZCC POST/PUT endpoint // actually accepts; quoted-int strings are rejected with a silent"
+            "// - serialize as a JSON number (the form every ZCC POST/PUT endpoint // actually accepts; quoted-int strings are rejected with a silent",
+            "//   - unmarshal from either a JSON number, a numeric string, a null, or",
+            "an empty string (treated as 0)."
           ]
         }
       ]

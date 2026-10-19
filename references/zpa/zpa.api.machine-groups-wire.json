@@ -123,21 +123,31 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/np_client/np_client.go",
           "quotes": [
-            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + vpnConnectedUsersEndpoint",
-            "filter := common.Filter{}",
-            "list, resp, err := common.GetAllPagesGenericWithCustomFilters[NPClient](ctx, service.Client, relativeURL, filter)"
+            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + vpnConnectedUsersEndpoint filter := common.Filter{} list, resp, err := common.GetAllPagesGenericWithCustomFilters[NPClient](ctx, service.Client, relativeURL, filter)",
+            "if err != nil { return nil, nil, err }",
+            "return list, resp, nil }"
           ],
-          "after": "func GetAll(ctx context.Context, service *zscaler.Service)"
+          "after": "func GetAll(ctx context.Context, service *zscaler.Service)",
+          "note": "the complete GetAll body"
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/np_client/np_client.go",
           "quotes": [
-            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + vpnConnectedUsersEndpoint",
-            "filter := common.Filter{}",
-            "list, resp, err := common.GetAllPagesGenericWithCustomFilters[NPClient](ctx, service.Client, relativeURL, filter)"
+            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + vpnConnectedUsersEndpoint filter := common.Filter{} list, resp, err := common.GetAllPagesGenericWithCustomFilters[NPClient](ctx, service.Client, relativeURL, filter)",
+            "if err != nil { return nil, nil, err }",
+            "for _, app := range list { if strings.EqualFold(app.UserName, userName) {"
           ],
-          "after": "func GetByName(ctx context.Context, service *zscaler.Service, userName string)"
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, userName string)",
+          "note": "the GetByName body up to the client-side name match"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "func GetAllPagesGenericWithCustomFilters[T any](ctx context.Context, client *zscaler.Client, relativeURL string, filters Filter) ([]T, *http.Response, error) {"
+          ],
+          "note": "the helper receives the client and the filter, not the service, so it cannot read the service microtenant"
         },
         {
           "source": "sdk-python",

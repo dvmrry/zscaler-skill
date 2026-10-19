@@ -41,8 +41,7 @@ const FULL_CHECKS = [
   },
   { name: "documentation hygiene", command: "./scripts/check-hygiene.py", args: [] },
   { name: "knowledge graph (citations anchored)", command: "node", args: ["scripts/kb.mjs", "validate"] },
-  // Advisory until the claims it finds are fixed; then required.
-  { name: "Tier A evidence lint", command: "node", args: ["scripts/kb.mjs", "lint", "--strict"], advisory: true },
+  { name: "Tier A evidence lint", command: "node", args: ["scripts/kb.mjs", "lint", "--strict"] },
   {
     name: "changed reference source-pin paths",
     command: "./scripts/check-verified-against.py",

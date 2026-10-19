@@ -388,7 +388,9 @@
           "source": "sdk-python",
           "path": "zscaler/utils.py",
           "quotes": [
-            "if time_zone_str not in pytz.all_timezones:"
+            "if time_zone_str not in pytz.all_timezones:",
+            "if start_time < (now_in_tz - datetime.timedelta(hours=1)):",
+            "if end_time > (start_time + datetime.timedelta(days=365)):"
           ],
           "after": "def validate_and_convert_times(start_time_str, end_time_str, time_zone_str)"
         },
@@ -503,7 +505,7 @@
       ]
     },
     "ba-issued-list-deprecated-path": {
-      "statement": "The OpenAPI document marks GET clientlessCertificate/issued as deprecated, saying only \"This API will be deprecated in a future release.\", and also lists GET certificate/issued with the same response schema; the Go SDK and the Python SDK still call the clientlessCertificate/issued path.",
+      "statement": "The OpenAPI document marks GET clientlessCertificate/issued as deprecated; its whole description is \"Gets all issued certificates for the specified customer. This API will be deprecated in a future release.\", naming no replacement, and the document also lists GET certificate/issued with the same response schema; the Go SDK and the Python SDK still call the clientlessCertificate/issued path.",
       "tier": "A",
       "evidence": [
         {
@@ -785,7 +787,9 @@
             "certPEM := pem.EncodeToMemory(&pem.Block{Type: \"CERTIFICATE\", Bytes: certBytes})",
             "keyPEM := pem.EncodeToMemory(&pem.Block{Type: \"RSA PRIVATE KEY\", Bytes: x509.MarshalPKCS1PrivateKey(privateKey)})",
             "fullCert := string(certPEM) + string(keyPEM)",
-            "CertBlob:    \"\", // Invalid as it's empty"
+            "CertBlob:    fullCert,",
+            "CertBlob:    \"\", // Invalid as it's empty",
+            "t.Errorf(\"Expected error while uploading invalid certificate, got nil\")"
           ]
         },
         {
@@ -837,9 +841,28 @@
           "expect_absent": [
             "put",
             "post",
-            "patch"
+            "patch",
+            "head",
+            "options",
+            "trace"
           ],
-          "note": "the path object holds only get and delete"
+          "note": "the path object holds only get and delete: every other HTTP method is absent"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1certificate~1{certificateId}/get",
+          "expect": {
+            "operationId": "Gets the certificate details for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1certificate~1{certificateId}/delete",
+          "expect": {
+            "operationId": "Deletes the certificate for the specified ID."
+          }
         },
         {
           "source": "sdk-python",
@@ -864,6 +887,8 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/bacertificate/zpa_ba_certificate.go",
           "quotes": [
+            "baCertificateEndpoint       = \"/certificate\"",
+            "type BaCertificate struct {",
             "CName               string   `json:\"cName,omitempty\"`"
           ]
         },
@@ -871,6 +896,7 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/models/certificates.py",
           "quotes": [
+            "class Certificate(ZscalerObject):",
             "self.cname = config[\"cName\"] if \"cName\" in config else None",
             "\"cName\": self.cname,"
           ]
@@ -879,9 +905,18 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/certificates.py",
           "quotes": [
-            "from zscaler.zpa.models.certificates import Certificate",
-            "def get_certificate(self, certificate_id: str, query_params: Optional[dict] = None) -> APIResult[dict]:"
+            "from zscaler.zpa.models.certificates import Certificate"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/certificates.py",
+          "after": "def get_certificate(self, certificate_id: str, query_params: Optional[dict] = None) -> APIResult[dict]:",
+          "quotes": [
+            "/certificate/{certificate_id}",
+            "result = Certificate(self.form_response_body(response.get_body()))"
+          ],
+          "note": "the Python get on the same certificate/{id} path as the Go BaCertificate endpoint decodes into this model"
         },
         {
           "source": "api-specs",

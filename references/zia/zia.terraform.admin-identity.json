@@ -98,7 +98,7 @@
           "quotes": [
             "\"EXEC_INSIGHT_AND_ORG_ADMIN\",",
             "\"PUBLIC_API\",",
-            "ValidateFunc: validation.StringInSlice([]string{ \"ORG_ADMIN\", \"EXEC_INSIGHT\", \"EXEC_INSIGHT_AND_ORG_ADMIN\", \"SDWAN\", \"PUBLIC_API\", }, false),"
+            "\"role_type\": { Type: schema.TypeString, Optional: true, Description: \"The admin role type. ()This attribute is subject to change.)\", ValidateFunc: validation.StringInSlice([]string{ \"ORG_ADMIN\", \"EXEC_INSIGHT\", \"EXEC_INSIGHT_AND_ORG_ADMIN\", \"SDWAN\", \"PUBLIC_API\", }, false),"
           ]
         }
       ]
@@ -130,7 +130,11 @@
             "HEAD"
           ],
           "quotes": [
+            "// CustomizeDiff function enforces your special validations at plan-time",
+            "func adminRolesCustomizeDiff(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {",
+            "roleType := d.Get(\"role_type\").(string) if roleType == \"SDWAN\" { if d.Get(\"policy_access\").(string) != \"READ_WRITE\" {",
             "for SDWAN roles, policy_access must be READ_WRITE",
+            "if d.Get(\"alerting_access\").(string) != \"NONE\" {",
             "for SDWAN roles, alerting_access must be NONE"
           ]
         }
@@ -185,6 +189,9 @@
             "HEAD"
           ],
           "quotes": [
+            "\"auth_methods\": {",
+            "\"password\": { Type: schema.TypeString, Required: true, Sensitive: true,",
+            "func resourceUserManagementRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
             "_ = d.Set(\"temp_auth_email\", resp.TempAuthEmail)",
             "if err := d.Set(\"department\", flattenUserDepartment(resp.Department)); err != nil {",
             "d.SetId(fmt.Sprintf(\"%d\", resp.ID)) _ = d.Set(\"user_id\", resp.ID) _ = d.Set(\"name\", resp.Name) _ = d.Set(\"email\", resp.Email) _ = d.Set(\"comments\", resp.Comments) _ = d.Set(\"temp_auth_email\", resp.TempAuthEmail) if err := d.Set(\"groups\", flattenUserGroups(resp.Groups)); err != nil {",
@@ -203,7 +210,8 @@
           "quotes": [
             "Fixed the `zia_user_management` resource to read the user's `name` and `email` from the user list instead of the single-user lookup.",
             "On tenants migrated to Zidentity the single-user lookup returned these fields in an encoded form, which produced a perpetual in-place update on every `terraform plan`."
-          ]
+          ],
+          "after": "## 4.7.24 (June, 1 2026)"
         },
         {
           "source": "tf-zia",
@@ -213,7 +221,11 @@
           ],
           "quotes": [
             "// Resolve the user from the list endpoint rather than the per-ID endpoint.",
-            "the lookup falls back to an unfiltered list scan"
+            "the lookup falls back to an unfiltered list scan",
+            "resp, err := findUserByID(ctx, service, id, d.Get(\"name\").(string))",
+            "filtered, err := users.GetAllUsers(ctx, service, &users.GetAllUsersFilterOptions{Name: nameHint})",
+            "log.Printf(\"[DEBUG] user %d not found in name-filtered pool (name=%q); falling back to full list\", id, nameHint)",
+            "allUsers, err := users.GetAllUsers(ctx, service, nil)"
           ]
         }
       ]

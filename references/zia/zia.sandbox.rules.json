@@ -209,7 +209,7 @@
           "quotes": [
             "The threat categories to which the rule applies",
             "The list of file types to which the Sandbox Rule must be applied.",
-            "This field is applicable only for the ZPA Gateway forwarding method.",
+            "The list of ZPA Application Segments for which this rule is applicable. This field is applicable only for the ZPA Gateway forwarding method.",
             "Name-ID pairs of users for which rule must be applied",
             "Name-ID pairs of groups for which rule must be applied",
             "Name-ID pairs of departments for which rule must be applied",
@@ -221,8 +221,7 @@
             "Name-ID pairs of the location groups to which the rule must be applied.",
             "Labels []common.IDNameExtensions `json:\"labels,omitempty\"`",
             "This field is applicable for devices that are managed using Zscaler Client Connector.",
-            "Specifies devices that are managed using Zscaler Client Connector.",
-            "The list of ZPA Application Segments for which this rule is applicable."
+            "Specifies devices that are managed using Zscaler Client Connector."
           ]
         },
         {
@@ -275,8 +274,8 @@
           "quotes": [
             "// Ignore Default BA Rule to prevent drift",
             "if rule.Order != 127 && rule.Name != \"Default BA Rule\" {",
-            "if r.Order == 127 || r.Name == \"Default BA Rule\" {",
-            "if r.Order > sandboxStartingOrder {",
+            "// Ignore default rule if r.Order == 127 || r.Name == \"Default BA Rule\" { continue } if r.Order > sandboxStartingOrder { sandboxStartingOrder = r.Order }",
+            "req.Order = sandboxStartingOrder",
             "if resp.Order == 127 || resp.Name == \"Default BA Rule\" {",
             "// Filter out Default BA Rule before sorting"
           ]

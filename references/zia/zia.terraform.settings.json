@@ -78,8 +78,8 @@
             "HEAD"
           ],
           "quotes": [
-            "MaxItems: 255, Description: \"Allowlist URLs whose contents will not be scanned. Allows up to 255 URLs.\"",
-            "MaxItems: 275000, Description: \"URLs on the denylist for your organization. Allow up to 275000 URLs.\""
+            "\"whitelist_urls\": { Type: schema.TypeSet, Optional: true, Computed: true, MaxItems: 255, Description: \"Allowlist URLs whose contents will not be scanned. Allows up to 255 URLs.\",",
+            "\"blacklist_urls\": { Type: schema.TypeSet, Optional: true, Computed: true, MaxItems: 275000, Description: \"URLs on the denylist for your organization. Allow up to 275000 URLs.\","
           ]
         },
         {
@@ -118,8 +118,9 @@
             "HEAD"
           ],
           "quotes": [
+            "// smartIsolationProfileConfigured reports whether a smart_isolation_profile // value holds an actual profile. The presence of the block is not sufficient:",
             "// the service reports an all-zero profile object on tenants that have none, // and a bare block in HCL flattens to empty strings.",
-            "if id != \"\" || name != \"\" || url != \"\" {"
+            "id, _ := profile[\"id\"].(string) name, _ := profile[\"name\"].(string) url, _ := profile[\"url\"].(string) if id != \"\" || name != \"\" || url != \"\" { return true }"
           ]
         }
       ]

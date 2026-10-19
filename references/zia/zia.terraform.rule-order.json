@@ -75,11 +75,9 @@
           ],
           "after": "func resourceURLFilteringRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
+            "req := expandURLFilteringRules(d)",
             "return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order)",
-            "nextAvailableOrder := existingRules[len(existingRules)-1].Order",
-            "// always start rank 7 rules at the next available order after all ranked rules",
-            "req.Rank = 7",
-            "req.Order = nextAvailableOrder",
+            "intendedOrder := req.Order intendedRank := req.Rank nextAvailableOrder := existingRules[len(existingRules)-1].Order // always start rank 7 rules at the next available order after all ranked rules req.Rank = 7 req.Order = nextAvailableOrder _, err = urlfilteringpolicies.Update(ctx, service, id, &req)",
             "reorderWithBeforeReorder(OrderRule{Order: intendedOrder, Rank: intendedRank}, req.ID, \"url_filtering_rules\","
           ]
         }
@@ -138,7 +136,8 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "## 4.8.11 (October 8, 2026)",
-            "if the list of existing rules could not be retrieved. The API error is now reported instead."
+            "[PR #610](https://github.com/zscaler/terraform-provider-zia/pull/610) - Fixed a provider crash when updating rule-based resources (`zia_firewall_filtering_rule`,",
+            "`zia_cloud_app_control_rule`) if the list of existing rules could not be retrieved. The API error is now reported instead."
           ]
         }
       ],
@@ -253,7 +252,7 @@
       ]
     },
     "converges-on-registered-rules-only": {
-      "statement": "A pass is judged only on the rules registered by this apply: it is \"clean\" when none of them needed a move, was skipped, or failed. Rules the apply did not register are never checked.",
+      "statement": "A pass is judged only on the rules registered by this apply: it is \"clean\" when none of them needed a move, was skipped, or failed, and the number registered did not change since the previous pass. Rules the apply did not register are never checked.",
       "tier": "A",
       "evidence": [
         {
@@ -264,8 +263,10 @@
             "HEAD"
           ],
           "quotes": [
+            "size := len(rules.orders[resourceType])",
             "sorted := sortOrders(rules.orders[resourceType])",
-            "for _, v := range sorted {",
+            "for _, v := range sorted { desired := v.Order cur, exists := current[v.ID]",
+            "// Convergence: a clean pass = nothing to do AND no // errors AND size didn't grow.",
             "cleanPass := putsIssued == 0 && skipped == 0 && puterrs == 0 && size == lastSize"
           ]
         }
@@ -376,7 +377,7 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "## 4.8.11 (October 8, 2026)",
-            "Fixed rule-based resources hanging indefinitely while placing rules in their declared order when the current rule order could not be read from the API. After repeated failed reads the provider now stops waiting and reports the API error."
+            "[PR #610](https://github.com/zscaler/terraform-provider-zia/pull/610) - Fixed rule-based resources hanging indefinitely while placing rules in their declared order when the current rule order could not be read from the API. After repeated failed reads the provider now stops waiting and reports the API error."
           ]
         }
       ]

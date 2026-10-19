@@ -134,6 +134,7 @@
             "HEAD"
           ],
           "quotes": [
+            "if c.useLegacyClient { log.Println(\"[INFO] Initializing ZTC V2 (Legacy) client\")",
             "v2Client, err := zscalerSDKV2Client(c)",
             "c.zscalerSDKClientV3 = v2Client.Client",
             "v3Client, err := zscalerSDKV3Client(c)",
@@ -149,8 +150,10 @@
             "HEAD"
           ],
           "quotes": [
+            "// Legacy client logic if c.useLegacyClient {",
             "wrappedV2Client, err := zscalerSDKV2Client(c)",
             "Service: zscaler.NewService(wrappedV2Client.Client, nil),",
+            "// Fallback to V3 client logic",
             "v3Client, err := zscalerSDKV3Client(c)",
             "Service: zscaler.NewService(v3Client, nil),"
           ],
@@ -611,6 +614,18 @@
             "return diag.FromErr(fmt.Errorf(\"when 'type' is set to 'DSTN_OTHER', either 'ip_categories' or 'countries' must be set\")) } } zClient := meta.(*Client)"
           ],
           "after": "func resourceIPDestinationGroupsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_ip_destination_groups.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"addresses\": {",
+            "Addresses:    SetToStringList(d, \"addresses\"),"
+          ]
         }
       ],
       "upstream": [

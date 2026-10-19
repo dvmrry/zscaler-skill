@@ -59,7 +59,7 @@
       "text": "The `bypassOnReauth` tag differences are in [[zpa.app-segments.sdk-behavior]], the always-serialized parent flags in [[zpa.terraform.app-segment-lifecycle]], and the Go rule that a value struct tagged `omitempty` is still sent in [[shared.sdk-go.zero-value-writes]]."
     },
     {
-      "text": "{{share-to-microtenants-tag}} Whether the API treats that as removal is open {{gap:put-share-removal}}. Move and share bodies are in [[zpa.microtenants.share-and-move]]. {{move-share-return-204}}"
+      "text": "{{share-to-microtenants-tag}} {{share-to-microtenants-always-sent}} Whether the API treats that as removal is open {{gap:put-share-removal}}. Move and share bodies are in [[zpa.microtenants.share-and-move]]. {{move-share-return-204}}"
     },
     {
       "heading": "Updating sub-applications"
@@ -398,6 +398,7 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
           "quotes": [
+            "for _, app := range appSegmentPra.CommonAppsDto.AppsConfig { remainingPraAppIDs[app.PRAAppID] = struct{}{} }",
             "if _, found := remainingPraAppIDs[existing.ID]; !found {",
             "appSegmentPra.CommonAppsDto.DeletedPraApps = deleted"
           ],
@@ -419,6 +420,7 @@
           "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
           "after": "func Update(ctx context.Context, service *zscaler.Service, id string, appSegmentInspection *AppSegmentInspection)",
           "quotes": [
+            "for _, app := range appSegmentInspection.CommonAppsDto.AppsConfig { remainingInspectAppIDs[app.InspectAppID] = struct{}{} }",
             "if _, found := remainingInspectAppIDs[existing.ID]; !found {",
             "appSegmentInspection.CommonAppsDto.DeletedInspectApps = deleted"
           ]
@@ -427,8 +429,10 @@
           "source": "sdk-go",
           "path": "CHANGELOG.md",
           "quotes": [
-            "`applicationsegmentinspection.Update` never populated `commonAppsDto.deletedInspectApps`, so an inspection app omitted from the `PUT` was left in place by the API rather than deleted"
-          ]
+            "[PR #464](https://github.com/zscaler/zscaler-sdk-go/pull/464) - `applicationsegmentinspection.Update` never populated `commonAppsDto.deletedInspectApps`, so an inspection app omitted from the `PUT` was left in place by the API rather than deleted",
+            "The function now mirrors `applicationsegmentpra.Update`: existing inspection apps absent from the desired `appsConfig` are sent in `deletedInspectApps`"
+          ],
+          "after": "# 3.8.49 (October 1, 2026)"
         }
       ],
       "conditions": "Absence of any assignment to DeletedInspectApps outside the struct definition before v3.8.49 rests on `git grep -n DeletedInspectApps v3.8.48 -- zscaler/zpa` in the Go SDK, which matched only the struct field and test code. Changed upstream in v3.8.49 (checked 2026-10-18): previously \"The Go PRA `Update` computes `DeletedPraApps` from the existing PRA sub-applications whose IDs are not among the remaining `appsConfig` entries, and sends them; the Go Inspection `Update` never sets `DeletedInspectApps`, so a caller must supply it to remove an Inspection sub-application.\""
@@ -657,18 +661,26 @@
       "conditions": "The original app_segments_ba.py module contains no app_types handling (git grep app_types at the pin finds no match in it). Neither code path emits a warning when it injects the value."
     },
     "share-to-microtenants-tag": {
-      "statement": "The Go core application segment model tags `shareToMicrotenants` without `omitempty`, so a create or update from that struct always carries the member (null for a nil slice, `[]` for an empty one).",
+      "statement": "The Go core application segment model tags `shareToMicrotenants` without `omitempty`, while the neighbouring `clientlessApps` and `sharedMicrotenantDetails` tags carry it.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
           "quotes": [
-            "ShareToMicrotenants []string `json:\"shareToMicrotenants\"`"
+            "ClientlessApps []applicationsegmentbrowseraccess.ClientlessApps `json:\"clientlessApps,omitempty\"` ShareToMicrotenants []string `json:\"shareToMicrotenants\"` SharedMicrotenantDetails SharedMicrotenantDetails `json:\"sharedMicrotenantDetails,omitempty\"`"
           ]
         }
       ],
       "conditions": "What the API does with a null or empty shareToMicrotenants on a segment PUT is open (gap put-share-removal); the dedicated share endpoint is recorded in zpa.microtenants.share-and-move."
+    },
+    "share-to-microtenants-always-sent": {
+      "statement": "A create or update from that struct therefore always carries the shareToMicrotenants member: null for a nil slice, [] for an empty one.",
+      "tier": "B",
+      "derived_from": [
+        "share-to-microtenants-tag"
+      ],
+      "conditions": "Follows from Go encoding/json semantics (a field without omitempty is always marshalled; a nil slice encodes as null, an empty one as []). No captured source states this for this field. Split from share-to-microtenants-tag, whose Tier A statement keeps only the tag."
     },
     "move-share-return-204": {
       "statement": "The API documents No Content (204) as the success response of both the application segment move and share calls.",
@@ -700,7 +712,8 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
           "quotes": [
-            "// Need to review as the API is returning 400 error",
+            "appSegmentEndpoint = \"/application\"",
+            "// Need to review as the API is returning 400 error func GetApplicationSummary(ctx context.Context, service *zscaler.Service) ([]common.CommonSummary, *http.Response, error) {",
             "relativeURL := mgmtConfig + service.Client.GetCustomerID() + appSegmentEndpoint + \"/summary\""
           ]
         },
@@ -819,11 +832,12 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segment_by_type.py",
           "quotes": [
-            "if not application_type:",
-            "raise ValueError(\"The 'application_type' parameter must be provided.\")",
-            "Must be one of \"BROWSER_ACCESS\", \"INSPECT\", \"SECURE_REMOTE_ACCESS\"."
+            "Must be one of \"BROWSER_ACCESS\", \"INSPECT\", \"SECURE_REMOTE_ACCESS\".",
+            "if not application_type: raise ValueError(\"The 'application_type' parameter must be provided.\") http_method = \"get\".upper()",
+            "query_params = query_params or {} query_params.update(kwargs) query_params[\"application_type\"] = application_type query_params[\"expand_all\"] = str(expand_all).lower()"
           ],
-          "after": "def get_segments_by_type("
+          "after": "def get_segments_by_type(",
+          "note": "the emptiness check is followed directly by building the request; application_type is copied into the query without comparison to the docstring values"
         },
         {
           "source": "sdk-python",

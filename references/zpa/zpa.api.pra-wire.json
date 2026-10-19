@@ -248,7 +248,7 @@
       "conditions": "That the POST response omits the id is inferred from the SDK ignoring the response; it was not shown from a response sample."
     },
     "console-bulk-body": {
-      "statement": "The bulk console create takes and returns a top-level array of consoles. The Python SDK's add_bulk_console accepts snake_case input (pra_application_id, pra_portal_ids), builds each entry itself with only name, enabled, praApplication, praPortals and description (enabled defaulting to True and description to an empty string), merges the extra keyword arguments into every entry, and sets the body after request creation. Because the request is created with no body and the list is attached afterwards, the executor's camel-case conversion never runs on it, so merged keyword arguments such as microtenant_id are sent in every entry in snake case as given.",
+      "statement": "The bulk console create takes and returns a top-level array of consoles. The Python SDK's add_bulk_console accepts snake_case input (pra_application_id, pra_portal_ids), builds each entry itself with only name, enabled, praApplication, praPortals and description (enabled defaulting to True and description to an empty string), merges the extra keyword arguments into every entry, and sets the body after request creation. The request is created with body None and the list is attached afterwards as the request's json, which the HTTP client sends as given, so the camel-case conversion that create_request applies to a dict body is not applied to it: merged keyword arguments such as microtenant_id are sent in every entry in snake case as given.",
       "tier": "A",
       "evidence": [
         {
@@ -281,7 +281,7 @@
             "\"enabled\": console_data.get(\"enabled\", True),",
             "\"praApplication\": {\"id\": console_data.get(\"pra_application_id\")},",
             "\"description\": console_data.get(\"description\", \"\"),",
-            "entry.update(kwargs)",
+            "for entry in body: entry.update(kwargs)",
             "body=None,",
             "request[\"json\"] = body",
             "\"name\": console_data.get(\"name\"),",
@@ -295,11 +295,20 @@
           "path": "zscaler/request_executor.py",
           "quotes": [
             "json_payload = self._prepare_body(endpoint, body)",
-            "request[\"json\"] = json_payload"
+            "request[\"json\"] = json_payload",
+            "def _prepare_body(self, endpoint, body): if not isinstance(body, dict): return body",
+            "body = convert_keys_to_camel_case(body)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_http_client.py",
+          "quotes": [
+            "if \"json\" in request: params[\"json\"] = request[\"json\"]"
           ]
         }
       ],
-      "conditions": "Extended per verifier: the snake-case consequence follows from create_request converting only the body it is given (here None) in _prepare_body, where ZPA bodies are camel-cased as in [[zpa.sdk-python.microtenant-scoping:body-camel]]. Whether the server ignores or rejects the snake-case keys is not shown."
+      "conditions": "Extended per verifier: the snake-case consequence follows from create_request converting only the body it is given (here None) in _prepare_body, where ZPA bodies are camel-cased as in [[zpa.sdk-python.microtenant-scoping:body-camel]]. Whether the server ignores or rejects the snake-case keys is not shown. _prepare_body also returns any non-dict body (such as a list) unconverted."
     },
     "working-hours-fields": {
       "statement": "A privileged approval's workingHours carries both a human-readable startTime and endTime (the Terraform provider validates them as HH:MM) and cron-expression startTimeCron and endTimeCron, plus days and timeZone. The Go SDK's comments define the cron form as seven fields: seconds, minutes, hours, day of month, month, day of week and year.",
@@ -611,7 +620,8 @@
             "resp, err := service.Client.NewRequestDo(ctx, \"POST\", relativeURL, nil, nil, nil)",
             "relativeURL := fmt.Sprintf(\"%s%s%s/%s/move\", mgmtConfig, service.Client.GetCustomerID(), credentialEndpoint, credentialID)",
             "// Make the POST request with an empty body since the API expects an empty body for this operation resp, err := service.Client.NewRequestDo(ctx, \"POST\", relativeURL, nil, nil, nil) if err != nil { return nil, err } return resp, nil }"
-          ]
+          ],
+          "note": "with the targetMicrotenantId block quoted above, this is the whole function: service is used only for Client.GetCustomerID and Client.NewRequestDo, never for MicroTenantID()"
         },
         {
           "source": "sdk-go",

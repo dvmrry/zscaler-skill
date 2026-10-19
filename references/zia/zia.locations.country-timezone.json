@@ -105,7 +105,8 @@
           "path": "CHANGELOG.md",
           "quotes": [
             "Removed `country` and `tz` validation from resource `zia_location_management` to align with recent API changes."
-          ]
+          ],
+          "after": "## 4.7.18 (April, 17 2026)"
         },
         {
           "source": "tf-zia",
@@ -122,7 +123,7 @@
       ]
     },
     "python-sdk-passes-through": {
-      "statement": "The Python SDK's location model copies `tz` and `country` from the response and into the request unchanged, so any normalization happens in the API, not the SDK.",
+      "statement": "The Python SDK's location model copies `tz` and `country` from its input config and into the request unchanged.",
       "tier": "A",
       "evidence": [
         {
@@ -133,7 +134,8 @@
             "self.country = config[\"country\"] if \"country\" in config else None",
             "\"country\": self.country,",
             "\"tz\": self.tz,"
-          ]
+          ],
+          "after": "class LocationManagement(ZscalerObject):"
         }
       ]
     },

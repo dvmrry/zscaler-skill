@@ -194,7 +194,8 @@ ID**, not arrays, so JSON Patch paths stay stable for CI-authored patches.
 **Chains and tool behavior** (added with the provider-defect slice):
 
 - **`derived_from`** lists the claims a chain-of-evidence claim follows from, so each link is
-  explicit. A claim needs `evidence` or `derived_from`; Tier A always needs its own evidence.
+  explicit. A claim needs `evidence` or `derived_from`; Tier A always needs its own evidence, and
+  follows only from Tier A claims (a link to a Tier B claim makes the chain Tier B).
 - **Evidence `at`** lists git refs (an audited tag, and `HEAD` for the pin) where the quotes must
   hold. A bump that removes cited code fails the `HEAD` anchor, which flags a candidate fix.
 - **`upstream`** records a tool defect's vendor status: unfiled, filed, acknowledged, fixed,

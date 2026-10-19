@@ -79,7 +79,8 @@
             "existing_group, _, err = self.get_group(group_id)",
             "body = existing_group.request_format()",
             "body.update(kwargs)"
-          ]
+          ],
+          "after": "def update_group(self, group_id: str, **kwargs) -> APIResult[dict]:"
         }
       ]
     },
@@ -96,7 +97,8 @@
             "if \"applications\" not in kwargs:",
             "body.pop(\"applications\", None)",
             "large number of application segments (Issue #506)."
-          ]
+          ],
+          "after": "def update_group(self, group_id: str, **kwargs) -> APIResult[dict]:"
         }
       ],
       "binds": [
@@ -122,16 +124,17 @@
       ]
     },
     "servers-sent-only-with-server-ids": {
-      "statement": "In Python `update_group`, `server_ids` is translated to `servers`; a `servers` keyword is merged as given, and without either the body has no `servers` member.",
+      "statement": "In Python `update_group`, `server_ids` is translated to `servers`, and a `servers` keyword is merged as given.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/server_groups.py",
           "quotes": [
-            "body[\"servers\"] = [{\"id\": group_id} for group_id in body.pop(\"server_ids\")]"
+            "body.update(kwargs)",
+            "if \"server_ids\" in body: body[\"servers\"] = [{\"id\": group_id} for group_id in body.pop(\"server_ids\")]"
           ],
-          "after": "body.update(kwargs)"
+          "after": "def update_group(self, group_id: str, **kwargs) -> APIResult[dict]:"
         }
       ],
       "binds": [

@@ -193,7 +193,7 @@
       ]
     },
     "cbi-lists-are-flat-arrays": {
-      "statement": "The Go CBI region, ZPA profile and isolation profile lists decode the response directly into a slice with no totalPages or list envelope, and the region and ZPA profile lookups by name or ID list everything and match client-side because the code states the API does not seem to support search; the isolationprofile package instead uses the standard ZPA paging helpers.",
+      "statement": "The Go CBI region, ZPA profile and cbiprofilecontroller isolation profile lists decode the response directly into a slice with no totalPages or list envelope, and the region and ZPA profile lookups by name or ID list everything and match client-side because the code states the API does not seem to support search; the isolationprofile package instead uses the standard ZPA paging helpers.",
       "tier": "A",
       "evidence": [
         {
@@ -201,7 +201,7 @@
           "path": "zscaler/zpa/services/cloudbrowserisolation/cbiregions/cbiregions.go",
           "quotes": [
             "// The current API does not seem to support search by Name",
-            "var list []CBIRegions"
+            "var list []CBIRegions resp, err := service.Client.NewRequestDo(ctx, \"GET\", relativeURL, nil, nil, &list)"
           ]
         },
         {
@@ -209,7 +209,7 @@
           "path": "zscaler/zpa/services/cloudbrowserisolation/cbizpaprofile/cbizpaprofile.go",
           "quotes": [
             "// The current API does not seem to support search by ID",
-            "var list []ZPAProfiles"
+            "var list []ZPAProfiles resp, err := service.Client.NewRequestDo(ctx, \"GET\", relativeURL, nil, nil, &list)"
           ]
         },
         {
@@ -475,31 +475,39 @@
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/models/cbi_zpa_profile.py",
+          "after": "class CBIProfile(ZscalerObject):",
           "quotes": [
+            "self.microtenant_name = config[\"microtenantName\"] if config and \"microtenantName\" in config else True",
+            "def request_format(self) -> Dict[str, Any]:",
             "\"microtenant_id\": self.microtenant_id,",
             "\"microtenant_name\": self.microtenant_name,"
           ]
         },
         {
           "source": "sdk-python",
-          "path": "zscaler/zpa/models/cbi_zpa_profile.py",
-          "quotes": [
-            "self.microtenant_name = config[\"microtenantName\"] if config and \"microtenantName\" in config else True"
-          ]
-        },
-        {
-          "source": "sdk-python",
           "path": "zscaler/zpa/cbi_profile.py",
           "quotes": [
+            "from typing import List",
+            "from zscaler.api_client import APIClient",
+            "from zscaler.request_executor import RequestExecutor",
+            "from zscaler.types import APIResult",
+            "from zscaler.utils import format_url",
             "from zscaler.zpa.models.cbi_profile import CBIProfile"
-          ]
+          ],
+          "note": "the module's complete import list; its CBIProfile comes from models/cbi_profile.py"
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/cbi_zpa_profile.py",
           "quotes": [
+            "from typing import List, Optional",
+            "from zscaler.api_client import APIClient",
+            "from zscaler.request_executor import RequestExecutor",
+            "from zscaler.types import APIResult",
+            "from zscaler.utils import format_url",
             "from zscaler.zpa.models.cbi_zpa_profile import ZPACBIProfile"
-          ]
+          ],
+          "note": "the module's complete import list; it takes only ZPACBIProfile from models/cbi_zpa_profile.py"
         }
       ],
       "conditions": "No SDK call uses this class: cbi_zpa_profile.py imports only ZPACBIProfile from this model file, and the CBI profile methods in cbi_profile.py use the CBIProfile in models/cbi_profile.py (read from the imports under zscaler/ at HEAD). The snake-case keys therefore reach the wire only if a caller sends this class's request_format, and the executor would camel-case them ([[zpa.sdk-python.microtenant-scoping:body-camel]])."

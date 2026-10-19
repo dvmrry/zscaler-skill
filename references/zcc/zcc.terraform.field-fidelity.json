@@ -127,6 +127,17 @@
             "\"optimise_for_unstable_connections\": intToBool(a.OptimiseForUnstableConnections),",
             "\"drop_ipv6_traffic_in_ipv6_network\":       intToBool(int(a.DropIpv6TrafficInIpv6Network)),"
           ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "docs/resources/zcc_forwarding_profile.md",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "`forwarding_profile_actions` ([Block, repeatable](#forwarding_profile_actions)) — Per-network forwarding actions applied to ZIA traffic."
+          ]
         }
       ]
     },
@@ -321,16 +332,44 @@
           ],
           "after": "func flattenZpaActions(",
           "quotes": [
+            "The SDK's ForwardingProfileZpaAction struct currently declares the // JSON tags latencyBasedZpaServerEnablement, lbsZpaProbeInterval, // lbsZpaProbeSampleSize, and lbsZpaThresholdLimit, but the API // actually returns the un-prefixed forms (latencyBasedServerEnablement,",
+            "lbsProbeInterval, etc.). The SDK therefore leaves those fields at // zero after unmarshal. Until the SDK is corrected we preserve the // plan values here.",
+            "The same trick handles isSameAsOnTrustedNetwork,",
             "lbsEnablement = pm.LatencyBasedServerEnablement",
             "lbsProbeInterval = pm.LbsProbeInterval",
             "lbsThresholdLimit = pm.LbsThresholdLimit",
-            "The SDK therefore leaves those fields at",
             "lbsProbeSampleSize = pm.LbsProbeSampleSize",
             "if !pm.LbsProbeSampleSize.IsNull() && !pm.LbsProbeSampleSize.IsUnknown() {",
-            "The SDK's ForwardingProfileZpaAction struct currently declares the",
-            "JSON tags latencyBasedZpaServerEnablement, lbsZpaProbeInterval,",
-            "The same trick handles isSameAsOnTrustedNetwork,",
-            "isSame = pm.IsSameAsOnTrustedNetwork"
+            "isSame = pm.IsSameAsOnTrustedNetwork",
+            "\"lbs_probe_interval\": lbsProbeInterval,",
+            "\"lbs_probe_sample_size\": lbsProbeSampleSize,",
+            "\"lbs_threshold_limit\": lbsThresholdLimit,",
+            "\"latency_based_server_enablement\": lbsEnablement,",
+            "\"is_same_as_on_trusted_network\": isSame,"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func (r *ForwardingProfileResource) Read(",
+          "quotes": [
+            "flattenForwardingProfile(ctx, profile, &state)"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func flattenForwardingProfile(",
+          "quotes": [
+            "model.ForwardingProfileZpaActions = flattenZpaActions(p.ForwardingProfileZpaActions, planZpaModels, planZpaOrder)"
           ]
         },
         {
@@ -357,7 +396,7 @@
       ]
     },
     "unified-tunnel-overlay-covers-every-attribute": {
-      "statement": "The unified-tunnel `system_proxy_data` overlay is not limited to `proxy_action`. Every attribute that is known in the prior plan or state replaces the API value, so a changed PAC URL, proxy address or any other proxy field made outside Terraform is hidden on refresh. The code comment names only `proxyAction` as the dropped field. The overlay is not gated on the action types being 0, although the code comment says it applies then.",
+      "statement": "The unified-tunnel `system_proxy_data` overlay is not limited to `proxy_action`. Every attribute that is known in the prior plan or state replaces the API value, so a changed PAC URL, proxy address or any other proxy field made outside Terraform is hidden on refresh. The code comment names only `proxyAction` as the dropped field. The overlay is not gated on the action types being 0, the case in which the code comment says the API resets the fields.",
       "tier": "A",
       "evidence": [
         {
@@ -368,11 +407,13 @@
             "HEAD"
           ],
           "quotes": [
-            "if pv, ok := planAttrs[name]; ok && pv != nil && !pv.IsNull() && !pv.IsUnknown() {",
-            "spdObj = overlayKnownPlanAttributes(spdObj, pm.SystemProxyData, systemProxyDataAttrTypes())",
-            "(most notably proxyAction)",
-            "When actionTypeZIA and actionTypeZPA are both 0 the API silently",
-            "spdObj := flattenSystemProxyDataObject(t.SystemProxyData) if pm, ok := planModels[t.NetworkType]; ok {"
+            "When actionTypeZIA and actionTypeZPA are both 0 the API silently // resets nested systemProxyData fields (most notably proxyAction) to // zero on the GET response",
+            "spdObj := flattenSystemProxyDataObject(t.SystemProxyData) if pm, ok := planModels[t.NetworkType]; ok { spdObj = overlayKnownPlanAttributes(spdObj, pm.SystemProxyData, systemProxyDataAttrTypes()) }",
+            "\"system_proxy_data\": spdObj,",
+            "for name := range attrTypes { if pv, ok := planAttrs[name]; ok && pv != nil && !pv.IsNull() && !pv.IsUnknown() { merged[name] = pv",
+            "\"proxy_action\": types.Int64Type,",
+            "\"pac_url\": types.StringType,",
+            "\"proxy_server_address\": types.StringType,"
           ]
         }
       ],
@@ -487,7 +528,7 @@
       ]
     },
     "failopen-read-error-removes-state": {
-      "statement": "If the fail-open policy cannot be read, the resource is removed from state. Read calls the by-ID lookup, and on any error calls the list again; if that list also errors, or is empty, it removes the resource without separating not-found from an authentication, transport or rate-limit failure. The by-ID lookup itself returns the list error unchanged. When the list succeeds but has no policy with the stored ID, Read silently adopts the first policy in the list.",
+      "statement": "If the fail-open policy cannot be read, the resource is removed from state. Read calls the by-ID lookup, and on any error calls the list again; if that list also errors, or is empty, it removes the resource without looking at what the error was, so a not-found and any other failure are treated alike. The by-ID lookup itself returns the list error unchanged. When the list succeeds but has no policy with the stored ID, Read silently adopts the first policy in the list.",
       "tier": "A",
       "evidence": [
         {
@@ -499,11 +540,10 @@
           ],
           "after": "func (r *FailOpenPolicyResource) Read(",
           "quotes": [
-            "if listErr != nil || len(policies) == 0 {",
-            "resp.State.RemoveResource(ctx)",
             "policy, err := failopen_policy.GetFailOpenPolicyByID(ctx, service, id) if err != nil {",
             "policies, listErr := failopen_policy.GetFailOpenPolicy(ctx, service, 1000)",
-            "policy = &policies[0]"
+            "policy = &policies[0]",
+            "if listErr != nil || len(policies) == 0 { tflog.Info(ctx, \"Removing fail open policy from state - no longer exists\", map[string]any{\"id\": id}) resp.State.RemoveResource(ctx) return }"
           ]
         },
         {
@@ -544,7 +584,8 @@
             "planActionModels[nt] = e",
             "planZpaModels[nt] = e",
             "planTunnelModels[nt] = e",
-            "orderIndex[nt] = i"
+            "orderIndex[nt] = i",
+            "nt := int(e.NetworkType.ValueInt64()) planActionOrder = append(planActionOrder, nt) planActionModels[nt] = e"
           ]
         },
         {
@@ -574,7 +615,8 @@
             "lbsProbeInterval = pm.LbsProbeInterval",
             "lbsProbeSampleSize = pm.LbsProbeSampleSize",
             "lbsThresholdLimit = pm.LbsThresholdLimit",
-            "isSame = pm.IsSameAsOnTrustedNetwork"
+            "isSame = pm.IsSameAsOnTrustedNetwork",
+            "\"is_same_as_on_trusted_network\": isSame,"
           ]
         },
         {
@@ -586,7 +628,8 @@
           ],
           "after": "func flattenUnifiedTunnels(",
           "quotes": [
-            "if pm, ok := planModels[t.NetworkType]; ok { spdObj = overlayKnownPlanAttributes(spdObj, pm.SystemProxyData, systemProxyDataAttrTypes())"
+            "if pm, ok := planModels[t.NetworkType]; ok { spdObj = overlayKnownPlanAttributes(spdObj, pm.SystemProxyData, systemProxyDataAttrTypes())",
+            "\"network_type\": types.Int64Value(int64(t.NetworkType)),"
           ]
         }
       ]
@@ -648,7 +691,8 @@
             "tflog.Info(ctx, \"Forwarding profile POST response\", map[string]any{\"id\": createResp.ID, \"success\": createResp.Success})",
             "profile, err = findProfileByName(ctx, service, payload.Name)",
             "createResp, err := forwarding_profile.CreateForwardingProfile(ctx, service, payload) if err != nil { resp.Diagnostics.AddError(\"Client Error\", fmt.Sprintf(\"Failed to create forwarding profile: %v\", err)) return }",
-            "profile, err := findProfileByID(ctx, service, createResp.ID) if err != nil { profile, err = findProfileByName(ctx, service, payload.Name)"
+            "profile, err := findProfileByID(ctx, service, createResp.ID) if err != nil { profile, err = findProfileByName(ctx, service, payload.Name)",
+            "tflog.Info(ctx, \"Forwarding profile POST response\", map[string]any{\"id\": createResp.ID, \"success\": createResp.Success}) profile, err := findProfileByID(ctx, service, createResp.ID) if err != nil {"
           ]
         }
       ],
@@ -740,7 +784,7 @@
       ]
     },
     "intorstring-truncates-fractions": {
-      "statement": "The shared ZCC `IntOrString` type accepts a fractional JSON number or quoted number and truncates it to an integer: `1.9` and `\"1.9\"` both become 1. The code comment says the intent was values like `1.0`, but there is no check that the value is whole.",
+      "statement": "The shared ZCC `IntOrString` type accepts a fractional JSON number or quoted number and truncates it to an integer with `int(f)` or `int(parsed)`, dropping the fraction. The code comment says the intent was values like `1.0`, but there is no check that the value is whole.",
       "tier": "A",
       "evidence": [
         {
@@ -782,12 +826,22 @@
           ],
           "after": "func CreateTrustedNetwork(",
           "quotes": [
-            "for attempt := 1; attempt <= 6; attempt++ {",
-            "time.Sleep(2 * time.Second)",
+            "url := fmt.Sprintf(\"%s/create\", trustedNetworkEndpoint)",
             "POST does not return the new id; resolve by networkName via listByCompany.",
             "for attempt := 1; attempt <= 6; attempt++ { createdNetwork, _, lookupErr = GetTrustedNetworkByName(ctx, service, network.NetworkName) if lookupErr == nil && createdNetwork != nil { break }",
-            "break } service.Client.GetLogger().Printf(\"[DEBUG] trusted network name lookup attempt %d failed, retrying in 2s: %v\", attempt, lookupErr) time.Sleep(2 * time.Second) }",
+            "service.Client.GetLogger().Printf(\"[DEBUG] trusted network name lookup attempt %d failed, retrying in 2s: %v\", attempt, lookupErr) time.Sleep(2 * time.Second) } if createdNetwork == nil {",
             "if createdNetwork == nil { return nil, resp, fmt.Errorf(\"trusted network created, but failed to retrieve by name '%s': %w\", network.NetworkName, lookupErr)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "trustedNetworkEndpoint = \"/zcc/papi/public/v1/webTrustedNetwork\""
           ]
         }
       ],

@@ -920,7 +920,7 @@
       ]
     },
     "detach-writes-list-snapshot": {
-      "statement": "Deleting a custom URL category first detaches it from the URL filtering, SSL inspection, sandbox, file type control, firewall DNS, firewall IPS and DLP web rules, the bandwidth classes and the FTP control policy, by listing each type and writing back every object that references it, using the object from that list. The URL Filtering detacher does this per rule with no re-read before the write. All detachers run concurrently, and an error from one is reported only after all finish.",
+      "statement": "Deleting a custom URL category first detaches it from the URL filtering, SSL inspection, sandbox, file type control, firewall DNS, firewall IPS and DLP web rules, the bandwidth classes and the FTP control policy, by reading each type (the list of rules or bandwidth classes, or the single FTP control policy) and writing back the objects that reference it, using the object as read. The URL Filtering detacher does this per rule with no re-read before the write. All detachers run concurrently, and an error from one is reported only after all finish.",
       "tier": "A",
       "evidence": [
         {
@@ -933,7 +933,120 @@
           "after": "func detachCategoryFromURLFilteringRules(ctx context.Context, client *Client, categoryID string) (bool, error) {",
           "quotes": [
             "rules, err := urlfilteringpolicies.GetAll(ctx, service)",
+            "for i := range rules { rule := &rules[i] c1, r1 := removeStringFromSlice(rule.URLCategories, categoryID) c2, r2 := removeStringFromSlice(rule.URLCategories2, categoryID) if !r1 && !r2 { continue } rule.URLCategories = c1 rule.URLCategories2 = c2",
             "if _, err := urlfilteringpolicies.Update(ctx, service, rule.ID, rule); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func detachCategoryFromSSLInspectionRules(ctx context.Context, client *Client, categoryID string) (bool, error) {",
+          "quotes": [
+            "rules, err := sslinspection.GetAll(ctx, service)",
+            "for i := range rules { rule := &rules[i]",
+            "if _, err := sslinspection.Update(ctx, service, rule.ID, rule); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func detachCategoryFromSandboxRules(ctx context.Context, client *Client, categoryID string) (bool, error) {",
+          "quotes": [
+            "rules, err := sandbox_rules.GetAll(ctx, service)",
+            "for i := range rules { rule := &rules[i]",
+            "if _, err := sandbox_rules.Update(ctx, service, rule.ID, rule); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func detachCategoryFromFileTypeControlRules(ctx context.Context, client *Client, categoryID string) (bool, error) {",
+          "quotes": [
+            "rules, err := filetypecontrol.GetAll(ctx, service)",
+            "for i := range rules { rule := &rules[i]",
+            "if _, err := filetypecontrol.Update(ctx, service, rule.ID, rule); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func detachCategoryFromBandwidthClasses(ctx context.Context, client *Client, categoryID string) (bool, error) {",
+          "quotes": [
+            "classes, err := bandwidth_classes.GetAll(ctx, service)",
+            "for i := range classes { class := &classes[i]",
+            "if _, _, err := bandwidth_classes.Update(ctx, service, class.ID, class); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func detachCategoryFromFirewallDNSRules(ctx context.Context, client *Client, categoryID string) (bool, error) {",
+          "quotes": [
+            "rules, err := firewalldnscontrolpolicies.GetAll(ctx, service)",
+            "for i := range rules { rule := &rules[i]",
+            "if _, err := firewalldnscontrolpolicies.Update(ctx, service, rule.ID, rule); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func detachCategoryFromFirewallIPSRules(ctx context.Context, client *Client, categoryID string) (bool, error) {",
+          "quotes": [
+            "rules, err := ips_policies.GetAll(ctx, service)",
+            "for i := range rules { rule := &rules[i]",
+            "if _, err := ips_policies.Update(ctx, service, rule.ID, rule); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func detachCategoryFromFTPControlPolicy(ctx context.Context, client *Client, categoryID string) (bool, error) {",
+          "quotes": [
+            "policy, err := ftp_control_policy.GetFTPControlPolicy(ctx, service)",
+            "c, removed := removeStringFromSlice(policy.UrlCategories, categoryID) if !removed { return false, nil }",
+            "if _, _, err := ftp_control_policy.UpdateFTPControlPolicy(ctx, service, policy); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func detachCategoryFromDLPWebRules(ctx context.Context, client *Client, categoryID string) (bool, error) {",
+          "quotes": [
+            "rules, err := dlp_web_rules.GetAll(ctx, service)",
+            "for i := range rules { rule := &rules[i]",
+            "if _, err := dlp_web_rules.Update(ctx, service, rule.ID, rule); err != nil {"
           ]
         },
         {

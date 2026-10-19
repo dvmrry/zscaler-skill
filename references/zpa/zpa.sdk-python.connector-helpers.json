@@ -37,7 +37,7 @@
     },
     {
       "label": "Connector groups.",
-      "text": "{{group-id-lists-unmapped}} The API contract does not document those keys, and what the API does with them is open {{gap:group-id-list-wire-keys}}. {{version-profile-no-auto-override}} {{version-profile-docstring-diverges}}"
+      "text": "{{group-id-lists-unmapped}} {{group-id-list-wire-key-names}} The API contract does not document those keys, and what the API does with them is open {{gap:group-id-list-wire-keys}}. {{version-profile-no-auto-override}} {{version-profile-docstring-diverges}}"
     },
     {
       "label": "Bulk delete.",
@@ -71,7 +71,7 @@
   ],
   "claims": {
     "group-id-lists-unmapped": {
-      "statement": "`add_connector_group` and `update_connector_group` send their keyword arguments as the request body without remapping `connector_ids` or `server_group_ids`, which their docstrings list, into ID objects; the executor's camel-casing then sends them as `connectorIds` and `serverGroupIds`.",
+      "statement": "`add_connector_group` and `update_connector_group` send their keyword arguments as the request body without remapping `connector_ids` or `server_group_ids`, which their docstrings list, into ID objects; the executor's camel-casing then sends them under camelCase keys.",
       "tier": "A",
       "evidence": [
         {
@@ -139,6 +139,33 @@
       "gaps": [
         "group-id-list-wire-keys"
       ]
+    },
+    "group-id-list-wire-key-names": {
+      "statement": "Those keys therefore go out as `connectorIds` and `serverGroupIds`: neither is in the `FIELD_EXCEPTIONS` table of `to_lower_camel_case`, so the generic split-and-capitalize rule applies.",
+      "tier": "B",
+      "derived_from": [
+        "group-id-lists-unmapped"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "components = string.split(\"_\")",
+            "converted.append(comp.capitalize())"
+          ],
+          "after": "def to_lower_camel_case(string):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "FIELD_EXCEPTIONS = {"
+          ],
+          "after": "def to_lower_camel_case(string):"
+        }
+      ],
+      "conditions": "The key names are computed by applying the quoted rule; `grep -rn connectorIds zscaler` in the SDK finds no occurrence, so no exception or model maps them differently."
     },
     "version-profile-no-auto-override": {
       "statement": "The `add_connector_group` docstring says that `version_profile` automatically sets `override_version_profile` to true, but the function contains no code that sets it: it sends the keyword arguments as the body, unchanged up to v1.10.0 and, since v1.11.2, changed only to fill in a missing `enrollment_cert_id`.",
@@ -261,6 +288,7 @@
           "path": "zscaler/zpa/app_connector_schedule.py",
           "quotes": [
             "customer_id = kwargs.get(\"customer_id\") or os.getenv(\"ZPA_CUSTOMER_ID\")",
+            "if not customer_id: return ( None, None, ValueError(",
             "\"customer_id is required either as a function argument or as an environment variable ZPA_CUSTOMER_ID\"",
             "\"customerId\": customer_id,",
             "\"frequencyInterval\": body.get(\"frequency_interval\"),",
@@ -278,6 +306,7 @@
           "path": "zscaler/zpa/app_connector_schedule.py",
           "quotes": [
             "customer_id = kwargs.get(\"customer_id\") or os.getenv(\"ZPA_CUSTOMER_ID\")",
+            "if not customer_id: return ( None, None, ValueError(",
             "\"customer_id is required either as a function argument or as an environment variable ZPA_CUSTOMER_ID\""
           ],
           "after": "def update_connector_schedule(self, scheduler_id: str, **kwargs)"
@@ -292,7 +321,7 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_connector_schedule.py",
           "quotes": [
-            "body.update(kwargs)",
+            "body = {} # Update the body with the fields passed in kwargs body.update(kwargs)",
             "request, error = self._request_executor.create_request(http_method, api_url, body, {}, params)",
             "\"customerId\": customer_id,",
             "\"frequency\": body.get(\"frequency\"),",

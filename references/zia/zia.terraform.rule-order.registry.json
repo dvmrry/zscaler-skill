@@ -134,8 +134,7 @@
           ],
           "quotes": [
             "var rules = listrules{",
-            "orders      map[string]map[int]orderWithState",
-            "reorderDone map[string]chan struct{}",
+            "type listrules struct { orders map[string]map[int]orderWithState orderer map[string]int reorderDone map[string]chan struct{} sync.Mutex }",
             "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCurrent func() (map[int]OrderRule, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {",
             "rules.orders[resourceType][id] = orderWithState{order, false}",
             "default: // Reorder goroutine still running — just register, don't start another shouldCallReorder = false",
@@ -210,7 +209,7 @@
       ]
     },
     "done-channel-capture-fixed-in-v4-8-7": {
-      "statement": "From v4.8.7 the done channel is captured while the lock is still held, and the goroutine closes that captured channel. This closes the map race, not the lost-registration window below.",
+      "statement": "From v4.8.7 the done channel is captured while the lock is still held, and the goroutine closes that captured channel. This closes the map race.",
       "tier": "A",
       "evidence": [
         {
@@ -300,7 +299,8 @@
           "after": "func reorderAll(",
           "quotes": [
             "for { select { case <-ticker.C: rules.Lock() size := len(rules.orders[resourceType]) allDone := true for _, v := range rules.orders[resourceType] { if !v.done { allDone = false break } } if !(allDone && size > 0) { rules.Unlock() continue }",
-            "current, err := getCurrent()"
+            "current, err := getCurrent()",
+            "lastSize = size prevSkipped = skipped prevAtTarget = alreadyAtTarget default: time.Sleep(reorderTickInterval / 2) } } }"
           ]
         },
         {
@@ -980,9 +980,29 @@
           ],
           "after": "func reorderAll(",
           "quotes": [
-            "if cur.Order == desired.Order && cur.Rank == desired.Rank {",
-            "if err := updateOrder(v.ID, desired); err != nil { log.Printf(\"[ERROR] reorderAll: PUT for rule %d failed in %s: %v\", v.ID, resourceType, err) puterrs++ continue }",
-            "putsIssued++"
+            "if cur.Order == desired.Order && cur.Rank == desired.Rank {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3"
+          ],
+          "after": "func reorderAll(",
+          "quotes": [
+            "if err := updateOrder(v.ID, desired); err != nil { log.Printf(\"[ERROR] reorderAll: PUT for rule %d failed in %s: %v\", v.ID, resourceType, err) puterrs++ continue } putsIssued++"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "HEAD"
+          ],
+          "after": "func reorderAll(",
+          "quotes": [
+            "if err := updateOrder(v.ID, desired); err != nil { log.Printf(\"[ERROR] reorderAll: PUT for rule %d failed in %s: %v\", v.ID, resourceType, err) puterrs++ continue } putDetails = append(putDetails, fmt.Sprintf(\"rule %d (API order %d, declared order %d)\", v.ID, cur.Order, desired.Order)) putsIssued++"
           ]
         },
         {
@@ -1078,7 +1098,7 @@
       ]
     },
     "oscillation-breaker-six-passes": {
-      "statement": "The reorder helper stops after six consecutive non-improving passes (`maxNonImprovingPutTicks = 6`), meaning passes that issue PUTs without improving the best at-target count and have no skipped rules and no PUT errors; a changed registration set, a skip or a PUT error resets the count. At six it logs the contested rules and returns so the apply can complete; the provider comment says that without the breaker the cycle livelocks until Terraform's own context deadline.",
+      "statement": "The reorder helper stops after six consecutive non-improving passes (`maxNonImprovingPutTicks = 6`), meaning passes that issue PUTs without improving the best at-target count and have no skipped rules and no PUT errors; a change in the number of registered rules, a skip or a PUT error resets the count. At six it logs the contested rules and returns so the apply can complete; the provider comment says that without the breaker the cycle livelocks until Terraform's own context deadline.",
       "tier": "A",
       "evidence": [
         {
@@ -1089,7 +1109,7 @@
             "no other exit condition can fire and // the cycle livelocks until terraform's own context deadline kills it",
             "After this many consecutive passes that issue // PUTs without improving on the best at-target count, the loop logs the // still-misplaced rules and returns so the apply can complete;",
             "improved := alreadyAtTarget > bestAtTarget",
-            "case size != lastSize:",
+            "case size != lastSize: // New registrations legitimately reshuffle the target // set; restart the oscillation window. bestAtTarget = alreadyAtTarget nonImprovingPutTicks = 0",
             "case putsIssued > 0 && !improved && skipped == 0 && puterrs == 0: nonImprovingPutTicks++ if nonImprovingPutTicks >= maxNonImprovingPutTicks {",
             "Giving up so the apply can complete; re-run terraform plan to see the remaining differences. Contested in the last pass: %s",
             "default: nonImprovingPutTicks = 0"
