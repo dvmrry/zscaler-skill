@@ -9,7 +9,7 @@
     "microtenant privileged approvals",
     "microtenant emergency access",
     "enabled false microtenant",
-    "zpa_microtenant destroy"
+    "zpa_microtenant_controller destroy"
   ],
   "binds": [
     "zpa/microtenants#enabled",
@@ -48,6 +48,9 @@
     {
       "label": "Deleting.",
       "text": "{{delete-removes-log-receivers}} {{sdk-delete-direct}} {{terraform-destroy-deletes}} What happens to the Microtenant's scoped resources is open {{gap:delete-resource-fate}}. Provider delete behavior for other resources is in [[zpa.terraform.delete-paths]]."
+    },
+    {
+      "text": "The Terraform doc for the microtenant controller resource says the feature is limited availability and needs an additional license [[zpa.terraform.resource-constraints:microtenant-controller-license]]."
     }
   ],
   "checks": [
@@ -225,7 +228,7 @@
       ]
     },
     "terraform-destroy-deletes": {
-      "statement": "Destroying a Terraform `zpa_microtenant` resource calls the SDK's Microtenant delete with the resource ID.",
+      "statement": "Destroying a Terraform `zpa_microtenant_controller` resource calls the SDK's Microtenant delete with the resource ID.",
       "tier": "A",
       "evidence": [
         {
@@ -235,8 +238,16 @@
           "quotes": [
             "microtenants.Delete(ctx, service, d.Id())"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "quotes": [
+            "\"zpa_microtenant_controller\": resourceMicrotenantController(),"
+          ]
         }
-      ]
+      ],
+      "conditions": "Resource name corrected from zpa_microtenant: provider.go registers the resource as zpa_microtenant_controller."
     }
   },
   "divergences": {

@@ -1,0 +1,560 @@
+{
+  "schema_version": 1,
+  "id": "zpa.logs.control-session-status",
+  "title": "ZPA status logs for connectors, Private Service Edges and Private Cloud Controllers",
+  "aliases": [
+    "zpn_ast_auth_log record",
+    "zpn_sys_auth_log record",
+    "app connector status log",
+    "private service edge status log",
+    "private cloud controller status log",
+    "ZPN_TUNNEL_CONTROL",
+    "ZPN_ASSISTANT_BROKER_CONTROL",
+    "TimestampUnAuthnetication",
+    "HostStartTime HostUpTime",
+    "ConnectionLogType"
+  ],
+  "binds": [
+    "zpa/private-service-edge-status-log#SessionType",
+    "zpa/private-cloud-controller-status-log#SessionType",
+    "zpa/private-service-edge-status-log#SessionStatus",
+    "zpa/private-cloud-controller-status-log#SessionStatus",
+    "zpa/app-connector-status-log#CPUUtilization",
+    "zpa/app-connector-status-log#MemUtilization",
+    "zpa/app-connector-metrics-log#CPUUtilization",
+    "zpa/app-connector-status-log#ServiceCount",
+    "zpa/private-cloud-controller-status-log#ZEN",
+    "zpa/private-cloud-controller-status-log#PublicIP",
+    "zpa/app-connector-status-log#BytesRxInterface",
+    "zpa/app-connector-status-log#TotalBytesRx"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.log-receivers.log-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.health"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.app-connector-metrics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.service-edge-metrics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.user-status"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.private-cloud-controller"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The App Connector, Private Service Edge and Private Cloud Controller Status logs share one shape: a control session with a Public Service Edge, a status, and a resource and interface snapshot. Their samples disagree with their tables in several places."
+    },
+    {
+      "label": "Session and status.",
+      "text": "{{tunnel-control-session}} {{tunnel-status-values}} The App Connector values are in [[zpa.app-connectors.health]]. What triggers a record is open {{gap:emission-trigger}}, as is how to read a pattern of them {{gap:status-reading-guide}}."
+    },
+    {
+      "label": "Timestamps.",
+      "text": "The authentication timestamps are described in microseconds and shown as ISO strings, which the default templates produce with the :iso8601 modifier {{divergence:timestamp-format}}. {{samples-numeric-types}} Whether the host time fields are start times or uptimes is open {{gap:host-time-meaning}}."
+    },
+    {
+      "label": "Counters.",
+      "text": "{{interface-vs-total-sample}} What the totals count is open {{gap:total-bytes-scope}}. {{resource-fields-at-event}} {{service-count-monitored}}"
+    },
+    {
+      "label": "Private Service Edge and Private Cloud Controller field names.",
+      "text": "The Private Service Edge example and default template carry fields the table lacks {{divergence:pse-sample-fields}}, and the table spells the unauthentication field differently from both {{divergence:unauthnetication-spelling}}. The table's HostStartTime is HostUpTime in the default template {{divergence:pse-host-time-name}}, and the Private Cloud Controller template reads SiteController variables where the table lists PrivateCloudController names {{divergence:pcc-template-names}}. Which version fields are filled is open {{gap:pse-optional-fields}}. {{zen-unset-sample}}"
+    },
+    {
+      "label": "Custom field.",
+      "text": "{{connection-log-type}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Private Service Edge custom template names the unauthentication field TimestampUnAuthentication, as the default template does, rather than the table spelling TimestampUnAuthnetication.",
+      "uses": [
+        "unauthnetication-spelling"
+      ]
+    },
+    {
+      "do": "Whether a custom status template uses the default template's variable names, HostUpTime for a Private Service Edge and SiteController, SiteControllerGroup and SiteControllerStartTime for a Private Cloud Controller, rather than the table names.",
+      "uses": [
+        "pse-host-time-name",
+        "pcc-template-names"
+      ]
+    },
+    {
+      "do": "Whether volume figures came from the interface counters rather than TotalBytesRx and TotalBytesTx.",
+      "uses": [
+        "interface-vs-total-sample",
+        "total-bytes-scope"
+      ]
+    },
+    {
+      "do": "Whether the version was read from Version or PackageVersion for a Private Service Edge or Private Cloud Controller.",
+      "uses": [
+        "pse-sample-fields",
+        "pse-optional-fields"
+      ]
+    },
+    {
+      "do": "Whether a status record is treated as an event only after confirming what emits it.",
+      "uses": [
+        "emission-trigger"
+      ]
+    }
+  ],
+  "claims": {
+    "tunnel-control-session": {
+      "statement": "For Private Service Edge Status and Private Cloud Controller Status logs the expected SessionType is ZPN_TUNNEL_CONTROL, the session from the Private Service Edge or Private Cloud Controller towards the closest Public Service Edge for Private Access; the App Connector Status value is ZPN_ASSISTANT_BROKER_CONTROL (see zpa.app-connectors.health).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "private-service-edge-status-log-fields.json",
+          "quotes": [
+            "denotes the session from the Private Service Edge for Private Access towards the closest Public Service Edge for Private Access"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "private-cloud-controller-status-log-fields.json",
+          "quotes": [
+            "denotes the session from the Private Cloud Controller towards the closest Public Service Edge for Private Access"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/private-service-edge-status-log#SessionType",
+        "zpa/private-cloud-controller-status-log#SessionType"
+      ]
+    },
+    "tunnel-status-values": {
+      "statement": "Private Service Edge and Private Cloud Controller Status logs use the same three SessionStatus values as the App Connector Status log: ZPN_STATUS_AUTHENTICATED, ZPN_STATUS_AUTH_FAILED and ZPN_STATUS_DISCONNECTED, the last described as disconnected from a Service Edge for Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "private-service-edge-status-log-fields.json",
+          "quotes": [
+            "ZPN_STATUS_DISCONNECTED: The Private Service Edge disconnected from a Service Edge for Private Access"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "private-cloud-controller-status-log-fields.json",
+          "quotes": [
+            "ZPN_STATUS_DISCONNECTED: The Private Cloud Controller disconnected from a Service Edge for Private Access"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/private-service-edge-status-log#SessionStatus",
+        "zpa/private-cloud-controller-status-log#SessionStatus"
+      ]
+    },
+    "resource-fields-at-event": {
+      "statement": "The three status logs carry CPUUtilization and MemUtilization described only as the utilization in %, alongside interface byte, packet, error and discard counters, so each status record includes a resource snapshot; the App Connector Metrics CPUUtilization is instead the maximum CPU usage in the past 5 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "app-connector-status-log-fields.json",
+          "quotes": [
+            "| CPUUtilization | The CPU utilization in %"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-app-connector-metrics-log-fields.json",
+          "quotes": [
+            "| CPUUtilization | The maximum CPU usage in the past 5 minutes"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-status-log#CPUUtilization",
+        "zpa/app-connector-status-log#MemUtilization",
+        "zpa/app-connector-metrics-log#CPUUtilization"
+      ]
+    },
+    "service-count-monitored": {
+      "statement": "In the App Connector Status log ServiceCount is the number of services, meaning combinations of domains or IP addresses and TCP or UDP ports, being monitored by the App Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "app-connector-status-log-fields.json",
+          "quotes": [
+            "The number of services (i.e., combinations of domains or IP addresses and TCP or UDP ports) being monitored by the App Connector"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-status-log#ServiceCount"
+      ]
+    },
+    "connection-log-type": {
+      "statement": "The App Connector Status header suggests adding ConnectionLogType as a custom log field to distinguish AppProtection logs from event logs, with expected values event_log and inspection_log.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "app-connector-status-log-fields.json",
+          "quotes": [
+            "you can add the ConnectionLogType field as a custom log field to distinguish between AppProtection and event logs. The expected values for this field are event_log and inspection_log."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-log-stream-content-format.json",
+          "quotes": [
+            "the ConnectionLogType field can be added as a custom log field to distinguish between AppProtection and event logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "app-connector-status-log-fields.json",
+          "quotes": [
+            "The expected values for this field are event_log and inspection_log."
+          ]
+        }
+      ]
+    },
+    "samples-numeric-types": {
+      "statement": "The App Connector Status example gives numeric fields such as CPUUtilization and ServiceCount as unquoted numbers and HostStartTime as a quoted string, whereas the App Connector Metrics example gives every value as a quoted string.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "app-connector-status-log-fields.json",
+          "quotes": [
+            "\"CPUUtilization\": 1,\"MemUtilization\": 20,\"ServiceCount\": 2",
+            "\"HostStartTime\": \"1513229995\""
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-app-connector-metrics-log-fields.json",
+          "quotes": [
+            "\"CPUUtilization\":\"1\",\"SystemMemoryUtilization\":\"9\""
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-status-log#CPUUtilization",
+        "zpa/app-connector-metrics-log#CPUUtilization"
+      ]
+    },
+    "zen-unset-sample": {
+      "statement": "The Private Cloud Controller Status example has ZEN 'unset' and the same value for PrivateIP and PublicIP, while ZEN is described as the Public Service Edge selected for the connection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "private-cloud-controller-status-log-fields.json",
+          "quotes": [
+            "\"ZEN\": \"unset\"",
+            "\"PrivateIP\": \"10.18.11.214\",\"PublicIP\": \"10.18.11.214\""
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/private-cloud-controller-status-log#ZEN",
+        "zpa/private-cloud-controller-status-log#PublicIP"
+      ]
+    },
+    "interface-vs-total-sample": {
+      "statement": "The status field tables describe BytesRxInterface as the bytes received on the interface and TotalBytesRx as the total bytes received, and in each status example TotalBytesRx is far smaller than BytesRxInterface: 10902554 against 319831966346 for the App Connector, 5257 against 15435341381 for the Private Service Edge, and 1835 against 65413384825 for the Private Cloud Controller.",
+      "tier": "A",
+      "conditions": "Was a divergence between the tables and the examples; the tables never say the totals cover all interfaces, so it is restated as what the tables and examples show, and the reading stays in the gap total-bytes-scope.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "app-connector-status-log-fields.json",
+          "quotes": [
+            "| BytesRxInterface | The bytes received on the interface",
+            "| TotalBytesRx | The total bytes received",
+            "\"BytesRxInterface\": 319831966346",
+            "\"TotalBytesRx\": 10902554"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "private-service-edge-status-log-fields.json",
+          "quotes": [
+            "\"BytesRxInterface\": 15435341381",
+            "\"TotalBytesRx\": 5257"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "private-cloud-controller-status-log-fields.json",
+          "quotes": [
+            "\"BytesRxInterface\": 65413384825",
+            "\"TotalBytesRx\": 1835,\"TotalBytesTx\": 0"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-status-log#BytesRxInterface",
+        "zpa/app-connector-status-log#TotalBytesRx"
+      ]
+    }
+  },
+  "gaps": {
+    "emission-trigger": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "When App Connector, Private Service Edge and Private Cloud Controller Status records are emitted",
+      "blocks": "reading status records as an event log of authentication changes",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: Status logs are event-driven, one record each time the entity changes its authentication state against a Service Edge (connect, disconnect, authentication failure), unlike the Metrics logs on a recurring interval, and each carries a CPU, memory and interface snapshot taken at that moment. The captures define the SessionStatus values and give CPU, memory and interface fields but do not say what triggers a record or whether records are also emitted periodically."
+    },
+    "total-bytes-scope": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What TotalBytesRx and TotalBytesTx count in the status logs",
+      "blocks": "using TotalBytes as a traffic volume figure for a connector, Private Service Edge or Private Cloud Controller",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: BytesRxInterface counts the primary interface and TotalBytesRx is the total across all interfaces. The captures describe the interface counters as bytes on 'the interface' and the totals as 'the total bytes received'. In the examples the totals are far smaller than the interface counters (see interface-vs-total-sample), which a total across all interfaces could not be, so the legacy reading is not supported and the totals may be per-session or another scope."
+    },
+    "host-time-meaning": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether HostStartTime and HostUpTime hold a start time or an uptime",
+      "blocks": "computing host uptime or restart time from status records",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "detail": "Unverified legacy statement: HostStartTime and ConnectorStartTime are Unix timestamps in seconds. The captures describe them as the time in seconds at which the host (or entity) was started, and the Private Cloud Controller field is named HostUpTime with the same description. The examples hold epoch-like values for the App Connector (1513229995) and Private Cloud Controller (1718277251) but a small value for the Private Service Edge HostStartTime (1916930) that reads as an uptime in seconds. The default Private Service Edge Status template writes HostUpTime where the table lists HostStartTime (divergence pse-host-time-name), which fits an uptime reading but does not define the value.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "%s{HostUpTime},%s{ServiceEdgeStartTime}"
+          ]
+        }
+      ]
+    },
+    "status-reading-guide": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What a status pattern implies about a connector, Private Service Edge or Private Cloud Controller",
+      "blocks": "triaging authentication failures and reconnect cycles",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: a persistent ZPN_STATUS_AUTH_FAILED with no later AUTHENTICATED record within a few minutes indicates a certificate, enrollment or network problem needing hands-on work; more than two disconnects from one connector in 30 minutes (more than three per hour for a Private Service Edge) warrants investigation; a connector bouncing between different ZENs points at Service Edge availability rather than the connector. The captures define the status values only. Connector health signals are in zpa.app-connectors.health."
+    },
+    "pse-optional-fields": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Which PSE and PCC status fields are populated",
+      "blocks": "parsing Version, PackageVersion and PublicIP from Private Service Edge and Private Cloud Controller records",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "detail": "The Private Cloud Controller example has an empty PackageVersion and the Private Service Edge example has an empty PackageVersion with a populated Version that the Private Service Edge field table does not list (see divergence pse-sample-fields). Which of the two version fields a real record fills is not stated."
+    }
+  },
+  "divergences": {
+    "timestamp-format": {
+      "summary": "Status timestamps described in microseconds versus shown as ISO 8601 strings",
+      "positions": [
+        {
+          "says": "The App Connector Status field table describes TimestampAuthentication as a timestamp in microseconds.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "app-connector-status-log-fields.json",
+            "quotes": [
+              "| TimestampAuthentication | Timestamp in microseconds when the App Connector was authenticated"
+            ]
+          }
+        },
+        {
+          "says": "The App Connector and Private Service Edge examples show it as an ISO 8601 string, with TimestampUnAuthentication empty.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "app-connector-status-log-fields.json",
+            "quotes": [
+              "\"TimestampAuthentication\": \"2019-06-27T05:05:23.348Z\",\"TimestampUnAuthentication\": \"\""
+            ]
+          }
+        },
+        {
+          "says": "The default App Connector Status template writes TimestampAuthentication and TimestampUnAuthentication with the :iso8601 modifier ([[zpa/app-connector-status-log]]).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "after": "\"zpn_ast_auth_log\":{",
+            "quotes": [
+              "%s{TimestampAuthentication:iso8601},%s{TimestampUnAuthentication:iso8601}"
+            ]
+          }
+        },
+        {
+          "says": "The content-format article shows the :iso8601 modifier rendering a timestamp field as an ISO 8601 string: %s{startrx_us:iso8601} appears as 2017-09-05T09:44:06.363Z.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-log-stream-content-format.json",
+            "quotes": [
+              "and time is %s{startrx_us:iso8601} would appear as User is john.doe, and time is 2017-09-05T09:44:06.363Z"
+            ]
+          }
+        }
+      ],
+      "impact": "The default templates render the authentication timestamps with :iso8601, so a default-format record carries ISO 8601 strings, as the examples show. A custom template that writes these fields without :iso8601 may produce another form; read the format from the receiver's template rather than assuming microsecond integers. An empty TimestampUnAuthentication on an AUTHENTICATED record is what the examples show."
+    },
+    "pse-sample-fields": {
+      "summary": "Private Service Edge Status fields in the table versus the example and the default template",
+      "positions": [
+        {
+          "says": "The field table lists PackageVersion for the Private Service Edge and no Version or PublicIP field.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "private-service-edge-status-log-fields.json",
+            "quotes": [
+              "| PackageVersion | The Private Service Edge package version"
+            ]
+          }
+        },
+        {
+          "says": "The example carries both Version (populated) and PackageVersion (empty) and a PublicIP.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "private-service-edge-status-log-fields.json",
+            "quotes": [
+              "\"Version\": \"21.268.1-341-g71d6f30-asan\",\"PackageVersion\": \"\"",
+              "\"PublicIP\": \"199.168.150.161\""
+            ]
+          }
+        },
+        {
+          "says": "The default Service Edge Status template writes Version, PackageVersion and PublicIP ([[zpa/private-service-edge-status-log]]).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "quotes": [
+              "%s{SessionStatus},%s{Version},%s{PackageVersion},%s{Platform},%s{ZEN},%s{ServiceEdge}",
+              "%s{ServiceEdgeGroup},%s{PrivateIP},%s{PublicIP},%f{Latitude}"
+            ]
+          }
+        }
+      ],
+      "impact": "The example and the default template both carry Version and PublicIP, which the table does not list, so a custom template built from the table omits them. A parser reading the version from PackageVersion gets an empty value from the example; the populated value is in Version. Check which fields a real record carries."
+    },
+    "pse-host-time-name": {
+      "summary": "The Private Service Edge host time field in the table and example versus the default template",
+      "positions": [
+        {
+          "says": "The field table names the field HostStartTime, the time in seconds at which the host was started, and the example gives it the value 1916930.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "private-service-edge-status-log-fields.json",
+            "quotes": [
+              "| HostStartTime | The time in seconds at which host was started",
+              "\"HostStartTime\": \"1916930\""
+            ]
+          }
+        },
+        {
+          "says": "The default Service Edge Status template writes HostUpTime next to ServiceEdgeStartTime ([[zpa/private-service-edge-status-log]]).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "quotes": [
+              "%s{HostUpTime},%s{ServiceEdgeStartTime}"
+            ]
+          }
+        }
+      ],
+      "impact": "Field names are exact. The table spells it HostStartTime; the default template writes HostUpTime, so a custom template built from the table name may not emit the field. The example value 1916930 reads as an uptime in seconds rather than a start time; whether the field holds a start time or an uptime is the gap host-time-meaning."
+    },
+    "pcc-template-names": {
+      "summary": "Private Cloud Controller Status field names in the table versus the default template's variables",
+      "positions": [
+        {
+          "says": "The field table names the fields PrivateCloudController, PrivateCloudControllerGroup and PrivateCloudControllerStartTime.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "private-cloud-controller-status-log-fields.json",
+            "quotes": [
+              "| PrivateCloudController | The Private Cloud Controller name |",
+              "| PrivateCloudControllerGroup | The Private Cloud Controller group name",
+              "| PrivateCloudControllerStartTime | The time in seconds at which the Private Cloud Controller was started"
+            ]
+          }
+        },
+        {
+          "says": "The default Private Cloud Controller Status template reads the variables SiteController, SiteControllerGroup and SiteControllerStartTime, and its JSON form labels SiteController as PrivateCloudController ([[zpa/private-cloud-controller-status-log]]).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "after": "\"zpn_sitec_auth_log\":{",
+            "quotes": [
+              "%s{ZEN},%s{SiteController},%s{SiteControllerGroup}",
+              "%s{HostUpTime},%s{SiteControllerStartTime}",
+              "\\\"PrivateCloudController\\\": %j{SiteController}"
+            ]
+          }
+        }
+      ],
+      "impact": "Field names are exact. The table names the variables PrivateCloudController, PrivateCloudControllerGroup and PrivateCloudControllerStartTime; the default template reads SiteController, SiteControllerGroup and SiteControllerStartTime. A custom template built from the table names may not emit these fields; copy the variable names from the default template and check a real record."
+    },
+    "unauthnetication-spelling": {
+      "summary": "The Private Service Edge unauthentication field name in the table versus the example and the default template",
+      "positions": [
+        {
+          "says": "The field table spells the field TimestampUnAuthnetication.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "private-service-edge-status-log-fields.json",
+            "quotes": [
+              "| TimestampUnAuthnetication | The timestamp in microseconds when the Private Service Edge was unauthenticated"
+            ]
+          }
+        },
+        {
+          "says": "The example spells it TimestampUnAuthentication.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "private-service-edge-status-log-fields.json",
+            "quotes": [
+              "\"TimestampUnAuthentication\": \"\",\"CPUUtilization\": 0"
+            ]
+          }
+        },
+        {
+          "says": "The default Service Edge Status template writes it as TimestampUnAuthentication ([[zpa/private-service-edge-status-log]]).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "quotes": [
+              "%s{ServiceEdgeGroup},%s{PrivateIP},%s{PublicIP},%f{Latitude},%f{Longitude},%s{CountryCode},%s{TimestampAuthentication:iso8601},%s{TimestampUnAuthentication:iso8601}"
+            ]
+          }
+        }
+      ],
+      "impact": "Field names are case sensitive and exact. The table spells it TimestampUnAuthnetication; the example and the default template write TimestampUnAuthentication. A custom template built from the table spelling may not emit the field; use the default template's name and check a real record."
+    }
+  }
+}

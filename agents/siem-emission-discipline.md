@@ -37,7 +37,7 @@ The discovery journal (per [`investigator/methodology.md`](./investigator/method
 
 3. **Cite patterns by name, not by inlining.** When the agent emits a query as an evidence source, reference a named pattern from the relevant SIEM-specific catalog (e.g., "use `§ rule-hit-history` from `splunk-queries.md`"). The catalog stays the single source of truth.
 
-4. **Cite the schema for any field used.** E.g., `references/zpa/logs/access-log-schema.md` for `InternalReason`, `kb:zia/web-log` (field `urlcat`) for `urlcategory`. Keeps results reproducible and prevents field-name drift.
+4. **Cite the schema for any field used.** E.g., `kb:zpa/user-activity-log` (field `InternalReason`), `kb:zia/web-log` (field `urlcat`) for `urlcategory`. Keeps results reproducible and prevents field-name drift.
 
 5. **Treat the query as a plan until results exist.**
    - Agent-direct: after running, capture results as `Confirmed (medium)` or `(high)` with the query as source.

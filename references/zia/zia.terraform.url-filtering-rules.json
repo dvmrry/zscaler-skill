@@ -20,11 +20,11 @@
   ],
   "prose": [
     {
-      "text": "The provider validates URL Filtering user agents against a shorter list than some of its sources. {{validator-omits-brave}} {{validator-shared-by-three-resources}}"
+      "text": "Up to v4.8.8 the provider validated URL Filtering user agents against a shorter list than some of its sources. {{validator-omits-brave}} {{validator-shared-by-three-resources}}"
     },
     {
       "label": "BRAVE.",
-      "text": "{{header-profile-accepts-brave}} {{hcl-cannot-declare-brave}} The contract and the provider disagree on SSL Inspection {{divergence:brave-provider-vs-contract}}. {{read-copies-user-agents}} Whether a read can fail on a BRAVE value is not established {{gap:issue-606-read-time-failure}}."
+      "text": "{{header-profile-accepts-brave}} {{hcl-cannot-declare-brave}} The contract and the provider disagreed on SSL Inspection up to v4.8.8 and disagree on Cloud App Control from v4.8.9 {{divergence:brave-provider-vs-contract}}. {{read-copies-user-agents}} Whether a read can fail on a BRAVE value is not established {{gap:issue-606-read-time-failure}}."
     },
     {
       "label": "Isolation.",
@@ -49,15 +49,28 @@
   ],
   "claims": {
     "validator-omits-brave": {
-      "statement": "In v4.8.8 the provider's `user_agent_types` validator accepts OPERA, FIREFOX, MSIE, MSEDGE, CHROME, SAFARI, MSCHREDGE and OTHER, and omits BRAVE.",
+      "statement": "Before v4.8.9 the provider's `user_agent_types` validator accepted OPERA, FIREFOX, MSIE, MSEDGE, CHROME, SAFARI, MSCHREDGE and OTHER, and omitted BRAVE. v4.8.9 adds BRAVE to the list (#607).",
       "tier": "A",
+      "conditions": "Changed upstream in v4.8.9 (checked 2026-10-18): previously \"In v4.8.8 the provider's `user_agent_types` validator accepts OPERA, FIREFOX, MSIE, MSEDGE, CHROME, SAFARI, MSCHREDGE and OTHER, and omits BRAVE.\"",
       "evidence": [
         {
           "source": "tf-zia",
           "path": "zia/validator.go",
+          "at": [
+            "v4.8.8"
+          ],
           "quotes": [
             "\"OPERA\", \"FIREFOX\", \"MSIE\", \"MSEDGE\", \"CHROME\", \"SAFARI\", \"MSCHREDGE\", \"OTHER\","
-          ]
+          ],
+          "after": "var supportedUserAgentTypes = []string{"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/validator.go",
+          "quotes": [
+            "\"OPERA\", \"FIREFOX\", \"MSIE\", \"MSEDGE\", \"CHROME\", \"SAFARI\", \"MSCHREDGE\", \"OTHER\", \"BRAVE\","
+          ],
+          "after": "var supportedUserAgentTypes = []string{"
         }
       ]
     },
@@ -96,28 +109,48 @@
       ]
     },
     "header-profile-accepts-brave": {
-      "statement": "The `user_agent` criterion of `zia_http_header_profile` is validated against a list that does include BRAVE.",
+      "statement": "Up to v4.8.12 the `user_agent` criterion of `zia_http_header_profile` was validated against a list that includes BRAVE. v4.8.13 makes `user_agent` a free custom user agent string, for use when `user_agent_bitmap` is OTHER, and the list (still including BRAVE) validates `user_agent_bitmap` (#613).",
       "tier": "A",
+      "conditions": "Changed upstream in v4.8.13 (checked 2026-10-18): previously \"The `user_agent` criterion of `zia_http_header_profile` is validated against a list that does include BRAVE.\" That `user_agent` has no validator at v4.8.13 rests on reading its schema entry, which has Type, Optional and Description only.",
       "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_http_header_profile.go",
+          "at": [
+            "v4.8.8",
+            "v4.8.12"
+          ],
+          "quotes": [
+            "\"BRAVE\","
+          ],
+          "after": "Description: \"The user agent evaluated by the criteria.\","
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_http_header_profile.go",
+          "quotes": [
+            "Description: \"A custom user agent string to match. Use it when user_agent_bitmap is set to OTHER.\","
+          ]
+        },
         {
           "source": "tf-zia",
           "path": "zia/resource_zia_http_header_profile.go",
           "quotes": [
             "\"BRAVE\","
           ],
-          "after": "Description: \"The user agent evaluated by the criteria.\","
+          "after": "Description: \"The user agent bitmap evaluated by the criteria.\","
         }
       ]
     },
     "hcl-cannot-declare-brave": {
-      "statement": "So under v4.8.8 HCL cannot declare BRAVE in `user_agent_types` for URL Filtering, SSL Inspection or Cloud App Control rules, although the HTTP header profile accepts it.",
+      "statement": "Before v4.8.9 HCL could not declare BRAVE in `user_agent_types` for URL Filtering, SSL Inspection or Cloud App Control rules, although the HTTP header profile accepted it; from v4.8.9 all three accept it.",
       "tier": "B",
       "derived_from": [
         "validator-omits-brave",
         "validator-shared-by-three-resources",
         "header-profile-accepts-brave"
       ],
-      "conditions": "Follows from the validator list and the three resources sharing it."
+      "conditions": "Follows from the validator list and the three resources sharing it. Changed upstream in v4.8.9 (checked 2026-10-18): previously \"So under v4.8.8 HCL cannot declare BRAVE in `user_agent_types` for URL Filtering, SSL Inspection or Cloud App Control rules, although the HTTP header profile accepts it.\""
     },
     "read-copies-user-agents": {
       "statement": "The URL filtering Read copies the API's `UserAgentTypes` into state.",
@@ -221,26 +254,43 @@
           "evidence": {
             "source": "tf-zia",
             "path": "zia/validator.go",
+            "at": [
+              "v4.8.8"
+            ],
             "quotes": [
               "\"OPERA\", \"FIREFOX\", \"MSIE\", \"MSEDGE\", \"CHROME\", \"SAFARI\", \"MSCHREDGE\", \"OTHER\","
             ]
           }
+        },
+        {
+          "says": "From v4.8.9 the provider validator used by all three resources includes BRAVE.",
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/validator.go",
+            "quotes": [
+              "\"OPERA\", \"FIREFOX\", \"MSIE\", \"MSEDGE\", \"CHROME\", \"SAFARI\", \"MSCHREDGE\", \"OTHER\", \"BRAVE\","
+            ],
+            "at": [
+              "v4.8.9",
+              "HEAD"
+            ]
+          }
         }
       ],
-      "impact": "An SSL Inspection rule that the API allows to carry BRAVE cannot be written in HCL under v4.8.8; for Cloud App Control the provider and the contract agree."
+      "impact": "Under v4.8.8 an SSL Inspection rule that the API allows to carry BRAVE could not be written in HCL. From v4.8.9 the provider accepts BRAVE on SSL Inspection, agreeing with the contract, and also on Cloud App Control, where the contract omits it; whether the API accepts BRAVE there is not established."
     }
   },
   "gaps": {
     "issue-606-read-time-failure": {
       "kind": "semantic",
       "title": "Whether the API returns BRAVE for existing URL Filtering rules and the provider then fails planning",
-      "status": "open",
+      "status": "partial",
       "resolves_with": [
         "lab-test",
         "tenant-data"
       ],
       "blocks": "saying that a URL Filtering plan fails on read for rules with broad browser selections",
-      "detail": "Unverified legacy statement: upstream issue 606 reports that the API returned BRAVE for existing URL Filtering rules with broad browser selections and that the provider failed during plan. The Read path copies the API value into state and the sources here do not show a validation failure mechanism on read. Reproduce in a scratch tenant with a URL Filtering rule that selects all browsers, then plan with v4.8.8."
+      "detail": "Unverified legacy statement: upstream issue 606 reports that the API returned BRAVE for existing URL Filtering rules with broad browser selections and that the provider failed during plan. The Read path copies the API value into state and the sources here do not show a validation failure mechanism on read. Reproduce in a scratch tenant with a URL Filtering rule that selects all browsers, then plan with v4.8.8. v4.8.9 adds BRAVE to the validator (validator-omits-brave). The fixing commit's message (e8b12a9, not a citable file) says the backend now returns BRAVE for URL Filtering rules and that the validator then failed with `got BRAVE`; whether that failure happened on read, as the issue reports, is not shown."
     }
   }
 }

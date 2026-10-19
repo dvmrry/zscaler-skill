@@ -25,7 +25,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 function usage(msg) {
   if (msg) console.error(`kb: ${msg}`);
-  console.error("usage: kb.mjs <validate|resolve|render|manifest|verified|export-zscalerctl|import-types|migrate-links|surface> [args]");
+  console.error("usage: kb.mjs <validate|resolve|render|manifest|verified|export-zscalerctl|import-types|migrate-links|surface|freshness> [args]");
   process.exit(2);
 }
 
@@ -59,6 +59,14 @@ async function main(argv) {
     return hits.length ? 0 : 1;
   }
   const g = buildGraph(loadPublic(ROOT));
+  if (cmd === "freshness") {
+    const { freshness, freshnessText } = await import("./kb-freshness.mjs");
+    const json = args.includes("--json");
+    const days = Number(option(args, "--days") || 365);
+    const r = freshness(g, { days, upstream: args.includes("--upstream") });
+    process.stdout.write(json ? `${JSON.stringify(r, null, 2)}\n` : freshnessText(r));
+    return 0;
+  }
   if (cmd === "validate") {
     const { errors, warnings, stats } = validateGraph(g, { citations: !args.includes("--no-citations") });
     // Legacy Markdown links into the graph (written by migrate-links) must resolve.

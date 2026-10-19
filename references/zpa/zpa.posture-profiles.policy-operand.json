@@ -58,7 +58,7 @@
     },
     {
       "label": "Families and scope.",
-      "text": "{{families}} {{isolation-excluded}} The data source documentation disagrees {{divergence:posture-isolation}}. {{microtenant-parent}} Timeout rules that tier by posture are in [[zpa.policy.timeout-rules:posture-tiering-example]]."
+      "text": "{{families}} {{isolation-excluded}} The data source documentation disagrees {{divergence:posture-isolation}}. [[zpa.terraform.policy-rule-resources:operand-microtenant-unsupported-types]] Timeout rules that tier by posture are in [[zpa.policy.timeout-rules:posture-tiering-example]]."
     },
     {
       "label": "Clients without posture.",
@@ -67,6 +67,9 @@
     {
       "label": "Failed versus absent.",
       "text": "Whether false covers a device with no result is open {{gap:false-meaning}}."
+    },
+    {
+      "text": "Whether posture and trusted-network operands are rewritten is open {{gap:operand-name-rewrite-scope}}."
     }
   ],
   "checks": [
@@ -285,19 +288,6 @@
         }
       ],
       "conditions": "Absence claim from a search: the string \"POSTURE\" does not occur in either isolation resource file."
-    },
-    "microtenant-parent": {
-      "statement": "The Terraform documentation says microtenant_id is not supported in a POSTURE operand because ZPA assumes the posture profile ID that belongs to the parent tenant.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "tf-zpa",
-          "path": "docs/resources/zpa_policy_access_rule_posture_profile.md",
-          "quotes": [
-            "ZPA automatically assumes the posture profile ID that belongs to the parent tenant."
-          ]
-        }
-      ]
     }
   },
   "gaps": {
@@ -329,6 +319,16 @@
         "lab-test"
       ],
       "blocks": "saying a wrong identifier fails silently"
+    },
+    "operand-name-rewrite-scope": {
+      "kind": "semantic",
+      "title": "Whether the API rewrites the name of POSTURE and TRUSTED_NETWORK operands",
+      "status": "open",
+      "detail": "Unverified legacy statement (operator field observation from production Terraform use): the API rewrites a policy operand's name to the referenced object's display name for connector and segment references, but not for `postureUdid` or `networkId`, which are opaque identifiers and stay stable across plan and apply. The sources show the SDK clearing operand names before an update, not which operand types the API rewrites. Plan twice after an apply on a rule with a posture and a trusted network operand and compare the operands.",
+      "blocks": "telling whether posture and trusted-network operands cause drift in Terraform plans",
+      "resolves_with": [
+        "lab-test"
+      ]
     }
   },
   "divergences": {

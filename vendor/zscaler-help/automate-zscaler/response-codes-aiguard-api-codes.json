@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "kind": "automate-doc",
+  "title": "AI Guard API Codes",
+  "source": {
+    "url": "https://automate.zscaler.com/docs/api-reference-and-guides/guides/response-codes/aiguard-api-codes",
+    "revision": "795026f7.e1008507.js",
+    "updated": "2026-10-18",
+    "updated_basis": "first-seen"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "The AI Guard API uses the response codes and error messages listed in the following table."
+    },
+    {
+      "text": "All error responses conform to RFC 9457 Problem Details and are returned with a Content-Type of application/problem+json. Every error response includes the type, title, status, detail, and correlation id. Validation errors additionally include a fields[] array."
+    },
+    {
+      "table": [
+        [
+          "Code",
+          "Status",
+          "Description"
+        ],
+        [
+          "200",
+          "OK",
+          "The request was successful. This response code is returned by GET (single resource and list) and PUT requests. GET requests retrieving a list of resources return it in a JSON object in the following format: { \"items\": [] }."
+        ],
+        [
+          "201",
+          "Created",
+          "The request was completed successfully, and a new resource has been created. This response code is returned by POST requests."
+        ],
+        [
+          "204",
+          "No Content",
+          "The request was completed successfully. No response body is returned. This response code is used by DELETE requests."
+        ],
+        [
+          "400",
+          "Bad Request",
+          "The request is invalid due to malformed JSON, an unknown field, or a request body or parameter validation error. When applicable, the response includes a fields[] array."
+        ],
+        [
+          "401",
+          "Unauthorized",
+          "The bearer token is missing or expired, has an invalid signature, or fails issuer or audience validation. The response includes a WWW-Authenticate: Bearer header."
+        ],
+        [
+          "403",
+          "Forbidden",
+          "The request is authenticated, but the token's scopes or role do not grant permission to perform the requested operation."
+        ],
+        [
+          "404",
+          "Not Found",
+          "The requested route or target resource (identified by ID or name) could not be found."
+        ],
+        [
+          "409",
+          "Conflict",
+          "The resource already exists (e.g., a duplicate name during creation), or the delete operation was blocked because the resource is referenced by another active configuration. Where supported, append deleteReferences=true as a query parameter to remove references before deleting the resource."
+        ],
+        [
+          "429",
+          "Too Many Requests",
+          "The client has exceeded the API rate limit by sending too many requests within a given time period. The request can be retried after a wait period."
+        ],
+        [
+          "500",
+          "Internal Server Error",
+          "An unexpected error occurred in the service or a downstream dependency. The response includes a correlation id for troubleshooting. No internal implementation details are exposed."
+        ]
+      ]
+    },
+    {
+      "heading": "HTTP Status Codes by Operation",
+      "level": 2
+    },
+    {
+      "text": "Every operation can return 400, 401, 403, 429, and 500. The following table lists additional codes per operation type."
+    },
+    {
+      "table": [
+        [
+          "Operation",
+          "HTTP Method",
+          "Success Code",
+          "Additional Error Codes"
+        ],
+        [
+          "List",
+          "GET",
+          "200",
+          "404"
+        ],
+        [
+          "Get by ID or name, or referential check",
+          "GET /{id}",
+          "200",
+          "404"
+        ],
+        [
+          "Create",
+          "POST",
+          "201",
+          "409"
+        ],
+        [
+          "Update",
+          "PUT /{id}",
+          "200",
+          "404"
+        ],
+        [
+          "Delete",
+          "DELETE /{id}",
+          "204",
+          "404, 409"
+        ],
+        [
+          "Actions (enable, disable, and regenerate)",
+          "POST /{id}/actions",
+          "200",
+          "409 (on conflict)"
+        ]
+      ]
+    }
+  ]
+}

@@ -360,9 +360,9 @@ Per-field ambiguities relevant to correlation queries — see the linked schema 
 - ZIA firewall `action` precedence (FW + IPS + DNAT) — [clarification `log-12`](kb:zia.logs.firewall-records:action-precedence)
 - ZIA DNS `reqaction` / `resaction` cumulative vs alternative — [clarification `log-14`](kb:zia.logs.dns-outcome:action-enum-open)
 - ZIA DNS `res` field overloading (IP vs sentinel) — [clarification `log-15`](kb:zia.logs.dns-outcome:res-sentinels-open)
-- ZPA `ConnectionStatus` Active emission cadence on long-lived sessions — [clarification `zpa-16`](../_meta/clarifications.md#zpa-16-connectionstatus-active-emission-cadence-on-long-lived-sessions)
-- ZPA delta vs total byte-counter reset semantics — [clarification `zpa-17`](../_meta/clarifications.md#zpa-17-delta-vs-total-byte-counter-reset-semantics)
-- ZPA User Status record granularity and byte counter timing — [clarification `log-19`](../_meta/clarifications.md#log-19-user-status-record-granularity-and-byte-counter-timing)
+- ZPA `ConnectionStatus` Active emission cadence on long-lived sessions — [clarification `zpa-16`](kb:zpa.logs.user-activity:active-cadence)
+- ZPA delta vs total byte-counter reset semantics — [clarification `zpa-17`](kb:zpa.logs.user-activity:byte-counter-reset)
+- ZPA User Status record granularity and byte counter timing — [clarification `log-19`](kb:zpa.logs.user-status:record-granularity)
 
 ## Cross-links
 
@@ -370,7 +370,7 @@ Per-field ambiguities relevant to correlation queries — see the linked schema 
 - ZIA web log schema (all fields) — [`zia.logs.web-records`](kb:zia.logs.web-records)
 - ZIA firewall log schema (all fields) — [`zia.logs.firewall-records`](kb:zia.logs.firewall-records)
 - ZIA DNS log schema (all fields) — [`zia.logs.dns-record-fields`](kb:zia.logs.dns-record-fields)
-- ZPA LSS User Activity schema (all fields) — [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md)
+- ZPA LSS User Activity schema (all fields) — [`zpa.logs.user-activity`](kb:zpa.logs.user-activity)
 - ZCC operational log schema — [`../zcc/logs/zcc-log-schema.md`](../zcc/logs/zcc-log-schema.md)
 - Cloud Connector log schema — [`../cloud-connector/logs/log-schema.md`](../cloud-connector/logs/log-schema.md)
 - NSS architecture — [`./nss-architecture.md`](./nss-architecture.md)

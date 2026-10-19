@@ -6,8 +6,10 @@
 //   - api:        OpenAPI paths and operations (vendor/zscaler-api-specs, automate-zscaler/openapi)
 //   - sdk_go:     each Go SDK service package's endpoint constants and exported functions
 //   - sdk_python: each Python SDK module's API class, public methods and endpoints
-//   - terraform:  each provider resource and data source, the Go SDK packages it imports, and the
-//                 OpenAPI paths those packages call
+//   - terraform:  each provider resource and data source, the Go SDK packages it imports, the
+//                 OpenAPI paths those packages call, and its arguments (type, required/optional/
+//                 computed, ForceNew, default, enum and other validators, nested blocks) from the
+//                 schema literals via scripts/tf-schema.go (go/ast)
 // Code is read at the submodule pin (HEAD); the spec is a committed capture, identified by its hash.
 // The output changes only when a pin or the captured spec changes.
 //
@@ -138,24 +140,45 @@ const providerGo = show(P.provider, `${P.providerDir}/provider.go`);
 const providerFiles = list(P.provider, P.providerDir).filter((f) => f.endsWith(".go") && !f.endsWith("_test.go"));
 const funcFile = new Map();
 const fileImports = new Map();
+const providerSrc = {};
 for (const f of providerFiles) {
   const src = show(P.provider, f);
+  providerSrc[f] = src;
   for (const m of src.matchAll(/^func (\w+)\(/gm)) funcFile.set(m[1], f);
   const pkgs = [...src.matchAll(new RegExp(`"github\\.com/zscaler/zscaler-sdk-go/v\\d+/${P.goServices}/([^"]+)"`, "g"))].map((m) => m[1]);
   fileImports.set(f, [...new Set(pkgs)].sort());
 }
 const terraform = {};
+const registered = {};
 for (const [kind, mapName] of [["resource", "ResourcesMap"], ["data-source", "DataSourcesMap"]]) {
   const block = providerGo.slice(providerGo.indexOf(`${mapName}:`));
-  const body = block.slice(0, block.indexOf("\n\t\t},"));
+  // A commented-out registration (`//"zpa_x": resourceX(),`) is not registered.
+  const body = block.slice(0, block.indexOf("\n\t\t},")).replace(/\/\/.*$/gm, "");
   for (const m of body.matchAll(/"(\w+)":\s*(\w+)\(\)/g)) {
     const file = funcFile.get(m[2]);
     const sdk = file ? fileImports.get(file) : [];
+    registered[`${kind}:${m[1]}`] = m[2];
     terraform[`${kind}:${m[1]}`] = {
       kind, name: m[1], file: file || null, sdk_go: sdk,
       api: [...new Set(sdk.flatMap((p) => sdkGo[p]?.api || []))].sort(),
     };
   }
+}
+// The provider's own configuration (credentials, cloud, retries and their environment variables).
+const providerFunc = providerGo.match(/^func (\w+)\(\) \*schema\.Provider \{/m)?.[1];
+if (!providerFunc) throw new Error(`no func returning *schema.Provider in ${P.providerDir}/provider.go`);
+registered[`provider:${product}`] = providerFunc;
+terraform[`provider:${product}`] = { kind: "provider", name: product, file: `${P.providerDir}/provider.go`, sdk_go: [], api: [] };
+// Arguments come from the schema literals, read with go/ast by scripts/tf-schema.go (stdlib only; needs
+// the go toolchain). What it cannot follow is listed per type under `unresolved`, never guessed.
+const schemas = JSON.parse(execFileSync("go", ["run", path.join(ROOT, "scripts/tf-schema.go")], {
+  input: JSON.stringify({ files: providerSrc, types: registered }), encoding: "utf8", maxBuffer: 256 << 20,
+}));
+for (const [id, t] of Object.entries(terraform)) {
+  const s = schemas[id];
+  t.arguments = s?.arguments || {};
+  if (s?.customize_diff) t.customize_diff = s.customize_diff; // plan-time checks beyond the schema
+  if (s?.unresolved?.length) t.unresolved = s.unresolved;
 }
 
 // ---------------------------------------------------------------- write

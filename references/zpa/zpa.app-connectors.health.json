@@ -50,11 +50,11 @@
     },
     {
       "label": "Status names across tools.",
-      "text": "{{control-channel-field}} {{mcp-status-table}} {{no-runtime-status-field}} {{lss-status-set-differs}} {{lss-codes-fetched}} Whether PENDING exists, and how it differs from NOT_ENROLLED, are open {{gap:status-pending-unverified}} {{gap:not-enrolled-vs-pending}}."
+      "text": "{{control-channel-field}} {{control-channel-status-values}} {{mcp-status-table}} {{no-runtime-status-field}} {{lss-status-set-differs}} {{lss-codes-fetched}} Whether PENDING exists, and how it differs from NOT_ENROLLED, are open {{gap:status-pending-unverified}} {{gap:not-enrolled-vs-pending}}."
     },
     {
       "label": "Version and connection fields.",
-      "text": "{{connector-object-fields}}"
+      "text": "{{connector-object-fields}} {{upgrade-status-values}}"
     },
     {
       "label": "Connectivity checks.",
@@ -66,6 +66,12 @@
     },
     {
       "text": "How the status feeds session assignment is in [[zpa.app-connectors.selection]]; update status values are in [[zpa.app-connectors.upgrades]]."
+    },
+    {
+      "text": "The Status log's ServiceCount counts the domain or IP and port services the connector monitors [[zpa.logs.control-session-status:service-count-monitored]]."
+    },
+    {
+      "text": "CPUUtilization means a point value in the Status log and a 5-minute maximum in the Metrics log [[zpa.logs.control-session-status:resource-fields-at-event]]; see [[zpa.logs.app-connector-metrics]]."
     }
   ],
   "checks": [
@@ -294,6 +300,64 @@
         }
       ]
     },
+    "control-channel-status-values": {
+      "statement": "The OpenAPI connector GET response marks controlChannelStatus read-only and enumerates UNKNOWN, ZPN_STATUS_AUTHENTICATED and ZPN_STATUS_DISCONNECTED.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connector~1{connectorId}/get/responses/200/content/*~1*/schema/properties/controlChannelStatus",
+          "expect": {
+            "description": "Read only. Ignored in PUT/POST calls. Expected values: UNKNOWN/ZPN_STATUS_AUTHENTICATED(1)/ZPN_STATUS_DISCONNECTED",
+            "enum": [
+              "UNKNOWN",
+              "ZPN_STATUS_AUTHENTICATED",
+              "ZPN_STATUS_DISCONNECTED"
+            ]
+          }
+        }
+      ],
+      "conditions": "Added from the verifier's finding: the enum had been dropped as generated, but the generated surface holds no enums."
+    },
+    "upgrade-status-values": {
+      "statement": "The OpenAPI connector GET response enumerates upgradeStatus as COMPLETE, IN_PROGRESS, FAILED, UNKNOWN, RESTARTING, PARTIAL_FAILURE and REMOVAL_IN_PROGRESS, and each zpnSubModuleUpgradeList entry's role as ASSISTANT, PRIVATE_BROKER, MMDB_GEOIP, MMDB_ISP, GUACD and SITE_CONTROLLER.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connector~1{connectorId}/get/responses/200/content/*~1*/schema/properties/upgradeStatus",
+          "expect": {
+            "enum": [
+              "COMPLETE",
+              "IN_PROGRESS",
+              "FAILED",
+              "UNKNOWN",
+              "RESTARTING",
+              "PARTIAL_FAILURE",
+              "REMOVAL_IN_PROGRESS"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connector~1{connectorId}/get/responses/200/content/*~1*/schema/properties/zpnSubModuleUpgradeList/items/properties/role",
+          "expect": {
+            "enum": [
+              "ASSISTANT",
+              "PRIVATE_BROKER",
+              "MMDB_GEOIP",
+              "MMDB_ISP",
+              "GUACD",
+              "SITE_CONTROLLER"
+            ]
+          }
+        }
+      ],
+      "conditions": "Added from the verifier's finding: the enums had been dropped as generated, but the generated surface holds no enums."
+    },
     "connector-object-fields": {
       "statement": "The Python connector model carries current and expected version, last upgrade time, last broker connect and disconnect times with durations, platform and Sarge upgrade fields, all read from the response.",
       "tier": "A",
@@ -404,7 +468,7 @@
       "kind": "semantic",
       "title": "ZPN_STATUS_PENDING as a real status",
       "status": "open",
-      "detail": "Tracked as legacy ledger item zpa-20. The value appears only in one table of the MCP skill; it is absent from the command document, from SDK source, and from the status-log-field articles.",
+      "detail": "Tracked as legacy ledger item zpa-20. The value appears only in one table of the MCP skill; it is absent from the command document, from SDK source, and from the status-log-field articles. The contract's connector response enumerates controlChannelStatus as UNKNOWN, ZPN_STATUS_AUTHENTICATED and ZPN_STATUS_DISCONNECTED (control-channel-status-values), with no PENDING value; whether a pending state appears in another field is not shown.",
       "resolves_with": [
         "lab-test",
         "tenant-data"
@@ -417,7 +481,7 @@
       "kind": "semantic",
       "title": "What distinguishes NOT_ENROLLED from PENDING",
       "status": "open",
-      "detail": "Unverified legacy statement: \"No source defines what controlChannelStatus/runtime_status value distinguishes these states at the API level; the meanings are prose in SKILL.md tables only, not from a server enum.\" The full set cannot be listed from SDK source because the codes are fetched at runtime (lss-codes-fetched).",
+      "detail": "Unverified legacy statement: \"No source defines what controlChannelStatus/runtime_status value distinguishes these states at the API level; the meanings are prose in SKILL.md tables only, not from a server enum.\" The full set cannot be listed from SDK source because the codes are fetched at runtime (lss-codes-fetched). The contract's connector response enum for controlChannelStatus (control-channel-status-values) has neither a NOT_ENROLLED nor a PENDING value, so neither state is a controlChannelStatus value in the contract.",
       "resolves_with": [
         "lab-test",
         "tenant-data"

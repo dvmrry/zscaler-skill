@@ -14,7 +14,7 @@ sources:
   - "references/shared/nss-architecture.md"
   - "references/zcc/logs/zcc-log-schema.md"
   - "references/cloud-connector/logs/log-schema.md"
-  - "references/zpa/logs/access-log-schema.md"
+  - "`kb:zpa.logs.user-activity`"
   - "kb:zia/web-log"
 author-status: draft
 ---
@@ -174,9 +174,9 @@ LSS emits 12 log types (per *Understanding the Log Stream Content Format*):
 
 | Log type | What it covers | Schema doc |
 |---|---|---|
-| **User Activity** | Per-connection records: application, connector, policy, timing, bytes | [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md) |
-| **User Status** | ZCC authentication state, posture evaluation, session enrollment | [`../zpa/logs/user-status-log-schema.md`](../zpa/logs/user-status-log-schema.md) |
-| **App Connector Metrics** | Per-connector CPU, memory, throughput, connection counts | [`../zpa/logs/app-connector-metrics.md`](../zpa/logs/app-connector-metrics.md) |
+| **User Activity** | Per-connection records: application, connector, policy, timing, bytes | [`zpa.logs.user-activity`](kb:zpa.logs.user-activity) |
+| **User Status** | ZCC authentication state, posture evaluation, session enrollment | [`zpa.logs.user-status`](kb:zpa.logs.user-status) |
+| **App Connector Metrics** | Per-connector CPU, memory, throughput, connection counts | [`zpa.logs.app-connector-metrics`](kb:zpa.logs.app-connector-metrics) |
 | App Connector Status | App Connector lifecycle events | Schema not yet documented |
 | Browser Access | Browser-based ZPA access sessions | Schema not yet documented |
 | Audit Logs | Admin console change audit | Schema not yet documented |
@@ -347,9 +347,9 @@ Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.json`; `ven
 - ZIA web log schema (full field inventory) — [`zia.logs.web-records`](kb:zia.logs.web-records)
 - ZIA firewall log schema — [`zia.logs.firewall-records`](kb:zia.logs.firewall-records)
 - ZIA DNS log schema — [`zia.logs.dns-record-fields`](kb:zia.logs.dns-record-fields)
-- ZPA LSS User Activity schema — [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md)
-- ZPA User Status schema — [`../zpa/logs/user-status-log-schema.md`](../zpa/logs/user-status-log-schema.md)
-- ZPA App Connector Metrics schema — [`../zpa/logs/app-connector-metrics.md`](../zpa/logs/app-connector-metrics.md)
+- ZPA LSS User Activity schema — [`zpa.logs.user-activity`](kb:zpa.logs.user-activity)
+- ZPA User Status schema — [`zpa.logs.user-status`](kb:zpa.logs.user-status)
+- ZPA App Connector Metrics schema — [`zpa.logs.app-connector-metrics`](kb:zpa.logs.app-connector-metrics)
 - ZCC log schema (client-side, not SIEM-accessible) — [`../zcc/logs/zcc-log-schema.md`](../zcc/logs/zcc-log-schema.md)
 - ZDX API (data retrieval) — [`../zdx/api.md`](../zdx/api.md)
 - Cloud Connector log fields and access methods — [`../cloud-connector/logs/log-schema.md`](../cloud-connector/logs/log-schema.md)

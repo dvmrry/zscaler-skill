@@ -47,7 +47,7 @@
     },
     {
       "label": "Python SDK operations.",
-      "text": "{{pool-credential-info}} {{expired-approval-cleanup}} {{bulk-console-add}} {{credential-move}}"
+      "text": "{{pool-credential-info}} {{expired-approval-cleanup}} {{bulk-console-add}} [[zpa.api.pra-wire:credential-move]]"
     },
     {
       "label": "Approvals and working hours.",
@@ -55,6 +55,15 @@
     },
     {
       "text": "Terraform delete and credential-rule defects are in [[zpa.terraform.delete-paths]] and [[zpa.terraform.policy-rule-writes]]; approval validation and PRA console read defects are in [[zpa.terraform.resource-fidelity]]; secret handling is in [[shared.terraform.credential-handling]]."
+    },
+    {
+      "text": "Two approvals with the same emails and applications are indistinguishable to the module: {{ansible-approval-lookup-ignores-windows}}"
+    },
+    {
+      "text": "Whether the module can pick between approvals that differ only by window is open {{gap:approval-identity-windows}}."
+    },
+    {
+      "text": "Whether the credential-pool endpoints the SDKs call are a supported API surface is open [[zpa.api.pra-wire:credential-pool-not-in-contract]]."
     }
   ],
   "checks": [
@@ -124,22 +133,6 @@
         }
       ]
     },
-    "credential-move": {
-      "statement": "The Python SDK's credential_move moves a PRA credential between the parent tenant and a microtenant through POST /credential/{credential_id}/move. It requires target_microtenant_id, and 0 targets the Default microtenant.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/zpa/pra_credential.py",
-          "quotes": [
-            "Moves privileged remote access credentials between parent tenant and microtenants.",
-            "For Default microtenant, 0 should be passed.",
-            "raise ValueError(\"target_microtenant_id must be provided in query_params.\")",
-            "/credential/{credential_id}/move"
-          ]
-        }
-      ]
-    },
     "working-hours-optional": {
       "statement": "In the Python SDK pra_approval, working_hours is optional: time conversion defaults to UTC when it is omitted, and workingHours is sent only when the caller supplies it, because the API rejects a partial or empty workingHours object. The 1.9.34 release note records a working_hours fix.",
       "tier": "A",
@@ -198,6 +191,36 @@
             "if current_application_ids != sorted(desired_application_ids):"
           ]
         }
+      ]
+    },
+    "ansible-approval-lookup-ignores-windows": {
+      "statement": "The Ansible approval lookup compares the sorted email set and, when application IDs are supplied, the sorted application ID set, and does not compare the approval's start or end window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_pra_approval.py",
+          "quotes": [
+            "if sorted(approval_.email_ids or []) != sorted(email_ids or []):",
+            "if current_application_ids != sorted(desired_application_ids):"
+          ]
+        }
+      ],
+      "conditions": "No line of the lookup reads startTime or endTime; the absence is read from the loop quoted."
+    }
+  },
+  "gaps": {
+    "approval-identity-windows": {
+      "kind": "semantic",
+      "title": "Whether approvals may share an email set and application set while having different time windows",
+      "status": "open",
+      "former_ids": [
+        "zpa-82"
+      ],
+      "detail": "Tracked as legacy ledger item zpa-82. Unverified legacy statement: Ansible 2.2.11 and later distinguishes approval candidates by email set plus the requested application set, but its lookup does not compare start and end windows, and it is not known whether two approvals may legitimately share those sets with different windows or how automation should select between them. Create two approvals with the same emails and applications and different windows in a scratch tenant, then run the module against each.",
+      "blocks": "selecting the right existing approval when only the window differs",
+      "resolves_with": [
+        "lab-test"
       ]
     }
   }

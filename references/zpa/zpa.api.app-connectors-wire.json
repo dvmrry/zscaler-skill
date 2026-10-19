@@ -1,0 +1,803 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.app-connectors-wire",
+  "title": "ZPA App Connector, group, schedule and version profile calls: what is sent and where the sources differ",
+  "aliases": [
+    "connector schedule put",
+    "version profile update path",
+    "app connector group omitempty",
+    "version_profile_gid",
+    "connector no create",
+    "connector list sortBy"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-connectors.connector-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.upgrades"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This is the wire behavior of the App Connector schedule, group, connector and version profile calls that field listings do not show: which tags drop or force values, where the SDKs disagree, and what the OpenAPI document does not list. Field names and types come from the surface layer (`node scripts/kb.mjs surface`) and the group's behavior from [[zpa.app-connectors.connector-groups]]."
+    },
+    {
+      "heading": "Auto-delete schedule"
+    },
+    {
+      "text": "{{schedule-singleton}} {{schedule-frequency-days}} The interval check and the refusal to update a disabled schedule are in [[zpa.sdk-go.service-defects]] and [[zpa.terraform.resource-fidelity]]."
+    },
+    {
+      "text": "{{schedule-update-path}} Whether the API accepts that update is open {{gap:schedule-put-undocumented}}."
+    },
+    {
+      "text": "{{schedule-create-already-exists}} [[zpa.api.legacy-endpoints:connector-schedule-wired]]"
+    },
+    {
+      "heading": "Groups and connectors"
+    },
+    {
+      "text": "{{group-booleans-always-sent}} {{group-server-groups-key}}"
+    },
+    {
+      "text": "{{connector-no-create}} {{connector-write-tags}} {{connector-sub-module-key}}"
+    },
+    {
+      "text": "{{group-sub-resources}} {{list-params}}"
+    },
+    {
+      "heading": "Version profiles"
+    },
+    {
+      "text": "{{version-profile-reads}} {{version-profile-names}} {{version-profile-gid-key}} {{python-version-profile-gid-unread}} The two SDKs use different wire keys for it {{divergence:version-profile-gid-wire-key}}."
+    },
+    {
+      "text": "{{version-profile-put}} {{python-version-profile-put}} The two update paths disagree {{divergence:version-profile-put-path}}."
+    },
+    {
+      "text": "{{python-version-profile-slugs}} The key reaches the wire camel-cased as `versionProfile`; what the server does with it is open {{gap:python-version-profile-wire}}."
+    },
+    {
+      "text": "The type of the interval differs between the contract and the Go SDK {{divergence:schedule-frequency-interval-type}}."
+    },
+    {
+      "text": "The id type of the bulk-delete body differs between contract and SDKs {{divergence:bulk-delete-id-type}}."
+    },
+    {
+      "text": "The upgrade attempt counter has different types in the contract and the Go structs {{divergence:upgrade-attempt-type}}."
+    },
+    {
+      "text": "The Python model defaults a missing enabled to true: {{python-connector-enabled-default}}"
+    },
+    {
+      "text": "Whether frequencies other than days are accepted is open {{gap:frequency-values}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a schedule update failed before any request (a disabled or invalid-interval schedule) or at the API, and whether the PUT path is documented.",
+      "uses": [
+        "schedule-update-path",
+        "schedule-put-undocumented"
+      ]
+    },
+    {
+      "do": "Whether a group's boolean is false in the tenant because it was sent that way on a write.",
+      "uses": [
+        "group-booleans-always-sent"
+      ]
+    },
+    {
+      "do": "Which version profile an override group is using, and which SDK wrote it, before trusting a slug passed to the Python group methods.",
+      "uses": [
+        "python-version-profile-slugs",
+        "version-profile-names"
+      ]
+    },
+    {
+      "do": "Whether a connector list used sort parameters that only the connector endpoint accepts.",
+      "uses": [
+        "list-params"
+      ]
+    }
+  ],
+  "claims": {
+    "schedule-singleton": {
+      "statement": "The Go SDK decodes GET on the App Connector schedule endpoint into a single schedule object, not a list, and creates it with POST; the OpenAPI document describes the same two operations on connectorSchedule, with POST answering 204 No Content.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go",
+          "quotes": [
+            "v := new(AssistantSchedule)"
+          ],
+          "after": "func GetSchedule(ctx context.Context, service *zscaler.Service) (*AssistantSchedule, *http.Response, error) {"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connectorSchedule/get/responses/200",
+          "expect": {
+            "description": "OK"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connectorSchedule/post/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        }
+      ]
+    },
+    "schedule-update-path": {
+      "statement": "The Go SDK updates the App Connector schedule with PUT to the connectorSchedule endpoint followed by the schedule ID and expects no response body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go",
+          "quotes": [
+            "relativeURL := fmt.Sprintf(\"%s/%s\", mgmtConfig+service.Client.GetCustomerID()+scheduleEndpoint, schedulerID)",
+            "\"PUT\", relativeURL, nil, assistantSchedule, nil)"
+          ]
+        }
+      ],
+      "conditions": "The OpenAPI document lists only GET and POST under connectorSchedule and a PUT only under serviceEdgeSchedule/{id}; see the gap schedule-put-undocumented.",
+      "gaps": [
+        "schedule-put-undocumented"
+      ]
+    },
+    "schedule-frequency-days": {
+      "statement": "The Terraform provider's App Connector assistant schedule resource accepts only `days` for `frequency`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_assistant_schedule.go",
+          "quotes": [
+            "\"days\", }, false),"
+          ],
+          "after": "\"frequency\": {"
+        }
+      ]
+    },
+    "schedule-create-already-exists": {
+      "statement": "The Go SDK schedule integration test treats a CreateSchedule error containing `resource.already.exist` as the schedule already being enabled rather than as a failure, and accepts status 200 or 204 on success.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorschedule/appconnectorschedule_test.go",
+          "quotes": [
+            "strings.Contains(err.Error(), \"resource.already.exist\")",
+            "createResp.StatusCode != 200 && createResp.StatusCode != 204"
+          ]
+        }
+      ]
+    },
+    "group-booleans-always-sent": {
+      "statement": "The Go App Connector group request tags `enabled`, `overrideVersionProfile`, `praEnabled`, `wafDisabled`, `tcpQuickAckApp`, `tcpQuickAckAssistant`, `useInDrMode`, `tcpQuickAckReadAssistant` and `lssAppConnectorGroup` without omitempty, and so are `cityCountry` and `dcHostingInfo`, so false and empty values are sent on every write.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
+          "quotes": [
+            "`json:\"enabled\"`",
+            "`json:\"overrideVersionProfile\"`",
+            "`json:\"praEnabled\"`",
+            "`json:\"wafDisabled\"`",
+            "`json:\"tcpQuickAckApp\"`",
+            "`json:\"tcpQuickAckAssistant\"`",
+            "`json:\"useInDrMode\"`",
+            "`json:\"tcpQuickAckReadAssistant\"`",
+            "`json:\"lssAppConnectorGroup\"`",
+            "`json:\"cityCountry\"`",
+            "`json:\"dcHostingInfo\"`"
+          ],
+          "after": "type AppConnectorGroup struct {"
+        }
+      ],
+      "conditions": "Group `enabled` and `overrideVersionProfile` are the fields the provider writes from state; the zero-value effect is in shared.sdk-go.zero-value-writes."
+    },
+    "group-server-groups-key": {
+      "statement": "On the Go App Connector group the field `AppServerGroup` is sent under the key `serverGroups`, and the Python App Connector controller maps `server_group_ids` to `serverGroups`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
+          "quotes": [
+            "`json:\"serverGroups,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connectors.py",
+          "quotes": [
+            "(\"server_group_ids\", \"serverGroups\"),"
+          ],
+          "after": "reformat_params = ["
+        }
+      ]
+    },
+    "connector-no-create": {
+      "statement": "The Go appconnectorcontroller package exposes Get, GetByName, GetAll, Update, Delete and BulkDelete and no Create function.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go",
+          "quotes": [
+            "func Get(ctx context.Context, service *zscaler.Service, appConnectorID string)",
+            "func GetByName(ctx context.Context, service *zscaler.Service, appConnectorName string)",
+            "func GetAll(ctx context.Context, service *zscaler.Service)",
+            "func Update(ctx context.Context, service *zscaler.Service, appConnectorID string, appConnector AppConnector)",
+            "func Delete(ctx context.Context, service *zscaler.Service, appConnectorID string)",
+            "func BulkDelete(ctx context.Context, service *zscaler.Service, appConnectorIDs []string)"
+          ]
+        }
+      ],
+      "conditions": "The absence of a Create function is shown by a grep of `^func ` in the file at the pin."
+    },
+    "connector-write-tags": {
+      "statement": "The Go App Connector request tags `enabled` omitempty, so false is not sent, but tags `provisioningKeyId` and `provisioningKeyName` without omitempty, so both are always sent; the group's `enabled` is the opposite.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go",
+          "quotes": [
+            "bool `json:\"enabled,omitempty\"`",
+            "`json:\"provisioningKeyId\"`",
+            "`json:\"provisioningKeyName\"`"
+          ],
+          "after": "type AppConnector struct {"
+        }
+      ]
+    },
+    "connector-sub-module-key": {
+      "statement": "The Go App Connector maps its `ZPNSubModuleUpgrade` field to the JSON key `zpnSubModuleUpgradeList`, and holds `enrollmentCert` as an unstructured map.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go",
+          "quotes": [
+            "`json:\"zpnSubModuleUpgradeList,omitempty\"`",
+            "map[string]interface{} `json:\"enrollmentCert,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "version-profile-gid-key": {
+      "statement": "Inside a version profile's `versions` entries the Go SDK tags the profile reference `version_profile_gid`, in snake case, while the sibling fields are camel case. The Python ComponentLevelVersion model (the `version` object of a connector or connector group) looks up and emits the same `version_profile_gid` key, but the Python client camel-cases every response key before a model reads it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/customerversionprofile/zpa_customer_version_profile.go",
+          "quotes": [
+            "`json:\"version_profile_gid\"`",
+            "`json:\"restartAfterUptimeInDays\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connectors.py",
+          "quotes": [
+            "self.version_profile_gid = config[\"version_profile_gid\"] if \"version_profile_gid\" in config else None",
+            "\"version_profile_gid\": self.version_profile_gid,"
+          ],
+          "after": "class ComponentLevelVersion(ZscalerObject):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connectors.py",
+          "quotes": [
+            "self.version = ComponentLevelVersion(config[\"version\"])"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/api_client.py",
+          "quotes": [
+            "result[_to_camel(key)] = val"
+          ],
+          "after": "def form_response_body("
+        }
+      ],
+      "conditions": "Statement changed per verifier: it said the Python model reads and writes the key as Go does, but form_response_body renames response keys before the model sees them. models/common.py holds an identical ComponentLevelVersion that no module imports. The consequence for Python reads and writes is the claim python-version-profile-gid-unread."
+    },
+    "python-version-profile-gid-unread": {
+      "statement": "A Python connector or connector group read never finds a `version_profile_gid` key, because the response key arrives as `versionProfileGid`, so the model's `version_profile_gid` is always None; and a `version_profile_gid` key in a Python request body is sent as `versionProfileGid`, the key Go does not use.",
+      "tier": "B",
+      "derived_from": [
+        "version-profile-gid-key",
+        "zpa.sdk-python.microtenant-scoping:body-camel"
+      ],
+      "conditions": "Follows from form_response_body camel-casing every key with to_lower_camel_case, which has no exception for version_profile_gid, and from the executor converting request bodies the same way. Which key the server sends and accepts is not shown: the OpenAPI document has no version_profile_gid or versionProfileGid."
+    },
+    "version-profile-reads": {
+      "statement": "The Go SDK lists version profiles from `/visible/versionProfiles` and finds one by name with a case-insensitive match; the Python SDK reads the profile associated with the customer from `/versionProfile`; the OpenAPI document has GET operations on both paths.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/customerversionprofile/zpa_customer_version_profile.go",
+          "quotes": [
+            "customerVersionProfileEndpoint = \"/visible/versionProfiles\"",
+            "strings.EqualFold(app.Name, versionProfileName)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/customer_version_profile.py",
+          "quotes": [
+            "/versionProfile"
+          ],
+          "after": "def get_associated_version_profile(self)"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1visible~1versionProfiles/get/responses/200",
+          "expect": {
+            "description": "OK"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1versionProfile/get/responses/200",
+          "expect": {
+            "description": "Successful response"
+          }
+        }
+      ]
+    },
+    "version-profile-names": {
+      "statement": "The Go version profile integration test requires the names `New Release`, `Default`, `Previous Default` and `Default - el8` to be present, and the App Connector group test pairs `Default` with version profile ID `0`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/customerversionprofile/zpa_customer_version_profile_test.go",
+          "quotes": [
+            "requiredNames := []string{\"New Release\", \"Default\", \"Previous Default\", \"Default - el8\"}"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group_test.go",
+          "quotes": [
+            "VersionProfileName: \"Default\",",
+            "VersionProfileID: \"0\","
+          ]
+        }
+      ]
+    },
+    "python-version-profile-slugs": {
+      "statement": "The Python helper `pick_version_profile` converts the slugs `default`, `previous_default` and `new_release` to version profile IDs 0, 1 and 2 and sets `overrideVersionProfile`, but the App Connector group add and update methods pass their keyword arguments as the request body without calling it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "payload[\"overrideVersionProfile\"] = True",
+            "payload[\"versionProfileId\"] = 0",
+            "payload[\"versionProfileId\"] = 2"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "quotes": [
+            "body = kwargs"
+          ],
+          "after": "def add_connector_group(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "quotes": [
+            "body.update(kwargs)"
+          ],
+          "after": "def update_connector_group(self, group_id: str, **kwargs)"
+        }
+      ],
+      "conditions": "pick_version_profile has no caller anywhere under zscaler/ at the pin (grep). The group docstrings still document `version_profile` with the three slugs as accepted values. The executor camel-cases the request body, so a `version_profile` keyword reaches the wire as `versionProfile`; what the server does with that key is not shown.",
+      "gaps": [
+        "python-version-profile-wire"
+      ]
+    },
+    "version-profile-put": {
+      "statement": "The Go SDK `Update` for version profiles sends a PUT to `/visible/versionProfiles/{id}` carrying the whole profile object.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/customerversionprofile/zpa_customer_version_profile.go",
+          "quotes": [
+            "path := fmt.Sprintf(\"%v/%v\", mgmtConfig+service.Client.GetCustomerID()+customerVersionProfileEndpoint, profileID)",
+            "\"PUT\", path, common.Filter{}, versionProfile, nil)"
+          ]
+        }
+      ]
+    },
+    "python-version-profile-put": {
+      "statement": "The Python SDK `update_version_profile` sends a PUT to `/versionProfiles/{id}` with a body of only `removeOverrideFlag`, and expects 204 No Content.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/customer_version_profile.py",
+          "quotes": [
+            "/versionProfiles/{profile_id}",
+            "body = {\"removeOverrideFlag\": remove_override_flag}"
+          ],
+          "after": "def update_version_profile("
+        }
+      ]
+    },
+    "group-sub-resources": {
+      "statement": "The Go SDK reads the App Connector group summary from `appConnectorGroup/summary`, decoded as id, name and enabled only, and reads one group with its server groups from `appConnectorGroup/{id}/sg` as a full group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
+          "quotes": [
+            "appConnectorGroupEndpoint + \"/summary\"",
+            "\"%s/%s/sg\""
+          ],
+          "after": "func GetAppconnectorGroupSummary("
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "type CommonSummary struct {",
+            "Enabled bool `json:\"enabled,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "list-params": {
+      "statement": "The OpenAPI connector list takes search, page, pagesize, sortBy, sortDir and microtenantId, with a default page size of 20 and a maximum of 500; the App Connector group list takes the same paging parameters but scopeId instead of sort parameters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connector/get/parameters/[name=pagesize]",
+          "expect": {
+            "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connector/get/parameters/[name=sortBy]",
+          "expect": {
+            "description": "Indicates the parameter to sort by."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1appConnectorGroup/get/parameters/[name=pagesize]",
+          "expect": {
+            "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1appConnectorGroup/get/parameters/[name=scopeId]",
+          "expect": {
+            "name": "scopeId"
+          }
+        }
+      ],
+      "conditions": "The absence of sortBy on the group list is read from its parameter list in the OpenAPI document. The Go SDK's own default page size is covered in shared.sdk-go.list-pagination."
+    },
+    "python-connector-enabled-default": {
+      "statement": "The Python App Connector model reads `enabled` as True when the response carries no `enabled` key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connectors.py",
+          "quotes": [
+            "self.enabled = config[\"enabled\"] if \"enabled\" in config else True"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "version-profile-gid-wire-key": {
+      "summary": "The wire key of the version profile reference: the Go SDK uses snake-case `version_profile_gid`, while the Python client renames every key to camel case, so it sends `versionProfileGid` and cannot read `version_profile_gid`.",
+      "positions": [
+        {
+          "says": "The Go version profile `versions` entry tags the reference `version_profile_gid`.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/customerversionprofile/zpa_customer_version_profile.go",
+            "quotes": [
+              "`json:\"version_profile_gid\"`"
+            ]
+          }
+        },
+        {
+          "says": "The Python client camel-cases every response key before a model reads it, so the model's `version_profile_gid` lookup finds nothing.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/api_client.py",
+            "quotes": [
+              "result[_to_camel(key)] = val"
+            ],
+            "after": "def form_response_body("
+          }
+        },
+        {
+          "says": "The Python executor camel-cases request-body keys, so a `version_profile_gid` key is sent as `versionProfileGid`.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/request_executor.py",
+            "quotes": [
+              "body = convert_keys_to_camel_case(body)"
+            ],
+            "after": "# Preserve existing logic for other services"
+          }
+        }
+      ],
+      "impact": "If the server uses the Go spelling, Python callers never see a connector's or group's version profile GID and cannot send it under that key. The OpenAPI document names neither key, so which spelling the server uses is not shown; read a raw response to check."
+    },
+    "version-profile-put-path": {
+      "summary": "Which path a version profile update goes to",
+      "positions": [
+        {
+          "says": "The Go SDK updates a version profile with PUT on /visible/versionProfiles/{id}.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/customerversionprofile/zpa_customer_version_profile.go",
+            "quotes": [
+              "path := fmt.Sprintf(\"%v/%v\", mgmtConfig+service.Client.GetCustomerID()+customerVersionProfileEndpoint, profileID)"
+            ]
+          }
+        },
+        {
+          "says": "The Python SDK updates it with PUT on /versionProfiles/{id}, sending only removeOverrideFlag.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/customer_version_profile.py",
+            "quotes": [
+              "/versionProfiles/{profile_id}"
+            ],
+            "after": "def update_version_profile("
+          }
+        }
+      ],
+      "impact": "The two SDKs write to different paths with different bodies, and the OpenAPI document lists no PUT for either path. A version profile update through one SDK says nothing about the other; confirm the effect by reading the group's version profile back."
+    },
+    "schedule-frequency-interval-type": {
+      "summary": "The OpenAPI document types a schedule's `frequencyInterval` as an int32 integer, while the Go SDK types it as a string and validates it against string keys.",
+      "positions": [
+        {
+          "says": "The contract request body for POST connectorSchedule has frequencyInterval as an int32 integer.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connectorSchedule/post/requestBody/content/application~1json/schema/properties/frequencyInterval",
+            "expect": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "says": "The Go schedule struct declares FrequencyInterval as a string.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go",
+            "quotes": [
+              "FrequencyInterval string `json:\"frequencyInterval\"`"
+            ]
+          }
+        },
+        {
+          "says": "The Go update check accepts only the string keys 5, 7, 14, 30, 60 and 90; create sends the value unchecked.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go",
+            "quotes": [
+              "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+scheduleEndpoint, nil, assistantSchedule, &v)",
+              "func UpdateSchedule(ctx context.Context, service *zscaler.Service, schedulerID string",
+              "validIntervals := map[string]bool{\"5\": true, \"7\": true, \"14\": true, \"30\": true, \"60\": true, \"90\": true}"
+            ],
+            "after": "func CreateSchedule("
+          }
+        },
+        {
+          "says": "The Python SDK passes frequency_interval through as supplied.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/app_connector_schedule.py",
+            "quotes": [
+              "\"frequencyInterval\": body.get(\"frequency_interval\"),"
+            ],
+            "after": "def add_connector_schedule(self, **kwargs) -> APIResult[dict]:"
+          }
+        }
+      ],
+      "impact": "A caller following the contract sends a number and one following the Go SDK sends a numeric string. The Go integration test sends the string form; no captured run shows whether the API accepts the string, the number, or both."
+    },
+    "bulk-delete-id-type": {
+      "summary": "The OpenAPI document types the connector bulk-delete `ids` as int64 integers, while the Go request holds them as strings and the Python SDK examples pass strings.",
+      "positions": [
+        {
+          "says": "The contract request body for connector/bulkDelete has ids as an array of int64 integers.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connector~1bulkDelete/post/requestBody/content/application~1json/schema/properties/ids/items",
+            "expect": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "says": "The Go BulkDeleteRequest holds IDs as a list of strings.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go",
+            "quotes": [
+              "IDs []string `json:\"ids\"`"
+            ]
+          }
+        },
+        {
+          "says": "The Python bulk_delete_connectors sends the caller's list under ids and documents string IDs.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/app_connectors.py",
+            "quotes": [
+              "payload = {\"ids\": connector_ids}"
+            ]
+          }
+        }
+      ],
+      "impact": "Raw-HTTP callers follow the contract and send numbers; both SDKs send numeric strings. Whether the API accepts both forms is not shown."
+    },
+    "upgrade-attempt-type": {
+      "summary": "The OpenAPI document types a connector's read-only `upgradeAttempt` as an int32 integer, while the Go SDK types it as a string in its connector structs.",
+      "positions": [
+        {
+          "says": "The contract connector item in an App Connector Group response has upgradeAttempt as a read-only int32.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1appConnectorGroup~1{appConnectorGroupId}/get/responses/200/content/*~1*/schema/properties/connectors/items/properties/upgradeAttempt",
+            "expect": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "says": "The Go AppConnector type (used for an App Connector Group's connectors) declares UpgradeAttempt as a string.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go",
+            "quotes": [
+              "UpgradeAttempt string `json:\"upgradeAttempt,omitempty\"`"
+            ],
+            "after": "type AppConnector struct {"
+          }
+        },
+        {
+          "says": "The Go servergroup Connectors type (a server group's connector groups' connectors) also declares UpgradeAttempt as a string.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
+            "quotes": [
+              "UpgradeAttempt string `json:\"upgradeAttempt,omitempty\"`"
+            ],
+            "after": "type Connectors struct {"
+          }
+        }
+      ],
+      "impact": "A Go caller decoding a bare JSON integer into a string field gets a decode error rather than a value; the live response is not captured."
+    }
+  },
+  "gaps": {
+    "schedule-put-undocumented": {
+      "kind": "semantic",
+      "title": "Whether the API accepts PUT on the App Connector schedule with an ID",
+      "status": "open",
+      "blocks": "telling whether the SDK update path calls a real endpoint",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: the legacy reference records PUT for the App Connector schedule update. The Go SDK sends PUT to connectorSchedule/{id}, but the OpenAPI document lists only GET and POST under connectorSchedule and a PUT only under serviceEdgeSchedule/{id}. The Go SDK's own integration test expects a 200 from that PUT; that is the test's assertion, not a recorded result. In a scratch tenant, send the update and record the status and the schedule afterwards.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorschedule/appconnectorschedule_test.go",
+          "quotes": [
+            "updateResp, err := UpdateSchedule(ctx, service, schedule.ID, schedule)",
+            "if updateResp.StatusCode != 200 {"
+          ]
+        }
+      ]
+    },
+    "python-version-profile-wire": {
+      "kind": "semantic",
+      "title": "What the API does with the versionProfile key the Python group methods send",
+      "status": "open",
+      "blocks": "telling whether Python callers can set a group's version profile by slug",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ],
+      "detail": "Unverified legacy statement: the legacy reference says the Python slugs 'map to IDs at the API layer'. The only slug-to-ID mapping in the SDK is an uncalled helper. The executor camel-cases the request body, so a `version_profile` keyword reaches the wire as `versionProfile`, not as the raw snake-case key. Create a group with version_profile set and read the group's versionProfileId back.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "body = convert_keys_to_camel_case(body)"
+          ],
+          "after": "def _prepare_body(self, endpoint, body):"
+        }
+      ]
+    },
+    "frequency-values": {
+      "kind": "semantic",
+      "title": "Which frequency values the schedule endpoints accept besides days",
+      "status": "open",
+      "detail": "The Terraform provider allows only `days` for frequency on both the App Connector and the Service Edge assistant schedule resources ([[zpa.api.app-connectors-wire:schedule-frequency-days]]), and the Go SDK test uses days. The OpenAPI document types frequency as a plain string with no enum. A client-side restriction does not settle what the API accepts, so whether it takes other values is still open. Send a schedule with another value in a scratch tenant and record the result.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connectorSchedule/post/requestBody/content/application~1json/schema/properties/frequency",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_assistant_schedule.go",
+          "quotes": [
+            "\"days\", }, false),"
+          ],
+          "after": "\"frequency\": {"
+        }
+      ],
+      "blocks": "telling whether hours or weeks are valid schedule frequencies",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

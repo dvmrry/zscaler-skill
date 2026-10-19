@@ -400,12 +400,16 @@ The KB owns behavior, as claims bound to fields. The KB never duplicates a field
 - **Tool-added fields** (`referenced_by`, joins) carry `"origin": "zscalerctl"`, so they are never
   presented as API behavior.
 
-**Log types come from the NSS feed captures.** Zscaler publishes each feed format as a table, captured as
-CSV (`vendor/zscaler-help/nss-<feed>-logs.csv`); `scripts/gen-log-types.mjs` turns each row into a field
-of `references/zia/types/<feed>-log.json` (key: the NSS token name; label: the Insights column; evidence:
-the row itself), and the full gate fails when they drift. Feeds with no captured table are authored in the
-same shape. NSS feed formats are the canonical public log types. SIEM and pipeline shapes are
-company `mapping` records.
+**Log types come from the vendor's field tables.** Zscaler publishes each log format as a help article
+with a field table; `scripts/gen-log-types.mjs` turns each table row of the captured article into a field
+of a log type, with the row itself as evidence, and the full gate fails when they drift.
+- **ZIA NSS feeds** ("NSS Feed Output Format: Web Logs" and the firewall and DNS equivalents):
+  `references/zia/types/<feed>-log.json`, keyed by the NSS token name, labelled with the Insights column.
+- **ZPA Log Streaming Service types** (one "Understanding ... Log Fields" article per LSS source log type):
+  `references/zpa/types/<name>-log.json`, keyed by field name, typed from the formats the field supports
+  (`%f` a number, `%d` / `%x` an integer, otherwise a string), with the LSS source log type as an alias.
+Formats with no captured table are authored in the same shape. These vendor formats are the canonical public
+log types; SIEM and pipeline shapes are company `mapping` records.
 
 ## Sources and citations
 
@@ -495,9 +499,29 @@ This replaces the manual reverify cycle.
     parser for its literal-and-call shape; nothing downloaded is executed) into the same blocks as a help
     article, plus `code` blocks. The chunk's content-hashed file name is the revision. The per-operation
     API reference is captured as the OpenAPI contract by `scripts/automate-capture`.
+  - **The OneAPI Postman collection** is captured by `scripts/postman_capture.py`: it reads the current
+    dated download link from the Automate Postman page, stores the file as served at
+    `vendor/zscaler-api-specs/oneapi-postman-collection.json`, and records the URL and hash in the capture
+    manifest; `check` reports a new release (a new link) or a re-upload (a new hash). The raw OpenAPI files
+    the site is built from are not published, so the contract is still reconstructed from the compiled site.
 - **JSON pointers are keyed.** A step into an array by index is rejected because it shifts when the
   source is regenerated. `[member=value]` selects the one element whose member matches. API facts
   cite the OpenAPI document, not the flattened field list. Every pointer carries `expect`.
+- **Material dates, not capture dates** (2026-10-18). What matters for an answer is how old the vendor's
+  material is, not when the repo fetched it. Every source records the material's own date with its basis:
+  a help article's published date (`pdf-last-modified`: the article PDF the site renders on publish), a
+  legacy API page's spec file (`file-last-modified`), the Postman collection's release (`release-filename`),
+  a vendor PDF's own modification date (`pdf-moddate`), code at the pin (`commit-date`), or, where the vendor
+  gives no date (Automate pages, the OpenAPI contract, help indexes), the day the content was first seen
+  (`first-seen`), which is as precise as how often captures are checked. Captures carry it as
+  `source.updated` / `updated_basis`; other files carry it in the capture manifest or static registry; an
+  unchanged page keeps its date when re-fetched. Bundle citations carry it as `as_of` / `as_of_basis`, and
+  rendered footnotes say "as of". `kb.mjs freshness` reports material age per source, stale and undated
+  cited material, and each code pin (with `--upstream`, against the newest upstream release by release
+  date, not version order: a stray old tag can sort highest). A pin bump re-verifies every item whose cited
+  file changed, not only broken quotes: a quote can still match while the code around it behaves
+  differently. Behavior that changed upstream stays as a version-scoped claim, its old evidence pinned with
+  `at: [<old tag>]`.
 - **Drift in CI.** `help_capture.py check --replace --json` refetches every capture, rewrites the
   changed ones and reports, per changed page, the revision change, the changed lines of its anchoring
   text and a diff. `scripts/kb-drift.mjs` turns that report into the review: every evidence entry citing

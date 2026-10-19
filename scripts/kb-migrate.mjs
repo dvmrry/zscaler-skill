@@ -1392,6 +1392,57 @@ export const MOVES = {
       ["cross-links", "zpa.log-receivers"],
     ],
   },
+  "references/zpa/api.md": {
+    default: "zpa.api",
+    anchors: [
+      ["lss-log-streaming-service-config", "zpa.api.lss-wire"],
+    ],
+  },
+  "references/zpa/api-schemas.md": {
+    default: "zpa.api",
+    anchors: [
+    ],
+  },
+  "references/zpa/api-postman-schemas.md": {
+    default: "zpa.api",
+    anchors: [
+    ],
+  },
+  "references/zpa/api-divergences.md": {
+    default: "zpa.api",
+    anchors: [
+      ["python-v1941-cannot-decode-populated-guestdetailspartnerinfo", "zpa.b2b-federation.federate-applications"],
+      ["move-request-body", "zpa.microtenants.share-and-move"],
+      ["field-observations-application-segments", "zpa.app-segments.api-fields"],
+      ["ansible-2212", "zpa.app-segments.ansible-children"],
+      ["pr-456-zpa-additions", "zpa.b2b-federation.sdk-contract"],
+    ],
+  },
+  "references/zpa/legacy-endpoints.md": {
+    default: "zpa.api.legacy-endpoints",
+    anchors: [
+    ],
+  },
+  "references/zpa/sdk.md": {
+    default: "zpa.sdk-python",
+    anchors: [
+    ],
+  },
+  "references/zpa/terraform.md": {
+    default: "zpa.terraform",
+    anchors: [
+    ],
+  },
+  "references/zpa/logs/access-log-schema.md": { default: "zpa.logs.user-activity", anchors: [] },
+  "references/zpa/logs/user-status-log-schema.md": { default: "zpa.logs.user-status", anchors: [] },
+  "references/zpa/logs/browser-access-log-schema.md": { default: "zpa.logs.browser-access", anchors: [] },
+  "references/zpa/logs/microsegmentation-flow-log-schema.md": { default: "zpa.logs.microsegmentation-flow", anchors: [] },
+  "references/zpa/logs/app-connector-metrics.md": { default: "zpa.logs.app-connector-metrics", anchors: [] },
+  "references/zpa/logs/app-connector-status.md": { default: "zpa.logs.control-session-status", anchors: [] },
+  "references/zpa/logs/private-service-edge-status.md": { default: "zpa.logs.control-session-status", anchors: [] },
+  "references/zpa/logs/private-cloud-controller-status.md": { default: "zpa.logs.control-session-status", anchors: [] },
+  "references/zpa/logs/private-service-edge-metrics.md": { default: "zpa.logs.service-edge-metrics", anchors: [] },
+  "references/zpa/logs/private-cloud-controller-metrics.md": { default: "zpa.logs.service-edge-metrics", anchors: [] },
 };
 
 const LEDGER = "references/_meta/clarifications.md";

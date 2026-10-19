@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.authentication",
+  "title": "How a client authenticates to the ZPA API: OneAPI, legacy and government clouds",
+  "aliases": [
+    "LegacyZPAClient",
+    "ZPA_CLOUD required",
+    "ZPA_CUSTOMER_ID",
+    "zpa customerId OneAPI",
+    "x-partner-id header",
+    "zpa gov govus oneapi",
+    "zpa legacy credentials",
+    "Zidentity ZPA tenant"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.base-paths"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.api-scoping"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZPA is reached through the unified OneAPI gateway or through the older ZPA-specific legacy API, and the two take different credentials. The OAuth flow itself is described for ZIA in [[zia.api]]."
+    },
+    {
+      "label": "OneAPI.",
+      "text": "{{oneapi-server}} The extra IDs the Python client needs are [[zpa.sdk-python.client-configuration:oneapi-extra-ids]], and the path prefix is [[zpa.api.base-paths:oneapi-prefix]]."
+    },
+    {
+      "label": "Legacy.",
+      "text": "The legacy client's credentials are [[zpa.sdk-python.client-configuration:legacy-client]] and its environment variables [[zpa.sdk-python.client-configuration:legacy-client-env]]. The README names a cloud variable the SDK does not read [[zpa.sdk-python.client-configuration:cloud-required]]."
+    },
+    {
+      "label": "Government clouds.",
+      "text": "The provider's statement is [[zpa.terraform.provider-config:fedramp-oneapi-4-4-6]], the Python OneAPI routing is [[zia.sdk-python.authentication:gov-cloud-routing]], and the legacy hosts are [[zpa.api.base-paths:legacy-hosts]]."
+    },
+    {
+      "label": "Headers.",
+      "text": "[[zpa.sdk-python.client-configuration:partner-header]]"
+    },
+    {
+      "label": "Python SDK generations.",
+      "text": "[[zpa.sdk-python.client-configuration:python-v2-no-legacy]]"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a government tenant, whether the client in use routes cloud=gov or cloud=govus through OneAPI rather than assuming legacy-only.",
+      "uses": [
+        "zpa.terraform.provider-config:fedramp-oneapi-4-4-6",
+        "zpa.api.base-paths:legacy-hosts"
+      ]
+    }
+  ],
+  "claims": {
+    "oneapi-server": {
+      "statement": "The ZPA OpenAPI document declares one server, https://api.zsapi.net/zpa, and an HTTP bearer security scheme.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/servers/[description=ZPA Endpoints]",
+          "expect": {
+            "url": "https://api.zsapi.net/zpa"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/components/securitySchemes/Bearer",
+          "expect": {
+            "scheme": "bearer",
+            "type": "http"
+          }
+        }
+      ]
+    }
+  }
+}

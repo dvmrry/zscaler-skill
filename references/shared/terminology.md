@@ -128,7 +128,7 @@ When an operator says *"the PSEN in Frankfurt"*, they mean a specific **instance
 ## Field-name conventions worth knowing
 
 - **ZIA Web/Firewall logs (NSS/Nanolog):** use current product field names (many match CSV headers). No `ZEN` in field names; the concept surfaces via e.g. `proxyip` / `proxyport` / `clusterName`.
-- **ZPA User Activity logs (LSS):** `ClientZEN`, `ConnectorZEN` explicitly — legacy names preserved in the schema. See `references/zpa/logs/access-log-schema.md` and the source PDF.
+- **ZPA User Activity logs (LSS):** `ClientZEN`, `ConnectorZEN` explicitly — legacy names preserved in the schema. See `kb:zpa/user-activity-log` and the source PDF.
 - **Broker hostnames** (`broker1b.pdx2`, etc.): instance-level identifier, useful for support correlation. The suffix (`pdx2`, `fra1a`) is the data-center code.
 
 ## Cross-links

@@ -415,6 +415,6 @@ every government tenant.
 
 - OneAPI (the replacement auth layer) — [`./oneapi.md`](./oneapi.md)
 - ZIA API reference (SDK surface, asymmetries) — [`zia.api`](kb:zia.api)
-- ZPA API reference — [`../zpa/api.md`](../zpa/api.md)
+- ZPA API reference — [`zpa.api`](kb:zpa.api)
 - ZCC API reference — [`../zcc/api.md`](../zcc/api.md)
 - ZIA AD integration (`directorySyncMigrateToScimEnabled` flag context) — [`zia.ad-integration`](kb:zia.ad-integration)

@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "id": "zpa.sdk-python.microtenant-scoping",
+  "title": "How the Python SDK sends the microtenant ID on ZPA calls",
+  "aliases": [
+    "microtenant_id python sdk",
+    "microtenantId query parameter",
+    "default microtenant client config",
+    "microtenant in request body zpa sdk"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.api-scoping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.pagination"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Python SDK turns a microtenant ID into the `microtenantId` query parameter on ZPA calls, from several places. The product behavior is in [[zpa.microtenants.api-scoping]]."
+    },
+    {
+      "label": "Where it comes from.",
+      "text": "{{wrapper-sources}} {{executor-precedence}} {{config-default}}"
+    },
+    {
+      "label": "Where it goes.",
+      "text": "{{executor-query-param}} {{non-zpa-pop}} {{body-camel}} {{body-keeps-key}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the client was configured with a default microtenantId, since it applies to every ZPA call that names none.",
+      "uses": [
+        "config-default",
+        "executor-precedence"
+      ]
+    },
+    {
+      "do": "Whether a list or get call passed microtenant_id inside query_params, because those wrappers read it nowhere else.",
+      "uses": [
+        "wrapper-sources"
+      ]
+    },
+    {
+      "do": "Whether a write also carried microtenant_id in its keyword arguments, which the wrapper leaves in the body.",
+      "uses": [
+        "body-keeps-key"
+      ]
+    }
+  ],
+  "claims": {
+    "wrapper-sources": {
+      "statement": "In `segment_groups.py` the list and get wrappers read `microtenant_id` from `query_params`, the create wrapper reads it from its keyword arguments, and the delete wrapper takes it as an argument; each copies it to `microtenantId`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/segment_groups.py",
+          "quotes": [
+            "microtenant_id = query_params.get(\"microtenant_id\", None)"
+          ],
+          "after": "def list_groups("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/segment_groups.py",
+          "quotes": [
+            "microtenant_id = body.get(\"microtenant_id\", None)"
+          ],
+          "after": "def add_group("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/segment_groups.py",
+          "quotes": [
+            "def delete_group(self, group_id: str, microtenant_id: str = None)"
+          ]
+        }
+      ]
+    },
+    "executor-precedence": {
+      "statement": "The executor picks the microtenant ID from the request body's `microtenantId` first, then from the params' `microtenantId`, then from the client configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "if body and isinstance(body, dict) and \"microtenantId\" in body and body[\"microtenantId\"]:",
+            "if params and \"microtenantId\" in params and params[\"microtenantId\"]:",
+            "return self.microtenant_id"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "microtenant_id = self._get_microtenant_id(body, params)",
+            "params[\"microtenantId\"] = microtenant_id",
+            "if body and isinstance(body, dict) and \"microtenantId\" in body and body[\"microtenantId\"]:",
+            "if params and \"microtenantId\" in params and params[\"microtenantId\"]:",
+            "return self.microtenant_id"
+          ]
+        }
+      ]
+    },
+    "config-default": {
+      "statement": "The executor reads an optional `microtenantId` from the client configuration and falls back to it when a request names none.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "self.microtenant_id = self._config[\"client\"].get(\"microtenantId\")  # Optional for ZIA/ZCC"
+          ]
+        }
+      ]
+    },
+    "executor-query-param": {
+      "statement": "For a ZPA request the executor sets the `microtenantId` query parameter whenever it finds a microtenant ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "microtenant_id = self._get_microtenant_id(body, params)",
+            "params[\"microtenantId\"] = microtenant_id"
+          ]
+        }
+      ]
+    },
+    "non-zpa-pop": {
+      "statement": "For a non-ZPA request the executor removes `microtenantId` from the parameters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "params.pop(\"microtenantId\", None)"
+          ]
+        }
+      ]
+    },
+    "body-camel": {
+      "statement": "The executor converts request-body keys to camelCase before sending, so a `microtenant_id` key left in the body is sent as `microtenantId`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "body = convert_keys_to_camel_case(body)"
+          ],
+          "after": "# Preserve existing logic for other services"
+        }
+      ]
+    },
+    "body-keeps-key": {
+      "statement": "A write wrapper that reads the microtenant ID with `body.get` and sends `body = kwargs` still sends the microtenant ID in the JSON body in addition to the query parameter.",
+      "tier": "B",
+      "derived_from": [
+        "wrapper-sources",
+        "body-camel"
+      ],
+      "conditions": "Follows from the wrapper using get, not pop, on the body it sends. Whether the service accepts or ignores the extra body field is not shown."
+    }
+  }
+}

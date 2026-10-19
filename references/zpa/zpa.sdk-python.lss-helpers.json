@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "id": "zpa.sdk-python.lss-helpers",
+  "title": "Python SDK Log Streaming helpers: client types, log formats and status codes",
+  "aliases": [
+    "get_client_types python",
+    "get_log_formats does not exist",
+    "get_all_log_formats",
+    "get_status_codes log_type",
+    "add_lss_config default format",
+    "lss helper returns None",
+    "client_type lss policy rule python"
+  ],
+  "binds": [],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.log-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.formats"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.return-shapes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are claims about the Python SDK's LSS receiver helpers. The source log type map is in [[zpa.log-receivers.log-types]]."
+    },
+    {
+      "label": "Helpers that call the API.",
+      "text": "{{client-types-call}} {{client-types-client-type-rule}}"
+    },
+    {
+      "label": "Bare return values.",
+      "text": "{{helpers-bare-return}}"
+    },
+    {
+      "label": "Creating a receiver.",
+      "text": "{{add-fetches-default-format}} {{add-policy-set-lookup}}"
+    },
+    {
+      "label": "Status codes.",
+      "text": "{{status-codes-filter}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a receiver create failed on a helper that returned None, since the helpers hide the error and the create then fails inside the SDK.",
+      "uses": [
+        "helpers-bare-return",
+        "add-fetches-default-format"
+      ]
+    },
+    {
+      "do": "Whether a client_type rule used the display names the lookup builds (lower-case, underscores).",
+      "uses": [
+        "client-types-call",
+        "client-types-client-type-rule"
+      ]
+    }
+  ],
+  "claims": {
+    "client-types-call": {
+      "statement": "`get_client_types` makes a GET to the `clientTypes` path under the LSS config endpoint, and returns a map from each display name, lower-cased with spaces turned to underscores, to its code; it is an API call, not a built-in table.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "/clientTypes",
+            "reverse_map = {v.lower().replace(\" \", \"_\"): k for k, v in client_types.items()}"
+          ],
+          "after": "def get_client_types(self, client_type=None)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "reverse_map = {v.lower().replace(\" \", \"_\"): k for k, v in client_types.items()}"
+          ]
+        }
+      ]
+    },
+    "client-types-client-type-rule": {
+      "statement": "Building an LSS policy rule with a `client_type` condition calls `get_client_types()` once for each client-type value in the condition and looks the value up in the result, so each value costs an extra request. When that lookup fails, `get_client_types` returns None and the subscript raises TypeError.",
+      "tier": "A",
+      "conditions": "Corrected from one extra request per rule to one per value, and the failure case added; previously \"Building an LSS policy rule with a `client_type` condition calls `get_client_types()` and looks each name up in the result, so each such rule costs an extra request.\"",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "\"values\": [self.get_client_types()[item] for item in condition[1]],"
+          ],
+          "after": "def _create_policy(self, conditions: list)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "response, error = self._request_executor.execute(request)",
+            "if error:",
+            "return None"
+          ],
+          "after": "def get_client_types(self, client_type=None) -> dict:"
+        }
+      ]
+    },
+    "helpers-bare-return": {
+      "statement": "`get_client_types`, `get_all_log_formats` and `get_status_codes` return a dictionary or None, not the usual three-element tuple, and return None when the request cannot be built or fails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "return None"
+          ],
+          "after": "def get_client_types(self, client_type=None)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "return response.get_body()"
+          ],
+          "after": "def get_all_log_formats(self, log_type=None, query_params=None)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "return None"
+          ],
+          "after": "def get_status_codes(self, log_type: str = \"all\")"
+        }
+      ]
+    },
+    "add-fetches-default-format": {
+      "statement": "`add_lss_config` takes the receiver format from `log_stream_content` if given and otherwise fetches all log formats and indexes them by source log code and `source_log_format`, which defaults to csv; if that fetch returned None the indexing fails inside the SDK.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "log_stream_content = self.get_all_log_formats()[source_log_type][source_log_format]",
+            "source_log_format: str = \"csv\","
+          ],
+          "after": "def add_lss_config("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "source_log_format: str = \"csv\",",
+            "log_stream_content = self.get_all_log_formats()[source_log_type][source_log_format]"
+          ],
+          "after": "def add_lss_config("
+        }
+      ],
+      "conditions": "The failure on None follows from subscripting the return value; it was not run."
+    },
+    "add-policy-set-lookup": {
+      "statement": "When `policy_rules` is given, `add_lss_config` looks up the SIEM_POLICY policy set and puts its ID in the rule's `policySetId`; the rule name defaults to SIEM_POLICY.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "policy_set_id, err = self._get_siem_policy_set_id()",
+            "\"name\": kwargs.get(\"policy_name\", \"SIEM_POLICY\"),",
+            "\"policySetId\": policy_set_id,"
+          ],
+          "after": "def add_lss_config("
+        }
+      ]
+    },
+    "status-codes-filter": {
+      "statement": "`get_status_codes` with a log type other than all keeps the codes whose `log_types` include the source log code mapped from that key, and raises ValueError for a key not in the source log map.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "log_type_key = self.source_log_map.get(log_type)",
+            "raise ValueError(\"Incorrect log_type provided.\")",
+            "if log_type_key in details.get(\"log_types\", [])"
+          ],
+          "after": "def get_status_codes(self, log_type: str = \"all\")"
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

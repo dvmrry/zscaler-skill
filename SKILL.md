@@ -204,13 +204,13 @@ then stop unless the question genuinely spans multiple products or policies.
 | Zscaler Cellular / ZCell / SIM inventory / cellular anomaly policy / SIM analytics | `references/zscaler-cellular/index.md` and `references/zscaler-cellular/api.md` — Automate contract plus Python `client.zcell.*`; MCP coverage is read-only and does not imply every Python mutation is wrapped. |
 | Business Insights / SaaS Application Management / workplace utilization / `client.zbi` reports or custom apps | `references/business-insights/overview.md` — Python `client.zbi` manages custom apps and report configurations and lists/downloads reports. Here `client.zbi` means **Business Insights**, not Zero Trust Browser; broader product API coverage remains unresolved. |
 | ZIA API endpoint or response shape | `node scripts/kb.mjs surface <path or name>`, then `kb:zia.api` |
-| ZPA API endpoint or response shape | `references/zpa/api.md` |
+| ZPA API endpoint or response shape | `node scripts/kb.mjs surface <path or name>`, then `kb:zpa.api` |
 | ZCC API endpoint or response shape | `references/zcc/api.md` |
-| Terraform provider resource or schema | `references/terraform.md` |
+| Terraform provider resource or schema | `node scripts/kb.mjs surface <resource name>` (arguments, enums, defaults, API paths), then `references/terraform.md` |
 | ZIA web log fields / what NSS reports | `node scripts/kb.mjs resolve zia/web-log` (fields), `zia.logs.web-records`, `zia.logs.web-field-semantics` |
 | ZIA firewall log fields | `node scripts/kb.mjs resolve zia/firewall-log` (fields), `zia.logs.firewall-records` |
 | ZIA DNS log fields | `node scripts/kb.mjs resolve zia/dns-log` (fields), `zia.logs.dns-record-fields`, `zia.logs.dns-outcome` |
-| ZPA LSS access log fields | `references/zpa/logs/access-log-schema.md` |
+| ZPA LSS log fields (User Activity, User Status, connector and edge status and metrics) | `node scripts/kb.mjs resolve zpa/user-activity-log` (fields; likewise `zpa/user-status-log`, `zpa/app-connector-metrics-log`, ...), `zpa.logs.user-activity` |
 | SPL patterns / "how do I query for X?" | `references/shared/splunk-queries.md` |
 | "should I check logs here?" / validation guidance | `references/shared/log-correlation.md` |
 

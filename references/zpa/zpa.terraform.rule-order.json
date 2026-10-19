@@ -507,7 +507,7 @@
       ]
     },
     "reorder-not-under-rule-mutex": {
-      "statement": "`BulkReorder` takes no lock. Create, update, delete and the single-rule reorder in the same package each take the package-level `ruleMutex` first, A comment in `GetPolicyRule` says only create, update and delete need it because of API restrictions, although the single-rule `Reorder` takes it too.",
+      "statement": "`BulkReorder` takes no lock. Create, update, delete and the single-rule reorder in the same package each take a mutex first: up to v3.8.50 the package-level `ruleMutex`, and from v3.8.51 (#466) `common.PolicyRuleMutex`, which the v2 package's writes share. A comment in `GetPolicyRule` says only create, update and delete need it because of API restrictions, although the single-rule `Reorder` takes it too.",
       "tier": "B",
       "evidence": [
         {
@@ -516,7 +516,7 @@
           "at": [
             "v3.8.42",
             "v3.8.47",
-            "HEAD"
+            "v3.8.48"
           ],
           "quotes": [
             "ruleMutex.Lock()"
@@ -529,7 +529,7 @@
           "at": [
             "v3.8.42",
             "v3.8.47",
-            "HEAD"
+            "v3.8.48"
           ],
           "quotes": [
             "ruleMutex.Lock()"
@@ -542,7 +542,7 @@
           "at": [
             "v3.8.42",
             "v3.8.47",
-            "HEAD"
+            "v3.8.48"
           ],
           "quotes": [
             "ruleMutex.Lock()"
@@ -555,7 +555,7 @@
           "at": [
             "v3.8.42",
             "v3.8.47",
-            "HEAD"
+            "v3.8.48"
           ],
           "quotes": [
             "ruleMutex.Lock()"
@@ -568,14 +568,61 @@
           "at": [
             "v3.8.42",
             "v3.8.47",
-            "HEAD"
+            "v3.8.48"
           ],
           "quotes": [
             "// Only CREATE/UPDATE/DELETE need the ruleMutex due to API restrictions"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "common.PolicyRuleMutex.Lock()"
+          ],
+          "after": "func CreateRule(ctx context.Context, service *zscaler.Service, rule *PolicyRule) (*PolicyRule, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "common.PolicyRuleMutex.Lock()"
+          ],
+          "after": "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "common.PolicyRuleMutex.Lock()"
+          ],
+          "after": "func Delete(ctx context.Context, service *zscaler.Service, policySetID, ruleId string) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "common.PolicyRuleMutex.Lock()"
+          ],
+          "after": "func Reorder(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, order int) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "// Only CREATE/UPDATE/DELETE need common.PolicyRuleMutex due to API restrictions"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "var PolicyRuleMutex sync.Mutex",
+            "// and policysetcontrollerv2 packages."
+          ]
         }
       ],
-      "conditions": "The absence of any lock in `BulkReorder`, `GetByPolicyType` and `GetAllByType` is from reading those functions in full at v3.8.42, v3.8.47 and the SDK pin; a search for `ruleMutex` in the file found uses only in the four functions quoted.",
+      "conditions": "The absence of any lock in `BulkReorder`, `GetByPolicyType` and `GetAllByType` is from reading those functions in full at v3.8.42, v3.8.47, v3.8.48 and v3.8.55; a search for `ruleMutex` (v3.8.48) and `PolicyRuleMutex` (v3.8.55) in the file found uses only in the four functions quoted. Changed upstream in v3.8.51 (checked 2026-10-18): previously \"`BulkReorder` takes no lock. Create, update, delete and the single-rule reorder in the same package each take the package-level `ruleMutex` first, A comment in `GetPolicyRule` says only create, update and delete need it because of API restrictions, although the single-rule `Reorder` takes it too.\"",
       "upstream": [
         {
           "status": "unfiled",

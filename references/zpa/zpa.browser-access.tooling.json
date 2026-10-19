@@ -35,7 +35,7 @@
     },
     {
       "label": "Python SDK.",
-      "text": "{{v2-injects-app-types}} {{sdk-ids-not-coerced}}"
+      "text": "[[zpa.sdk-python.browser-access-modules:v2-apps-config]] {{sdk-ids-not-coerced}}"
     },
     {
       "label": "MCP server.",
@@ -54,7 +54,7 @@
     {
       "do": "Which tool wrote the segment, since the Python SDK v2, the MCP tools and Terraform build the clientless applications differently.",
       "uses": [
-        "v2-injects-app-types",
+        "zpa.sdk-python.browser-access-modules:v2-apps-config",
         "mcp-forwards-clientless-ids",
         "tf-port-prewrite"
       ]
@@ -76,23 +76,6 @@
     }
   ],
   "claims": {
-    "v2-injects-app-types": {
-      "statement": "The Python SDK v2 Browser Access create reads common_apps_dto, adds app_types [\"BROWSER_ACCESS\"] to each apps_config entry that lacks it, and sends the object as commonAppsDto.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/zpa/app_segments_ba_v2.py",
-          "quotes": [
-            "# Auto-add `\"app_types\": [\"BROWSER_ACCESS\"]` if missing",
-            "common_apps_dto = kwargs.get(\"common_apps_dto\")",
-            "app_config[\"app_types\"] = [\"BROWSER_ACCESS\"]",
-            "body[\"commonAppsDto\"] = common_apps_dto"
-          ],
-          "after": "def add_segment_ba(self, **kwargs)"
-        }
-      ]
-    },
     "sdk-ids-not-coerced": {
       "statement": "Both Python SDK Browser Access services, v1 and v2, call transform_common_id_fields with coerce_ids=False on create and update, which keeps ZPA's opaque string IDs instead of coercing numeric-looking ones to integers.",
       "tier": "A",
@@ -287,7 +270,7 @@
       "kind": "data",
       "title": "Whether /browserAccessGroups is available to a tenant",
       "status": "open",
-      "detail": "The Go SDK package is client-surface evidence only. It does not show that the resource is enabled for a tenant or that a Browser Access entitlement is required. Cross-SDK notes are in references/zpa/api-divergences.md under PR 456.",
+      "detail": "The Go SDK package is client-surface evidence only. It does not show that the resource is enabled for a tenant or that a Browser Access entitlement is required. Cross-SDK notes are in zpa.b2b-federation.sdk-contract.",
       "resolves_with": [
         "tenant-data",
         "lab-test"

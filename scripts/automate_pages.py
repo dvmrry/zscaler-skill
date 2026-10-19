@@ -207,6 +207,54 @@ class _Parser:
             return self.names[obj].get(attr, attr)
         return {"component": name}
 
+    def skip_declarators(self) -> None:
+        """Skip the rest of a `const` statement (`,{Details:i}=n;`): it binds components, not content."""
+        depth = 0
+        while self.i < len(self.s):
+            c = self.s[self.i]
+            if c in "\"'`":
+                self.string()
+                continue
+            if c in "([{":
+                depth += 1
+            elif c in ")]}":
+                depth -= 1
+            elif c == ";" and depth == 0:
+                self.i += 1
+                return
+            self.i += 1
+        raise ValueError("unterminated declaration")
+
+    def returned(self):
+        """The value of `return a, b, c`: the last top-level operand of a comma expression.
+
+        A page that uses a site component first checks it is defined (`return i||function(){throw...}
+        ("Details",!0),(0,s.jsxs)(...)`); the content is the last operand.
+        """
+        self.ws()
+        start, depth, commas = self.i, 0, []
+        i = self.i
+        while i < len(self.s):
+            c = self.s[i]
+            if c in "\"'`":
+                self.i = i
+                self.string()
+                i = self.i
+                continue
+            if c in "([{":
+                depth += 1
+            elif c in ")]}":
+                if depth == 0:
+                    break
+                depth -= 1
+            elif c == ";" and depth == 0:
+                break
+            elif c == "," and depth == 0:
+                commas.append(i)
+            i += 1
+        self.i = commas[-1] + 1 if commas else start
+        return self.value()
+
     def obj(self) -> dict:
         self.need("{")
         out: dict = {}
@@ -240,10 +288,10 @@ def parse_mdx(chunk: str, module: str) -> tuple[str, list]:
         p = _Parser(chunk, fn.end() - 1, {})
         mapping = p.obj()
         p.names = {fn.group(1): {k: v for k, v in mapping.items() if isinstance(v, str)}}
-        p.need(";")
+        p.skip_declarators()
         p.need("return")
-    else:
-        p = _Parser(chunk, fn.end() - len("(0,"), {})
+        return title, p.returned()
+    p = _Parser(chunk, fn.end() - len("(0,"), {})
     return title, p.value()
 
 

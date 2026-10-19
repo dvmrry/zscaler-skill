@@ -18,7 +18,7 @@ sources:
   - "references/cloud-connector/aws-deployment.md"
   - "references/cloud-connector/azure-deployment.md"
   - "`kb:zpa.app-connectors`"
-  - "references/zpa/logs/app-connector-metrics.md"
+  - "`kb:zpa.logs.app-connector-metrics`"
 dependencies: []
 author-status: draft
 ---
@@ -80,7 +80,7 @@ No GCP-specific grounding exists yet. If the scope names GCP, say that provider-
 - [`zpa.app-connectors`](kb:zpa.app-connectors)
 - [`zpa.app-segments`](kb:zpa.app-segments)
 - [`zpa.server-groups`](kb:zpa.server-groups)
-- [`references/zpa/logs/app-connector-metrics.md`](../../../references/zpa/logs/app-connector-metrics.md)
+- [`zpa.logs.app-connector-metrics`](kb:zpa.logs.app-connector-metrics)
 
 ## Discipline
 

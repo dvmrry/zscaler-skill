@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import datetime
 import difflib
+import email.utils
 import html
 import json
 import urllib.parse
@@ -316,6 +317,19 @@ def _get_json(url: str) -> object:
         return json.load(resp)
 
 
+def _last_modified(url: str | None) -> str | None:
+    """The date a vendor file was last published, from its HTTP Last-Modified header (one HEAD request)."""
+    if not url:
+        return None
+    req = urllib.request.Request(url, method="HEAD", headers={"User-Agent": "zscaler-skill help_capture.py"})
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            stamp = resp.headers.get("Last-Modified")
+    except OSError:
+        return None
+    return email.utils.parsedate_to_datetime(stamp).date().isoformat() if stamp else None
+
+
 def _articles(items: list[dict] | None) -> list[dict]:
     return [{k: a[k] for k in ("nid", "title", "url", "view_type") if k in a} for a in items or []]
 
@@ -343,14 +357,17 @@ def page(url: str) -> dict:
     view = info.get("view_type")
     if view == "swagger_article" and body.get("file_url"):
         return {**base, "kind": "help-api-spec", "nid": str(body["nid"]), "rev": str(body["revision_id"]),
-                "file_url": body["file_url"], "spec": _get_json(body["file_url"])}
+                "file_url": body["file_url"], "spec": _get_json(body["file_url"]),
+                "updated": _last_modified(body["file_url"]), "updated_basis": "file-last-modified"}
     if view == "documentation":
         cats = [{"title": c["title"], "articles": _articles(c.get("articles"))} for c in body.get("categories") or []]
         return {**base, "kind": "help-index", "categories": cats, "articles": _articles(body.get("articles"))}
     if not body.get("content"):
         raise SystemExit(f"no article at {url}")
+    # The site renders a PDF of each article when it is published; its Last-Modified is the article's date.
     return {**base, "kind": "help-article", "nid": str(body["nid"]), "rev": str(body["revision_id"]),
-            "html": f"<article><h3>{html.escape(body['title'])}</h3>{body['content']}</article>"}
+            "html": f"<article><h3>{html.escape(body['title'])}</h3>{body['content']}</article>",
+            "updated": _last_modified(body.get("pdf_url")), "updated_basis": "pdf-last-modified"}
 
 
 def fetch(url: str) -> dict:
@@ -373,8 +390,22 @@ def document(title: str, url: str, blocks: list[dict], nid: str, rev: str, date:
     }
 
 
+def material(pg: dict, date: str | None = None) -> dict:
+    """When the vendor last changed the material: their own date where the site gives one, else the day this
+    content was first seen (`first-seen`), which is as precise as how often captures are checked."""
+    if pg.get("updated"):
+        return {"updated": pg["updated"], "updated_basis": pg["updated_basis"]}
+    return {"updated": date or datetime.date.today().isoformat(), "updated_basis": "first-seen"}
+
+
 def build(pg: dict, date: str | None = None) -> dict:
     """The capture file for a page of any kind."""
+    doc = _build(pg, date)
+    doc["source"] = {**doc["source"], **material(pg, date)}
+    return doc
+
+
+def _build(pg: dict, date: str | None = None) -> dict:
     if pg["kind"] == "help-article":
         title, blocks = render(pg["html"])
         return document(title, pg["url"], blocks, pg["nid"], pg["rev"], date)
@@ -483,6 +514,8 @@ def check(names: list[str], replace: bool, as_json: bool = False) -> int:
         fresh = build(pg, doc["captured_at"])
         revs = {"from": src.get("revision"), "to": pg.get("rev")} if "revision" in src else {}
         if content(fresh) == content(doc):
+            # Same content: the material did not change, whatever the vendor's file dates say now.
+            fresh["source"] = {**fresh["source"], **{k: src[k] for k in ("updated", "updated_basis") if k in src}}
             say(f"ok    {path.name}" + (f" (revision {revs['from']} -> {revs['to']}, content unchanged)" if revs else ""))
             if replace and fresh != doc:
                 write(path, fresh)

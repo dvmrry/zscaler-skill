@@ -151,7 +151,7 @@ A `kb:<id>` entry is a knowledge-graph subject: load it with `node scripts/kb.mj
 |---|---|
 | SIPA, Source IP Anchoring | `references/shared/source-ip-anchoring.md` |
 | App Connector, connector health, connector flap, connector status, connector assignment | `kb:zpa.app-connectors` and `kb:zpa.server-groups` |
-| App Connector Metrics, AliveTargetCount, TargetCount | `references/zpa/logs/app-connector-metrics.md` |
+| App Connector Metrics, AliveTargetCount, TargetCount | `node scripts/kb.mjs resolve zpa/app-connector-metrics-log` (fields), `zpa.logs.app-connector-metrics` |
 | ZPA reachability, private app unreachable, app missing, application not found | `kb:zpa.app-segments`, `kb:zpa.server-groups`, and `kb:zpa.policy` |
 | ZPA segment, app segment, application segment, segment scope | `kb:zpa.app-segments` and `kb:zpa.server-groups` |
 | ZPA policy evaluation, access policy, policy precedence | `kb:zpa.policy` |
@@ -186,7 +186,7 @@ block must list every file read in this step (one path per line). Example:
 Grounding files loaded:
   - references/shared/source-ip-anchoring.md
   - `kb:zpa.app-connectors`
-  - references/zpa/logs/access-log-schema.md
+  - `kb:zpa.logs.user-activity`
   - overlay IaC for zia/url-filtering-rules
 ```
 

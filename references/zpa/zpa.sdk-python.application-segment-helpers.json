@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "id": "zpa.sdk-python.application-segment-helpers",
+  "title": "Python SDK application segment, Browser Access and by-type helpers: ID remapping, delete, export and update lookups",
+  "aliases": [
+    "force_delete application segment python",
+    "deleted_ba_apps",
+    "application_segment_export csv",
+    "add_id_groups",
+    "server_group_ids serverGroups python",
+    "bulk_update_multimatch response",
+    "update_segment_ba domain lookup",
+    "weighted lb config empty response",
+    "application_segment_export",
+    "ZPA csv export python",
+    "Accept text/csv zpa"
+  ],
+  "binds": [],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.sdk-behavior"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.tooling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.share-and-move"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.return-shapes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.id-list-reformatting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.pagination"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are claims about individual Python SDK helpers for ZPA application segments. Port range handling, the BROWSER_ACCESS lookup on update and microtenant move and share are in [[zpa.app-segments.sdk-behavior]] and [[zpa.microtenants.share-and-move]]."
+    },
+    {
+      "label": "ID lists.",
+      "text": "{{id-lists-add-update}} The helper behaviors are in [[zpa.sdk-python.id-list-reformatting]]."
+    },
+    {
+      "label": "Delete and export.",
+      "text": "{{force-delete-param}} {{export-accept-csv}} {{export-returns-raw}}"
+    },
+    {
+      "label": "Multimatch and load balancing.",
+      "text": "{{multimatch-unsupported-body}} {{bulk-multimatch-message}} {{weighted-lb-empty-body}}"
+    },
+    {
+      "label": "Browser Access updates.",
+      "text": "The v1 and v2 update lookups are in [[zpa.sdk-python.browser-access-modules]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a delete removed the segment-group mapping, which is controlled by force_delete.",
+      "uses": [
+        "force-delete-param"
+      ]
+    }
+  ],
+  "claims": {
+    "id-lists-add-update": {
+      "statement": "`add_segment` and `update_segment` turn `server_group_ids` into a `serverGroups` list with transform_common_id_fields and coerce_ids=False, so the ID strings are sent as given; since v1.11.1 this is the only mapping and `server_group_ids=None` is treated as not supplied, where up to v1.10.0 each method first built `serverGroups` in its own loop, which raised TypeError on None (#575). `clientless_app_ids` is taken out before that call: `add_segment` renames it to `clientlessApps` as given and `update_segment` pops it for a Browser Access lookup.",
+      "tier": "A",
+      "conditions": "Changed upstream in v1.11.1 (checked 2026-10-18): previously \"`add_segment` and `update_segment` turn `server_group_ids` and `clientless_app_ids` into `serverGroups` and `clientlessApps` lists with transform_common_id_fields and coerce_ids=False, so the ID strings are sent as given.\" The clientless_app_ids clause was also corrected: neither method lets transform_common_id_fields see that key.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "at": [
+            "v1.10.0"
+          ],
+          "quotes": [
+            "body[\"serverGroups\"] = [{\"id\": group_id} for group_id in body.pop(\"server_group_ids\")]"
+          ],
+          "after": "def add_segment(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed ZPA application segment add/update functions raising `TypeError` when `server_group_ids=None` is passed; `None` is now treated as not supplied."
+          ],
+          "after": "## 1.11.1 (October 6 2026)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "body[\"clientlessApps\"] = body.pop(\"clientless_app_ids\")",
+            "transform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)"
+          ],
+          "after": "def add_segment(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "clientless_apps = body.pop(\"clientless_app_ids\")"
+          ],
+          "after": "def update_segment(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "transform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)"
+          ],
+          "after": "def update_segment(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "(\"clientless_app_ids\", \"clientlessApps\"),",
+            "(\"server_group_ids\", \"serverGroups\"),"
+          ]
+        }
+      ]
+    },
+    "force-delete-param": {
+      "statement": "`delete_segment` sends `forceDelete=true` as a query parameter only when `force_delete` is true; its docstring says this deletes the mapping between the application segment and the segment group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "if force_delete:",
+            "params[\"forceDelete\"] = \"true\"",
+            "Setting this field to true deletes the mapping between Application Segment and Segment Group."
+          ],
+          "after": "def delete_segment("
+        }
+      ]
+    },
+    "multimatch-unsupported-body": {
+      "statement": "`get_multimatch_unsupported_references` sends the list of domains itself as the request body, because the API expects a plain array of domain strings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "# The API expects a simple array of domain strings as the body",
+            "body = domains"
+          ],
+          "after": "def get_multimatch_unsupported_references("
+        }
+      ]
+    },
+    "bulk-multimatch-message": {
+      "statement": "`bulk_update_multimatch` returns a fixed message dictionary when the response is None; otherwise it parses the body as a MultiMatchUnsupportedReferences model.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "return ({\"message\": \"Bulk update multimatch operation completed successfully.\"}, response, None)",
+            "result = MultiMatchUnsupportedReferences(self.form_response_body(response.get_body()))"
+          ],
+          "after": "def bulk_update_multimatch("
+        }
+      ]
+    },
+    "weighted-lb-empty-body": {
+      "statement": "`update_weighted_lb_config` returns a WeightedLBConfig holding only the segment ID when the response has no body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "return (WeightedLBConfig({\"id\": segment_id}), response, None)"
+          ],
+          "after": "def update_weighted_lb_config("
+        }
+      ]
+    },
+    "export-accept-csv": {
+      "statement": "`application_segment_export` sends GET to `/application/export` with an `Accept: text/csv` header and accepts `single` and `microtenant_id` query parameters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "headers = {\"Accept\": \"text/csv\"}",
+            "/application/export",
+            "``[query_params.single]`` {bool}: Returns a single application segment"
+          ],
+          "after": "def application_segment_export("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "headers = {\"Accept\": \"text/csv\"}",
+            "# Return the raw CSV content as a string",
+            "result = response.get_body()"
+          ],
+          "after": "def application_segment_export("
+        }
+      ]
+    },
+    "export-returns-raw": {
+      "statement": "It returns the response body as a raw string with the response and error, and no model is built.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "# Return the raw CSV content as a string",
+            "result = response.get_body()"
+          ],
+          "after": "def application_segment_export("
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

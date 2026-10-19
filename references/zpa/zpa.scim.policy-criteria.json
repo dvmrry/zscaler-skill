@@ -56,11 +56,11 @@
     },
     {
       "label": "Rule families.",
-      "text": "{{families}} The earlier question on isolation rules is closed {{gap:zpa-68-isolation-scim}}. {{v2-over-1000}}"
+      "text": "{{families}} The earlier question on isolation rules is closed {{gap:zpa-68-isolation-scim}}. [[zpa.terraform.policy-rule-resources:v2-recommended-over-1000]]"
     },
     {
       "label": "Scope limits.",
-      "text": "{{microtenant-no-operand-id}} {{microtenant-read-only}} {{sipa}} How anchored traffic gets its country is in [[zpa.policy.criteria:country-last-nat-ip]]."
+      "text": "[[zpa.terraform.policy-rule-resources:operand-microtenant-unsupported-types]] {{microtenant-read-only}} {{sipa}} How anchored traffic gets its country is in [[zpa.policy.criteria:country-last-nat-ip]]."
     },
     {
       "text": "Provider defects that affect rule writes are in [[zpa.terraform.policy-rule-writes]], and ordinary lookups in [[zpa.terraform.data-source-selection]]."
@@ -104,13 +104,13 @@
       "do": "Whether the rule family can carry SCIM criteria, and whether a Terraform rule is v1 or v2.",
       "uses": [
         "families",
-        "v2-over-1000"
+        "zpa.terraform.policy-rule-resources:v2-recommended-over-1000"
       ]
     },
     {
       "do": "Whether a Microtenant or Source IP Anchoring is involved, which restrict where SCIM criteria apply.",
       "uses": [
-        "microtenant-no-operand-id",
+        "zpa.terraform.policy-rule-resources:operand-microtenant-unsupported-types",
         "microtenant-read-only",
         "sipa"
       ]
@@ -354,19 +354,6 @@
       ],
       "conditions": "The per-IdP listing and the idpId field are shown; two same-named groups under two IdPs are not shown in a source."
     },
-    "microtenant-no-operand-id": {
-      "statement": "The Terraform documentation says microtenant_id is not supported inside operands when object_type is SCIM_GROUP, because IdP information is controlled at the parent tenant level.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "tf-zpa",
-          "path": "docs/resources/zpa_policy_access_rule_scim_group.md",
-          "quotes": [
-            "The attribute ``microtenant_id`` is NOT supported within the `operands` block when the `object_type` is set to `SCIM_GROUP`. IDP Information is controller at the parent tenant level."
-          ]
-        }
-      ]
-    },
     "microtenant-read-only": {
       "statement": "For resources defined in the Default Microtenant, SAML Attributes, SCIM Attributes and SCIM Group are Full for the Default Microtenant and Read only for a Microtenant.",
       "tier": "A",
@@ -391,19 +378,6 @@
           "path": "configuring-source-ip-anchoring.json",
           "quotes": [
             "If Source IP Anchoring traffic is restricted to certain users in the Zscaler Admin Console, do not add user-based SAML/SCIM criteria when configuring the access policy in the Zscaler Admin Console."
-          ]
-        }
-      ]
-    },
-    "v2-over-1000": {
-      "statement": "The v2 access rule resource is recommended when a rule needs more than 1,000 resource criteria.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "tf-zpa",
-          "path": "docs/resources/zpa_policy_access_rule_v2.md",
-          "quotes": [
-            "This resource is recommended if your configuration requires the association of more than 1000 resource criteria per rule."
           ]
         }
       ]

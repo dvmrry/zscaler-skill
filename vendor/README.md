@@ -32,7 +32,7 @@ Distributed via Splunkbase as `.tgz` packages:
 - **ZIA TA** — https://splunkbase.splunk.com/app/4394 (requires splunk.com login)
 - **ZPA TA** — https://splunkbase.splunk.com/app/4734 (requires splunk.com login)
 
-**What they'd give us:** canonical Splunk field extractions (`props.conf`, `transforms.conf`, `fields.conf`) mapping raw NSS/LSS log fields to Splunk CIM aliases. Useful for making the field tables in `references/zia/logs/*.md` and `references/zpa/logs/*.md` exact down to the Splunk-side name.
+**What they'd give us:** canonical Splunk field extractions (`props.conf`, `transforms.conf`, `fields.conf`) mapping raw NSS/LSS log fields to Splunk CIM aliases. Useful for making the generated log types (`references/zia/types/`, `references/zpa/types/`) exact down to the Splunk-side name.
 
 **Why deferred (April 2026):** the source field names come from Zscaler's NSS/LSS output, which is documented in the help site pages we're distilling into `references/*/logs/`. The TA adds Splunk-side CIM mapping and dashboarding — useful but not on the critical path for the skill's reasoning layer. We decided the help-site distillation gives ~90% of the value without the Splunkbase-auth friction.
 

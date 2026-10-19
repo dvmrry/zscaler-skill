@@ -10,7 +10,7 @@ sources:
   - "`kb:zpa.app-connectors`"
   - "`kb:zpa.server-groups`"
   - "`kb:zpa.app-segments`"
-  - "references/zpa/logs/app-connector-metrics.md"
+  - "`kb:zpa.logs.app-connector-metrics`"
 author-status: draft
 ---
 
@@ -35,7 +35,7 @@ Read these *before* interpreting any logs. Establish what *should* happen in the
 - `kb:zpa.app-connectors`
 - `kb:zpa.server-groups`
 - `kb:zpa.app-segments`
-- `references/zpa/logs/app-connector-metrics.md`
+- `kb:zpa.logs.app-connector-metrics`
 
 ## Inspect tenant config
 

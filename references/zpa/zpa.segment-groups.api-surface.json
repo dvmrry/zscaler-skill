@@ -46,7 +46,7 @@
     },
     {
       "label": "Terraform.",
-      "text": "{{tf-resource-schema}} {{tf-import}} {{tf-data-source-outputs}} Provider defects around these objects are in [[zpa.sdk-go.service-defects]] and [[zpa.terraform.data-source-selection]]."
+      "text": "{{tf-resource-schema}} {{tf-import}} {{tf-data-source-outputs}} The data source docs list two attributes the schema lacks {{divergence:tf-data-source-docs-vs-schema}}. Provider defects around these objects are in [[zpa.sdk-go.service-defects]] and [[zpa.terraform.data-source-selection]]."
     }
   ],
   "checks": [
@@ -157,7 +157,14 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
           "quotes": [
-            "func UpdateV2(ctx context.Context, service *zscaler.Service, segmentGroupId string, segmentGroupRequest *SegmentGroup)",
+            "func UpdateV2(ctx context.Context, service *zscaler.Service, segmentGroupId string, segmentGroupRequest *SegmentGroup)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "after": "func UpdateV2(ctx context.Context, service *zscaler.Service, segmentGroupId string, segmentGroupRequest *SegmentGroup)",
+          "quotes": [
             "path := fmt.Sprintf(\"%v/%v\", mgmtConfigV2+service.Client.GetCustomerID()+segmentGroupEndpoint, segmentGroupId)"
           ]
         },
@@ -172,17 +179,43 @@
       ]
     },
     "tf-update-uses-v2": {
-      "statement": "The Terraform `zpa_segment_group` resource updates through `segmentgroup.UpdateV2`.",
+      "statement": "Before v4.4.14 the Terraform `zpa_segment_group` resource updated through `segmentgroup.UpdateV2` with the full group, applications included; v4.4.14 updates through `segmentgroup.UpdateV2Changes`, the same v2 PUT, with a `SegmentGroupV2Update` carrying only name, description, enabled and microtenant ID, so the group's applications are never sent on update (#695).",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.11"
+          ],
           "quotes": [
-            "segmentgroup.UpdateV2(ctx, service, id, &req)"
+            "segmentgroup.UpdateV2(ctx, service, id, &req)",
+            "req := expandSegmentGroup(d)"
+          ],
+          "after": "func resourceSegmentGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "after": "func resourceSegmentGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "req := segmentgroup.SegmentGroupV2Update{",
+            "MicroTenantID: d.Get(\"microtenant_id\").(string),",
+            "segmentgroup.UpdateV2Changes(ctx, service, id, &req)",
+            "// never sent: membership is managed through segment_group_id on"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "after": "func UpdateV2Changes(ctx context.Context, service *zscaler.Service, segmentGroupId string, segmentGroupRequest *SegmentGroupV2Update) (*http.Response, error) {",
+          "quotes": [
+            "path := fmt.Sprintf(\"%v/%v\", mgmtConfigV2+service.Client.GetCustomerID()+segmentGroupEndpoint, segmentGroupId)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, segmentGroupRequest, nil)"
           ]
         }
-      ]
+      ],
+      "conditions": "Changed upstream in v4.4.14 (checked 2026-10-18): previously \"The Terraform `zpa_segment_group` resource updates through `segmentgroup.UpdateV2`.\""
     },
     "go-model-flags": {
       "statement": "The Go segment group model tags `enabled` and `policyMigrated` without omitempty, so false is always sent.",
@@ -225,16 +258,40 @@
       ]
     },
     "tf-resource-schema": {
-      "statement": "The Terraform resource takes a required `name` and optional `description`, `enabled`, `microtenant_id` and an `applications` list of `{id}` objects; an `enabled` left out is sent as false, and only each application's ID is sent on write.",
+      "statement": "The Terraform resource takes a required `name` and optional `description`, `enabled`, `microtenant_id` and an `applications` list of `{id}` objects; an `enabled` left out is sent as false. Before v4.4.14 only each application's ID was sent on every write; v4.4.14 deprecates `applications`, sends the application IDs only on create, never sends them on update, and rejects adding or removing applications on an existing group at plan time (#695).",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.11"
+          ],
           "quotes": [
             "Enabled: d.Get(\"enabled\").(bool),",
             "segmentGroupApplications[i] = segmentgroup.Application{",
             "ID: segmentGroupItem[\"id\"].(string),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "after": "func expandSegmentGroup(d *schema.ResourceData) segmentgroup.SegmentGroup {",
+          "quotes": [
+            "Enabled: d.Get(\"enabled\").(bool),",
+            "Applications: expandSegmentGroupApplications(d.Get(\"applications\").([]interface{})),",
+            "segmentGroupApplications[i] = segmentgroup.Application{",
+            "ID: segmentGroupItem[\"id\"].(string),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "quotes": [
+            "req := expandSegmentGroup(d)",
+            "req := segmentgroup.SegmentGroupV2Update{",
+            "Application segment membership is managed through the segment_group_id attribute of zpa_application_segment.",
+            "application segment membership cannot be changed from zpa_segment_group (%d added, %d removed)"
           ]
         },
         {
@@ -246,7 +303,8 @@
             "* `microtenant_id` (String) The ID of the microtenant the resource is to be associated with."
           ]
         }
-      ]
+      ],
+      "conditions": "Changed upstream in v4.4.14 (checked 2026-10-18): previously \"The Terraform resource takes a required `name` and optional `description`, `enabled`, `microtenant_id` and an `applications` list of `{id}` objects; an `enabled` left out is sent as false, and only each application's ID is sent on write.\""
     },
     "tf-import": {
       "statement": "A segment group can be imported into Terraform by ID or by name.",
@@ -262,25 +320,30 @@
       ]
     },
     "tf-data-source-outputs": {
-      "statement": "The Terraform data source looks a group up by name and exports `config_space`, `policy_migrated`, `tcp_keep_alive_enabled`, the microtenant fields and a computed `applications` block.",
+      "statement": "The Terraform data source schema looks a group up by `id` or `name`, both optional, and exports `config_space`, the microtenant fields and a computed `applications` block.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zpa",
-          "path": "docs/data-sources/zpa_segment_group.md",
+          "path": "zpa/data_source_zpa_segment_group.go",
           "quotes": [
-            "`name` - (Required) The name of the segment group to be exported.",
-            "* `policy_migrated` - (bool)",
-            "* `tcp_keep_alive_enabled` - (string)",
-            "* `applications` - (Computed)"
+            "\"id\": { Type: schema.TypeString, Optional: true, },",
+            "\"name\": { Type: schema.TypeString, Optional: true, },",
+            "res, _, err := segmentgroup.Get(ctx, service, id)",
+            "res, _, err := segmentgroup.GetByName(ctx, service, name)",
+            "_ = d.Set(\"config_space\", resp.ConfigSpace)",
+            "_ = d.Set(\"microtenant_id\", resp.MicroTenantID)",
+            "_ = d.Set(\"microtenant_name\", resp.MicroTenantName)",
+            "\"applications\": { Type: schema.TypeList, Computed: true,"
           ]
         }
-      ]
+      ],
+      "conditions": "Statement changed from the docs' outputs: the schema has no policy_migrated or tcp_keep_alive_enabled and makes name optional, so the claim now states the schema and the docs' extra attributes are the tf-data-source-docs-vs-schema divergence."
     }
   },
   "divergences": {
     "tcp-keep-alive-enabled-type-differs": {
-      "summary": "The API spec types a segment group's `tcpKeepAliveEnabled` as an integer while the Go model and the Terraform data source type it as a string.",
+      "summary": "The API spec types a segment group's `tcpKeepAliveEnabled` as an integer while the Go model types it as a string.",
       "positions": [
         {
           "evidence": {
@@ -306,6 +369,35 @@
         }
       ],
       "impact": "A body written from the spec may send an integer where the SDK sends a string; the literal the service accepts is not shown by these sources."
+    },
+    "tf-data-source-docs-vs-schema": {
+      "summary": "The zpa_segment_group data source docs list name as required and export policy_migrated and tcp_keep_alive_enabled, but the schema makes name optional and has neither attribute.",
+      "positions": [
+        {
+          "says": "The data source docs list name under Required and policy_migrated and tcp_keep_alive_enabled under Read-Only.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/data-sources/zpa_segment_group.md",
+            "quotes": [
+              "`name` - (Required) The name of the segment group to be exported.",
+              "* `policy_migrated` - (bool)",
+              "* `tcp_keep_alive_enabled` - (string)"
+            ]
+          }
+        },
+        {
+          "says": "The data source schema declares name optional, and its top level ends at the microtenant fields with no policy_migrated or tcp_keep_alive_enabled attribute; Read sets neither.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/data_source_zpa_segment_group.go",
+            "quotes": [
+              "\"name\": { Type: schema.TypeString, Optional: true, },",
+              "\"microtenant_name\": { Type: schema.TypeString, Optional: true, }, }, } }"
+            ]
+          }
+        }
+      ],
+      "impact": "Referencing data.zpa_segment_group.<name>.policy_migrated or .tcp_keep_alive_enabled fails as an unsupported attribute; read those fields from the API or the SDK instead. Omitting name passes validation, and a lookup then needs id."
     }
   },
   "gaps": {

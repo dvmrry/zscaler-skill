@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "id": "zpa.sdk-python.browser-access-modules",
+  "title": "The two Python Browser Access segment modules and the by-type helper",
+  "aliases": [
+    "app_segments_ba vs app_segments_ba_v2",
+    "common_apps_dto apps_config",
+    "get_segments_by_type",
+    "getAppsByType",
+    "browser access segment python sdk which module"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.sdk-behavior"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.tooling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.api-fields"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Python SDK has two Browser Access segment modules that call the same routes and differ in how they take the Browser Access applications. The Go package and other segment kinds are in [[zpa.app-segments.sdk-behavior]]."
+    },
+    {
+      "label": "Same route.",
+      "text": "{{same-route}} {{by-type-helper}}"
+    },
+    {
+      "label": "v1 module.",
+      "text": "{{v1-clientless-lookup}}"
+    },
+    {
+      "label": "v2 module.",
+      "text": "{{v2-apps-config}} [[zpa.api.app-segments-wire:python-update-matches-by-domain]] [[zpa.api.app-segments-wire:python-update-clears-ports-all-variants]]"
+    },
+    {
+      "text": "What the API does with the `deleted_ba_apps` list the v2 update sends is only partly known {{gap:ba-deleted-apps-effect}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the code passes common_apps_dto.apps_config, which only the v2 module accepts, or clientless_app_ids, which the v1 module expands.",
+      "uses": [
+        "v2-apps-config",
+        "v1-clientless-lookup"
+      ]
+    },
+    {
+      "do": "Whether the list was assumed to return only Browser Access segments, since the list wrappers send the caller's parameters to the generic /application route.",
+      "uses": [
+        "same-route",
+        "by-type-helper"
+      ]
+    },
+    {
+      "do": "Whether a v2 update dropped port ranges by omitting them.",
+      "uses": [
+        "zpa.api.app-segments-wire:python-update-clears-ports-all-variants"
+      ]
+    }
+  ],
+  "claims": {
+    "same-route": {
+      "statement": "`list_segments_ba` in both modules and `list_segments` in `application_segment.py` issue GET on `/application` and pass the caller's query parameters; `list_segments_ba` adds no type parameter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba.py",
+          "quotes": [
+            "request, error = self._request_executor.create_request(http_method, api_url, params=query_params)"
+          ],
+          "after": "def list_segments_ba("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba_v2.py",
+          "quotes": [
+            "query_params.update(kwargs)"
+          ],
+          "after": "def list_segments_ba("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "{self._zpa_base_endpoint} /application"
+          ],
+          "after": "def list_segments(self, query_params"
+        }
+      ]
+    },
+    "by-type-helper": {
+      "statement": "The type filter lives in `ApplicationSegmentByTypeAPI.get_segments_by_type` in `app_segment_by_type.py`, which calls `/application/getAppsByType` and sends the application type as a query parameter; `application_segment.py` imports and calls it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segment_by_type.py",
+          "quotes": [
+            "/application/getAppsByType",
+            "query_params[\"application_type\"] = application_type"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "from zscaler.zpa.app_segment_by_type import ApplicationSegmentByTypeAPI"
+          ]
+        }
+      ]
+    },
+    "v1-clientless-lookup": {
+      "statement": "In the v1 module `update_segment_ba` expands `clientless_app_ids` by fetching the BROWSER_ACCESS segments and matching on domain and parent segment ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba.py",
+          "quotes": [
+            "segments_list, _, err = app_segment_api.get_segments_by_type(application_type=\"BROWSER_ACCESS\")",
+            "seg.domain == app.get(\"domain\") and str(seg.app_id) == segment_id"
+          ],
+          "after": "def update_segment_ba("
+        }
+      ]
+    },
+    "v2-apps-config": {
+      "statement": "The v2 module sends the Browser Access applications as `commonAppsDto` built from `common_apps_dto.apps_config` and adds `app_types` of BROWSER_ACCESS to entries that lack it; its changelog entry calls this the newly recommended format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba_v2.py",
+          "quotes": [
+            "app_config[\"app_types\"] = [\"BROWSER_ACCESS\"]",
+            "body[\"commonAppsDto\"] = common_apps_dto"
+          ],
+          "after": "def add_segment_ba("
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "using newly recommended format via block `common_apps_dto.apps_config`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba_v2.py",
+          "quotes": [
+            "# Auto-add `\"app_types\": [\"BROWSER_ACCESS\"]` if missing",
+            "common_apps_dto = kwargs.get(\"common_apps_dto\")",
+            "app_config[\"app_types\"] = [\"BROWSER_ACCESS\"]",
+            "body[\"commonAppsDto\"] = common_apps_dto"
+          ],
+          "after": "def add_segment_ba(self, **kwargs)"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ba-deleted-apps-effect": {
+      "kind": "semantic",
+      "status": "partial",
+      "title": "Whether the API deletes the Browser Access apps listed in deletedBaApps on a v2 segment update",
+      "blocks": "telling whether leaving a domain out of a v2 update removes its Browser Access app",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "The OpenAPI document declares commonAppsDto.deletedBaApps on the segment update body as an array of int64 IDs, and the ZPA Ansible collection's changelog reports the API rejecting a create whose deleted_ba_apps named other segments' Browser Access apps with 400 resource.not.found, which suggests the service checks the IDs in that list. Whether an update deletes the apps it names is still open: in a scratch tenant, create a v2 Browser Access segment with two domains, update it with one domain through the Python SDK, and list the BROWSER_ACCESS apps for the segment ID to see whether the omitted one is gone.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application~1{applicationId}/put/requestBody/content/application~1json/schema/properties/commonAppsDto/properties/deletedBaApps",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application~1{applicationId}/put/requestBody/content/application~1json/schema/properties/commonAppsDto/properties/deletedBaApps/items",
+          "expect": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        {
+          "source": "ansible-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed `zpa_application_segment_ba_v2` marking other segments' Browser Access sub-applications as `deleted_ba_apps` when creating a new segment, which the API rejected with `400 resource.not.found`."
+          ]
+        }
+      ]
+    }
+  }
+}

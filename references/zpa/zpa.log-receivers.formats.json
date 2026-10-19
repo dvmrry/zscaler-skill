@@ -34,7 +34,7 @@
     },
     {
       "label": "Tools.",
-      "text": "{{python-default-csv}} {{python-update-refetch}} {{tf-explicit-format}}"
+      "text": "[[zpa.sdk-python.lss-helpers:add-fetches-default-format]] {{python-update-refetch}} {{tf-explicit-format}}"
     },
     {
       "label": "Custom content.",
@@ -42,6 +42,12 @@
     },
     {
       "text": "Changing the log type without changing the format is not sourced for the provider {{gap:format-type-mismatch}}."
+    },
+    {
+      "text": "The Log Stream Content Format article names sixteen log types that share the field format specifications {{format-page-log-types}}."
+    },
+    {
+      "text": "ConnectionLogType can be added as a custom field to tell AppProtection and event records apart [[zpa.logs.control-session-status:connection-log-type]]."
     }
   ],
   "checks": [
@@ -128,21 +134,6 @@
         }
       ]
     },
-    "python-default-csv": {
-      "statement": "The Python SDK's add_lss_config takes source_log_format with the default csv and fills the format from the formats endpoint unless a custom log_stream_content is passed.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/zpa/lss.py",
-          "quotes": [
-            "source_log_format: str = \"csv\",",
-            "log_stream_content = self.get_all_log_formats()[source_log_type][source_log_format]"
-          ],
-          "after": "def add_lss_config("
-        }
-      ]
-    },
     "python-update-refetch": {
       "statement": "In the Python SDK's update, the format is rebuilt from the formats endpoint when source_log_type is passed without log_stream_content, and is left out of the body (so unchanged on the server) when neither is passed.",
       "tier": "A",
@@ -213,6 +204,21 @@
           "quotes": [
             "Field names are case sensitive.",
             "If you have modified the content, you must append at least one newline character after the last field."
+          ]
+        }
+      ]
+    },
+    "format-page-log-types": {
+      "statement": "The Log Stream Content Format article lists sixteen log types its field format specifications apply to: Audit Logs, App Connector Metrics, App Connector Status, Browser Access, Business Continuity Event Logs, KRB Inspection Logs, LDAP Inspection Logs, Microsegmentation Flow, Private Cloud Controller Metrics and Status, Private Service Edge Metrics and Status, SMB Inspection Logs, User Activity, User Status and Web Inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-log-stream-content-format.json",
+          "quotes": [
+            "- Business Continuity Event Logs",
+            "- Web Inspection",
+            "- SMB Inspection Logs"
           ]
         }
       ]

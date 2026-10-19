@@ -46,6 +46,9 @@
     {
       "label": "Segment fields.",
       "text": "{{guest-details-shape}} {{python-guestdetails-decode-defect}} The meaning of the field and its three companions is open, see [[zpa.app-segments.api-fields:hbr-sticky-guest-semantics]]. The wider segment sharing model between Microtenants is a different feature: [[zpa.microtenants.share-and-move]]."
+    },
+    {
+      "text": "Writing a populated Python PartnerInfo back has its own defect: {{python-partnerinfo-request-format-unset}}"
     }
   ],
   "checks": [
@@ -221,6 +224,20 @@
         {
           "status": "unfiled",
           "note": "Python SDK 1.10.0 guestDetails partnerInfo decode."
+        }
+      ]
+    },
+    "python-partnerinfo-request-format-unset": {
+      "statement": "In the Python SDK the PartnerInfo model's `request_format()` reads `self.partner_info`, but its constructor sets that attribute only when it is built without a config, so a populated PartnerInfo has no such attribute.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "quotes": [
+            "self.partner_scope_name = None self.partner_info = None",
+            "\"partnerScopeName\": self.partner_scope_name, \"partnerInfo\": self.partner_info,"
+          ]
         }
       ]
     }

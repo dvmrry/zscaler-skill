@@ -1,0 +1,876 @@
+{
+  "schema_version": 1,
+  "id": "zpa.terraform.resource-constraints",
+  "title": "Constraints the ZPA Terraform docs and provider code place on individual resources",
+  "aliases": [
+    "zpa terraform tcp_quick_ack inconsistent",
+    "zpa terraform provisioning key state",
+    "zpa_private_cloud_group site_id",
+    "zpa_ba_certificate import",
+    "zpa terraform inspection certificate_id HTTP",
+    "zpa_pra_approval_controller start_time"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.app-segment-lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terraform.credential-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.group-enrollment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are provider-side constraints the Terraform docs or code state for individual ZPA resources. Each resource's arguments, enums and defaults are generated from the provider code (`node scripts/kb.mjs surface <resource name>`); these are the constraints the schema does not show."
+    },
+    {
+      "label": "Application segments.",
+      "text": "{{segment-unique-ports-domains}} {{port-range-blocks-recommended}} {{browser-empty-ports-to-clear}} Whether the empty-assignment rule holds for the other segment kinds is open {{gap:empty-ports-other-segment-kinds}}. {{subapp-domain-ports-in-parent}} Whether the same holds for Browser Access is open {{gap:browser-clientless-domain-in-domain-names}}. {{inspection-certificate-https-only}} {{pra-connection-security-rdp-only}} Segment write behavior is in [[zpa.terraform.app-segment-lifecycle]]."
+    },
+    {
+      "label": "Server groups.",
+      "text": "Whether extranet_dto needs extranet_enabled is open {{gap:extranet-dto-needs-extranet-enabled}}. Dynamic discovery rules are in [[zpa.server-groups.discovery-mode]] and destroy behavior in [[zpa.server-groups.delete]]."
+    },
+    {
+      "label": "Connector and edge groups.",
+      "text": "{{quick-ack-flags-checked-by-provider}} {{pra-unavailable-error-points-to-group}} Whether a PRA segment fails outright through a group with pra_enabled false is still open {{gap:pra-enabled-required-for-pra}}. {{assistant-schedule-customer-id}} {{schedule-minimum-5-days}} The enrollment certificate is in [[zpa.terraform.group-enrollment]]."
+    },
+    {
+      "label": "Keys, certificates and identities.",
+      "text": "{{provisioning-key-in-state}} {{ba-certificate-blob-key-and-cert}} {{ba-certificate-blob-not-sensitive}} {{microtenant-controller-license}} The docs say import is unsupported but the code defines importers {{divergence:docs-no-import-but-importer-exists}}. {{ba-certificate-blob-forcenew}} {{ba-certificate-import-replaces}} Other secret handling is in [[shared.terraform.credential-handling]]."
+    },
+    {
+      "label": "PRA.",
+      "text": "{{pra-credential-type-not-updatable}} {{pra-console-application-is-apps-config-id}} {{pra-approval-single-email-window}}"
+    },
+    {
+      "label": "AppProtection and CBI.",
+      "text": "{{inspection-profile-preprocessors-mandatory}} {{custom-control-redirect-value}} What the API does with a stray redirect value is open {{gap:api-redirect-value-with-other-action}}. {{cbi-profile-constraints}} {{cbi-banner-logo-limit}}"
+    },
+    {
+      "label": "Tags.",
+      "text": "{{tags-early-access-key-import}} The policy rule validators accept no object type for zpa_tag_group IDs; whether the API does is open {{gap:tag-group-in-policy-conditions}}."
+    },
+    {
+      "label": "ZIA link and private cloud.",
+      "text": "{{zia-cloud-config-needed-for-capabilities}} {{zia-cloud-domain-values}} The private cloud group doc and schema disagree about site_id {{divergence:private-cloud-site-id}}."
+    },
+    {
+      "label": "LSS.",
+      "text": "{{lss-aliases-one-resource}} {{lss-policy-rule-action-log}} The Audit Logs doc gives two different tokens for Audit Logs {{divergence:lss-doc-token-inconsistent}}. Which log types accept a policy rule is in [[zpa.log-receivers.filtering]], and the log type codes are in [[zpa.log-receivers.log-types]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the segment's nested apps_config entries use domains and ports that are in the segment's own lists.",
+      "uses": [
+        "subapp-domain-ports-in-parent"
+      ]
+    },
+    {
+      "do": "Whether the three tcp_quick_ack flags on the connector group are equal.",
+      "uses": [
+        "quick-ack-flags-checked-by-provider"
+      ]
+    },
+    {
+      "do": "Whether the configuration sets site_id on a private cloud group.",
+      "uses": [
+        "private-cloud-site-id"
+      ]
+    },
+    {
+      "do": "Which backend holds the state, because provisioning keys are stored in clear text.",
+      "uses": [
+        "provisioning-key-in-state"
+      ]
+    }
+  ],
+  "claims": {
+    "segment-unique-ports-domains": {
+      "statement": "The segment resource docs say application segments must have unique ports and cannot have overlapping domain names using the same TCP or UDP ports across segments; the docs do not say when the API enforces it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_application_segment.md",
+          "quotes": [
+            "Application segments must have unique ports and cannot have overlapping domain names using the same tcp/udp ports across multiple application segments."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_application_segment_inspection.md",
+          "quotes": [
+            "Application segments must have unique ports and cannot have overlapping domain names using the same tcp/udp ports across multiple application segments."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_application_segment_pra.md",
+          "quotes": [
+            "Application segments must have unique ports and cannot have overlapping domain names using the same tcp/udp ports across multiple application segments."
+          ]
+        }
+      ]
+    },
+    "port-range-blocks-recommended": {
+      "statement": "The segment docs recommend the tcp_port_range and udp_port_range blocks over the older tcp_port_ranges and udp_port_ranges string lists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_application_segment.md",
+          "quotes": [
+            "We recommend this model as opposed of the legacy model via `tcp_port_ranges` and or `udp_port_ranges`."
+          ]
+        }
+      ]
+    },
+    "browser-empty-ports-to-clear": {
+      "statement": "The Browser Access segment doc says that when removing TCP or UDP ports the parameter must still be defined but set empty, because of current API behavior.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_application_segment_browser_access.md",
+          "quotes": [
+            "When removing TCP and/or UDP ports, parameter must be defined but set as empty due to current API behavior."
+          ]
+        }
+      ]
+    },
+    "subapp-domain-ports-in-parent": {
+      "statement": "For inspection and PRA segments the docs say the domain configured on each nested apps_config entry must also be in domain_names and its ports must also be in the segment's port list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_application_segment_inspection.md",
+          "quotes": [
+            "The domain name configured in this attribute **MUST** also be present in `domain_names` list.",
+            "The ports configured in this attribute **MUST** also be present in the port list."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_application_segment_pra.md",
+          "quotes": [
+            "The domain name configured in this attribute **MUST** also be present in `domain_names` list.",
+            "The ports configured in this attribute **MUST** also be present in the port list."
+          ]
+        }
+      ]
+    },
+    "inspection-certificate-https-only": {
+      "statement": "On an inspection segment the nested app's certificate_id is not supported when application_protocol is HTTP, and the provider rejects it at plan time. Up to v4.4.11 the docs said it is required whenever application_protocol is HTTPS; from v4.4.12 it is required for HTTPS only when auto_app_protect_enabled is unset or false, which the provider enforces at plan time, and not required when auto_app_protect_enabled is true because the API manages the certificate (#690).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_application_segment_inspection.md",
+          "at": [
+            "v4.4.11"
+          ],
+          "quotes": [
+            "This field is required if the ``application_protocol`` is set to `HTTPS`. The ``certificate_id`` is **NOT** supported if the application_protocol is set to `HTTP`."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_application_segment_inspection.md",
+          "quotes": [
+            "This field is **required** if the ``application_protocol`` is set to `HTTPS` and `auto_app_protect_enabled` is unset or `false`; the provider rejects the configuration at plan time otherwise.",
+            "It is not required when `auto_app_protect_enabled` is `true`, because the API manages the certificate itself. The ``certificate_id`` is **NOT** supported if the application_protocol is set to `HTTP`."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_inspection.go",
+          "after": "func customizeDiffApplicationSegmentInspection(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {",
+          "quotes": [
+            "return fmt.Errorf(\"certificate ID should not be set when 'application_protocol' is HTTP\")",
+            "if protocol == \"HTTPS\" && !autoAppProtectEnabled && (!hasCertID || certID.(string) == \"\") {"
+          ]
+        }
+      ],
+      "conditions": "Changed upstream in v4.4.12 (checked 2026-10-18): previously \"On an inspection segment the nested app's certificate_id is required when application_protocol is HTTPS and not supported when it is HTTP.\""
+    },
+    "pra-connection-security-rdp-only": {
+      "statement": "On a PRA segment connection_security is required when application_protocol is RDP and is accepted only for RDP, so it must not be set for SSH.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_application_segment_pra.md",
+          "quotes": [
+            "Parameter required when `application_protocol` is of type `RDP`",
+            "This attribute is ONLY accepted for RDP protocols. DO NOT set this attribute when `application_protocol` is `SSH`"
+          ]
+        }
+      ]
+    },
+    "quick-ack-flags-checked-by-provider": {
+      "statement": "The App Connector group resource rejects, on create and update, a request whose three tcp_quick_ack flags are not all equal, with the provider-side error that the tcpQuickAck flags need to be consistent; the docs say the three fields must share one value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "if tcp.TCPQuickAckApp != tcp.TCPQuickAckAssistant {",
+            "return fmt.Errorf(\"the values of tcpQuickAck related flags need to be consistent\")"
+          ],
+          "after": "func validateTCPQuickAck("
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_app_connector_group.md",
+          "quotes": [
+            "The tcpQuickAckApp, tcpQuickAckAssistant, and tcpQuickAckReadAssistant fields must all share the same value."
+          ],
+          "after": "- `tcp_quick_ack_app`"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "if err := validateTCPQuickAck(req); err != nil {"
+          ],
+          "after": "req := expandAppConnectorGroup(d)\n\tlog.Printf(\"[INFO] Creating zpa app connector group with request"
+        }
+      ]
+    },
+    "pra-unavailable-error-points-to-group": {
+      "statement": "The ZPA error code AST_MT_SETUP_ERR_PRA_UNAVAILABLE, named \"AC: Connector cannot establish PRA m_tunnel\", gives the admin action to check whether the PRA capability is enabled on the App Connector group; the provider's pra_enabled attribute is documented as whether PRA is enabled on the group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "\"AST_MT_SETUP_ERR_PRA_UNAVAILABLE\": {",
+            "\"name\": \"AC: Connector cannot establish PRA m_tunnel\",",
+            "\"adminAction\": \"Check if pra capability is enabled on the app-connector group\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_app_connector_group.md",
+          "quotes": [
+            "`pra_enabled` - (Boolean) Whether or not Privileged Remote Access is enabled on the App Connector Group."
+          ]
+        }
+      ]
+    },
+    "assistant-schedule-customer-id": {
+      "statement": "The App Connector and Service Edge assistant schedule resources need customer_id the first time the schedule is enabled, unless ZPA_CUSTOMER_ID supplies it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_app_connector_assistant_schedule.md",
+          "quotes": [
+            "When enabling the Assistant Schedule for the first time, you must provide the `customer_id` information."
+          ],
+          "after": "### Required"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_assistant_schedule.md",
+          "quotes": [
+            "When enabling the Assistant Schedule for the first time, you must provide the `customer_id` information."
+          ],
+          "after": "### Required"
+        }
+      ]
+    },
+    "schedule-minimum-5-days": {
+      "statement": "An assistant schedule's frequency is days, and frequency_interval is 5, 7, 14, 30, 60 or 90, with a minimum of 5.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_app_connector_assistant_schedule.md",
+          "quotes": [
+            "The minimum supported value is 5. Supported values are: `5`, `7`, `14`, `30`, `60` and `90`",
+            "Supported value is: `days`"
+          ]
+        }
+      ]
+    },
+    "provisioning-key-in-state": {
+      "statement": "The provisioning_key value is stored in Terraform state in clear text even though the attribute is marked sensitive; the doc says the ZPA API returns it in clear text and advises an encrypted remote backend, max_usage limits and ip_acl.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_provisioning_key.md",
+          "quotes": [
+            "The provisioning key is stored in the Terraform state file.",
+            "The ZPA API returns the provisioning key in clear text because it's a necessary operational value",
+            "Enable `ip_acl` to restrict where the key can be used from"
+          ]
+        }
+      ]
+    },
+    "ba-certificate-blob-key-and-cert": {
+      "statement": "The zpa_ba_certificate cert_blob is PEM content, and the Certbot example builds it from both cert.pem and privkey.pem.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_ba_certificate.md",
+          "quotes": [
+            "`certblob`          | `cert.pem`",
+            "`certblob`          | `privkey.pem`"
+          ]
+        }
+      ]
+    },
+    "ba-certificate-blob-forcenew": {
+      "statement": "On zpa_ba_certificate, cert_blob is an Optional, ForceNew argument and the update function is a no-op; Read sets name, description, certificate and microtenant_id from the API response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_ba_certificate.go",
+          "quotes": [
+            "UpdateContext: resourceFuncNoOp,",
+            "ForceNew:    true,",
+            "_ = d.Set(\"name\", resp.Name)",
+            "_ = d.Set(\"description\", resp.Description)",
+            "_ = d.Set(\"certificate\", resp.Certificate)",
+            "_ = d.Set(\"microtenant_id\", resp.MicrotenantID)"
+          ]
+        }
+      ]
+    },
+    "ba-certificate-blob-not-sensitive": {
+      "statement": "zpa_ba_certificate's cert_blob carries the certificate's private key, but the schema does not mark it Sensitive, so Terraform shows it in plan output and stores it in state as plain text.",
+      "tier": "B",
+      "derived_from": [
+        "ba-certificate-blob-key-and-cert"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_ba_certificate.go",
+          "quotes": [
+            "\"cert_blob\": { Type: schema.TypeString, Optional: true, ForceNew: true, Description: \"The description of the certificate\", },"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_ba_certificate.md",
+          "quotes": [
+            "creates a browser access certificate with a private key in the Zscaler Private Access cloud.",
+            "cert_blob = <<-EOT -----BEGIN PRIVATE KEY-----"
+          ]
+        }
+      ],
+      "conditions": "The schema block and the docs' example (a PRIVATE KEY block in cert_blob) are quoted; that a non-Sensitive argument appears in plan output and in state is Terraform behavior, not shown in a captured source."
+    },
+    "ba-certificate-import-replaces": {
+      "statement": "Read never fills cert_blob, so after importing a BA certificate a configuration that sets cert_blob plans a replacement of the certificate; recovering lost state in practice means uploading the certificate again.",
+      "tier": "B",
+      "derived_from": [
+        "ba-certificate-blob-forcenew"
+      ],
+      "conditions": "Follows from Read setting only the four listed attributes and cert_blob being ForceNew. It assumes Terraform plans a replacement when a configured ForceNew argument differs from the empty imported value, which is Terraform behavior not shown in a captured source."
+    },
+    "microtenant-controller-license": {
+      "statement": "The microtenant controller resource is in limited availability and requires an additional license.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_microtenant_controller.md",
+          "quotes": [
+            "This feature is in limited availability and requires additional license."
+          ]
+        }
+      ]
+    },
+    "tags-early-access-key-import": {
+      "statement": "The tag namespace, tag key and tag group resources are Early Access; a tag key's namespace_id is ForceNew, and a tag key imports with the composite namespace ID and tag key ID or name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_tag_namespace.md",
+          "quotes": [
+            "NOTE: This an Early Access feature."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_tag_key.md",
+          "quotes": [
+            "`namespace_id` - (Required, ForceNew) The ID of the tag namespace this key belongs to.",
+            "can be imported by using the composite format `<NAMESPACE ID>/<TAG KEY ID>` or `<NAMESPACE ID>/<TAG KEY NAME>` as the import ID."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_tag_group.md",
+          "quotes": [
+            "NOTE: This an Early Access feature."
+          ]
+        }
+      ]
+    },
+    "pra-credential-type-not-updatable": {
+      "statement": "The PRA credential resource's credential_type and its associated attributes cannot be updated after creation, and the credential pool's credential_type cannot be updated either.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_pra_credential_controller.md",
+          "quotes": [
+            "The resource `credential_type` and associated attributes cannot be updated once created."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_pra_credential_pool.md",
+          "quotes": [
+            "The `credential_type` attribute cannot be updated once created."
+          ]
+        }
+      ]
+    },
+    "pra-console-application-is-apps-config-id": {
+      "statement": "A PRA console's pra_application.id is the ID of an apps_config entry inside the segment's common_apps_dto, not the segment ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_pra_console_controller.md",
+          "quotes": [
+            "This is the ID for each `apps_config` block within `common_apps_dto`"
+          ]
+        }
+      ]
+    },
+    "pra-approval-single-email-window": {
+      "statement": "A PRA approval takes a list of email IDs but the ZPA API supports a single address; the docs say start_time cannot be more than one hour in the past and end_time cannot be more than one year or 365 days away.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_pra_approval_controller.md",
+          "quotes": [
+            "Although the attribute `email_ids` is a list of strings, the ZPA API only supports a single email address.",
+            "The approval `start_time` cannot be more than 1 hour in the past.",
+            "The approval `end_time` cannot be more than 1 year or 365 days."
+          ]
+        }
+      ]
+    },
+    "inspection-profile-preprocessors-mandatory": {
+      "statement": "An inspection profile must always include the default Preprocessors predefined control, and paranoia_level is 1 to 4 inclusive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_inspection_profile.md",
+          "quotes": [
+            "The default predefined control `Preprocessors` is mandatory and must be always included in the request by default.",
+            "OWASP Predefined Paranoia Level. Range: [1-4], inclusive"
+          ]
+        }
+      ]
+    },
+    "custom-control-redirect-value": {
+      "statement": "An inspection custom control's default_action is PASS, BLOCK or REDIRECT, and default_action_value is the redirect URL used when the action is REDIRECT; the resource code passes the value through without checking it against the action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_inspection_custom_controls.md",
+          "quotes": [
+            "This is used to provide the redirect URL if the default action is set to `REDIRECT`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_inspection_custom_controls.go",
+          "quotes": [
+            "DefaultActionValue: d.Get(\"default_action_value\").(string),"
+          ]
+        }
+      ]
+    },
+    "cbi-profile-constraints": {
+      "statement": "The CBI external profile docs say flattened_pdf must be false when upload_download is all and upload_download must be none or upstream when flattened_pdf is true; they also say at least two regions are required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_cloud_browser_isolation_external_profile.md",
+          "quotes": [
+            "`flattened_pdf` must be set to `false` when `upload_download` is set to `all`",
+            "`upload_download` must be set to `none` or `upstream` when `flattened_pdf` is set to `true`",
+            "At least 2 regions are required."
+          ]
+        }
+      ]
+    },
+    "cbi-banner-logo-limit": {
+      "statement": "The CBI banner logo must be a .jpeg or .png image of at most 100KB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_cloud_browser_isolation_banner.md",
+          "quotes": [
+            "The Logo Image (.jpeg or .png; Maximum file size is 100KB.)"
+          ]
+        }
+      ]
+    },
+    "zia-cloud-domain-values": {
+      "statement": "zia_cloud_domain accepts only zscaler, zscloud, zscalerone, zscalertwo, zscalerthree, zscalerbeta, zscalergov, zscalerten and zspreview, written without .net; the provider appends .net to the stored and sent value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_cloud_config.go",
+          "quotes": [
+            "\"zscalerthree\",",
+            "\"zspreview\",",
+            "// Ensure the domain ends with .net"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_cloud_config.go",
+          "quotes": [
+            "return domain + \".net\""
+          ]
+        }
+      ]
+    },
+    "zia-cloud-config-needed-for-capabilities": {
+      "statement": "The provider doc says zpa_zia_cloud_config, which stores ZIA credentials and a sandbox API token in the ZPA tenant, is required when configuring zpa_policy_capabilities_rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_zia_cloud_config.md",
+          "quotes": [
+            "This resource is required when configuring the policy type resource `zpa_policy_capabilities_rule`."
+          ]
+        }
+      ]
+    },
+    "lss-aliases-one-resource": {
+      "statement": "The LSS doc pages other than zpa_lss_config_controller (audit logs, web browser and the rest) declare the same zpa_lss_config_controller resource with a different source_log_type, and the provider registers zpa_lss_config_controller as the LSS resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_lss_audit_logs.md",
+          "quotes": [
+            "resource \"zpa_lss_config_controller\" \"lss_audit_logs\" {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_lss_web_browser.md",
+          "quotes": [
+            "resource \"zpa_lss_config_controller\" \"lss_browser_access\" {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "quotes": [
+            "\"zpa_lss_config_controller\":                    resourceLSSConfigController(),"
+          ],
+          "after": "ResourcesMap: map[string]*schema.Resource{"
+        }
+      ]
+    },
+    "lss-policy-rule-action-log": {
+      "statement": "The LSS User Activity example sets a policy_rule_resource whose action is LOG, and the same doc lists LOG as the supported action value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_lss_config_user_activity.md",
+          "quotes": [
+            "action        = \"LOG\""
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_lss_config_user_activity.md",
+          "quotes": [
+            "`action` - (Optional) - Supported Value(s) are: `LOG`"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "empty-ports-other-segment-kinds": {
+      "kind": "semantic",
+      "title": "Whether removing ports from standard, inspection and PRA segments also needs an explicit empty assignment",
+      "status": "open",
+      "blocks": "knowing whether omitting a port attribute leaves existing ports in place on every segment kind",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: the legacy reference says removing TCP or UDP port ranges requires explicitly setting the attribute to an empty list on the standard, Browser Access and other segment resources. Only the Browser Access doc carries that note, and the standard, inspection and PRA docs do not."
+    },
+    "browser-clientless-domain-in-domain-names": {
+      "kind": "semantic",
+      "title": "Whether a Browser Access clientless app domain must also appear in the segment's domain_names",
+      "status": "open",
+      "blocks": "knowing whether a clientless app can name a host the segment does not list",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: the legacy reference says the domain in each clientless_apps block must appear in the parent segment's domain_names. The Browser Access doc and resource code do not state this; the equivalent MUST note exists only in the inspection and PRA docs."
+    },
+    "extranet-dto-needs-extranet-enabled": {
+      "kind": "semantic",
+      "title": "Whether extranet_dto on a server group requires extranet_enabled = true",
+      "status": "open",
+      "blocks": "knowing whether an extranet_dto set with extranet_enabled false is ignored or rejected",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: the legacy reference says extranet connectivity requires extranet_enabled = true at the group level before extranet_dto is applied. The server group doc and resource code treat extranet_enabled and extranet_dto as independent arguments, and extranet_dto is sent whenever the user sets it. On the provider side the schema has no RequiredWith tying extranet_dto to extranet_enabled, so Terraform does not reject extranet_dto with extranet_enabled false; whether the API ignores or rejects it is still open.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "quotes": [
+            "\"extranet_enabled\": { Type: schema.TypeBool, Optional: true, Description: \"Enable extranet for this policy rule.\", },",
+            "\"extranet_dto\": { Type: schema.TypeList, Optional: true, Description: \"Extranet configuration for the policy rule.\", Elem: &schema.Resource{",
+            "if extranetDTO, ok := d.GetOk(\"extranet_dto\"); ok {"
+          ]
+        }
+      ]
+    },
+    "pra-enabled-required-for-pra": {
+      "kind": "semantic",
+      "title": "Whether pra_enabled must be true on an App Connector group for PRA segments to route through it",
+      "status": "partial",
+      "blocks": "knowing whether a PRA segment works when its connector group has pra_enabled false",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: the legacy reference says pra_enabled = true is required on the App Connector group before PRA segments can route through it. The provider doc describes the attribute only as whether PRA is enabled on the group. The LSS error-code catalog ties a connector failing to establish a PRA tunnel (AST_MT_SETUP_ERR_PRA_UNAVAILABLE) to checking the group's PRA capability, which supports the dependency. Still open: whether every PRA session through a group with the capability off fails, or only some, since no source states the requirement directly.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "\"adminAction\": \"Check if pra capability is enabled on the app-connector group\","
+          ]
+        }
+      ]
+    },
+    "tag-group-in-policy-conditions": {
+      "kind": "semantic",
+      "title": "Whether tag group IDs can be referenced in policy rule conditions",
+      "status": "partial",
+      "former_ids": [
+        "zpa-77"
+      ],
+      "blocks": "knowing whether a tag-based policy condition can be written in Terraform",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: the legacy reference says tags and tag groups are Early Access and it is unconfirmed whether zpa_tag_group IDs can be used as an object_type in policy conditions. The v1 and v2 access rule object_type validators accept WORKLOAD_TAG_GROUP, and the zpa_workload_tag_group data source doc says it is for that object_type. A workload tag group is a distinct object: the Go SDK reads it from /workloadTagGroup/summary, while zpa_tag_group uses /tagGroup. No validator or provider doc names an object type for zpa_tag_group IDs. Provider side answered: the 16 object_type validators (six v1 lists passed to GetPolicyConditionsSchema, ten inline in the v2, capabilities, credential, portal and browser protection rules) hold no tag group type besides WORKLOAD_TAG_GROUP, and each is a StringInSlice ValidateFunc, so Terraform rejects any other object_type before calling the API. Still open: whether the API accepts zpa_tag_group IDs under some object type.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "quotes": [
+            "\"WORKLOAD_TAG_GROUP\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "quotes": [
+            "\"WORKLOAD_TAG_GROUP\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "\"object_type\": { Type: schema.TypeString, Required: true, Description: \" This is for specifying the policy critiera.\", ValidateFunc: validation.StringInSlice(objectTypes, false),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/data-sources/zpa_workload_tag_group.md",
+          "quotes": [
+            "This data source can be used when configuring `zpa_policy_access_rule` or `zpa_policy_access_rule_v2`, `object_type` is `WORKLOAD_TAG_GROUP`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/workload_tag_group/workload_tag_group.go",
+          "quotes": [
+            "workloadTagGroupEndpoint = \"/workloadTagGroup/summary\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/tag_controller/tag_group/tag_group.go",
+          "quotes": [
+            "tagGroupEndpoint       = \"/tagGroup\""
+          ]
+        }
+      ]
+    },
+    "api-redirect-value-with-other-action": {
+      "kind": "semantic",
+      "title": "What the ZPA API does with default_action_value when default_action is not REDIRECT",
+      "status": "open",
+      "blocks": "knowing whether a stray default_action_value fails on apply",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: the legacy reference says setting default_action_value when default_action is not REDIRECT produces an API validation error. The doc and the provider code say only that the value is the redirect URL, and the provider sends it as given."
+    }
+  },
+  "divergences": {
+    "docs-no-import-but-importer-exists": {
+      "summary": "The docs say the assistant schedules, BA certificate and emergency access user cannot be imported, but each resource defines an importer.",
+      "positions": [
+        {
+          "says": "The App Connector and Service Edge assistant schedule docs say import is not currently supported.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/resources/zpa_app_connector_assistant_schedule.md",
+            "quotes": [
+              "Import is not currently supported for this resource."
+            ]
+          }
+        },
+        {
+          "says": "The BA certificate doc says the resource does not support importing.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/resources/zpa_ba_certificate.md",
+            "quotes": [
+              "This resource does not support importing."
+            ]
+          }
+        },
+        {
+          "says": "The emergency access user doc says it does not support resource import.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/resources/zpa_emergency_access_user.md",
+            "quotes": [
+              "The `zpa_emergency_access_user` do not support resource import."
+            ]
+          }
+        },
+        {
+          "says": "The BA certificate resource defines a passthrough importer.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_ba_certificate.go",
+            "quotes": [
+              "StateContext: schema.ImportStatePassthroughContext,"
+            ]
+          }
+        },
+        {
+          "says": "The App Connector assistant schedule resource also sets the passthrough importer.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_app_connector_assistant_schedule.go",
+            "quotes": [
+              "StateContext: schema.ImportStatePassthroughContext,"
+            ]
+          }
+        },
+        {
+          "says": "The emergency access resource also sets an Importer.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_emergency_access.go",
+            "quotes": [
+              "Importer: &schema.ResourceImporter{"
+            ]
+          }
+        }
+      ],
+      "impact": "terraform import is not blocked by the provider for these resources even though the docs say it is unsupported; what the import then produces is separate (the schedule read, for example, never writes the ID: zpa.terraform.resource-fidelity). For the BA certificate the import succeeds, but Read never sets the ForceNew cert_blob, so the next plan replaces the certificate and the docs' advice to re-upload it is in effect right."
+    },
+    "private-cloud-site-id": {
+      "summary": "The Private Cloud group doc documents a site_id argument, but the resource schema has it commented out.",
+      "positions": [
+        {
+          "says": "The doc lists site_id as a String, the Site ID for the Private Cloud Group, and uses it in both examples.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/resources/zpa_private_cloud_group.md",
+            "quotes": [
+              "`site_id` (String) - Site ID for the Private Cloud Group"
+            ]
+          }
+        },
+        {
+          "says": "The schema entry and the read and expand statements for site_id are commented out, so the resource has no site_id argument.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_private_cloud_group.go",
+            "quotes": [
+              "// \"site_id\": {",
+              "//_ = d.Set(\"site_id\", resp.SiteID)"
+            ]
+          }
+        }
+      ],
+      "impact": "A configuration that sets site_id on zpa_private_cloud_group, as the doc examples do, would be rejected as an unsupported argument, and the legacy reference's statement that site_id links the group to a Site Controller site cannot be used."
+    },
+    "lss-doc-token-inconsistent": {
+      "summary": "The LSS docs give conflicting source_log_type tokens for the same log type.",
+      "positions": [
+        {
+          "says": "The Audit Logs doc's introduction and the source_log_type entry in its Optional section say to use zpn_http_trans_log for Audit Logs.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/resources/zpa_lss_audit_logs.md",
+            "quotes": [
+              "for Audit Logs `zpn_http_trans_log`.",
+              "For `Audit Logs` logs use `zpn_http_trans_log`."
+            ]
+          }
+        },
+        {
+          "says": "The same doc's Required section says to use zpn_audit_log for Audit Logs, and its example sets source_log_type to zpn_audit_log.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/resources/zpa_lss_audit_logs.md",
+            "quotes": [
+              "For `Audit Logs` logs use `zpn_audit_log`.",
+              "source_log_type = \"zpn_audit_log\""
+            ]
+          }
+        }
+      ],
+      "impact": "Two places in the doc (the introduction and the Optional section) give the Web Browser token zpn_http_trans_log for Audit Logs, while the Required section and the example use zpn_audit_log; a reader following the Optional section would configure the wrong log type."
+    }
+  }
+}

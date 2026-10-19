@@ -315,7 +315,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-s
 
 For the full SDK service catalog with method signatures, endpoint paths, model classes, and pagination patterns, see [`./sdk.md`](./sdk.md).
 
-For API client creation in the context of setting up OneAPI credentials for ZPA or ZIA automation, see the client construction examples in [`../zpa/sdk.md §1.1`](../zpa/sdk.md).
+For API client creation in the context of setting up OneAPI credentials for ZPA or ZIA automation, see the client construction examples in [`zpa.sdk-python`](kb:zpa.sdk-python).
 
 ---
 
@@ -337,4 +337,4 @@ For API client creation in the context of setting up OneAPI credentials for ZPA 
 - Full SDK service catalog — [`./sdk.md`](./sdk.md)
 - Step-up authentication — [`./step-up-authentication.md`](./step-up-authentication.md)
 - ZIA API authentication section (legacy vs OneAPI) — [`zia.api`](kb:zia.api)
-- ZPA SDK client construction — [`../zpa/sdk.md §1.1`](../zpa/sdk.md)
+- ZPA SDK client construction — [`zpa.sdk-python`](kb:zpa.sdk-python)

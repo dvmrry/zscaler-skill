@@ -57,6 +57,9 @@
     },
     {
       "text": "Other settings blocked by Browser Access are in [[zpa.browser-access.segment-constraints]]. VNC file transfer needs SSH on port 22, covered in [[zpa.pra.consoles-policy]]. Update behavior of nested PRA apps in Terraform is in [[zpa.terraform.app-segment-lifecycle]]."
+    },
+    {
+      "text": "The contract lists the protocol values a PRA application can carry: {{contract-application-protocol-enum}}"
     }
   ],
   "checks": [
@@ -143,6 +146,36 @@
           "quotes": [
             "AppTypes:            []string{\"SECURE_REMOTE_ACCESS\"},"
           ]
+        }
+      ]
+    },
+    "contract-application-protocol-enum": {
+      "statement": "The OpenAPI document gives PRA application `applicationProtocol` fourteen values: HTTP, HTTPS, FTP, RDP, SSH, WEBSOCKET, VNC, REALVNC, NONE, AUTO, DYNAMIC, KRB, LDAP and SMB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application~1{applicationId}/put/requestBody/content/application~1json/schema/properties/praApps/items/properties/applicationProtocol",
+          "expect": {
+            "enum": [
+              "HTTP",
+              "HTTPS",
+              "FTP",
+              "RDP",
+              "SSH",
+              "WEBSOCKET",
+              "VNC",
+              "REALVNC",
+              "NONE",
+              "AUTO",
+              "DYNAMIC",
+              "KRB",
+              "LDAP",
+              "SMB"
+            ],
+            "type": "string"
+          }
         }
       ]
     }

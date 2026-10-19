@@ -1,0 +1,818 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.cbi-appprotection-wire",
+  "title": "Cloud Browser Isolation and AppProtection API: paths, writes and version handling",
+  "aliases": [
+    "cbiconfig base path",
+    "isolation profile regionIds",
+    "browser protection setActive",
+    "predefined controls version query",
+    "deAssociateAllPredefinedControls deprecated",
+    "controlRuleJson",
+    "zsDefinedControlChoice",
+    "CBI profile id",
+    "isolation profile uuid",
+    "cbiconfig profiles",
+    "isolation profile create status"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.naming"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.isolation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Wire details of Cloud Browser Isolation (CBI) and AppProtection (inspection) objects beyond the model and policy descriptions in [[zpa.appprotection.api-surface]] and [[zpa.appprotection.naming]]. The OWASP version choice a profile makes is in [[zpa.appprotection.profiles]]."
+    },
+    {
+      "heading": "Cloud Browser Isolation"
+    },
+    {
+      "text": "{{cbi-shared-base-path}} {{cbi-lists-are-flat-arrays}} {{cbi-singular-create-path}}"
+    },
+    {
+      "text": "{{profile-id-uuid}} {{create-200}}"
+    },
+    {
+      "text": "{{cbi-profile-id-only-writes}} {{cbi-user-experience-omitempty}} {{cbi-zpa-profile-no-omitempty}} {{python-cbi-profile-microtenant-keys}}"
+    },
+    {
+      "heading": "Browser protection"
+    },
+    {
+      "text": "{{browser-protection-operations}}"
+    },
+    {
+      "heading": "AppProtection profiles and controls"
+    },
+    {
+      "text": "{{predefined-controls-version-required}} {{profile-default-version-source}} {{zs-defined-control-choice-values}}"
+    },
+    {
+      "text": "{{custom-control-rules-json-string}} {{detach-spelling-deprecated}}"
+    },
+    {
+      "text": "The camera-and-mic control exists in Python only {{divergence:camera-and-mic}}."
+    },
+    {
+      "text": "Python lacks three ThreatLabz fields that the contract and Go carry {{divergence:threatlabz-extra-fields}}."
+    },
+    {
+      "text": "The WebSocket control fields differ between the SDKs and the contract {{divergence:websocket-extra-fields}}."
+    },
+    {
+      "text": "{{isolation-profile-enabled-tag}}"
+    },
+    {
+      "text": "The control count is a number in the contract and a string in Go {{divergence:controls-info-count-type}}."
+    },
+    {
+      "text": "Whether the server overwrites a count sent on write is open {{gap:controls-info-count-drift}}."
+    },
+    {
+      "text": "Whether the stub object is returned is open {{gap:cbi-profile-stub-object}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which of the two isolation profile families a question refers to: the cbiconfig profiles or the mgmtconfig isolation profiles.",
+      "uses": [
+        "cbi-shared-base-path",
+        "cbi-lists-are-flat-arrays"
+      ]
+    },
+    {
+      "do": "Whether a CBI create used the singular path while reads use the plural.",
+      "uses": [
+        "cbi-singular-create-path"
+      ]
+    },
+    {
+      "do": "Whether a profile's predefinedControlsVersion was empty on write, so the SDK chose it.",
+      "uses": [
+        "profile-default-version-source"
+      ]
+    },
+    {
+      "do": "Whether a detach call used the deprecated spelling.",
+      "uses": [
+        "detach-spelling-deprecated"
+      ]
+    },
+    {
+      "do": "Whether the profile identifier sent is the UUID string rather than a numeric ID.",
+      "uses": [
+        "zpa.api.cbi-appprotection-wire:profile-id-uuid"
+      ]
+    },
+    {
+      "do": "Whether a client treats 200 as success for isolation profile creation instead of requiring 201.",
+      "uses": [
+        "zpa.api.cbi-appprotection-wire:create-200"
+      ]
+    }
+  ],
+  "claims": {
+    "cbi-shared-base-path": {
+      "statement": "The Go cbiregions, cbizpaprofile, cbiprofilecontroller, cbibannercontroller and cbicertificatecontroller packages share the base /zpa/cbiconfig/cbi/api/customers/, while the separate isolationprofile package uses the mgmtconfig v1 path /isolation/profiles; the OpenAPI document lists both families.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbiregions/cbiregions.go",
+          "quotes": [
+            "cbiConfig          = \"/zpa/cbiconfig/cbi/api/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbizpaprofile/cbizpaprofile.go",
+          "quotes": [
+            "cbiConfig                 = \"/zpa/cbiconfig/cbi/api/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go",
+          "quotes": [
+            "cbiConfig          = \"/zpa/cbiconfig/cbi/api/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbibannercontroller/cbibannercontroller.go",
+          "quotes": [
+            "cbiConfig          = \"/zpa/cbiconfig/cbi/api/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbicertificatecontroller/cbicertificatecontroller.go",
+          "quotes": [
+            "cbiConfig               = \"/zpa/cbiconfig/cbi/api/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go",
+          "quotes": [
+            "mgmtConfig               = \"/zpa/mgmtconfig/v1/admin/customers/\"",
+            "isolationProfileEndpoint = \"/isolation/profiles\""
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1isolation~1profiles/get",
+          "expect": {
+            "operationId": "Get Profiles For Customer"
+          }
+        }
+      ]
+    },
+    "cbi-lists-are-flat-arrays": {
+      "statement": "The Go CBI region, ZPA profile and isolation profile lists decode the response directly into a slice with no totalPages or list envelope, and the region and ZPA profile lookups by name or ID list everything and match client-side because the code states the API does not seem to support search; the isolationprofile package instead uses the standard ZPA paging helpers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbiregions/cbiregions.go",
+          "quotes": [
+            "// The current API does not seem to support search by Name",
+            "var list []CBIRegions"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbizpaprofile/cbizpaprofile.go",
+          "quotes": [
+            "// The current API does not seem to support search by ID",
+            "var list []ZPAProfiles"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go",
+          "quotes": [
+            "var list []IsolationProfile"
+          ],
+          "after": "func GetAll(ctx context.Context, service *zscaler.Service)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go",
+          "quotes": [
+            "list, resp, err := common.GetAllPagesGeneric[IsolationProfile](ctx, service.Client, relativeURL, \"\")"
+          ],
+          "after": "func GetAll(ctx context.Context, service *zscaler.Service)"
+        }
+      ]
+    },
+    "cbi-zpa-profile-no-omitempty": {
+      "statement": "The Go ZPAProfiles struct tags enabled and cbiUrl without omitempty, but the cbizpaprofile package has only Get, GetByName and GetAll and no write path, so the tags never affect a request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbizpaprofile/cbizpaprofile.go",
+          "quotes": [
+            "Enabled      bool   `json:\"enabled\"`",
+            "CBIURL       string `json:\"cbiUrl\"`",
+            "func Get(ctx context.Context, service *zscaler.Service, profileID string) (*ZPAProfiles, *http.Response, error) {",
+            "func GetByName(ctx context.Context, service *zscaler.Service, profileName string) (*ZPAProfiles, *http.Response, error) {",
+            "func GetAll(ctx context.Context, service *zscaler.Service) ([]ZPAProfiles, *http.Response, error) {"
+          ]
+        }
+      ],
+      "conditions": "Statement changed per verifier: it said false and an empty string are sent on writes, but the package has no write function (read from every `func` in the file at HEAD)."
+    },
+    "cbi-singular-create-path": {
+      "statement": "Creating a CBI banner or certificate is a POST to the singular /banner or /certificate path, while get, update, delete and list use the plural /banners or /certificates; the OpenAPI document shows the same split.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbibannercontroller/cbibannercontroller.go",
+          "quotes": [
+            "\"POST\", cbiConfig+service.Client.GetCustomerID()+cbiBannerEndpoint",
+            "cbiBannersEndpoint = \"/banners\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbicertificatecontroller/cbicertificatecontroller.go",
+          "quotes": [
+            "\"POST\", cbiConfig+service.Client.GetCustomerID()+cbiCertificateEndpoint",
+            "cbiCertificatesEndpoint = \"/certificates\""
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1banner/post",
+          "expect": {
+            "operationId": "Add Cbi Banner Using POST"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1banners/get",
+          "expect": {
+            "operationId": "Get All Cbi Banner Using GET"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1certificate/post",
+          "expect": {
+            "operationId": "Add Cbi Certificate Using POST"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1certificates/get",
+          "expect": {
+            "operationId": "Get All Cbi Certificate Using GET"
+          }
+        }
+      ]
+    },
+    "cbi-profile-id-only-writes": {
+      "statement": "The Go cbiprofilecontroller IsolationProfile carries both regions and regionIds, and both certificates and certificateIds; the Python add_cbi_profile requires region_ids with at least two entries and a certificate_ids list, while update_cbi_profile requires a regions list with at least two entries, a list of certificate objects and a banner with an id.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go",
+          "quotes": [
+            "Regions          []Regions         `json:\"regions,omitempty\"`",
+            "RegionIDs        []string          `json:\"regionIds,omitempty\"`",
+            "CertificateIDs   []string          `json:\"certificateIds,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/cbi_profile.py",
+          "quotes": [
+            "len(body.get(\"region_ids\")) < 2",
+            "Validation Error: 'certificate_ids' is required and must be a list."
+          ],
+          "after": "def add_cbi_profile(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/cbi_profile.py",
+          "quotes": [
+            "len(body.get(\"regions\")) < 2",
+            "Validation Error: 'certificates' is required and must be a list of certificate objects.",
+            "Validation Error: 'banner' is required and must contain a valid 'id'."
+          ],
+          "after": "def update_cbi_profile(self, profile_id"
+        }
+      ],
+      "conditions": "Which of the paired fields the server reads on write and populates on read is the legacy reading of the SDK shape; the sources show the pairs and the Python validation, not the server's rule. Extended to the certificate and banner checks, which the legacy add-versus-update heading also covered."
+    },
+    "isolation-profile-enabled-tag": {
+      "statement": "The Go cbiprofilecontroller IsolationProfile, which its Create and Update send, tags enabled omitempty, so a Go write with enabled false sends no enabled key, while the Python add_cbi_profile sends its keyword arguments as the body, so an enabled false passed to it is sent. The Go isolationprofile package's IsolationProfile tags enabled without omitempty, but that package only reads (GetByName and GetAll).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go",
+          "quotes": [
+            "Enabled bool `json:\"enabled,omitempty\"`"
+          ],
+          "after": "type IsolationProfile struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go",
+          "quotes": [
+            "func Create(ctx context.Context, service *zscaler.Service, cbiProfile *IsolationProfile)",
+            "func Update(ctx context.Context, service *zscaler.Service, profileID string, segmentGroupRequest *IsolationProfile)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go",
+          "quotes": [
+            "Enabled bool `json:\"enabled\"`"
+          ],
+          "after": "type IsolationProfile struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go",
+          "quotes": [
+            "func GetByName(ctx context.Context, service *zscaler.Service, profileName string) (*IsolationProfile, *http.Response, error) {",
+            "func GetAll(ctx context.Context, service *zscaler.Service) ([]IsolationProfile, *http.Response, error) {"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/cbi_profile.py",
+          "quotes": [
+            "body = kwargs"
+          ],
+          "after": "def add_cbi_profile(self, **kwargs)"
+        }
+      ],
+      "conditions": "The Python half was added per verifier as the real contrast with Go; the executor camel-cases the keys but keeps a false value. Was a divergence whose Python position quoted the CBIProfile class in models/cbi_zpa_profile.py, which no module imports and which only GETs, and whose impact said an explicit false reaches the API through the read-only isolationprofile struct; now a claim about the one writable Go struct. That isolationprofile has no Create or Update is read from the whole file at HEAD."
+    },
+    "cbi-user-experience-omitempty": {
+      "statement": "In the Go CBI profile, UserExperience tags sessionPersistence, browserInBrowser, persistIsolationBar and translate without omitempty (false is always sent) but zgpu with omitempty, and ForwardToZia tags enabled and organizationId without omitempty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go",
+          "quotes": [
+            "SessionPersistence  bool          `json:\"sessionPersistence\"`",
+            "BrowserInBrowser    bool          `json:\"browserInBrowser\"`",
+            "PersistIsolationBar bool          `json:\"persistIsolationBar\"`",
+            "Translate           bool          `json:\"translate\"`",
+            "ZGPU                bool          `json:\"zgpu,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go",
+          "quotes": [
+            "Enabled        bool   `json:\"enabled\"`",
+            "OrganizationID string `json:\"organizationId\"`"
+          ],
+          "after": "type ForwardToZia struct"
+        }
+      ]
+    },
+    "python-cbi-profile-microtenant-keys": {
+      "statement": "The Python CBIProfile model in models/cbi_zpa_profile.py, which no SDK call uses, emits microtenant_id and microtenant_name as snake_case keys in request_format and defaults microtenant_name to boolean True when absent from a response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/cbi_zpa_profile.py",
+          "quotes": [
+            "\"microtenant_id\": self.microtenant_id,",
+            "\"microtenant_name\": self.microtenant_name,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/cbi_zpa_profile.py",
+          "quotes": [
+            "self.microtenant_name = config[\"microtenantName\"] if config and \"microtenantName\" in config else True"
+          ]
+        }
+      ],
+      "conditions": "No SDK call uses this class: cbi_zpa_profile.py imports only ZPACBIProfile from this model file, and the CBI profile methods in cbi_profile.py use the CBIProfile in models/cbi_profile.py (read from the imports under zscaler/ at HEAD). The snake-case keys therefore reach the wire only if a caller sends this class's request_format, and the executor would camel-case them ([[zpa.sdk-python.microtenant-scoping:body-camel]])."
+    },
+    "browser-protection-operations": {
+      "statement": "The Go browser protection service reads the active profile from activeBrowserProtectionProfile and all profiles from browserProtectionProfile, and its only write is a PUT to browserProtectionProfile/setActive/{profileID}; it has no create or delete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/browser_protection/browser_protection.go",
+          "quotes": [
+            "\"/activeBrowserProtectionProfile\"",
+            "browserProtectionEndpoint = \"/browserProtectionProfile\"",
+            "path := fmt.Sprintf(\"%s%s%s/setActive/%s\", mgmtConfig, service.Client.GetCustomerID(), browserProtectionEndpoint, profileID)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/browser_protection.py",
+          "quotes": [
+            "/browserProtectionProfile/setActive/{profile_id}"
+          ]
+        }
+      ],
+      "conditions": "The absence of create and delete functions was read from the whole Go package."
+    },
+    "predefined-controls-version-required": {
+      "statement": "The OpenAPI predefined-controls list requires the version query parameter; the Go SDK sends it with every list, flattens the returned control groups into a single list of controls, and its by-name lookup searches name+EQ+name server-side and then matches case-insensitively.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionControls~1predefined/get/parameters/[name=version]",
+          "expect": {
+            "required": true
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_predefined_controls/zpa_inspection_predefined_controls.go",
+          "quotes": [
+            "Version string `url:\"version\"`",
+            "predefinedControls = append(predefinedControls, group.PredefinedInspectionControls...)"
+          ],
+          "after": "func GetAll(ctx context.Context, service *zscaler.Service, version string)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_predefined_controls/zpa_inspection_predefined_controls.go",
+          "quotes": [
+            "search := fmt.Sprintf(\"name+EQ+%s\", url.QueryEscape(name))",
+            "if strings.EqualFold(control.Name, name) {"
+          ]
+        }
+      ]
+    },
+    "profile-default-version-source": {
+      "statement": "The Go inspection profile setVersion fills an empty predefinedControlsVersion from the first attached predefined control that has a version, and uses OWASP_CRS/3.3.0 only when none has; the Python add_profile and update_profile default the version to OWASP_CRS/3.3.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
+          "quotes": [
+            "defaultVersion            = \"OWASP_CRS/3.3.0\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
+          "quotes": [
+            "inspectionProfile.PredefinedControlsVersion = control.Version",
+            "inspectionProfile.PredefinedControlsVersion = defaultVersion"
+          ],
+          "after": "func setVersion(inspectionProfile *InspectionProfile)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_protection.py",
+          "quotes": [
+            "version = kwargs.pop(\"predefined_controls_version\", \"OWASP_CRS/3.3.0\")"
+          ],
+          "after": "def add_profile(self"
+        }
+      ]
+    },
+    "custom-control-rules-json-string": {
+      "statement": "The Go InspectionCustomControl reads the rules of a custom control from the controlRuleJson string member by unmarshalling it into the Rules slice on Get, while Create and Update send Rules as a normal slice.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_custom_controls/zpa_inspection_custom_controls.go",
+          "quotes": [
+            "ControlRuleJson                  string                          `json:\"controlRuleJson,omitempty\"`",
+            "err := json.Unmarshal([]byte(rulesJsonStr), &rules)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_custom_controls/zpa_inspection_custom_controls.go",
+          "quotes": [
+            "rules, err := unmarshalRulesJson(v.ControlRuleJson)",
+            "v.Rules = rules"
+          ],
+          "after": "func Get(ctx context.Context, service *zscaler.Service, customID string)"
+        }
+      ],
+      "conditions": "The Create and Update half rests on the absence of any re-encoding in those functions."
+    },
+    "detach-spelling-deprecated": {
+      "statement": "The OpenAPI document marks deAssociateAllPredefinedControls as deprecated and lists dissociateAllPredefinedControls with the same description; the Go SDK and the Python SDK still call deAssociateAllPredefinedControls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionProfile~1{inspectionProfileId}~1deAssociateAllPredefinedControls/put",
+          "expect": {
+            "deprecated": true,
+            "operationId": "De Associate All Predefined Controls"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionProfile~1{inspectionProfileId}~1dissociateAllPredefinedControls/put",
+          "expect": {
+            "description": "Updates the inspection profile for the specified ID and dissociates all predefined controls from a profile."
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
+          "quotes": [
+            "profileID+\"/deAssociateAllPredefinedControls\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_protection.py",
+          "quotes": [
+            "/inspectionProfile/{profile_id}/deAssociateAllPredefinedControls"
+          ]
+        }
+      ]
+    },
+    "zs-defined-control-choice-values": {
+      "statement": "The OpenAPI zsDefinedControlChoice enum is ALL (Zscaler handles the ThreatLabZ controls for the profile) and SPECIFIC (the user handles them), and the Python add_profile docstring repeats the two values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionProfile~1{inspectionProfileId}/get/responses/200/content/*~1*/schema/properties/zsDefinedControlChoice",
+          "expect": {
+            "enum": [
+              "ALL",
+              "SPECIFIC"
+            ]
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_protection.py",
+          "quotes": [
+            "- `ALL`: Zscaler handles the ThreatLabZ Controls for the AppProtection profile.",
+            "- `SPECIFIC`: User handles the ThreatLabZ Controls for the AppProtection profile."
+          ]
+        }
+      ]
+    },
+    "profile-id-uuid": {
+      "statement": "The :profileId path parameter on the CBI isolation profile endpoints is a UUID string in the OpenAPI document.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1profiles~1{profileId}/get/parameters/[name=profileId]/schema",
+          "expect": {
+            "format": "uuid",
+            "type": "string"
+          }
+        }
+      ],
+      "conditions": "The Postman collection (09_29_2026 release) no longer carries this: profileId is described only as \"profileId\" and the add request has no example response. Previously \"The :profileId path parameter on the CBI isolation profile endpoints is a UUID string, in both the OpenAPI document and the Postman collection.\""
+    },
+    "create-200": {
+      "statement": "Creating a CBI isolation profile returns 200 OK in the OpenAPI document, not 201 Created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1profiles/post/responses/200",
+          "expect": {
+            "description": "OK"
+          }
+        }
+      ],
+      "conditions": "The Postman collection (09_29_2026 release) no longer carries this: profileId is described only as \"profileId\" and the add request has no example response. Previously \"Creating a CBI isolation profile returns 200 OK in both the OpenAPI document and the Postman collection, not 201 Created.\""
+    }
+  },
+  "divergences": {
+    "camera-and-mic": {
+      "summary": "The Python CBI profile security controls carry `cameraAndMic`, while the Go SecurityControls struct has no such field.",
+      "positions": [
+        {
+          "says": "The Python SecurityControls model reads and writes cameraAndMic.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/models/cbi_profile.py",
+            "quotes": [
+              "\"cameraAndMic\": self.camera_and_mic,"
+            ]
+          }
+        },
+        {
+          "says": "The Go SecurityControls struct ends with copyPaste, localRender and deepLink and has no cameraAndMic.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go",
+            "quotes": [
+              "CopyPaste string `json:\"copyPaste,omitempty\"`",
+              "DeepLink *DeepLink `json:\"deepLink,omitempty\"`"
+            ],
+            "after": "type SecurityControls struct {"
+          }
+        }
+      ],
+      "impact": "A Go client, and the Terraform provider that uses it, drops cameraAndMic on read and write; the OpenAPI profile list gives only an example string, so the contract does not settle whether the field is current."
+    },
+    "threatlabz-extra-fields": {
+      "summary": "The Go ThreatLabzControls struct and the OpenAPI document carry `ruleMetadata`, `ruleProcessor` and `associatedCustomers`, while the Python ThreatLabzControls model reads none of them.",
+      "positions": [
+        {
+          "says": "The contract threatlabzControls items include ruleMetadata.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionProfile/get/responses/200/content/*~1*/schema/properties/list/items/properties/threatlabzControls/items/properties/ruleMetadata",
+            "expect": {
+              "description": "The metadata for the rule in the defined control.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "says": "The Go struct declares RuleMetadata, RuleProcessor and AssociatedCustomers.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
+            "quotes": [
+              "RuleMetadata string `json:\"ruleMetadata,omitempty\"`",
+              "RuleProcessor string `json:\"ruleProcessor,omitempty\"`",
+              "AssociatedCustomers []AssociatedCustomers `json:\"associatedCustomers,omitempty\"`"
+            ],
+            "after": "type ThreatLabzControls struct {"
+          }
+        },
+        {
+          "says": "The Python model reads the control number, version and paranoia level among others and not these three.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/models/app_protection_profile.py",
+            "quotes": [
+              "self.control_number = config[\"controlNumber\"] if \"controlNumber\" in config else None"
+            ],
+            "after": "class ThreatLabzControls(ZscalerObject):"
+          }
+        }
+      ],
+      "impact": "Python callers lose these three fields on read; Go and the contract agree they exist."
+    },
+    "websocket-extra-fields": {
+      "summary": "The Python WebSocketControls model carries `controlException`, which the contract has, while the Go WebSocketControls struct carries `zsDefinedControlChoice` and no `controlException`; the contract places `zsDefinedControlChoice` on the profile, not on the WebSocket control.",
+      "positions": [
+        {
+          "says": "The contract websocketControls items include controlException with a domains list.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionProfile/get/responses/200/content/*~1*/schema/properties/list/items/properties/websocketControls/items/properties/controlException/properties/domains",
+            "expect": {
+              "description": "The domains for the control exception. You can add up to 5 exceptions and up to 20 OWASP predefined controls per OWASP predefined control."
+            }
+          }
+        },
+        {
+          "says": "The contract puts zsDefinedControlChoice on the inspection profile item.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionProfile/get/responses/200/content/*~1*/schema/properties/list/items/properties/zsDefinedControlChoice",
+            "expect": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "says": "The Python WebSocketControls model reads controlException.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/models/app_protection_profile.py",
+            "quotes": [
+              "if \"controlException\" in config:"
+            ],
+            "after": "class WebSocketControls(ZscalerObject):"
+          }
+        },
+        {
+          "says": "The Go WebSocketControls struct declares ZSDefinedControlChoice.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
+            "quotes": [
+              "ZSDefinedControlChoice string `json:\"zsDefinedControlChoice,omitempty\"`"
+            ],
+            "after": "type WebSocketControls struct {"
+          }
+        }
+      ],
+      "impact": "Each SDK has a field the other lacks on this object, and the Go field has no counterpart on the contract's WebSocket control; neither SDK is a complete model."
+    },
+    "controls-info-count-type": {
+      "summary": "The OpenAPI document types an AppProtection profile's `controlsInfo[].count` as an int64 integer, while the Go SDK types it as a string.",
+      "positions": [
+        {
+          "says": "The contract controlsInfo items have count as an int64.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionProfile/get/responses/200/content/*~1*/schema/properties/list/items/properties/controlsInfo/items/properties/count",
+            "expect": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "says": "The Go ControlInfoResource declares Count as a string.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
+            "quotes": [
+              "Count string `json:\"count,omitempty\"`"
+            ],
+            "after": "type ControlInfoResource struct {"
+          }
+        }
+      ],
+      "impact": "A Go decode of a bare JSON integer into the string field fails; the live response is not captured."
+    }
+  },
+  "gaps": {
+    "controls-info-count-drift": {
+      "kind": "semantic",
+      "title": "Whether the server overwrites a controlsInfo count sent on an AppProtection profile write",
+      "status": "open",
+      "detail": "Unverified legacy statement (operator field observation from production Terraform use): the `controlsInfo[].count` value is computed by the server, and keeping it in Terraform configuration makes every plan show drift because the API overwrites it. The Terraform provider cannot hold a count: the resource's controls_info has only control_type, and expandControlsInfo sends only ControlType. The question remains for raw API and SDK clients, since the Go ControlInfoResource and the Python ControlsInfo request_format both carry count: send a profile with a stale count, add or remove a control, and read the profile back.",
+      "blocks": "telling whether a client that writes back a read profile can carry a stale count",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_inspection_profile.go",
+          "quotes": [
+            "ControlType: controlItem[\"control_type\"].(string),"
+          ],
+          "after": "func expandControlsInfo(d *schema.ResourceData) []inspection_profile.ControlInfoResource {"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_protection_profile.py",
+          "quotes": [
+            "current_obj_format = {\"controlType\": self.control_type, \"count\": self.count}"
+          ]
+        }
+      ]
+    },
+    "cbi-profile-stub-object": {
+      "kind": "semantic",
+      "title": "Whether an unset CBI profile reference reads back as an object with id 0 and an empty name",
+      "status": "open",
+      "detail": "Unverified legacy statement (operator field observation from production Terraform use): an object with no CBI profile can come back with a stub `cbi_profile` of id \"0\" and an empty name, which the provider must treat as absent; the CBI profile struct tags its ID omitempty, so a zero ID would not be sent. No captured source shows the stub in a response. Read a policy rule or segment that has no CBI profile and record the object.",
+      "blocks": "importing resources that have no CBI profile",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

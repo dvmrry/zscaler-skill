@@ -59,7 +59,7 @@
     },
     {
       "label": "Microtenants.",
-      "text": "[[zpa.microtenants.limits:connector-versions]] {{microtenant-license}}"
+      "text": "[[zpa.microtenants.limits:connector-versions]] [[zpa.terraform.provider-config:microtenant-env-var]]"
     },
     {
       "text": "Selection settings on the group are in [[zpa.private-service-edges.client-selection]]; disaster recovery designation is in [[zpa.private-service-edges.disaster-recovery]]."
@@ -99,7 +99,7 @@
       "do": "Whether Microtenant use requires a newer software version.",
       "uses": [
         "zpa.microtenants.limits:connector-versions",
-        "microtenant-license"
+        "zpa.terraform.provider-config:microtenant-env-var"
       ]
     }
   ],
@@ -167,18 +167,26 @@
       ]
     },
     "upgrade-defaults": {
-      "statement": "In Terraform, upgrade_day defaults to SUNDAY and upgrade_time_in_secs defaults to 66600; the time is an integer in seconds, at least 0 and below 86400, in 15-minute intervals.",
+      "statement": "In the Terraform schema, upgrade_day defaults to \"SUNDAY\" and upgrade_time_in_secs is a string attribute defaulting to \"66600\", with no validation. The docs describe the time as an integer in seconds, at least 0 and below 86400, in 15-minute intervals.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "\"upgrade_day\": { Type: schema.TypeString, Optional: true, Default: \"SUNDAY\",",
+            "\"upgrade_time_in_secs\": { Type: schema.TypeString, Optional: true, Default: \"66600\", Description: \"Service Edges in this group will attempt to update to a newer version of the software during this specified time.\", },"
+          ]
+        },
+        {
+          "source": "tf-zpa",
           "path": "docs/resources/zpa_service_edge_group.md",
           "quotes": [
-            "Default value: `SUNDAY` List of valid days (i.e., Sunday, Monday)",
             "Default value: `66600` Integer in seconds (i..e, 66600). The integer must be greater than or equal to 0 and less than `86400`, in `15` minute intervals"
           ]
         }
       ],
+      "conditions": "Statement changed from \"the time is an integer\": the schema types upgrade_time_in_secs as a string with Default \"66600\" and no ValidateFunc, so the integer range is now attributed to the docs.",
       "binds": [
         "zpa/service-edge-groups#upgradeDay",
         "zpa/service-edge-groups#upgradeTimeInSecs"
@@ -261,23 +269,6 @@
             "Indicates if the Service Edges are included for deletion if they are in a disconnected state based on frequencyInterval and frequency values."
           ]
         }
-      ]
-    },
-    "microtenant-license": {
-      "statement": "A Service Edge group's microtenant_id requires the microtenant license and feature flag on the tenant; the provider also accepts it from the ZPA_MICROTENANT_ID environment variable, which the documentation calls the recommended method.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "tf-zpa",
-          "path": "docs/resources/zpa_service_edge_group.md",
-          "quotes": [
-            "requires the microtenant license and feature flag enabled for the respective tenant",
-            "which is the recommended method"
-          ]
-        }
-      ],
-      "binds": [
-        "zpa/service-edge-groups#microtenantId"
       ]
     }
   },

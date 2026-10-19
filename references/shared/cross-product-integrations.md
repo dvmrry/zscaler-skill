@@ -156,7 +156,7 @@ Both actions delegate auth-challenge presentation to ZIdentity. A tenant without
 - **API client scope restricts product access.** A client scoped only to `zia.*` can't reach ZPA or ZDX endpoints regardless of tenant configuration. Always the first thing to check on 403 responses.
 - **Token TTL is tenant-wide** — not per-product. A long-running script that's working fine for ZIA calls will also work for ZPA calls until the shared token expires.
 - **Client secret rotation invalidates all callers immediately** — rotating the secret for a single automation breaks every script/CI/TF pipeline that shared it. Plan rotations.
-- **Legacy-auth tenants can't use OneAPI.** They use per-product auth paths and don't have ZIdentity. Fork admins on legacy tenants need a different auth setup per [`zia.api`](kb:zia.api) and [`../zpa/api.md`](../zpa/api.md).
+- **Legacy-auth tenants can't use OneAPI.** They use per-product auth paths and don't have ZIdentity. Fork admins on legacy tenants need a different auth setup per [`zia.api`](kb:zia.api) and [`zpa.api`](kb:zpa.api).
 
 ### Cloud Connector → ZIA + ZPA (workload-side traffic forwarding)
 
@@ -276,7 +276,7 @@ See [`./cloud-architecture.md § Feed Central`](./cloud-architecture.md).
 
 ### NSS ↔ LSS (log streaming products)
 
-**NSS (ZIA logs) and LSS (ZPA logs) are separate products with overlapping fields.** Both stream to a customer SIEM. Neither can carry the other's events. Cross-correlating a user's activity across ZIA and ZPA in a SIEM requires joining by user identity, not by a shared log field — and user identity field names differ between the two schemas. See [`zia.logs.web-records`](kb:zia.logs.web-records) and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
+**NSS (ZIA logs) and LSS (ZPA logs) are separate products with overlapping fields.** Both stream to a customer SIEM. Neither can carry the other's events. Cross-correlating a user's activity across ZIA and ZPA in a SIEM requires joining by user identity, not by a shared log field — and user identity field names differ between the two schemas. See [`zia.logs.web-records`](kb:zia.logs.web-records) and [`zpa.logs.user-activity`](kb:zpa.logs.user-activity).
 
 ### ZDX → ZCC + ZIA/ZPA definitions
 

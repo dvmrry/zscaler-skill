@@ -132,15 +132,27 @@
       "conditions": "Follows directly from the return shape."
     },
     "result-models-snake-case-attrs": {
-      "statement": "A result model exposes snake_case attributes but its as_dict output uses the API's camelCase keys: the URL category model reads customCategory into custom_category and writes it back as customCategory.",
+      "statement": "A result model exposes snake_case attributes; its request_format output uses the API's camelCase keys, and as_dict converts those keys to snake_case and leaves out None values. The URL category model reads customCategory into custom_category, and its request_format writes it back as customCategory.",
       "tier": "A",
+      "conditions": "Corrected because as_dict, inherited from the base class, returns snake_case keys; the camelCase entry is in request_format. Previously \"A result model exposes snake_case attributes but its as_dict output uses the API's camelCase keys: the URL category model reads customCategory into custom_category and writes it back as customCategory.\"",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zia/models/urlcategory.py",
           "quotes": [
+            "class URLCategory(ZscalerObject):",
             "self.custom_category = config[\"customCategory\"] if \"customCategory\" in config else False",
             "\"customCategory\": self.custom_category,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_object.py",
+          "quotes": [
+            "for key, val in self.request_format().items():",
+            "if val is None:",
+            "# Otherwise it's a simple type (string, int, etc.) else: result[to_snake_case(key)] = val",
+            "The keys are in camelCase as expected by the API."
           ]
         }
       ]

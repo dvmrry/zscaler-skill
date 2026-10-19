@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.posture-trusted-networks-wire",
+  "title": "Posture profile and trusted network wire details the SDK models drop",
+  "aliases": [
+    "python posture profile domain missing",
+    "posture profile read-only wire",
+    "trusted network python model"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.posture-profiles.object-model"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.trusted-networks.object"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.posture-profiles.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.pagination"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Posture profiles and trusted networks are read-only, v2 for lists and v1 for a single object, with the object fields in [[zpa.posture-profiles.object-model]] and [[zpa.trusted-networks.object]]. The Go lookups by posture UDID and by network id read the whole list and compare client-side, see [[zpa.posture-profiles.api-surface]] and [[zpa.trusted-networks.object]]; the 500-per-page size they use is in [[zpa.api.pagination]]."
+    },
+    {
+      "label": "What the Python model hides.",
+      "text": "{{python-posture-model-omits-domain}} The Python model's tab in the rootCert key and its boolean defaults are in [[zpa.posture-profiles.object-model]]."
+    },
+    {
+      "text": "The platform field is a list in the contract and a string in Go {{divergence:posture-platform-shape}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a posture profile's domain was read through the Python SDK, whose model does not carry it.",
+      "uses": [
+        "python-posture-model-omits-domain"
+      ]
+    }
+  ],
+  "claims": {
+    "python-posture-model-omits-domain": {
+      "statement": "The API document and the Go PostureProfile type both carry a domain field, but the Python PostureProfile model has no domain attribute, so a posture profile read through Python does not expose it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1posture/get/responses/200/content/*~1*/schema/properties/list/items/properties/domain",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/postureprofile/zpa_posture_profile.go",
+          "quotes": [
+            "Domain string `json:\"domain,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/posture_profiles.py",
+          "quotes": [
+            "self.zscaler_customer_id = config[\"zscalerCustomerId\"] if config and \"zscalerCustomerId\" in config else None",
+            "self.platform = ZscalerCollection.form_list(config[\"platform\"] if \"platform\" in config else [], str)"
+          ]
+        }
+      ],
+      "conditions": "Absence is read from the whole model file at the pin: the string domain does not occur in it. The Python trusted network model does carry domain."
+    }
+  },
+  "divergences": {
+    "posture-platform-shape": {
+      "summary": "The OpenAPI document and the Python SDK give a posture profile's `platform` as a list of strings, while the Go SDK declares it as a single string.",
+      "positions": [
+        {
+          "says": "The contract response has platform as an array of strings.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/platform",
+            "expect": {
+              "type": "array"
+            }
+          }
+        },
+        {
+          "says": "The Python model reads platform as a list of strings.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/models/posture_profiles.py",
+            "quotes": [
+              "self.platform = ZscalerCollection.form_list(config[\"platform\"] if \"platform\" in config else [], str)"
+            ],
+            "after": "self.zscaler_customer_id = config[\"zscalerCustomerId\"] if config and \"zscalerCustomerId\" in config else None"
+          }
+        },
+        {
+          "says": "The Go PostureProfile declares Platform as one string.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/postureprofile/zpa_posture_profile.go",
+            "quotes": [
+              "Platform string `json:\"platform,omitempty\"`"
+            ]
+          }
+        }
+      ],
+      "impact": "A Go caller decoding a response whose platform is a list gets a decode error or an empty value instead of the platforms; the live response is not captured."
+    }
+  }
+}

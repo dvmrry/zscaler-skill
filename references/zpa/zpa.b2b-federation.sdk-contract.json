@@ -47,6 +47,12 @@
     {
       "label": "Adjacent packages.",
       "text": "The same Go change adds packages whose contract is unresolved across the SDKs: domains {{divergence:customer-domain-write}}, identity mapping {{divergence:iamidpmapping-shape}} and policy groups {{divergence:policy-group-routes}}. Browser Access groups are Go-only {{gap:browser-access-groups-go-only}}. General Go SDK defects are in [[zpa.sdk-go.service-defects]]."
+    },
+    {
+      "text": "The Python policy group controllers, including a docstring example that cannot run as written, are in [[zpa.sdk-python.policy-groups]]."
+    },
+    {
+      "text": "The Go SDK release metadata was out of step with itself: {{go-version-constant-behind-changelog}}"
     }
   ],
   "checks": [
@@ -203,6 +209,44 @@
           ]
         }
       ]
+    },
+    "go-version-constant-behind-changelog": {
+      "statement": "Up to v3.8.52 the Go SDK's `VERSION` constant in oneapiclient.go stayed at 3.8.48 while the changelog moved on (its newest entry at v3.8.52 is 3.8.52), so the user agent the client sends named an older version; from v3.8.53 the constant matches the release (3.8.55 at v3.8.55).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": ["v3.8.52"],
+          "quotes": [
+            "VERSION               = \"3.8.48\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "at": ["v3.8.52"],
+          "quotes": [
+            "# 3.8.52 (October 5, 2026)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "VERSION               = \"3.8.55\"",
+            "UserAgent:     fmt.Sprintf(\"zscaler-sdk-go/%s golang/%s %s/%s\", VERSION,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "# 3.8.55 (October 8, 2026)"
+          ]
+        }
+      ],
+      "conditions": "Release metadata only; it says nothing about route availability or tenant entitlement. Changed upstream in v3.8.53 (checked 2026-10-18): previously \"In the Go SDK the `VERSION` constant in oneapiclient.go is 3.8.48 while the changelog's newest entry is 3.8.49, so the user agent the client sends names the older version.\""
     }
   },
   "divergences": {

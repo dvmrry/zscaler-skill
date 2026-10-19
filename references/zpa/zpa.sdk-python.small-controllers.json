@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "id": "zpa.sdk-python.small-controllers",
+  "title": "Python SDK controllers whose verbs or names are not what they look like",
+  "aliases": [
+    "admin sso update post",
+    "update_sso_controller",
+    "session termination on reauth sdk",
+    "zia cloud config sdk",
+    "verify_oauth2_user_code",
+    "add_provisioning_key oauth2 usercodes status"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.provisioning-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.sdk-coverage"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.endpoint-versions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A few Python ZPA controllers send a different HTTP verb or carry a different method name from what their purpose suggests. The method lists themselves are in the generated surface."
+    },
+    {
+      "label": "Admin SSO.",
+      "text": "{{admin-sso-post}}"
+    },
+    {
+      "label": "ZIA customer config.",
+      "text": "{{zia-config-methods}}"
+    },
+    {
+      "label": "OAuth user codes.",
+      "text": "{{oauth-add-provisioning-key}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which verb the Admin SSO update sent: it is a POST on the same route its read uses.",
+      "uses": [
+        "admin-sso-post"
+      ]
+    },
+    {
+      "do": "Whether the ZIA integration call was a cloud-config write (POST) or a session-termination write (PUT).",
+      "uses": [
+        "zia-config-methods"
+      ]
+    },
+    {
+      "do": "Whether an OAuth user-code call went to usercodes or usercodes/status, since the status route is on a method called add_provisioning_key.",
+      "uses": [
+        "oauth-add-provisioning-key"
+      ]
+    }
+  ],
+  "claims": {
+    "admin-sso-post": {
+      "statement": "`update_sso_controller` sends POST to `/ssoLoginOptions` on the `/v2`-suffixed base, the same route `get_sso_controller` reads with GET.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/admin_sso_controller.py",
+          "quotes": [
+            "def get_sso_controller(self) -> APIResult[dict]:",
+            "def update_sso_controller(self, **kwargs)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/admin_sso_controller.py",
+          "quotes": [
+            "http_method = \"post\".upper()"
+          ],
+          "after": "def update_sso_controller("
+        }
+      ]
+    },
+    "zia-config-methods": {
+      "statement": "The ZIA customer config module reads availability with GET `/config/isZiaCloudConfigAvailable`, writes the cloud service config with POST `/config/ziaCloudConfig`, and writes session termination on reauth with PUT `/config/sessionTerminationOnReauth`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/zia_customer_config.py",
+          "quotes": [
+            "/config/isZiaCloudConfigAvailable",
+            "def add_zia_cloud_service_config(self, **kwargs)",
+            "def update_session_termination_on_reauth(self, **kwargs)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/zia_customer_config.py",
+          "quotes": [
+            "http_method = \"post\".upper()"
+          ],
+          "after": "def add_zia_cloud_service_config("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/zia_customer_config.py",
+          "quotes": [
+            "http_method = \"put\".upper()"
+          ],
+          "after": "def update_session_termination_on_reauth("
+        }
+      ]
+    },
+    "oauth-add-provisioning-key": {
+      "statement": "In the OAuth user-code module `verify_oauth2_user_code` posts to `/usercodes`, and the method named `add_provisioning_key` posts to `/usercodes/status`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/oauth2_user_code.py",
+          "quotes": [
+            "def verify_oauth2_user_code(self, key_type: str, **kwargs)",
+            "def add_provisioning_key(self, key_type: str, **kwargs)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/oauth2_user_code.py",
+          "quotes": [
+            "/usercodes/status"
+          ]
+        }
+      ]
+    }
+  }
+}

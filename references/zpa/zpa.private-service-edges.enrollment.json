@@ -48,7 +48,7 @@
     },
     {
       "label": "Terraform side.",
-      "text": "{{tf-two-methods}} {{tf-provisioning-key}} {{enrollment-cert-autoresolve}} Failure to verify user codes after the group is written is a provider behavior: [[zpa.terraform.resource-fidelity:user-code-verification-after-write]]. Association types for provisioning keys: [[zpa.sdk-go.service-defects:provisioning-key-all-associations-fixed-list]]. OAuth2 licensing beyond the version is open {{gap:oauth2-prerequisites}}. The module's OAuth2 default and provider minimum are in [[zpa.private-service-edges.reference-modules]]."
+      "text": "{{tf-two-methods}} {{tf-provisioning-key}} [[zpa.terraform.group-enrollment:resolver-lookup-by-name]] Failure to verify user codes after the group is written is a provider behavior: [[zpa.terraform.resource-fidelity:user-code-verification-after-write]]. Association types for provisioning keys: [[zpa.sdk-go.service-defects:provisioning-key-all-associations-fixed-list]]. OAuth2 licensing beyond the version is open {{gap:oauth2-prerequisites}}. The module's OAuth2 default and provider minimum are in [[zpa.private-service-edges.reference-modules]]."
     },
     {
       "label": "Identity and cloning.",
@@ -178,27 +178,6 @@
           "quotes": [
             "Create the Service Edge Group, then create a `zpa_provisioning_key` that references the group's ID.",
             "The provisioning key is then injected into the Service Edge VM at deployment time."
-          ]
-        }
-      ]
-    },
-    "enrollment-cert-autoresolve": {
-      "statement": "If enrollment_cert_id is empty on a Service Edge group, the provider looks up the enrollment certificate named \"Service Edge\" and uses it; since 4.4.10 this runs on update as well as create.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "tf-zpa",
-          "path": "CHANGELOG.md",
-          "quotes": [
-            "The resolution now also runs on update for the resources `zpa_app_connector_group`, `zpa_service_edge_group`, and `zpa_private_cloud_group`"
-          ]
-        },
-        {
-          "source": "tf-zpa",
-          "path": "zpa/utils.go",
-          "quotes": [
-            "if v, ok := d.GetOk(\"enrollment_cert_id\"); ok && v.(string) != \"\" {",
-            "cert, _, err := enrollmentcert.GetByName(ctx, service, certName)"
           ]
         }
       ]

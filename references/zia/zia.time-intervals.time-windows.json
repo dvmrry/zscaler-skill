@@ -37,7 +37,7 @@
     },
     {
       "label": "Terraform.",
-      "text": "{{tf-data-source}} {{no-managed-resource}} Whether that is intentional is open {{gap:terraform-resource-intent}}. Whether the catalog's predefined names also exist among intervals is open {{gap:predefined-intervals}}. Which of the two objects a given rule's `timeWindows` entry accepts is open {{gap:rule-field-references}}; see [[zia.time-intervals.rule-usage]]."
+      "text": "{{tf-data-source}} The docs give other types for its outputs {{divergence:tf-data-source-types}}. {{no-managed-resource}} Whether that is intentional is open {{gap:terraform-resource-intent}}. Whether the catalog's predefined names also exist among intervals is open {{gap:predefined-intervals}}. Which of the two objects a given rule's `timeWindows` entry accepts is open {{gap:rule-field-references}}; see [[zia.time-intervals.rule-usage]]."
     }
   ],
   "checks": [
@@ -114,20 +114,38 @@
       ]
     },
     "tf-data-source": {
-      "statement": "The Terraform provider exposes the catalog as the data source `zia_firewall_filtering_time_window`, looked up by name (documented examples: Work hours, Weekends, Off hours), returning `start_time`, `end_time` and `day_of_week` as strings.",
+      "statement": "The Terraform provider exposes the catalog as the data source `zia_firewall_filtering_time_window`, looked up by `id` or `name` (documented examples: Work hours, Weekends, Off hours). Its schema returns `start_time` and `end_time` as integers and `day_of_week` as a list of strings.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/provider.go",
+          "quotes": [
+            "\"zia_firewall_filtering_time_window\": dataSourceFWTimeWindow(),"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_fw_filtering_time_window.go",
+          "quotes": [
+            "\"id\": { Type: schema.TypeInt, Computed: true, Optional: true, },",
+            "\"name\": { Type: schema.TypeString, Optional: true, },",
+            "\"start_time\": { Type: schema.TypeInt, Computed: true, },",
+            "\"end_time\": { Type: schema.TypeInt, Computed: true, },",
+            "\"day_of_week\": { Type: schema.TypeList, Elem: &schema.Schema{Type: schema.TypeString},"
+          ]
+        },
         {
           "source": "tf-zia",
           "path": "docs/data-sources/zia_firewall_filtering_time_window.md",
           "quotes": [
             "name = \"Work hours\"",
-            "name = \"Off hours\"",
-            "* `start_time` - (String)",
-            "* `day_of_week` - (String). The supported values are:"
+            "name = \"Weekends\"",
+            "name = \"Off hours\""
           ]
         }
-      ]
+      ],
+      "conditions": "Statement changed from \"returning start_time, end_time and day_of_week as strings\": that is the docs; the schema types the times as TypeInt and day_of_week as a list of strings, so the claim now states the schema and the docs' types are the tf-data-source-types divergence. Lookup by id added from the schema."
     },
     "no-managed-resource": {
       "statement": "The Terraform provider has no managed resource or data source for user-created time intervals; only the time window data source exists in the documentation.",
@@ -183,6 +201,40 @@
         "lab-test",
         "source-read"
       ]
+    }
+  },
+  "divergences": {
+    "tf-data-source-types": {
+      "summary": "The time window data source docs type start_time, end_time and day_of_week as strings and name as required; the schema types the times as integers, day_of_week as a list of strings, and name as optional.",
+      "positions": [
+        {
+          "says": "The docs list name as required and start_time, end_time and day_of_week as strings.",
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/data-sources/zia_firewall_filtering_time_window.md",
+            "quotes": [
+              "* `name` - (Required) The name of the time window to be exported.",
+              "* `start_time` - (String)",
+              "* `end_time` - (String)",
+              "* `day_of_week` - (String). The supported values are:"
+            ]
+          }
+        },
+        {
+          "says": "The schema declares name optional, start_time and end_time as TypeInt, and day_of_week as a list of strings.",
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/data_source_zia_fw_filtering_time_window.go",
+            "quotes": [
+              "\"name\": { Type: schema.TypeString, Optional: true, },",
+              "\"start_time\": { Type: schema.TypeInt, Computed: true, },",
+              "\"end_time\": { Type: schema.TypeInt, Computed: true, },",
+              "\"day_of_week\": { Type: schema.TypeList, Elem: &schema.Schema{Type: schema.TypeString},"
+            ]
+          }
+        }
+      ],
+      "impact": "Expressions that treat day_of_week as one string (for example string functions on it) fail type checks, and start_time and end_time come back as numbers; write configurations against the schema types."
     }
   }
 }

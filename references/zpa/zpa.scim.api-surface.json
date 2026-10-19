@@ -306,16 +306,32 @@
       ]
     },
     "go-functions": {
-      "statement": "The Go SDK's scimgroup package has Get, GetByName and GetAllByIdpId, and its scimattributeheader package has Get, GetByName, GetAllByIdpId, GetValues and SearchValues.",
+      "statement": "The Go SDK's scimgroup package has Get, GetByName and GetAllByIdpId, plus, from v3.8.50 (#465), GetByNameAndIamIdp, which resolves a group name within one ZIdentity (IAM) IdP; its scimattributeheader package has Get, GetByName, GetAllByIdpId, GetValues and SearchValues.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/scimgroup/zpa_scim_group.go",
+          "at": ["v3.8.48", "HEAD"],
           "quotes": [
             "func Get(ctx context.Context, service *zscaler.Service, scimGroupID string)",
             "func GetByName(ctx context.Context, service *zscaler.Service, scimName, idpId string)",
             "func GetAllByIdpId(ctx context.Context, service *zscaler.Service, idpId string)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimgroup/zpa_scim_group.go",
+          "quotes": [
+            "func GetByNameAndIamIdp(ctx context.Context, service *zscaler.Service, scimName, idpId string, criteria IamIdpCriteria)",
+            "// IamIdpCriteria narrows a SCIM group name lookup to the groups that belong to a"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added `IamIdpID` and `IamIdpName` to `scimgroup.ScimGroup`, and the function `scimgroup.GetByNameAndIamIdp`"
           ]
         },
         {
@@ -326,7 +342,8 @@
             "func SearchValues(ctx context.Context, service *zscaler.Service, idpId, ScimAttrHeaderID, searchQuery string)"
           ]
         }
-      ]
+      ],
+      "conditions": "Changed upstream in v3.8.50 (checked 2026-10-18): previously \"The Go SDK's scimgroup package has Get, GetByName and GetAllByIdpId, and its scimattributeheader package has Get, GetByName, GetAllByIdpId, GetValues and SearchValues.\""
     },
     "search-values-drops-domain": {
       "statement": "SearchValues keeps only the part of the search query before the first @, so an email-shaped query is searched without its domain.",
@@ -366,7 +383,7 @@
           ]
         }
       ],
-      "conditions": "Absence claim from a read of the Go scimgroup and scimattributeheader files, and of the Python scim_groups.py and scim_attributes.py: the functions listed in claims go-functions and python-methods are the only public ones."
+      "conditions": "Absence claim from a read of the Go scimgroup and scimattributeheader files, and of the Python scim_groups.py and scim_attributes.py: the functions listed in claims go-functions and python-methods are the only public ones (Go scimgroup re-read at v3.8.55: Get, GetByName, GetByNameAndIamIdp, GetAllByIdpId)."
     },
     "tf-data-sources": {
       "statement": "The zpa_scim_groups and zpa_scim_attribute_header data sources fail unless idp_id or idp_name is set, find the object by id when it is given and otherwise by name, and zpa_scim_attribute_header also reads the attribute's values into a values set.",

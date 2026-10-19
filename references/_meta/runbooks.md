@@ -502,7 +502,7 @@ Some changes can't be rolled back even with the patterns above:
 ## Cross-links
 
 - Authentication mechanisms (full reference, not runbook): [`../shared/oneapi.md § Authentication mechanisms`](../shared/oneapi.md)
-- Read/write asymmetries (referenced from TS-6): [`zia.api`](kb:zia.api), [`../zpa/api.md § Read/write shape asymmetries`](../zpa/api.md)
+- Read/write asymmetries (referenced from TS-6): [`zia.api`](kb:zia.api), [`zpa.api`](kb:zpa.api)
 - Activation gate: [`../shared/activation.md`](../shared/activation.md)
 - Verification protocol (when adding new runbooks here): [`verification-protocol.md`](verification-protocol.md)
 - Tier model (where this doc fits — meta level alongside the protocol): [`layering-model.md`](layering-model.md)

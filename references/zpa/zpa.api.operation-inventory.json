@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.operation-inventory",
+  "title": "Create operations missing from the Automate contract for ZPA",
+  "aliases": [
+    "zpa create operation missing from automate",
+    "app connector group POST missing from openapi",
+    "automate inventory drift zpa",
+    "zpa openapi collection POST absent"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.api-surface"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Automate OpenAPI document for ZPA has collection GET and item operations for App Connector Groups, LSS configurations and Private Service Edge Groups but no collection POST. The LSS and Service Edge group absences are held in [[zpa.log-receivers.api]] and [[zpa.private-service-edges.api-surface]]."
+    },
+    {
+      "label": "What the contract shows.",
+      "text": "{{app-connector-group-collection-get-only}}"
+    },
+    {
+      "label": "What the clients do.",
+      "text": "{{go-create-posts-app-connector-group}} {{provider-creates-via-sdk}}"
+    },
+    {
+      "label": "What is open.",
+      "text": "Whether the three creates work today, and what they require, is open {{gap:create-runtime-status}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before citing a create body for an App Connector Group, LSS configuration or Private Service Edge Group, check whether the contract lists the POST; if not, say the request schema is unconfirmed.",
+      "uses": [
+        "app-connector-group-collection-get-only",
+        "create-runtime-status"
+      ]
+    }
+  ],
+  "claims": {
+    "app-connector-group-collection-get-only": {
+      "statement": "The ZPA OpenAPI document gives the appConnectorGroup collection path only a GET operation, with no POST for creating a group.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1appConnectorGroup/get",
+          "expect": {
+            "operationId": "Gets all configured App Connector Groups for the specified customer."
+          }
+        }
+      ],
+      "conditions": "Absence claim: the path item in automate-zscaler/openapi/zpa.openapi.json lists the single method get. The same absence for the LSS configuration and Service Edge group collections is held in zpa.log-receivers.api and zpa.private-service-edges.api-surface."
+    },
+    "go-create-posts-app-connector-group": {
+      "statement": "The Go SDK creates an App Connector Group with a POST to the appConnectorGroup collection path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
+          "quotes": [
+            "service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+appConnectorGroupEndpoint"
+          ],
+          "after": "func Create(ctx context.Context, service *zscaler.Service, appConnectorGroup AppConnectorGroup)"
+        }
+      ]
+    },
+    "provider-creates-via-sdk": {
+      "statement": "The Terraform provider creates an App Connector Group by calling the Go SDK Create.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "resp, _, err := appconnectorgroup.Create(ctx, service, req)"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "create-runtime-status": {
+      "kind": "semantic",
+      "title": "Whether the three create operations are live and what their current request schema requires",
+      "status": "open",
+      "detail": "Unverified legacy statement: authenticated Terraform acceptance tests on a OneAPI beta tenant created an App Connector Group and a Private Service Edge Group, while LSS create has no current public authenticated success because the provider acceptance test is disabled; and unauthenticated 401 responses from the gateway say nothing about whether a route exists. The only record is the repository's authored note vendor/zscaler-help/zpa-create-operation-drift-capture.md, which static-captures.json classes as a note that cannot be cited as evidence. Create a group of each kind through the API in a scratch tenant and record the status and the required fields.",
+      "blocks": "citing a create request body for these three resources from the contract",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

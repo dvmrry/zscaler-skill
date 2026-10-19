@@ -63,6 +63,9 @@
     {
       "label": "Other settings.",
       "text": "{{inspect-zia-purpose}} {{tcp-keepalive}} {{policy-style-tf}}"
+    },
+    {
+      "text": "The Python docstring omits one contract value {{divergence:icmp-python-docstring-values}}."
     }
   ],
   "checks": [
@@ -398,6 +401,39 @@
         }
       ],
       "impact": "A segment created through Terraform without `health_reporting` is sent with NONE, not the console's On Access, and NONE also blocks Closer to Application."
+    },
+    "icmp-python-docstring-values": {
+      "summary": "The OpenAPI document gives `icmpAccessType` three values, while the Python add_segment_provision docstring lists two.",
+      "positions": [
+        {
+          "says": "The contract enum is PING_TRACEROUTING, PING and NONE.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application~1{applicationId}/get/responses/200/content/*~1*/schema/properties/icmpAccessType",
+            "expect": {
+              "enum": [
+                "PING_TRACEROUTING",
+                "PING",
+                "NONE"
+              ],
+              "type": "string"
+            }
+          }
+        },
+        {
+          "says": "The Python add_segment_provision docstring says the values are PING and NONE.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/application_segment.py",
+            "quotes": [
+              "icmp_access_type (str): ICMP access policy. Values: `PING`, `NONE`."
+            ],
+            "after": "def add_segment_provision("
+          }
+        }
+      ],
+      "impact": "A caller who trusts the Python docstring will not offer PING_TRACEROUTING; the SDK does not validate the value, so passing it as a raw string is not blocked by the SDK."
     }
   },
   "gaps": {

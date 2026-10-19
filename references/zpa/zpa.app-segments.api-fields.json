@@ -72,6 +72,9 @@
     {
       "label": "Federation fields.",
       "text": "{{hbr-sticky-guest-fields}} Their accepted values and meaning are open {{gap:hbr-sticky-guest-semantics}}. The guest record shape and the Python decoding defect are in [[zpa.b2b-federation.federate-applications:guest-details-shape]] and [[zpa.b2b-federation.federate-applications:python-guestdetails-decode-defect]]."
+    },
+    {
+      "text": "The `applications` field is a string on the segment and a list of objects on the segment group: {{applications-field-types}}"
     }
   ],
   "checks": [
@@ -433,6 +436,34 @@
             "\"zscalerManaged\": self.zscaler_managed,"
           ],
           "after": "Formats the Application Segment data into a dictionary suitable for API requests."
+        }
+      ]
+    },
+    "applications-field-types": {
+      "statement": "The Go base application segment model types `applications` as a string, while the Go segment group model holds a list of Application objects and the OpenAPI segment group document types `applications` as an array.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "Applications string `json:\"applications,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "quotes": [
+            "Applications []Application `json:\"applications\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/get/responses/200/content/*~1*/schema/properties/applications",
+          "expect": {
+            "type": "array"
+          }
         }
       ]
     }

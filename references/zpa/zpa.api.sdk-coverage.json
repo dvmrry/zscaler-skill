@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.sdk-coverage",
+  "title": "Which ZPA services the Go and Python SDKs cover differently, and the Go packages behind Python-only module names",
+  "aliases": [
+    "go only zpa",
+    "python only zpa",
+    "scim user crud zpa go",
+    "tag_key tag_namespace go",
+    "policy_group python legacy",
+    "pra cbi go packages",
+    "go parity zia_customer_config",
+    "go parity user_portal_aup",
+    "go parity workload_tag_group",
+    "custom_config_controller go",
+    "admin_sso_controller go post"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api.sdk-coverage"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.b2b-federation.sdk-contract"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.share-and-move"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.legacy-endpoints"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.small-controllers"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Go and Python SDKs split ZPA differently, and the split is by package layout more often than by API coverage. The module and package inventory itself is generated."
+    },
+    {
+      "label": "SCIM users.",
+      "text": "{{scim-users-go}}"
+    },
+    {
+      "label": "Tags, PRA and CBI.",
+      "text": "{{tags-in-both}} {{pra-cbi-layout}}"
+    },
+    {
+      "label": "Policy groups.",
+      "text": "{{policy-group-python-ops}} [[zpa.sdk-python.policy-groups:unified-only]] The route differences from Go are in [[zpa.b2b-federation.sdk-contract:policy-group-routes]]."
+    },
+    {
+      "label": "Python modules with renamed Go packages.",
+      "text": "{{go-custom-config}} {{go-aup}} {{go-workload-tag-group}} {{go-admin-sso}}"
+    },
+    {
+      "label": "Move and share.",
+      "text": "Both SDKs expose them: [[zpa.microtenants.share-and-move:python-move]] and [[zpa.microtenants.share-and-move:go-move-and-share]]."
+    },
+    {
+      "label": "Federation and Browser Access Groups.",
+      "text": "The new Go packages and their Python counterparts are held in [[zpa.b2b-federation.sdk-contract:go-covers-two-routes]], [[zpa.b2b-federation.sdk-contract:python-covers-partial]] and [[zpa.browser-access.tooling:go-browser-access-groups]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before calling a service Go-only or Python-only, the other SDK's package list, since the tag services exist in both.",
+      "uses": [
+        "tags-in-both",
+        "pra-cbi-layout"
+      ]
+    },
+    {
+      "do": "For SCIM user provisioning, that only the Go SDK has the calls, and they go to a separate SCIM client addressed by IdP ID.",
+      "uses": [
+        "scim-users-go"
+      ]
+    },
+    {
+      "do": "For policy groups from Python, that the controllers exist only on the unified client.",
+      "uses": [
+        "zpa.sdk-python.policy-groups:unified-only"
+      ]
+    },
+    {
+      "do": "Whether a Go-parity question for the ZIA customer config, user portal AUP or workload tag group used the Go package names, not the Python module names.",
+      "uses": [
+        "go-custom-config",
+        "go-aup",
+        "go-workload-tag-group"
+      ]
+    }
+  ],
+  "claims": {
+    "scim-users-go": {
+      "statement": "The Go SDK has SCIM user get, create, update, delete and list calls on a separate SCIM client addressed by IdP ID, while the Python ZPA service exposes SCIM groups and SCIM attributes properties.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scim_api/scim_user_api.go",
+          "quotes": [
+            "func CreateUser(ctx context.Context, service *zscaler.ScimZPAService, scimUser *ScimUser)",
+            "func DeleteUser(ctx context.Context, service *zscaler.ScimZPAService, userID string)",
+            "relativeURL := fmt.Sprintf(\"%s%s/%s\", service.Client.ScimConfig.IDPId, userScimConfigEndpoint, userID)"
+          ],
+          "after": "func GetUser(ctx context.Context"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/zpa_service.py",
+          "quotes": [
+            "def scim_attributes(self) -> ScimAttributeHeaderAPI:",
+            "def scim_groups(self) -> SCIMGroupsAPI:"
+          ]
+        }
+      ]
+    },
+    "tags-in-both": {
+      "statement": "Tag keys and tag namespaces are in both SDKs: the Go SDK has tag_key and tag_namespace packages under tag_controller with /tagKey and /namespace routes, and the Python ZPA service has tag_key and tag_namespace properties.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/tag_controller/tag_key/tag_key.go",
+          "quotes": [
+            "tagKeyPath               = \"/tagKey\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/tag_controller/tag_namespace/tag_namespace.go",
+          "quotes": [
+            "namespaceEndpoint        = \"/namespace\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/zpa_service.py",
+          "quotes": [
+            "def tag_key(self) -> TagKeyAPI:",
+            "def tag_namespace(self) -> TagNamespaceAPI:"
+          ]
+        }
+      ]
+    },
+    "pra-cbi-layout": {
+      "statement": "The Go SDK nests PRA and CBI services in privilegedremoteaccess and cloudbrowserisolation package trees with the same routes the Python pra_* and cbi_* modules use, so the difference is layout, not API coverage.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/praportal/praportal.go",
+          "quotes": [
+            "praPortalEndpoint = \"/praPortal\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbiregions/cbiregions.go",
+          "quotes": [
+            "cbiRegionsEndpoint = \"/regions\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/zpa_service.py",
+          "quotes": [
+            "def pra_portal(self) -> PRAPortalAPI:",
+            "def cbi_region(self) -> CBIRegionAPI:"
+          ]
+        }
+      ]
+    },
+    "policy-group-python-ops": {
+      "statement": "Python's policy_group controller adds, lists (group/all), searches, gets, updates, deletes and reorders groups under /policyGroupSet/{group_set_id}/group, policy_group_rule lists, adds, gets, deletes and reorders rules under a group, and policy_group_set lists sets and reads them by ID or policy type, with summaries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policy_group.py",
+          "quotes": [
+            "def add_group(self, group_set_id: str, **kwargs)",
+            "def search_groups(self, group_set_id: str, **kwargs)",
+            "def reorder_group(self, group_set_id: str, group_id: str, new_order: str"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policy_group_rule.py",
+          "quotes": [
+            "def add_rule(self, group_set_id: str, group_id: str, **kwargs)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policy_group_set.py",
+          "quotes": [
+            "def get_set_summary_stats(",
+            "def get_set(self, group_set_id: str"
+          ]
+        }
+      ]
+    },
+    "go-custom-config": {
+      "statement": "The Go package `custom_config_controller` covers the Python ZIA customer config routes: GET `/config/isZiaCloudConfigAvailable`, GET and POST `/config/ziaCloudConfig`, and GET and PUT `/config/sessionTerminationOnReauth`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/custom_config_controller/custom_config_controller.go",
+          "quotes": [
+            "/config/isZiaCloudConfigAvailable",
+            "func AddZIACloudConfig(",
+            "func UpdateSessionTerminationOnReath("
+          ]
+        }
+      ]
+    },
+    "go-aup": {
+      "statement": "The Go package `userportal/aup` defines `Get`, `GetByName`, `Create`, `Update`, `Delete` and `GetAll` on `/userportal/aup`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/userportal/aup/aup.go",
+          "quotes": [
+            "userPortalAUPEndpoint = \"/userportal/aup\"",
+            "func Create(",
+            "func Update(",
+            "func Delete(",
+            "func GetAll("
+          ]
+        }
+      ]
+    },
+    "go-workload-tag-group": {
+      "statement": "The Go package `workload_tag_group` uses `/workloadTagGroup/summary`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/workload_tag_group/workload_tag_group.go",
+          "quotes": [
+            "workloadTagGroupEndpoint = \"/workloadTagGroup/summary\""
+          ]
+        }
+      ]
+    },
+    "go-admin-sso": {
+      "statement": "The Go package `admin_sso_controller` updates the login options with POST on `/v2/ssoLoginOptions`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/admin_sso_controller/admin_sso_controller.go",
+          "quotes": [
+            "ssoLoginEndpoint = \"/v2/ssoLoginOptions\"",
+            "\"POST\", mgmtConfig+service.Client.GetCustomerID()+ssoLoginEndpoint"
+          ]
+        }
+      ]
+    }
+  }
+}

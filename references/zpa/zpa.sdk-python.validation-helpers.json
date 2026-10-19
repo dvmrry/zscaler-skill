@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "id": "zpa.sdk-python.validation-helpers",
+  "title": "Python SDK client-side checks that raise: PRA credentials and approval times, and custom control rules",
+  "aliases": [
+    "is_valid_ssh_key",
+    "Invalid SSH key format",
+    "Unsupported credential_type",
+    "validate_and_convert_times",
+    "Start time cannot be more than 1 hour in the past",
+    "pra approval one year",
+    "add_custom_control rule TypeError"
+  ],
+  "binds": [],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.tooling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.return-shapes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are claims about checks the Python SDK runs before sending. Most of them raise an exception, so a call that fails here never reaches the error slot."
+    },
+    {
+      "label": "PRA credentials.",
+      "text": "{{credential-type-raises}} {{ssh-key-check}}"
+    },
+    {
+      "label": "PRA approvals.",
+      "text": "{{approval-times-checked}} {{approval-times-both-needed}} How the optional working hours are sent is in [[zpa.pra.tooling]]."
+    },
+    {
+      "label": "App Protection custom controls.",
+      "text": "{{custom-control-rule-shape}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a credential or approval call raised before sending, and was wrapped in a try block, since these checks raise ValueError.",
+      "uses": [
+        "credential-type-raises",
+        "approval-times-checked"
+      ]
+    },
+    {
+      "do": "Whether an SSH key passed the SDK check only because it contained a PEM header, which says nothing about the key being usable.",
+      "uses": [
+        "ssh-key-check"
+      ]
+    }
+  ],
+  "claims": {
+    "credential-type-raises": {
+      "statement": "`add_credential` and `update_credential` raise ValueError, rather than returning it, when username or password is missing for USERNAME_PASSWORD, when username or private key is missing for SSH_KEY, when the password is missing for PASSWORD, and for any other `credential_type`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_credential.py",
+          "quotes": [
+            "raise ValueError(\"Username and password must be provided for USERNAME_PASSWORD type.\")",
+            "raise ValueError(\"Username and private_key must be provided for SSH_KEY type.\")",
+            "raise ValueError(\"Password must be provided for PASSWORD type.\")",
+            "raise ValueError(f\"Unsupported credential_type: {credential_type}\")"
+          ],
+          "after": "def add_credential(self, **kwargs)"
+        }
+      ]
+    },
+    "ssh-key-check": {
+      "statement": "The SSH key check accepts any text that contains one of the headers `-----BEGIN OPENSSH PRIVATE KEY-----`, `-----BEGIN RSA PRIVATE KEY-----` or `-----BEGIN EC PRIVATE KEY-----`; it does not parse the key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "r\"-----BEGIN OPENSSH PRIVATE KEY-----\",",
+            "r\"-----BEGIN RSA PRIVATE KEY-----\",",
+            "r\"-----BEGIN EC PRIVATE KEY-----\",",
+            "return any(re.search(pattern, private_key) for pattern in ssh_key_patterns)"
+          ],
+          "after": "def is_valid_ssh_key("
+        }
+      ]
+    },
+    "approval-times-checked": {
+      "statement": "The PRA approval time conversion raises ValueError for a time zone that is not in the pytz list, for a start time more than one hour in the past, and for an end time more than 365 days after the start.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "if time_zone_str not in pytz.all_timezones:",
+            "raise ValueError(\"Start time cannot be more than 1 hour in the past.\")",
+            "raise ValueError(\"Start time and end time range cannot exceed 1 year.\")"
+          ],
+          "after": "def validate_and_convert_times("
+        }
+      ]
+    },
+    "approval-times-both-needed": {
+      "statement": "`add_approval` converts times only when both `start_time` and `end_time` are given, using the working hours time zone or UTC, and then sends epoch `startTime` and `endTime`; `update_approval` makes the same call.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_approval.py",
+          "quotes": [
+            "if start_time and end_time:",
+            "start_epoch, end_epoch = validate_and_convert_times(start_time, end_time, time_zone)"
+          ],
+          "after": "def add_approval(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_approval.py",
+          "quotes": [
+            "start_epoch, end_epoch = validate_and_convert_times(start_time, end_time, time_zone)"
+          ],
+          "after": "def update_approval(self, approval_id: str, **kwargs)"
+        }
+      ]
+    },
+    "custom-control-rule-shape": {
+      "statement": "`add_custom_control` rebuilds each rule from its `type`, optional `names` and each condition's `lhs`, `op` and `rhs`, raising TypeError for a rule that is not a dictionary and KeyError for a rule or condition missing those keys; other keys on a rule are dropped.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_protection.py",
+          "quotes": [
+            "raise TypeError(f\"Expected rule to be a dictionary, got {type(rule).__name__}: {rule}\")",
+            "\"type\": rule[\"type\"],",
+            "\"lhs\": condition[\"lhs\"],",
+            "\"op\": condition[\"op\"],",
+            "\"rhs\": condition[\"rhs\"],"
+          ],
+          "after": "def _create_rule(rule: dict)"
+        }
+      ],
+      "conditions": "The KeyError and the dropped keys follow from the dictionary indexing and the fixed keys copied; they were not run."
+    }
+  },
+  "gaps": {}
+}

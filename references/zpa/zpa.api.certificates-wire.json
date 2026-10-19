@@ -1,0 +1,691 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.certificates-wire",
+  "title": "Enrollment and Browser Access certificate API: wire keys, paths and client quirks",
+  "aliases": [
+    "enrollment certificate getcName",
+    "zrsaencryptedprivatekey",
+    "BaCertificate update PUT",
+    "clientlessCertificate issued deprecated",
+    "enrollment cert csr generate",
+    "browser access certificate upload CertBlob"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.certificates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Enrollment (signing) certificates and Browser Access certificates are separate API objects with different quirks. Browser Access certificate use is in [[zpa.browser-access.certificates]]; connector enrollment is in [[zpa.app-connectors.enrollment]]."
+    },
+    {
+      "heading": "Enrollment certificates"
+    },
+    {
+      "text": "{{enrollment-cert-v1-v2-split}} {{enrollment-cert-csr-selfsigned-v1}}"
+    },
+    {
+      "label": "Wire keys.",
+      "text": "{{enrollment-cert-cname-wire-key}} {{divergence:enrollment-cname-key}} {{enrollment-cert-lowercase-keys}}"
+    },
+    {
+      "label": "Lookups and scope.",
+      "text": "{{name-lookup-case-rules}} {{enrollment-cert-microtenant-scope}} {{system-provisioned-names}}"
+    },
+    {
+      "label": "Writes.",
+      "text": "{{enrollment-cert-allow-signing-omitempty}} {{python-validity-window-checks}} {{python-delete-dry-run}}"
+    },
+    {
+      "label": "Python model.",
+      "text": "{{python-enrollment-model-gaps}}"
+    },
+    {
+      "heading": "Browser Access certificates"
+    },
+    {
+      "text": "{{ba-cname-key-agrees}} {{ba-issued-list-deprecated-path}}"
+    },
+    {
+      "text": "{{ba-upload-blob}} {{ba-delete-then-get-400}}"
+    },
+    {
+      "text": "{{ba-update-asymmetry}} Whether the Python PUT works is open {{gap:ba-certificate-put-valid}}."
+    },
+    {
+      "text": "The client certificate types are four in the contract and two in the Python docstring {{divergence:client-cert-type-values}}."
+    },
+    {
+      "text": "Whether the two values are synonyms is open {{gap:client-cert-type-synonyms}}."
+    },
+    {
+      "text": "The validity timestamps are integers in the contract and strings in the SDKs {{divergence:validity-epoch-types}}."
+    },
+    {
+      "text": "Whether the first match is the only match is open {{gap:enrollment-name-duplicates}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Go-side read of an enrollment certificate shows an empty canonical name because of the key mismatch.",
+      "uses": [
+        "enrollment-cname-key",
+        "enrollment-cert-cname-wire-key"
+      ]
+    },
+    {
+      "do": "Whether a wrong-case certificate name explains a failed lookup, by lookup kind.",
+      "uses": [
+        "name-lookup-case-rules"
+      ]
+    },
+    {
+      "do": "Whether a Browser Access certificate update is attempted through Python, since the Go SDK and the API document have no such operation.",
+      "uses": [
+        "ba-update-asymmetry",
+        "ba-certificate-put-valid"
+      ]
+    },
+    {
+      "do": "Whether the issued-certificate list uses the deprecated path.",
+      "uses": [
+        "ba-issued-list-deprecated-path"
+      ]
+    }
+  ],
+  "claims": {
+    "enrollment-cert-v1-v2-split": {
+      "statement": "Enrollment certificate single-object reads and all writes use the mgmtconfig v1 path, while the list and the name lookup use the v2 path; the OpenAPI document lists a v1 get by ID and a v2 list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+          "quotes": [
+            "relativeURL := fmt.Sprintf(\"%s/%s\", mgmtConfigV1+service.Client.GetCustomerID()+enrollmentCertEndpoint, id)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+          "quotes": [
+            "relativeURL := mgmtConfigV2 + service.Client.GetCustomerID() + enrollmentCertEndpoint"
+          ],
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, certName string)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+          "quotes": [
+            "relativeURL := mgmtConfigV2 + service.Client.GetCustomerID() + enrollmentCertEndpoint"
+          ],
+          "after": "func GetAll(ctx context.Context, service *zscaler.Service)"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1enrollmentCert~1{enrollmentCertId}/get",
+          "expect": {
+            "operationId": "Gets the enrollment certificate details for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1enrollmentCert/get",
+          "expect": {
+            "operationId": "Get All Signing Cert"
+          }
+        }
+      ]
+    },
+    "enrollment-cert-csr-selfsigned-v1": {
+      "statement": "Generating a CSR and generating a self-signed enrollment certificate are POSTs on the v1 enrollmentCert path, at csr/generate and selfsigned/generate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+          "quotes": [
+            "enrollmentCertEndpoint+\"/csr/generate\"",
+            "enrollmentCertEndpoint+\"/selfsigned/generate\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/enrollment_certificates.py",
+          "quotes": [
+            "/enrollmentCert/csr/generate"
+          ],
+          "after": "def generate_csr(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/enrollment_certificates.py",
+          "quotes": [
+            "/enrollmentCert/selfsigned/generate"
+          ],
+          "after": "def generate_self_signed(self, **kwargs)"
+        }
+      ]
+    },
+    "enrollment-cert-cname-wire-key": {
+      "statement": "The Go EnrollmentCert struct tags the canonical-name field `cName`, while the OpenAPI response schema and the Python model use `getcName`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+          "quotes": [
+            "Cname                   string `json:\"cName,omitempty\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1enrollmentCert~1{enrollmentCertId}/get/responses/200/content/*~1*/schema/properties/getcName",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/enrollment_certificates.py",
+          "quotes": [
+            "\"getcName\": self.get_cname,"
+          ]
+        }
+      ],
+      "conditions": "Whether the server also accepts `cName` is not shown by these sources; see the divergence."
+    },
+    "enrollment-cert-lowercase-keys": {
+      "statement": "The private-key and session-key fields of an enrollment certificate use the all-lowercase wire keys `zrsaencryptedprivatekey` and `zrsaencryptedsessionkey`, in the Go struct, the Python model and the OpenAPI schema.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+          "quotes": [
+            "ZrsaEncryptedPrivateKey string `json:\"zrsaencryptedprivatekey,omitempty\"`",
+            "ZrsaEncryptedSessionKey string `json:\"zrsaencryptedsessionkey,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/enrollment_certificates.py",
+          "quotes": [
+            "\"zrsaencryptedprivatekey\": self.zrsaencryptedprivatekey,",
+            "\"zrsaencryptedsessionkey\": self.zrsaencryptedsessionkey,"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1enrollmentCert~1{enrollmentCertId}/get/responses/200/content/*~1*/schema/properties/zrsaencryptedprivatekey",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1enrollmentCert~1{enrollmentCertId}/get/responses/200/content/*~1*/schema/properties/zrsaencryptedsessionkey",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "python-enrollment-model-gaps": {
+      "statement": "The Python EnrollmentCertificate model never reads `description` from a response and does not emit it in request_format, so a caller who serializes a model instance with request_format and sends the result loses the description; the SDK's own add and update methods send their keyword arguments and never call request_format. Its no-config branch also names an attribute `zrsaencryptedprivate_key`, which differs from the `zrsaencryptedprivatekey` that request_format reads, so request_format on an empty instance raises AttributeError.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/enrollment_certificates.py",
+          "quotes": [
+            "self.zrsaencryptedprivate_key = None",
+            "\"zrsaencryptedprivatekey\": self.zrsaencryptedprivatekey,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/enrollment_certificates.py",
+          "quotes": [
+            "self.description = None",
+            "\"name\": self.name,",
+            "\"allowSigning\": self.allow_signing,"
+          ]
+        }
+      ],
+      "conditions": "Statement changed per verifier: it said any description sent through the model is dropped, but add_enrollment_cert and update_enrollment build the body from keyword arguments, and no call in enrollment_certificates.py uses request_format (read from the whole file). The absence of description from the config branch and from request_format was read from the whole model; a quote cannot prove an absence. The Go struct and the OpenAPI schema both define description."
+    },
+    "python-validity-window-checks": {
+      "statement": "The Python SDK checks valid_from, valid_to and time_zone, rejecting a start more than one hour in the past, a range over 365 days, and a time zone not in the pytz list; the Go SDK has no such checks. add_enrollment_cert and generate_self_signed send the body as the keyword arguments, so the window goes out as epoch seconds in strings. update_enrollment copies the keyword arguments into a new body before converting, so it sends the raw valid_from, valid_to and time_zone and no epoch values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/enrollment_certificates.py",
+          "quotes": [
+            "body = kwargs",
+            "kwargs[\"valid_from_in_epoch_sec\"] = str(from_epoch)"
+          ],
+          "after": "def add_enrollment_cert(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/enrollment_certificates.py",
+          "quotes": [
+            "body = kwargs",
+            "kwargs[\"valid_from_in_epoch_sec\"] = str(from_epoch)"
+          ],
+          "after": "def generate_self_signed(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/enrollment_certificates.py",
+          "quotes": [
+            "body = {}",
+            "body.update(kwargs)",
+            "kwargs[\"valid_from_in_epoch_sec\"] = str(from_epoch)",
+            "kwargs.pop(key, None)",
+            "request, error = self._request_executor.create_request(http_method, api_url, body, {}, {})"
+          ],
+          "after": "def update_enrollment("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "raise ValueError(\"Start time cannot be more than 1 hour in the past.\")",
+            "raise ValueError(\"Start time and end time range cannot exceed 1 year.\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "if time_zone_str not in pytz.all_timezones:"
+          ],
+          "after": "def validate_and_convert_times(start_time_str, end_time_str, time_zone_str)"
+        }
+      ],
+      "conditions": "Statement changed per verifier: it said all Python writes send the epoch values; update_enrollment converts into kwargs after body has already copied them, and pops the raw keys from kwargs only, so its body keeps them (camel-cased by the executor, [[zpa.sdk-python.microtenant-scoping:body-camel]]). generate_self_signed was added because it converts like add_enrollment_cert. The Go statement rests on reading the enrollmentcert package, which converts nothing and validates nothing before the request. The OpenAPI schema says validFromInEpochSec is not applicable for put and post calls because the value is extracted from the certificate."
+    },
+    "python-delete-dry-run": {
+      "statement": "The Python enrollment certificate delete sends the dryRun query parameter only when dry_run is truthy, so dry_run=False is the same as omitting it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/enrollment_certificates.py",
+          "quotes": [
+            "params = {\"dryRun\": dry_run} if dry_run else {}"
+          ]
+        }
+      ]
+    },
+    "system-provisioned-names": {
+      "statement": "The Go integration test asserts that GetAll returns enrollment certificates named Root, Client, Connector, Service Edge and Isolation Client.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert_test.go",
+          "quotes": [
+            "requiredNames := []string{\"Root\", \"Client\", \"Connector\", \"Service Edge\", \"Isolation Client\"}"
+          ],
+          "after": "func TestEnrollmentCert(t *testing.T)"
+        }
+      ],
+      "conditions": "The test shows these names are expected in a test tenant; that they exist in every tenant or cannot be changed is not stated."
+    },
+    "name-lookup-case-rules": {
+      "statement": "Enrollment certificate GetByName compares the name with strings.EqualFold, while the BaCertificate GetIssuedByName compares with ==, so a wrong-case name finds an enrollment certificate but not an issued Browser Access certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+          "quotes": [
+            "if strings.EqualFold(cert.Name, certName) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/bacertificate/zpa_ba_certificate.go",
+          "quotes": [
+            "if baCertificate.Name == CertName {"
+          ]
+        }
+      ]
+    },
+    "enrollment-cert-microtenant-scope": {
+      "statement": "In the Go enrollment certificate service, Get, Delete and GetAll pass the service's microtenant ID as a filter, while Create and Update pass nil for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+          "quotes": [
+            "\"GET\", relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()}, nil, v)"
+          ],
+          "after": "func Get(ctx context.Context, service *zscaler.Service, id string)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+          "quotes": [
+            "\"POST\", mgmtConfigV1+service.Client.GetCustomerID()+enrollmentCertEndpoint, nil, cert, v)",
+            "\"PUT\", path, nil, cert, nil)",
+            "\"DELETE\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, nil, nil)"
+          ]
+        }
+      ],
+      "conditions": "Passing nil does not mean Create and Update send no microtenantId: NewRequestDo still adds one from the body, then ZPA_MICROTENANT_ID, then the client configuration ([[zpa.terraform.data-source-selection:inject-precedence-env-over-config]]), never from the service-level microtenant that Get, Delete and GetAll use. Whether a microtenant-scoped create or update lands in the wrong scope is not shown; the struct carries a microtenantId field in the body."
+    },
+    "enrollment-cert-allow-signing-omitempty": {
+      "statement": "The Go EnrollmentCert tags allowSigning with omitempty, so a false value is not sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+          "quotes": [
+            "AllowSigning            bool   `json:\"allowSigning,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "ba-issued-list-deprecated-path": {
+      "statement": "The OpenAPI document marks GET clientlessCertificate/issued as deprecated, saying only \"This API will be deprecated in a future release.\", and also lists GET certificate/issued with the same response schema; the Go SDK and the Python SDK still call the clientlessCertificate/issued path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1clientlessCertificate~1issued/get",
+          "expect": {
+            "deprecated": true,
+            "description": "Gets all issued certificates for the specified customer. This API will be deprecated in a future release.",
+            "operationId": "Get All Issued Certs"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1certificate~1issued/get",
+          "expect": {
+            "operationId": "Get All Issued Certificates"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/bacertificate/zpa_ba_certificate.go",
+          "quotes": [
+            "baCertificateIssuedEndpoint = \"/clientlessCertificate/issued\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/certificates.py",
+          "quotes": [
+            "/clientlessCertificate/issued"
+          ],
+          "after": "def list_issued_certificates(self, query_params"
+        }
+      ],
+      "conditions": "Statement changed per verifier: it said the contract names certificate/issued as the path to use, but the deprecated operation's text names no replacement. That the two 200 responses are identical was read by comparing the two response objects in the OpenAPI document."
+    },
+    "ba-delete-then-get-400": {
+      "statement": "The Go integration test expects a Get of a Browser Access certificate after its deletion to fail with an error containing 400, not a not-found error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/bacertificate/zpa_ba_certificate_test.go",
+          "quotes": [
+            "if err == nil || !strings.Contains(err.Error(), \"400\") {"
+          ]
+        }
+      ],
+      "conditions": "Shown by a test assertion on one tenant; the response code the API returns is not documented in the OpenAPI document."
+    },
+    "ba-upload-blob": {
+      "statement": "The Go Browser Access certificate upload test builds CertBlob as a CERTIFICATE PEM block concatenated with an RSA PRIVATE KEY PEM block, and expects an error when CertBlob is empty; the OpenAPI create body carries certBlob, name and description.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/bacertificate/zpa_ba_certificate_test.go",
+          "quotes": [
+            "keyPEM := pem.EncodeToMemory(&pem.Block{Type: \"RSA PRIVATE KEY\", Bytes: x509.MarshalPKCS1PrivateKey(privateKey)})",
+            "fullCert := string(certPEM) + string(keyPEM)",
+            "CertBlob:    \"\", // Invalid as it's empty"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1certificate/post/requestBody/content/application~1json/schema/properties/certBlob",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "ba-update-asymmetry": {
+      "statement": "The Go SDK has no Update for BaCertificate, and the OpenAPI document lists only get and delete on certificate/{certificateId}; the Python SDK's update_certificate sends a PUT to certificate/{certificate_id}.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/bacertificate/zpa_ba_certificate.go",
+          "quotes": [
+            "func Delete(ctx context.Context, service *zscaler.Service, baCertificateID string) (*http.Response, error) {"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/certificates.py",
+          "quotes": [
+            "http_method = \"put\".upper()",
+            "/certificate/{certificate_id}"
+          ],
+          "after": "def update_certificate(self, certificate_id: str, **kwargs)"
+        }
+      ],
+      "conditions": "The absence of an Update in the Go package and of put in the OpenAPI path was read from the whole package and path object.",
+      "gaps": [
+        "ba-certificate-put-valid"
+      ]
+    },
+    "ba-cname-key-agrees": {
+      "statement": "For Browser Access certificates the Go struct, the Python model and the OpenAPI response schema all use the key `cName`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/bacertificate/zpa_ba_certificate.go",
+          "quotes": [
+            "CName               string   `json:\"cName,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/certificates.py",
+          "quotes": [
+            "\"cName\": self.cname,"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1certificate~1{certificateId}/get/responses/200/content/*~1*/schema/properties/cName",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ba-certificate-put-valid": {
+      "kind": "semantic",
+      "title": "Whether the server accepts PUT on certificate/{certificateId}",
+      "status": "open",
+      "former_ids": [
+        "zpa-25"
+      ],
+      "detail": "Unverified legacy statement: the Python update_certificate calls PUT on certificate/{certificate_id} although neither the Go SDK nor the OpenAPI document has one, so it is unverified whether the server accepts it (ledger clarifications.md#zpa-25-bacertificate-update_certificate-validity-as-an-api-operation).",
+      "blocks": "telling whether Python-side Browser Access certificate updates can work",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "client-cert-type-synonyms": {
+      "kind": "semantic",
+      "title": "Whether ISOLATION_CLIENT and APP_PROTECTION are the same client certificate type",
+      "status": "open",
+      "detail": "Unverified legacy statement: ISOLATION_CLIENT (Python docstring) and APP_PROTECTION (recorded example) may be synonyms for the same certificate role; the contract lists both. The contract describes clientCertType as read-only and ignored on PUT and POST, so creating certificates with each value would not test it. List the existing enrollment certificates in a tenant, record the clientCertType each returns, and compare the certificates that carry each value.",
+      "blocks": "choosing a client certificate type for AppProtection",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "enrollment-name-duplicates": {
+      "kind": "semantic",
+      "title": "Whether enrollment certificate names are unique and the lookup order is stable",
+      "status": "open",
+      "detail": "Unverified legacy statement: the Go GetByName sends a search plus the active microtenant, walks the returned list and returns the first case-insensitive exact-name match without detecting a second match, so tenant-wide uniqueness of enrollment certificate names and the stability of duplicate-match order are unverified. The Python get_enrolment_by_name, added in v1.11, also takes the first case-insensitive name match from the list, so both SDKs depend on the answer. Create two enrollment certificates with the same name in a scratch tenant, if the API allows it, and call the lookup repeatedly.",
+      "blocks": "trusting a name lookup of an enrollment certificate",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/enrollment_certificates.py",
+          "quotes": [
+            "cert = next((c for c in certs or [] if (c.name or \"\").lower() == name.lower()), None)"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "enrollment-cname-key": {
+      "summary": "The enrollment certificate canonical-name key differs between the Go SDK and the OpenAPI document with the Python model.",
+      "positions": [
+        {
+          "says": "The Go EnrollmentCert tags the field `cName`.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+            "quotes": [
+              "Cname                   string `json:\"cName,omitempty\"`"
+            ]
+          }
+        },
+        {
+          "says": "The OpenAPI response schema names the property `getcName`, and the Python model reads and writes `getcName`.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1enrollmentCert~1{enrollmentCertId}/get/responses/200/content/*~1*/schema/properties/getcName",
+            "expect": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "impact": "A Go caller does not read the canonical name from a response that carries `getcName`, so the value stays empty. Which key the server accepts on write is not shown. Read the raw response before relying on the Go field."
+    },
+    "client-cert-type-values": {
+      "summary": "The OpenAPI enrollment certificate `clientCertType` has four values, while the Python create docstring lists two.",
+      "positions": [
+        {
+          "says": "The contract enum is ZAPP_CLIENT, ISOLATION_CLIENT, NONE and APP_PROTECTION, and the contract describes clientCertType as read-only: applicable only for GET calls and ignored in PUT and POST calls.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1enrollmentCert~1{enrollmentCertId}/get/responses/200/content/*~1*/schema/properties/clientCertType",
+            "expect": {
+              "description": "Read only property. Applicable only for GET calls, ignored in PUT/POST calls.",
+              "enum": [
+                "ZAPP_CLIENT",
+                "ISOLATION_CLIENT",
+                "NONE",
+                "APP_PROTECTION"
+              ],
+              "type": "string"
+            }
+          }
+        },
+        {
+          "says": "The Python create docstring lists ZAPP_CLIENT and ISOLATION_CLIENT.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/enrollment_certificates.py",
+            "quotes": [
+              "Values: `ZAPP_CLIENT`, `ISOLATION_CLIENT`"
+            ],
+            "after": "def add_enrollment_cert(self, **kwargs) -> APIResult[dict]:"
+          }
+        }
+      ],
+      "impact": "The contract has both ISOLATION_CLIENT and APP_PROTECTION, so neither the Python list nor an example showing APP_PROTECTION is the full set; whether the two are synonyms is not shown. Because the contract says the server ignores clientCertType on PUT and POST, the value the Python docstring offers for create may have no effect; read the type back rather than trusting what was sent."
+    },
+    "validity-epoch-types": {
+      "summary": "The OpenAPI document types `validFromInEpochSec` and `validToInEpochSec` as int64 integers, while the Go SDK types them as strings and the Python SDK sends them as strings.",
+      "positions": [
+        {
+          "says": "The contract enrollment certificate response has validFromInEpochSec as an int64.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1enrollmentCert~1{enrollmentCertId}/get/responses/200/content/*~1*/schema/properties/validFromInEpochSec",
+            "expect": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "says": "The Go EnrollmentCert declares both validity fields as strings.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+            "quotes": [
+              "ValidFromInEpochSec string `json:\"validFromInEpochSec,omitempty\"`"
+            ],
+            "after": "type EnrollmentCert struct {"
+          }
+        },
+        {
+          "says": "The Python create converts the validity window to epoch strings.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/enrollment_certificates.py",
+            "quotes": [
+              "kwargs[\"valid_from_in_epoch_sec\"] = str(from_epoch)"
+            ],
+            "after": "def add_enrollment_cert(self, **kwargs) -> APIResult[dict]:"
+          }
+        }
+      ],
+      "impact": "Go code that treats the value as an int64 fails; raw-HTTP callers follow the contract and read numbers. The contract has no enrollment certificate create or request body, so the Python position shows what is sent, not a disagreement with a contract request type."
+    }
+  }
+}

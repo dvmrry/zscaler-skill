@@ -40,7 +40,7 @@
     },
     {
       "label": "Status codes.",
-      "text": "{{python-excluded}} {{status-code-log-types}} {{tf-no-filter-types}} {{tf-filter-default-rejects}}"
+      "text": "{{python-excluded}} {{status-code-log-types}} {{tf-trans-log-filter-codes}} {{tf-no-filter-types}} {{tf-filter-default-rejects}}"
     },
     {
       "label": "Policy rule on the wire.",
@@ -49,6 +49,9 @@
     {
       "label": "When the provider checks.",
       "text": "{{validation-at-apply}}"
+    },
+    {
+      "text": "The Terraform docs give LOG as the only action for a receiver's policy_rule_resource [[zpa.terraform.resource-constraints:lss-policy-rule-action-log]]."
     }
   ],
   "checks": [
@@ -173,6 +176,21 @@
         }
       ],
       "conditions": "The API example response is an example, not an enumeration, so a fifth log type with codes is not excluded by the article alone; the validator list is the client's behavior."
+    },
+    "tf-trans-log-filter-codes": {
+      "statement": "The Terraform provider checks each zpn_trans_log filter code against a fixed list of status codes, supportedLSSUserActivity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/validator.go",
+          "quotes": [
+            "var supportedLSSUserActivity = []string{",
+            "for _, validFilter := range supportedLSSUserActivity {"
+          ]
+        }
+      ],
+      "conditions": "Added for the legacy 110-code heading, which had been dropped as a generated listing although the codes are in no generated file. Read from the whole list, it holds 110 unique codes at v4.4.14 (and at v4.4.11); the codes are the provider's list, not an API enumeration."
     },
     "tf-no-filter-types": {
       "statement": "The Terraform provider rejects a status-code filter on Browser Access, Audit Logs, AppProtection, App Connector Metrics and Private Service Edge Metrics receivers.",

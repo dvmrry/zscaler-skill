@@ -2,7 +2,8 @@
 //
 // The layer (references/_meta/surfaces/<product>.json, written by gen-surfaces.mjs) links each
 // Terraform resource and data source to the Go SDK packages it imports and the OpenAPI paths those
-// packages call, and lists each Python SDK module's methods and paths. A lookup returns every entry
+// packages call, with its arguments (and the provider's own, as provider:<product>), and lists each
+// Python SDK module's methods and paths. A lookup returns every entry
 // whose name or path matches, joined with what reaches the same API paths.
 import fs from "node:fs";
 import path from "node:path";

@@ -46,11 +46,11 @@
     },
     {
       "label": "Create and delete.",
-      "text": "{{python-create-body}} {{mcp-requires-cert-for-connector}} Whether the API itself requires the certificate is open {{gap:api-requires-cert-for-connector-key}}. {{mcp-delete-masks-lookup-errors}} {{python-group-delete-no-cascade}} Whether group deletion removes keys is open {{gap:group-delete-removes-keys}}."
+      "text": "[[zpa.sdk-python.provisioning-keys:python-create-body]] {{mcp-requires-cert-for-connector}} Whether the API itself requires the certificate is open {{gap:api-requires-cert-for-connector-key}}. {{mcp-delete-masks-lookup-errors}} {{python-group-delete-no-cascade}} Whether group deletion removes keys is open {{gap:group-delete-removes-keys}}."
     },
     {
       "label": "Listing.",
-      "text": "{{mcp-list-pagination}} {{module-key-association-validation}} An unverified legacy note about group-level fields in the Go SDK is {{gap:sdk-go-group-fields}}."
+      "text": "[[zpa.api.pagination:mcp-list-tools-same-inputs]] {{module-key-association-validation}} An unverified legacy note about group-level fields in the Go SDK is {{gap:sdk-go-group-fields}}."
     },
     {
       "text": "What a key is and how it is consumed is in [[zpa.app-connectors.provisioning-keys]]."
@@ -243,21 +243,6 @@
       ],
       "conditions": "The five-value resource schema is held in zpa.sdk-go.service-defects:provider-provisioning-key-schema-and-importer."
     },
-    "python-create-body": {
-      "statement": "add_provisioning_key sends a body of name, maxUsage, enrollmentCertId and zcomponentId, taking the last two from the enrollment_cert_id and component_id arguments, and treats enrollment_cert_id as a plain optional argument for both key types.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/zpa/provisioning.py",
-          "quotes": [
-            "{\"name\": name, \"maxUsage\": max_usage, \"enrollmentCertId\": enrollment_cert_id, \"zcomponentId\": component_id}",
-            "enrollment_cert_id = body.get(\"enrollment_cert_id\")"
-          ],
-          "after": "def add_provisioning_key(self, key_type: str, **kwargs)"
-        }
-      ]
-    },
     "mcp-requires-cert-for-connector": {
       "statement": "The MCP create tool raises an error when key_type is connector and enrollment_cert_id is missing; service_edge keys may omit it. The rule is enforced in the tool, not in the SDK.",
       "tier": "A",
@@ -303,20 +288,6 @@
       ],
       "gaps": [
         "group-delete-removes-keys"
-      ]
-    },
-    "mcp-list-pagination": {
-      "statement": "The MCP provisioning-key list tool accepts optional page (at least 1) and page_size (1 to 500, API default 20) and forwards them to the SDK as string query parameters.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "mcp-server",
-          "path": "src/zscaler_mcp/tools/zpa/provisioning_key.py",
-          "quotes": [
-            "Field(default=None, ge=1, le=500, description=\"Items per page (API default 20, max 500).\")",
-            "qp[\"page_size\"] = str(args.page_size)"
-          ]
-        }
       ]
     },
     "module-key-association-validation": {

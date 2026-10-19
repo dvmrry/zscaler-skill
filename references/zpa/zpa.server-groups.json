@@ -103,6 +103,45 @@
     },
     {
       "text": "Policy rules that scope on segment groups, rather than on server groups, are covered in [[zpa.segment-groups.policy-use]] and [[zpa.policy.criteria]]. The segments that carry server groups are in [[zpa.app-segments]]. The App Connector side is in [[zpa.app-connectors.connector-groups]]."
+    },
+    {
+      "text": "{{inconsistent-config-details-contract}}"
+    },
+    {
+      "text": "Neither SDK model carries the field: [[zpa.api.server-groups-wire:inconsistent-config-details-sdk-models]]."
     }
-  ]
+  ],
+  "claims": {
+    "inconsistent-config-details-contract": {
+      "statement": "The OpenAPI server group schemas carry an inconsistentConfigDetails object on the create request and on the read response, whose members are arrays of name and reason entries, one array for each related object type such as serverGroup, appConnectorGroup and idp, and the request schema does not mark it read-only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup/post/requestBody/content/application~1json/schema/properties/inconsistentConfigDetails/properties/serverGroup",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup/post/requestBody/content/application~1json/schema/properties/inconsistentConfigDetails/properties/serverGroup/items/properties/reason",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup/get/responses/200/content/*~1*/schema/properties/list/items/properties/inconsistentConfigDetails/properties/idp",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ]
+    }
+  },
+  "divergences": {}
 }

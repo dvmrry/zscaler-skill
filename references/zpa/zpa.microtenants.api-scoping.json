@@ -45,7 +45,7 @@
     },
     {
       "label": "Python.",
-      "text": "{{python-scope-precedence}} {{python-legacy-env-fallback}} {{python-update-param-source}} {{add-method-builds-no-scope}}"
+      "text": "[[zpa.sdk-python.microtenant-scoping:executor-precedence]] [[zpa.sdk-python.client-configuration:legacy-client-env]] [[zpa.api.microtenants-wire:update-rebinds-id]] {{add-method-builds-no-scope}}"
     },
     {
       "label": "Search and models.",
@@ -54,6 +54,12 @@
     {
       "label": "Resolver defects.",
       "text": "The data-source and name-resolver behavior that picks the wrong Microtenant is held in [[zpa.terraform.data-source-selection:reads-run-unscoped-wrong-microtenant]], [[zpa.terraform.data-source-selection:inject-precedence-env-over-config]] and [[zpa.terraform.data-source-selection:sdk-microtenant-name-success-returns-nothing]], not restated here."
+    },
+    {
+      "text": "{{credential-move-target-zero-only}}"
+    },
+    {
+      "text": "{{gap:schedule-microtenant-id-convention}}"
     }
   ],
   "checks": [
@@ -67,14 +73,14 @@
     {
       "do": "Where the Python SDK takes the scope from, in order, and whether the legacy client environment variable is set.",
       "uses": [
-        "python-scope-precedence",
-        "python-legacy-env-fallback"
+        "zpa.sdk-python.microtenant-scoping:executor-precedence",
+        "zpa.sdk-python.client-configuration:legacy-client-env"
       ]
     },
     {
       "do": "Whether an update_microtenant call passes `microtenant_id` as a keyword argument, since the positional ID does not become the query parameter.",
       "uses": [
-        "python-update-param-source"
+        "zpa.api.microtenants-wire:update-rebinds-id"
       ]
     },
     {
@@ -130,51 +136,6 @@
         }
       ]
     },
-    "python-scope-precedence": {
-      "statement": "For a ZPA request the Python request executor takes the `microtenantId` from the request body, else from the query parameters, else from the client's configured `microtenantId`, and sends it as the `microtenantId` query parameter.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/request_executor.py",
-          "quotes": [
-            "microtenant_id = self._get_microtenant_id(body, params)",
-            "params[\"microtenantId\"] = microtenant_id",
-            "if body and isinstance(body, dict) and \"microtenantId\" in body and body[\"microtenantId\"]:",
-            "if params and \"microtenantId\" in params and params[\"microtenantId\"]:",
-            "return self.microtenant_id"
-          ]
-        }
-      ]
-    },
-    "python-legacy-env-fallback": {
-      "statement": "The Python legacy ZPA client uses the `ZPA_MICROTENANT_ID` environment variable when no Microtenant ID is passed.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/zpa/legacy.py",
-          "quotes": [
-            "self.microtenant_id = microtenant_id or os.getenv(\"ZPA_MICROTENANT_ID\")"
-          ]
-        }
-      ]
-    },
-    "python-update-param-source": {
-      "statement": "`update_microtenant` reads the `microtenantId` query parameter from a `microtenant_id` keyword argument in the body, not from its positional `microtenant_id`, and sends no query parameter when the keyword is absent.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/zpa/microtenants.py",
-          "after": "def update_microtenant(self, microtenant_id: str, **kwargs)",
-          "quotes": [
-            "microtenant_id = body.get(\"microtenant_id\", None)",
-            "params = {\"microtenantId\": microtenant_id} if microtenant_id else {}"
-          ]
-        }
-      ]
-    },
     "add-method-builds-no-scope": {
       "statement": "`add_microtenant` sends its keyword arguments as the request body and builds no `microtenantId` query parameter itself, and the OpenAPI create operation declares only the customer ID parameter.",
       "tier": "A",
@@ -220,6 +181,36 @@
           ]
         }
       ]
+    },
+    "credential-move-target-zero-only": {
+      "statement": "On the credential move operation the microtenantId query parameter is described as taking 0 for the Default Microtenant and null for the customer data Microtenant, while targetMicrotenantId is described as taking 0 for the Default Microtenant and says nothing about null.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1credential~1{id}~1move/post/parameters/[name=targetMicrotenantId]",
+          "expect": {
+            "description": "The unique identifier of the microtenant of ZPA tenant. For Default microtenant 0 should be passed."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1credential~1{id}~1move/post/parameters/[name=microtenantId]",
+          "expect": {
+            "description": "The unique identifier of the microtenant of ZPA tenant. For Default microtenant 0 should be passed and for Customer data microtenant should be null."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "pointer": "/item/[name=Zscaler Private Access (ZPA)]/item/[name=Privileged Credential Management]/item/[name=Move Privileged credential from one microtenant to another microtenant]/request/url/query/[key=targetMicrotenantId]",
+          "expect": {
+            "description": "The unique identifier of the microtenant of ZPA tenant. For Default microtenant 0 should be passed."
+          }
+        }
+      ]
     }
   },
   "gaps": {
@@ -233,6 +224,54 @@
         "tenant-data"
       ],
       "blocks": "reading a missing microtenantId on a returned resource"
+    },
+    "schedule-microtenant-id-convention": {
+      "kind": "semantic",
+      "title": "Whether the 0 and null microtenantId convention applies to the connector and Service Edge schedule endpoints",
+      "status": "open",
+      "detail": "Unverified legacy statement: the schedule requests (connectorSchedule and serviceEdgeSchedule) carry a microtenantId query parameter whose description is empty in the Postman collection, so the collection does not establish the 0 for Default and null for customer data convention for that family; the connector and group endpoints do state it. The OpenAPI document is no better: the microtenantId query parameter on connectorSchedule and serviceEdgeSchedule GET and POST has a schema (int64) but no description. A schedule read with microtenantId=0 against a tenant that has Microtenants would settle it.",
+      "blocks": "telling which Microtenant's schedule a call with microtenantId=0, null or no parameter reads or changes",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connectorSchedule/get/parameters/[name=microtenantId]",
+          "expect": {
+            "in": "query",
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connectorSchedule/post/parameters/[name=microtenantId]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule/get/parameters/[name=microtenantId]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule/post/parameters/[name=microtenantId]",
+          "expect": {
+            "in": "query"
+          }
+        }
+      ]
     }
   }
 }

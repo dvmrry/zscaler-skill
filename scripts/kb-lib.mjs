@@ -545,6 +545,9 @@ export function validateGraph(g, { citations = true } = {}) {
         if (!by || by.kind !== "claim") err(node.file, `${node.id}: resolution.by must name a claim`);
         else if (r.rule.startsWith("observed-") && by.data.tier !== "B") {
           err(node.file, `${node.id}: ${r.rule} needs an observed (Tier B) claim; ${by.id} is Tier ${by.data.tier}`);
+        } else if (r.rule === "fixed-upstream" && !node.data.positions.some((p) => p.evidence.at && !p.evidence.at.includes("HEAD"))) {
+          // Settled by a later release: the outdated side must say which release it describes.
+          err(node.file, `${node.id}: fixed-upstream needs the outdated position pinned to its release (evidence "at" without HEAD)`);
         }
       }
     } else if (node.kind === "gap") {
@@ -710,6 +713,40 @@ function checkCaptureInventory(g, err, warnings, cited) {
     if (entry.class === "note") err(reg, `${file} is an authored note, not vendor text; it cannot be cited as evidence`);
     if (entry.class === "retiring") warnings.push({ file: reg, message: `${file} is retiring (${entry.reason}); move its citations` });
   }
+}
+
+/**
+ * When the vendor last changed the material a piece of evidence cites: `{ as_of, basis }`, or null when
+ * nothing records it. This is the age that matters for an answer, not when the repo captured the file.
+ *   - code (a submodule): the commit date of the cited ref (the pin unless the evidence names `at`);
+ *   - a capture written by help_capture.py: its `source.updated` (the vendor's date where the site gives
+ *     one, else first-seen), and `updated_basis`;
+ *   - any other captured file: its capture-manifest or static-captures entry.
+ */
+export function materialDate(g, ev, cache = new Map()) {
+  const src = g.sources.sources[ev.source];
+  if (!src) return null;
+  const key = `${ev.source}:${ev.path}@${ev.at?.[0] || "HEAD"}`;
+  if (cache.has(key)) return cache.get(key);
+  let out = null;
+  const full = path.join(g.root, src.root, ev.path);
+  if (src.kind === "submodule") {
+    try {
+      const date = execFileSync("git", ["-C", path.join(g.root, src.root), "log", "-1", "--format=%cs", ev.at?.[0] || "HEAD"], {
+        encoding: "utf8", stdio: ["ignore", "pipe", "ignore"],
+      }).trim();
+      if (date) out = { as_of: date, basis: "commit-date" };
+    } catch {}
+  } else {
+    const doc = helpCapture(full);
+    const rel = `${src.root}/${ev.path}`;
+    // Whichever record holds a date: the manifest (cited files) or the static registry (vendor PDFs).
+    const entry = [g.manifest.files[rel], g.staticCaptures.files[rel.slice(HELP_ROOT.length + 1)]].find((e) => e?.updated);
+    if (doc?.source?.updated) out = { as_of: doc.source.updated, basis: doc.source.updated_basis };
+    else if (entry) out = { as_of: entry.updated, basis: entry.updated_basis };
+  }
+  cache.set(key, out);
+  return out;
 }
 
 /** A reference from a subject: one of its own claims, gaps or divergences, or any kb ID. */

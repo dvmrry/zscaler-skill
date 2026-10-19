@@ -1,0 +1,965 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.policy-wire",
+  "title": "ZPA policy rule wire behavior: routes, request fields and ordering",
+  "aliases": [
+    "policy rule v1 v2 path",
+    "policy rule update returns 204",
+    "bulk reorder Default_Rule",
+    "policy rule disabled field type",
+    "python isolation rule client type injected",
+    "privileged capabilities file_upload false",
+    "policy count shape",
+    "stepup auth level"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.access-rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.policy-rule-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.timeout-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.request-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.policy-helpers"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject records how the ZPA policy rule endpoints behave on the wire as the Go SDK, the Python SDK and the OpenAPI document show them. Rule semantics are in [[zpa.policy]], ordering in [[zpa.policy.access-rule-order]] and [[zpa.terraform.rule-order]], and the provider's use of these calls in [[zpa.terraform.policy-rule-writes]]."
+    },
+    {
+      "heading": "Routes"
+    },
+    {
+      "text": "{{rule-route-versions}} {{lookups-use-v1-paths}} The count response shape differs between the SDKs {{divergence:policy-count-shape}}."
+    },
+    {
+      "text": "{{python-policy-type-map}} Whether the two extra values are accepted is open {{gap:policy-type-extra-values}}."
+    },
+    {
+      "heading": "What the request carries"
+    },
+    {
+      "text": "{{v2-struct-serialization}} {{conditions-empty-slice-wire}} Whether an absent conditions key clears the conditions is open {{gap:v2-empty-conditions-meaning}}."
+    },
+    {
+      "text": "{{condition-shapes-v1-v2}} [[zpa.sdk-python.policy-helpers:python-v2-operand-forms]] [[zpa.terraform.policy-rule-writes:v1-sdk-erases-operand-names]] [[zpa.terraform.policy-rule-writes:v2-sdk-clears-operand-ids-not-names]]"
+    },
+    {
+      "text": "{{capabilities-microtenant-tag}} {{contract-capability-values-described}} The Python builder produces the same nine values [[zpa.sdk-python.policy-helpers:python-capabilities-mapping]]."
+    },
+    {
+      "text": "{{version-field-response-only}} Whether the backend needs it is open {{gap:version-required}}."
+    },
+    {
+      "text": "The `disabled` type differs between sources {{divergence:disabled-wire-type}} and which form the API takes is open {{gap:disabled-wire-form}}. For the reauth timeouts see the divergence in [[zpa.policy.timeout-rules]]; whether both string and integer are accepted is open {{gap:reauth-accepted-types}}."
+    },
+    {
+      "text": "{{policy-ids-strings}}"
+    },
+    {
+      "heading": "Updates and ordering"
+    },
+    {
+      "text": "{{rule-update-no-body}} {{rule-mutex-coverage}}"
+    },
+    {
+      "text": "{{go-bulk-reorder-default-last}} [[zpa.sdk-python.policy-helpers:python-bulk-reorder-passthrough]] {{bulk-reorder-api-text}} The id type of the body differs {{divergence:reorder-body-id-type}}, and how safe a repeated call is remains open {{gap:bulk-reorder-repeat-safety}}."
+    },
+    {
+      "heading": "Python SDK"
+    },
+    {
+      "text": "The Python builders' defaults, checks and policy type handling are held with the Python helpers: [[zpa.sdk-python.policy-helpers:python-list-rules-alias-required]], [[zpa.sdk-python.policy-helpers:python-count-accepts-wire-values]], [[zpa.sdk-python.policy-helpers:python-credential-exclusive]], [[zpa.sdk-python.policy-helpers:python-isolation-client-type]], [[zpa.sdk-python.policy-helpers:python-capabilities-mapping]], [[zpa.sdk-python.policy-helpers:python-redirection-rules]], [[zpa.sdk-python.policy-helpers:python-timeout-defaults]] and [[zpa.sdk-python.policy-helpers:python-reformat-params-key]]."
+    },
+    {
+      "heading": "Step-up authentication levels"
+    },
+    {
+      "text": "The two SDKs disagree on what the level list returns {{divergence:step-up-auth-shape}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a rule write was sent to the v2 or v1 route, and that a v2 update returns no body, before reading the response as the stored rule.",
+      "uses": [
+        "rule-route-versions",
+        "rule-update-no-body"
+      ]
+    },
+    {
+      "do": "Whether a v2 PUT left conditions out because the Go request omits an empty slice, before concluding the API ignored them.",
+      "uses": [
+        "conditions-empty-slice-wire",
+        "v2-empty-conditions-meaning"
+      ]
+    },
+    {
+      "do": "Whether a reorder through the Go SDK moved a rule named exactly Default_Rule last, and that the Python call sends the order as given.",
+      "uses": [
+        "go-bulk-reorder-default-last",
+        "zpa.sdk-python.policy-helpers:python-bulk-reorder-passthrough"
+      ]
+    },
+    {
+      "do": "Whether concurrent writers share a process, since the locks do not cover other processes and v1 BulkReorder takes none.",
+      "uses": [
+        "rule-mutex-coverage"
+      ]
+    },
+    {
+      "do": "Whether an unexpected CLIENT_TYPE condition, reauth value or capability on a Python-built rule came from the builder's defaults.",
+      "uses": [
+        "zpa.sdk-python.policy-helpers:python-isolation-client-type",
+        "zpa.sdk-python.policy-helpers:python-timeout-defaults",
+        "zpa.sdk-python.policy-helpers:python-capabilities-mapping"
+      ]
+    }
+  ],
+  "claims": {
+    "rule-route-versions": {
+      "statement": "In the Go SDK's v2 policy package, rule create is a POST and rule update a PUT on the v2 path, while single-rule read and delete use the v1 path. The OpenAPI document has POST and PUT for rules under both v1 and v2, and GET and DELETE for a single rule only under v1.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "path := fmt.Sprintf(mgmtConfigV2+service.Client.GetCustomerID()+\"/policySet/%s/rule\", rule.PolicySetID)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "path := fmt.Sprintf(mgmtConfigV2+service.Client.GetCustomerID()+\"/policySet/%s/rule/%s\", policySetID, ruleId)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "url := fmt.Sprintf(mgmtConfigV1+service.Client.GetCustomerID()+\"/policySet/%s/rule/%s\", policySetID, ruleId)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "path := fmt.Sprintf(mgmtConfigV1+service.Client.GetCustomerID()+\"/policySet/%s/rule/%s\", policySetID, ruleId)"
+          ],
+          "after": "func Delete(ctx context.Context, service *zscaler.Service, policySetID, ruleId string) (*http.Response, error) {"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post",
+          "expect": {
+            "description": "Add a new policy rule for a given policy."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule~1{ruleId}/put/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post",
+          "expect": {
+            "description": "Adds a new policy rule for the specified policy set."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule~1{ruleId}/put/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule~1{ruleId}/get",
+          "expect": {
+            "description": "Gets the rule in a policy for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule~1{ruleId}/delete",
+          "expect": {
+            "description": "Deletes the rule in a policy for the specified ID."
+          }
+        }
+      ],
+      "conditions": "The second sentence was corrected: the contract also has a v1 POST and a v1 PUT, so only GET and DELETE are v1-only. That the v2 single-rule path has only PUT, and v1 has no other single-rule method, is read from the method lists of the two paths."
+    },
+    "lookups-use-v1-paths": {
+      "statement": "`GetPolicyByApplication` and `GetPolicyCount` live in the v2 Go package but build v1 paths (`policySet/rules/policyType/{type}/application/{id}` and `.../count`), and the Python SDK's matching methods also call the v1 base endpoint. The OpenAPI document has neither path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "\"/policySet/rules/policyType/%s/application/%s\", policyType, applicationID)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "\"/policySet/rules/policyType/%s/count\", policyType)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "/policySet/rules/policyType/{mapped_policy_type}/application/{application_id}"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "/policySet/rules/policyType/{mapped_policy_type}/count"
+          ]
+        }
+      ],
+      "conditions": "The OpenAPI document has no policySet/rules/policyType/{type}/count or /application/{id} path, so their server-side contract is not in the pinned spec."
+    },
+    "v2-struct-serialization": {
+      "statement": "The v2 Go package has a response struct and a request struct for a rule, and their tags differ. On the response struct `conditions`, `appServerGroups`, `appConnectorGroups`, `serviceEdgeGroups`, `microtenantId` and `credentialPool` have no `omitempty`. On the request struct `conditions` and `credentialPool` do have it, while `appServerGroups`, `appConnectorGroups`, `serviceEdgeGroups`, `microtenantId` and `devicePostureFailureNotificationEnabled` do not, so those are always serialized.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "Conditions []PolicyRuleResourceConditions `json:\"conditions\"`",
+            "CredentialPool *Credential `json:\"credentialPool\"`",
+            "MicroTenantID string `json:\"microtenantId\"`",
+            "AppServerGroups []servergroup.ServerGroup `json:\"appServerGroups\"`",
+            "AppConnectorGroups []appconnectorgroup.AppConnectorGroup `json:\"appConnectorGroups\"`",
+            "ServiceEdgeGroups []serviceedgegroup.ServiceEdgeGroup `json:\"serviceEdgeGroups\"`"
+          ],
+          "after": "type PolicyRuleResource struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "AppServerGroups []servergroup.ServerGroup `json:\"appServerGroups\"`",
+            "AppConnectorGroups []appconnectorgroup.AppConnectorGroup `json:\"appConnectorGroups\"`",
+            "ServiceEdgeGroups []serviceedgegroup.ServiceEdgeGroup `json:\"serviceEdgeGroups\"`",
+            "MicroTenantID string `json:\"microtenantId\"`",
+            "Conditions []PolicyRuleResourceConditions `json:\"conditions,omitempty\"`",
+            "CredentialPool *Credential `json:\"credentialPool,omitempty\"`",
+            "DevicePostureFailureNotificationEnabled bool `json:\"devicePostureFailureNotificationEnabled\"`"
+          ],
+          "after": "type PolicyRule struct {"
+        }
+      ],
+      "conditions": "Related always-serialized request fields and their effect on updates are in zpa.terraform.policy-rule-writes."
+    },
+    "conditions-empty-slice-wire": {
+      "statement": "Both `UpdateRule` functions replace a rule with no conditions (and a condition with no operands) by an empty slice before the PUT. In the v1 package the tags are `json:\"conditions\"` and `json:\"operands\"`, so an empty array is sent. In the v2 package the request tags are `omitempty`, so the empty slice is dropped and the key is absent from the body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "policySetRule.Conditions = []Conditions{}",
+            "policySetRule.Conditions[i].Operands = []Operands{}"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "Conditions []Conditions `json:\"conditions\"`"
+          ],
+          "after": "type PolicyRule struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "Operands []Operands `json:\"operands\"`"
+          ],
+          "after": "type Conditions struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "policySetRule.Conditions = []PolicyRuleResourceConditions{}",
+            "policySetRule.Conditions[i].Operands = []PolicyRuleResourceOperands{}"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "Conditions []PolicyRuleResourceConditions `json:\"conditions,omitempty\"`"
+          ],
+          "after": "type PolicyRule struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "Operands []PolicyRuleResourceOperands `json:\"operands,omitempty\"`"
+          ],
+          "after": "type PolicyRuleResourceConditions struct {"
+        }
+      ],
+      "conditions": "Go's encoding/json omits an empty slice tagged omitempty. Whether the API treats an absent conditions key on a v2 PUT as 'clear conditions' or 'leave unchanged' is not shown (gap v2-empty-conditions-meaning)."
+    },
+    "condition-shapes-v1-v2": {
+      "statement": "The v1 condition has a `microtenantId` and flat operands that carry `lhs` and `rhs`. The v2 condition has no `microtenantId` and adds `setIds` in the OpenAPI document. The Go v2 operand adds `values` and `entryValues` (a list of `lhs`/`rhs` pairs) alongside `lhs`/`rhs`, while the contract v2 operand has `values` and `entryValues` and no `lhs` or `rhs`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "MicroTenantID string `json:\"microtenantId,omitempty\"`"
+          ],
+          "after": "type Conditions struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "LHS string `json:\"lhs,omitempty\"`",
+            "RHS string `json:\"rhs,omitempty\"`"
+          ],
+          "after": "type Operands struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "Values []string `json:\"values,omitempty\"`",
+            "LHS string `json:\"lhs,omitempty\"`",
+            "RHS string `json:\"rhs,omitempty\"`",
+            "EntryValuesLHSRHS []OperandsResourceLHSRHSValue `json:\"entryValues,omitempty\"`"
+          ],
+          "after": "type PolicyRuleResourceOperands struct {"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/conditions/items/properties/operands/items/properties/rhs",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/conditions/items/properties/operands/items/properties/entryValues",
+          "expect": {
+            "type": "array",
+            "items": {
+              "properties": {
+                "lhs": {
+                  "type": "string"
+                },
+                "rhs": {
+                  "type": "string"
+                }
+              },
+              "title": "LhsRhsValueResource"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/conditions/items/properties/setIds",
+          "expect": {
+            "type": "array",
+            "items": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/conditions/items/properties/operands/items/properties/values",
+          "expect": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "conditions": "The last clause was split by source, because the contract v2 operand has no lhs or rhs while the Go v2 operand keeps them. The absences (no microtenantId on the v2 condition, no lhs or rhs on the contract v2 operand, whose properties are commonProperties, creationTime, entryValues, id, idpId, idpName, modifiedBy, modifiedTime, objectType and values) are read from the property lists of the v2 rule POST schema."
+    },
+    "capabilities-microtenant-tag": {
+      "statement": "`PrivilegedCapabilities.MicroTenantID` is tagged `omitempty` in the v1 package and not in the v2 package, so a v2 request always carries a `microtenantId` key inside `privilegedCapabilities`, empty when unset. `PrivilegedPortalCapabilities.MicroTenantID` has `omitempty` in both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "MicroTenantID string `json:\"microtenantId,omitempty\"`"
+          ],
+          "after": "type PrivilegedCapabilities struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "MicroTenantID string `json:\"microtenantId\"`"
+          ],
+          "after": "type PrivilegedCapabilities struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "MicroTenantID string `json:\"microtenantId,omitempty\"`"
+          ],
+          "after": "type PrivilegedPortalCapabilities struct {"
+        }
+      ]
+    },
+    "version-field-response-only": {
+      "statement": "The OpenAPI v2 rule POST body declares an integer `version`. The Go v2 `PolicyRule` request struct has no `version` field: the only `version` tag in the v2 package is on the response struct `PolicyRuleResource`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/version",
+          "expect": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "Version string `json:\"version,omitempty\"`"
+          ],
+          "after": "type PolicyRuleResource struct {"
+        }
+      ],
+      "conditions": "That the request struct lacks the field is established by reading the type (lines of PolicyRule); whether the backend needs a version on any update flow is open (gap version-required)."
+    },
+    "rule-update-no-body": {
+      "statement": "A rule update returns no resource: the OpenAPI v2 PUT documents 204, the Go `UpdateRule` returns only the HTTP response, and the Python v1 update returns an object holding just the rule id when the response body is empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule~1{ruleId}/put/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "return (PolicySetControllerV1({\"id\": rule_id}), response, None)"
+          ],
+          "after": "def update_access_rule("
+        }
+      ],
+      "conditions": "The 200 that the Go request helper reports for a 204 is covered in shared.sdk-go.request-handling."
+    },
+    "rule-mutex-coverage": {
+      "statement": "Up to v3.8.50 the Go v2 package takes its own package-level `ruleMutex` in create, update, delete, reorder and `BulkReorder`, and the v1 package takes a separate one in create, update, delete and reorder, so a v1 write and a v2 write to the same policy set can run concurrently. From v3.8.51 (#466) both packages take one shared `common.PolicyRuleMutex` in those functions instead. In every version the v1 `BulkReorder` starts without taking a lock. Reads do not lock. The Python SDK wraps its rule add, update, delete and reorder methods, including `bulk_reorder_rules`, in one module-level lock.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": ["v3.8.48"],
+          "quotes": [
+            "ruleMutex.Lock()",
+            "defer ruleMutex.Unlock()"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": ["v3.8.48"],
+          "quotes": [
+            "// Only CREATE/UPDATE/DELETE need the ruleMutex due to API restrictions"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`policysetcontroller` and `policysetcontrollerv2` each serialized rule writes with their own package-level mutex, so a v1 write and a v2 write to the same policy set could run concurrently",
+            "Both packages now share a single `common.PolicyRuleMutex`, so all policy rule creates, updates and deletes are serialized."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "common.PolicyRuleMutex.Lock()",
+            "defer common.PolicyRuleMutex.Unlock()"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "common.PolicyRuleMutex.Lock()"
+          ],
+          "after": "func Reorder(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, order int) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": ["v3.8.48", "HEAD"],
+          "quotes": [
+            "policySet, resp, err := GetByPolicyType(context.Background(), service, policySetType)"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "// Only CREATE/UPDATE/DELETE need common.PolicyRuleMutex due to API restrictions"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "@synchronized(global_rule_lock) def bulk_reorder_rules(self, policy_type: str, rules_orders: list[str], **kwargs)"
+          ]
+        }
+      ],
+      "conditions": "Each lock is process-local: it does not serialize writers in other processes. v1 BulkReorder lacking a lock is read from the first statements of the function; it is also noted in zpa.terraform.rule-order. Changed upstream in v3.8.51 (checked 2026-10-18): previously \"The Go v2 package takes its package-level `ruleMutex` in create, update, delete, reorder and `BulkReorder`; the v1 package takes its own in create, update, delete and reorder but its `BulkReorder` starts without taking it. Reads do not lock. The Python SDK wraps its rule add, update, delete and reorder methods, including `bulk_reorder_rules`, in one module-level lock.\""
+    },
+    "go-bulk-reorder-default-last": {
+      "statement": "In both Go packages `BulkReorder` reads the policy set and every rule of the type, sorts them by the caller's order map, takes out the rule named exactly `Default_Rule`, appends its id last, and PUTs a bare ordered list of rule ids to the policy set's `reorder` endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "if rule.Name == \"Default_Rule\" {",
+            "ruleIdsOrdered = append(ruleIdsOrdered, defaultRuleID)",
+            "path := fmt.Sprintf(mgmtConfig+service.Client.GetCustomerID()+\"/policySet/%s/reorder\", policySet.ID)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "if rule.Name == \"Default_Rule\" {",
+            "ruleIdsOrdered = append(ruleIdsOrdered, defaultRuleID)",
+            "path := fmt.Sprintf(mgmtConfigV1+service.Client.GetCustomerID()+\"/policySet/%s/reorder\", policySet.ID)"
+          ]
+        }
+      ],
+      "conditions": "Provider-level effects (unmanaged rules, several rules with that name) are in zpa.terraform.rule-order."
+    },
+    "bulk-reorder-api-text": {
+      "statement": "The OpenAPI document describes the bulk reorder as 'Execute this API only once to reorder the rules', takes the new order as an array of rule ids, and answers 204.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1reorder/put",
+          "expect": {
+            "description": "Bulk reorders all the rules in a policy set. Execute this API only once to reorder the rules"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1reorder/put/requestBody/content/application~1json/schema",
+          "expect": {
+            "description": "The new order of rule IDs for the rules in the policy set.",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1reorder/put/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        }
+      ]
+    },
+    "python-policy-type-map": {
+      "statement": "The Python SDK maps friendly names to policy types, including `PRIVILEGED_PORTAL_POLICY`, `VPN_TUNNEL_POLICY` and `USER_PORTAL`. The OpenAPI policy-type parameter lists `PRIVILEGED_PORTAL_POLICY` and the other ten types of the Go edge-case test, but neither `VPN_TUNNEL_POLICY` nor `USER_PORTAL`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "\"portal_policy\": \"PRIVILEGED_PORTAL_POLICY\",",
+            "\"vpn_policy\": \"VPN_TUNNEL_POLICY\",",
+            "\"user_portal\": \"USER_PORTAL\","
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1policySet~1policyType~1{policyType}/get/parameters/[name=policyType]",
+          "expect": {
+            "name": "policyType",
+            "description": "Type for differentiating policy types. Supported values : ACCESS_POLICY/GLOBAL_POLICY, TIMEOUT_POLICY/REAUTH_POLICY, SIEM_POLICY, CLIENT_FORWARDING_POLICY/BYPASS_POLICY, INSPECTION_POLICY, CREDENTIAL_POLICY, CAPABILITIES_POLICY, ISOLATION_POLICY, CLIENTLESS_SESSION_PROTECTION_POLICY,REDIRECTION_POLICY, PRIVILEGED_PORTAL_POLICY"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/edge_cases_test.go",
+          "quotes": [
+            "\"ACCESS_POLICY\", \"TIMEOUT_POLICY\", \"CLIENT_FORWARDING_POLICY\", \"ISOLATION_POLICY\",",
+            "\"CLIENTLESS_SESSION_PROTECTION_POLICY\", \"REDIRECTION_POLICY\", \"SIEM_POLICY\","
+          ]
+        }
+      ],
+      "conditions": "Whether the API accepts VPN_TUNNEL_POLICY or USER_PORTAL is not shown by the pinned spec (gap policy-type-extra-values)."
+    },
+    "policy-ids-strings": {
+      "statement": "The Go policy request structs type rule `id` and `policySetId` as strings, and the Python access rule builders call `transform_common_id_fields` with `coerce_ids=False`, which passes ID values through verbatim rather than coercing them to integers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "ID string `json:\"id,omitempty\"`"
+          ],
+          "after": "type PolicyRule struct {"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "transform_common_id_fields(self.reformat_params, kwargs, payload, coerce_ids=False)"
+          ],
+          "after": "def add_access_rule("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "transform_common_id_fields(self.reformat_params, kwargs, payload, coerce_ids=False)"
+          ],
+          "after": "def update_access_rule("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "If ``False``, ID values are passed through verbatim"
+          ],
+          "after": "def transform_common_id_fields("
+        }
+      ],
+      "conditions": "The effect of coerce_ids=False was added to the statement from the helper's own docstring in zscaler/utils.py, replacing the earlier note that it was read from the call sites only."
+    },
+    "contract-capability-values-described": {
+      "statement": "The OpenAPI document describes the privileged capabilities list as taking CLIPBOARD_COPY, CLIPBOARD_PASTE, FILE_DOWNLOAD, FILE_UPLOAD, INSPECT_FILE_DOWNLOAD, INSPECT_FILE_UPLOAD, MONITOR_SESSION, RECORD_SESSION and SHARE_SESSION.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1policySet~1policyType~1{policyType}/get/responses/200/content/*~1*/schema/properties/rules/items/properties/privilegedCapabilities/properties/capabilities",
+          "expect": {
+            "description": "Indicates the type of capabilities for the privileged policy. The supported values are:</p><ul><li><code>CLIPBOARD_COPY</code>: Indicates the PRA Clipboard Paste function.<li><code>CLIPBOARD_PASTE</code>: Indicates the PRA Clipboard Copy function.<li><code>FILE_DOWNLOAD</code>: Indicates the PRA File Transfer capabilities that enable the File Download function.</li><li><code>FILE_UPLOAD</code>: Indicates the PRA File Transfer capabilities that enables the File Upload function.</li><li><code>INSPECT_FILE_DOWNLOAD</code>: Inspects the file via ZIA sandbox (if you have set up the ZIA cloud and the Integrations settings) and downloads the file following the inspection.</li><li><code>INSPECT_FILE_UPLOAD</code>: Inspects the file via ZIA sandbox (if you have set up the ZIA cloud and the Integrations settings) and uploads the file following the inspection.</li><li><code>MONITOR_SESSION</code>: Indicates the PRA Monitoring Capabilities to enable the PRA Session Monitoring function.</li><li><code>RECORD_SESSION</code>: Indicates the PRA Monitoring Capabilities to enable the PRA Session Recording function.</li><li><code>SHARE_SESSION</code>: Indicates the PRA Session Control and Monitoring capabilities to enable PRA Session Monitoring.</li>"
+          }
+        }
+      ],
+      "conditions": "The clause tying these to the Python mapping was cut, since this claim has no Python evidence; the prose links zpa.sdk-python.policy-helpers:python-capabilities-mapping for it."
+    }
+  },
+  "gaps": {
+    "v2-empty-conditions-meaning": {
+      "kind": "semantic",
+      "title": "What an absent conditions key means on a v2 rule PUT",
+      "status": "open",
+      "blocks": "telling whether the Go v2 UpdateRule clears conditions or leaves them unchanged when the caller has none",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: the legacy reference said both UpdateRule functions make the API receive an empty array rather than null. For v2 the request tags drop the empty slice. In a scratch tenant, PUT a v2 rule that has conditions with no conditions key and read the rule back."
+    },
+    "version-required": {
+      "kind": "semantic",
+      "title": "Whether the backend needs `version` on a v2 rule update",
+      "status": "open",
+      "blocks": "deciding whether the Go v2 request omitting `version` can lose updates",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "detail": "Unverified legacy statement: whether the backend requires a version for a particular update flow remains unresolved from the SDK and spec. Update a v2 rule with and without a version read back from the rule and record the result."
+    },
+    "disabled-wire-form": {
+      "kind": "semantic",
+      "title": "Which form of `disabled` the ZPA API accepts",
+      "status": "open",
+      "blocks": "choosing between string and integer for a raw rule request",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: using boolean true/false for disabled will likely be rejected or misinterpreted. Send a rule PUT with disabled as a string, an integer and a boolean and record the result and the stored value."
+    },
+    "reauth-accepted-types": {
+      "kind": "semantic",
+      "title": "Whether the API accepts reauth timeouts as both strings and integers",
+      "status": "open",
+      "blocks": "choosing the wire type for reauthTimeout and reauthIdleTimeout in raw requests",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: the Python docstrings say str but the defaults are int, and the API appears to accept both. Send a timeout rule with each form and record the stored value."
+    },
+    "bulk-reorder-repeat-safety": {
+      "kind": "semantic",
+      "title": "What happens when the bulk reorder is sent twice in quick succession",
+      "status": "open",
+      "blocks": "deciding whether a retried bulk reorder is safe",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: the endpoint replaces the entire rule order atomically and sending it twice in quick succession risks a race. The OpenAPI text only says to execute it once. Send the same reorder twice concurrently in a scratch tenant and compare the final order."
+    },
+    "policy-type-extra-values": {
+      "kind": "semantic",
+      "title": "Whether VPN_TUNNEL_POLICY and USER_PORTAL are accepted policy types",
+      "status": "open",
+      "blocks": "using the Python friendly names vpn_policy and user_portal",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "The Python policy map adds `vpn_policy` → VPN_TUNNEL_POLICY and `user_portal` → USER_PORTAL. Neither is a policy type in the OpenAPI document or the Postman collection, which have no VPN_TUNNEL_POLICY or USER_PORTAL policy type (PRIVILEGED_PORTAL_POLICY is in the contract). USER_PORTAL appears in the contract only as a condition operand objectType, and the Terraform provider uses it the same way, which suggests the Python alias may be a mistake. VPN_TUNNEL_POLICY appears nowhere in the vendored sources except the Python map. On the provider side, the Terraform reorder resource's policy_type enum lists twelve policy types and includes neither VPN_TUNNEL_POLICY nor USER_PORTAL. Call the policy-set lookup with each type and record the status.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "\"vpn_policy\": \"VPN_TUNNEL_POLICY\",",
+            "\"user_portal\": \"USER_PORTAL\","
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/conditions/items/properties/operands/items/properties/objectType",
+          "expect": {
+            "enum": [
+            "USER",
+            "USER_GROUP",
+            "APP",
+            "APP_GROUP",
+            "LOCATION",
+            "WORKLOAD_TAG_GROUP",
+            "SAML",
+            "POSTURE",
+            "CLIENT_TYPE",
+            "CHROME_ENTERPRISE",
+            "IDP",
+            "TRUSTED_NETWORK",
+            "EDGE_CONNECTOR_GROUP",
+            "MACHINE_GRP",
+            "BRANCH_CONNECTOR_GROUP",
+            "SCIM",
+            "SCIM_GROUP",
+            "COUNTRY_CODE",
+            "CONSOLE",
+            "PLATFORM",
+            "USER_PORTAL",
+            "RISK_FACTOR_TYPE",
+            "PRIVILEGE_PORTAL",
+            "AAE_PROFILE"
+            ]
+          }
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "return fmt.Errorf(\"a User Portal ID must be provided when object_type = USER_PORTAL\")"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "after": "\"policy_type\": { Type: schema.TypeString, Required: true, ValidateFunc: validation.StringInSlice([]string{",
+          "quotes": [
+            "\"ACCESS_POLICY\", \"GLOBAL_POLICY\", \"CAPABILITIES_POLICY\", \"BYPASS_POLICY\", \"CLIENT_FORWARDING_POLICY\", \"CREDENTIAL_POLICY\",",
+            "\"ISOLATION_POLICY\", \"INSPECTION_POLICY\", \"REDIRECTION_POLICY\", \"REAUTH_POLICY\", \"TIMEOUT_POLICY\", \"CLIENTLESS_SESSION_PROTECTION_POLICY\", }, false),"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "disabled-wire-type": {
+      "summary": "The type of a policy rule's `disabled` field in the OpenAPI document versus the Go SDK",
+      "positions": [
+        {
+          "says": "The OpenAPI v2 rule POST body declares `disabled` as an integer.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/disabled",
+            "expect": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "says": "The Go v2 request struct declares `Disabled` as a string with omitempty.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+            "quotes": [
+              "Disabled string `json:\"disabled,omitempty\"`"
+            ],
+            "after": "type PolicyRule struct {"
+          }
+        }
+      ],
+      "impact": "A caller building a raw request from the spec sends a number, one using the Go SDK sends a string. Which form the API accepts is not shown (gap disabled-wire-form)."
+    },
+    "step-up-auth-shape": {
+      "summary": "The shape returned by the step-up authentication level list",
+      "positions": [
+        {
+          "says": "The Go `GetStepupAuthLevel` decodes the response into a list of strings; its `StepAuthLevel` struct is not used by the function.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/step_up_auth/step_up_auth.go",
+            "quotes": [
+              "var result []string",
+              "resp, err := service.Client.NewRequestDo(ctx, \"GET\", relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()}, nil, &result)"
+            ]
+          }
+        },
+        {
+          "says": "The Python SDK builds a `StepUpAuthLevel` object for each item of the response.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/stepup_auth_level.py",
+            "quotes": [
+              "result.append(StepUpAuthLevel(self.form_response_body(item)))"
+            ]
+          }
+        }
+      ],
+      "impact": "If the endpoint returns objects, the Go decode into strings fails or yields nothing useful; if it returns plain names, the Python objects are built from strings. The OpenAPI document has no step-up path to settle it."
+    },
+    "policy-count-shape": {
+      "summary": "The shape of the policy rule count response",
+      "positions": [
+        {
+          "says": "The Go v2 `GetPolicyCount` pages the count URL into a list of `PolicyRuleResource`.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+            "quotes": [
+              "GetAllPagesGenericWithCustomFilters[PolicyRuleResource](ctx, service.Client, relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()})"
+            ],
+            "after": "func GetPolicyCount("
+          }
+        },
+        {
+          "says": "The Python docstring says the response is a dictionary with a `count` key holding the count as a string.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/policies.py",
+            "quotes": [
+              "- ``count`` (str): The count of policy rules as a string."
+            ]
+          }
+        }
+      ],
+      "impact": "The Go function cannot return the count if the Python description is right; use the Python shape or a raw call. The OpenAPI document does not define this endpoint."
+    },
+    "reorder-body-id-type": {
+      "summary": "The type of rule ids in the bulk reorder body",
+      "positions": [
+        {
+          "says": "The OpenAPI document types the reorder body as an array of int64 integers.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1reorder/put/requestBody/content/application~1json/schema/items",
+            "expect": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "says": "Both Go `BulkReorder` functions build the body as a list of string rule ids.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+            "quotes": [
+              "var ruleIdsOrdered []string"
+            ]
+          }
+        }
+      ],
+      "impact": "The Go SDK sends the ids as JSON strings. Whether the API accepts quoted ids is not recorded; the SDK's reorder is used in practice (see zpa.terraform.rule-order)."
+    }
+  }
+}

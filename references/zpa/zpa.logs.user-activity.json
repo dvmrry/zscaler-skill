@@ -1,0 +1,714 @@
+{
+  "schema_version": 1,
+  "id": "zpa.logs.user-activity",
+  "title": "What a ZPA User Activity log record says and does not say",
+  "aliases": [
+    "zpn_trans_log record",
+    "user activity log fields",
+    "ConnectionStatus Open Close Active",
+    "ZENBytes since last transaction log",
+    "ServerSetupTime",
+    "ConnectionSetupTime",
+    "multi-segment match LSS",
+    "PRAFileTransferList",
+    "ClientZEN ConnectorZEN",
+    "ConnectionID SessionID"
+  ],
+  "binds": [
+    "zpa/user-activity-log#ConnectionID",
+    "zpa/user-activity-log#SessionID",
+    "zpa/user-activity-log#TimestampConnectionEnd",
+    "zpa/user-activity-log#ConnectionStatus",
+    "zpa/user-activity-log#Server",
+    "zpa/user-activity-log#Hostname",
+    "zpa/user-activity-log#Username",
+    "zpa/user-status-log#Username",
+    "zpa/user-activity-log#PRAConsolesPolicyID",
+    "zpa/user-activity-log#PRACredentialPolicyID",
+    "zpa/user-activity-log#PRAApprovalID",
+    "zpa/user-activity-log#PRAErrorStatus",
+    "zpa/user-activity-log#PRARecordingStatus",
+    "zpa/user-activity-log#PRAFileTransferList",
+    "zpa/user-activity-log#PRASharedUserList",
+    "zpa/user-activity-log#PolicyProcessingTime",
+    "zpa/user-activity-log#ConnectionSetupTime",
+    "zpa/user-activity-log#ClientZEN",
+    "zpa/user-activity-log#TimestampConnectionStart",
+    "zpa/user-activity-log#Connector",
+    "zpa/app-connector-status-log#Connector",
+    "zpa/app-connector-metrics-log#Connector"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.log-receivers.log-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.log-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.user-status"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.app-connector-metrics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.control-session-status"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.client-selection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The User Activity log (zpn_trans_log) carries one record per application connection, but several things about how records relate are not stated in the vendor help."
+    },
+    {
+      "label": "Identity.",
+      "text": "{{username-in-both-logs}} Whether the two values are the same, or an email address, is open {{gap:username-identity}}. {{hostname-client-types}}"
+    },
+    {
+      "label": "Connection keys.",
+      "text": "{{connection-id-pair}} How a multi-segment sequence appears is open {{gap:multi-segment-lss}}."
+    },
+    {
+      "label": "Status and counters.",
+      "text": "The listed status values differ in case from the example {{divergence:status-case}}. {{end-empty-while-active}} What triggers Active records is open {{gap:active-cadence}}, as is counter reset {{gap:byte-counter-reset}}. What Open, Close and Active mean is open [[zpa.troubleshooting.log-fields:status-meanings]]."
+    },
+    {
+      "label": "Timing.",
+      "text": "{{policy-processing-unit}} Whether the phases overlap is open {{gap:timing-overlap}}, as is the scope of ServerSetupTime {{gap:server-setup-scope}}. Timestamps are described in microseconds but shown as ISO strings, which the default template produces with the :iso8601 modifier {{divergence:timestamp-format}}."
+    },
+    {
+      "label": "Edges and connector.",
+      "text": "{{client-zen-private-access}} {{connector-name-three-logs}} Whether the ZEN fields are outside tenant influence is open {{gap:zen-tenant-control}}, and the ZEN naming history is unsourced {{gap:zen-naming}}. {{server-zero-dsd}}"
+    },
+    {
+      "label": "Other field names and values.",
+      "text": "The default template reads the client-to-client field as c2c, not the table's ClientToClient {{divergence:client-to-client-variable}}. The example cases AppMicroTenantID differently from the table and template {{divergence:app-microtenant-id-case}}, and DoubleEncryption is listed as On or Off but written as a number {{divergence:double-encryption-values}}."
+    },
+    {
+      "label": "Privileged Remote Access.",
+      "text": "{{pra-policy-id-name}} The default template writes that field and the shared-user list under other names {{divergence:pra-field-names}}. {{pra-error-optional}} {{pra-file-transfer-json}} The example spellings differ from the listed ones {{divergence:pra-enum-spelling}}, and when these fields are empty outside PRA is open {{gap:pra-population}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether ConnectionStatus was compared case-insensitively before concluding a connection never reached Active.",
+      "uses": [
+        "status-case"
+      ]
+    },
+    {
+      "do": "Whether a connection with several records was summed from delta counters or read from the totals, given the reset rules are unstated.",
+      "uses": [
+        "byte-counter-reset",
+        "active-cadence"
+      ]
+    },
+    {
+      "do": "Whether the Server field is zero because Dynamic Server Discovery is on before treating it as a missing server.",
+      "uses": [
+        "server-zero-dsd"
+      ]
+    },
+    {
+      "do": "Whether the Hostname field is blank because the client type is not Zscaler Client Connector or a machine tunnel.",
+      "uses": [
+        "hostname-client-types"
+      ]
+    },
+    {
+      "do": "Whether a custom template or parser uses the default template's names, PRACapabilityPolicyID, PRASharedUsersList and c2c, rather than the table's PRAConsolesPolicyID, PRASharedUserList and ClientToClient.",
+      "uses": [
+        "pra-field-names",
+        "client-to-client-variable"
+      ]
+    },
+    {
+      "do": "Whether a DoubleEncryption filter matches the numeric values that arrive rather than the listed On and Off.",
+      "uses": [
+        "double-encryption-values"
+      ]
+    }
+  ],
+  "claims": {
+    "connection-id-pair": {
+      "statement": "In the User Activity example record ConnectionID is two comma-joined values whose first part equals the record's SessionID, while the field table describes ConnectionID only as the application connection ID and SessionID as the TLS session ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "\"SessionID\": \"SqyZIMkg0JTj7EABsvwA\",\"ConnectionID\": \"SqyZIMkg0JTj7EABsvwA,Q+EjXGdrvbF2lPiBbedm\"",
+            "| ConnectionID | The application connection ID",
+            "| SessionID | The TLS session ID"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-activity-log#ConnectionID",
+        "zpa/user-activity-log#SessionID"
+      ]
+    },
+    "end-empty-while-active": {
+      "statement": "In the example record, whose ConnectionStatus is active, TimestampConnectionEnd is an empty string, as are the first-byte-to-client and last-byte-from-connector timestamps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "\"TimestampConnectionEnd\": \"\",\"TimestampCATx\"",
+            "\"TimestampZENFirstTxClient\": \"\",\"TimestampZENLastRxClient\""
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-activity-log#TimestampConnectionEnd",
+        "zpa/user-activity-log#ConnectionStatus"
+      ]
+    },
+    "server-zero-dsd": {
+      "statement": "The Server field is the server ID name, and the server ID must be set to zero if Dynamic Server Discovery is enabled; the example record has Server 0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "The server ID must be set to zero if Dynamic Server Discovery is enabled.",
+            "\"Server\": \"0\""
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-activity-log#Server"
+      ]
+    },
+    "hostname-client-types": {
+      "statement": "Hostname is the device name as reported by Zscaler Client Connector and only provides valid values for Zscaler Client Connector and machine tunnel client types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "This field only provides valid values for Zscaler Client Connector and machine tunnel client types."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-activity-log#Hostname"
+      ]
+    },
+    "username-in-both-logs": {
+      "statement": "The User Activity Username is the username as entered into Zscaler Client Connector, and the User Status log has a Username field described only as the user name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "| Username | The username as entered into Zscaler Client Connector"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-status-log-fields.json",
+          "quotes": [
+            "| Username | The user name |"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-activity-log#Username",
+        "zpa/user-status-log#Username"
+      ]
+    },
+    "pra-policy-id-name": {
+      "statement": "The field table and example name the Privileged Remote Access consoles policy-ID field PRAConsolesPolicyID, described as the consoles policy ID, next to PRAApprovalID and PRACredentialPolicyID.",
+      "tier": "A",
+      "conditions": "Narrowed from a flat statement of the field's name to what the field table and example say, because the default template writes PRACapabilityPolicyID instead (divergence pra-field-names); dropped PRAConnectionID, which no quote covered.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "| PRAConsolesPolicyID | The consoles policy ID",
+            "| PRACredentialPolicyID | The privileged credential policy ID",
+            "\"PRAApprovalID\": \"15787\", \"PRAConsolesPolicyID\": \"72057597259256663\""
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-activity-log#PRAConsolesPolicyID",
+        "zpa/user-activity-log#PRACredentialPolicyID",
+        "zpa/user-activity-log#PRAApprovalID"
+      ]
+    },
+    "pra-error-optional": {
+      "statement": "PRAErrorStatus is the PRA session error status 'if available', and PRARecordingStatus is described as the recording status of the PRA file transfer with expected values Available, Not Available and Started.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "| PRAErrorStatus | The PRA session error status, if available",
+            "| PRARecordingStatus | The recording status of the PRA file transfer. The expected values for this field are:AvailableNot AvailableStarted"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-activity-log#PRAErrorStatus",
+        "zpa/user-activity-log#PRARecordingStatus"
+      ]
+    },
+    "pra-file-transfer-json": {
+      "statement": "In the example record PRAFileTransferList and PRASharedUserList are JSON documents carried inside a string value; each file entry has name, action, status, start and end timestamps, an inspected flag, file type, md5, an inspection_verdict that is itself a JSON string, and inspection_time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "\"PRAFileTransferList\": \"{\\\"file_list\\\":[{\\\"name\\\"",
+            "\"PRASharedUserList\": \"{\\\"shared_user_list\\\":[{\\\"name\\\":\\\"lisa@zerotrust.to\\\"}]}\""
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-activity-log#PRAFileTransferList",
+        "zpa/user-activity-log#PRASharedUserList"
+      ]
+    },
+    "policy-processing-unit": {
+      "statement": "PolicyProcessingTime is described as the time in microseconds taken for processing the access policy associated with the application, while ConnectionSetupTime is described as the time taken by the App Connector to process a notification from the connector selection microservice and set up the connection, with no unit stated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "| PolicyProcessingTime | The time in microseconds taken for processing the access policy",
+            "| ConnectionSetupTime | The time taken by the App Connector to process a notification"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-activity-log#PolicyProcessingTime",
+        "zpa/user-activity-log#ConnectionSetupTime"
+      ]
+    },
+    "client-zen-private-access": {
+      "statement": "ClientZEN is the Public Service Edge for Private Access that received the request from Zscaler Client Connector, while TimestampConnectionStart is stamped when a Public Service Edge or Private Service Edge received the initial request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "| ClientZEN | The Public Service Edge for Private Access that received the request from the Zscaler Client Connector",
+            "The timestamp in microseconds when the Public Service Edge or Private Service Edge for Private Access received the initial request"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-activity-log#ClientZEN",
+        "zpa/user-activity-log#TimestampConnectionStart"
+      ]
+    },
+    "connector-name-three-logs": {
+      "statement": "A field named Connector, described as the App Connector name, appears in the User Activity, App Connector Status and App Connector Metrics logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-user-activity-log-fields.json",
+          "quotes": [
+            "| Connector | The App Connector name"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "app-connector-status-log-fields.json",
+          "quotes": [
+            "| Connector | The App Connector name"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-app-connector-metrics-log-fields.json",
+          "quotes": [
+            "| Connector | The App Connector name"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/user-activity-log#Connector",
+        "zpa/app-connector-status-log#Connector",
+        "zpa/app-connector-metrics-log#Connector"
+      ]
+    }
+  },
+  "gaps": {
+    "multi-segment-lss": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "How a multi-segment sequence is represented in LSS",
+      "blocks": "reading one user request that resolved through several application segments as one record or several",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "detail": "Unverified legacy statement (ledger zpa-01): when a client resolves to multiple application segments in sequence (failover, probes), the representation in LSS output is unknown: one record per segment, one record with several segment IDs, or something else. The legacy doc's most-defensible inference, not confirmed by any source, is one record per segment attempt, tied together by a shared SessionID and distinguished by the ConnectionID suffix. The field table shows singular Application, AppGroup, Policy, Server and timestamp fields and the example ConnectionID is two comma-joined values (connection-id-pair).",
+      "former_ids": [
+        "zpa-01"
+      ]
+    },
+    "active-cadence": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What triggers a ConnectionStatus Active record on a long-lived connection",
+      "blocks": "budgeting log volume or counting connections from User Activity records",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement (ledger zpa-16): the byte-counter wording 'since the last transaction log' strongly implies that a long-lived connection emits several records with delta byte counts between them, but the trigger (time interval, byte threshold, segment change) is not stated, so no cadence can be assumed. What Open, Close and Active mean is the separate gap status-meanings in zpa.troubleshooting.log-fields.",
+      "former_ids": [
+        "zpa-16"
+      ]
+    },
+    "byte-counter-reset": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Delta and total byte counter reset semantics",
+      "blocks": "summing ZENBytes or ZENTotalBytes across the records of one connection",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement (ledger zpa-17): the ZENBytes* fields are 'additional bytes since the last transaction log' and the ZENTotalBytes* fields 'total bytes'. No source says whether the delta counters reset at every Active record or at another boundary, whether the totals run since ConnectionStatus Open or since another anchor, or what the final Close record carries. The definitions themselves are held in zpa.troubleshooting.log-fields (byte-counters).",
+      "former_ids": [
+        "zpa-17"
+      ]
+    },
+    "timing-overlap": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether the setup-time fields are sequential, overlapping or nested",
+      "blocks": "adding AppLearnTime, CAProcessingTime, PolicyProcessingTime, ConnectorZENSetupTime, ConnectionSetupTime and ServerSetupTime into a total",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement (ledger zpa-18): each time field is defined individually, but no source shows ordering or overlap. Open points are whether the phases can be summed, whether PolicyProcessingTime happens inside CAProcessingTime, and whether ConnectionSetupTime contains ServerSetupTime. The Timestamp* fields reconstruct part of the sequence without fixing what each Time field covers. The per-phase definitions are held in zpa.troubleshooting.log-fields (timing-fields).",
+      "former_ids": [
+        "zpa-18"
+      ]
+    },
+    "server-setup-scope": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What ServerSetupTime covers: TCP handshake, TLS, or more",
+      "blocks": "comparing ServerSetupTime across TLS and non-TLS applications",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement (ledger zpa-19): ServerSetupTime is described as the time in microseconds taken to set up the connection at the server, which is ambiguous between the TCP handshake only, TCP plus TLS, or TCP plus TLS plus the first application exchange. No source narrows it.",
+      "former_ids": [
+        "zpa-19"
+      ]
+    },
+    "username-identity": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether User Activity Username is an email address and equals the User Status Username",
+      "blocks": "correlating per-user activity across User Activity and User Status records",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: 'In most IdP configurations this is the user's email address' and Username is the shared join key between User Activity and User Status. The captures describe the User Activity Username as 'the username as entered into Zscaler Client Connector' and the User Status Username as 'the user name'; neither says the value is the IdP email or that the two logs carry the same value. The legacy also states the full IdP attribute set is exposed only as SAMLAttributes in User Status (see zpa.logs.user-status)."
+    },
+    "pra-population": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether the PRA fields are empty or absent outside a Privileged Remote Access session",
+      "blocks": "parsing User Activity records for non-PRA connections",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "detail": "Unverified legacy statement: the PRA fields are 'populated only when the session involves Privileged Remote Access'. The captures give PRAErrorStatus as 'if available' and show the PRA fields only in a PRA example record; none says what they hold for other connections."
+    },
+    "zen-tenant-control": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether ZEN fields name only Zscaler-managed edges the tenant cannot influence",
+      "blocks": "treating a wrong or distant ZEN as a support ticket rather than a tenant configuration question",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: ZEN identity, selection, capacity and routing are all controlled by Zscaler Cloud Operations, the ZEN values are observed rather than set, and the only action is a support ticket. The captures describe ClientZEN as a Public Service Edge for Private Access but stamp the connection start against 'Public Service Edge or Private Service Edge', and client selection among Private Service Edges is documented in zpa.private-service-edges.client-selection, so tenant configuration can influence which edge appears."
+    },
+    "zen-naming": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether ZEN is the legacy name for Public Service Edge in these fields",
+      "blocks": "explaining ClientZEN and ConnectorZEN to operators",
+      "resolves_with": [
+        "source-read"
+      ],
+      "detail": "Unverified legacy statement: ZEN is the legacy name for Zscaler Enforcement Node and the current name is Public Service Edge. The field descriptions use 'Public Service Edge' throughout and never expand ZEN; the rename history lives in shared/terminology.md, which is not a captured source."
+    }
+  },
+  "divergences": {
+    "status-case": {
+      "summary": "ConnectionStatus values as listed versus as shown in the example",
+      "positions": [
+        {
+          "says": "The field table gives the expected ConnectionStatus values as Open, Close and Active.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-activity-log-fields.json",
+            "quotes": [
+              "The expected values for this field are:OpenCloseActive"
+            ]
+          }
+        },
+        {
+          "says": "The example record carries ConnectionStatus in lower case.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-activity-log-fields.json",
+            "quotes": [
+              "\"ConnectionStatus\": \"active\""
+            ]
+          }
+        }
+      ],
+      "impact": "A SIEM filter or lookup that matches ConnectionStatus case-sensitively on Active may miss records that carry active. Normalise case before filtering, and check a real tenant record."
+    },
+    "timestamp-format": {
+      "summary": "Timestamp fields described in microseconds versus shown as ISO 8601 strings",
+      "positions": [
+        {
+          "says": "The Timestamp* fields are described as timestamps in microseconds.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-activity-log-fields.json",
+            "quotes": [
+              "| TimestampCATx | The timestamp in microseconds when the central authority sent a request"
+            ]
+          }
+        },
+        {
+          "says": "The example record shows the same fields as ISO 8601 strings with millisecond precision.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-activity-log-fields.json",
+            "quotes": [
+              "\"TimestampCATx\": \"2019-05-30T08:20:42.230Z\""
+            ]
+          }
+        },
+        {
+          "says": "The default User Activity template writes every Timestamp* field with the :iso8601 modifier ([[zpa/user-activity-log]]).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "after": "\"zpn_trans_log\":{",
+            "quotes": [
+              "%s{TimestampCATx:iso8601},%s{TimestampCARx:iso8601}",
+              "%s{TimestampZENFirstRxClient:iso8601}"
+            ]
+          }
+        },
+        {
+          "says": "The content-format article shows the :iso8601 modifier rendering a timestamp field as an ISO 8601 string: %s{startrx_us:iso8601} appears as 2017-09-05T09:44:06.363Z.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-log-stream-content-format.json",
+            "quotes": [
+              "and time is %s{startrx_us:iso8601} would appear as User is john.doe, and time is 2017-09-05T09:44:06.363Z"
+            ]
+          }
+        }
+      ],
+      "impact": "The default template renders the Timestamp* fields with :iso8601, so a default-format record carries ISO 8601 strings, as the example shows. A custom template that writes them without :iso8601 may produce another form; read the format from the receiver's template rather than assuming microsecond integers."
+    },
+    "pra-field-names": {
+      "summary": "Two PRA field names in the field table and example versus the default template",
+      "positions": [
+        {
+          "says": "The field table and example name the fields PRAConsolesPolicyID and PRASharedUserList.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-activity-log-fields.json",
+            "quotes": [
+              "| PRAConsolesPolicyID | The consoles policy ID",
+              "\"PRAConsolesPolicyID\": \"72057597259256663\"",
+              "| PRASharedUserList | The users that the PRA session was shared with"
+            ]
+          }
+        },
+        {
+          "says": "The default User Activity template writes them as PRACapabilityPolicyID and PRASharedUsersList ([[zpa/user-activity-log]]).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "quotes": [
+              "%d{PRAApprovalID},%d{PRACapabilityPolicyID}",
+              "%s{PRARecordingStatus},%s{PRASharedUsersList}"
+            ]
+          }
+        }
+      ],
+      "impact": "Field names are case sensitive and exact. The table spells them PRAConsolesPolicyID and PRASharedUserList; the default template writes PRACapabilityPolicyID and PRASharedUsersList. A custom template built from the table names may not emit these fields, and a parser keyed on one pair misses the other; check a real record."
+    },
+    "client-to-client-variable": {
+      "summary": "The client-to-client field name in the table versus the default template's variable",
+      "positions": [
+        {
+          "says": "The field table names the field ClientToClient, the status of the client-to-client connection, and the example uses that key.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-activity-log-fields.json",
+            "quotes": [
+              "| ClientToClient | The status of the client-to-client connection",
+              "\"ClientToClient\": \"0\""
+            ]
+          }
+        },
+        {
+          "says": "The default User Activity template reads the variable c2c and labels it ClientToClient in its JSON form ([[zpa/user-activity-log]]).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "after": "\"zpn_trans_log\":{",
+            "quotes": [
+              "%s{Idp},%s{c2c},%s{ClientCity}",
+              "\\\"ClientToClient\\\": %j{c2c}"
+            ]
+          }
+        }
+      ],
+      "impact": "Field names are case sensitive and exact. The table names it ClientToClient; the default template reads c2c. A custom template built from the table name may not emit the field; copy the variable from the default template and check a real record."
+    },
+    "app-microtenant-id-case": {
+      "summary": "AppMicroTenantID casing in the table and default template versus the example",
+      "positions": [
+        {
+          "says": "The field table names the field AppMicroTenantID, the Microtenant ID of the application.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-activity-log-fields.json",
+            "quotes": [
+              "| AppMicroTenantID | The Microtenant ID of the application"
+            ]
+          }
+        },
+        {
+          "says": "The default User Activity template also writes AppMicroTenantID ([[zpa/user-activity-log]]).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "quotes": [
+              "%s{MicroTenantID},%s{AppMicroTenantID},%s{PRAConnectionID}"
+            ]
+          }
+        },
+        {
+          "says": "The example record keys it AppMicrotenantID, with a lower-case t.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-activity-log-fields.json",
+            "quotes": [
+              "\"AppMicrotenantID\": \"145257480799129312\""
+            ]
+          }
+        }
+      ],
+      "impact": "A parser keyed on the example's AppMicrotenantID misses the AppMicroTenantID that the table and default template name. Match the key case-insensitively or check a real record."
+    },
+    "double-encryption-values": {
+      "summary": "DoubleEncryption values as listed versus the example and the default template",
+      "positions": [
+        {
+          "says": "The field table gives the expected DoubleEncryption values as On and Off.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-activity-log-fields.json",
+            "quotes": [
+              "| DoubleEncryption | The double encryption status. The expected values for this field are:OnOff"
+            ]
+          }
+        },
+        {
+          "says": "The example record has DoubleEncryption 0, an unquoted number.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-activity-log-fields.json",
+            "quotes": [
+              "\"DoubleEncryption\": 0"
+            ]
+          }
+        },
+        {
+          "says": "The default User Activity template writes DoubleEncryption with the %d specifier ([[zpa/user-activity-log]]).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "after": "\"zpn_trans_log\":{",
+            "quotes": [
+              "%d{IPProtocol},%d{DoubleEncryption},%s{Username}"
+            ]
+          }
+        }
+      ],
+      "impact": "A filter on On or Off may miss records from the default template, which writes the field as a number as the example shows. Which number means on is not stated; check a real record with double encryption enabled."
+    },
+    "pra-enum-spelling": {
+      "summary": "PRA field values as listed versus as shown in the example",
+      "positions": [
+        {
+          "says": "The field table lists PRACredentialLoginType as Username/Password, SSH Key or Password and PRASharedMode as Monitor or Control.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-activity-log-fields.json",
+            "quotes": [
+              "The expected values for this field are:Username/PasswordSSH KeyPassword",
+              "The expected values for this field are:MonitorControl"
+            ]
+          }
+        },
+        {
+          "says": "The example record shows Username-Password and lower-case control.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-user-activity-log-fields.json",
+            "quotes": [
+              "\"PRACredentialLoginType\": \"Username-Password\"",
+              "\"PRASharedMode\": \"control\""
+            ]
+          }
+        }
+      ],
+      "impact": "A rule that matches the listed spellings exactly may miss records that use the example spellings."
+    }
+  }
+}

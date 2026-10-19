@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.client-settings-wire",
+  "title": "Client settings and managed browser profile: what the SDKs send and decode",
+  "aliases": [
+    "GetClientSettings returns empty",
+    "client setting create does nothing",
+    "singningCertExpiryInEpochSec",
+    "managedBrowserProfile search",
+    "client setting type ZAPP_CLIENT"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.api.pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The client setting and managed browser profile calls exist in the SDKs but are not defined in the API document or the Postman collection at the pin, so everything here is SDK behavior {{gap:client-settings-api-contract}}. The Go client setting calls have two argument-order defects, below."
+    },
+    {
+      "heading": "Go client setting defects"
+    },
+    {
+      "text": "{{go-get-never-decodes}}"
+    },
+    {
+      "text": "{{go-create-swaps-options-and-body}} What the API does with that request is open {{gap:client-settings-create-effect}}."
+    },
+    {
+      "heading": "Calls and names"
+    },
+    {
+      "text": "{{go-type-allowlist}} {{sdk-client-setting-calls}}"
+    },
+    {
+      "text": "{{singning-key-spelling}} {{python-client-setting-microtenant}}"
+    },
+    {
+      "heading": "Managed browser profiles"
+    },
+    {
+      "text": "{{managed-browser-search-path}}"
+    },
+    {
+      "text": "The all-settings response shape differs between the SDKs {{divergence:get-all-shape}}."
+    },
+    {
+      "text": "Which shape the endpoint returns is open {{gap:all-endpoint-shape}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an empty client-settings result came from the Go GetClientSettings, which never decodes its response, before concluding the tenant has none.",
+      "uses": [
+        "go-get-never-decodes"
+      ]
+    },
+    {
+      "do": "Whether a client setting was created through Go Create, whose settings go to the query string and not the body.",
+      "uses": [
+        "go-create-swaps-options-and-body"
+      ]
+    },
+    {
+      "do": "Whether a type filter value is one of the three accepted by the Go allowlist.",
+      "uses": [
+        "go-type-allowlist"
+      ]
+    }
+  ],
+  "claims": {
+    "go-get-never-decodes": {
+      "statement": "Go GetClientSettings passes its result slice as the request body argument and nil as the response target, so the response is never decoded into the slice and the function returns whatever the slice already held, which is nothing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/client_settings/client_settings.go",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"GET\", baseURL, nil, &settings, nil)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "quotes": [
+            "func (client *Client) NewRequestDo(ctx context.Context, method, endpoint string, options, body, v interface{}) (*http.Response, error) {",
+            "if v != nil { if err := decodeJSON(respBody, v); err != nil {"
+          ]
+        }
+      ]
+    },
+    "go-create-swaps-options-and-body": {
+      "statement": "Go client_settings Create passes the settings as the options argument and a freshly allocated empty ClientSettings as the body argument, with a nil response target. Options are encoded into the query string, the body is the empty struct, and nothing is decoded into the returned value, so the settings are not sent as the JSON body and the returned object is empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/client_settings/client_settings.go",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+clientSettingEndpoint, settings, v, nil)"
+          ],
+          "after": "func Create("
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "quotes": [
+            "q, err := query.Values(options)",
+            "bodyBytes, err := json.Marshal(body)",
+            "if v != nil { if err := decodeJSON(respBody, v); err != nil {"
+          ]
+        }
+      ],
+      "conditions": "The request shape follows from the argument order. What the API answers to a POST with an empty JSON body and the settings in the query string is open (gap client-settings-create-effect). The Python add_client_setting sends its keyword arguments as the body."
+    },
+    "go-type-allowlist": {
+      "statement": "Go GetClientSettings upper-cases and trims the type filter and rejects any value other than ZAPP_CLIENT, ISOLATION_CLIENT and APP_PROTECTION before sending a request. The Python get_client_settings documents the same three values but sends the filter as given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/client_settings/client_settings.go",
+          "quotes": [
+            "t := strings.ToUpper(strings.TrimSpace(*clientType))",
+            "return nil, nil, fmt.Errorf(\"invalid client setting type: %s\", t)",
+            "\"ISOLATION_CLIENT\": true,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/client_settings.py",
+          "quotes": [
+            "Available values: `ZAPP_CLIENT`, `ISOLATION_CLIENT`, `APP_PROTECTION`",
+            "request, error = self._request_executor.create_request(http_method, api_url, params=query_params)"
+          ]
+        }
+      ]
+    },
+    "sdk-client-setting-calls": {
+      "statement": "Both SDKs call GET /clientSetting (with an optional type filter), GET /clientSetting/all for the unfiltered object, POST /clientSetting to create and DELETE /clientSetting with no id, which deletes the customer-level setting. Neither SDK has an update call.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/client_settings/client_settings.go",
+          "quotes": [
+            "baseURL += \"?type=\" + url.QueryEscape(t)",
+            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + clientSettingEndpoint + \"/all\"",
+            "path := mgmtConfig + service.Client.GetCustomerID() + clientSettingEndpoint"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/client_settings.py",
+          "quotes": [
+            "http_method = \"delete\".upper()",
+            "/clientSetting/all"
+          ]
+        }
+      ],
+      "conditions": "SDK behavior only. Neither the OpenAPI document nor the Postman collection at the pin defines a clientSetting path (gap client-settings-api-contract)."
+    },
+    "singning-key-spelling": {
+      "statement": "Both SDKs spell the signing certificate expiry key singningCertExpiryInEpochSec, with the misspelling, on the client setting model.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/client_settings/client_settings.go",
+          "quotes": [
+            "SingningCertExpiryInEpochSec string `json:\"singningCertExpiryInEpochSec,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/client_settings.py",
+          "quotes": [
+            "\"singningCertExpiryInEpochSec\": self.singning_cert_expiry_in_epoch_sec,"
+          ]
+        }
+      ],
+      "conditions": "That the API itself uses this spelling is not shown by any source in the repository (gap client-settings-api-contract); the two SDKs may share a misspelling the API does not."
+    },
+    "python-client-setting-microtenant": {
+      "statement": "The Python ClientSettings model reads and writes microtenantId, and the Go ClientSettings type has no microtenant member.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/client_settings.py",
+          "quotes": [
+            "self.microtenant_id = config[\"microtenantId\"] if \"microtenantId\" in config else None",
+            "\"microtenantId\": self.microtenant_id,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/client_settings/client_settings.go",
+          "quotes": [
+            "EnrollmentCertName string `json:\"enrollmentCertName,omitempty\"` }"
+          ],
+          "after": "type ClientSettings struct {"
+        }
+      ]
+    },
+    "managed-browser-search-path": {
+      "statement": "Both SDKs list managed browser profiles with a GET on the /managedBrowserProfile/search path. The Go GetByName sends no name filter, only the microtenant id, and matches the name client-side with a case-insensitive comparison.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/managed_browser/managed_browser.go",
+          "quotes": [
+            "managedBrowserEndpoint = \"/managedBrowserProfile/search\"",
+            "if strings.EqualFold(app.Name, managedBrowserName) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/managed_browser/managed_browser.go",
+          "quotes": [
+            "list, resp, err := common.GetAllPagesGenericWithCustomFilters[ManagedBrowserProfile](ctx, service.Client, relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()})"
+          ],
+          "after": "func GetByName("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/managed_browser_profile.py",
+          "quotes": [
+            "/managedBrowserProfile/search"
+          ]
+        }
+      ],
+      "conditions": "SDK behavior only; the OpenAPI document at the pin has no managedBrowserProfile path (gap client-settings-api-contract)."
+    }
+  },
+  "gaps": {
+    "client-settings-api-contract": {
+      "kind": "semantic",
+      "title": "Whether the API defines the client setting and managed browser profile endpoints as the SDKs call them",
+      "status": "open",
+      "detail": "Unverified legacy statement: the wire key singningCertExpiryInEpochSec, the type values and the delete-without-id call are taken from the SDKs. The OpenAPI document and the Postman collection at the pin define no clientSetting or managedBrowserProfile path.",
+      "blocks": "telling whether the SDK spellings and calls reflect the API or only the SDKs",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "client-settings-create-effect": {
+      "kind": "semantic",
+      "title": "What the API does with a client setting POST sent by the Go SDK, with an empty body and the settings in the query string",
+      "status": "open",
+      "detail": "Send the Go-shaped request to a scratch tenant and record the status, whether a setting is created, and what it contains.",
+      "blocks": "telling whether the Go create call fails, creates an empty setting or works through the query parameters",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "all-endpoint-shape": {
+      "kind": "semantic",
+      "title": "Whether GET /clientSetting/all returns one object or a list",
+      "status": "open",
+      "detail": "Unverified legacy statement: the Go SDK models a single ClientSettings object and the Python SDK iterates the results as a list; neither is verified against a live tenant response. Call the endpoint and record the JSON.",
+      "blocks": "writing a client for the all-settings call",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  },
+  "divergences": {
+    "get-all-shape": {
+      "summary": "The Go `GetAllClientSettings` decodes the `/clientSetting/all` response into one object, while the Python `get_all_client_settings` builds a list from the response results.",
+      "positions": [
+        {
+          "says": "Go GetAllClientSettings returns a pointer to a single ClientSettings decoded from the response.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/client_settings/client_settings.go",
+            "quotes": [
+              "func GetAllClientSettings(ctx context.Context, service *zscaler.Service) (*ClientSettings, *http.Response, error) {"
+            ]
+          }
+        },
+        {
+          "says": "Python builds a list of ClientSettings from get_results().",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/client_settings.py",
+            "quotes": [
+              "result.append(ClientSettings(self.form_response_body(item)))"
+            ],
+            "after": "/clientSetting/all"
+          }
+        }
+      ],
+      "impact": "A caller moving between SDKs gets an object from one and a list from the other for the same endpoint; neither is checked against a live response."
+    }
+  }
+}

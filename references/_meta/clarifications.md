@@ -105,7 +105,7 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 ## Status summary
 
 Skim this before reading the full entries. Summary refreshed 2026-08-14:
-12 entries are resolved or clarified, 21 are partially resolved, and 287 are open.
+10 entries are resolved or clarified, 21 are partially resolved, and 268 are open.
 The three exact memberships below are checked against every detailed entry's
 explicit `Status`; range notation is inclusive and is expanded by the checker.
 Most open entries require lab tests,
@@ -114,7 +114,7 @@ public-doc reading.
 
 Entries migrated to the knowledge graph are no longer listed here; they are gaps
 with their old ID kept in `former_ids` (resolve with `node scripts/kb.mjs resolve <old-id>`):
-`zia-01` → [`zia.url-categories.membership:predefined-vs-custom`](kb:zia.url-categories.membership:predefined-vs-custom); `zia-02` → [`zia.url-categories.membership:same-specificity-collision`](kb:zia.url-categories.membership:same-specificity-collision); `zia-03` → [`zia.url-categories.entry-matching:wildcard-tokenization`](kb:zia.url-categories.entry-matching:wildcard-tokenization); `zia-04` → [`zia.url-filtering.advanced-settings:nrod-lag`](kb:zia.url-filtering.advanced-settings:nrod-lag); `zia-06` → [`zia.cloud-app-control.precedence:cac-disabled-rules`](kb:zia.cloud-app-control.precedence:cac-disabled-rules); `zia-10` → [`zia.cloud-app-control.precedence:default-allow-vs-explicit`](kb:zia.cloud-app-control.precedence:default-allow-vs-explicit); `zia-11` → [`zia.ssl-inspection.pipeline:mixed-forwarding`](kb:zia.ssl-inspection.pipeline:mixed-forwarding); `zia-12` → [`zia.ssl-inspection.pipeline:bypass-and-default-rule`](kb:zia.ssl-inspection.pipeline:bypass-and-default-rule); `zia-14` → [`zia.url-categories.entry-matching:exactly-five-levels`](kb:zia.url-categories.entry-matching:exactly-five-levels); `zia-15` → [`zia.url-categories.entry-matching:console-accepts-asterisk`](kb:zia.url-categories.entry-matching:console-accepts-asterisk); `zia-07` → [`zia.cloud-app-control.risk-profiles:composition`](kb:zia.cloud-app-control.risk-profiles:composition); `zia-09` → [`zia.cloud-app-control.rule-criteria:app-identity`](kb:zia.cloud-app-control.rule-criteria:app-identity); `zia-13` → [`zia.ssl-inspection.pipeline:first-pass-on-domain`](kb:zia.ssl-inspection.pipeline:first-pass-on-domain); `zia-47` → [`zia.dns-control.actions:block-response-code-values`](kb:zia.dns-control.actions:block-response-code-values); `zia-48` → [`zia.dns-control.actions:redirect-ip-binding`](kb:zia.dns-control.actions:redirect-ip-binding); `zia-58` → [`zia.dlp.rule-wire-shape:without-content-inspection-keying`](kb:zia.dlp.rule-wire-shape:without-content-inspection-keying); `zia-59` → [`zia.dns-control.actions:redir-req-gateway`](kb:zia.dns-control.actions:redir-req-gateway); `zia-60` → [`zia.firewall.network-services:type-meanings`](kb:zia.firewall.network-services:type-meanings); `zia-63` → [`zia.sandbox.md5-blocklist:quota-cap`](kb:zia.sandbox.md5-blocklist:quota-cap); `zia-66` → [`zia.ssl-inspection.rules:cap-raisable`](kb:zia.ssl-inspection.rules:cap-raisable); `zia-71` → [`zia.dns-control.api-rules:web-eun-false`](kb:zia.dns-control.api-rules:web-eun-false); `zia-08` → [`zia.tenant-profiles.wire-mechanic:per-app-inspection-detail`](kb:zia.tenant-profiles.wire-mechanic:per-app-inspection-detail); `zia-16` → [`zia.locations.sublocations:cap-2000`](kb:zia.locations.sublocations:cap-2000); `zia-17` → [`zia.locations.sublocations:name-uniqueness-scope`](kb:zia.locations.sublocations:name-uniqueness-scope); `zia-18` → [`zia.locations.sublocations:parent-delete-behavior`](kb:zia.locations.sublocations:parent-delete-behavior); `zia-19` → [`zia.locations.sublocations:reparenting-rules`](kb:zia.locations.sublocations:reparenting-rules); `zia-20` → [`zia.locations.sublocations:depth-limit`](kb:zia.locations.sublocations:depth-limit); `zia-46` → [`zia.locations.group-assignment:tf-dynamic-removal-reason`](kb:zia.locations.group-assignment:tf-dynamic-removal-reason); `zia-56` → [`zia.bandwidth-control.limits:caps-api-enforced`](kb:zia.bandwidth-control.limits:caps-api-enforced); `zia-57` → [`zia.file-type-control.api-shape:filtering-action-dependencies`](kb:zia.file-type-control.api-shape:filtering-action-dependencies); `zia-61` → [`zia.atp.api-surface:tenant-defaults`](kb:zia.atp.api-surface:tenant-defaults); `zia-67` → [`zia.tenant-profiles.microsoft:v1-v2-semantics`](kb:zia.tenant-profiles.microsoft:v1-v2-semantics); `log-04` → [`zia.atp.block-diagnosis:ruletype-values`](kb:zia.atp.block-diagnosis:ruletype-values); `zia-26` → [`zia.rule-labels:audit-log-label-names`](kb:zia.rule-labels:audit-log-label-names); `zia-27` → [`zia.rule-labels.constraints:name-charset`](kb:zia.rule-labels.constraints:name-charset); `zia-28` → [`zia.rule-labels.constraints:name-uniqueness`](kb:zia.rule-labels.constraints:name-uniqueness); `zia-29` → [`zia.rule-labels.constraints:description-max-length`](kb:zia.rule-labels.constraints:description-max-length); `zia-30` → [`zia.rule-labels:duplicate-action`](kb:zia.rule-labels:duplicate-action); `zia-31` → [`zia.rule-labels.rule-types:label-filter-server-support`](kb:zia.rule-labels.rule-types:label-filter-server-support); `zia-32` → [`zia.rule-labels.constraints:tenant-cap`](kb:zia.rule-labels.constraints:tenant-cap); `zia-50` → [`zia.rule-labels.api-surface:rule-type-endpoint-backing`](kb:zia.rule-labels.api-surface:rule-type-endpoint-backing); `zia-69` → [`zia.workload-groups.expressions:runtime-evaluation`](kb:zia.workload-groups.expressions:runtime-evaluation); `zia-55` → [`zia.audit-logs.report-api:pagination`](kb:zia.audit-logs.report-api:pagination); `shared-38` → [`zia.traffic-forwarding.vpn-credentials:psk-live-read`](kb:zia.traffic-forwarding.vpn-credentials:psk-live-read); `zia-39` → [`zia.scim.groups-and-departments:department-no-match`](kb:zia.scim.groups-and-departments:department-no-match); `zia-40` → [`zia.scim.deactivation:session-kill`](kb:zia.scim.deactivation:session-kill); `zia-41` → [`zia.scim.operations:rate-limit`](kb:zia.scim.operations:rate-limit); `zia-42` → [`zia.ad-integration.identity-objects:org-limits`](kb:zia.ad-integration.identity-objects:org-limits); `zia-43` → [`zia.scim.attribute-mapping:per-idp-department-mapping`](kb:zia.scim.attribute-mapping:per-idp-department-mapping); `zia-44` → [`zia.scim.propagation:sync-log-visibility`](kb:zia.scim.propagation:sync-log-visibility); `zia-45` → [`zia.scim.propagation:per-idp-cadence`](kb:zia.scim.propagation:per-idp-cadence); `zia-64` → [`zia.scim.groups-and-departments:department-no-match`](kb:zia.scim.groups-and-departments:department-no-match); `zia-62` → [`zia.private-service-edge.ip-requirements:shared-nat-behavior`](kb:zia.private-service-edge.ip-requirements:shared-nat-behavior); `zia-33` → [`zia.virtual-service-edge.upgrades:cluster-update-sequencing`](kb:zia.virtual-service-edge.upgrades:cluster-update-sequencing); `zia-34` → [`zia.virtual-service-edge.clusters:removal-and-disable-behavior`](kb:zia.virtual-service-edge.clusters:removal-and-disable-behavior); `zia-35` → [`zia.virtual-service-edge.operations:log-identifier`](kb:zia.virtual-service-edge.operations:log-identifier); `zia-36` → [`zia.virtual-service-edge.clusters:cluster-vs-vm-settings`](kb:zia.virtual-service-edge.clusters:cluster-vs-vm-settings); `zia-37` → [`zia.virtual-service-edge.network-requirements:vse-nat-topology`](kb:zia.virtual-service-edge.network-requirements:vse-nat-topology); `zia-38` → [`zia.virtual-service-edge.clusters:public-cloud-cluster-object`](kb:zia.virtual-service-edge.clusters:public-cloud-cluster-object); `zia-21` → [`zia.time-intervals.timezone:dst-handling`](kb:zia.time-intervals.timezone:dst-handling); `zia-22` → [`zia.time-intervals.limits:object-cap`](kb:zia.time-intervals.limits:object-cap); `zia-23` → [`zia.time-intervals.time-windows:terraform-resource-intent`](kb:zia.time-intervals.time-windows:terraform-resource-intent); `zia-24` → [`zia.time-intervals.evaluation:midnight-spanning`](kb:zia.time-intervals.evaluation:midnight-spanning); `zia-25` → [`zia.time-intervals.time-windows:predefined-intervals`](kb:zia.time-intervals.time-windows:predefined-intervals); `zia-49` → [`zia.cloud-app-control.actions:all-vs-available-differs`](kb:zia.cloud-app-control.actions:all-vs-available-differs); `zia-51` → [`zia.api.sdk-coverage:parity-drift`](kb:zia.api.sdk-coverage:parity-drift); `zia-52` → [`zia.api.legacy-ips-signature-wire:import-wire-unconfirmed`](kb:zia.api.legacy-ips-signature-wire:import-wire-unconfirmed); `zia-53` → [`zia.cloud-app-control.actions:per-tuple-validation-contract`](kb:zia.cloud-app-control.actions:per-tuple-validation-contract); `zia-54` → [`zia.cloud-app-control.api-surface:python-risk-profile-runtime`](kb:zia.cloud-app-control.api-surface:python-risk-profile-runtime); `zia-68` → [`zia.terraform.early-access:early-access-eligibility`](kb:zia.terraform.early-access:early-access-eligibility); `zia-72` → [`zia.url-filtering.advanced-settings:creative-commons-backend-effect`](kb:zia.url-filtering.advanced-settings:creative-commons-backend-effect); `log-01` → [`zia.logs.nss-feed-format:format-field-presence`](kb:zia.logs.nss-feed-format:format-field-presence); `log-02` → [`zia.logs.nss-feed-format:vm-conversion-omits`](kb:zia.logs.nss-feed-format:vm-conversion-omits); `log-03` → [`zia.logs.nss-feed-format:multi-feed-timezone`](kb:zia.logs.nss-feed-format:multi-feed-timezone); `log-05` → [`zia.logs.web-rule-attribution:action-values-precedence`](kb:zia.logs.web-rule-attribution:action-values-precedence); `log-06` → [`zia.logs.web-field-semantics:reason-structure`](kb:zia.logs.web-field-semantics:reason-structure); `log-07` → [`zia.logs.web-field-semantics:url-category-fields`](kb:zia.logs.web-field-semantics:url-category-fields); `log-08` → [`zia.logs.web-field-semantics:riskscore-lineage`](kb:zia.logs.web-field-semantics:riskscore-lineage); `log-09` → [`zia.logs.web-field-semantics:byte-counters`](kb:zia.logs.web-field-semantics:byte-counters); `log-10` → [`zia.logs.web-field-semantics:prompt-scope`](kb:zia.logs.web-field-semantics:prompt-scope); `log-11` → [`zia.logs.firewall-records:aggregate-counters`](kb:zia.logs.firewall-records:aggregate-counters); `log-12` → [`zia.logs.firewall-records:action-precedence`](kb:zia.logs.firewall-records:action-precedence); `log-13` → [`zia.logs.firewall-records:nwapp-vs-nwsvc`](kb:zia.logs.firewall-records:nwapp-vs-nwsvc); `log-14` → [`zia.logs.dns-outcome:action-enum-open`](kb:zia.logs.dns-outcome:action-enum-open); `log-15` → [`zia.logs.dns-outcome:res-sentinels-open`](kb:zia.logs.dns-outcome:res-sentinels-open); `log-16` → [`zia.logs.dns-gateway-fields:dnsgw-flags-semantics-open`](kb:zia.logs.dns-gateway-fields:dnsgw-flags-semantics-open); `log-17` → [`zia.casb.insights-logs:record-category-discriminator`](kb:zia.casb.insights-logs:record-category-discriminator); `zpa-02` → [`zpa.app-segments.matching:granularity-ranking`](kb:zpa.app-segments.matching:granularity-ranking); `zpa-03` → [`zpa.app-segments.multimatch:config-conflict`](kb:zpa.app-segments.multimatch:config-conflict); `zpa-04` → [`zpa.app-segments.matching:same-specificity-tie`](kb:zpa.app-segments.matching:same-specificity-tie); `zpa-05` → [`zpa.app-segments.matching:port-mismatch-bypass`](kb:zpa.app-segments.matching:port-mismatch-bypass); `zpa-06` → [`zpa.policy.actions:require-approval-equals-conditional-access`](kb:zpa.policy.actions:require-approval-equals-conditional-access); `zpa-07` → [`zpa.policy.access-rule-order:deception-rule-ordering-rationale`](kb:zpa.policy.access-rule-order:deception-rule-ordering-rationale); `zpa-08` → [`zpa.policy.evaluation-order:wildcard-matches-bare-domain`](kb:zpa.policy.evaluation-order:wildcard-matches-bare-domain); `zpa-11` → [`zpa.machine-groups.api-surface:create-endpoint-absence`](kb:zpa.machine-groups.api-surface:create-endpoint-absence); `zpa-12` → [`zpa.machine-groups.definition:no-group-level-criteria`](kb:zpa.machine-groups.definition:no-group-level-criteria); `zpa-13` → [`zpa.machine-groups.policy-use:api-without-client-type`](kb:zpa.machine-groups.policy-use:api-without-client-type); `zpa-14` → [`zpa.machine-groups.definition:capacity-other-limits`](kb:zpa.machine-groups.definition:capacity-other-limits); `zpa-15` → [`zpa.machine-groups`](kb:zpa.machine-groups); `zpa-20` → [`zpa.app-connectors.health:status-pending-unverified`](kb:zpa.app-connectors.health:status-pending-unverified); `zpa-27` → [`zpa.app-connectors.selection:latency-probe-cadence`](kb:zpa.app-connectors.selection:latency-probe-cadence); `zpa-28` → [`zpa.app-connectors.enrollment:certificate-validity-window`](kb:zpa.app-connectors.enrollment:certificate-validity-window); `zpa-29` → [`zpa.app-connectors.deployment:max-connectors-per-group`](kb:zpa.app-connectors.deployment:max-connectors-per-group); `zpa-30` → [`zpa.app-connectors.provisioning-key-tooling:group-delete-removes-keys`](kb:zpa.app-connectors.provisioning-key-tooling:group-delete-removes-keys); `zpa-31` → [`zpa.app-connectors.provisioning-key-tooling:api-requires-cert-for-connector-key`](kb:zpa.app-connectors.provisioning-key-tooling:api-requires-cert-for-connector-key); `zpa-32` → [`zpa.audit-logs.streaming:field-schema`](kb:zpa.audit-logs.streaming:field-schema); `zpa-33` → [`zpa.audit-logs.streaming:siem-policy-purpose`](kb:zpa.audit-logs.streaming:siem-policy-purpose); `zpa-34` → [`zpa.audit-logs.streaming:microtenant-scoping`](kb:zpa.audit-logs.streaming:microtenant-scoping); `zpa-35` → [`zpa.audit-logs.streaming:audit-filter-api`](kb:zpa.audit-logs.streaming:audit-filter-api); `zpa-36` → [`zpa.browser-access.backend-options:field-setting-mapping`](kb:zpa.browser-access.backend-options:field-setting-mapping); `zpa-40` → [`zpa.log-receivers.log-types:auth-log-1id-label`](kb:zpa.log-receivers.log-types:auth-log-1id-label); `zpa-41` → [`zpa.log-receivers.log-types:format-only-codes`](kb:zpa.log-receivers.log-types:format-only-codes); `zpa-42` → [`zpa.machine-tunnels.requirements:enable-for-all`](kb:zpa.machine-tunnels.requirements:enable-for-all); `zpa-43` → [`zpa.machine-tunnels.requirements:session-lifecycle`](kb:zpa.machine-tunnels.requirements:session-lifecycle); `zpa-44` → [`zpa.machine-tunnels.provisioning-keys:macos-mdm-effect`](kb:zpa.machine-tunnels.provisioning-keys:macos-mdm-effect); `zpa-45` → [`zpa.machine-tunnels.provisioning-keys:separate-key-type`](kb:zpa.machine-tunnels.provisioning-keys:separate-key-type); `zpa-46` → [`zpa.policy.conditions:chrome-operand-form-api-enforcement`](kb:zpa.policy.conditions:chrome-operand-form-api-enforcement); `zpa-47` → [`zpa.private-service-edges.deployment:session-limits`](kb:zpa.private-service-edges.deployment:session-limits); `zpa-49` → [`zpa.private-service-edges.deployment:release-images`](kb:zpa.private-service-edges.deployment:release-images); `zpa-50` → [`zpa.private-service-edges.what-it-is:pse-hardware-sales`](kb:zpa.private-service-edges.what-it-is:pse-hardware-sales); `zpa-51` → [`zpa.private-service-edges.private-cloud-controller:controller-role`](kb:zpa.private-service-edges.private-cloud-controller:controller-role); `zpa-52` → [`zpa.private-service-edges.private-cloud-controller:restart-semantics`](kb:zpa.private-service-edges.private-cloud-controller:restart-semantics); `zpa-53` → [`zpa.private-service-edges.api-surface:schedule-default-cadence`](kb:zpa.private-service-edges.api-surface:schedule-default-cadence); `zpa-54` → [`zpa.private-service-edges.client-selection:location-propagation`](kb:zpa.private-service-edges.client-selection:location-propagation); `zpa-55` → [`zpa.private-service-edges.enrollment:oauth2-prerequisites`](kb:zpa.private-service-edges.enrollment:oauth2-prerequisites); `zpa-56` → [`zpa.private-service-edges.deployment:max-per-group`](kb:zpa.private-service-edges.deployment:max-per-group); `zpa-57` → [`zpa.pra:absent-from-base-zpa`](kb:zpa.pra:absent-from-base-zpa); `zpa-58` → [`zpa.public-service-edges.what-it-is:safe-mode`](kb:zpa.public-service-edges.what-it-is:safe-mode); `zpa-59` → [`zpa.public-service-edges.what-it-is:ca-reconnect-semantics`](kb:zpa.public-service-edges.what-it-is:ca-reconnect-semantics); `zpa-60` → [`zpa.public-service-edges.api-visibility:upgrade-priority`](kb:zpa.public-service-edges.api-visibility:upgrade-priority); `zpa-61` → [`zpa.saml-attributes.registration:zpa-61-limit`](kb:zpa.saml-attributes.registration:zpa-61-limit); `zpa-62` → [`zpa.saml-attributes.api-surface:zpa-62-user-attribute-delta`](kb:zpa.saml-attributes.api-surface:zpa-62-user-attribute-delta); `zpa-63` → [`zpa.scim.group-lifecycle:zpa-63-deleted-group-in-rule`](kb:zpa.scim.group-lifecycle:zpa-63-deleted-group-in-rule); `zpa-64` → [`zpa.scim.api-surface:zpa-64-internal-id`](kb:zpa.scim.api-surface:zpa-64-internal-id); `zpa-65` → [`zpa.scim.policy-criteria:zpa-65-setting-fallback`](kb:zpa.scim.policy-criteria:zpa-65-setting-fallback); `zpa-66` → [`zpa.scim.policy-criteria:zpa-66-case-sensitivity`](kb:zpa.scim.policy-criteria:zpa-66-case-sensitivity); `zpa-67` → [`zpa.scim.provisioning-timing:zpa-67-membership-resolution`](kb:zpa.scim.provisioning-timing:zpa-67-membership-resolution); `zpa-68` → [`zpa.scim.policy-criteria:zpa-68-isolation-scim`](kb:zpa.scim.policy-criteria:zpa-68-isolation-scim); `zpa-69` → [`zpa.segment-groups.api-surface:v2-update-differences`](kb:zpa.segment-groups.api-surface:v2-update-differences); `zpa-70` → [`zpa.segment-groups.api-surface:skip-detailed-app-info-effect`](kb:zpa.segment-groups.api-surface:skip-detailed-app-info-effect); `zpa-71` → [`zpa.segment-groups.api-surface:tcp-keep-alive-enabled-effect`](kb:zpa.segment-groups.api-surface:tcp-keep-alive-enabled-effect); `zpa-72` → [`zpa.segment-groups.api-surface:config-space-meaning`](kb:zpa.segment-groups.api-surface:config-space-meaning); `zpa-78` → [`zpa.trusted-networks.policy-operand:rhs-false-semantics`](kb:zpa.trusted-networks.policy-operand:rhs-false-semantics); `zpa-79` → [`zpa.trusted-networks.zcc-relationship:zpa-objects-are-zcc-networks`](kb:zpa.trusted-networks.zcc-relationship:zpa-objects-are-zcc-networks); `zpa-80` → [`zpa.trusted-networks.zcc-relationship:signal-path`](kb:zpa.trusted-networks.zcc-relationship:signal-path); `zpa-81` → [`zpa.trusted-networks.service-edge-groups:off-network-fallback`](kb:zpa.trusted-networks.service-edge-groups:off-network-fallback); `zpa-83` → [`zpa.app-segments.api-fields:hbr-sticky-guest-semantics`](kb:zpa.app-segments.api-fields:hbr-sticky-guest-semantics).
+`zia-01` → [`zia.url-categories.membership:predefined-vs-custom`](kb:zia.url-categories.membership:predefined-vs-custom); `zia-02` → [`zia.url-categories.membership:same-specificity-collision`](kb:zia.url-categories.membership:same-specificity-collision); `zia-03` → [`zia.url-categories.entry-matching:wildcard-tokenization`](kb:zia.url-categories.entry-matching:wildcard-tokenization); `zia-04` → [`zia.url-filtering.advanced-settings:nrod-lag`](kb:zia.url-filtering.advanced-settings:nrod-lag); `zia-06` → [`zia.cloud-app-control.precedence:cac-disabled-rules`](kb:zia.cloud-app-control.precedence:cac-disabled-rules); `zia-10` → [`zia.cloud-app-control.precedence:default-allow-vs-explicit`](kb:zia.cloud-app-control.precedence:default-allow-vs-explicit); `zia-11` → [`zia.ssl-inspection.pipeline:mixed-forwarding`](kb:zia.ssl-inspection.pipeline:mixed-forwarding); `zia-12` → [`zia.ssl-inspection.pipeline:bypass-and-default-rule`](kb:zia.ssl-inspection.pipeline:bypass-and-default-rule); `zia-14` → [`zia.url-categories.entry-matching:exactly-five-levels`](kb:zia.url-categories.entry-matching:exactly-five-levels); `zia-15` → [`zia.url-categories.entry-matching:console-accepts-asterisk`](kb:zia.url-categories.entry-matching:console-accepts-asterisk); `zia-07` → [`zia.cloud-app-control.risk-profiles:composition`](kb:zia.cloud-app-control.risk-profiles:composition); `zia-09` → [`zia.cloud-app-control.rule-criteria:app-identity`](kb:zia.cloud-app-control.rule-criteria:app-identity); `zia-13` → [`zia.ssl-inspection.pipeline:first-pass-on-domain`](kb:zia.ssl-inspection.pipeline:first-pass-on-domain); `zia-47` → [`zia.dns-control.actions:block-response-code-values`](kb:zia.dns-control.actions:block-response-code-values); `zia-48` → [`zia.dns-control.actions:redirect-ip-binding`](kb:zia.dns-control.actions:redirect-ip-binding); `zia-58` → [`zia.dlp.rule-wire-shape:without-content-inspection-keying`](kb:zia.dlp.rule-wire-shape:without-content-inspection-keying); `zia-59` → [`zia.dns-control.actions:redir-req-gateway`](kb:zia.dns-control.actions:redir-req-gateway); `zia-60` → [`zia.firewall.network-services:type-meanings`](kb:zia.firewall.network-services:type-meanings); `zia-63` → [`zia.sandbox.md5-blocklist:quota-cap`](kb:zia.sandbox.md5-blocklist:quota-cap); `zia-66` → [`zia.ssl-inspection.rules:cap-raisable`](kb:zia.ssl-inspection.rules:cap-raisable); `zia-71` → [`zia.dns-control.api-rules:web-eun-false`](kb:zia.dns-control.api-rules:web-eun-false); `zia-08` → [`zia.tenant-profiles.wire-mechanic:per-app-inspection-detail`](kb:zia.tenant-profiles.wire-mechanic:per-app-inspection-detail); `zia-16` → [`zia.locations.sublocations:cap-2000`](kb:zia.locations.sublocations:cap-2000); `zia-17` → [`zia.locations.sublocations:name-uniqueness-scope`](kb:zia.locations.sublocations:name-uniqueness-scope); `zia-18` → [`zia.locations.sublocations:parent-delete-behavior`](kb:zia.locations.sublocations:parent-delete-behavior); `zia-19` → [`zia.locations.sublocations:reparenting-rules`](kb:zia.locations.sublocations:reparenting-rules); `zia-20` → [`zia.locations.sublocations:depth-limit`](kb:zia.locations.sublocations:depth-limit); `zia-46` → [`zia.locations.group-assignment:tf-dynamic-removal-reason`](kb:zia.locations.group-assignment:tf-dynamic-removal-reason); `zia-56` → [`zia.bandwidth-control.limits:caps-api-enforced`](kb:zia.bandwidth-control.limits:caps-api-enforced); `zia-57` → [`zia.file-type-control.api-shape:filtering-action-dependencies`](kb:zia.file-type-control.api-shape:filtering-action-dependencies); `zia-61` → [`zia.atp.api-surface:tenant-defaults`](kb:zia.atp.api-surface:tenant-defaults); `zia-67` → [`zia.tenant-profiles.microsoft:v1-v2-semantics`](kb:zia.tenant-profiles.microsoft:v1-v2-semantics); `log-04` → [`zia.atp.block-diagnosis:ruletype-values`](kb:zia.atp.block-diagnosis:ruletype-values); `zia-26` → [`zia.rule-labels:audit-log-label-names`](kb:zia.rule-labels:audit-log-label-names); `zia-27` → [`zia.rule-labels.constraints:name-charset`](kb:zia.rule-labels.constraints:name-charset); `zia-28` → [`zia.rule-labels.constraints:name-uniqueness`](kb:zia.rule-labels.constraints:name-uniqueness); `zia-29` → [`zia.rule-labels.constraints:description-max-length`](kb:zia.rule-labels.constraints:description-max-length); `zia-30` → [`zia.rule-labels:duplicate-action`](kb:zia.rule-labels:duplicate-action); `zia-31` → [`zia.rule-labels.rule-types:label-filter-server-support`](kb:zia.rule-labels.rule-types:label-filter-server-support); `zia-32` → [`zia.rule-labels.constraints:tenant-cap`](kb:zia.rule-labels.constraints:tenant-cap); `zia-50` → [`zia.rule-labels.api-surface:rule-type-endpoint-backing`](kb:zia.rule-labels.api-surface:rule-type-endpoint-backing); `zia-69` → [`zia.workload-groups.expressions:runtime-evaluation`](kb:zia.workload-groups.expressions:runtime-evaluation); `zia-55` → [`zia.audit-logs.report-api:pagination`](kb:zia.audit-logs.report-api:pagination); `shared-38` → [`zia.traffic-forwarding.vpn-credentials:psk-live-read`](kb:zia.traffic-forwarding.vpn-credentials:psk-live-read); `zia-39` → [`zia.scim.groups-and-departments:department-no-match`](kb:zia.scim.groups-and-departments:department-no-match); `zia-40` → [`zia.scim.deactivation:session-kill`](kb:zia.scim.deactivation:session-kill); `zia-41` → [`zia.scim.operations:rate-limit`](kb:zia.scim.operations:rate-limit); `zia-42` → [`zia.ad-integration.identity-objects:org-limits`](kb:zia.ad-integration.identity-objects:org-limits); `zia-43` → [`zia.scim.attribute-mapping:per-idp-department-mapping`](kb:zia.scim.attribute-mapping:per-idp-department-mapping); `zia-44` → [`zia.scim.propagation:sync-log-visibility`](kb:zia.scim.propagation:sync-log-visibility); `zia-45` → [`zia.scim.propagation:per-idp-cadence`](kb:zia.scim.propagation:per-idp-cadence); `zia-64` → [`zia.scim.groups-and-departments:department-no-match`](kb:zia.scim.groups-and-departments:department-no-match); `zia-62` → [`zia.private-service-edge.ip-requirements:shared-nat-behavior`](kb:zia.private-service-edge.ip-requirements:shared-nat-behavior); `zia-33` → [`zia.virtual-service-edge.upgrades:cluster-update-sequencing`](kb:zia.virtual-service-edge.upgrades:cluster-update-sequencing); `zia-34` → [`zia.virtual-service-edge.clusters:removal-and-disable-behavior`](kb:zia.virtual-service-edge.clusters:removal-and-disable-behavior); `zia-35` → [`zia.virtual-service-edge.operations:log-identifier`](kb:zia.virtual-service-edge.operations:log-identifier); `zia-36` → [`zia.virtual-service-edge.clusters:cluster-vs-vm-settings`](kb:zia.virtual-service-edge.clusters:cluster-vs-vm-settings); `zia-37` → [`zia.virtual-service-edge.network-requirements:vse-nat-topology`](kb:zia.virtual-service-edge.network-requirements:vse-nat-topology); `zia-38` → [`zia.virtual-service-edge.clusters:public-cloud-cluster-object`](kb:zia.virtual-service-edge.clusters:public-cloud-cluster-object); `zia-21` → [`zia.time-intervals.timezone:dst-handling`](kb:zia.time-intervals.timezone:dst-handling); `zia-22` → [`zia.time-intervals.limits:object-cap`](kb:zia.time-intervals.limits:object-cap); `zia-23` → [`zia.time-intervals.time-windows:terraform-resource-intent`](kb:zia.time-intervals.time-windows:terraform-resource-intent); `zia-24` → [`zia.time-intervals.evaluation:midnight-spanning`](kb:zia.time-intervals.evaluation:midnight-spanning); `zia-25` → [`zia.time-intervals.time-windows:predefined-intervals`](kb:zia.time-intervals.time-windows:predefined-intervals); `zia-49` → [`zia.cloud-app-control.actions:all-vs-available-differs`](kb:zia.cloud-app-control.actions:all-vs-available-differs); `zia-51` → [`zia.api.sdk-coverage:parity-drift`](kb:zia.api.sdk-coverage:parity-drift); `zia-52` → [`zia.api.legacy-ips-signature-wire:import-wire-unconfirmed`](kb:zia.api.legacy-ips-signature-wire:import-wire-unconfirmed); `zia-53` → [`zia.cloud-app-control.actions:per-tuple-validation-contract`](kb:zia.cloud-app-control.actions:per-tuple-validation-contract); `zia-54` → [`zia.cloud-app-control.api-surface:python-risk-profile-runtime`](kb:zia.cloud-app-control.api-surface:python-risk-profile-runtime); `zia-68` → [`zia.terraform.early-access:early-access-eligibility`](kb:zia.terraform.early-access:early-access-eligibility); `zia-72` → [`zia.url-filtering.advanced-settings:creative-commons-backend-effect`](kb:zia.url-filtering.advanced-settings:creative-commons-backend-effect); `log-01` → [`zia.logs.nss-feed-format:format-field-presence`](kb:zia.logs.nss-feed-format:format-field-presence); `log-02` → [`zia.logs.nss-feed-format:vm-conversion-omits`](kb:zia.logs.nss-feed-format:vm-conversion-omits); `log-03` → [`zia.logs.nss-feed-format:multi-feed-timezone`](kb:zia.logs.nss-feed-format:multi-feed-timezone); `log-05` → [`zia.logs.web-rule-attribution:action-values-precedence`](kb:zia.logs.web-rule-attribution:action-values-precedence); `log-06` → [`zia.logs.web-field-semantics:reason-structure`](kb:zia.logs.web-field-semantics:reason-structure); `log-07` → [`zia.logs.web-field-semantics:url-category-fields`](kb:zia.logs.web-field-semantics:url-category-fields); `log-08` → [`zia.logs.web-field-semantics:riskscore-lineage`](kb:zia.logs.web-field-semantics:riskscore-lineage); `log-09` → [`zia.logs.web-field-semantics:byte-counters`](kb:zia.logs.web-field-semantics:byte-counters); `log-10` → [`zia.logs.web-field-semantics:prompt-scope`](kb:zia.logs.web-field-semantics:prompt-scope); `log-11` → [`zia.logs.firewall-records:aggregate-counters`](kb:zia.logs.firewall-records:aggregate-counters); `log-12` → [`zia.logs.firewall-records:action-precedence`](kb:zia.logs.firewall-records:action-precedence); `log-13` → [`zia.logs.firewall-records:nwapp-vs-nwsvc`](kb:zia.logs.firewall-records:nwapp-vs-nwsvc); `log-14` → [`zia.logs.dns-outcome:action-enum-open`](kb:zia.logs.dns-outcome:action-enum-open); `log-15` → [`zia.logs.dns-outcome:res-sentinels-open`](kb:zia.logs.dns-outcome:res-sentinels-open); `log-16` → [`zia.logs.dns-gateway-fields:dnsgw-flags-semantics-open`](kb:zia.logs.dns-gateway-fields:dnsgw-flags-semantics-open); `log-17` → [`zia.casb.insights-logs:record-category-discriminator`](kb:zia.casb.insights-logs:record-category-discriminator); `zpa-02` → [`zpa.app-segments.matching:granularity-ranking`](kb:zpa.app-segments.matching:granularity-ranking); `zpa-03` → [`zpa.app-segments.multimatch:config-conflict`](kb:zpa.app-segments.multimatch:config-conflict); `zpa-04` → [`zpa.app-segments.matching:same-specificity-tie`](kb:zpa.app-segments.matching:same-specificity-tie); `zpa-05` → [`zpa.app-segments.matching:port-mismatch-bypass`](kb:zpa.app-segments.matching:port-mismatch-bypass); `zpa-06` → [`zpa.policy.actions:require-approval-equals-conditional-access`](kb:zpa.policy.actions:require-approval-equals-conditional-access); `zpa-07` → [`zpa.policy.access-rule-order:deception-rule-ordering-rationale`](kb:zpa.policy.access-rule-order:deception-rule-ordering-rationale); `zpa-08` → [`zpa.policy.evaluation-order:wildcard-matches-bare-domain`](kb:zpa.policy.evaluation-order:wildcard-matches-bare-domain); `zpa-11` → [`zpa.machine-groups.api-surface:create-endpoint-absence`](kb:zpa.machine-groups.api-surface:create-endpoint-absence); `zpa-12` → [`zpa.machine-groups.definition:no-group-level-criteria`](kb:zpa.machine-groups.definition:no-group-level-criteria); `zpa-13` → [`zpa.machine-groups.policy-use:api-without-client-type`](kb:zpa.machine-groups.policy-use:api-without-client-type); `zpa-14` → [`zpa.machine-groups.definition:capacity-other-limits`](kb:zpa.machine-groups.definition:capacity-other-limits); `zpa-15` → [`zpa.machine-groups`](kb:zpa.machine-groups); `zpa-20` → [`zpa.app-connectors.health:status-pending-unverified`](kb:zpa.app-connectors.health:status-pending-unverified); `zpa-27` → [`zpa.app-connectors.selection:latency-probe-cadence`](kb:zpa.app-connectors.selection:latency-probe-cadence); `zpa-28` → [`zpa.app-connectors.enrollment:certificate-validity-window`](kb:zpa.app-connectors.enrollment:certificate-validity-window); `zpa-29` → [`zpa.app-connectors.deployment:max-connectors-per-group`](kb:zpa.app-connectors.deployment:max-connectors-per-group); `zpa-30` → [`zpa.app-connectors.provisioning-key-tooling:group-delete-removes-keys`](kb:zpa.app-connectors.provisioning-key-tooling:group-delete-removes-keys); `zpa-31` → [`zpa.app-connectors.provisioning-key-tooling:api-requires-cert-for-connector-key`](kb:zpa.app-connectors.provisioning-key-tooling:api-requires-cert-for-connector-key); `zpa-32` → [`zpa.audit-logs.streaming:field-schema`](kb:zpa.audit-logs.streaming:field-schema); `zpa-33` → [`zpa.audit-logs.streaming:siem-policy-purpose`](kb:zpa.audit-logs.streaming:siem-policy-purpose); `zpa-34` → [`zpa.audit-logs.streaming:microtenant-scoping`](kb:zpa.audit-logs.streaming:microtenant-scoping); `zpa-35` → [`zpa.audit-logs.streaming:audit-filter-api`](kb:zpa.audit-logs.streaming:audit-filter-api); `zpa-36` → [`zpa.browser-access.backend-options:field-setting-mapping`](kb:zpa.browser-access.backend-options:field-setting-mapping); `zpa-40` → [`zpa.log-receivers.log-types:auth-log-1id-label`](kb:zpa.log-receivers.log-types:auth-log-1id-label); `zpa-41` → [`zpa.log-receivers.log-types:format-only-codes`](kb:zpa.log-receivers.log-types:format-only-codes); `zpa-42` → [`zpa.machine-tunnels.requirements:enable-for-all`](kb:zpa.machine-tunnels.requirements:enable-for-all); `zpa-43` → [`zpa.machine-tunnels.requirements:session-lifecycle`](kb:zpa.machine-tunnels.requirements:session-lifecycle); `zpa-44` → [`zpa.machine-tunnels.provisioning-keys:macos-mdm-effect`](kb:zpa.machine-tunnels.provisioning-keys:macos-mdm-effect); `zpa-45` → [`zpa.machine-tunnels.provisioning-keys:separate-key-type`](kb:zpa.machine-tunnels.provisioning-keys:separate-key-type); `zpa-46` → [`zpa.policy.conditions:chrome-operand-form-api-enforcement`](kb:zpa.policy.conditions:chrome-operand-form-api-enforcement); `zpa-47` → [`zpa.private-service-edges.deployment:session-limits`](kb:zpa.private-service-edges.deployment:session-limits); `zpa-49` → [`zpa.private-service-edges.deployment:release-images`](kb:zpa.private-service-edges.deployment:release-images); `zpa-50` → [`zpa.private-service-edges.what-it-is:pse-hardware-sales`](kb:zpa.private-service-edges.what-it-is:pse-hardware-sales); `zpa-51` → [`zpa.private-service-edges.private-cloud-controller:controller-role`](kb:zpa.private-service-edges.private-cloud-controller:controller-role); `zpa-52` → [`zpa.private-service-edges.private-cloud-controller:restart-semantics`](kb:zpa.private-service-edges.private-cloud-controller:restart-semantics); `zpa-53` → [`zpa.private-service-edges.api-surface:schedule-default-cadence`](kb:zpa.private-service-edges.api-surface:schedule-default-cadence); `zpa-54` → [`zpa.private-service-edges.client-selection:location-propagation`](kb:zpa.private-service-edges.client-selection:location-propagation); `zpa-55` → [`zpa.private-service-edges.enrollment:oauth2-prerequisites`](kb:zpa.private-service-edges.enrollment:oauth2-prerequisites); `zpa-56` → [`zpa.private-service-edges.deployment:max-per-group`](kb:zpa.private-service-edges.deployment:max-per-group); `zpa-57` → [`zpa.pra:absent-from-base-zpa`](kb:zpa.pra:absent-from-base-zpa); `zpa-58` → [`zpa.public-service-edges.what-it-is:safe-mode`](kb:zpa.public-service-edges.what-it-is:safe-mode); `zpa-59` → [`zpa.public-service-edges.what-it-is:ca-reconnect-semantics`](kb:zpa.public-service-edges.what-it-is:ca-reconnect-semantics); `zpa-60` → [`zpa.public-service-edges.api-visibility:upgrade-priority`](kb:zpa.public-service-edges.api-visibility:upgrade-priority); `zpa-61` → [`zpa.saml-attributes.registration:zpa-61-limit`](kb:zpa.saml-attributes.registration:zpa-61-limit); `zpa-62` → [`zpa.saml-attributes.api-surface:zpa-62-user-attribute-delta`](kb:zpa.saml-attributes.api-surface:zpa-62-user-attribute-delta); `zpa-63` → [`zpa.scim.group-lifecycle:zpa-63-deleted-group-in-rule`](kb:zpa.scim.group-lifecycle:zpa-63-deleted-group-in-rule); `zpa-64` → [`zpa.scim.api-surface:zpa-64-internal-id`](kb:zpa.scim.api-surface:zpa-64-internal-id); `zpa-65` → [`zpa.scim.policy-criteria:zpa-65-setting-fallback`](kb:zpa.scim.policy-criteria:zpa-65-setting-fallback); `zpa-66` → [`zpa.scim.policy-criteria:zpa-66-case-sensitivity`](kb:zpa.scim.policy-criteria:zpa-66-case-sensitivity); `zpa-67` → [`zpa.scim.provisioning-timing:zpa-67-membership-resolution`](kb:zpa.scim.provisioning-timing:zpa-67-membership-resolution); `zpa-68` → [`zpa.scim.policy-criteria:zpa-68-isolation-scim`](kb:zpa.scim.policy-criteria:zpa-68-isolation-scim); `zpa-69` → [`zpa.segment-groups.api-surface:v2-update-differences`](kb:zpa.segment-groups.api-surface:v2-update-differences); `zpa-70` → [`zpa.segment-groups.api-surface:skip-detailed-app-info-effect`](kb:zpa.segment-groups.api-surface:skip-detailed-app-info-effect); `zpa-71` → [`zpa.segment-groups.api-surface:tcp-keep-alive-enabled-effect`](kb:zpa.segment-groups.api-surface:tcp-keep-alive-enabled-effect); `zpa-72` → [`zpa.segment-groups.api-surface:config-space-meaning`](kb:zpa.segment-groups.api-surface:config-space-meaning); `zpa-78` → [`zpa.trusted-networks.policy-operand:rhs-false-semantics`](kb:zpa.trusted-networks.policy-operand:rhs-false-semantics); `zpa-79` → [`zpa.trusted-networks.zcc-relationship:zpa-objects-are-zcc-networks`](kb:zpa.trusted-networks.zcc-relationship:zpa-objects-are-zcc-networks); `zpa-80` → [`zpa.trusted-networks.zcc-relationship:signal-path`](kb:zpa.trusted-networks.zcc-relationship:signal-path); `zpa-81` → [`zpa.trusted-networks.service-edge-groups:off-network-fallback`](kb:zpa.trusted-networks.service-edge-groups:off-network-fallback); `zpa-83` → [`zpa.app-segments.api-fields:hbr-sticky-guest-semantics`](kb:zpa.app-segments.api-fields:hbr-sticky-guest-semantics); `log-18` → [`zpa.logs.microsegmentation-flow:enforcement-triple`](kb:zpa.logs.microsegmentation-flow:enforcement-triple); `log-19` → [`zpa.logs.user-status:record-granularity`](kb:zpa.logs.user-status:record-granularity); `log-20` → [`zpa.logs.browser-access:connection-status-values`](kb:zpa.logs.browser-access:connection-status-values); `zpa-01` → [`zpa.logs.user-activity:multi-segment-lss`](kb:zpa.logs.user-activity:multi-segment-lss); `zpa-16` → [`zpa.logs.user-activity:active-cadence`](kb:zpa.logs.user-activity:active-cadence); `zpa-17` → [`zpa.logs.user-activity:byte-counter-reset`](kb:zpa.logs.user-activity:byte-counter-reset); `zpa-18` → [`zpa.logs.user-activity:timing-overlap`](kb:zpa.logs.user-activity:timing-overlap); `zpa-19` → [`zpa.logs.user-activity:server-setup-scope`](kb:zpa.logs.user-activity:server-setup-scope); `zpa-21` → [`zpa.pra.app-segments:contract-application-protocol-enum`](kb:zpa.pra.app-segments:contract-application-protocol-enum); `zpa-22` → [`zpa.api.service-edges-wire:restart-path-canonical`](kb:zpa.api.service-edges-wire:restart-path-canonical); `zpa-23` → [`zpa.api.pra-wire:credential-secrets-on-read`](kb:zpa.api.pra-wire:credential-secrets-on-read); `zpa-24` → [`zpa.api.app-segments-wire:connection-security-values`](kb:zpa.api.app-segments-wire:connection-security-values); `zpa-25` → [`zpa.api.certificates-wire:ba-certificate-put-valid`](kb:zpa.api.certificates-wire:ba-certificate-put-valid); `zpa-26` → [`zpa.api.lss-wire:browser-isolation-accepted`](kb:zpa.api.lss-wire:browser-isolation-accepted); `zpa-37` → [`zpa.api.legacy-endpoints:stepup-write-verbs`](kb:zpa.api.legacy-endpoints:stepup-write-verbs); `zpa-38` → [`zpa.api.base-paths:legacy-host-accepts-zpa-prefix`](kb:zpa.api.base-paths:legacy-host-accepts-zpa-prefix); `zpa-39` → [`zpa.api.legacy-endpoints:assistant-schedule-served`](kb:zpa.api.legacy-endpoints:assistant-schedule-served); `zpa-76` → [`zpa.log-receivers.filtering:tf-other-types-rejected`](kb:zpa.log-receivers.filtering:tf-other-types-rejected); `zpa-77` → [`zpa.terraform.resource-constraints:tag-group-in-policy-conditions`](kb:zpa.terraform.resource-constraints:tag-group-in-policy-conditions); `zpa-82` → [`zpa.pra.tooling:approval-identity-windows`](kb:zpa.pra.tooling:approval-identity-windows); `zpa-84` → [`zpa.api.pagination:mcp-manual-pages`](kb:zpa.api.pagination:mcp-manual-pages).
 
 The 2026-06-18 Automate-contract / rosetta closure pass narrowed several
 previously open source-surface questions without settling their runtime
@@ -202,9 +202,7 @@ families.
 | [`shared-04`](#shared-04-snapshot-auth-pattern) | Credentials via env vars; no `.env` convention |
 | [`shared-05`](#shared-05-snapshot-format) | Raw JSON per resource; no paraphrasing |
 | [`zcc-12`](#zcc-12-requestexecutor-zcc-rate-limit-retry-behavior) | `RequestExecutor` backs off on the ZCC-specific rate-limit header |
-| [`zpa-21`](#zpa-21-praapplicationapplicationprotocol-full-enum-citation-scope) | Current Postman response examples establish the observed ten-value PRA application-protocol set |
 | [`zpa-48`](#zpa-48-pse-provisioning-key-apiterraform-support) | PSE provisioning keys are supported through the generic Terraform resource |
-| [`zpa-84`](#zpa-84-mcp-shared-zpa-policy-rule-list-pagination) | MCP exposes caller-selected pagination controls across all 16 affected ZPA list tools |
 | [`cloud-connector-07`](#cloud-connector-07-ztg-vs-cloud-connector-group-type-semantics) | AWS and GCP ZTG are Zscaler-managed services; standard Cloud Connector is the customer-deployed VM path |
 | [`zcc-86`](#zcc-86-get_web_privacy-returns-none-on-error) | Python `get_web_privacy` returns `None` on request, execution, or response-parse failure |
 
@@ -237,8 +235,8 @@ families.
 ### Open
 
 - **zia**: `zia-65`, `zia-70`
-- **log**: `log-18`–`log-22`
-- **zpa**: `zpa-01`, `zpa-09`–`zpa-10`, `zpa-16`–`zpa-19`, `zpa-22`–`zpa-26`, `zpa-37`–`zpa-39`, `zpa-73`–`zpa-77`, `zpa-82`
+- **log**: `log-21`–`log-22`
+- **zpa**: `zpa-09`–`zpa-10`, `zpa-73`–`zpa-75`
 - **shared**: `shared-06`–`shared-16`, `shared-20`–`shared-37`, `shared-39`
 - **zcc**: `zcc-08`–`zcc-11`, `zcc-13`–`zcc-79`, `zcc-81`–`zcc-85`, `zcc-87`–`zcc-101`
 - **zdx**: `zdx-01`–`zdx-34`, `zdx-36`–`zdx-44`
@@ -320,12 +318,12 @@ The ZPA reference re-verification pass (2026-06-15) registered the remaining `##
 
 | ID | Title | Resolves with |
 |---|---|---|
-| [`zpa-21`](#zpa-21-praapplicationapplicationprotocol-full-enum-citation-scope) | `PRAApplication.applicationProtocol` full enum citation scope in Postman | code read |
-| [`zpa-22`](#zpa-22-privatecloudcontroller-canonical-restart-path) | PrivateCloudController canonical restart path (Go vs Python SDK divergence) | lab test |
-| [`zpa-23`](#zpa-23-credential-sensitive-fields-in-get-response) | Whether `password` / `private_key` are returned on a Credential GET | tenant read / lab test |
-| [`zpa-24`](#zpa-24-nla-as-a-valid-connectionsecurity-value-for-pra-sub-apps) | `NLA` as a valid PRA sub-app `connectionSecurity` value | lab test |
-| [`zpa-25`](#zpa-25-bacertificate-update_certificate-validity-as-an-api-operation) | BaCertificate `update_certificate` (PUT) validity as an API operation | lab test |
-| [`zpa-26`](#zpa-26-zpn_client_type_browser_isolation-in-lss-policy-conditions) | `zpn_client_type_browser_isolation` validity in LSS policy conditions | lab test |
+| [`zpa-21`](kb:zpa.pra.app-segments:contract-application-protocol-enum) | `PRAApplication.applicationProtocol` full enum citation scope in Postman | code read |
+| [`zpa-22`](kb:zpa.api.service-edges-wire:restart-path-canonical) | PrivateCloudController canonical restart path (Go vs Python SDK divergence) | lab test |
+| [`zpa-23`](kb:zpa.api.pra-wire:credential-secrets-on-read) | Whether `password` / `private_key` are returned on a Credential GET | tenant read / lab test |
+| [`zpa-24`](kb:zpa.api.app-segments-wire:connection-security-values) | `NLA` as a valid PRA sub-app `connectionSecurity` value | lab test |
+| [`zpa-25`](kb:zpa.api.certificates-wire:ba-certificate-put-valid) | BaCertificate `update_certificate` (PUT) validity as an API operation | lab test |
+| [`zpa-26`](kb:zpa.api.lss-wire:browser-isolation-accepted) | `zpn_client_type_browser_isolation` validity in LSS policy conditions | lab test |
 | [`zpa-27`](kb:zpa.app-connectors.selection:latency-probe-cadence) | App Connector-to-app latency probe cadence | zscaler doc not yet read / operator experience |
 | [`zpa-28`](kb:zpa.app-connectors.enrollment:certificate-validity-window) | App Connector certificate validity window before re-enrollment | zscaler doc not yet read / operator experience |
 | [`zpa-29`](kb:zpa.app-connectors.deployment:max-connectors-per-group) | Maximum App Connectors per group | zscaler doc not yet read / support ticket |
@@ -336,9 +334,9 @@ The ZPA reference re-verification pass (2026-06-15) registered the remaining `##
 | [`zpa-34`](kb:zpa.audit-logs.streaming:microtenant-scoping) | Microtenant audit-log scoping (isolated vs parent-visible) | tenant read / lab test |
 | [`zpa-35`](kb:zpa.audit-logs.streaming:audit-filter-api) | `LSSConfig.filter` valid expressions for `zpn_audit_log` | zscaler doc not yet read |
 | [`zpa-36`](kb:zpa.browser-access.backend-options:field-setting-mapping) | Runtime semantics of `trust_untrusted_cert` / `allow_options` | zscaler doc not yet read / lab test |
-| [`zpa-37`](#zpa-37-get-stepupauthlevel-response-shape-and-write-verb-support) | `GET /stepupauthlevel` response shape and write-verb support | lab test |
-| [`zpa-38`](#zpa-38-oauth2-user-code-legacy-host-zpa-path-prefix) | OAuth2 user-code legacy host `/zpa` path prefix | lab test |
-| [`zpa-39`](#zpa-39-assistantschedule-legacy-endpoint-still-served-vs-retired-alias) | `/assistantSchedule` legacy endpoint — still served vs retired alias | lab test |
+| [`zpa-37`](kb:zpa.api.legacy-endpoints:stepup-write-verbs) | `GET /stepupauthlevel` response shape and write-verb support | lab test |
+| [`zpa-38`](kb:zpa.api.base-paths:legacy-host-accepts-zpa-prefix) | OAuth2 user-code legacy host `/zpa` path prefix | lab test |
+| [`zpa-39`](kb:zpa.api.legacy-endpoints:assistant-schedule-served) | `/assistantSchedule` legacy endpoint — still served vs retired alias | lab test |
 | [`zpa-40`](kb:zpa.log-receivers.log-types:auth-log-1id-label) | `zpn_auth_log_1id` human-facing label | zscaler doc not yet read |
 | [`zpa-41`](kb:zpa.log-receivers.log-types:format-only-codes) | Format-only log-type codes' acceptance on a receiver's `sourceLogType` | lab test |
 | [`zpa-42`](kb:zpa.machine-tunnels.requirements:enable-for-all) | Console path for the global "Enable ZPA Machine Tunnel for All" toggle | tenant read / operator experience |
@@ -374,13 +372,13 @@ The ZPA reference re-verification pass (2026-06-15) registered the remaining `##
 | [`zpa-73`](#zpa-73-objecttype-zpn_internal_internet_protocol-and-user-wire-validity) | `objectType` `ZPN_INTERNAL_INTERNET_PROTOCOL` / `USER` wire validity | lab test |
 | [`zpa-74`](#zpa-74-tcpkeepalive-literal-wire-token-quoted-string-vs-bare-integer) | `tcpKeepAlive` literal wire token (quoted string vs bare integer) | tenant read |
 | [`zpa-75`](#zpa-75-configspace-at-the-segment-top-level) | `configSpace` valid at the segment top level | tenant read |
-| [`zpa-76`](#zpa-76-which-lss-source_log_type-values-require-a-policy_rule_resource-block) | Which LSS `source_log_type` values require a `policy_rule_resource` block | zscaler doc not yet read / lab test |
-| [`zpa-77`](#zpa-77-tag-tag-group-membership-referenced-in-policy-rule-conditions) | Tag / tag-group membership referenced in policy rule conditions (Early Access) | zscaler doc not yet read / lab test |
+| [`zpa-76`](kb:zpa.log-receivers.filtering:tf-other-types-rejected) | Which LSS `source_log_type` values require a `policy_rule_resource` block | zscaler doc not yet read / lab test |
+| [`zpa-77`](kb:zpa.terraform.resource-constraints:tag-group-in-policy-conditions) | Tag / tag-group membership referenced in policy rule conditions (Early Access) | zscaler doc not yet read / lab test |
 | [`zpa-78`](kb:zpa.trusted-networks.policy-operand:rhs-false-semantics) | `TRUSTED_NETWORK` `rhs = "false"` runtime semantics | lab test |
 | [`zpa-79`](kb:zpa.trusted-networks.zcc-relationship:zpa-objects-are-zcc-networks) | Provisioning trigger that creates ZPA Trusted Network objects | zscaler doc not yet read / operator experience |
 | [`zpa-80`](kb:zpa.trusted-networks.zcc-relationship:signal-path) | ZCC→ZPA trusted-network signal at session establishment | zscaler doc not yet read / lab test |
 | [`zpa-81`](kb:zpa.trusted-networks.service-edge-groups:off-network-fallback) | PSE routing / off-network fallback when `is_public = false` | zscaler doc not yet read / lab test |
-| [`zpa-82`](#zpa-82-pra-approval-identity-when-email-and-application-sets-match-but-time-windows-differ) | PRA approval identity when email/application sets match but time windows differ | API read / lab test |
+| [`zpa-82`](kb:zpa.pra.tooling:approval-identity-windows) | PRA approval identity when email/application sets match but time windows differ | API read / lab test |
 | [`zpa-83`](kb:zpa.app-segments.api-fields:hbr-sticky-guest-semantics) | Application-segment HBR, sticky, and `guestDetails` semantics | API read / lab test |
 
 The ZCC deep-dive refresh (2026-06-15) registered these open behavior questions surfaced in the per-doc **Open questions** sections — each links to its detailed entry below:
@@ -567,26 +565,6 @@ Admin Rank is an opt-in feature ("if you've enabled Admin Rank"); without it, ru
 Applies to ZIA URL Filtering, SSL Inspection, and other ZIA policy types that expose the Admin Rank field. ZPA access policies don't use the same admin-rank mechanism based on vendored material.
 
 ---
-### zpa-01 — Multi-segment match representation in LSS
-
-*Origin: `references/zpa/logs/access-log-schema.md`*
-
-When a ZPA client resolves to multiple application segments in sequence (e.g., failover, or a sequence of probes), how is that represented in LSS output? One record per segment, a single record with multiple segment IDs, or something else?
-
-**Resolves with**: operator experience OR lab test. **Status**: open — 2026-04-28.
-
-**Doc sweep 2026-04-23** (partial): Confirmed schema shape from *Understanding User Activity Log Fields* (`vendor/zscaler-help/understanding-user-activity-log-fields.json`). Key observations:
-
-- Fields like `Application`, `AppGroup`, `Policy`, `Server`, `ServerIP`, `ServerPort`, and timestamps are **singular per record** — no array-valued segment list. This makes "single record with multiple segment IDs" structurally unlikely.
-- The example record in the doc's preamble shows `ConnectionID` as a **comma-concatenated pair** (e.g., `SqyZIMkg0JTj7EABsvwA,Q+EjXGdrvbF2lPiBbedm`) where the first part matches `SessionID` exactly. This hints that `ConnectionID` may encode `<SessionID>,<attempt-or-subconnection>` when a TLS session spans multiple ZPA connections — but the field description just says "The application connection ID" without elaboration.
-- `SessionID` is documented as "The TLS session ID." So: multiple `ConnectionID` values under the same `SessionID` is plausibly how sequential connection attempts within a session are tied together.
-
-**Doc sweep 2026-04-28**: Reviewed *Understanding User Status Log Fields* PDF, *Understanding the Log Stream Content Format* PDF, and `about-log-streaming-service.md`. None contain an explicit statement about record granularity for multi-segment failover sequences. Available vendored material is exhausted on this question.
-
-**Most-defensible inference** (not yet confirmed by an unambiguous doc statement): multi-segment failover/probe sequences generate **one LSS record per segment attempt**, with records tied together by shared `SessionID` and distinguished by distinct `ConnectionID` suffixes. Correlation via `SessionID` would then group a multi-segment sequence back into a logical session. Requires operator confirmation on a real tenant.
-
----
-
 ### shared-06 — ZPA disabled-rule semantics
 
 *Origin: `references/shared/policy-evaluation.md` § Shared patterns*
@@ -697,62 +675,6 @@ Rationale:
 - **Field shapes** come from `node scripts/kb.mjs resolve <type-id>` (for example `zia/url-filtering-rules`); the former `snapshot-schema.md` docs are retired (historical rationale in PLAN.md § 4).
 
 A paraphrased-markdown post-processing step remains an option for the future if a fork team wants it, but no current skill answer requires one.
-
----
-
-### log-18 — Microseg `EnforcementReason` × `EnforcementAction` × `EnforcementDisposition` triple semantics
-
-*Origin: `references/zpa/logs/microsegmentation-flow-log-schema.md` § What the spec underspecifies*
-
-The ZPA Microsegmentation Flow log carries three enforcement-related fields, each with explicit enums:
-
-- `EnforcementReason`: `POLICY_DISABLED`, `RULE`, `NO_POLICY_EXISTS`, `FORCED`
-- `EnforcementAction`: `ALLOW`, `BLOCK`, `SIMBLOCK`
-- `EnforcementDisposition`: `UNKNOWN`, `CONNECTED`, `REJECTED`, `DROPPED`
-
-The individual enums are documented but the **combinations** are not. Specific gaps:
-
-1. `EnforcementReason=POLICY_DISABLED` + `EnforcementAction=BLOCK` + `EnforcementDisposition=CONNECTED` — does this mean monitor-mode-block-would-have-fired-but-allowed? Or different combination of states?
-2. `EnforcementReason=NO_POLICY_EXISTS` + `EnforcementDisposition=DROPPED` — implicit-deny default behavior, or dropped for an unrelated reason (network failure, host firewall, etc.)?
-3. `EnforcementAction=SIMBLOCK` paired with `EnforcementDisposition=DROPPED` or `REJECTED` — when does this happen? SIMBLOCK should imply CONNECTED.
-4. Does `EnforcementDisposition=UNKNOWN` indicate a transient/incomplete record, or a specific operational state?
-5. **Aggregation interaction**: when multiple connections sharing a 4-tuple aggregate (per `SourcePorts` field), do all aggregated connections need to share the same `EnforcementAction` to be aggregated into one record, or can mixed-disposition connections appear?
-
-For SIEM rules detecting "what was actually blocked" vs "what would have been blocked in enforce mode," the safest filter is unclear without disambiguating these combinations.
-
-**Resolves with**: tenant test in monitor mode with deliberately-triggered block-eligible flows; observe field combinations across `EnforcementReason × EnforcementAction × EnforcementDisposition`. Plus vendor doc confirming the meaning of each combination. **Status**: open — 2026-05-06.
-
----
-
-### log-19 — User Status record granularity and byte counter timing
-
-*Origin: `references/zpa/logs/user-status-log-schema.md` § What the spec underspecifies*
-
-ZPA User Status logs carry `SessionStatus` with three values (`ZPN_STATUS_AUTHENTICATED`, `ZPN_STATUS_AUTH_FAILED`, `ZPN_STATUS_DISCONNECTED`) and per-session byte counters (`TotalBytesRx` / `TotalBytesTx`). The vendor docs don't state:
-
-1. **Record granularity per session lifecycle** — does each session generate one record per status (so a normal login-then-logout produces an AUTHENTICATED record AND a DISCONNECTED record) or one consolidated record with status reflecting the latest state? This determines whether SIEM dashboards counting "authenticated sessions" should match `SessionStatus=AUTHENTICATED` exactly, or should deduplicate by SessionID.
-2. **Byte counter population timing** — `TotalBytesRx` / `TotalBytesTx` description says "Total bytes received during the session" but doesn't say when the values are populated. Only on DISCONNECTED records (final tallies)? On every record (running totals at time of emission)? On periodic emissions during the session?
-3. **`TimestampUnAuthentication` on AUTHENTICATED records** — populated only on DISCONNECTED records (= disconnect time), or always present (e.g., as expected-expiry on AUTHENTICATED)?
-4. **AUTH_FAILED record byte counters** — does an AUTH_FAILED record have `TotalBytes*` populated (likely zero), or are those fields absent?
-
-**Resolves with**: tenant LSS receiver capture across a known session lifecycle (login → activity → idle → logout) with timestamps; observe per-session record cardinality and field population at each event. **Status**: open — 2026-05-06.
-
----
-
-### log-20 — Browser Access `ConnectionStatus` / `ConnectionReason` enum completeness
-
-*Origin: `references/zpa/logs/browser-access-log-schema.md` § What the spec underspecifies*
-
-ZPA Browser Access logs have:
-
-- `ConnectionStatus` — example value `SUCCESS`, the existing ref lists `SUCCESS` and `FAILED` as illustrative
-- `ConnectionReason` — described as "Internal reason code when a connection fails or is blocked," no example values
-
-Neither field's full enum is documented. SIEM rules that route on specific failure types (auth failures, backend unreachable, policy block, certificate validation failure, idle timeout) need the full enum to filter precisely. Without it, alert rules either match too broadly (any non-SUCCESS) or risk missing valid failure modes.
-
-Cross-link: byte-counter perspective and compression questions filed for ZIA web logs ([`log-09`](kb:zia.logs.web-field-semantics:byte-counters)) and ZPA User Activity logs ([`zpa-17`](#zpa-17-delta-vs-total-byte-counter-reset-semantics)) likely apply here too.
-
-**Resolves with**: tenant test triggering varied failure conditions (intentionally-bad backend, intentionally-blocked-by-policy URL, intentionally-expired session, intentionally-failed-cert backend) and observe `ConnectionStatus` / `ConnectionReason` value combinations. Plus vendor doc on the full enum. **Status**: open — 2026-05-06.
 
 ---
 
@@ -940,70 +862,6 @@ Possible explanations:
 2. **Profile validator is stale** and needs to be updated to accept API_PREDEFINED.
 
 **Resolves with**: lab test creating an `API_PREDEFINED` custom control and attempting to attach it to an inspection profile via the TF resource. If the API rejects it, explanation 1 holds; if accepted, the profile validator is stale. **Status**: open candidate. Threading deferred until lab confirms.
-
----
-
-### zpa-16 — `ConnectionStatus` `Active` emission cadence on long-lived sessions
-
-*Origin: `references/zpa/logs/access-log-schema.md` § State machine and timing*
-
-ZPA LSS User Activity logs document `ConnectionStatus` values `Open`, `Close`, `Active` (per `vendor/zscaler-help/understanding-user-activity-log-fields.json`) but don't state what triggers an `Active` record on a long-lived connection. The delta-byte counter wording "since the last transaction log" implies multiple records per long connection, but the boundary trigger (time interval, byte volume threshold, segment change, other) is not specified.
-
-**Resolves with**: lab test on a long-lived ZPA session (e.g., SSH tunnel sustained for hours) with LSS receiving — observe `Active` record cadence and what events correlate with each emission. Or vendor support thread.
-
-**Status**: open — 2026-05-06.
-
----
-
-### zpa-17 — Delta vs total byte counter reset semantics
-
-*Origin: `references/zpa/logs/access-log-schema.md` § State machine and timing*
-
-The User Activity log has two byte-counter families per direction: delta (`ZENBytesRxClient`, `ZENBytesTxClient`, `ZENBytesRxConnector`, `ZENBytesTxConnector` — described as "since the last transaction log") and total (`ZENTotalBytesRxClient` etc. — described as "Total bytes received/transmitted"). The vendor PDF doesn't state:
-
-1. Whether the delta counters reset to zero at every `Active` record, or only at some other boundary
-2. Whether `ZENTotalBytes*` is the running total since `ConnectionStatus=Open` or since some other anchor (session start, protocol handshake, etc.)
-3. What happens to the delta counter on the final `ConnectionStatus=Close` record (final segment of usage, or zero?)
-
-**Resolves with**: lab test correlating a known-volume payload (e.g., scripted upload of N MB) against successive log records. Or vendor doc clarification.
-
-**Status**: open — 2026-05-06.
-
----
-
-### zpa-18 — Timing phase ordering and overlap
-
-*Origin: `references/zpa/logs/access-log-schema.md` § State machine and timing*
-
-The User Activity log carries six µs-precision timing fields covering connection establishment: `AppLearnTime`, `CAProcessingTime`, `PolicyProcessingTime`, `ConnectorZENSetupTime`, `ConnectionSetupTime`, `ServerSetupTime`. The vendor PDF defines each individually but does not show ordering or overlap:
-
-- Are these strictly sequential phases (so they can be summed for total establishment latency)?
-- Or do some overlap (e.g., `PolicyProcessingTime` happens during `CAProcessingTime`)?
-- Is `ConnectionSetupTime` ("App Connector to process notification ... and set up the connection to the application server") a superset that includes `ServerSetupTime` ("set up the connection at the server"), or are they disjoint?
-
-The Timestamp* fields (`TimestampCATx`, `TimestampCARx`, `TimestampAppLearnStart`, `TimestampConnectorZENSetupComplete`, etc.) reconstruct part of the sequence but don't fully disambiguate scope of each *Time field.
-
-**Resolves with**: vendor doc explicitly sequencing the phases, or correlated lab measurement using the Timestamp* boundaries to derive each Time field's actual coverage.
-
-**Status**: open — 2026-05-06.
-
----
-
-### zpa-19 — `ServerSetupTime` scope (TCP only vs TLS end-to-end)
-
-*Origin: `references/zpa/logs/access-log-schema.md` § State machine and timing*
-
-`ServerSetupTime` is described as "Time in µs to set up the connection at the server." The wording is ambiguous between:
-
-1. **TCP three-way handshake only** between App Connector and the application server (~1 RTT)
-2. **TCP + TLS handshake** end-to-end if the application uses TLS (~3 RTT)
-3. **TCP + TLS + first application-protocol exchange** (e.g., HTTP/1.1 first request-response or HTTP/2 SETTINGS exchange)
-
-This affects how operators interpret the field for latency budgeting and how it composes with `ConnectionSetupTime` (see `zpa-18`). Affects RDP/SSH/HTTPS apps differently from plain TCP apps.
-
-**Resolves with**: vendor doc, or lab measurement comparing `ServerSetupTime` against externally-measured TCP handshake duration on a non-TLS app vs TLS app.
-
-**Status**: open — 2026-05-06.
 
 ---
 
@@ -2276,116 +2134,6 @@ Whether a macOS user denial of the ZCC Network Extension (in System Settings →
 ---
 ---
 
-### zpa-21 — PRAApplication.applicationProtocol full enum citation scope
-
-*Origin: `references/zpa/api-postman-schemas.md` § Open questions*
-
-The current official Postman snapshot establishes the observed ten-value set
-across two response examples. The body at line 11008 contains `AUTO`, `DYNAMIC`,
-`FTP`, `HTTP`, `HTTPS`, `NONE`, `SSH`, `VNC`, and `WEBSOCKET`; the response at
-line 11744 adds `RDP`
-(`vendor/zscaler-api-specs/oneapi-postman-collection.json:11008,11744`). Together
-they establish `AUTO`, `DYNAMIC`, `FTP`, `HTTP`, `HTTPS`, `NONE`, `RDP`, `SSH`,
-`VNC`, and `WEBSOCKET` as the collection's observed
-`PRAApplication.applicationProtocol` values. This closes the citation-scope
-question without claiming that illustrative response bodies are a formal or
-future-exhaustive server enum.
-
-**Status**: resolved (2026-08-04)
-**Answer**: All ten reported values are present across the cited current
-Postman response bodies; use both lines when citing the observed set.
-**Resolved by**: current official Postman response examples
-
----
-
-### zpa-22 — PrivateCloudController canonical restart path
-
-*Origin: `references/zpa/api-schemas.md` § Open questions*
-
-The two SDKs build different restart paths for a Private Cloud Controller. The Go SDK constructs `/privateCloudController/restart/{id}` (`vendor/zscaler-sdk-go/zscaler/zpa/services/private_cloud_controller/private_cloud_controller.go:128-129` — `path := endpoint+"/restart"` then appends `/{controllerID}`), while the Python SDK uses `/privateCloudController/{id}/restart` (`vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_controller.py:267`). The Postman collection has no PrivateCloudController entry to settle which path the live API actually serves.
-
-**Status**: open
-**Resolves with**: lab test against a live tenant (issue the restart and observe which path the API accepts)
-
----
-
-### zpa-23 — Credential sensitive fields in GET response
-
-*Origin: `references/zpa/api-schemas.md` § Open questions*
-
-The Python `Credential` model excludes `password` and `private_key` from its response field handling, but the Postman collection shows them present in GET list example bodies. Whether the ZPA API actually returns these sensitive fields on a read, or whether the Postman bodies are placeholder/echo artifacts, is unresolved.
-
-**Status**: open
-**Resolves with**: tenant read / lab test (GET a credential object and inspect whether secret fields are returned)
-
----
-
-### zpa-24 — NLA as a valid `connectionSecurity` value for PRA sub-apps
-
-*Origin: `references/zpa/api-schemas.md` § Open questions*
-
-The Python SDK docstring lists `NLA` among accepted `connection_security` values (`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_pra.py:188`: `ANY`, `NLA`, `NLA_EXT`, `TLS`, `VM_CONNECT`, `RDP`), but `NLA` is not corroborated by a Go SDK struct enum or a Postman example. Whether the API accepts `NLA` as a distinct connection-security mode is unconfirmed.
-
-**Status**: open
-**Resolves with**: lab test (create a PRA sub-app with `connectionSecurity=NLA` and observe acceptance)
-
----
-
-### zpa-25 — BaCertificate `update_certificate` validity as an API operation
-
-*Origin: `references/zpa/api-schemas.md` § Open questions*
-
-The Python SDK exposes `update_certificate` building `PUT /certificate/{id}` (`vendor/zscaler-sdk-python/zscaler/zpa/certificates.py:266`, `:294`), but neither the Go SDK nor the Postman collection has a PUT for a BA certificate. Whether the ZPA API actually supports updating an existing BA certificate (vs. delete-and-recreate only) is unconfirmed.
-
-**Status**: open
-**Resolves with**: lab test (attempt a certificate PUT against a live tenant)
-
----
-
-### zpa-26 — `zpn_client_type_browser_isolation` in LSS policy conditions
-
-*Origin: `references/zpa/api-schemas.md` § Open questions*
-
-`zpn_client_type_browser_isolation` is a defined client type (`vendor/zscaler-sdk-go/zscaler/zpa/services/clienttypes/clienttypes.go:18`) and is listed as a valid `CLIENT_TYPE` value in several TF policy-rule docs, but in the Go LSS-config integration test it appears only inside a commented-out condition block (`vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller_test.go:243`). Whether the ZPA API accepts `zpn_client_type_browser_isolation` as a `CLIENT_TYPE` operand on an LSS-config policy condition specifically is not confirmed at the API level.
-
-**Status**: open
-**Resolves with**: lab test (configure an LSS policy condition with this client type and observe acceptance)
-
----
-
-### zpa-37 — `GET /stepupauthlevel` response shape and write-verb support
-
-*Origin: `references/zpa/legacy-endpoints.md` § Open questions*
-
-The Go service `GetStepupAuthLevel` deserializes the response into a plain `[]string` (`vendor/zscaler-sdk-go/zscaler/zpa/services/step_up_auth/step_up_auth.go:30-39`) even though the package defines a richer `StepAuthLevel` struct, so the true wire shape is not pinned down by the SDK. No create/update/delete verbs are exposed for step-up auth levels in the Go service — whether the legacy API supports writes is unconfirmed.
-
-**Status**: open
-**Resolves with**: lab test (capture a real `GET /stepupauthlevel` response and probe for write verbs)
-
----
-
-### zpa-38 — OAuth2 user-code legacy host `/zpa` path prefix
-
-*Origin: `references/zpa/legacy-endpoints.md` § Open questions*
-
-The `oauth2_user`, `c2c_ip_ranges`, `api_keys`, and `step_up_auth` Go services build paths from the SDK constant `/zpa/mgmtconfig/v1/admin/customers/`, which carries a `/zpa` prefix not present in the doc's Base-URLs table. Whether the live legacy host expects the `/zpa` prefix (a client-routing detail) is not verified.
-
-**Status**: open
-**Resolves with**: lab test (capture the actual request path the legacy host accepts)
-
----
-
-### zpa-39 — `/assistantSchedule` legacy endpoint — still served vs retired alias
-
-*Origin: `references/zpa/legacy-endpoints.md` § Open questions*
-
-The `appconnectorcontroller` Go package still declares `scheduleEndpoint = "/assistantSchedule"` (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go:16`) but no function references it. Whether the legacy API still serves `/assistantSchedule` or it is a fully retired alias of `/connectorSchedule` cannot be determined from the SDK alone.
-
-**Status**: open
-**Resolves with**: lab test (call `/assistantSchedule` against the legacy host and observe the response)
-
----
-
 ### zpa-48 — PSE provisioning-key API/Terraform support
 
 *Origin: `kb:zpa.private-service-edges` § Enrollment credentials*
@@ -2427,78 +2175,6 @@ Whether `SIEM` is valid for `configSpace` at the application-segment top level, 
 
 **Status**: open
 **Resolves with**: tenant read (inspect `configSpace` on a real segment object)
-
----
-
-### zpa-76 — Which LSS `source_log_type` values require a `policy_rule_resource` block
-
-*Origin: `references/zpa/terraform.md` § Open questions*
-
-Only the User Activity (`zpn_trans_log`) and User Status (`zpn_auth_log`) example docs ship a `policy_rule_resource` block (`vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_activity.md:77`); the other LSS docs do not. The prior claim that `zpn_ast_auth_log` and `zpn_pbroker_comprehensive_stats` require the block could not be confirmed from any provider doc and was removed. Which `source_log_type` values actually accept or require the block remains open.
-
-**Status**: open
-**Resolves with**: zscaler doc not yet read / lab test (apply each LSS config type and observe whether the block is required)
-
----
-
-### zpa-77 — Tag / tag-group membership referenced in policy rule conditions
-
-*Origin: `references/zpa/terraform.md` § Open questions*
-
-Tags and tag groups are Early Access. Whether `zpa_tag_group` IDs can currently be referenced in policy-rule conditions as an `object_type` is not confirmed from available sources.
-
-**Status**: open
-**Resolves with**: zscaler doc not yet read / lab test
-
----
-
-### zpa-82 — PRA approval identity when email and application sets match but time windows differ
-
-*Origin: `references/zpa/api-divergences.md` § Privileged Remote Access*
-
-When no approval ID is supplied, Ansible 2.2.11 identifies an existing PRA
-approval by the email set and, when requested, the application-segment ID set
-(`vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py:250-275`). The
-lookup does not compare the approval's top-level `start_time` or `end_time`,
-even though both are accepted inputs
-(`vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py:430-432`). If the
-API allows two approvals with the same email and application sets but different
-time windows, source alone does not establish which one Ansible should update
-or whether those records are distinguishable without an explicit ID.
-
-**Status**: open
-**Resolves with**: API read or lab test (create or retrieve same-email,
-same-application approvals with distinct time windows, then test lookup and
-update behavior without `approval_id`)
-
----
-
-### zpa-84 — MCP shared ZPA policy-rule list pagination
-
-*Origin: `references/zpa/api.md` § Pagination; `references/shared/mcp-server.md` § ZPA caller-directed pagination boundary*
-
-MCP v0.15.2 exposes `page` and `page_size` on 16 ZPA list tools. The five
-shared policy-rule families also expose `search`; their helper forwards the
-supplied values to one SDK request and omits values the caller did not set
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py:39-56`;
-`:103-119`). The regression suite checks forwarding and omission through that
-shared helper, while its 16-tool schema sweep verifies that every affected
-registered input model advertises `page` and `page_size`; source inspection
-confirms the remaining tool-specific forwarding paths
-(`vendor/zscaler-mcp-server/tests/test_zpa_policy_pagination.py:23-48`;
-`:85-127`).
-
-**Status**: resolved — 2026-08-14
-**Resolves with**: satisfied by the v0.15.2 code and regression coverage
-
-**Answer**: the former rejected-input boundary is closed through explicit
-caller-selected pagination controls. This is manual page selection: each MCP
-call still makes one request, so a caller that needs an all-pages inventory
-must request successive pages. It is not cursor pagination or automatic page
-walking, and it does not make one call an all-pages guarantee. That bounded
-behavior satisfies this entry's original “iterate or expose working controls”
-closure condition without overclaiming backend completeness or the state of
-upstream issue [#96](https://github.com/zscaler/zscaler-mcp-server/issues/96).
 
 ---
 

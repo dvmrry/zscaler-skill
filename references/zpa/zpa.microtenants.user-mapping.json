@@ -159,7 +159,7 @@
       ]
     },
     "terraform-criteria-authdomain": {
-      "statement": "The Terraform `zpa_microtenant` resource documents `AuthDomain` as the only supported value of `criteria_attribute`.",
+      "statement": "The Terraform `zpa_microtenant_controller` resource documents `AuthDomain` as the only supported value of `criteria_attribute`.",
       "tier": "A",
       "evidence": [
         {
@@ -168,8 +168,16 @@
           "quotes": [
             "Description: \"The criteria attribute for the Microtenant. The supported value is AuthDomain.\","
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "quotes": [
+            "\"zpa_microtenant_controller\": resourceMicrotenantController(),"
+          ]
         }
-      ]
+      ],
+      "conditions": "Resource name corrected from zpa_microtenant: provider.go registers the resource as zpa_microtenant_controller."
     },
     "domain-in-other-microtenant-error": {
       "statement": "The Go share and move tests retry a Microtenant create that fails with the error `domains.already.exists.in.other.microtenant`, which indicates the API can reject a create because the authentication domain is already used by another Microtenant.",

@@ -1,0 +1,656 @@
+{
+  "schema_version": 1,
+  "id": "zpa.sdk-python.policy-helpers",
+  "title": "Python SDK policy rule helpers: policy types, write lock, condition tuples and rule builders",
+  "aliases": [
+    "global_rule_lock",
+    "policy conditions tuple python",
+    "conditions silently ignored python",
+    "_create_conditions_v1",
+    "_create_conditions_v2",
+    "get_rule two requests",
+    "policy type map python",
+    "add_app_protection_rule lock",
+    "POLICY_MAP",
+    "portal_policy user_portal policy type",
+    "vpn_policy",
+    "PRIVILEGED_PORTAL_POLICY",
+    "get_policy policy_type values",
+    "policy rule concurrent writes python",
+    "synchronized decorator zpa",
+    "threading lock policy rules"
+  ],
+  "binds": [],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.access-rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.error-handling"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are claims about the Python SDK's policy rule helpers. Rule ordering semantics are in [[zpa.terraform.rule-order]], and the wire shapes are in [[zpa.api.policy-wire]]."
+    },
+    {
+      "label": "Policy types.",
+      "text": "The map of friendly names to policy types is [[zpa.api.policy-wire:python-policy-type-map]]. {{generic-calls-use-map}} {{python-list-rules-alias-required}} {{python-count-accepts-wire-values}} {{fixed-type-writes}} An unknown key raises, see [[zpa.sdk-python.error-handling]]. Whether portal writes work is open {{gap:portal-rule-writes}}."
+    },
+    {
+      "label": "Write lock.",
+      "text": "{{lock-object}} {{lock-add-update}} {{lock-delete-reorder}} {{lock-process-local}} {{rule-lock-gaps}}"
+    },
+    {
+      "label": "Condition tuples.",
+      "text": "{{v1-conditions-forms}} {{v1-conditions-dropped}} The changelog says lists are now accepted {{divergence:v1-list-conditions}}. {{v2-conditions-forms}} {{python-v2-operand-forms}} {{access-rule-v1-uses-v1}}"
+    },
+    {
+      "label": "Rule builders.",
+      "text": "{{python-credential-exclusive}} {{python-isolation-client-type}} {{python-capabilities-mapping}} {{python-redirection-rules}} {{python-timeout-defaults}} {{python-reformat-params-key}}"
+    },
+    {
+      "label": "Reordering.",
+      "text": "{{python-bulk-reorder-passthrough}}"
+    },
+    {
+      "label": "Rule lookup.",
+      "text": "{{get-rule-two-calls}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a rule's conditions all reached the request: the v1 builder keeps only three-element tuples and dictionaries.",
+      "uses": [
+        "v1-conditions-forms",
+        "v1-conditions-dropped",
+        "v1-list-conditions"
+      ]
+    },
+    {
+      "do": "Whether a v1 App Protection rule add was serialized with the other rule writes; it is not.",
+      "uses": [
+        "rule-lock-gaps"
+      ]
+    },
+    {
+      "do": "Whether the policy type name is a key of POLICY_MAP, not the API enum name.",
+      "uses": [
+        "zpa.api.policy-wire:python-policy-type-map"
+      ]
+    },
+    {
+      "do": "Whether a rule write for portal or user portal policy was expected from the generic delete and reorder calls.",
+      "uses": [
+        "zpa.sdk-python.policy-helpers:generic-calls-use-map",
+        "zpa.sdk-python.policy-helpers:fixed-type-writes"
+      ]
+    },
+    {
+      "do": "Whether several processes or hosts write policy rules at the same time, since the lock does not cover them.",
+      "uses": [
+        "zpa.sdk-python.policy-helpers:lock-process-local"
+      ]
+    },
+    {
+      "do": "Whether concurrent threads in one process call delete or reorder, which take the same lock as add and update.",
+      "uses": [
+        "zpa.sdk-python.policy-helpers:lock-delete-reorder",
+        "zpa.sdk-python.policy-helpers:lock-add-update"
+      ]
+    }
+  ],
+  "claims": {
+    "rule-lock-gaps": {
+      "statement": "The v1 `add_app_protection_rule` has no lock decorator, although the other add and update helpers do.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "return (result, response, None) def add_app_protection_rule("
+          ]
+        }
+      ]
+    },
+    "v1-conditions-forms": {
+      "statement": "The v1 condition builder accepts a tuple of three elements (object type, lhs, rhs), optionally wrapped as (\"AND\" or \"OR\", tuple), and a dictionary with id, negated, operator and operands; operands of the same object type are grouped into one block with that type's operator, defaulting to OR.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "if isinstance(condition, tuple) and len(condition) == 3:",
+            "elif isinstance(condition, dict):",
+            "operator = \"OR\"  # Default operator if none specified",
+            "if isinstance(condition, tuple) and isinstance(condition[0], str) and condition[0].upper() in [\"AND\", \"OR\"]:"
+          ],
+          "after": "def _create_conditions_v1("
+        }
+      ]
+    },
+    "v1-conditions-dropped": {
+      "statement": "A v1 condition that is neither a three-element tuple nor a dictionary is skipped without an error: for example the two-element form (\"client_type\", [...]) used by the v2 builder, or a condition given as a list, as conditions loaded from JSON are, whether a three-element list or one wrapped with \"AND\" or \"OR\".",
+      "tier": "B",
+      "derived_from": [
+        "v1-conditions-forms"
+      ],
+      "conditions": "The skip follows from the builder having no else branch after the tuple and dictionary cases, and from both the operator unwrap and the three-element case testing for a tuple; it was not run. The list case was added because the v1.11.1 changelog says conditions now accept lists while the v1 builder still does not (divergence v1-list-conditions); previously \"A v1 condition that is neither a three-element tuple nor a dictionary, for example the two-element form (\\\"client_type\\\", [...]) used by the v2 builder, is skipped without an error.\""
+    },
+    "v2-conditions-forms": {
+      "statement": "The v2 condition builder reads a tuple as the object type (lower-cased) followed by its values; since v1.11.1 it reads a list the same way, where up to v1.10.0 it accepted only tuples and a list-shaped condition was dropped (#583). It puts app and app_group values in one block, puts console, location, machine_grp, client_type and user_portal each in their own block with the operator, and turns posture, trusted_network, country_code, platform, risk_factor_type, saml, scim and scim_group lists of (lhs, rhs) pairs into entryValues.",
+      "tier": "A",
+      "conditions": "Changed upstream in v1.11.1 (checked 2026-10-18): previously \"The v2 condition builder reads a tuple as the object type (lower-cased) followed by its values; it puts app and app_group values in one block, puts console, location, machine_grp, client_type and user_portal each in their own block with the operator, and turns posture, trusted_network, country_code, platform, risk_factor_type, saml, scim and scim_group lists of (lhs, rhs) pairs into entryValues.\" The v1 builder still checks for tuples only.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "at": [
+            "v1.10.0"
+          ],
+          "quotes": [
+            "if isinstance(condition, tuple):"
+          ],
+          "after": "def _create_conditions_v2("
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "ZPA policy `conditions` now accept lists as well as tuples (e.g. conditions loaded from JSON); list-shaped conditions were previously dropped."
+          ],
+          "after": "## 1.11.1 (October 6 2026)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "if isinstance(condition, (tuple, list)):",
+            "object_type = condition[0].lower()",
+            "values = condition[1:]",
+            "elif object_type in [\"app\", \"app_group\"]:",
+            "elif object_type in [\"console\", \"location\", \"machine_grp\", \"client_type\", \"user_portal\"]:",
+            "for lhs, rhs in values[0]:",
+            "criteria_conditions.setdefault(key, []).append({\"lhs\": lhs, \"rhs\": rhs})"
+          ],
+          "after": "def _create_conditions_v2("
+        }
+      ]
+    },
+    "access-rule-v1-uses-v1": {
+      "statement": "`add_access_rule` builds its conditions with the v1 builder.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "payload[\"conditions\"] = self._create_conditions_v1(conditions)"
+          ],
+          "after": "def add_access_rule("
+        }
+      ]
+    },
+    "get-rule-two-calls": {
+      "statement": "`get_rule` first calls `get_policy` for the policy type to find the policy set ID and then requests the rule under that policy set, so one lookup is two requests.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "policy_type_response, _, err = self.get_policy(policy_type, query_params={\"microtenantId\": microtenant_id})",
+            "api_url = format_url(f\"{self._zpa_base_endpoint_v1}/policySet/{policy_set_id}/rule/{rule_id}\")"
+          ],
+          "after": "def get_rule("
+        }
+      ]
+    },
+    "python-v2-operand-forms": {
+      "statement": "The Python SDK's v2 condition builder emits `entryValues` (pairs of `lhs` and `rhs`) for the object types posture, trusted_network, country_code, platform, risk_factor_type, saml, scim, scim_group and chrome_enterprise, and a `values` list for every other type. Its v1 builder emits flat `{objectType, lhs, rhs}` operands.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "{\"objectType\": \"CHROME_ENTERPRISE\", \"entryValues\": [{\"lhs\": values[0], \"rhs\": values[1]}]}"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "\"posture\", \"trusted_network\", \"country_code\", \"platform\", \"risk_factor_type\", \"saml\", \"scim\", \"scim_group\","
+          ],
+          "after": "# Determine if this condition uses entryValues or simple values"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "operand = {\"objectType\": object_type, \"values\": values}"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "operand = {\"objectType\": object_type, \"lhs\": lhs, \"rhs\": rhs}"
+          ],
+          "after": "def _create_conditions_v1(conditions: list) -> list:"
+        }
+      ],
+      "conditions": "The MCP-side statement of the same split is in zpa.policy.conditions. chrome_enterprise was added because its builder branch also emits entryValues; previously \"...for the object types posture, trusted_network, country_code, platform, risk_factor_type, saml, scim and scim_group, and a `values` list for every other type.\""
+    },
+    "python-credential-exclusive": {
+      "statement": "The Python credential rule builder first fetches the credential policy set with a GET through `get_policy`; then, before sending the rule, it refuses when both or neither of `credential_id` and `credential_pool_id` are given, returning the message as a string in the error slot rather than raising. It sends the id as `credential` or as `credentialPool`.",
+      "tier": "A",
+      "conditions": "Corrected because the get_policy request runs before the check and the refusal is a returned string; previously \"The Python credential rule builder refuses, before any request, to proceed when both or neither of `credential_id` and `credential_pool_id` are given; it sends the id as `credential` or as `credentialPool`.\"",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "\"credential\", query_params={\"microtenantId\": kwargs.get(\"microtenantId\")}",
+            "return (None, None, \"Only one of credential_id or credential_pool_id may be provided.\")",
+            "return (None, None, \"Either credential_id or credential_pool_id must be provided.\")",
+            "payload[\"credential\"] = {\"id\": credential_id}",
+            "payload[\"credentialPool\"] = {\"id\": credential_pool_id}"
+          ],
+          "after": "def add_privileged_credential_rule_v2(self, name: str, credential_id: str = None, **kwargs)"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/credentialPool",
+          "expect": {
+            "title": "NameIdDto"
+          }
+        }
+      ]
+    },
+    "python-isolation-client-type": {
+      "statement": "If an isolation rule or a v2 browser protection rule built by the Python SDK has no `CLIENT_TYPE` condition, the builder appends an OR condition for `zpn_client_type_exporter` (flat lhs/rhs in v1, a `values` list in v2) without warning. The Go SDK adds nothing to rule conditions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "\"rhs\": \"zpn_client_type_exporter\"}]}",
+            "if not client_type_present:"
+          ],
+          "after": "def add_isolation_rule(self, name: str, action: str, zpn_isolation_profile_id: str = None, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "{\"objectType\": \"CLIENT_TYPE\", \"values\": [\"zpn_client_type_exporter\"]}]}",
+            "if not client_type_present:"
+          ],
+          "after": "def add_isolation_rule_v2(self, name: str, action: str, zpn_isolation_profile_id: str = None, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "{\"objectType\": \"CLIENT_TYPE\", \"values\": [\"zpn_client_type_exporter\"]}]}",
+            "if not client_type_present:"
+          ],
+          "after": "def add_browser_protection_rule_v2("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "{\"objectType\": \"CLIENT_TYPE\", \"values\": [\"zpn_client_type_exporter\"]}]}",
+            "if not client_type_present:"
+          ],
+          "after": "def update_browser_protection_rule_v2("
+        }
+      ],
+      "conditions": "Extended per verifier to add_browser_protection_rule_v2 and update_browser_protection_rule_v2, which append the same condition (v1.10.0 and HEAD). Applies to the add and update isolation builders; the Go-side absence is a read of the two Go policy packages (no client-type string appears in CreateRule or UpdateRule)."
+    },
+    "python-capabilities-mapping": {
+      "statement": "The Python capability rule builder turns its flags into the strings CLIPBOARD_COPY, CLIPBOARD_PASTE, FILE_DOWNLOAD, FILE_UPLOAD, INSPECT_FILE_UPLOAD, INSPECT_FILE_DOWNLOAD, MONITOR_SESSION, RECORD_SESSION and SHARE_SESSION, and maps `file_upload=False` to INSPECT_FILE_UPLOAD (not to nothing), while `file_upload=True` gives FILE_UPLOAD. The OpenAPI document types `capabilities` as a free list of strings, and the Go SDK tests exercise five of the values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "if priv_caps_map.get(\"file_upload\") is True:",
+            "capabilities.append(\"FILE_UPLOAD\")",
+            "elif priv_caps_map.get(\"file_upload\") is False:",
+            "capabilities.append(\"INSPECT_FILE_UPLOAD\")",
+            "capabilities.append(\"SHARE_SESSION\")"
+          ],
+          "after": "def add_capabilities_rule_v2(self, name: str, **kwargs)"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/privilegedCapabilities/properties/capabilities",
+          "expect": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/zpa_policy_access_capability_rule_v2_test.go",
+          "quotes": [
+            "Capabilities: []string{\"INSPECT_FILE_UPLOAD\", \"FILE_UPLOAD\", \"FILE_DOWNLOAD\", \"CLIPBOARD_COPY\", \"CLIPBOARD_PASTE\"},"
+          ]
+        }
+      ],
+      "conditions": "Which capability strings the API accepts is not enumerated in the OpenAPI document."
+    },
+    "python-redirection-rules": {
+      "statement": "The Python redirection rule builder rejects `redirect_default` when `service_edge_group_ids` is given, requires `service_edge_group_ids` for `redirect_preferred` and `redirect_always`, checks the first value of each `CLIENT_TYPE` operand, and only the first, against five client types, and rejects the branch and edge connector client types when the action is `redirect_always`. The OpenAPI document lists REDIRECT_DEFAULT, REDIRECT_PREFERRED and REDIRECT_ALWAYS as actions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "if action.lower() == \"redirect_default\" and service_edge_group_ids:",
+            "elif action.lower() in [\"redirect_preferred\", \"redirect_always\"] and not service_edge_group_ids:",
+            "if val in (\"zpn_client_type_branch_connector\", \"zpn_client_type_edge_connector\"):",
+            "\"action\": action.upper(),",
+            "if operand[\"objectType\"] == \"CLIENT_TYPE\" and operand[\"values\"][0] not in valid_client_types:"
+          ],
+          "after": "def add_redirection_rule_v2(self, name: str, action: str, service_edge_group_ids: list = [], **kwargs)"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/action",
+          "expect": {
+            "enum": [
+              "ALLOW",
+              "DENY",
+              "LOG",
+              "RE_AUTH",
+              "NEVER",
+              "BYPASS",
+              "INTERCEPT",
+              "NO_DOWNLOAD",
+              "BYPASS_RE_AUTH",
+              "INTERCEPT_ACCESSIBLE",
+              "ISOLATE",
+              "BYPASS_ISOLATE",
+              "INSPECT",
+              "BYPASS_INSPECT",
+              "REQUIRE_APPROVAL",
+              "INJECT_CREDENTIALS",
+              "CHECK_CAPABILITIES",
+              "MONITOR",
+              "DO_NOT_MONITOR",
+              "REDIRECT_DEFAULT",
+              "REDIRECT_PREFERRED",
+              "REDIRECT_ALWAYS",
+              "CHECK_PRIVILEGED_PORTAL_CAPABILITIES"
+            ]
+          }
+        }
+      ],
+      "conditions": "These are client-side checks in the Python SDK; the Go SDK has none. Whether the API enforces the same rules is not shown. The client-type clause was narrowed because the check reads only operand[\"values\"][0]; previously it said the builder \"limits `CLIENT_TYPE` values to five client types\"."
+    },
+    "python-timeout-defaults": {
+      "statement": "The Python `add_timeout_rule_v2` and `update_timeout_rule_v2` send `reauthTimeout` 172800 and `reauthIdleTimeout` 600 when the caller does not pass them, so an update that omits them writes those values rather than leaving the rule's current ones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "\"reauthTimeout\": kwargs.get(\"reauth_timeout\", 172800),",
+            "\"reauthIdleTimeout\": kwargs.get(\"reauth_idle_timeout\", 600),"
+          ],
+          "after": "def add_timeout_rule_v2(self, name: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "\"reauthTimeout\": kwargs.get(\"reauth_timeout\", 172800),",
+            "\"reauthIdleTimeout\": kwargs.get(\"reauth_idle_timeout\", 600),"
+          ],
+          "after": "def update_timeout_rule_v2(self, rule_id: str, name: str = None, **kwargs)"
+        }
+      ],
+      "conditions": "Whether the API treats the values as seconds is not stated in the pinned spec; the type difference with the Go SDK is divergence zpa.policy.timeout-rules reauth-value-type."
+    },
+    "python-reformat-params-key": {
+      "statement": "The Python `reformat_params` table maps `app_connector_group_ids` to the wire key `PolicySetControllers`, but the access rule builders set `appConnectorGroups` directly from their named argument before the table is used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "(\"app_connector_group_ids\", \"PolicySetControllers\"),"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "\"appConnectorGroups\": [{\"id\": group_id} for group_id in app_connector_group_ids],"
+          ],
+          "after": "def add_access_rule("
+        }
+      ],
+      "conditions": "That the mapped key is not reached relies on app_connector_group_ids being a named parameter of the access builders, so it is never in kwargs."
+    },
+    "python-list-rules-alias-required": {
+      "statement": "The Python policy_type argument of list_rules is a lowercase alias looked up in the SDK's policy map, and a wire value such as ACCESS_POLICY raises ValueError('Incorrect policy type provided'); list_rules returns PolicySetControllerV1 objects.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "mapped_policy_type = self.POLICY_MAP.get(policy_type)",
+            "raise ValueError(f\"Incorrect policy type provided: {policy_type}\")"
+          ],
+          "after": "def list_rules(self, policy_type: str, query_params: Optional[dict] = None) -> APIResult[List[PolicySetControllerV1]]:"
+        }
+      ]
+    },
+    "python-count-accepts-wire-values": {
+      "statement": "The Python get_policy_rule_count accepts a policy type already in wire form, because it checks the values of the policy map before looking up an alias.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "if policy_type in self.POLICY_MAP.values():"
+          ],
+          "after": "def get_policy_rule_count(self, policy_type: str"
+        }
+      ]
+    },
+    "python-bulk-reorder-passthrough": {
+      "statement": "The Python `bulk_reorder_rules` PUTs the caller's `rules_orders` list to the policy set's `reorder` endpoint unmodified: it does not look for or move `Default_Rule`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "request, error = self._request_executor.create_request(http_method, api_url, body=rules_orders, params=params)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "/policySet/{policy_set_id}/reorder"
+          ],
+          "after": "def bulk_reorder_rules(self, policy_type: str, rules_orders: list[str], **kwargs)"
+        }
+      ],
+      "conditions": "That the function never references Default_Rule is a negative read of the pinned file (a grep for Default_Rule in policies.py finds nothing)."
+    },
+    "generic-calls-use-map": {
+      "statement": "`get_policy` and `list_rules` look the type up in `POLICY_MAP` without further filtering, and `delete_rule` resolves its policy set through `get_policy(policy_type, ...)`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "mapped_policy_type = self.POLICY_MAP.get(policy_type)"
+          ],
+          "after": "def get_policy(self, policy_type: str"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "mapped_policy_type = self.POLICY_MAP.get(policy_type)"
+          ],
+          "after": "def list_rules(self, policy_type: str"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "policy_type_response, _, err = self.get_policy(policy_type, query_params={\"microtenantId\": microtenant_id})"
+          ],
+          "after": "def delete_rule(self, policy_type: str"
+        }
+      ]
+    },
+    "fixed-type-writes": {
+      "statement": "The add and update rule methods named for a policy type resolve their policy set with a fixed type, for example `add_access_rule` with `get_policy(\"access\", ...)`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "self.get_policy(\"access\", query_params={\"microtenantId\": kwargs.get(\"microtenantId\")})"
+          ],
+          "after": "def add_access_rule("
+        }
+      ]
+    },
+    "lock-object": {
+      "statement": "`policies.py` defines one module-level `Lock()` named `global_rule_lock`, and a `synchronized` decorator that runs a function inside `with lock:`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "global_rule_lock = Lock()",
+            "def synchronized(lock):",
+            "with lock:"
+          ]
+        }
+      ]
+    },
+    "lock-add-update": {
+      "statement": "The decorator is applied to the v1 and v2 add and update rule methods, for example `add_access_rule`, `update_access_rule_v2` and `add_browser_protection_rule_v2`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "@synchronized(global_rule_lock) def add_access_rule(",
+            "@synchronized(global_rule_lock) def update_access_rule_v2(",
+            "@synchronized(global_rule_lock) def add_browser_protection_rule_v2("
+          ]
+        }
+      ]
+    },
+    "lock-delete-reorder": {
+      "statement": "The same decorator is applied to `delete_rule`, `reorder_rule` and `bulk_reorder_rules`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "@synchronized(global_rule_lock) def delete_rule(",
+            "@synchronized(global_rule_lock) def reorder_rule(",
+            "@synchronized(global_rule_lock) def bulk_reorder_rules("
+          ]
+        }
+      ]
+    },
+    "lock-process-local": {
+      "statement": "The lock serializes threads of one Python process only.",
+      "tier": "B",
+      "derived_from": [
+        "zpa.sdk-python.policy-helpers:lock-object"
+      ],
+      "conditions": "Follows from the lock being a threading.Lock held in module memory. Another process, host or tool writing rules at the same time is not covered."
+    }
+  },
+  "gaps": {
+    "portal-rule-writes": {
+      "kind": "semantic",
+      "title": "Whether rule add and update work for the portal and user portal policy types",
+      "status": "open",
+      "detail": "Unverified legacy statement: add_rule, update_rule and delete_rule also work for PRIVILEGED_PORTAL_POLICY and USER_PORTAL; the SDK has no generic add or update that takes a policy type name, and no source shows the service accepting those writes.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "writing portal or user portal policy rules through the Python SDK"
+    }
+  },
+  "divergences": {
+    "v1-list-conditions": {
+      "summary": "The v1.11.1 changelog says ZPA policy conditions now accept lists, but the v1 condition builder still accepts only tuples and dictionaries.",
+      "positions": [
+        {
+          "says": "The changelog says policy conditions now accept lists as well as tuples, and that list-shaped conditions were previously dropped.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "CHANGELOG.md",
+            "quotes": [
+              "ZPA policy `conditions` now accept lists as well as tuples (e.g. conditions loaded from JSON); list-shaped conditions were previously dropped."
+            ],
+            "after": "## 1.11.1 (October 6 2026)"
+          }
+        },
+        {
+          "says": "`_create_conditions_v1` still tests for a three-element tuple or a dictionary, so a list-shaped condition is still dropped there; only the v2 builder accepts lists.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/policies.py",
+            "quotes": [
+              "if isinstance(condition, tuple) and len(condition) == 3:",
+              "elif isinstance(condition, dict):"
+            ],
+            "after": "def _create_conditions_v1("
+          }
+        }
+      ],
+      "impact": "A rule written through a v1 helper (add_access_rule, add_timeout_rule, add_client_forwarding_rule, add_isolation_rule, add_app_protection_rule or their update methods) with conditions loaded from JSON is sent without those conditions, and no error is returned. Convert each condition to a tuple, or use the v2 helpers."
+    }
+  }
+}

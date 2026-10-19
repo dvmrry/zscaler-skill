@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "kind": "automate-doc",
+  "title": "ZDX GraphQL API Codes",
+  "source": {
+    "url": "https://automate.zscaler.com/docs/api-reference-and-guides/guides/response-codes/analytics/zdx-graphql-api-codes",
+    "revision": "30b8eff4.2e3ff4c6.js",
+    "updated": "2026-10-18",
+    "updated_basis": "first-seen"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "ZDX GraphQL API uses the following response codes and error messages."
+    },
+    {
+      "table": [
+        [
+          "Category",
+          "Application-Level Error",
+          "HTTP Status Code",
+          "Description",
+          "Client Action"
+        ],
+        [
+          "Authentication",
+          "UNAUTHENTICATED",
+          "401",
+          "Missing or invalid authentication token.",
+          "Verify and correct the credentials. Do not retry."
+        ],
+        [
+          "Authentication",
+          "TOKEN_EXPIRED",
+          "401",
+          "The authentication token has expired.",
+          "Refresh the token and retry once."
+        ],
+        [
+          "Authentication",
+          "FORBIDDEN",
+          "403",
+          "Insufficient permissions to access the resource.",
+          "Do not retry. Verify your assigned user role."
+        ],
+        [
+          "Authentication",
+          "INSUFFICIENT_SCOPE",
+          "403",
+          "The OAuth scope required for this request is missing.",
+          "Do not retry. Reissue the token with the correct scope."
+        ],
+        [
+          "Client",
+          "BAD_USER_INPUT",
+          "400 or 413",
+          "Invalid GraphQL request, or request body exceeds the 100 KiB limit.",
+          "Verify and correct the request structure. Do not retry."
+        ],
+        [
+          "Client",
+          "INVALID_ARGUMENT",
+          "400 or 415",
+          "Invalid argument, request content type, or request content encoding.",
+          "Verify and correct the request parameters. Do not retry."
+        ],
+        [
+          "Client",
+          "MISSING_REQUIRED_FIELD",
+          "400",
+          "A required query argument or selection field is missing.",
+          "Verify and correct the query structure. Do not retry."
+        ],
+        [
+          "Client",
+          "VALIDATION_FAILED",
+          "400",
+          "Business validation logic or constraints failed.",
+          "Verify input values and parameters and correct them if needed. Do not retry."
+        ],
+        [
+          "Client",
+          "CONFLICT or ALREADY_EXISTS",
+          "N/A",
+          "Resource state conflict detected.",
+          "Resolve the conflicting state before retrying."
+        ],
+        [
+          "Client",
+          "MISSING_MANDATORY_COMPRESSION",
+          "406",
+          "The mandatory Accept-Encoding: gzip header is missing.",
+          "Add the header to your request. Do not retry without it."
+        ],
+        [
+          "Data",
+          "NOT_FOUND",
+          "404",
+          "The requested resource does not exist.",
+          "Verify the resource identifier. Do not retry."
+        ],
+        [
+          "Data",
+          "DATA_NOT_READY",
+          "N/A",
+          "The requested data is still processing.",
+          "Retry later using exponential backoff."
+        ],
+        [
+          "Data",
+          "RESOURCE_LOCKED",
+          "N/A",
+          "The resource is temporarily locked.",
+          "Retry later using exponential backoff."
+        ],
+        [
+          "Data",
+          "PRECONDITION_FAILED",
+          "N/A",
+          "A required prerequisite state has not been met.",
+          "Do not retry until the prerequisite state is updated."
+        ],
+        [
+          "Throttle",
+          "RATE_LIMITED",
+          "N/A",
+          "API rate limits have been exceeded.",
+          "Retry using exponential backoff and honor the Retry-After header."
+        ],
+        [
+          "Throttle",
+          "RETRY_LATER",
+          "N/A",
+          "Temporary server-side throttling condition.",
+          "Retry using exponential backoff."
+        ],
+        [
+          "Server",
+          "INTERNAL_SERVER_ERROR",
+          "500",
+          "Generic server-side exception.",
+          "Retry with backoff. Escalate to Zscaler Support with the x-request-id if persistent."
+        ],
+        [
+          "Server",
+          "SERVICE_UNAVAILABLE",
+          "503",
+          "An upstream dependency or service is temporarily unavailable.",
+          "Retry with backoff. Escalate to Zscaler Support with the x-request-id if persistent."
+        ],
+        [
+          "Server",
+          "TIMEOUT or DEPENDENCY_FAILURE",
+          "N/A",
+          "Request timed out or an internal service dependency failed.",
+          "Retry with backoff. Escalate to Zscaler Support with the x-request-id if persistent."
+        ]
+      ]
+    },
+    {
+      "text": "For requests returning DATA_NOT_READY, RESOURCE_LOCKED, RATE_LIMITED, RETRY_LATER, or any 5xx server error, retry the operation using exponential backoff. Treat all other error codes as client-side configuration errors. Do not retry these requests to prevent exceeding your daily consumption rate limit budget."
+    }
+  ]
+}

@@ -90,19 +90,29 @@
       ]
     },
     "list-error-then-panic": {
-      "statement": "If listing the existing rules fails during an update, the error is only logged and the code reads the last element of whatever came back: if the first page failed, the list is empty and the index panics; if a later page failed, the rule is parked using a partial list.",
+      "statement": "Before v4.8.11, if listing the existing rules failed during an update, the error was only logged and the code read the last element of whatever came back: if the first page failed, the list was empty and the index panicked; if a later page failed, the rule was parked using a partial list. v4.8.11 returns the list error from the update before the index is read (#610).",
       "tier": "A",
+      "conditions": "Changed upstream in v4.8.11 (checked 2026-10-18): previously \"If listing the existing rules fails during an update, the error is only logged and the code reads the last element of whatever came back: if the first page failed, the list is empty and the index panics; if a later page failed, the rule is parked using a partial list.\"",
       "evidence": [
         {
           "source": "tf-zia",
           "path": "zia/resource_zia_url_filtering_rules.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.8"
           ],
           "after": "func resourceURLFilteringRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "log.Printf(\"[ERROR] error getting all url filtering rules: %v\", err)",
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "after": "func resourceURLFilteringRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "return diag.FromErr(fmt.Errorf(\"error getting all url filtering rules: %w\", err))",
             "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
           ]
         },
@@ -239,9 +249,35 @@
       ]
     },
     "gives-up-silently": {
-      "statement": "The worker returns without an error in several situations: after six ticks in which registered rules stay deferred or their moves fail with no progress, or after two ticks in which only deferred rules remain. From v4.8.7 an oscillation breaker also returns after repeated non-improving passes (SUP-4231). Waiters proceed as if the order were applied.",
+      "statement": "The worker returns without an error in several situations: after six ticks in which registered rules stay deferred or their moves fail with no progress, or after two ticks in which only deferred rules remain. From v4.8.7 an oscillation breaker also returns after repeated non-improving passes (SUP-4231). From v4.8.11 it also returns after six consecutive passes in which the current rule order could not be read (#610); before v4.8.11 a failed read only logged the error and continued, so a read that kept failing kept the worker looping. Waiters proceed as if the order were applied; the v4.8.11 comment says the waiting create or update then reads the rule back and reports the API error.",
       "tier": "A",
+      "conditions": "Changed upstream in v4.8.11 (checked 2026-10-18): previously \"The worker returns without an error in several situations: after six ticks in which registered rules stay deferred or their moves fail with no progress, or after two ticks in which only deferred rules remain. From v4.8.7 an oscillation breaker also returns after repeated non-improving passes (SUP-4231). Waiters proceed as if the order were applied.\"",
       "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.8"
+          ],
+          "after": "func reorderAll(",
+          "quotes": [
+            "log.Printf(\"[ERROR] reorderAll: getCurrent failed for %s: %v\", resourceType, err) continue"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.11",
+            "HEAD"
+          ],
+          "after": "func reorderAll(",
+          "quotes": [
+            "if readFailures >= maxNoProgressTicks {",
+            "could not read the current rule order for %d consecutive passes, giving up.",
+            "// The waiting Create/Update then reads the rule back and"
+          ]
+        },
         {
           "source": "tf-zia",
           "path": "zia/common.go",

@@ -65,6 +65,13 @@
     {
       "label": "Inspection profile and custom control associations.",
       "text": "{{associate-all-controls-no-false-branch}} {{associate-error-ignored}} {{custom-control-association-errors-logged}}"
+    },
+    {
+      "text": "On read the provider merges the returned server groups into one block: {{server-groups-flatten-single-block}}"
+    },
+    {
+      "label": "Segment group applications.",
+      "text": "What the segment group resource sends is in [[zpa.segment-groups.api-surface:tf-resource-schema]]. {{segment-group-membership-check}} {{segment-group-membership-change-fails-plan}} Whether a reordered list plans an update on every run is open {{gap:segment-group-applications-drift}}."
     }
   ],
   "checks": [
@@ -361,12 +368,12 @@
       ]
     },
     "inspection-subapp-expand-subset": {
-      "statement": "The inspection resource's expander builds each nested app from a subset of fields (ids, name, description, port, protocol, certificate, domain, trust-untrusted-cert, app types). It does not assign `Enabled`, `AdpEnabled`, `AllowOptions`, `Hidden` or `Portal`, and the `Protocols` assignment is commented out in both the expander and the flattener.",
+      "statement": "The inspection resource's expander builds each nested app from a subset of fields (ids, name, port, protocol, certificate, domain, trust-untrusted-cert, app types; up to v4.4.11 also description, which v4.4.12 dropped from the schema and the expander). It does not assign `Enabled`, `AdpEnabled`, `AllowOptions`, `Hidden` or `Portal`, and the `Protocols` assignment is commented out in the expander. Up to v4.4.11 it was also commented out in the flattener; v4.4.12 rewrote the flattener (#690), which maps no protocols field.",
       "tier": "B",
       "derived_from": [
         "inspection-subapp-flags-always-serialized"
       ],
-      "conditions": "Absence claim for the unassigned fields. Searched the `expandInspectionAppsConfig` body in zpa/resource_zpa_application_segment_inspection.go at v4.4.10 and HEAD (unchanged between them); the struct literal there lists exactly the assigned fields. The commented lines are quoted.",
+      "conditions": "Absence claim for the unassigned fields. Searched the `expandInspectionAppsConfig` body in zpa/resource_zpa_application_segment_inspection.go at v4.4.10, v4.4.11 and HEAD (v4.4.14); the struct literal there lists exactly the assigned fields, and the HEAD flattener `mapInspectAppsToCommonApps` has no protocols key. The commented lines are quoted. Changed upstream in v4.4.12 (checked 2026-10-18): previously \"The inspection resource's expander builds each nested app from a subset of fields (ids, name, description, port, protocol, certificate, domain, trust-untrusted-cert, app types). It does not assign `Enabled`, `AdpEnabled`, `AllowOptions`, `Hidden` or `Portal`, and the `Protocols` assignment is commented out in both the expander and the flattener.\"",
       "evidence": [
         {
           "source": "tf-zpa",
@@ -386,11 +393,32 @@
           "path": "zpa/resource_zpa_application_segment_inspection.go",
           "at": [
             "v4.4.10",
-            "HEAD"
+            "v4.4.11"
+          ],
+          "after": "func expandInspectionAppsConfig(",
+          "quotes": [
+            "Description: appConfigMap[\"description\"].(string),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_inspection.go",
+          "at": [
+            "v4.4.10",
+            "v4.4.11"
           ],
           "after": "func mapInspectAppsToCommonApps(",
           "quotes": [
             "// \"protocols\": app.Protocols,"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_inspection.go",
+          "after": "func mapInspectAppsToCommonApps(",
+          "quotes": [
+            "toMap := func(app applicationsegmentinspection.InspectionAppDto) map[string]interface{} {",
+            "\"trust_untrusted_cert\": app.TrustUntrustedCert,"
           ]
         }
       ]
@@ -986,6 +1014,105 @@
           ]
         }
       ]
+    },
+    "server-groups-flatten-single-block": {
+      "statement": "On read, the provider turns the server groups the API returns for a segment into one `server_groups` block whose `id` is a set of the non-empty group IDs, and into nothing when none has an ID; the base, Browser Access, PRA and Inspection segment resources all set `server_groups` this way.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "ids = append(ids, group.ID)"
+          ],
+          "after": "func flattenCommonAppServerGroupSimple(serverGroups []servergroup.ServerGroup) []interface{} {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "quotes": [
+            "_ = d.Set(\"server_groups\", flattenCommonAppServerGroupSimple(resp.ServerGroups))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_pra.go",
+          "quotes": [
+            "_ = d.Set(\"server_groups\", flattenCommonAppServerGroupSimple(resp.ServerGroups))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_inspection.go",
+          "quotes": [
+            "_ = d.Set(\"server_groups\", flattenCommonAppServerGroupSimple(resp.AppServerGroups))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_browser_access.go",
+          "quotes": [
+            "flattenCommonAppServerGroupSimple(resp.AppServerGroups)"
+          ]
+        }
+      ]
+    },
+    "segment-group-membership-check": {
+      "statement": "The segment group resource's Read sets applications to the IDs of the applications the API returns for the group. Before v4.4.14 an update sent the configured applications list through UpdateV2. From v4.4.14 the argument is deprecated, the docs say to manage membership with segment_group_id on zpa_application_segment, and on an existing group the plan fails when the configured application IDs add to or remove from the IDs in state; the IDs are compared as sets, so order alone is not a change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.11",
+            "v4.4.12",
+            "v4.4.13"
+          ],
+          "after": "func resourceSegmentGroupUpdate(",
+          "quotes": [
+            "req := expandSegmentGroup(d)",
+            "if _, err := segmentgroup.UpdateV2(ctx, service, id, &req); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "quotes": [
+            "if err := d.Set(\"applications\", flattenSegmentGroupApplicationsSimple(resp)); err != nil {",
+            "\"id\": segmentGroupApplication.ID,",
+            "if d.Id() == \"\" || !d.HasChange(\"applications\") {",
+            "added, deleted := segmentGroupApplicationChanges(oldList, newList)",
+            "application segment membership cannot be changed from zpa_segment_group (%d added, %d removed)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/utils.go",
+          "quotes": [
+            "// ignored: listing the same applications in a different order is no change."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_segment_group.md",
+          "quotes": [
+            "The `applications` attribute is deprecated and will be removed in a future major release.",
+            "Manage membership with the `segment_group_id` attribute of",
+            "Adding or removing applications in the `applications` block of an existing segment group is rejected at plan time."
+          ]
+        }
+      ],
+      "conditions": "Changed upstream in v4.4.14 (checked 2026-10-18): previously \"carrying the applications list on the segment group in Terraform configuration produces phantom drift\" (the unverified legacy statement held open in gap segment-group-applications-drift). The old update path is the same at v4.4.11, v4.4.12 and v4.4.13; the plan-time check first appears in v4.4.14."
+    },
+    "segment-group-membership-change-fails-plan": {
+      "statement": "From v4.4.14 a segment group whose configuration lists applications does not drift silently: when a segment joins or leaves the group through its segment_group_id, the next Read changes the IDs in state, the configured list no longer matches them as a set, and the plan fails with the membership error until the list is corrected or the block is removed.",
+      "tier": "B",
+      "derived_from": [
+        "segment-group-membership-check",
+        "zpa.segment-groups.api-surface:tf-resource-schema"
+      ],
+      "conditions": "Follows from Read writing the API's membership into state and the plan-time check comparing ID sets on an existing group. It assumes Terraform diffs the configured list against the refreshed state for this Optional and Computed attribute, which is Terraform behavior not shown in a captured source."
     }
   },
   "gaps": {
@@ -1008,6 +1135,32 @@
       ],
       "blocks": "saying whether the main segment delete cleanup reaches APP operands in rules created through the v2 resources",
       "detail": "The main cleanup lists rules with the v1 policy controller only. Create a rule with a v2 resource that has an APP operand for a test segment, then list the policy type through the v1 call and check whether the rule and operand appear."
+    },
+    "segment-group-applications-drift": {
+      "kind": "semantic",
+      "title": "Whether a segment group applications list in a different order from the API's plans an update on every run",
+      "status": "partial",
+      "detail": "Unverified legacy statement (operator field observation from production Terraform use): segment group membership is managed from the application segment side, and carrying the applications list on the segment group in Terraform configuration produces phantom drift. From v4.4.14 the code settles membership changes: a membership change fails the plan instead of drifting. Still open: the plan-time check ignores order, but applications is a list that Read fills in the API's order, so whether a configuration listing the current applications in another order plans an in-place update on every run is not shown; the changelog says such configurations keep working without changes. The legacy drift on versions before v4.4.14 is also unreproduced. Plan twice with the applications listed in an order different from the API's.",
+      "blocks": "telling whether listing a segment group's current applications in another order leaves a permanent plan difference",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Configurations that list the segment group's current applications, in any order, keep working without changes."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/utils.go",
+          "quotes": [
+            "// ignored: listing the same applications in a different order is no change."
+          ]
+        }
+      ]
     }
   }
 }

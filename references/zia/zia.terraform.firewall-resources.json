@@ -69,14 +69,28 @@
   ],
   "claims": {
     "eun-fields-optional-not-computed": {
-      "statement": "In v4.8.8 the firewall filtering rule schema declares `eun_template_id` as Optional, with no Computed flag.",
+      "statement": "Before v4.8.10 the firewall filtering rule schema declared `eun_template_id` as Optional, with no Computed flag. v4.8.10 adds Computed, with a comment that the API assigns its default EUN template to every rule when the template is not set, regardless of `is_eun_enabled` (#609).",
       "tier": "A",
+      "conditions": "Changed upstream in v4.8.10 (checked 2026-10-18): previously \"In v4.8.8 the firewall filtering rule schema declares `eun_template_id` as Optional, with no Computed flag.\"",
       "evidence": [
         {
           "source": "tf-zia",
           "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "at": [
+            "v4.8.8"
+          ],
           "quotes": [
             "Description: \"The EUN template ID associated with the rule\","
+          ],
+          "after": "\"eun_template_id\": {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "// Computed: the API assigns its default EUN template to every rule",
+            "// when the template is not set, regardless of is_eun_enabled.",
+            "Computed:    true,"
           ],
           "after": "\"eun_template_id\": {"
         }
@@ -252,12 +266,25 @@
     "issue-605-plan-diff": {
       "kind": "semantic",
       "title": "Whether a rule whose HCL omits `eun_template_id` plans a change to null while the apply leaves the tenant value unchanged",
-      "status": "open",
+      "status": "partial",
       "resolves_with": [
         "lab-test"
       ],
       "blocks": "saying that an omitted EUN template produces a permanent plan difference on a firewall rule",
-      "detail": "Unverified legacy statement: upstream issue 605 reports a plan showing `eun_template_id = <id> -> null` on a rule whose HCL omits it, with apply leaving the value unchanged; this is operator-reported and not reproduced. Apply a rule with a template set in the console, omit it in HCL and plan."
+      "detail": "Unverified legacy statement: upstream issue 605 reports a plan showing `eun_template_id = <id> -> null` on a rule whose HCL omits it, with apply leaving the value unchanged; this is operator-reported and not reproduced. Apply a rule with a template set in the console, omit it in HCL and plan. From provider v4.8.10 `eun_template_id` is Computed, with a code comment that the API assigns its default EUN template to every rule when none is set; a Computed attribute omitted from HCL keeps the API's value, so the reported diff should not recur. The behavior before v4.8.10 remains unreproduced.",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "// Computed: the API assigns its default EUN template to every rule"
+          ],
+          "at": [
+            "v4.8.10",
+            "HEAD"
+          ]
+        }
+      ]
     },
     "dns-categories-backend-acceptance": {
       "kind": "semantic",

@@ -1,0 +1,309 @@
+{
+  "schema_version": 1,
+  "id": "zpa.sdk-python.connector-helpers",
+  "title": "Python SDK App Connector group and schedule helpers: unmapped ID lists, version profile and schedule keyword names",
+  "aliases": [
+    "connector_ids server_group_ids python",
+    "serverGroupIds connectorIds",
+    "version_profile override_version_profile python",
+    "add_connector_schedule interval ignored",
+    "frequency_interval delete_disabled",
+    "update_connector_schedule payload unused",
+    "get_connector_schedule customer_id",
+    "bulk_delete_connectors ids"
+  ],
+  "binds": [],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.connector-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.upgrades"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.microtenant-scoping"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are claims about the Python SDK's App Connector group and schedule helpers. Where the docstring and the code disagree the code decides what is sent."
+    },
+    {
+      "label": "Connector groups.",
+      "text": "{{group-id-lists-unmapped}} The API contract does not document those keys, and what the API does with them is open {{gap:group-id-list-wire-keys}}. {{version-profile-no-auto-override}} {{version-profile-docstring-diverges}}"
+    },
+    {
+      "label": "Bulk delete.",
+      "text": "{{bulk-delete-ids-body}}"
+    },
+    {
+      "label": "Schedule.",
+      "text": "{{schedule-add-keys}} The docstring names other keys {{divergence:schedule-keyword-names}}. {{schedule-update-raw-body}} {{schedule-get-env-microtenant}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a connector group create or update carried its connector and server group IDs in a shape the API reads, by reading the request body back.",
+      "uses": [
+        "group-id-lists-unmapped"
+      ]
+    },
+    {
+      "do": "Whether the version profile took effect, because the SDK does not set override_version_profile for the caller.",
+      "uses": [
+        "version-profile-no-auto-override"
+      ]
+    },
+    {
+      "do": "Whether a schedule change was sent with the keys the code reads (frequency_interval, delete_disabled), not the docstring's interval and disabled.",
+      "uses": [
+        "schedule-add-keys",
+        "schedule-keyword-names"
+      ]
+    }
+  ],
+  "claims": {
+    "group-id-lists-unmapped": {
+      "statement": "`add_connector_group` and `update_connector_group` send their keyword arguments as the request body without remapping `connector_ids` or `server_group_ids`, which their docstrings list, into ID objects; the executor's camel-casing then sends them as `connectorIds` and `serverGroupIds`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "quotes": [
+            "body = kwargs"
+          ],
+          "after": "def add_connector_group(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "quotes": [
+            "body.update(kwargs)",
+            "request, error = self._request_executor.create_request(http_method, api_url, body, {}, params)"
+          ],
+          "after": "def update_connector_group(self, group_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "quotes": [
+            "**server_group_ids (list):"
+          ],
+          "after": "def add_connector_group(self, **kwargs)"
+        }
+      ],
+      "conditions": "That no code in the file maps these keys rests on reading it; connector_ids and server_group_ids occur only in docstrings. The camel-casing is claim body-camel in zpa.sdk-python.microtenant-scoping.",
+      "gaps": [
+        "group-id-list-wire-keys"
+      ]
+    },
+    "version-profile-no-auto-override": {
+      "statement": "The `add_connector_group` docstring says that `version_profile` automatically sets `override_version_profile` to true, but the function contains no code that sets it: it sends the keyword arguments as the body, unchanged up to v1.10.0 and, since v1.11.2, changed only to fill in a missing `enrollment_cert_id`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "quotes": [
+            "The version profile to use. This will automatically set ``override_version_profile`` to True."
+          ],
+          "after": "def add_connector_group(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "quotes": [
+            "body = kwargs"
+          ],
+          "after": "def add_connector_group(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "quotes": [
+            "if not body.get(\"enrollment_cert_id\"):",
+            "body[\"enrollment_cert_id\"] = cert.id"
+          ],
+          "after": "def add_connector_group(self, **kwargs)"
+        }
+      ],
+      "conditions": "Absence of such code rests on reading the function; the only other mention of override_version_profile in the file is the docstring. Changed upstream in v1.11.2 (checked 2026-10-18): previously \"The `add_connector_group` docstring says that `version_profile` automatically sets `override_version_profile` to true, but the function sends the keyword arguments unchanged and contains no code that sets it.\""
+    },
+    "version-profile-docstring-diverges": {
+      "statement": "The docstring names three `version_profile` values, `default`, `previous_default` and `new_release`, and nothing maps them to the `versionProfileId` that the App Connector group model carries; the executor sends `version_profile` camel-cased as `versionProfile`, a key the model does not have.",
+      "tier": "A",
+      "conditions": "Corrected because \"numeric IDs\" was unsourced; the model's key is versionProfileId. That nothing maps the names and that the model has no versionProfile key rest on reading the function and the model. Previously \"The docstring names three `version_profile` values, `default`, `previous_default` and `new_release`, and does not map them to the numeric version profile IDs the API object carries.\"",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "quotes": [
+            "``default``, ``previous_default`` and ``new_release``"
+          ],
+          "after": "def add_connector_group(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connector_groups.py",
+          "quotes": [
+            "self.version_profile_id = config[\"versionProfileId\"] if \"versionProfileId\" in config else None",
+            "\"versionProfileId\": self.version_profile_id,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "body = convert_keys_to_camel_case(body)"
+          ],
+          "after": "# Preserve existing logic for other services"
+        }
+      ]
+    },
+    "bulk-delete-ids-body": {
+      "statement": "`bulk_delete_connectors` POSTs `{\"ids\": connector_ids}` to the connector bulk delete path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connectors.py",
+          "quotes": [
+            "payload = {\"ids\": connector_ids}"
+          ],
+          "after": "def bulk_delete_connectors("
+        }
+      ]
+    },
+    "schedule-add-keys": {
+      "statement": "`add_connector_schedule` builds its payload from the keyword arguments `frequency`, `frequency_interval`, `delete_disabled` and `enabled`, with `delete_disabled` and `enabled` included only when present, and a `customerId` taken only from a `customer_id` keyword or the ZPA_CUSTOMER_ID environment variable, never from the client configuration. When neither is set, `add_connector_schedule` and `update_connector_schedule` return a ValueError in the error slot, so a client that has the tenant ID only as customerId in its configuration cannot add or update a schedule without passing customer_id.",
+      "tier": "A",
+      "conditions": "Corrected because the tenant ID does not come from the configuration; previously \"`add_connector_schedule` builds its payload from the keyword arguments `frequency`, `frequency_interval`, `delete_disabled` and `enabled` and the tenant ID; `delete_disabled` and `enabled` are included only when present.\"",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_schedule.py",
+          "quotes": [
+            "customer_id = kwargs.get(\"customer_id\") or os.getenv(\"ZPA_CUSTOMER_ID\")",
+            "\"customer_id is required either as a function argument or as an environment variable ZPA_CUSTOMER_ID\"",
+            "\"customerId\": customer_id,",
+            "\"frequencyInterval\": body.get(\"frequency_interval\"),",
+            "if \"delete_disabled\" in body:",
+            "payload[\"deleteDisabled\"] = body[\"delete_disabled\"]"
+          ],
+          "after": "def add_connector_schedule(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_schedule.py",
+          "quotes": [
+            "customer_id = kwargs.get(\"customer_id\") or os.getenv(\"ZPA_CUSTOMER_ID\")",
+            "\"customer_id is required either as a function argument or as an environment variable ZPA_CUSTOMER_ID\""
+          ],
+          "after": "def update_connector_schedule(self, scheduler_id: str, **kwargs)"
+        }
+      ]
+    },
+    "schedule-update-raw-body": {
+      "statement": "`update_connector_schedule` builds a `payload` of the same fields but passes `body`, a copy of the caller's keyword arguments, to create_request, so the request carries the caller's own keys camel-cased by the executor and not the payload.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_schedule.py",
+          "quotes": [
+            "body.update(kwargs)",
+            "request, error = self._request_executor.create_request(http_method, api_url, body, {}, params)"
+          ],
+          "after": "def update_connector_schedule(self, scheduler_id: str, **kwargs)"
+        }
+      ],
+      "conditions": "That `payload` is never sent rests on reading the function; it is assigned and not referenced again."
+    },
+    "schedule-get-env-microtenant": {
+      "statement": "`get_connector_schedule` accepts a `customer_id` argument that does not change the URL (the path uses the tenant ID fixed at construction), and takes its microtenant only from the ZPA_MICROTENANT_ID environment variable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_schedule.py",
+          "quotes": [
+            "customer_id = customer_id or self.customer_id",
+            "microtenant_id = os.getenv(\"ZPA_MICROTENANT_ID\", None)"
+          ],
+          "after": "def get_connector_schedule(self, customer_id=None)"
+        }
+      ],
+      "conditions": "That customer_id is unused afterwards rests on reading the function."
+    }
+  },
+  "divergences": {
+    "schedule-keyword-names": {
+      "summary": "Keyword names for the App Connector schedule helpers: docstring against code",
+      "positions": [
+        {
+          "says": "The add_connector_schedule docstring names the keywords `interval` and `disabled`.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/app_connector_schedule.py",
+            "quotes": [
+              "interval (str): Interval for the frequency value.",
+              "disabled (bool, optional): Whether to include disconnected connectors for deletion."
+            ],
+            "after": "def add_connector_schedule(self, **kwargs)"
+          }
+        },
+        {
+          "says": "The code reads `frequency_interval` and `delete_disabled`, so `interval` and `disabled` are not read for the payload.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/app_connector_schedule.py",
+            "quotes": [
+              "\"frequencyInterval\": body.get(\"frequency_interval\"),",
+              "payload[\"deleteDisabled\"] = body[\"delete_disabled\"]"
+            ],
+            "after": "def add_connector_schedule(self, **kwargs)"
+          }
+        }
+      ],
+      "impact": "A caller who follows the docstring sends a schedule with no interval and no delete-disabled flag, and the call can still succeed. Use frequency_interval and delete_disabled, and read the schedule back."
+    }
+  },
+  "gaps": {
+    "group-id-list-wire-keys": {
+      "kind": "semantic",
+      "status": "partial",
+      "title": "Whether the ZPA API accepts connectorIds and serverGroupIds on App Connector group create and update",
+      "blocks": "telling whether groups made through the Python helpers are linked to their connectors and server groups",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "The OpenAPI document's App Connector group PUT body documents the lists as connectors and serverGroups, and names neither connectorIds nor serverGroupIds, so the keys the SDK sends are undocumented. Whether the service reads or ignores them is still open: in a scratch tenant, create a group with connector_ids and server_group_ids through the Python SDK, then read it back and check its connectors and serverGroups lists.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1appConnectorGroup~1{appConnectorGroupId}/put/requestBody/content/application~1json/schema/properties/connectors",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1appConnectorGroup~1{appConnectorGroupId}/put/requestBody/content/application~1json/schema/properties/serverGroups",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ]
+    }
+  }
+}

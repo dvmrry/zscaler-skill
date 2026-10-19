@@ -337,10 +337,12 @@
             "source": "tf-zpa",
             "path": "zpa/data_source_zpa_saml_attribute.go",
             "quotes": [
+              "\"idp_id\": { Type: schema.TypeString, Computed: true, },",
+              "\"idp_name\": { Type: schema.TypeString, Optional: true, },",
               "return diag.FromErr(fmt.Errorf(\"idp name or id is required\"))"
             ]
           },
-          "says": "The read fails unless idp_id or idp_name is set, whatever the number of IdPs."
+          "says": "The read errors when neither idp_id nor idp_name has a value, whatever the number of IdPs; idp_id is computed only, so a configuration cannot set it and the read fails unless idp_name is set."
         }
       ],
       "impact": "A configuration that omits idp_name on a single-IdP tenant, as the documentation allows, fails at read time."

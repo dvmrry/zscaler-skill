@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "id": "zpa.sdk-python.policy-groups",
+  "title": "Python SDK policy group, rule and set controllers",
+  "aliases": [
+    "policy_group python sdk",
+    "policy_group_set",
+    "policy_group_rule",
+    "legacy client policy group missing",
+    "policy group reorder put post changelog"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.b2b-federation.sdk-contract"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.endpoint-versions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Python SDK has three policy-group controllers whose routes its own changelog describes differently from the code. The Go comparison is in [[zpa.b2b-federation.sdk-contract]]."
+    },
+    {
+      "label": "Reach.",
+      "text": "{{unified-only}}"
+    },
+    {
+      "label": "Routes.",
+      "text": "{{group-add-reorder-code}} Its changelog says otherwise: {{divergence:python-changelog-routes}} The Go package uses other routes again, and the Go changelog repeats the same add route: [[zpa.b2b-federation.sdk-contract:policy-group-routes]]."
+    },
+    {
+      "label": "Examples.",
+      "text": "{{python-search-groups-example-omits-set-id}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the code uses the unified ZPAService client, since the legacy client has no policy group properties.",
+      "uses": [
+        "unified-only"
+      ]
+    },
+    {
+      "do": "Whether a policy group add or reorder was made against the route in the code, not the one in the changelog.",
+      "uses": [
+        "group-add-reorder-code",
+        "python-changelog-routes"
+      ]
+    }
+  ],
+  "claims": {
+    "unified-only": {
+      "statement": "The unified `ZPAService` defines `policy_group`, `policy_group_rule` and `policy_group_set` properties, while the same properties in the legacy ZPA client are commented out.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/zpa_service.py",
+          "quotes": [
+            "def policy_group(self) -> PolicyGroupAPI:",
+            "def policy_group_set(self) -> PolicyGroupSetAPI:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/legacy.py",
+          "quotes": [
+            "# def policy_group(self) -> \"PolicyGroupAPI\":",
+            "# def policy_group_set(self) -> \"PolicyGroupSetAPI\":"
+          ]
+        }
+      ]
+    },
+    "group-add-reorder-code": {
+      "statement": "`add_group` sends POST to `/policyGroupSet/{group_set_id}/group` and `reorder_group` sends PUT to `/policyGroupSet/{group_set_id}/group/{group_id}/reorder/{new_order}`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policy_group.py",
+          "quotes": [
+            "http_method = \"post\".upper()"
+          ],
+          "after": "def add_group("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policy_group.py",
+          "quotes": [
+            "http_method = \"put\".upper()",
+            "/policyGroupSet/{group_set_id}/group/{group_id}/reorder/{new_order}"
+          ],
+          "after": "def reorder_group("
+        }
+      ]
+    },
+    "python-search-groups-example-omits-set-id": {
+      "statement": "The Python `search_groups` method requires `group_set_id`, but its embedded example calls it with only `filter_and_sort_dto`, so copying the example raises an argument error before any request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policy_group.py",
+          "quotes": [
+            "def search_groups(self, group_set_id: str, **kwargs)",
+            ">>> result, _, error = client.zpa.policy_group.search_groups( ... filter_and_sort_dto={"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "python-changelog-routes": {
+      "summary": "The Python changelog describes the policy group add and reorder routes with different HTTP methods from the code.",
+      "positions": [
+        {
+          "says": "The changelog lists GET on `.../group` as the add route and POST on the group reorder route.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "CHANGELOG.md",
+            "quotes": [
+              "`GET /policyGroupSet/{groupSetId}/group` Add a new Policy Group to a Policy Group Set.",
+              "`POST /policyGroupSet/{groupSetId}/group/{groupId}/reorder/{newOrder}` Update an existing Policy Group Order."
+            ]
+          }
+        },
+        {
+          "says": "The code adds with POST.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/policy_group.py",
+            "quotes": [
+              "http_method = \"post\".upper()"
+            ],
+            "after": "def add_group("
+          }
+        },
+        {
+          "says": "The code reorders with PUT.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/policy_group.py",
+            "quotes": [
+              "http_method = \"put\".upper()",
+              "/policyGroupSet/{group_set_id}/group/{group_id}/reorder/{new_order}"
+            ],
+            "after": "def reorder_group("
+          }
+        }
+      ],
+      "impact": "A caller following the changelog would use the wrong method for group add and reorder; the specification has no policyGroupSet route to settle it."
+    }
+  }
+}

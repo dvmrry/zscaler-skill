@@ -53,7 +53,7 @@
     },
     {
       "label": "Python.",
-      "text": "{{python-move}} {{python-share}} [[zpa.pra.tooling:credential-move]]"
+      "text": "{{python-move}} {{python-share}} [[zpa.api.pra-wire:credential-move]]"
     },
     {
       "label": "Go.",
@@ -62,6 +62,12 @@
     {
       "label": "Terraform.",
       "text": "Sharing from Terraform is a second write after the segment: [[zpa.terraform.app-segment-lifecycle:main-share-separate-write]], with a spurious `sharedMicrotenantDetails` object in [[zpa.terraform.app-segment-lifecycle:phantom-shared-microtenant-object]]."
+    },
+    {
+      "text": "The id types differ between contract and Go SDK {{divergence:share-move-id-types}}."
+    },
+    {
+      "text": "Whether the extra body fields are ignored is open {{gap:move-body-extra-fields}}."
     }
   ],
   "checks": [
@@ -369,6 +375,56 @@
         }
       ],
       "impact": "Both fields are omitted when empty, so the extra fields change the wire body only if a caller sets them; the specification does not say whether the API ignores or rejects them."
+    },
+    "share-move-id-types": {
+      "summary": "The OpenAPI document types the share and move body identifiers as 64-bit integers, while the Go SDK models them as strings.",
+      "positions": [
+        {
+          "says": "The contract types the entries of shareToMicrotenants as int64 integers.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application~1{applicationId}~1share/put/requestBody/content/application~1json/schema/properties/shareToMicrotenants/items",
+            "expect": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "says": "The contract types targetSegmentGroupId in the move body as an int64 integer.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application~1{applicationId}~1move/post/requestBody/content/application~1json/schema/properties/targetSegmentGroupId",
+            "expect": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "says": "The Go share request holds the microtenant IDs as a list of strings.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/applicationsegment_share/applicationsegment_share.go",
+            "quotes": [
+              "ShareToMicrotenants []string `json:\"shareToMicrotenants,omitempty\"`"
+            ]
+          }
+        },
+        {
+          "says": "The Go move request holds the target IDs as strings.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/applicationsegment_move/applicationsegment_move.go",
+            "quotes": [
+              "TargetSegmentGroupID string `json:\"targetSegmentGroupId,omitempty\"`"
+            ]
+          }
+        }
+      ],
+      "impact": "Raw-HTTP callers follow the contract and send numbers; the Go SDK sends numeric strings. Whether the API accepts both is not shown by either source."
     }
   },
   "gaps": {
@@ -397,6 +453,16 @@
         "lab-test"
       ],
       "blocks": "advising how to remove a share from Go or Terraform"
+    },
+    "move-body-extra-fields": {
+      "kind": "semantic",
+      "title": "Whether the application and microtenant IDs in the Go move body are ignored by the API",
+      "status": "open",
+      "detail": "Unverified legacy statement: the Go move request also carries applicationId and microtenantId in the JSON body (both omitempty) although the application ID is in the path and the microtenant ID is a query parameter, and the path and query values take precedence even if the body fields are sent. No source shows the server ignoring them. Send a move with a conflicting microtenantId in the body and the query in a scratch tenant.",
+      "blocks": "telling whether the Go move request body can disagree with its URL",
+      "resolves_with": [
+        "lab-test"
+      ]
     }
   }
 }

@@ -1,0 +1,342 @@
+{
+  "schema_version": 1,
+  "id": "zpa.logs.browser-access",
+  "title": "What a ZPA Browser Access log record says and does not say",
+  "aliases": [
+    "zpn_http_trans_log record",
+    "browser access log fields",
+    "ConnectionReason browser access",
+    "TotalTimeServerResponse",
+    "TotalTimeConnectionSetup",
+    "CorsToken Origin",
+    "Exporter unset",
+    "browser access nameid vs username"
+  ],
+  "binds": [
+    "zpa/browser-access-log#Exporter",
+    "zpa/browser-access-log#TotalTimeConnectionSetup",
+    "zpa/browser-access-log#TotalTimeServerResponse",
+    "zpa/browser-access-log#TimestampRequestReceiveStart",
+    "zpa/browser-access-log#TimestampRequestTransmitStart",
+    "zpa/browser-access-log#ConnectionStatus",
+    "zpa/browser-access-log#ConnectionReason",
+    "zpa/browser-access-log#Protocol",
+    "zpa/browser-access-log#CorsToken",
+    "zpa/browser-access-log#Origin",
+    "zpa/browser-access-log#ClientPublicIp",
+    "zpa/browser-access-log#ClientPublicPort",
+    "zpa/browser-access-log#XFF",
+    "zpa/browser-access-log#NameID"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.browser-access.logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.log-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.user-activity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.logging"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Browser Access log is the HTTP-level log for clientless access; its log type and NameID identity field are in [[zpa.browser-access.logs]]. The record is only loosely specified and its example departs from its table."
+    },
+    {
+      "label": "Granularity and identity.",
+      "text": "What one record represents is open {{gap:record-granularity}}. How NameID relates to a ZCC username is open {{gap:identity-vs-activity}}. {{clientip-fields}}"
+    },
+    {
+      "label": "Status.",
+      "text": "{{status-reason-empty-sample}} The value sets are open {{gap:connection-status-values}}."
+    },
+    {
+      "label": "Timing.",
+      "text": "{{phase-time-definitions}} {{time-unit-sample}} Timestamps are described in microseconds but shown as ISO strings, which the default template produces with the :iso8601 modifier {{divergence:timestamp-format}}. Attributing the intervals to the proxy or the backend is open {{gap:latency-attribution}}."
+    },
+    {
+      "label": "Other fields.",
+      "text": "{{exporter-field}} {{protocol-sample}} {{cors-values-unlabeled}} When the CORS fields appear is open {{gap:cors-presence}}, as is the size measurement point {{gap:size-measurement}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a SIEM rule routes on a ConnectionStatus or ConnectionReason value that no capture lists.",
+      "uses": [
+        "connection-status-values"
+      ]
+    },
+    {
+      "do": "Whether a latency conclusion used the interval definitions as seen by the Browser Access service.",
+      "uses": [
+        "phase-time-definitions",
+        "latency-attribution"
+      ]
+    }
+  ],
+  "claims": {
+    "exporter-field": {
+      "statement": "Exporter is described as the Browser Access service instance to the Public Service Edge for Private Access or Private Service Edge for Private Access instance, and the example record has the literal value unset.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "browser-access-log-fields.json",
+          "quotes": [
+            "| Exporter | The Browser Access service instance to the Public Service Edge for Private Access or Private Service Edge for Private Access instance",
+            "\"Exporter\":\"unset\""
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/browser-access-log#Exporter"
+      ]
+    },
+    "phase-time-definitions": {
+      "statement": "TotalTimeConnectionSetup is the time from receipt of the first byte of the HTTP request from the browser to transmission of the first byte towards the web server, and TotalTimeServerResponse is the time from transmission of the last byte of the request towards the web server to receipt of the first byte of the response, both as seen by the Browser Access service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "browser-access-log-fields.json",
+          "quotes": [
+            "| TotalTimeConnectionSetup | The time difference between reception of the first byte of the HTTP request from web browser and transmission of the first byte towards the web server",
+            "| TotalTimeServerResponse | The time difference between transmission of the last byte of the HTTP request towards the web server and reception of the first byte of the HTTP response from web server"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/browser-access-log#TotalTimeConnectionSetup",
+        "zpa/browser-access-log#TotalTimeServerResponse"
+      ]
+    },
+    "time-unit-sample": {
+      "statement": "The TotalTime* descriptions state no unit; in the example TotalTimeConnectionSetup is 66995 while TimestampRequestReceiveStart (05:12:25.723Z) and TimestampRequestTransmitStart (05:12:25.790Z) are 67 ms apart.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "browser-access-log-fields.json",
+          "quotes": [
+            "\"TotalTimeConnectionSetup\":66995",
+            "\"TimestampRequestReceiveStart\":\"2019-07-03T05:12:25.723Z\"",
+            "\"TimestampRequestTransmitStart\":\"2019-07-03T05:12:25.790Z\""
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/browser-access-log#TotalTimeConnectionSetup",
+        "zpa/browser-access-log#TimestampRequestReceiveStart",
+        "zpa/browser-access-log#TimestampRequestTransmitStart"
+      ]
+    },
+    "status-reason-empty-sample": {
+      "statement": "In the example record ConnectionStatus and ConnectionReason are both empty strings, and the field table describes them only as the status of the connection and the internal reason.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "browser-access-log-fields.json",
+          "quotes": [
+            "\"ConnectionStatus\":\"\",\"ConnectionReason\":\"\"",
+            "| ConnectionStatus | The status of the connection",
+            "| ConnectionReason | The internal reason"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/browser-access-log#ConnectionStatus",
+        "zpa/browser-access-log#ConnectionReason"
+      ]
+    },
+    "protocol-sample": {
+      "statement": "Protocol is described as the HTTP protocol, and the example record has Protocol HTTPS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "browser-access-log-fields.json",
+          "quotes": [
+            "| Protocol | The HTTP protocol",
+            "\"Protocol\":\"HTTPS\""
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/browser-access-log#Protocol"
+      ]
+    },
+    "cors-values-unlabeled": {
+      "statement": "The example record ends with two unlabeled, unquoted values, https://example.com and token_created, after ConnectionReason; the table gives CorsToken as the token from the CORS request and Origin as the Browser Access domain that led to the CORS request, and the default Browser Access JSON template ends with ConnectionReason, then Origin, then CorsToken, each labelled, which places https://example.com as Origin and token_created as CorsToken.",
+      "tier": "A",
+      "conditions": "Added the default template's field order and labels, which identify the example's two trailing values, and a quote for the CorsToken description.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "browser-access-log-fields.json",
+          "quotes": [
+            "\"ConnectionReason\":\"\",https://example.com,token_created}",
+            "| CorsToken | The token from the CORS request",
+            "| Origin | The Browser Access domain that led to the origination of the CORS request"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "\\\"ConnectionReason\\\":%j{ConnectionReason},\\\"Origin\\\":%j{Origin},\\\"CorsToken\\\":%j{CorsToken}}"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/browser-access-log#CorsToken",
+        "zpa/browser-access-log#Origin"
+      ]
+    },
+    "clientip-fields": {
+      "statement": "The record carries ClientPublicIp (public IP of the user's device), ClientPublicPort (source port used by the user's device) and ClientPrivateIp (private IP of the user's device), with XFF as the X-Forwarded-For HTTP header; the example has an empty XFF.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "browser-access-log-fields.json",
+          "quotes": [
+            "| ClientPublicPort | The source port used by the user's device",
+            "\"XFF\":\"\",\"NameID\":\"admin@zdemo.net\""
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/browser-access-log#ClientPublicIp",
+        "zpa/browser-access-log#ClientPublicPort",
+        "zpa/browser-access-log#XFF",
+        "zpa/browser-access-log#NameID"
+      ]
+    }
+  },
+  "gaps": {
+    "connection-status-values": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "ConnectionStatus and ConnectionReason value sets for Browser Access",
+      "blocks": "routing SIEM rules on Browser Access failure types",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement (ledger log-20): ConnectionStatus has values such as SUCCESS and FAILED and ConnectionReason carries an internal reason code when a connection fails or is blocked. The captures give neither field a value list and the only example has both empty (status-reason-empty-sample), so SUCCESS and FAILED are not sourced. Whether a rule can separate authentication failure, backend unreachable and policy block from these fields is unknown.",
+      "former_ids": [
+        "log-20"
+      ]
+    },
+    "record-granularity": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether a Browser Access record is one HTTP request and response",
+      "blocks": "counting requests or transactions from Browser Access records",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: one record is generated per HTTP request/response cycle, it is an HTTP-layer record rather than a TCP-connection record, and the log is emitted for every HTTP/HTTPS transaction handled by the Browser Access service. The capture says the log type carries 'HTTP log information related to Browser Access' (held in zpa.browser-access.logs) and has per-request timing and a ConnectionID, not how records map to requests."
+    },
+    "latency-attribution": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Reading TotalTimeConnectionSetup as proxy overhead and TotalTimeServerResponse as backend latency",
+      "blocks": "attributing slowness to the backend or to the Private Access path",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: TotalTimeConnectionSetup is ZPA proxy overhead and backend connection setup, TotalTimeServerResponse is pure backend time to first byte, and a high server response with low connection setup means the backend is the bottleneck. The definitions are held in phase-time-definitions; the captures do not attribute either interval to the proxy or the backend beyond 'as seen by the Browser Access service'."
+    },
+    "cors-presence": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "When CorsToken and Origin appear in Browser Access records",
+      "blocks": "parsing Browser Access records that are not CORS requests",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "detail": "Unverified legacy statement: CorsToken and Origin are only present for CORS requests (and CorsToken is the token from a CORS preflight request). The table describes them as the token and domain of the CORS request and gives them only the %s specifier; the example record shows them unlabeled (cors-values-unlabeled)."
+    },
+    "size-measurement": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Where RequestSize and ResponseSize are measured and how compression is counted",
+      "blocks": "comparing Browser Access sizes with other byte counts",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: RequestSize and ResponseSize, like the User Activity byte counters (zpa.logs.user-activity, byte-counter-reset) and the ZIA web-log byte counters, have an unstated measurement point, decryption perspective and compression handling. The captures describe them as the size of the HTTP request and response."
+    },
+    "identity-vs-activity": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether NameID and the User Activity Username identify the same user",
+      "blocks": "correlating Browser Access sessions with ZCC-based User Activity records",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "detail": "Unverified legacy statement: Browser Access logs identify users by SAML NameID rather than the ZCC-authenticated Username used in User Activity. The NameID description is held in zpa.browser-access.logs (http-log-and-nameid); the Browser Access field table has no Username field, and no capture relates NameID to Username values."
+    }
+  },
+  "divergences": {
+    "timestamp-format": {
+      "summary": "Browser Access timestamps described in microseconds versus shown as ISO 8601 strings",
+      "positions": [
+        {
+          "says": "The Timestamp* fields are described as timestamps in microseconds.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "browser-access-log-fields.json",
+            "quotes": [
+              "| TimestampRequestReceiveStart | The timestamp in microseconds when the Browser Access service receives the first byte of the HTTP request from web browser"
+            ]
+          }
+        },
+        {
+          "says": "The example shows them as ISO 8601 strings with millisecond precision.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "browser-access-log-fields.json",
+            "quotes": [
+              "\"TimestampRequestReceiveStart\":\"2019-07-03T05:12:25.723Z\""
+            ]
+          }
+        },
+        {
+          "says": "The default Browser Access template writes the Timestamp* fields with the :iso8601 modifier ([[zpa/browser-access-log]]).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "quotes": [
+              "%s{TimestampRequestReceiveStart:iso8601},%s{TimestampRequestReceiveHeaderFinish:iso8601}"
+            ]
+          }
+        },
+        {
+          "says": "The content-format article shows the :iso8601 modifier rendering a timestamp field as an ISO 8601 string: %s{startrx_us:iso8601} appears as 2017-09-05T09:44:06.363Z.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-log-stream-content-format.json",
+            "quotes": [
+              "and time is %s{startrx_us:iso8601} would appear as User is john.doe, and time is 2017-09-05T09:44:06.363Z"
+            ]
+          }
+        }
+      ],
+      "impact": "The default template renders the Timestamp* fields with :iso8601, so a default-format record carries ISO 8601 strings, as the example shows. A custom template that writes them without :iso8601 may produce another form; read the format from the receiver's template rather than assuming microsecond integers."
+    }
+  }
+}

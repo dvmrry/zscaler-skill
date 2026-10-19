@@ -1,0 +1,439 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.pagination",
+  "title": "ZPA list pagination, search syntax and client-side filtering",
+  "aliases": [
+    "zpa page size 20 max 500",
+    "pagesize",
+    "has_next next",
+    "resp.search JMESPath",
+    "name+EQ+",
+    "_post_search_all_pages",
+    "CommonFilterSearch",
+    "zpa mcp page_size",
+    "only first 20 rules",
+    "fieldName operator fieldValue",
+    "ZPA page size 500",
+    "default page size 20",
+    "name lookup first two words",
+    "RemoveCloudSuffix regex",
+    "partial search retry",
+    "mcp page_size",
+    "zpa list returns only 20 rules",
+    "page_size pagesize spelling",
+    "mcp list tools pagination zpa",
+    "python sdk pagesize wire key"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.rate-limits"
+    },
+    {
+      "rel": "depends-on",
+      "to": "shared.sdk-go.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-selection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZPA list calls return one page of 20 rows unless the caller asks for more, up to 500. The Python client's paging is in [[zpa.sdk-python.pagination]], and the Go paging-envelope defects are in [[shared.sdk-go.list-pagination]]."
+    },
+    {
+      "label": "Page parameters.",
+      "text": "{{page-defaults}} The SCIM and receiver lists state the same limits: [[zpa.scim.api-surface:paging]] and [[zpa.log-receivers.api:list-pagination]]."
+    },
+    {
+      "label": "Search strings.",
+      "text": "{{search-format}} The Python client's rewrite is in [[zpa.sdk-python.pagination:search-name-wrap]]. How the Go list helper rewrites and encodes the string is in [[zpa.sdk-go.service-defects:search-sanitizer-strips-name-characters]]."
+    },
+    {
+      "label": "Go list helpers.",
+      "text": "{{go-requests-500-per-page}} {{partial-search-first-two-words}} {{python-search-no-retry}} {{remove-cloud-suffix-whitespace}} The effect on posture profile and trusted network lookups is in [[zpa.posture-profiles.object-model]] and [[zpa.trusted-networks.object]]. The name sanitizer and the microtenant-name resolver are in [[zpa.sdk-go.service-defects]] and [[zpa.terraform.data-source-selection]]."
+    },
+    {
+      "label": "MCP server.",
+      "text": "{{mcp-passthrough}} {{mcp-manual-pages}} {{mcp-list-tools-same-inputs}} {{mcp-tool-sweep}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a list that looks truncated at 20 rows was read with a page size, or only the first page.",
+      "uses": [
+        "page-defaults",
+        "zia.sdk-python.pagination:first-page-only",
+        "mcp-manual-pages"
+      ]
+    },
+    {
+      "do": "Whether a search string is a plain name, which the SDK converts to a name equality filter, or a full field operator value expression.",
+      "uses": [
+        "search-format"
+      ]
+    },
+    {
+      "do": "Whether a client-side filter ran over one page or the whole list.",
+      "uses": [
+        "zia.sdk-python.response-shape:search-current-page"
+      ]
+    },
+    {
+      "do": "Whether a lookup result came from the full name or from the two-word retry, when a multi-word name search errored first.",
+      "uses": [
+        "partial-search-first-two-words"
+      ]
+    },
+    {
+      "do": "Whether a name ending in a parenthesised token was compared with that token removed.",
+      "uses": [
+        "remove-cloud-suffix-whitespace"
+      ]
+    },
+    {
+      "do": "Whether a request count for a list lookup should be estimated at 500 items per page.",
+      "uses": [
+        "go-requests-500-per-page"
+      ]
+    },
+    {
+      "do": "When an MCP list returns about 20 rows for a tenant with more, check whether `page` and `page_size` were passed.",
+      "uses": [
+        "mcp-manual-pages",
+        "mcp-passthrough",
+        "zpa.api.pagination:page-defaults"
+      ]
+    }
+  ],
+  "claims": {
+    "page-defaults": {
+      "statement": "ZPA list operations take page and pagesize query parameters; the default page size is 20 and the maximum 500, as the OpenAPI document and the Python SDK README both state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1policySet~1rules~1policyType~1{policyType}/get/parameters/[name=pagesize]",
+          "expect": {
+            "in": "query",
+            "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500."
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "| ZPA     | 20                    | 500           | Uses `page`, `pagesize`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants/get/parameters/[name=pagesize]",
+          "expect": {
+            "name": "pagesize",
+            "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500."
+          }
+        }
+      ]
+    },
+    "search-format": {
+      "statement": "ZPA search strings follow the format fieldName operator fieldValue, and the Python SDK converts a plain name into name+EQ+<name>.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "Search strings must follow the format: `fieldName operator fieldValue`.",
+            "The SDK automatically converts it to the `name+EQ+<search_string>` format for exact name matching"
+          ]
+        }
+      ]
+    },
+    "mcp-passthrough": {
+      "statement": "The MCP policy-rule list helper takes an optional page of at least 1 and passes search, page and page_size to a single SDK request, with page and page_size converted to strings, and leaves out any value the caller did not set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/_policy_common.py",
+          "quotes": [
+            "page: Annotated[Optional[int], Field(default=None, ge=1, description=\"Page number.\")] = None"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/_policy_common.py",
+          "quotes": [
+            "if args.page is not None:",
+            "qp[\"page\"] = str(args.page)",
+            "qp[\"page_size\"] = str(args.page_size)"
+          ],
+          "after": "def list_rules(policy_type: str, args: ListRulesInput)"
+        },
+        {
+          "source": "mcp-server",
+          "path": "tests/test_zpa_policy_pagination.py",
+          "quotes": [
+            "def test_omitted_params_are_not_sent():"
+          ]
+        }
+      ],
+      "conditions": "Absorbed the unique part of the former mcp-policy-list-inputs (the page bound and the string forwarding of page); its other clauses restated mcp-manual-pages."
+    },
+    "mcp-manual-pages": {
+      "statement": "MCP policy-rule lists are manual pages: the SDK does not auto-page, without page and page_size only the first 20 rules are returned, and page_size above 500 or page below 1 is rejected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/_policy_common.py",
+          "quotes": [
+            "The endpoint paginates (default 20 rows, max 500) and the SDK does not",
+            "`page`/`page_size` only the first 20 rules are returned."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "tests/test_zpa_policy_pagination.py",
+          "quotes": [
+            "ListRulesInput(page_size=501)",
+            "ListRulesInput(page=0)"
+          ]
+        }
+      ]
+    },
+    "mcp-tool-sweep": {
+      "statement": "The MCP regression test requires page and page_size on the five policy-rule list tools and on eleven further ZPA list tools (BA certificates, PRA credentials and portals, provisioning keys, SAML and SCIM attributes, SCIM groups, AppProtection, posture, trusted network and enrollment certificate reads), and excludes the LSS catalogs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "tests/test_zpa_policy_pagination.py",
+          "quotes": [
+            "def test_every_policy_family_advertises_pagination():",
+            "def test_every_other_paginated_zpa_list_tool_advertises_pagination():",
+            "Deliberately absent: the LSS catalogs (static, the API does not paginate),",
+            "\"zpa_list_ba_certificates\",",
+            "\"get_zpa_trusted_network\","
+          ]
+        }
+      ]
+    },
+    "go-requests-500-per-page": {
+      "statement": "The Go ZPA list helpers request every page with a page size of 500, the API's documented maximum, whereas the API's default page size when none is sent is 20. A Go caller therefore never sees the default page size, and a posture profile or trusted network lookup by UDID or network id pages through the whole tenant list at 500 per request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "DefaultPageSize = 500"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "totalPages, result, resp, err := getAllPagesGeneric[T](ctx, client, relativeURL, 1, DefaultPageSize, Filter{Search: searchQuery})"
+          ],
+          "after": "func GetAllPagesGeneric[T any]("
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1posture/get/parameters/[name=pagesize]",
+          "expect": {
+            "allowEmptyValue": true,
+            "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500.",
+            "example": "20",
+            "explode": false,
+            "in": "query",
+            "name": "pagesize",
+            "required": false,
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/postureprofile/zpa_posture_profile.go",
+          "quotes": [
+            "list, resp, err := common.GetAllPagesGeneric[PostureProfile](ctx, service.Client, relativeURL, \"\")"
+          ],
+          "after": "func GetByPostureUDID("
+        }
+      ]
+    },
+    "partial-search-first-two-words": {
+      "statement": "When the first list request with a multi-word search returns any error, GetAllPagesGenericWithCustomFilters retries once with only the first two words of the search value, and the retry's result and error replace the first attempt's. A name lookup can therefore succeed on a shortened search after the full-name search failed, with the first error discarded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "if err != nil && strings.Count(filters.Search, \" \") > 0 {",
+            "// Use only the first two words for partial search",
+            "partialValue := strings.Join(tokens[:2], \" \")",
+            "totalPages, result, resp, err = getAllPagesGenericWithCustomFilters[T](ctx, client, relativeURL, 1, DefaultPageSize, filters)"
+          ],
+          "after": "// Attempt full search first."
+        }
+      ],
+      "conditions": "The retry is made for any error from the first request, not only a not-found or search error. Which ZPA responses reject a multi-word search is not established."
+    },
+    "python-search-no-retry": {
+      "statement": "The Python SDK has no such retry: list_machine_groups, for example, sends one request with the caller's query parameters and returns the executor's error to the caller.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/machine_groups.py",
+          "quotes": [
+            "request, error = self._request_executor.create_request(http_method, api_url, params=query_params)",
+            "response, error = self._request_executor.execute(request, MachineGroup)",
+            "return (None, response, error)"
+          ],
+          "after": "def list_machine_groups(self, query_params: Optional[dict] = None)"
+        }
+      ],
+      "conditions": "Added for the legacy multi-word search heading's Python half. That no ZPA module in the Python SDK retries with a shortened search is read from a search of zscaler/zpa at v1.11.2 (no partial-search code), not quoted."
+    },
+    "remove-cloud-suffix-whitespace": {
+      "statement": "RemoveCloudSuffix drops a trailing parenthesised token of letters, digits, hyphen, underscore and dot when it is preceded by one or more whitespace characters of any kind (tab included) and followed by optional whitespace, then trims only literal spaces from the result.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "reg := regexp.MustCompile(`(.*)[\\s]+\\([a-zA-Z0-9\\-_\\.]*\\)[\\s]*$`)",
+            "return strings.Trim(res, \" \")"
+          ],
+          "after": "func RemoveCloudSuffix(str string) string {"
+        }
+      ],
+      "conditions": "A name that ends in a parenthesised token for another reason, such as (prod), loses it as well, since the pattern does not check for a cloud domain."
+    },
+    "mcp-list-tools-same-inputs": {
+      "statement": "The MCP list tools for BA certificates, AppProtection profiles, enrollment certificates, posture profiles, SAML attributes, SCIM attributes, SCIM groups, trusted networks, PRA credentials, PRA portals and provisioning keys each declare `page` and `page_size` with the same bounds (1 to 500, API default 20) and forward `page_size` to the SDK as a string.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/ba_certificate.py",
+          "quotes": [
+            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "qp[\"page_size\"] = str(args.page_size)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/get_app_protection_profile.py",
+          "quotes": [
+            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "qp[\"page_size\"] = str(args.page_size)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/get_enrollment_certificate.py",
+          "quotes": [
+            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "qp[\"page_size\"] = str(args.page_size)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/get_posture_profiles.py",
+          "quotes": [
+            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "qp[\"page_size\"] = str(args.page_size)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/get_saml_attributes.py",
+          "quotes": [
+            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "qp[\"page_size\"] = str(args.page_size)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/get_scim_attributes.py",
+          "quotes": [
+            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "qp[\"page_size\"] = str(args.page_size)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/get_scim_groups.py",
+          "quotes": [
+            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "qp[\"page_size\"] = str(args.page_size)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/get_trusted_networks.py",
+          "quotes": [
+            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "qp[\"page_size\"] = str(args.page_size)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/pra_credential.py",
+          "quotes": [
+            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "qp[\"page_size\"] = str(args.page_size)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/pra_portal.py",
+          "quotes": [
+            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "qp[\"page_size\"] = str(args.page_size)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/provisioning_key.py",
+          "quotes": [
+            "ge=1, le=500, description=\"Items per page (API default 20, max 500).\"",
+            "qp[\"page_size\"] = str(args.page_size)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/provisioning_key.py",
+          "quotes": [
+            "Field(default=None, ge=1, le=500, description=\"Items per page (API default 20, max 500).\")",
+            "qp[\"page_size\"] = str(args.page_size)"
+          ]
+        }
+      ]
+    }
+  }
+}

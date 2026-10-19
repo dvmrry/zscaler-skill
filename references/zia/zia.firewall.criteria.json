@@ -259,8 +259,8 @@
     "eun-template-plan-diff": {
       "kind": "semantic",
       "title": "Plan diff on eun_template_id when the attribute is omitted",
-      "status": "open",
-      "detail": "Upstream issue zscaler/terraform-provider-zia#605 reports that omitting `eun_template_id` shows a plan diff from 14 to null, and that apply leaves the tenant value at 14. It is operator-reported and has not been reproduced here. The issue is not a registered source, so no evidence is attached. The provider and SDK chain is described in the Terraform data-source and field-fidelity subjects.",
+      "status": "partial",
+      "detail": "Upstream issue zscaler/terraform-provider-zia#605 reports that omitting `eun_template_id` shows a plan diff from 14 to null, and that apply leaves the tenant value at 14. It is operator-reported and has not been reproduced here. The issue is not a registered source, so no evidence is attached. The provider and SDK chain is described in the Terraform data-source and field-fidelity subjects. From provider v4.8.10 `eun_template_id` is Computed, with a code comment that the API assigns its default EUN template to every rule when none is set; a Computed attribute omitted from HCL keeps the API's value, so the reported diff should not recur. The behavior before v4.8.10 remains unreproduced.",
       "blocks": "advising whether omitting EUN attributes is safe",
       "resolves_with": [
         "lab-test",
@@ -268,6 +268,19 @@
       ],
       "about": [
         "zia/firewall-filtering-rules#eunTemplateId"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "// Computed: the API assigns its default EUN template to every rule"
+          ],
+          "at": [
+            "v4.8.10",
+            "HEAD"
+          ]
+        }
       ]
     },
     "endpoint-app-semantics": {

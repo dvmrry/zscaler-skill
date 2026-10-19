@@ -22,17 +22,8 @@ class AnchorCase:
 
 # references/zia/dlp.md and content-inspection-extras.md were converted to the knowledge graph; their
 # API facts are now cited by keyed pointer (zia.dlp.rule-wire-shape, zia.file-type-control.api-shape) and
-# checked by `node scripts/kb.mjs validate`.
+# checked by `node scripts/kb.mjs validate`. references/zpa/api-divergences.md went the same way (zpa.api.*).
 CASES = [
-    AnchorCase(
-        "references/zpa/api-divergences.md",
-        "Use the rosetta table as the field-level index",
-        "vendor/zscaler-api-specs/automate-zscaler/rosetta.md:2203-2211",
-        "vendor/zscaler-api-specs/automate-zscaler/rosetta.md",
-        2203,
-        2211,
-        ("### `app_connector_group`", "GET /zpa/mgmtconfig", "connectorGroupType"),
-    ),
     AnchorCase(
         "references/zscaler-cellular/api.md",
         'The rosetta synthesis records ZCell as "Contract captured"',
@@ -59,15 +50,6 @@ CASES = [
         185,
         187,
         ("## Boundaries", "Postman", "reference-only"),
-    ),
-    AnchorCase(
-        "references/zpa/api-divergences.md",
-        "The Rosetta field table currently records only cross-surface presence",
-        "vendor/zscaler-api-specs/automate-zscaler/rosetta.md:2274",
-        "vendor/zscaler-api-specs/automate-zscaler/rosetta.md",
-        2274,
-        2274,
-        ("bypassOnReauth",),
     ),
     AnchorCase(
         "references/shared/oneapi.md",

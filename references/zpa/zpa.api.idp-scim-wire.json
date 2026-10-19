@@ -1,0 +1,648 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.idp-scim-wire",
+  "title": "IdP, SCIM and SAML attribute API: wire keys, types and the Go SCIM client",
+  "aliases": [
+    "useCustomSPMetadata",
+    "autoProvision string",
+    "ssoType USER ADMIN",
+    "SCIM base url cloud",
+    "application/scim+json",
+    "scim user active false",
+    "scim attribute header delta",
+    "sortOrder DSC"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.saml-attributes.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Wire details of the IdP, SAML attribute and SCIM objects and the Go SCIM protocol client. Endpoint lists and model fields are in [[zpa.scim.api-surface]] and [[zpa.saml-attributes.api-surface]]; the SearchValues domain stripping and the page-advance defects are in [[zpa.scim.api-surface]] and [[shared.sdk-go.list-pagination]]."
+    },
+    {
+      "heading": "IdP"
+    },
+    {
+      "text": "{{idp-v1-get-v2-list}} {{idp-use-custom-sp-metadata-key}} {{idp-domainlist-key-and-synthetic-domains}}"
+    },
+    {
+      "text": "{{divergence:idp-numeric-fields-string-or-integer}} {{idp-sso-type-observed-values}} Whether SCIM reads depend on a USER IdP is open {{gap:scim-needs-user-sso-type}}."
+    },
+    {
+      "text": "{{idp-metadata-serialization}} {{idp-fields-python-and-api-only}}"
+    },
+    {
+      "heading": "SCIM and SAML attributes"
+    },
+    {
+      "text": "{{scim-group-sort-order-dsc}} {{scim-group-list-envelope}} {{scim-attribute-header-creation-time-tag}} {{scim-attribute-header-delta}} {{saml-attribute-by-name-exact}}"
+    },
+    {
+      "heading": "Go SCIM protocol client"
+    },
+    {
+      "text": "{{scim-config-singleton}} {{scim-cloud-base-urls}} {{scim-requests-use-scim-json}}"
+    },
+    {
+      "text": "{{scim-helper-page-limits}} {{scim-user-lookup-by-display-name}} {{scim-user-active-omitempty}}"
+    },
+    {
+      "text": "The Go IdpName, IamIdpID and IamIdpName fields have no counterpart in the contract's SCIM group or the recorded response: {{scim-group-idpname}}"
+    },
+    {
+      "text": "Listing a SCIM group set by IdP returns every group and leaves name filtering to the caller: {{scim-get-all-by-idp-no-search}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an IdP number field was decoded as a string, as the recordings and the Go SDK do.",
+      "uses": [
+        "idp-numeric-fields-string-or-integer"
+      ]
+    },
+    {
+      "do": "Whether a Go IdP read lacks delta, iamIdpId, migrationDetail, oneIdentityEnabled or certificates because the struct drops them.",
+      "uses": [
+        "idp-fields-python-and-api-only"
+      ]
+    },
+    {
+      "do": "Whether a SCIM user was looked up by display name rather than login name.",
+      "uses": [
+        "scim-user-lookup-by-display-name"
+      ]
+    },
+    {
+      "do": "Which SCIM cloud and IdP ID the process-wide configuration was built with.",
+      "uses": [
+        "scim-config-singleton",
+        "scim-cloud-base-urls"
+      ]
+    },
+    {
+      "do": "Whether a SCIM user deactivation through the Go SDK sent active at all.",
+      "uses": [
+        "scim-user-active-omitempty"
+      ]
+    }
+  ],
+  "claims": {
+    "idp-use-custom-sp-metadata-key": {
+      "statement": "The IdP key for custom SP metadata is `useCustomSPMetadata` with SP fully uppercased, in the Go struct tag, the Python model and the OpenAPI schema.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/idpcontroller/zpa_idp_controller.go",
+          "quotes": [
+            "UseCustomSpMetadata         bool           `json:\"useCustomSPMetadata\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/idp.py",
+          "quotes": [
+            "\"useCustomSPMetadata\": self.use_custom_sp_metadata,"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}/get/responses/200/content/*~1*/schema/properties/useCustomSPMetadata",
+          "expect": {
+            "type": "boolean"
+          }
+        }
+      ]
+    },
+    "idp-v1-get-v2-list": {
+      "statement": "The Go IdP service reads a single IdP from the mgmtconfig v1 path and lists IdPs, and resolves them by name, from the v2 path; the OpenAPI document lists the same split.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/idpcontroller/zpa_idp_controller.go",
+          "quotes": [
+            "relativeURL := fmt.Sprintf(\"%s/%s\", mgmtConfigV1+service.Client.GetCustomerID()+idpControllerEndpoint, IdpID)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/idpcontroller/zpa_idp_controller.go",
+          "quotes": [
+            "relativeURL := fmt.Sprintf(\"%s%s%s\", mgmtConfigV2, service.Client.GetCustomerID(), idpControllerEndpoint)"
+          ],
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, idpName string)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/idpcontroller/zpa_idp_controller.go",
+          "quotes": [
+            "if idpController.Name == idpName {"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}/get",
+          "expect": {
+            "operationId": "Gets details of the Id P for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1idp/get",
+          "expect": {
+            "operationId": "Get All Idp"
+          }
+        }
+      ],
+      "conditions": "The by-name lookup compares with ==, so it is case-sensitive."
+    },
+    "idp-domainlist-key-and-synthetic-domains": {
+      "statement": "The IdP domain list key is `domainList`, although the Go field is named Domainlist; a recorded response for an ADMIN-type IdP lists domains ending in .zslogin.net and .zpa-customer.com next to the customer's own domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/idpcontroller/zpa_idp_controller.go",
+          "quotes": [
+            "Domainlist                  []string       `json:\"domainList,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/idp.py",
+          "quotes": [
+            "\"domainList\": self.domain_list,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zpa/cassettes/TestScimGroups.yaml",
+          "quotes": [
+            "\"ssoType\":[\"ADMIN\"],\"domainList\":[\"securitygeek.io\",\"securitygeekio.zslogin.net\",\"216196257331281920.zpa-customer.com\"]"
+          ]
+        }
+      ],
+      "conditions": "The recording is one test tenant; that every ZIdentity-backed IdP carries such domains is not shown."
+    },
+    "idp-sso-type-observed-values": {
+      "statement": "Recorded IdP responses carry ssoType [\"USER\"] for an IdP used for user authentication and [\"ADMIN\"] for an IdP used for administrator login; the OpenAPI schema types ssoType as an array of strings with no enum.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zpa/cassettes/TestScimGroups.yaml",
+          "quotes": [
+            "\"ssoType\":[\"USER\"]",
+            "\"ssoType\":[\"ADMIN\"]"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}/get/responses/200/content/*~1*/schema/properties/ssoType",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ],
+      "conditions": "Only these two values appear in the recording; no source lists the complete set."
+    },
+    "idp-metadata-serialization": {
+      "statement": "In the Go IdP structs every AdminMetadata field is serialized without omitempty, while in UserMetadata only spBaseUrl is, and the Python ServiceProvider model defaults spEntityId, spMetadataUrl and spPostUrl to boolean False when the key is absent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/idpcontroller/zpa_idp_controller.go",
+          "quotes": [
+            "SpBaseURL      string `json:\"spBaseUrl\"`",
+            "SpPostURL      string `json:\"spPostUrl\"`"
+          ],
+          "after": "type AdminMetadata struct"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/idpcontroller/zpa_idp_controller.go",
+          "quotes": [
+            "SpBaseURL      string `json:\"spBaseUrl\"`",
+            "SpEntityID     string `json:\"spEntityId,omitempty\"`",
+            "SpPostURL      string `json:\"spPostUrl,omitempty\"`"
+          ],
+          "after": "type UserMetadata struct"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/idp.py",
+          "quotes": [
+            "self.sp_entity_id = config[\"spEntityId\"] if \"spEntityId\" in config else False",
+            "self.sp_post_url = config[\"spPostUrl\"] if \"spPostUrl\" in config else False"
+          ]
+        }
+      ]
+    },
+    "idp-fields-python-and-api-only": {
+      "statement": "The Python IDPController model and the OpenAPI IdP schema carry delta, iamIdpId, migrationDetail, oneIdentityEnabled and certificates; the Go IdpController struct has none of them, so a Go read drops them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/idp.py",
+          "quotes": [
+            "self.delta = config[\"delta\"] if \"delta\" in config else None",
+            "self.iam_idp_id = config[\"iamIdpId\"] if \"iamIdpId\" in config else None",
+            "self.migration_detail = config[\"migrationDetail\"] if \"migrationDetail\" in config else None",
+            "self.one_identity_enabled = config[\"oneIdentityEnabled\"] if \"oneIdentityEnabled\" in config else None"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}/get/responses/200/content/*~1*/schema/properties/delta",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}/get/responses/200/content/*~1*/schema/properties/oneIdentityEnabled",
+          "expect": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "conditions": "The absence of these members from the Go struct was read from the whole struct definition."
+    },
+    "scim-group-sort-order-dsc": {
+      "statement": "The SCIM group list takes sortOrder ASC or DSC (not DESC) and defaults to DSC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/parameters/[name=sortOrder]",
+          "expect": {
+            "description": "Sort the last updated time (modified_time) by ascending (ASC) or descending (DSC) order."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/parameters/[name=sortOrder]/schema",
+          "expect": {
+            "default": "DSC"
+          }
+        }
+      ]
+    },
+    "scim-attribute-header-creation-time-tag": {
+      "statement": "The Go ScimAttributeHeader struct tags creationTime as `creationTime,omitempty,` with a trailing comma.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimattributeheader/zpa_scim_attribute_header.go",
+          "quotes": [
+            "CreationTime    string   `json:\"creationTime,omitempty,\"`"
+          ]
+        }
+      ],
+      "conditions": "Go's encoding/json reads the stray comma as an empty extra option, so the key is still creationTime."
+    },
+    "scim-attribute-header-delta": {
+      "statement": "The Python SCIMAttributeHeader model and the OpenAPI schema carry a delta field; the Go ScimAttributeHeader struct has none.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/scim_attributes.py",
+          "quotes": [
+            "self.delta = config[\"delta\"] if \"delta\" in config else None"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}~1scimattribute~1{scimAttributeId}/get/responses/200/content/*~1*/schema/properties/delta",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimattributeheader/zpa_scim_attribute_header.go",
+          "quotes": [
+            "Uniqueness      bool     `json:\"uniqueness,omitempty\"`"
+          ],
+          "after": "type ScimAttributeHeader struct"
+        }
+      ],
+      "conditions": "The Go statement rests on the struct ending at uniqueness with no delta member."
+    },
+    "saml-attribute-by-name-exact": {
+      "statement": "The Go SAML attribute GetByName compares names with ==, so it is case-sensitive, unlike the SCIM attribute header lookup, which uses strings.EqualFold.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/samlattribute/zpa_saml_attribute.go",
+          "quotes": [
+            "if samlAttribute.Name == samlAttrName {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimattributeheader/zpa_scim_attribute_header.go",
+          "quotes": [
+            "if strings.EqualFold(scimAttribute.Name, scimAttributeName) {"
+          ]
+        }
+      ]
+    },
+    "scim-user-active-omitempty": {
+      "statement": "The Go ScimUser tags active with omitempty and UpdateUser sends the struct in a PUT, so an update that sets Active false sends no active member.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scim_api/scim_user_api.go",
+          "quotes": [
+            "Active       bool   `json:\"active,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scim_api/scim_user_api.go",
+          "quotes": [
+            "resp, err := service.Client.DoRequest(ctx, http.MethodPut, relativeURL, scimUser, nil)"
+          ],
+          "after": "func UpdateUser("
+        }
+      ],
+      "conditions": "Whether the SCIM server then leaves the user active is not shown; it depends on how it treats a PUT that omits active."
+    },
+    "scim-user-lookup-by-display-name": {
+      "statement": "The Go GetUserByName takes a userName argument but matches it against DisplayName, so a user whose display name differs from the login name is not found by login name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scim_api/scim_user_api.go",
+          "quotes": [
+            "return strings.EqualFold(group.DisplayName, userName)"
+          ]
+        }
+      ]
+    },
+    "scim-config-singleton": {
+      "statement": "The Go SCIM configuration is built once per process inside a sync.Once and every later NewScimConfig call returns that same configuration, so one process targets one IdP ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/config_scim.go",
+          "quotes": [
+            "var globalScimConfig *ScimConfiguration",
+            "var scimConfigOnce sync.Once",
+            "scimConfigOnce.Do(func() {",
+            "return globalScimConfig, nil"
+          ]
+        }
+      ]
+    },
+    "scim-helper-page-limits": {
+      "statement": "The Go SCIM list helper uses itemsPerPage 10 when the input is not positive and caps it at 100, sends one-based startIndex and count, and reads the envelope members Resources and totalResults. The management API list calls use page and pagesize instead, so these limits belong to this helper.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "itemsPerPage = 10 // Default to 10 if not specified",
+            "itemsPerPage = 100 // Enforce maximum limit of 100",
+            "paginatedURL := fmt.Sprintf(\"%s?startIndex=%d&count=%d\", baseURL, startIndex, itemsPerPage)",
+            "TotalResults int `json:\"totalResults\"`"
+          ],
+          "after": "func GetAllPagesScimGenericWithSearch"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1idp/get/parameters/[name=pagesize]",
+          "expect": {
+            "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500."
+          }
+        }
+      ],
+      "conditions": "How the helper advances pages and when it stops is in shared.sdk-go.list-pagination."
+    },
+    "scim-group-list-envelope": {
+      "statement": "In the OpenAPI document the SCIM group list by IdP (/userconfig/v1/.../scimgroup/idpId/{idpId}) returns list, totalCount and totalPages with no currentCount, while the mgmtconfig SAML attribute and SCIM attribute lists also carry currentCount.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/responses/200/content/*~1*/schema/properties/totalCount",
+          "expect": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1samlAttribute/get/responses/200/content/*~1*/schema/properties/currentCount",
+          "expect": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}~1scimattribute/get/responses/200/content/*~1*/schema/properties/currentCount",
+          "expect": {
+            "format": "int64",
+            "type": "integer"
+          }
+        }
+      ],
+      "conditions": "Added for a legacy statement that the scimgroup list omits currentCount; the contract places that list under userconfig, not mgmtconfig. The absence of currentCount is read from the response's whole property set (list, totalCount, totalPages)."
+    },
+    "scim-requests-use-scim-json": {
+      "statement": "The Go SCIM client always sends Content-Type application/scim+json and a bearer token, a different client from the one that sends application/json to the ZPA management API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/config_scim.go",
+          "quotes": [
+            "req.Header.Add(\"Content-Type\", \"application/scim+json\")",
+            "req.Header.Add(\"Authorization\", fmt.Sprintf(\"Bearer %s\", c.ScimConfig.AuthToken))"
+          ]
+        }
+      ]
+    },
+    "scim-cloud-base-urls": {
+      "statement": "The Go SCIM client maps the cloud name to a base URL: PRODUCTION (the default) scim1.private.zscaler.com, BETA scim1.zpabeta.net, ZPATWO scim1.zpatwo.net, GOV scim1.zpagov.net, GOVUS scim1.zpagov.us and PREVIEW scim1.zpapreview.net, each under /scim/1/ followed by the IdP ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/config_scim.go",
+          "quotes": [
+            "scimdefaultBaseURL = \"https://scim1.private.zscaler.com/scim/1/\"",
+            "scimbetaBaseURL    = \"https://scim1.zpabeta.net/scim/1/\"",
+            "scimzpaTwoBaseUrl  = \"https://scim1.zpatwo.net/scim/1/\"",
+            "scimgovBaseURL     = \"https://scim1.zpagov.net/scim/1/\"",
+            "scimgovUsBaseURL   = \"https://scim1.zpagov.us/scim/1/\"",
+            "scimpreviewBaseUrl = \"https://scim1.zpapreview.net/scim/1/\"",
+            "fullURL := fmt.Sprintf(\"%s%s/\", baseURL, globalScimConfig.ZPAScim.Client.ZPAIdPID)"
+          ]
+        }
+      ]
+    },
+    "scim-group-idpname": {
+      "statement": "The Go ScimGroup struct has an `idpName` field, while the OpenAPI SCIM group response lists creationTime, id, idpGroupId, idpId, internalId, modifiedTime and name, and a recorded SCIM group list in the Python integration cassette carries id, modifiedTime, creationTime, name, idpId, idpGroupId and internalId with no idpName. The Go struct also carries `iamIdpId` and `iamIdpName`, used by a `GetByNameAndIamIdp` lookup, and neither the contract's SCIM group response nor the recorded list has them.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimgroup/zpa_scim_group.go",
+          "quotes": [
+            "IdpName string `json:\"idpName,omitempty\"`",
+            "IamIdpID string `json:\"iamIdpId,omitempty\"`",
+            "IamIdpName string `json:\"iamIdpName,omitempty\"`",
+            "func GetByNameAndIamIdp(ctx context.Context, service *zscaler.Service, scimName, idpId string, criteria IamIdpCriteria) (*ScimGroup, *http.Response, error) {"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1{scimGroupId}/get/responses/200/content/*~1*/schema/properties/idpGroupId",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zpa/cassettes/TestScimGroups.yaml",
+          "quotes": [
+            "\"name\":\"marmot-conda\",\"idpId\":216196257331285825,\"idpGroupId\":null,\"internalId\":\"c547b756-9131-47a4-b35c-552f3c4500e7\""
+          ],
+          "after": "\"totalPages\":72,\"totalCount\":1424"
+        }
+      ],
+      "conditions": "Absence claim: the contract schema and the recorded list entry do not contain idpName; the Python model has no such attribute either. Extended per verifier with the iamIdpId and iamIdpName fields (in the Go SDK since v3.8.50); the contract has iamIdpId only on the IdP object, not on SCIM groups (read from the whole OpenAPI document)."
+    },
+    "scim-get-all-by-idp-no-search": {
+      "statement": "The Go `GetAllByIdpId` for SCIM groups passes only SortBy and SortOrder in its filter, while `GetByName` passes the name as Search, so listing all groups of an IdP applies no server-side name filter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimgroup/zpa_scim_group.go",
+          "quotes": [
+            "Search:    scimName,"
+          ],
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, scimName, idpId string) (*ScimGroup, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimgroup/zpa_scim_group.go",
+          "quotes": [
+            "SortBy:    string(service.SortBy),"
+          ],
+          "after": "func GetAllByIdpId(ctx context.Context, service *zscaler.Service, idpId string) ([]ScimGroup, *http.Response, error) {"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "scim-needs-user-sso-type": {
+      "kind": "semantic",
+      "title": "Whether SCIM reads need an IdP whose ssoType includes USER",
+      "status": "open",
+      "detail": "Unverified legacy statement: the legacy text says SCIM groups or SCIM attribute headers can only be retrieved after locating an IdP whose ssoType slice contains USER. That rule comes from Go integration test setup, which picks an IdP with ssoType USER before reading SCIM groups or attribute headers and fails when none exists; it is a test's choice of fixture, not a documented API rule, and no other source states it. Recorded IdPs carry USER or ADMIN. Read SCIM groups through an IdP whose ssoType is ADMIN only and record the result.",
+      "blocks": "choosing the IdP ID to pass to SCIM group and attribute calls",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimgroup/zpa_scim_group_test.go",
+          "quotes": [
+            "t.Fatalf(\"No IdP with ssoType USER found\")"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimattributeheader/zpa_scim_attribute_header_test.go",
+          "quotes": [
+            "// Find an IdP with ssoType USER",
+            "t.Fatalf(\"No IdP with ssoType USER found\")"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "idp-numeric-fields-string-or-integer": {
+      "summary": "autoProvision and signSamlRequest are integers in the OpenAPI schema but strings in the Go struct and in a recorded response.",
+      "positions": [
+        {
+          "says": "The OpenAPI schema types autoProvision (defaults to 0) and signSamlRequest (defaults to 1) as int32 integers.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}/get/responses/200/content/*~1*/schema/properties/autoProvision",
+            "expect": {
+              "description": "defaults to 0.",
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "says": "A recorded response carries autoProvision \"0\" and signSamlRequest \"1\" as strings.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/integration/zpa/cassettes/TestScimGroups.yaml",
+            "quotes": [
+              "\"autoProvision\":\"0\",\"signSamlRequest\":\"1\""
+            ]
+          }
+        },
+        {
+          "says": "The Go IdpController struct types AutoProvision and SignSamlRequest as strings.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/idpcontroller/zpa_idp_controller.go",
+            "quotes": [
+              "AutoProvision string `json:\"autoProvision,omitempty\"`",
+              "SignSamlRequest string `json:\"signSamlRequest,omitempty\"`"
+            ]
+          }
+        }
+      ],
+      "impact": "A client that decodes these two members as integers fails on the recorded wire form; the Go SDK follows the string form. Compare the type before comparing values."
+    }
+  }
+}

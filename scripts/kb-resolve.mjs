@@ -12,7 +12,7 @@ import path from "node:path";
 import { validate } from "./kb-schema.mjs";
 import { runtimeDataMountSettings } from "./lib.mjs";
 import {
-  ID, META, allEvidence, anchorEvidence, gitlink, idKind, normalizeText, qualify, resolvePointer, sha256File,
+  ID, META, allEvidence, anchorEvidence, gitlink, idKind, materialDate, normalizeText, qualify, resolvePointer, sha256File,
 } from "./kb-lib.mjs";
 
 const readJson = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
@@ -119,7 +119,13 @@ export function confidenceOf(claim) {
 function citations(g, evidence, ctx) {
   return evidence.map((ev) => {
     const r = anchorEvidence(g, ev, ctx.cache);
-    const base = { source: ev.source, path: `${g.sources.sources[ev.source]?.root}/${ev.path}`, ...(ev.at ? { at: ev.at } : {}) };
+    // The material's own date travels with every citation, so an answer can say "as of" (not "captured on").
+    ctx.dates ||= new Map();
+    const dated = materialDate(g, ev, ctx.dates);
+    const base = {
+      source: ev.source, path: `${g.sources.sources[ev.source]?.root}/${ev.path}`, ...(ev.at ? { at: ev.at } : {}),
+      ...(dated ? { as_of: dated.as_of, as_of_basis: dated.basis } : {}),
+    };
     if (ev.pointer !== undefined) return { ...base, pointer: ev.pointer };
     const cite = ctx.evidence
       ? { quotes: r.anchors.map((a) => ({ text: a.quote, line: a.line })) }
@@ -414,7 +420,10 @@ export function renderSubject(g, subjectId) {
     parts.push("## Sources", "");
     order.forEach((c, i) => {
       const claim = s.claims[c];
-      const cites = (claim.evidence || []).map((ev) => citeLine(g, ev, cache));
+      const cites = (claim.evidence || []).map((ev) => {
+        const dated = materialDate(g, ev, cache);
+        return citeLine(g, ev, cache) + (dated ? `, as of ${dated.as_of} (${dated.basis})` : "");
+      });
       if (claim.derived_from?.length) cites.push(`derived from ${claim.derived_from.map((d) => `\`${d}\``).join(", ")}`);
       parts.push(`[^${i + 1}]: Tier ${claim.tier}. ${cites.join("; ")}`);
     });
@@ -471,7 +480,15 @@ export function updateManifest(g) {
       (doc?.kind === "help-article" ? doc.captured_at : null) ||
       head.match(/Captured:\*{0,2}\s*(\d{4}-\d{2}-\d{2})/)?.[1] ||
       gitDate(g.root, file);
-    files[file] = { captured_from: url, captured_at: captured, sha256: sha };
+    // The material date survives a refresh; a first-seen date moves to today when the content changed.
+    const material = prev?.updated
+      ? prev.updated_basis === "first-seen" && prev.sha256 !== sha
+        ? { updated: new Date().toISOString().slice(0, 10), updated_basis: "first-seen" }
+        : { updated: prev.updated, updated_basis: prev.updated_basis }
+      : doc?.source?.updated
+        ? { updated: doc.source.updated, updated_basis: doc.source.updated_basis }
+        : {};
+    files[file] = { captured_from: url, captured_at: captured, sha256: sha, ...material };
     changed++;
   }
   const sorted = Object.fromEntries(Object.entries(files).sort());

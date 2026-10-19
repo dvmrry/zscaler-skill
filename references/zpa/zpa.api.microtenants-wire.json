@@ -1,0 +1,468 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.microtenants-wire",
+  "title": "What the SDKs send and receive for ZPA Microtenants",
+  "aliases": [
+    "microtenant enabled false omitempty",
+    "microtenants search body filterGroups",
+    "microtenant update id None",
+    "domains.does.not.belong.to.customer",
+    "microtenants summary array",
+    "criteriaAttribute AuthDomain"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.api-scoping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.share-and-move"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject records what the SDKs send and receive for Microtenant objects beyond the field list: dropped zero values, response handling and the two search styles. The product behavior is in [[zpa.microtenants.lifecycle]], [[zpa.microtenants.api-scoping]] and [[zpa.microtenants.share-and-move]]."
+    },
+    {
+      "heading": "Writes and responses"
+    },
+    {
+      "text": "{{enabled-tags}} {{user-key-and-output-only}}"
+    },
+    {
+      "text": "{{update-returns-204}} {{update-rebinds-id}}"
+    },
+    {
+      "text": "{{criteria-attribute-authdomain}}"
+    },
+    {
+      "heading": "Reads and search"
+    },
+    {
+      "text": "{{summary-bare-array}} {{get-by-name-two-paths}}"
+    },
+    {
+      "text": "{{post-search-query-and-page}} The body shape differs from the specification {{divergence:search-body-shape}}, and so does the operator vocabulary {{divergence:search-operator-vocabulary}}."
+    },
+    {
+      "text": "Priority has different types in the contract and Go {{divergence:priority-type}}."
+    },
+    {
+      "text": "Whether the string form is accepted is open {{gap:priority-string-accepted}}."
+    },
+    {
+      "text": "A microtenant read through Python does not expose roles, the admin user or priority: {{python-model-attributes}}"
+    },
+    {
+      "text": "The enabled default differs between the Python docstring, the Python write path and Go {{divergence:enabled-default-sources}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a microtenant update meant to disable it was sent with enabled false, which the Go struct always includes.",
+      "uses": [
+        "enabled-tags"
+      ]
+    },
+    {
+      "do": "Whether an update through the Python SDK passed microtenant_id as a keyword argument as well as the positional id.",
+      "uses": [
+        "update-rebinds-id"
+      ]
+    },
+    {
+      "do": "Whether a failed create with an AuthDomain criterion named a domain registered to the customer.",
+      "uses": [
+        "criteria-attribute-authdomain"
+      ]
+    },
+    {
+      "do": "Whether a hand-built search body followed the specification or the Go SDK's nested shape.",
+      "uses": [
+        "search-body-shape",
+        "post-search-query-and-page"
+      ]
+    }
+  ],
+  "claims": {
+    "enabled-tags": {
+      "statement": "The Go microtenant struct sends `enabled` and `privilegedApprovalsEnabled` without omitempty, so false is always on the wire, while the embedded user's `enabled` is omitempty and a false there is dropped. The Python model leaves enabled as None when the key is absent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/microtenants/microtenants.go",
+          "quotes": [
+            "Enabled bool `json:\"enabled\"`",
+            "PrivilegedApprovalsEnabled bool `json:\"privilegedApprovalsEnabled\"`"
+          ],
+          "after": "type MicroTenant struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/microtenants/microtenants.go",
+          "quotes": [
+            "Enabled bool `json:\"enabled,omitempty\"`"
+          ],
+          "after": "type UserResource struct {"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/microtenants.py",
+          "quotes": [
+            "self.enabled = config[\"enabled\"] if config and \"enabled\" in config else None"
+          ]
+        }
+      ]
+    },
+    "user-key-and-output-only": {
+      "statement": "The Go struct holds the admin user under the JSON key `user` and the roles under `roles`, both omitempty. The specification defines both in the microtenant GET and create responses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/microtenants/microtenants.go",
+          "quotes": [
+            "Roles []Roles `json:\"roles,omitempty\"`",
+            "UserResource *UserResource `json:\"user,omitempty\"`"
+          ],
+          "after": "type MicroTenant struct {"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants~1{microtenantId}/get/responses/200/content/*~1*/schema/properties/user",
+          "expect": {
+            "title": "UserResource"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants~1{microtenantId}/get/responses/200/content/*~1*/schema/properties/roles",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ],
+      "conditions": "The create and update request schemas in the specification list neither roles nor user (checked by reading both schemas); an absence cannot be pinned by a pointer."
+    },
+    "criteria-attribute-authdomain": {
+      "statement": "The Go SDK's tests and the Python SDK's example set a microtenant's criteriaAttribute to `AuthDomain` with a domain in criteriaAttributeValues, and the Go test treats an error containing `domains.does.not.belong.to.customer` as the sign that the domain is not registered to the customer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/microtenants/microtenants_test.go",
+          "quotes": [
+            "CriteriaAttribute: \"AuthDomain\",",
+            "// Check for specific error message and continue if found",
+            "if strings.Contains(err.Error(), \"domains.does.not.belong.to.customer\") {"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/microtenants.py",
+          "quotes": [
+            "criteria_attribute=\"AuthDomain\","
+          ]
+        }
+      ],
+      "conditions": "No other criteriaAttribute value appears in the SDK sources read; whether the API accepts others is not shown, and neither SDK enforces a list."
+    },
+    "summary-bare-array": {
+      "statement": "GET /microtenants/summary returns a bare array of id and name objects rather than the usual wrapper with a list; the Python SDK returns an empty list when the body is not a list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants~1summary/get/responses/200/content/*~1*/schema",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/microtenants.py",
+          "quotes": [
+            "if isinstance(response_body, list):"
+          ]
+        }
+      ]
+    },
+    "update-rebinds-id": {
+      "statement": "In the Python SDK's update_microtenant, the microtenant_id argument used to build the URL is reassigned from the request body's microtenant_id key (kept in the body) before the query parameter and the 204 stand-in object are built, so a caller who does not also pass microtenant_id as a keyword gets no microtenantId query parameter and a stand-in object whose id is None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/microtenants.py",
+          "quotes": [
+            "# Use get instead of pop to keep microtenant_id in the body",
+            "microtenant_id = body.get(\"microtenant_id\", None)",
+            "return (Microtenant({\"id\": microtenant_id}), response, None)"
+          ],
+          "after": "def update_microtenant(self, microtenant_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/microtenants.py",
+          "after": "def update_microtenant(self, microtenant_id: str, **kwargs)",
+          "quotes": [
+            "microtenant_id = body.get(\"microtenant_id\", None)",
+            "params = {\"microtenantId\": microtenant_id} if microtenant_id else {}"
+          ]
+        }
+      ],
+      "conditions": "Read from the code at the pin; not executed."
+    },
+    "update-returns-204": {
+      "statement": "PUT on a microtenant returns 204 No Content in the specification, and the Go SDK's Update returns only the HTTP response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants~1{microtenantId}/put/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/microtenants/microtenants.go",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", relativeURL, nil, microTenant, nil)"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, microTenantID string, microTenant *MicroTenant) (*http.Response, error) {"
+        }
+      ]
+    },
+    "get-by-name-two-paths": {
+      "statement": "The Go microtenants package has two name lookups. GetByName lists with GET using the name as the search text and matches case-insensitively on the client; GetMicrotenantByName posts a name-equals search to /microtenants/search with the service's microtenant as a query parameter and matches case-insensitively on the client.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/microtenants/microtenants.go",
+          "quotes": [
+            "list, resp, err := common.GetAllPagesGeneric[MicroTenant](ctx, service.Client, relativeURL, microTenantName)",
+            "if strings.EqualFold(app.Name, microTenantName) {"
+          ],
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, microTenantName string) (*MicroTenant, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/microtenants/microtenants.go",
+          "quotes": [
+            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + microtenantsEndpoint + \"/search\"",
+            "FilterName: \"name\",",
+            "Operator: \"EQ\",",
+            "common.Filter{MicroTenantID: service.MicroTenantID()}"
+          ],
+          "after": "func GetMicrotenantByName(ctx context.Context, service *zscaler.Service, microtenantName string) (*MicroTenant, *http.Response, error) {"
+        }
+      ]
+    },
+    "post-search-query-and-page": {
+      "statement": "The Go POST-search helper passes the filter (the microtenant) as query parameters, not in the body, and sets pageBy to the page and a page size of 500; it sets validPage and validPageSize to 0, but both are tagged omitempty, so they are not serialized.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "// The filter parameter is passed as query params (for microTenantID)."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "ValidPage: 0,",
+            "ValidPageSize: 0,"
+          ],
+          "after": "func GetAllPagesGenericWithPostSearch[T any]("
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "ValidPage int `json:\"validPage,omitempty\"`",
+            "ValidPageSize int `json:\"validPageSize,omitempty\"`"
+          ],
+          "after": "type SearchPageBy struct {"
+        }
+      ]
+    },
+    "python-model-attributes": {
+      "statement": "The Python Microtenant model reads id, modifiedTime, creationTime, modifiedBy, name, description, enabled, operator, criteriaAttribute, criteriaAttributeValues and privilegedApprovalsEnabled, and has no attribute for the `roles`, `user` or `priority` keys that the Go struct carries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/microtenants.py",
+          "quotes": [
+            "self.criteria_attribute = config[\"criteriaAttribute\"] if config and \"criteriaAttribute\" in config else None",
+            "config[\"privilegedApprovalsEnabled\"] if config and \"privilegedApprovalsEnabled\" in config else None"
+          ]
+        }
+      ],
+      "conditions": "Absence of an attribute is read from the constructor body quoted; roles, user and priority appear in no line of the model."
+    }
+  },
+  "divergences": {
+    "search-body-shape": {
+      "summary": "The shape of the POST /microtenants/search body: the specification and the Python docstring describe filterBy as a flat array of filter objects with values, while the Go SDK sends a nested filterGroups structure with a single value.",
+      "positions": [
+        {
+          "says": "The Python get_microtenant_search docstring documents filter_by as a flat list of filter objects, each with filter_name, operator and a values list.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/microtenants.py",
+            "quotes": [
+              "- **filter_by** (list): A list of filter condition dictionaries.",
+              "- **values** (list): A list of values to match."
+            ],
+            "after": "def get_microtenant_search(self, **kwargs)"
+          }
+        },
+        {
+          "says": "The specification defines filterBy as an array of items with filterName, operator, values and commaSepValues.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants~1search/post/requestBody/content/application~1json/schema/properties/filterBy",
+            "expect": {
+              "type": "array"
+            }
+          }
+        },
+        {
+          "says": "The Go request type nests filterGroups inside filterBy, each group holding filters with a single `value` key.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/common/common.go",
+            "quotes": [
+              "FilterGroups []SearchFilterGroup `json:\"filterGroups,omitempty\"`",
+              "Value string `json:\"value,omitempty\"`"
+            ],
+            "after": "type SearchFilterBy struct {"
+          }
+        }
+      ],
+      "impact": "A raw search built from the specification will not match the body the Go SDK sends. The Go SDK's microtenant name lookup is the only evidence in these sources of a body that works, and its result was not observed here. See [[zpa.microtenants.api-scoping]]."
+    },
+    "search-operator-vocabulary": {
+      "summary": "The operator words for microtenant search filters: the Go SDK sends EQ, while the Python SDK's docstring shows EQUALS and LIKE.",
+      "positions": [
+        {
+          "says": "The Go microtenant name search hard-codes the operator EQ.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/microtenants/microtenants.go",
+            "quotes": [
+              "Operator: \"EQ\","
+            ],
+            "after": "func GetMicrotenantByName(ctx context.Context, service *zscaler.Service, microtenantName string) (*MicroTenant, *http.Response, error) {"
+          }
+        },
+        {
+          "says": "The Python get_microtenant_search docstring lists EQUALS and LIKE as example operators.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/microtenants.py",
+            "quotes": [
+              "The logical operator (e.g., `EQUALS`, `LIKE`)."
+            ]
+          }
+        }
+      ],
+      "impact": "The specification types operator as a free string, so neither word is confirmed by it. Use the Go word EQ only as the one an SDK actually sends; a filter with EQUALS or LIKE has no sent-and-working example in these sources."
+    },
+    "priority-type": {
+      "summary": "The OpenAPI document types a microtenant's `priority` as an int32 integer, while the Go SDK types it as a string.",
+      "positions": [
+        {
+          "says": "The contract microtenant list item has priority as an int32.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants/get/responses/200/content/*~1*/schema/properties/list/items/properties/priority",
+            "expect": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "says": "The Go MicroTenant struct declares Priority as a string.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/microtenants/microtenants.go",
+            "quotes": [
+              "Priority string `json:\"priority,omitempty\"`"
+            ]
+          }
+        }
+      ],
+      "impact": "The Go SDK sends a JSON string where the contract has a number; whether the API coerces or rejects it is not shown."
+    },
+    "enabled-default-sources": {
+      "summary": "The Python microtenant docstring says `enabled` defaults to True, while the Python add_microtenant sends the caller's keyword arguments as the body unchanged and the Go struct always sends `enabled`.",
+      "positions": [
+        {
+          "says": "The Python add_microtenant docstring says enabled defaults to True.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/microtenants.py",
+            "quotes": [
+              "enabled (bool): Whether the microtenant is enabled. Defaults to True."
+            ],
+            "after": "def add_microtenant("
+          }
+        },
+        {
+          "says": "The Python add_microtenant builds the body from the caller's keyword arguments alone, so a caller that does not pass enabled sends no enabled key.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/microtenants.py",
+            "quotes": [
+              "body = kwargs"
+            ],
+            "after": "def add_microtenant(self, **kwargs)"
+          }
+        },
+        {
+          "says": "The Go struct tags enabled without omitempty, so an unset value is sent as false.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/microtenants/microtenants.go",
+            "quotes": [
+              "Enabled bool `json:\"enabled\"`"
+            ]
+          }
+        }
+      ],
+      "impact": "A Go caller that leaves Enabled unset creates a disabled microtenant, while a Python caller omits the key and gets the server default; the docstring's True is not an SDK default. The docstring's default against the console's is in [[zpa.microtenants.lifecycle:enabled-default]]."
+    }
+  },
+  "gaps": {
+    "priority-string-accepted": {
+      "kind": "semantic",
+      "title": "Whether the API accepts a string priority on a microtenant write",
+      "status": "open",
+      "detail": "Unverified legacy statement: the Go SDK sends priority as a JSON string while the contract expects an integer, and it is unresolved whether the API coerces or rejects the string. Create a microtenant with a priority through the Go SDK in a scratch tenant and read it back.",
+      "blocks": "telling whether Go microtenant writes with a priority succeed",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

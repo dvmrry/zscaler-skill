@@ -1,0 +1,287 @@
+{
+  "schema_version": 1,
+  "id": "zpa.sdk-python.endpoint-versions",
+  "title": "Which ZPA base path each Python SDK method uses",
+  "aliases": [
+    "saml attribute v2 list",
+    "trusted network v2",
+    "update_group_v2",
+    "customers/{id}/v2 suffix",
+    "userconfig base path scim",
+    "ip ranges write methods",
+    "associationtype lowercase customer domain"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.saml-attributes.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.trusted-networks.object"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.segment-groups.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.b2b-federation.sdk-contract"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Several ZPA modules mix a v1 and a v2 base path or a non-admin base path inside one class. The methods themselves are in the generated surface."
+    },
+    {
+      "label": "v1 and v2 in one class.",
+      "text": "{{saml-bases}} {{saml-writes}} {{trusted-network-bases}} {{segment-group-v2}}"
+    },
+    {
+      "label": "A /v2 suffix on the v1 base.",
+      "text": "{{v2-suffix}} {{customer-domain-lowercase}} Whether those are the documented routes is open {{gap:v2-suffix-routes}}."
+    },
+    {
+      "label": "SCIM.",
+      "text": "{{scim-bases}} {{scim-group-get}}"
+    },
+    {
+      "label": "C2C IP ranges.",
+      "text": "{{c2c-writes}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which base path the method uses before comparing a Python response with a v1 or v2 console or API result.",
+      "uses": [
+        "saml-bases",
+        "trusted-network-bases",
+        "segment-group-v2"
+      ]
+    },
+    {
+      "do": "Whether a SCIM call went to the mgmtconfig admin base or the userconfig base.",
+      "uses": [
+        "scim-bases",
+        "scim-group-get"
+      ]
+    }
+  ],
+  "claims": {
+    "saml-bases": {
+      "statement": "In the SAML attribute module the two list methods use the v2 management base and `get_saml_attribute` uses the v1 base.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/saml_attributes.py",
+          "quotes": [
+            "self._zpa_base_endpoint_v2 = f\"/zpa/mgmtconfig/v2/admin/customers/{customer_id}\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/saml_attributes.py",
+          "quotes": [
+            "self._zpa_base_endpoint_v2} /samlAttribute"
+          ],
+          "after": "def list_saml_attributes(self, query_params"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/saml_attributes.py",
+          "quotes": [
+            "self._zpa_base_endpoint_v2} /samlAttribute/idp/{idp_id}"
+          ],
+          "after": "def list_saml_attributes_by_idp("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/saml_attributes.py",
+          "quotes": [
+            "{self._zpa_base_endpoint} /samlAttribute/{attribute_id}"
+          ],
+          "after": "def get_saml_attribute("
+        }
+      ]
+    },
+    "saml-writes": {
+      "statement": "The SAML attribute module defines `add_saml_attribute`, `update_saml_attribute` and `delete_saml_attribute`, so it is not read-only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/saml_attributes.py",
+          "quotes": [
+            "def add_saml_attribute(self, **kwargs)",
+            "def update_saml_attribute(self, attribute_id: str, **kwargs)",
+            "def delete_saml_attribute(self, attribute_id: str, microtenant_id: str = None)"
+          ]
+        }
+      ]
+    },
+    "trusted-network-bases": {
+      "statement": "`list_trusted_networks` calls `/network` on the v2 base and `get_network` calls `/network/{network_id}` on the v1 base; the single-item method is named `get_network`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/trusted_networks.py",
+          "quotes": [
+            "{self._zpa_base_endpoint_v2} /network"
+          ],
+          "after": "def list_trusted_networks("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/trusted_networks.py",
+          "quotes": [
+            "{self._zpa_base_endpoint} /network/{network_id}",
+            "def get_network(self, network_id: str)"
+          ]
+        }
+      ]
+    },
+    "segment-group-v2": {
+      "statement": "`update_group_v2` sends PUT to `/segmentGroup/{group_id}` on the v2 management base, and `update_group` sends PUT to the same path on the v1 base.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/segment_groups.py",
+          "quotes": [
+            "{self._zpa_base_endpoint_v2} /segmentGroup/{group_id}"
+          ],
+          "after": "def update_group_v2("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/segment_groups.py",
+          "quotes": [
+            "{self._zpa_base_endpoint} /segmentGroup/{group_id}"
+          ],
+          "after": "def update_group(self, group_id: str"
+        }
+      ]
+    },
+    "v2-suffix": {
+      "statement": "The C2C IP range, customer domain and admin SSO modules append a literal `/v2` to the v1 admin customer base.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/c2c_ip_ranges.py",
+          "quotes": [
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}/v2\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/customer_domain.py",
+          "quotes": [
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}/v2\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/admin_sso_controller.py",
+          "quotes": [
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}/v2\""
+          ]
+        }
+      ]
+    },
+    "customer-domain-lowercase": {
+      "statement": "The customer domain methods use a lowercase `associationtype` path segment, where the provisioning key and OAuth modules use `associationType`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/customer_domain.py",
+          "quotes": [
+            "/associationtype/{type}/domains"
+          ],
+          "after": "def list_domains("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "/associationType/{simplify_key_type(key_type)}/provisioningKey"
+          ],
+          "after": "def list_provisioning_keys("
+        }
+      ]
+    },
+    "scim-bases": {
+      "statement": "SCIM attribute list and get use the mgmtconfig admin base under `/idp/{idp_id}/scimattribute`, while `get_scim_values` and the SCIM group methods use the userconfig base.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/scim_attributes.py",
+          "quotes": [
+            "self._zpa_base_endpoint_userconfig = f\"/zpa/userconfig/v1/customers/{customer_id}\"",
+            "/idp/{idp_id}/scimattribute/{attribute_id}",
+            "/scimattribute/idpId/{idp_id}/attributeId/{attribute_id}"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/scim_groups.py",
+          "quotes": [
+            "self._zpa_base_endpoint_userconfig = f\"/zpa/userconfig/v1/customers/{customer_id}\"",
+            "/scimgroup/idpId/{idp_id}"
+          ]
+        }
+      ]
+    },
+    "scim-group-get": {
+      "statement": "`get_scim_group` takes only a group ID and calls `/scimgroup/{group_id}`, with no IdP ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/scim_groups.py",
+          "quotes": [
+            "def get_scim_group(self, group_id: str,",
+            "/scimgroup/{group_id}"
+          ]
+        }
+      ]
+    },
+    "c2c-writes": {
+      "statement": "The C2C IP range module defines add, update and delete methods and a POST search at `/ipRanges/search`, so it is not read-only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/c2c_ip_ranges.py",
+          "quotes": [
+            "def add_ip_range(self, **kwargs)",
+            "def update_ip_range(self, range_id: str, **kwargs)",
+            "def delete_ip_range(self, range_id: str)",
+            "/ipRanges/search"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "v2-suffix-routes": {
+      "kind": "semantic",
+      "title": "Whether the /v1/admin/customers/{id}/v2 routes are documented API routes",
+      "status": "open",
+      "detail": "Unverified legacy statement: the /v2 suffix on the v1 admin base in the C2C IP range, customer domain and admin SSO modules is intentional API design, not a bug; the OpenAPI document in the vendored specifications has no route containing ipRanges, ssoLoginOptions or associationtype, and the Go SDK uses the same /v2 form.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "treating those three Python modules as calling published routes"
+    }
+  }
+}

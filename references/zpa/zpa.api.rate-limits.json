@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.rate-limits",
+  "title": "ZPA API rate limits",
+  "aliases": [
+    "zpa api 429",
+    "zpa rate limit 20 per 10 seconds",
+    "retry-after 13s",
+    "zpa too many requests"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.api.rate-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.retries"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.pagination"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZPA limits calls per source IP in a 10-second window and answers 429 with a retry-after header. The ZIA limits are different, in [[zia.api.rate-limits]]."
+    },
+    {
+      "label": "The limits.",
+      "text": "{{limits}} {{window-start}}"
+    },
+    {
+      "label": "When exceeded.",
+      "text": "{{retry-after}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether bursts of reads exceed 20 in 10 seconds, or writes 10 in 10 seconds, from one source IP.",
+      "uses": [
+        "limits"
+      ]
+    },
+    {
+      "do": "Whether the client waited the retry-after interval before retrying.",
+      "uses": [
+        "retry-after"
+      ]
+    }
+  ],
+  "claims": {
+    "limits": {
+      "statement": "For each organization, ZPA API calls from one IP address are limited to 20 GET calls and 10 POST, PUT or DELETE calls in a 10-second interval.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-zpa.json",
+          "quotes": [
+            "all Zscaler Private Access (ZPA) API endpoints called from a specific IP address are subjected to the following rate limits:",
+            "20 times in a 10-second interval for a GET call",
+            "10 times in a 10-second interval for any POST/PUT/DELETE call"
+          ]
+        }
+      ]
+    },
+    "window-start": {
+      "statement": "The rate limits start as soon as the first call is executed, and calls may occur more than once per second within the limits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-zpa.json",
+          "quotes": [
+            "All rate limits start as soon as the first call is executed.",
+            "Calls can occur more than once per second, but no more than the limits for each operation type."
+          ]
+        }
+      ]
+    },
+    "retry-after": {
+      "statement": "A call over the limit gets HTTP 429 with a retry-after response header (for example 13s) giving the time to wait before the next call.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/rate-limiting-zpa.json",
+          "quotes": [
+            "an HTTP 429 response code is returned along with a response header that includes the retry-after field.",
+            "the value 13s indicates 13 seconds of wait period"
+          ]
+        }
+      ]
+    }
+  }
+}

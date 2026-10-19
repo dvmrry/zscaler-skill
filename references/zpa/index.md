@@ -26,7 +26,7 @@ Entry point for Zscaler Private Access (ZPA) questions — application segments,
 | **Privileged Remote Access (PRA)** — clientless RDP/SSH/VNC gateway, credential pooling (3 credential types, immutable protocol), approval workflow (requester → approver → time-bounded), capabilities policy, session recording with 6-state lifecycle | [`zpa.pra`](kb:zpa.pra) | draft |
 | **Business-to-Business Federation** — limited-availability partner trust, incoming/outgoing federation requests, federated-partner management, and application-segment federation with granular controls (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:55-63`) | [`zpa.b2b-federation`](kb:zpa.b2b-federation) | draft |
 | **AppProtection** (formerly Inspection) — inline WAF/IPS for ZPA-protected apps, 6 control categories (OWASP CRS 4.8 / ThreatLabZ / Active Directory Kerberos+SMB+LDAP / API / WebSocket / Custom), three-tier policy model (Controls → Profiles → Rules), Paranoia Levels 1-4, default `OWASP Top-10 for Visibility` profile, LSS log stream | [`zpa.appprotection`](kb:zpa.appprotection) | draft |
-| ZPA API — endpoints, authentication, response shapes | [`./api.md`](./api.md) | draft |
+| ZPA API — endpoints, authentication, response shapes | [`zpa.api`](kb:zpa.api) | draft |
 | **Snapshot schema** — what's in `_data/snapshot/<cloud>/zpa/*.json`, list-wrapping, ruleOrder-as-string, embedded-objects pattern, common jq queries | [retired: field shapes via `kb.mjs resolve`](../_meta/layering-model.md) | draft |
 | **Microtenants** — multi-org isolation within a single ZPA tenant; `microtenantId` propagates onto App Segments / Server Groups / Segment Groups / Connector Groups / Service Edge Groups; admin password shown ONCE at creation; disable triggers re-auth; SharedMicrotenantDetails for cross-Microtenant App Segment sharing | [`zpa.microtenants`](kb:zpa.microtenants) | draft |
 | **Posture Profiles** — ZPA policy-side consumer of ZCC posture signals; read-only from operator (Zscaler-provisioned); `posture_udid` is the policy `lhs` not `id` (TF plan-time validation); SDK + TF-derived (help portal 404). Tier source: code | [`zpa.posture-profiles`](kb:zpa.posture-profiles) | draft |
@@ -39,8 +39,8 @@ Entry point for Zscaler Private Access (ZPA) questions — application segments,
 | **Private Service Edges** — on-prem ZPA Service Edge deployment; cluster architecture; brokering private app access without sending traffic through Zscaler cloud | [`zpa.private-service-edges`](kb:zpa.private-service-edges) | draft |
 | **Segment Groups** — policy-scoping primitive grouping App Segments; semantics, membership, and how Access Policy rules reference them | [`zpa.segment-groups`](kb:zpa.segment-groups) | draft |
 | **SCIM policy mapping** — how SCIM / IdP group attributes map to ZPA access policy conditions; `lhs`/`rhs` attribute references; group-membership evaluation | [`zpa.scim`](kb:zpa.scim) | draft |
-| **ZPA SDK** — service and method catalog (`client.zpa.*`); Python and Go coverage; method-to-endpoint mapping | [`./sdk.md`](./sdk.md) | draft |
-| **ZPA Terraform** — `zpa_*` resource catalog; provider configuration; known quirks (ruleOrder-as-string, embedded-object gotchas) | [`./terraform.md`](./terraform.md) | draft |
+| **ZPA SDK** — service and method catalog (`client.zpa.*`); Python and Go coverage; method-to-endpoint mapping | [`zpa.sdk-python`](kb:zpa.sdk-python) | draft |
+| **ZPA Terraform** — `zpa_*` resource catalog; provider configuration; known quirks (ruleOrder-as-string, embedded-object gotchas) | [`zpa.terraform`](kb:zpa.terraform) | draft |
 | **Troubleshooting** — access verification workflow; common failure signals (policy miss, connector down, segment mismatch, DNS resolution); diagnostic signal sources | [`zpa.troubleshooting`](kb:zpa.troubleshooting) | draft |
 | **Admin audit logs** — ZPA admin change events; retention; available fields; cross-product correlation | [`zpa.audit-logs`](kb:zpa.audit-logs) | draft |
 
@@ -48,7 +48,7 @@ Entry point for Zscaler Private Access (ZPA) questions — application segments,
 
 | Schema | File | Status |
 |---|---|---|
-| LSS User Activity log fields — per-connection records; segment, connector, policy, timestamps, bytes | [`./logs/access-log-schema.md`](./logs/access-log-schema.md) | draft |
+| LSS User Activity log fields — per-connection records; segment, connector, policy, timestamps, bytes | [`zpa.logs.user-activity`](kb:zpa.logs.user-activity) | draft |
 
 For SPL patterns see [`../shared/splunk-queries.md`](../shared/splunk-queries.md); for when to query see [`../shared/log-correlation.md`](../shared/log-correlation.md).
 
@@ -58,10 +58,10 @@ Field-and-endpoint-level catalogs derived from Zscaler SDKs and Postman collecti
 
 | Schema | File | Status |
 |---|---|---|
-| API endpoint inventory — full ZPA REST endpoint catalog with request/response shapes | [`./api-schemas.md`](./api-schemas.md) | draft |
-| **Legacy API endpoint reference** — complete `config.private.zscaler.com` endpoint surface (the legacy counterpart to the OneAPI surface in [`./api.md`](./api.md)); v1/v2 mgmtconfig + userconfig + CBI base URLs, per-service endpoint tables extracted from the Go SDK service layer | [`./legacy-endpoints.md`](./legacy-endpoints.md) | draft |
-| Postman-collection-derived schemas — extracted struct shapes and parameter types from the ZPA Postman collection | [`./api-postman-schemas.md`](./api-postman-schemas.md) | draft |
-| **API source divergences** — where the Go SDK, Python SDK, and Postman collection disagree with each other and with field observations; which source to trust per area | [`./api-divergences.md`](./api-divergences.md) | draft |
+| API endpoint inventory — full ZPA REST endpoint catalog with request/response shapes | [`zpa.api`](kb:zpa.api) | draft |
+| **Legacy API endpoint reference** — complete `config.private.zscaler.com` endpoint surface (the legacy counterpart to the OneAPI surface in [`zpa.api`](kb:zpa.api)); v1/v2 mgmtconfig + userconfig + CBI base URLs, per-service endpoint tables extracted from the Go SDK service layer | [`zpa.api.legacy-endpoints`](kb:zpa.api.legacy-endpoints) | draft |
+| Postman-collection-derived schemas — extracted struct shapes and parameter types from the ZPA Postman collection | [`zpa.api`](kb:zpa.api) | draft |
+| **API source divergences** — where the Go SDK, Python SDK, and Postman collection disagree with each other and with field observations; which source to trust per area | [`zpa.api`](kb:zpa.api) | draft |
 | SAML attribute reference — attributes available for ZPA policy criteria and how they're sourced from the IdP | [`zpa.saml-attributes`](kb:zpa.saml-attributes) | draft |
 
 ## When the question spans multiple topics

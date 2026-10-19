@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "id": "zpa.terraform.group-enrollment",
+  "title": "How the ZPA Terraform provider resolves the enrollment certificate for connector, service edge and private cloud groups",
+  "aliases": [
+    "enrollment_cert_id empty state",
+    "missing.mandatory.params update group",
+    "zpa_app_connector_group enrollment_cert_id",
+    "zpa_service_edge_group enrollment_cert_id",
+    "enrollment certificate auto-resolve"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.connector-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.resource-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "App Connector, Service Edge and Private Cloud groups share one enrollment-certificate resolver. {{cert-optional-computed}}"
+    },
+    {
+      "label": "What the resolver does.",
+      "text": "{{resolver-keeps-nonempty}} {{resolver-lookup-by-name}} {{cert-names-per-resource}}"
+    },
+    {
+      "label": "When it runs.",
+      "text": "{{resolver-runs-every-write}} {{read-hydrates-write-sends-state}} {{refresh-does-not-resolve}} {{import-skips-resolver}}"
+    },
+    {
+      "label": "Consequences.",
+      "text": "{{empty-string-selects-lookup}} {{removing-id-retains-value}}"
+    },
+    {
+      "text": "The same fix as seen from the product: [[zpa.app-connectors.connector-groups]] and [[zpa.private-service-edges.enrollment]]. User code verification is separate: [[zpa.terraform.resource-fidelity]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the group state holds an empty enrollment_cert_id; an update, not a refresh, repairs it.",
+      "uses": [
+        "refresh-does-not-resolve"
+      ]
+    },
+    {
+      "do": "Which certificate name the resource resolves, Connector or Service Edge.",
+      "uses": [
+        "cert-names-per-resource"
+      ]
+    },
+    {
+      "do": "Whether the group was imported, since imports skip the resolver.",
+      "uses": [
+        "import-skips-resolver"
+      ]
+    }
+  ],
+  "claims": {
+    "cert-optional-computed": {
+      "statement": "enrollment_cert_id is an Optional and Computed string on the App Connector group, Service Edge group and Private Cloud group resources, and its schema description says the provider looks the certificate up by name when it is not set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "If not set, the provider will automatically look up the 'Connector' enrollment certificate by name."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "If not set, the provider will automatically look up the 'Service Edge' enrollment certificate by name."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_private_cloud_group.go",
+          "quotes": [
+            "ID of the enrollment certificate that can be used for OAuth2 enrollment. If not set, the provider will automatically look up the 'Connector' enrollment certificate by name."
+          ]
+        }
+      ]
+    },
+    "resolver-keeps-nonempty": {
+      "statement": "The shared resolver returns without a lookup when enrollment_cert_id already holds a nonempty string in the resource data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/utils.go",
+          "quotes": [
+            "if v, ok := d.GetOk(\"enrollment_cert_id\"); ok && v.(string) != \"\" {"
+          ]
+        }
+      ]
+    },
+    "resolver-lookup-by-name": {
+      "statement": "When the value is missing or empty, the resolver looks the certificate up by name, fails the operation on a lookup error or an empty ID, and otherwise sets enrollment_cert_id to the resolved ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/utils.go",
+          "quotes": [
+            "cert, _, err := enrollmentcert.GetByName(ctx, service, certName)",
+            "failed to auto-resolve enrollment certificate by name %q: %w",
+            "returned an empty ID",
+            "_ = d.Set(\"enrollment_cert_id\", cert.ID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/utils.go",
+          "quotes": [
+            "if v, ok := d.GetOk(\"enrollment_cert_id\"); ok && v.(string) != \"\" {",
+            "cert, _, err := enrollmentcert.GetByName(ctx, service, certName)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "if err := resolveEnrollmentCertID(ctx, d, service, \"Connector\"); err != nil {"
+          ],
+          "after": "func resourceAppConnectorGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "The API requires enrollmentCertId on update as well, so this must run on every"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "The resolution now also runs on update for the resources `zpa_app_connector_group`, `zpa_service_edge_group`, and `zpa_private_cloud_group`"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups#enrollmentCertId"
+      ]
+    },
+    "cert-names-per-resource": {
+      "statement": "App Connector groups and Private Cloud groups resolve the certificate named Connector, and Service Edge groups resolve the certificate named Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "if err := resolveEnrollmentCertID(ctx, d, service, \"Connector\"); err != nil {"
+          ],
+          "after": "func resourceAppConnectorGroupCreate("
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "if err := resolveEnrollmentCertID(ctx, d, service, \"Service Edge\"); err != nil {"
+          ],
+          "after": "func resourceServiceEdgeGroupCreate("
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_private_cloud_group.go",
+          "quotes": [
+            "if err := resolveEnrollmentCertID(ctx, d, service, \"Connector\"); err != nil {"
+          ],
+          "after": "func resourcePrivateCloudGroupCreate("
+        }
+      ]
+    },
+    "resolver-runs-every-write": {
+      "statement": "The resolver runs on every create and every update of the three group resources, whether or not user_codes is set; the update-path comment says the API requires enrollmentCertId on update, including for groups whose state has no value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "// The API requires enrollmentCertId on update as well, so this must run on every",
+            "// update to cover groups whose state has no enrollment_cert_id value."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "The resolution now also runs on update for the resources `zpa_app_connector_group`, `zpa_service_edge_group`, and `zpa_private_cloud_group`"
+          ]
+        }
+      ]
+    },
+    "read-hydrates-write-sends-state": {
+      "statement": "Read copies enrollment_cert_id from the API response into state, and the request expander sends whatever value the resource data currently holds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "_ = d.Set(\"enrollment_cert_id\", resp.EnrollmentCertID)",
+            "EnrollmentCertID:         d.Get(\"enrollment_cert_id\").(string),"
+          ]
+        }
+      ]
+    },
+    "empty-string-selects-lookup": {
+      "statement": "An explicit empty string for enrollment_cert_id does not clear the certificate. The resolver looks the certificate up by name only when the resource data holds no nonempty value, which is on create or on an update of a group whose state is also empty; on other updates the Optional and Computed attribute keeps the ID already in state, so the resolver returns without a lookup and that ID is sent.",
+      "tier": "B",
+      "derived_from": [
+        "resolver-keeps-nonempty",
+        "resolver-lookup-by-name",
+        "cert-optional-computed",
+        "read-hydrates-write-sends-state"
+      ],
+      "conditions": "Narrowed after verification: previously said an empty string always selects a lookup, but on update an empty value for an Optional and Computed attribute keeps the state value. It relies on Terraform treating an empty configured string on such an attribute as unset, which is not shown in a captured source."
+    },
+    "removing-id-retains-value": {
+      "statement": "Removing an explicit enrollment_cert_id from the configuration can leave the value already in state in place rather than clearing it.",
+      "tier": "B",
+      "derived_from": [
+        "cert-optional-computed",
+        "read-hydrates-write-sends-state"
+      ],
+      "conditions": "Follows from the attribute being Optional and Computed with Read filling it from the API. It relies on Terraform's usual handling of an Optional and Computed attribute removed from configuration, which is not shown in a captured source."
+    },
+    "refresh-does-not-resolve": {
+      "statement": "A refresh only runs Read, which hydrates state from the API response; the resolver runs only inside create and update, so a group whose state holds an empty certificate ID is repaired when an update runs.",
+      "tier": "B",
+      "derived_from": [
+        "read-hydrates-write-sends-state",
+        "resolver-runs-every-write"
+      ],
+      "conditions": "Follows from the resolver being called only in the create and update functions. The healing needs an update to be planned for the resource; whether a plain refresh-only plan never does so is Terraform behavior, not shown in a source."
+    },
+    "import-skips-resolver": {
+      "statement": "The App Connector group importer accepts a numeric ID or a name, resolves the name to an ID, and returns; it does not call the enrollment-certificate resolver, and the imported state is hydrated by Read.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "resp, _, err := appconnectorgroup.GetByName(ctx, service, id)",
+            "return []*schema.ResourceData{d}, nil"
+          ],
+          "after": "StateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {"
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

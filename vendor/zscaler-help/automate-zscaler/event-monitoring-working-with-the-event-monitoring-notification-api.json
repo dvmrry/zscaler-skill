@@ -1,0 +1,664 @@
+{
+  "schema_version": 1,
+  "kind": "automate-doc",
+  "title": "Working with the Event Monitoring & Notification API",
+  "source": {
+    "url": "https://automate.zscaler.com/docs/api-reference-and-guides/guides/event-monitoring/working-with-the-event-monitoring-notification-api",
+    "revision": "c060fa3a.d7226a74.js",
+    "updated": "2026-10-18",
+    "updated_basis": "first-seen"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "This article explains how you can discover available event sources and create subscriptions to receive notifications when specific events occur in your Zscaler environment. The Event Monitoring & Notification API supports automated delivery of notifications using multiple channels, including email, webhook, and Amazon Simple Notification Service (SNS)."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Organizations must meet the following prerequisites before they can create and manage subscriptions:"
+    },
+    {
+      "item": "Ensure that you have the Event Monitoring & Notification API service enabled for your tenant. To obtain access to this API service, contact your Zscaler Account team.",
+      "depth": 0
+    },
+    {
+      "item": "Register the API client application in Authentication Service and assign the Event Monitoring Subscribe role. This role provides view-only access to the service catalog and full access to subscriptions (i.e., create, update, and delete) within the Event Monitoring & Notification API.",
+      "depth": 0
+    },
+    {
+      "item": "Assign a role from the API product resource for which the notifications are subscribed. Currently, you can subscribe to notifications for ZPA, so a role from the ZPA product resource must be assigned.",
+      "depth": 0
+    },
+    {
+      "text": "To learn more about the API client setup and different authentication methods, see Getting Started. To learn how to register a client in Authentication Service, see Adding an API Client and Viewing API Resources."
+    },
+    {
+      "text": "After your API client is created and provisioned in Authentication Service, the next step is to authenticate using the client's generated credentials. Authentication verifies your client's identity and issues an access token that must be sent in every subsequent API request using the Authorization header (i.e., Authorization: Bearer <Token>). To learn more, see Getting Started."
+    },
+    {
+      "heading": "Creating Subscriptions Using Email and Webhook",
+      "level": 1
+    },
+    {
+      "text": "Complete the following steps to create subscriptions using email and webhook notification channels."
+    },
+    {
+      "heading": "Step 1: Browse the Service Catalog",
+      "level": 2
+    },
+    {
+      "text": "As a first step, you must discover the list of available sources, source types, and source events. The service catalog is hierarchical: Sources → Source Types → Source Events. Each level provides _links to navigate to child items."
+    },
+    {
+      "item": "Retrieve the available sources by sending the following request:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Example response:",
+      "depth": 0
+    },
+    {
+      "item": "Follow the source_types link to see which types of events are available for each source.",
+      "depth": 0
+    },
+    {
+      "code": "curl -X GET https://api.zsapi.net/event-monitoring/catalog/sources \\\n -H \"Authorization: Bearer <Token>\" "
+    },
+    {
+      "code": "{\n  \"sources\": [\n    {\n      \"key\": \"zpa\",\n      \"name\": \"Zscaler Private Access\",\n      \"description\": \"ZPA event source\",\n      \"_links\": {\n        \"self\": \"/catalog/sources/zpa\",\n        \"source_types\": \"/catalog/sources/zpa/source-types\"\n      }\n    }\n  ]\n}"
+    },
+    {
+      "item": "Retrieve the available source types using the following request:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Example response:",
+      "depth": 0
+    },
+    {
+      "code": "curl -X GET https://api.zsapi.net/event-monitoring/catalog/sources/zpa/source-types \\\n -H \"Authorization: Bearer <Token>\" "
+    },
+    {
+      "code": "{\n  \"sourceTypes\": [\n    {\n      \"key\": \"app_connector\",\n      \"name\": \"App Connector\",\n      \"description\": \"ZPA App Connector\",\n      \"_links\": {\n        \"self\": \"/catalog/sources/zpa/source-types/app_connector\",\n        \"source_events\": \"/catalog/sources/zpa/source-types/app_connector/source-events\"\n      }\n    }\n  ]\n}"
+    },
+    {
+      "item": "Retrieve the source events using the following request. Source events are the specific event types that you can subscribe to. They include attributes that describe the data fields available for filtering.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Example response:",
+      "depth": 0
+    },
+    {
+      "code": "curl -X GET https://api.zsapi.net/event-monitoring/catalog/sources/zpa/source-types/app_connector/source-events \\\n  -H \"Authorization: Bearer <Token>\""
+    },
+    {
+      "code": "{\n  \"source_events\": [\n    {\n      \"key\": \"status\",\n      \"name\": \"Connector Status\",\n      \"description\": \"Status change event for a connector\"\n    }\n  ]\n}"
+    },
+    {
+      "heading": "Step 2: Create a Subscription",
+      "level": 2
+    },
+    {
+      "text": "In this step, you can select which events you want to subscribe to and configure notification channels using an API request. You can subscribe to multiple source types and events within a single subscription."
+    },
+    {
+      "text": "The request specifies the event details within the scope object:"
+    },
+    {
+      "item": "source_key: The source to be monitored for events (e.g., zpa)",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "source_type_key: The specific source type within that source (e.g., app_connector)",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "source_event_key: The specific events for which you want to receive alerts (e.g., status)",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "text": "In addition, all subscription API calls require the following headers to identify the product tenant that you want to monitor:"
+    },
+    {
+      "item": "x-em-cloud: Cloud identifier for the product tenant (e.g., prod.zpath.net)",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "x-em-tenant: Product tenant identifier for ZIA, ZPA, etc. (e.g., 145254691217866752)",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "text": "You can create a subscription and configure an email or webhook notification channel, as shown in the following examples:"
+    },
+    {
+      "text": "Email subscription:"
+    },
+    {
+      "code": "curl -X POST https://api.zsapi.net/event-monitoring/subscriptions \\\n\t-H \"Authorization: Bearer <Token>\" \\\n\t-H \"Content-Type: application/json\" \\\n\t-H \"x-em-cloud: prod.zpath.net\" \\\n\t-H \"x-em-tenant: 145254691217866752\" \\\n\t-d '{\n\t\"name\": \"ZPA Connector Status Down\",\n\t\"description\": \"Get notified when a ZPA connector goes down\",\n\t\"scope\": {\n\t\t\"source_key\": \"zpa\",\n\t\t\"source_type_key\": \"app_connector\",\n\t\t\"source_event_key\": \"status\"\n\t},\n\t\"channels\": [\n\t\t{\n\t\t\"type\": \"email\",\n\t\t\"email\": {\n\t\t\t\"to\": [\"admin@example.com\"],\n\t\t\t\"cc\": [\"team@example.com\"],\n\t\t\t\"bcc\": []\n\t\t}\n\t\t}\n\t],\n\t\"enabled\": true\n\t}'"
+    },
+    {
+      "text": "Webhook subscription:"
+    },
+    {
+      "code": "curl -X POST https://api.zsapi.net/event-monitoring/subscriptions \\\n\t-H \"Authorization: Bearer <Token>\" \\\n\t-H \"Content-Type: application/json\" \\\n\t-H \"x-em-cloud: prod.zpath.net\" \\\n\t-H \"x-em-tenant: 145254691217866752\" \\\n\t-d '{\n\t\"name\": \"ZPA Connector Alerts - Webhook\",\n\t\"description\": \"Send connector alerts to our webhook\",\n\t\"scope\": {\n\t\t\"source_key\": \"zpa\",\n\t\t\"source_type_key\": \"app_connector\",\n\t\t\"source_event_key\": \"status\"\n\t},\n\t\"channels\": [\n\t\t{\n\t\t\"type\": \"webhook\",\n\t\t\"webhook_url\": \"https://hooks.example.com/em-alerts\"\n\t\t}\n\t],\n\t\"enabled\": true\n\t}'"
+    },
+    {
+      "text": "You can also combine multiple channels in a single subscription. For example:"
+    },
+    {
+      "code": "{\n  \"channels\": [\n    {\n      \"type\": \"email\",\n      \"email\": { \"to\": [\"admin@example.com\"] }\n    },\n    {\n      \"type\": \"webhook\",\n      \"webhook_url\": \"https://hooks.example.com/em-alerts\"\n    }\n  ]\n}"
+    },
+    {
+      "text": "After creating a subscription successfully, you receive email or webhook notifications when matching events occur."
+    },
+    {
+      "text": "You can monitor multiple Zscaler services by creating separate subscriptions with different headers (x-em-cloud and x-em-tenant) for each product tenant. You can also create the required number of subscriptions for different events and channels."
+    },
+    {
+      "heading": "Channel Validation Rules",
+      "level": 3
+    },
+    {
+      "text": "The notification channels specified in the subscription requests must meet the following predefined criteria:"
+    },
+    {
+      "table": [
+        [
+          "Channel",
+          "Field",
+          "Validation"
+        ],
+        [
+          "Email",
+          "email.to/cc/bcc",
+          "Must match: ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+        ],
+        [
+          "Webhook",
+          "webhook_url",
+          "Must match: ^https?://.+$"
+        ]
+      ]
+    },
+    {
+      "heading": "Creating Subscriptions Using Amazon SNS",
+      "level": 1
+    },
+    {
+      "text": "The following steps outline an end-to-end setup and workflow for creating subscriptions using Amazon SNS:"
+    },
+    {
+      "item": "Verify that SNS is available as a channel: Send a GET request to /subscriptions/channels and confirm that the sns channel is supported for your tenant.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Retrieve SNS setup requirements: Send a GET request to /subscriptions/channels/sns to obtain the Amazon Resource Name (ARN) for the Zscaler Identity and Access Management (IAM) role, required permissions, and the SNS topic policy template.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Create an SNS topic in your AWS account: Create a topic using the Amazon Web Services (AWS) SNS console, AWS CLI, or AWS CloudFormation (Standard or First-In-First-Out (FIFO), as required).",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Apply the SNS topic policy: Associate a topic policy that grants the Zscaler IAM role permission to publish to your topic (for example, using aws sns set-topic-attributes).",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Verify that Zscaler can access the topic: Send a POST request to /subscriptions/channels/sns:verify to confirm that the Event Monitoring & Notification API can access and publish to your SNS topic.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Create the Event Monitoring subscription: Send a POST request to /subscriptions to create a subscription that uses the sns channel.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "text": "After completing these steps, you will start receiving events on your SNS topic. When alert conditions are met, the Event Monitoring & Notification API publishes events to your topic asynchronously. Your SNS subscriptions then deliver messages to downstream systems (e.g., Amazon SQS, Amazon Lambda, and HTTP/HTTPS endpoints) according to your configuration."
+    },
+    {
+      "heading": "Step 1: Discover Available Channels",
+      "level": 2
+    },
+    {
+      "text": "Use GET /subscriptions/channels to retrieve the list of all notification channel types supported for your tenant, shown as follows."
+    },
+    {
+      "text": "Example request:"
+    },
+    {
+      "code": "GET /subscriptions/channels HTTP/1.1\nHost: api.zsapi.net\nAuthorization: Bearer <access-token>"
+    },
+    {
+      "text": "Example response (200 OK):"
+    },
+    {
+      "code": "{\n  \"channels\": [\n    {\n      \"type\": \"email\",\n      \"description\": \"Email notifications\",\n      \"setup_required\": false,\n      \"_links\": { \"self\": \"/subscriptions/channels/email\" }\n    },\n    {\n      \"type\": \"webhook\",\n      \"description\": \"Webhook notifications\",\n      \"setup_required\": false,\n      \"_links\": { \"self\": \"/subscriptions/channels/webhook\" }\n    },\n    {\n      \"type\": \"sns\",\n      \"description\": \"AWS SNS topic notifications\",\n      \"setup_required\": true,\n      \"_links\": {\n        \"self\": \"/subscriptions/channels/sns\",\n        \"verify\": \"/subscriptions/channels/sns:verify\"\n      }\n    }\n  ]\n}"
+    },
+    {
+      "text": "The sns entry with \"setup_required\": true indicates that additional configuration is needed before you can use the SNS channel. Follow the self link (/subscriptions/channels/sns) to view the SNS-specific setup requirements."
+    },
+    {
+      "heading": "Step 2: Retrieve SNS Setup Requirements",
+      "level": 2
+    },
+    {
+      "text": "Use GET /subscriptions/channels/sns to retrieve the Zscaler IAM role ARN, the minimum required permissions, and a ready‑to‑use SNS topic policy template that you can apply to your SNS topic."
+    },
+    {
+      "text": "Example request:"
+    },
+    {
+      "code": "GET /subscriptions/channels/sns HTTP/1.1\nHost: api.zsapi.net\nAuthorization: Bearer <access-token>"
+    },
+    {
+      "text": "Example response (200 OK)"
+    },
+    {
+      "code": "{\n  \"type\": \"sns\",\n  \"description\": \"AWS SNS topic notifications\",\n  \"setup_required\": true,\n  \"zscaler_role_arn\": \"arn:aws:iam::590183682394:role/CNS-SNS-Publisher\",\n  \"required_permissions\": [\n    \"sns:Publish\",\n    \"sns:GetTopicAttributes\"\n  ],\n  \"sns_topic_policy_template\": {\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n      {\n        \"Sid\": \"AllowZscalerEventMonitoringPublish\",\n        \"Effect\": \"Allow\",\n        \"Principal\": {\n          \"AWS\": \"arn:aws:iam::590183682394:role/CNS-SNS-Publisher\"\n        },\n        \"Action\": [\n          \"sns:Publish\",\n          \"sns:GetTopicAttributes\"\n        ],\n        \"Resource\": \"<customer_topic_arn>\"\n      }\n    ]\n  },\n  \"_links\": {\n    \"self\": \"/subscriptions/channels/sns\",\n    \"verify\": \"/subscriptions/channels/sns:verify\",\n    \"subscriptions\": \"/subscriptions\"\n  }\n}"
+    },
+    {
+      "text": "From the response:"
+    },
+    {
+      "item": "Note the zscaler_role_arn value. This is the Zscaler IAM role that will publish to your SNS topic.",
+      "depth": 0
+    },
+    {
+      "item": "Use sns_topic_policy_template when configuring your SNS topic policy in the next step.",
+      "depth": 0
+    },
+    {
+      "item": "Replace <customer_topic_arn> with the ARN of your SNS topic.",
+      "depth": 0
+    },
+    {
+      "heading": "Step 3: Create Your SNS Topic",
+      "level": 2
+    },
+    {
+      "text": "Create an SNS topic in your AWS account for receiving notifications. Both Standard topics and FIFO topics (with a .fifo suffix) are supported."
+    },
+    {
+      "text": "To learn how to create SNS topics, refer to the Amazon documentation."
+    },
+    {
+      "text": "AWS CLI examples",
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "code": "# Standard topic\naws sns create-topic \\\n  --name zscaler-em-events \\\n  --region us-west-2"
+    },
+    {
+      "code": "# FIFO topic (name must end with `.fifo`)\naws sns create-topic \\\n  --name zscaler-em-events.fifo \\\n  --attributes FifoTopic=true,ContentBasedDeduplication=true \\\n  --region us-west-2"
+    },
+    {
+      "text": "After you create the topic, note the returned TopicArn that is required in the following steps."
+    },
+    {
+      "text": "ARN Format:"
+    },
+    {
+      "code": "arn:aws:sns:<region>:<account-id>:<topic-name>"
+    },
+    {
+      "text": "Example:"
+    },
+    {
+      "code": "arn:aws:sns:us-west-2:123456789012:zscaler-em-events"
+    },
+    {
+      "heading": "Step 4: Apply the SNS Topic Policy",
+      "level": 2
+    },
+    {
+      "text": "Grant the Zscaler publishing role permission to publish to your SNS topic by attaching a topic policy."
+    },
+    {
+      "text": "Create a file named policy.json with a policy based on the template returned by GET /subscriptions/channels/sns, replacing the Resource value with your topic ARN:"
+    },
+    {
+      "code": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Sid\": \"AllowZscalerEventMonitoringPublish\",\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"AWS\": \"arn:aws:iam::590183682394:role/CNS-SNS-Publisher\"\n      },\n      \"Action\": [\n        \"sns:Publish\",\n        \"sns:GetTopicAttributes\"\n      ],\n      \"Resource\": \"arn:aws:sns:us-west-2:123456789012:zscaler-em-events\"\n    }\n  ]\n}"
+    },
+    {
+      "heading": "Step 5: Verify that Zscaler Can Publish",
+      "level": 2
+    },
+    {
+      "text": "Use POST /subscriptions/channels/sns:verify to validate that Zscaler can successfully call sns:GetTopicAttributes on your SNS topic. This is a read-only check; no test message is published to the topic."
+    },
+    {
+      "text": "Example request:"
+    },
+    {
+      "code": "POST /subscriptions/channels/sns:verify HTTP/1.1\nHost: api.zsapi.net\nAuthorization: Bearer <access-token>\nContent-Type: application/json\n\n{\n  \"topic_arn\": \"arn:aws:sns:us-west-2:123456789012:zscaler-em-events\",\n  \"region\": \"us-west-2\"\n}"
+    },
+    {
+      "text": "The following table describes the request payload fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Type",
+          "Required",
+          "Description"
+        ],
+        [
+          "topic_arn",
+          "string",
+          "Yes",
+          "Full SNS topic ARN. Must match arn:aws:sns:<region>:<12-digit-account>:<topic-name> (optional .fifo suffix)."
+        ],
+        [
+          "region",
+          "string",
+          "No",
+          "AWS region of the topic. If omitted, region is inferred from the ARN."
+        ]
+      ]
+    },
+    {
+      "text": "Example response for successful request (200 OK):"
+    },
+    {
+      "code": "{\n  \"verified\": true,\n  \"topic_arn\": \"arn:aws:sns:us-west-2:123456789012:zscaler-em-events\",\n  \"message_sent\": \"{\\\"message\\\": \\\"Event Monitoring Message Test\\\"}\"\n}"
+    },
+    {
+      "text": "Example response for failed request (code 400 or 422):"
+    },
+    {
+      "code": "{\n  \"verified\": false,\n  \"topic_arn\": \"arn:aws:sns:us-west-2:123456789012:zscaler-em-events\",\n  \"error\": \"<Error that happened while verification>\"\n}"
+    },
+    {
+      "text": "See possible HTTP response codes and troubleshooting steps"
+    },
+    {
+      "text": "The following table provides information on HTTPS status codes used in responses and troubleshooting steps for common issues."
+    },
+    {
+      "table": [
+        [
+          "HTTPS Response Code",
+          "Description",
+          "Troubleshooting"
+        ],
+        [
+          "200 OK",
+          "The Zscaler service successfully validated publish access to the SNS topic. It is safe to proceed and create a subscription.",
+          "Verification succeeded. You can proceed to create the subscription that uses the SNS channel."
+        ],
+        [
+          "400 Bad Request",
+          "The request is malformed (e.g., topic_arn is missing or the ARN doesn't match the required regex format).",
+          "Fix the request payload. Common issues include a missing topic_arn in the body or a malformed ARN (missing region, incorrect 12-digit account ID, or invalid characters in topic name)."
+        ],
+        [
+          "404 Not Found",
+          "The endpoint URL is incorrect (e.g., typo in path, missing /subscriptions/channels prefix, etc.). This code is not used to indicate a missing SNS topic in AWS.",
+          "The endpoint path is wrong. Confirm that you are calling POST /subscriptions/channels/sns:verify."
+        ],
+        [
+          "422 Unprocessable Entity",
+          "The request is syntactically valid, but verification failed at AWS. For example, the Zscaler role does not have permission to call sns:GetTopicAttributes on the topic, the topic doesn't exist, or AWS returned another verification error.",
+          "The ARN format is correct, but the Zscaler service cannot actually verify the topic at AWS. Common causes include:The topic policy is missing or incorrectly configured (the Zscaler role does not have sns:Publish or sns:GetTopicAttributes).The topic does not exist in AWS.The wrong region was specified.Key Management Service (KMS) key access is missing if the topic is encrypted with a customer‑managed key."
+        ],
+        [
+          "500 Internal Server Error",
+          "Internal error in the Event Monitoring & Notification API service (not caused by the request).",
+          "Indicates a Zscaler-side issue. Wait briefly and retry with backoff. If the error continues, contact Zscaler Support."
+        ]
+      ]
+    },
+    {
+      "heading": "Step 6: Create the Subscription",
+      "level": 2
+    },
+    {
+      "text": "After SNS verification succeeds, use POST /subscriptions to create an event subscription that forwards specific events (e.g., ZPA App Connector status changes) to your SNS topic."
+    },
+    {
+      "text": "Example request:"
+    },
+    {
+      "code": "POST /subscriptions HTTP/1.1\nHost: api.zsapi.net\nAuthorization: Bearer <access-token>\nContent-Type: application/json\n\n{\n  \"name\": \"ZPA App Connector Status to SNS\",\n  \"description\": \"Forward ZPA App Connector UP/DOWN events to my SNS topic\",\n  \"scope\": {\n    \"source_key\": \"zpa\",\n    \"source_type_key\": \"app_connector\",\n    \"source_event_key\": \"status\"\n  },\n  \"channels\": [\n    {\n      \"type\": \"sns\",\n      \"topic_arn\": \"arn:aws:sns:us-west-2:123456789012:zscaler-em-events\",\n      \"region\": \"us-west-2\"\n    }\n  ],\n  \"enabled\": true\n}"
+    },
+    {
+      "text": "You can attach multiple channels (for example, email, webhook, and SNS) to a single subscription. Each qualifying event is delivered to all configured channels."
+    },
+    {
+      "heading": "Notification Payload Format",
+      "level": 2
+    },
+    {
+      "text": "When the Event Monitoring & Notification API delivers an event to your SNS topic, Amazon SNS wraps the Zscaler event in a standard SNS envelope. The Zscaler event JSON is delivered as a string in the Message field."
+    },
+    {
+      "text": "Example full SNS envelope:"
+    },
+    {
+      "code": "{\n  \"Type\": \"Notification\",\n  \"MessageId\": \"22b4a1e5-6a3e-4f0d-9c3e-9a1b7c8d9e0f\",\n  \"TopicArn\": \"arn:aws:sns:us-west-2:123456789012:zscaler-em-events\",\n  \"Message\": \"{\\\"tenantId\\\":\\\"72059370006904832\\\",\\\"cloudName\\\":\\\"zpabeta.net\\\",\\\"occurredAt\\\":\\\"2026-07-07T21:40:47.205Z\\\",\\\"eventType\\\":\\\"zpa.app_connector.status\\\",\\\"oldValue\\\":\\\"DOWN\\\",\\\"newValue\\\":\\\"UP\\\",\\\"event\\\":\\\"STATE_CHANGE\\\",\\\"attributes\\\":{\\\"appConnectorId\\\":\\\"72059370006911322\\\",\\\"appConnectorName\\\":\\\"Oneapi-pk-1779994993712\\\",\\\"appConnectorGroupId\\\":\\\"72059370006905434\\\",\\\"appConnectorGroupName\\\":\\\"TechUp App Connector Group\\\"}}\",\n  \"Timestamp\": \"2026-07-07T21:40:47.500Z\",\n  \"SignatureVersion\": \"1\",\n  \"Signature\": \"...\",\n  \"SigningCertURL\": \"...\"\n}"
+    },
+    {
+      "text": "Zscaler event payload (after JSON.parse(Message)):"
+    },
+    {
+      "code": "{\n  \"tenantId\": \"72059370006904832\",\n  \"cloudName\": \"zpabeta.net\",\n  \"occurredAt\": \"2026-07-07T21:40:47.205Z\",\n  \"eventType\": \"zpa.app_connector.status\",\n  \"oldValue\": \"DOWN\",\n  \"newValue\": \"UP\",\n  \"event\": \"STATE_CHANGE\",\n  \"attributes\": {\n    \"appConnectorId\": \"72059370006911322\",\n    \"appConnectorName\": \"Oneapi-pk-1779994993712\",\n    \"appConnectorGroupId\": \"72059370006905434\",\n    \"appConnectorGroupName\": \"TechUp App Connector Group\"\n  }\n}"
+    },
+    {
+      "heading": "Managing Subscriptions",
+      "level": 1
+    },
+    {
+      "text": "The following example requests demonstrate how you can view a list of your subscriptions and update, disable, or delete a subscription."
+    },
+    {
+      "heading": "Retrieve Subscriptions",
+      "level": 2
+    },
+    {
+      "text": "The following example retrieves the list of your configured subscriptions with paginated results."
+    },
+    {
+      "code": "curl -X GET \"https://api.zsapi.net/event-monitoring/subscriptions?page=0&pageSize=10\" \\\n  -H \"Authorization: Bearer <Token>\" \\\n  -H \"x-em-cloud: prod.zpath.net\" \\\n  -H \"x-em-tenant: 145254691217866752\""
+    },
+    {
+      "heading": "Update a Subscription",
+      "level": 2
+    },
+    {
+      "text": "The following example request shows how to update an existing subscription."
+    },
+    {
+      "code": "curl -X PUT https://api.zsapi.net/event-monitoring/subscriptions/<subscription-id> \\\n  -H \"Authorization: Bearer <Token>\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"x-em-cloud: prod.zpath.net\" \\\n  -H \"x-em-tenant: 145254691217866752\" \\\n  -d '{ ... updated subscription body ... }"
+    },
+    {
+      "heading": "Disable a Subscription",
+      "level": 2
+    },
+    {
+      "text": "Set \"enabled\": false in the update request to temporarily disable a subscription without deleting it. When a subscription is disabled, notifications are no longer sent, but the subscription configuration is preserved."
+    },
+    {
+      "heading": "Delete a Subscription",
+      "level": 2
+    },
+    {
+      "text": "The following example request shows how you can delete a subscription."
+    },
+    {
+      "code": "curl -X DELETE https://api.zsapi.net/event-monitoring/subscriptions/<subscription-id> \\\n  -H \"Authorization: Bearer <Token>\" \\\n  -H \"x-em-cloud: prod.zpath.net\" \\\n  -H \"x-em-tenant: 145254691217866752\""
+    },
+    {
+      "text": "A successful delete request returns a 204 No Content response."
+    },
+    {
+      "heading": "Security Best Practices",
+      "level": 1
+    },
+    {
+      "item": "TLS required: All data in transit must be encrypted.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Tenant isolation: Isolation is enforced by authorization constraints and tenant mapping validation.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Audit logging: All operations log tenant ID, trace ID, API client ID, client IP address, and the change details (i.e., what was created, updated, or deleted).",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "The following sections provide troubleshooting tips for common issues encountered when operating, integrating with, or developing using the Event Monitoring & Notification API service to create and manage subscriptions."
+    },
+    {
+      "heading": "Subscription Not Receiving Notifications",
+      "level": 2
+    },
+    {
+      "text": "Try the following:"
+    },
+    {
+      "item": "Check your subscription enablement status by sending a GET /subscriptions/{id} request with your subscription ID and verifying the \"enabled\": true setting in the response.",
+      "depth": 0
+    },
+    {
+      "item": "Check the scope to ensure that source_key, source_type_key, and source_event_key match the events being produced.",
+      "depth": 0
+    },
+    {
+      "item": "Check your subscription's product tenant ID (i.e., zpa_tenant_id) to verify what the subscription is for.",
+      "depth": 0
+    },
+    {
+      "heading": "Email Not Delivered",
+      "level": 2
+    },
+    {
+      "text": "Verify that the email address matches the expected format: ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+    },
+    {
+      "heading": "Webhook Not Receiving Calls",
+      "level": 2
+    },
+    {
+      "text": "Try the following:"
+    },
+    {
+      "item": "Verify that the URL matches the expected format: ^https?://.+$",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that the webhook endpoint is reachable from the API deployment network.",
+      "depth": 0
+    },
+    {
+      "item": "Check for TLS certificate issues when using HTTPS.",
+      "depth": 0
+    }
+  ]
+}

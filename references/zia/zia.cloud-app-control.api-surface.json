@@ -37,7 +37,7 @@
     },
     {
       "label": "Model differences.",
-      "text": "The two SDKs model different fields {{divergence:go-python-model-fields}} and disagree on the shape of the risk profile {{divergence:risk-profile-shape}}; whether the Python mismatch raises is open {{gap:python-risk-profile-runtime}}."
+      "text": "The two SDKs model different fields {{divergence:go-python-model-fields}} and disagreed on the shape of the risk profile until Python SDK v1.11.2 {{divergence:risk-profile-shape}}, where the mismatch made rule listing fail {{gap:python-risk-profile-runtime}} {{python-risk-profile-single-object}}."
     },
     {
       "label": "Rule name.",
@@ -242,6 +242,26 @@
           "after": "class CreateRuleInput(BaseModel):"
         }
       ]
+    },
+    "python-risk-profile-single-object": {
+      "statement": "From Python SDK v1.11.2 the model parses `cloudAppRiskProfile` as a single object, as the Go struct does; up to v1.11.1 `cloudappcontrol.list_rules` failed with `KeyError: 0` on any rule that has a risk profile (#586).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed ZIA `cloudappcontrol.list_rules` failing with `KeyError: 0` when a rule has a `cloudAppRiskProfile`; the field is a single object and is now parsed as one."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/cloudappcontrol.py",
+          "quotes": [
+            "common_reference.ResourceReference(config[\"cloudAppRiskProfile\"])"
+          ]
+        }
+      ]
     }
   },
   "divergences": {
@@ -342,6 +362,9 @@
           "evidence": {
             "source": "sdk-python",
             "path": "zscaler/zia/models/cloudappcontrol.py",
+            "at": [
+              "v1.10.0"
+            ],
             "quotes": [
               "config[\"cloudAppRiskProfile\"] if \"cloudAppRiskProfile\" in config else [], common_reference.ResourceReference",
               "\"cloudAppRiskProfile\": self.cloud_app_risk_profile.request_format() if self.cloud_app_risk_profile else None,"
@@ -350,7 +373,12 @@
           "says": "The Python model decodes the same key as a list of references through `form_list`, yet its request format calls `.request_format()` on the attribute as if it were a single object."
         }
       ],
-      "impact": "The two SDKs disagree on the type; the Python side is internally inconsistent in source. Whether it raises at runtime has not been run."
+      "impact": "The two SDKs disagree on the type; the Python side is internally inconsistent in source. Whether it raises at runtime has not been run.",
+      "resolution": {
+        "by": "python-risk-profile-single-object",
+        "rule": "fixed-upstream",
+        "note": "The Python position describes v1.10.0; v1.11.2 parses a single object, matching Go."
+      }
     }
   },
   "gaps": {
@@ -368,10 +396,11 @@
     "python-risk-profile-runtime": {
       "kind": "semantic",
       "title": "Whether the Python cloudAppRiskProfile list/single mismatch raises",
-      "status": "open",
+      "status": "resolved",
       "resolves_with": [
+        "code-read",
         "lab-test",
-        "code-read"
+        "source-read"
       ],
       "blocks": "round-tripping a Python-read rule that has a risk profile",
       "detail": "Unverified legacy statement: the model decodes a list but request_format treats the attribute as one object. This is a code-shape observation; it was not executed to confirm that it raises. Tracked in the legacy ledger as zia-54.",
@@ -381,15 +410,16 @@
       "evidence": [
         {
           "source": "sdk-python",
-          "path": "zscaler/zia/models/cloudappcontrol.py",
+          "path": "CHANGELOG.md",
           "quotes": [
-            "\"cloudAppRiskProfile\": self.cloud_app_risk_profile.request_format() if self.cloud_app_risk_profile else None,"
+            "Fixed ZIA `cloudappcontrol.list_rules` failing with `KeyError: 0` when a rule has a `cloudAppRiskProfile`"
           ]
         }
       ],
       "former_ids": [
         "zia-54"
-      ]
+      ],
+      "resolution": "It raised, on read rather than on write: up to Python SDK v1.11.1 `list_rules` failed with `KeyError: 0` for a rule with a risk profile, per the vendor changelog; v1.11.2 fixes it (python-risk-profile-single-object)."
     },
     "name-length-enforcement": {
       "kind": "semantic",

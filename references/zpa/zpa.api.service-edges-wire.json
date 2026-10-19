@@ -1,0 +1,628 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.service-edges-wire",
+  "title": "ZPA Private Service Edge and private cloud controller calls: what is sent and where the sources differ",
+  "aliases": [
+    "private cloud controller restart path",
+    "service edge ipAcl",
+    "service edge schedule python bug",
+    "upgradeNowOnce",
+    "zpnSubModuleUpgradeList",
+    "service edge provisioningKeyId"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.private-service-edges.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This is the wire behavior of the Private Service Edge, private cloud controller and schedule calls that field listings do not show. Field names and types come from the surface layer (`node scripts/kb.mjs surface`) and the deployment behavior from [[zpa.private-service-edges.groups]]."
+    },
+    {
+      "heading": "Auto-delete schedule"
+    },
+    {
+      "text": "The schedule is a tenant singleton read with GET and written with POST and PUT in [[zpa.private-service-edges.api-surface]]. {{schedule-duplicate-packages}}"
+    },
+    {
+      "text": "{{python-schedule-update-sends-raw-body}}"
+    },
+    {
+      "heading": "Always-sent and dropped values"
+    },
+    {
+      "text": "{{service-edge-provisioning-key-sent}} {{private-broker-version-value-struct}} {{upgrade-now-once}}"
+    },
+    {
+      "text": "{{service-edge-group-enabled-sent}} The Go `isPublic` string is in [[zpa.private-service-edges.client-selection]]."
+    },
+    {
+      "heading": "Keys and types that differ between sources"
+    },
+    {
+      "text": "{{ip-acl-private-cloud-array}} The Go service edge disagrees with the specification {{divergence:ip-acl-type}}."
+    },
+    {
+      "text": "{{runtime-os-key}} {{sub-module-upgrade-key}} {{enrollment-cert-shape}}"
+    },
+    {
+      "heading": "Restart and listing"
+    },
+    {
+      "text": "{{restart-go-path}} {{restart-python-path}} The two shapes disagree {{divergence:restart-path}}, and which is accepted is open {{gap:restart-path-canonical}}."
+    },
+    {
+      "text": "{{list-params}}"
+    },
+    {
+      "text": "The summary decode differs between Go and Python {{divergence:private-cloud-group-summary-shape}}."
+    },
+    {
+      "text": "The entries of the sub-module upgrade list are typed in Python and untyped in Go {{sub-module-upgrade-list-typing}}."
+    },
+    {
+      "text": "A success check written for the single delete (204) fails on the bulk call, which answers 200: {{bulk-delete-returns-200}}"
+    },
+    {
+      "text": "The create answer is documented as empty with a schema, and the update stand-in lives in the Python PUT path: {{schedule-post-204-with-body-schema}}"
+    },
+    {
+      "text": "The Service Edge group coordinates are strings {{service-edge-group-coordinates-string}}, as a connector group's latitude is [[zpa.app-connectors.connector-groups:latitude-longitude-string]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a service edge's ipAcl was written through the Go SDK, which holds it as one string, before trusting its contents.",
+      "uses": [
+        "ip-acl-type"
+      ]
+    },
+    {
+      "do": "Whether a restart call matches the path the API accepts before concluding the controller ignored it.",
+      "uses": [
+        "restart-go-path",
+        "restart-python-path",
+        "restart-path-canonical"
+      ]
+    },
+    {
+      "do": "Whether a Python schedule update sent the caller's own keys (no customerId from the env fallback, an extra microtenantId) rather than the built payload.",
+      "uses": [
+        "python-schedule-update-sends-raw-body"
+      ]
+    },
+    {
+      "do": "Whether a service edge or group that looks enabled was written with a false that the tag dropped.",
+      "uses": [
+        "service-edge-group-enabled-sent",
+        "service-edge-provisioning-key-sent"
+      ]
+    }
+  ],
+  "claims": {
+    "schedule-duplicate-packages": {
+      "statement": "The Go SDK defines the same `AssistantSchedule` type and a `/serviceEdgeSchedule` endpoint constant in both the serviceedgecontroller and serviceedgeschedule packages; the serviceedgeschedule package exposes only GetSchedule, CreateSchedule and UpdateSchedule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgecontroller/zpa_service_edge_controller.go",
+          "quotes": [
+            "scheduleEndpoint              = \"/serviceEdgeSchedule\"",
+            "type AssistantSchedule struct {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgeschedule/serviceedgeschedule.go",
+          "quotes": [
+            "scheduleEndpoint = \"/serviceEdgeSchedule\"",
+            "type AssistantSchedule struct {",
+            "func GetSchedule(ctx context.Context",
+            "func CreateSchedule(ctx context.Context",
+            "func UpdateSchedule(ctx context.Context"
+          ]
+        }
+      ],
+      "conditions": "The serviceedgeschedule package is treated as the schedule CRUD package because it carries the three schedule functions; the duplicate in serviceedgecontroller was not traced for callers."
+    },
+    "python-schedule-update-sends-raw-body": {
+      "statement": "The Python `update_service_edge_schedule` builds a camel-case `payload` but passes the original `body` to `create_request`, whereas `add_service_edge_schedule` passes `payload`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/service_edge_schedule.py",
+          "quotes": [
+            "create_request(http_method, api_url, body, {}, params)"
+          ],
+          "after": "/serviceEdgeSchedule/{scheduler_id}"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/service_edge_schedule.py",
+          "quotes": [
+            "create_request(http_method, api_url, body=payload, params=params)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "body = convert_keys_to_camel_case(body)"
+          ]
+        }
+      ],
+      "conditions": "The executor camel-cases the body (`_prepare_body` in zscaler/request_executor.py), so the caller's snake_case keys still go out camel-cased. What is lost is the payload's `customerId` taken from `ZPA_CUSTOMER_ID` when the caller did not pass `customer_id`, and the body also carries `microtenantId`."
+    },
+    "service-edge-provisioning-key-sent": {
+      "statement": "The Go service edge request tags `provisioningKeyId` and `provisioningKeyName` without omitempty, so both are always sent, while the Go private cloud controller tags `provisioningKeyId` omitempty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgecontroller/zpa_service_edge_controller.go",
+          "quotes": [
+            "`json:\"provisioningKeyId\"`",
+            "`json:\"provisioningKeyName\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/private_cloud_controller/private_cloud_controller.go",
+          "quotes": [
+            "`json:\"provisioningKeyId,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "private-broker-version-value-struct": {
+      "statement": "The Go service edge holds `PrivateBrokerVersion` as a struct value tagged omitempty, so a zero value is sent as an empty object.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgecontroller/zpa_service_edge_controller.go",
+          "quotes": [
+            "PrivateBrokerVersion PrivateBrokerVersion `json:\"privateBrokerVersion,omitempty\"`"
+          ]
+        }
+      ],
+      "conditions": "The encoder rule for value structs is the claim value-struct-omitempty-emits-empty-object in shared.sdk-go.zero-value-writes."
+    },
+    "upgrade-now-once": {
+      "statement": "The Go `upgradeNowOnce` is a bool tagged omitempty, so it is sent only when true; the OpenAPI document says that when true the service edge upgrades once and then resets the field to false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgecontroller/zpa_service_edge_controller.go",
+          "quotes": [
+            "bool `json:\"upgradeNowOnce,omitempty\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge~1{serviceEdgeId}/put/requestBody/content/application~1json/schema/properties/privateBrokerVersion/properties/upgradeNowOnce",
+          "expect": {
+            "description": "Whether or not the ZPA Private Service Edge is upgraded to a new version only once. If set to <code>true</code>, the ZPA Private Service Edge upgrades to the new version and then resets this field to <code>false</code>."
+          }
+        }
+      ]
+    },
+    "ip-acl-private-cloud-array": {
+      "statement": "The Go private cloud controller holds `ipAcl` as a list of strings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/private_cloud_controller/private_cloud_controller.go",
+          "quotes": [
+            "[]string `json:\"ipAcl,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "runtime-os-key": {
+      "statement": "The Go private cloud controller maps its `Runtime` field to the key `runtimeOS`; the Python model accepts `runtime_os`, `runtimeOs` or `runtimeOS` on input, in that order, and always emits `runtimeOS`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/private_cloud_controller/private_cloud_controller.go",
+          "quotes": [
+            "`json:\"runtimeOS,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/private_cloud_controller.py",
+          "quotes": [
+            "config.get(\"runtime_os\")",
+            "config.get(\"runtimeOs\")",
+            "config.get(\"runtimeOS\")",
+            "\"runtimeOS\": self.runtime_os,"
+          ],
+          "after": "class PrivateCloudController(ZscalerObject):"
+        }
+      ]
+    },
+    "sub-module-upgrade-key": {
+      "statement": "The Python private cloud controller model reads the list from the response key `zpnSubModuleUpgrade` but writes it as `zpnSubModuleUpgradeList`, which is the key the Go SDK uses for both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/private_cloud_controller.py",
+          "quotes": [
+            "config[\"zpnSubModuleUpgrade\"] if \"zpnSubModuleUpgrade\" in config else []",
+            "\"zpnSubModuleUpgradeList\": self.zpn_sub_module_upgrade_list,"
+          ],
+          "after": "class PrivateCloudController(ZscalerObject):"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/private_cloud_controller/private_cloud_controller.go",
+          "quotes": [
+            "`json:\"zpnSubModuleUpgradeList,omitempty\"`"
+          ]
+        }
+      ],
+      "conditions": "Whether the API returns `zpnSubModuleUpgrade` or `zpnSubModuleUpgradeList` on a private cloud controller is not settled by these sources; the OpenAPI document uses both names on service edge payloads."
+    },
+    "service-edge-group-enabled-sent": {
+      "statement": "The Go service edge group tags `enabled` without omitempty so false is sent, while the Go private cloud group tags it omitempty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go",
+          "quotes": [
+            "bool `json:\"enabled\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/private_cloud_group/private_cloud_group.go",
+          "quotes": [
+            "bool `json:\"enabled,omitempty\"`"
+          ]
+        }
+      ],
+      "conditions": "The private cloud group side is also stated in shared.sdk-go.zero-value-writes (zpa-provisioning-key-enabled-false)."
+    },
+    "enrollment-cert-shape": {
+      "statement": "The Go service edge holds `enrollmentCert` as an unstructured map, while the Python service edge model keeps only its `name` and writes back `{name: ...}`, dropping every other member.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgecontroller/zpa_service_edge_controller.go",
+          "quotes": [
+            "map[string]interface{} `json:\"enrollmentCert,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/service_edges.py",
+          "quotes": [
+            "config[\"enrollmentCert\"][\"name\"] if \"enrollmentCert\" in config and \"name\" in config[\"enrollmentCert\"] else None",
+            "\"enrollmentCert\": {\"name\": self.enrollment_cert} if self.enrollment_cert else None,"
+          ]
+        }
+      ]
+    },
+    "restart-go-path": {
+      "statement": "The Go SDK restarts a private cloud controller with a request to `/privateCloudController/restart/{id}`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/private_cloud_controller/private_cloud_controller.go",
+          "quotes": [
+            "privateCloudControllerEndpoint+\"/restart\", controllerID)"
+          ]
+        }
+      ]
+    },
+    "restart-python-path": {
+      "statement": "The Python SDK restarts a private cloud controller with a request to `/privateCloudController/{controller_id}/restart`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/private_cloud_controller.py",
+          "quotes": [
+            "/privateCloudController/{controller_id}/restart"
+          ],
+          "after": "def restart_private_controller("
+        }
+      ]
+    },
+    "list-params": {
+      "statement": "The OpenAPI service edge list takes search, page, pagesize, sortBy, sortDir and microtenantId, with a default page size of 20 and a maximum of 500, and the Python private cloud controller list documents `sort_dir` defaulting to `dsc`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge/get/parameters/[name=pagesize]",
+          "expect": {
+            "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge/get/parameters/[name=sortDir]",
+          "expect": {
+            "description": "Specifies the sort direction (i.e., ascending or descending order)."
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/private_cloud_controller.py",
+          "quotes": [
+            "Default: `dsc`."
+          ]
+        }
+      ]
+    },
+    "bulk-delete-returns-200": {
+      "statement": "The OpenAPI document gives Service Edge bulkDelete a 200 response with an object body, while a single Service Edge DELETE returns 204 No Content. Up to v1.10.0 the Python `bulk_delete_service_edges` returned the bare HTTP status code; v1.11.1 returns the `(None, response, error)` tuple instead (#578).",
+      "tier": "A",
+      "conditions": "Changed upstream in v1.11.1 (checked 2026-10-18): previously \"The OpenAPI document gives Service Edge bulkDelete a 200 response with an object body, while a single Service Edge DELETE returns 204 No Content, and the Python `bulk_delete` returns the HTTP status code.\"",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge~1bulkDelete/post/responses/200",
+          "expect": {
+            "description": "OK"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge~1{serviceEdgeId}/delete/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/service_edges.py",
+          "at": [
+            "v1.10.0"
+          ],
+          "quotes": [
+            "return response.get_status()"
+          ],
+          "after": "/serviceEdge/bulkDelete"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/service_edges.py",
+          "quotes": [
+            "return (None, response, None)"
+          ],
+          "after": "def bulk_delete_service_edges("
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed ZPA `get_service_edge`, `delete_service_edge` and `bulk_delete_service_edges` to return the documented `(result, response, error)` tuple instead of a bare object or status code."
+          ],
+          "after": "## 1.11.1 (October 6 2026)"
+        }
+      ]
+    },
+    "schedule-post-204-with-body-schema": {
+      "statement": "The OpenAPI document gives POST on `/serviceEdgeSchedule` a 204 No Content response while also declaring a body schema for it (ScheduledConfigDTO), and the Python `update_service_edge_schedule` returns a stand-in object holding only the schedule ID when the response has no body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule/post/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/service_edge_schedule.py",
+          "quotes": [
+            "# Handle case where no content is returned (204 No Content)",
+            "return (ServiceEdgeSchedule({\"id\": scheduler_id}), response, None)"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule/post/responses/204/content/*~1*/schema",
+          "expect": {
+            "title": "ScheduledConfigDTO"
+          }
+        }
+      ],
+      "conditions": "The stand-in is in update_service_edge_schedule; add_service_edge_schedule builds its result from response.get_body() without a no-content branch."
+    },
+    "service-edge-group-coordinates-string": {
+      "statement": "A Service Edge group's `latitude` and `longitude` are strings in the OpenAPI document and in the Go struct.",
+      "tier": "A",
+      "conditions": "Statement widened from latitude only to latitude and longitude, with the longitude pointer and Go field added as evidence.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeGroup~1{serviceEdgeGroupId}/get/responses/200/content/*~1*/schema/properties/longitude",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go",
+          "quotes": [
+            "Longitude string `json:\"longitude,omitempty\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeGroup~1{serviceEdgeGroupId}/get/responses/200/content/*~1*/schema/properties/latitude",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go",
+          "quotes": [
+            "Latitude string `json:\"latitude,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "sub-module-upgrade-list-typing": {
+      "statement": "The Go private cloud controller holds `zpnSubModuleUpgradeList` as `[]interface{}`; the Python SDK types its entries with class ZPNSubmoduleUpgradeList.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/private_cloud_controller/private_cloud_controller.go",
+          "quotes": [
+            "ZpnSubModuleUpgradeList []interface{} `json:\"zpnSubModuleUpgradeList,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/private_cloud_controller.py",
+          "quotes": [
+            "class ZPNSubmoduleUpgradeList(ZscalerObject):"
+          ]
+        }
+      ],
+      "conditions": "Converted from a divergence: the two SDKs describe the same list at different typing depth and neither contradicts the other about the wire."
+    }
+  },
+  "divergences": {
+    "ip-acl-type": {
+      "summary": "Whether a service edge's ipAcl is a string or a list",
+      "positions": [
+        {
+          "says": "The Go service edge holds ipAcl as a single string.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/serviceedgecontroller/zpa_service_edge_controller.go",
+            "quotes": [
+              "string `json:\"ipAcl,omitempty\"`"
+            ],
+            "after": "type ServiceEdgeController struct {"
+          }
+        },
+        {
+          "says": "The OpenAPI service edge update documents ipAcl as an array of strings.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge~1{serviceEdgeId}/put/requestBody/content/application~1json/schema/properties/ipAcl",
+            "expect": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ],
+      "impact": "A response that carries ipAcl as an array (any length) fails to decode into the Go string field, and a Go write sends a string where the contract documents an array."
+    },
+    "restart-path": {
+      "summary": "Which path restarts a private cloud controller",
+      "positions": [
+        {
+          "says": "The Go SDK uses /privateCloudController/restart/{id}.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/private_cloud_controller/private_cloud_controller.go",
+            "quotes": [
+              "privateCloudControllerEndpoint+\"/restart\", controllerID)"
+            ]
+          }
+        },
+        {
+          "says": "The Python SDK uses /privateCloudController/{id}/restart.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/private_cloud_controller.py",
+            "quotes": [
+              "/privateCloudController/{controller_id}/restart"
+            ],
+            "after": "def restart_private_controller("
+          }
+        }
+      ],
+      "impact": "The two SDKs send different paths and the OpenAPI document lists neither (its privateCloudController paths are the collection GET and the by-ID GET/PUT/DELETE), so a restart through one SDK may fail. See gap restart-path-canonical."
+    },
+    "private-cloud-group-summary-shape": {
+      "summary": "The Go `GetGroupSummary` for private cloud groups decodes the summary into full PrivateCloudGroup objects, while the Python summary call decodes it into id-and-name CommonIDName objects.",
+      "positions": [
+        {
+          "says": "Go GetGroupSummary returns a list of PrivateCloudGroup read from the /summary path.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/private_cloud_group/private_cloud_group.go",
+            "quotes": [
+              "func GetGroupSummary(ctx context.Context, service *zscaler.Service) ([]PrivateCloudGroup, *http.Response, error) {"
+            ]
+          }
+        },
+        {
+          "says": "Python list_private_cloud_group_summary builds CommonIDName objects.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/private_cloud_group.py",
+            "quotes": [
+              "result.append(CommonIDName(self.form_response_body(item)))"
+            ]
+          }
+        }
+      ],
+      "impact": "Group fields read from a Go summary call are mostly empty if the endpoint returns only identifiers; the live response is not captured."
+    }
+  },
+  "gaps": {
+    "restart-path-canonical": {
+      "kind": "semantic",
+      "title": "Which private cloud controller restart path the API accepts",
+      "status": "open",
+      "former_ids": [
+        "zpa-22"
+      ],
+      "blocks": "telling which SDK's restart call works",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: the legacy reference (clarification zpa-22) says the canonical restart path is unresolved; the OpenAPI document's privateCloudController paths are only the list, the by-ID get, put and delete. Issue the restart with each shape against a scratch controller and record the status."
+    }
+  }
+}

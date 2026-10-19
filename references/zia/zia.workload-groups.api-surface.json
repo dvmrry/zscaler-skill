@@ -39,7 +39,7 @@
     },
     {
       "label": "The API.",
-      "text": "{{crud-endpoints}} {{postman-get-all-only}} {{field-types}}"
+      "text": "{{crud-endpoints}} {{postman-full-crud}} {{field-types}}"
     },
     {
       "label": "Listing and finding one by name.",
@@ -124,23 +124,6 @@
           "path": "zscaler/zia/services/workloadgroups/workloadgroups.go",
           "quotes": [
             "workloadGroupsEndpoint = \"/zia/api/v1/workloadGroups\""
-          ]
-        }
-      ]
-    },
-    "postman-get-all-only": {
-      "statement": "The OneAPI Postman collection holds only a \"Workload Groups - Get all\" request, a GET on `{{ZIABaseUrl}}/workloadGroups`; it is not a source for the write schema.",
-      "tier": "A",
-      "binds": [
-        "zia/workload-groups"
-      ],
-      "evidence": [
-        {
-          "source": "api-specs",
-          "path": "oneapi-postman-collection.json",
-          "quotes": [
-            "\"name\": \"Workload Groups - Get all\",",
-            "\"raw\": \"{{ZIABaseUrl}}/workloadGroups\","
           ]
         }
       ]
@@ -375,6 +358,40 @@
           ]
         }
       ]
+    },
+    "postman-full-crud": {
+      "statement": "The OneAPI Postman collection (the 09_29_2026 release) has list, add, get-by-ID, update and delete requests for ZIA workload groups.",
+      "tier": "A",
+      "binds": [
+        "zia/workload-groups"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "pointer": "/item/[name=Zscaler Internet Access (ZIA)]/item/[name=Workload Groups]/item/[name=Workload Group Resource Add Workload Group]/request",
+          "expect": {
+            "method": "POST"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "pointer": "/item/[name=Zscaler Internet Access (ZIA)]/item/[name=Workload Groups]/item/[name=Workload Group Resource Update Workload Group]/request",
+          "expect": {
+            "method": "PUT"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "pointer": "/item/[name=Zscaler Internet Access (ZIA)]/item/[name=Workload Groups]/item/[name=Workload Group Resource Delete Workload Group]/request",
+          "expect": {
+            "method": "DELETE"
+          }
+        }
+      ],
+      "conditions": "Corrected on recapture (2026-10-18, collection release 09_29_2026): previously \"The OneAPI Postman collection holds only a \"Workload Groups - Get all\" request, a GET on `{{ZIABaseUrl}}/workloadGroups`; it is not a source for the write schema.\""
     }
   },
   "gaps": {

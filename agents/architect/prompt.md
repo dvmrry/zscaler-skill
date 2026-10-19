@@ -13,7 +13,7 @@ sources:
   - "agents/architect/methodology.md"
   - "agents/declared-records.md"
   - "agents/siem-emission-discipline.md"
-  - "references/zpa/logs/app-connector-metrics.md"
+  - "`kb:zpa.logs.app-connector-metrics`"
 dependencies:
   - "harness.md"
   - "grounding/index.md"
@@ -83,7 +83,7 @@ You draw on two layers, each with different access modes (per [`siem-emission-di
 
 Plus **Zscaler-specific utilization** when LSS feeds are configured:
 
-- ZPA App Connector Metrics LSS — CPU, memory, throughput, active connections (see [`../zpa/logs/app-connector-metrics.md`](../../references/zpa/logs/app-connector-metrics.md))
+- ZPA App Connector Metrics LSS — CPU, memory, throughput, active connections (see [`zpa.logs.app-connector-metrics`](kb:zpa.logs.app-connector-metrics))
 - ZPA Private Service Edge metrics, Private Cloud Controller metrics — same shape for PSE / PCC
 - Splunk patterns for these in [`./splunk-queries.md`](../../references/shared/splunk-queries.md): `§ connector-throughput-utilization`, `§ connector-top-by-connection-count`, `§ connector-cpu-mem-alert`
 
@@ -246,4 +246,4 @@ Do not load the diagnostics template during ordinary first response. Load it whe
 - [`soc/prompt.md`](../soc/prompt.md) — `/z-soc` playbook (security-posture sibling)
 - [`siem-emission-discipline.md`](../siem-emission-discipline.md) — modes and rules for SIEM data access
 - [`splunk-queries.md`](../../references/shared/splunk-queries.md) — Splunk patterns for connector / PSE / PCC utilization
-- ZPA App Connector Metrics schema — [`../zpa/logs/app-connector-metrics.md`](../../references/zpa/logs/app-connector-metrics.md)
+- ZPA App Connector Metrics schema — [`zpa.logs.app-connector-metrics`](kb:zpa.logs.app-connector-metrics)

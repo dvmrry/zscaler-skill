@@ -57,6 +57,27 @@
     {
       "label": "Go serialization.",
       "text": "{{go-bypass-on-reauth}} The always-serialized flags and the Terraform update path are in [[zpa.terraform.app-segment-lifecycle]] and [[shared.sdk-go.zero-value-writes]]; other Go service defects are in [[zpa.sdk-go.service-defects]]."
+    },
+    {
+      "text": "A Python segment built from a dictionary without enabled reads as enabled {{python-enabled-defaults-true-from-partial-config}}."
+    },
+    {
+      "text": "The Python Inspection and PRA create methods do not drop a false flag the way the Go models do: {{python-inspection-pra-body-from-kwargs}}"
+    },
+    {
+      "text": "Go and Python differ on an explicit false for Inspection and PRA segments {{divergence:bypass-on-reauth-false-inspection-pra}}."
+    },
+    {
+      "text": "The two SDKs identify an existing sub-application differently on update {{divergence:subapp-id-matching-key}}."
+    },
+    {
+      "text": "The mappings entry shape differs between the SDKs {{divergence:mappings-response-shape}}."
+    },
+    {
+      "text": "Whether that endpoint is supported is open {{gap:provision-endpoint-supported}}."
+    },
+    {
+      "text": "An omitted sub-application survives an Inspection update unless the request names it for deletion {{gap:omitted-subapp-server-behavior}}."
     }
   ],
   "checks": [
@@ -148,21 +169,44 @@
       ]
     },
     "python-clientless-key-presence": {
-      "statement": "In the Python SDK `update_segment` tests whether the key `clientless_app_ids` is present, not whether it has a value, and a present key triggers a `BROWSER_ACCESS` lookup by the segment ID that returns 'No matching clientless App found' for a segment that has no Browser Access app; `add_segment` only renames the key to `clientlessApps`.",
+      "statement": "In the Python SDK `update_segment` tests whether the key `clientless_app_ids` is present, not whether it has a value, and a present key triggers a `BROWSER_ACCESS` lookup. Up to v1.10.0 that path returned 'No matching clientless App found with appId' (the v1.11.1 changelog says the update failed whenever `clientless_app_ids` was passed, #581); v1.11.1 matches each supplied app by domain and segment ID and returns 'No matching clientless App found for domain' only for an entry with no match. `add_segment` only renames the key to `clientlessApps`.",
       "tier": "A",
       "binds": [
         "zpa/browser-access#clientlessApps"
       ],
+      "conditions": "Changed upstream in v1.11.1 (checked 2026-10-18): previously \"In the Python SDK `update_segment` tests whether the key `clientless_app_ids` is present, not whether it has a value, and a present key triggers a `BROWSER_ACCESS` lookup by the segment ID that returns 'No matching clientless App found' for a segment that has no Browser Access app; `add_segment` only renames the key to `clientlessApps`.\"",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/application_segment.py",
+          "at": [
+            "v1.10.0"
+          ],
           "quotes": [
             "if \"clientless_app_ids\" in body:",
             "get_segments_by_type(application_type=\"BROWSER_ACCESS\")",
             "No matching clientless App found with appId"
           ],
           "after": "def update_segment(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "if \"clientless_app_ids\" in body:",
+            "get_segments_by_type(application_type=\"BROWSER_ACCESS\")",
+            "seg.domain == app.get(\"domain\") and str(seg.app_id) == segment_id",
+            "No matching clientless App found for domain"
+          ],
+          "after": "def update_segment(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed ZPA `update_segment` failing whenever `clientless_app_ids` is passed; Browser Access apps are now matched by domain and segment ID."
+          ],
+          "after": "## 1.11.1 (October 6 2026)"
         },
         {
           "source": "sdk-python",
@@ -225,6 +269,190 @@
           "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
           "quotes": [
             "BypassOnReauth bool `json:\"bypassOnReauth,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "python-enabled-defaults-true-from-partial-config": {
+      "statement": "The Python application segment model sets enabled to True when it is built from a response dictionary that has no enabled key, and to None when built with no response at all.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "quotes": [
+            "self.enabled = config[\"enabled\"] if \"enabled\" in config else True"
+          ],
+          "after": "class ApplicationSegments(ZscalerObject):"
+        }
+      ]
+    },
+    "python-inspection-pra-body-from-kwargs": {
+      "statement": "The Python SDK Inspection and PRA add_segment methods use the caller's keyword arguments as the request body of POST /application, so a `bypass_on_reauth=False` argument stays in the body and is not dropped for being false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_inspection.py",
+          "quotes": [
+            "body = kwargs"
+          ],
+          "after": "print(f\"segment created successfully: {added_segment.as_dict()}\")"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_pra.py",
+          "quotes": [
+            "body = kwargs"
+          ],
+          "after": "print(f\"Segment created successfully: {added_segment.as_dict()}\")"
+        }
+      ],
+      "conditions": "The Python request executor converts keyword names to camel case and returns scalar values unchanged, so the key reaches the API as bypassOnReauth: false."
+    }
+  },
+  "divergences": {
+    "bypass-on-reauth-false-inspection-pra": {
+      "summary": "For Inspection and PRA segments the Go SDK drops an explicit bypassOnReauth false while the Python SDK sends it.",
+      "positions": [
+        {
+          "says": "Go Inspection and PRA models tag bypassOnReauth `omitempty`, so false is omitted.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+            "quotes": [
+              "BypassOnReauth bool `json:\"bypassOnReauth,omitempty\"`"
+            ]
+          }
+        },
+        {
+          "says": "Go PRA model tags bypassOnReauth `omitempty` as well.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+            "quotes": [
+              "BypassOnReauth bool `json:\"bypassOnReauth,omitempty\"`"
+            ]
+          }
+        },
+        {
+          "says": "Python builds the Inspection create body from the caller's keyword arguments.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/app_segments_inspection.py",
+            "quotes": [
+              "body = kwargs"
+            ],
+            "after": "print(f\"segment created successfully: {added_segment.as_dict()}\")"
+          }
+        }
+      ],
+      "impact": "Go cannot send false for these two models; whether an omitted bypassOnReauth keeps or resets the stored value is not shown."
+    },
+    "subapp-id-matching-key": {
+      "summary": "On update the Go SDK matches existing Inspection and PRA sub-applications to the supplied ones by name, while the Python SDK matches them by domain.",
+      "positions": [
+        {
+          "says": "Go Inspection update maps existing inspection apps by Name and copies the ID where the supplied entry has the same Name.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+            "quotes": [
+              "existingInspectionApps[inspectionApp.Name] = inspectionApp",
+              "if existingApp, ok := existingInspectionApps[appConfig.Name]; ok {"
+            ]
+          }
+        },
+        {
+          "says": "Go PRA update does the same with PRA apps keyed by Name.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+            "quotes": [
+              "if existingApp, ok := existingPraApps[appConfig.Name]; ok {"
+            ],
+            "after": "// Step 3: Re-inject praAppId and appId into each AppsConfig entry"
+          }
+        },
+        {
+          "says": "Python Inspection update maps the existing sub-applications by domain.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/app_segments_inspection.py",
+            "quotes": [
+              "existing_apps = {s.domain: s for s in segments_list if s.app_id == segment_id}"
+            ]
+          }
+        },
+        {
+          "says": "Python PRA update maps the existing sub-applications by domain.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/app_segments_pra.py",
+            "quotes": [
+              "existing_apps = {s.domain: s for s in segments_list if s.app_id == segment_id}"
+            ]
+          }
+        }
+      ],
+      "impact": "A sub-application renamed with an unchanged domain gets its ID injected by Python and not by Go; one whose domain changed with an unchanged name gets it from Go and not from Python. Go then lists the unmatched existing ID in deletedPraApps for PRA and, since v3.8.49, in deletedInspectApps for Inspection (zpa.api.app-segments-wire:go-deleted-subapps)."
+    },
+    "mappings-response-shape": {
+      "summary": "The Go SDK models a mappings entry as one name and one type, while the Python docstring describes a list of names and a type.",
+      "positions": [
+        {
+          "says": "Go ApplicationMappings holds a single Name and a Type.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+            "quotes": [
+              "Name string `json:\"name,omitempty\"`"
+            ],
+            "after": "type ApplicationMappings struct {"
+          }
+        },
+        {
+          "says": "Python docstring says each mapping has `names` (list of strings) and `type`.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/application_segment.py",
+            "quotes": [
+              "A tuple containing a list of dictionaries with `names` (list of strings)"
+            ]
+          }
+        }
+      ],
+      "impact": "A caller that reads a names list from the mappings call gets nothing from the Go shape; the live response is not captured."
+    }
+  },
+  "gaps": {
+    "provision-endpoint-supported": {
+      "kind": "semantic",
+      "title": "Whether POST /application/provision is a supported ZPA endpoint",
+      "status": "open",
+      "detail": "Unverified legacy statement: the Go SDK and the Postman collection have no equivalent of the Python provision call, so the endpoint contract has no second source. The OpenAPI document has no such path either. Call it in a scratch tenant and compare the result with creating the same segment and its server group through the normal calls.",
+      "blocks": "recommending the provision call to a Go or raw-HTTP caller",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "omitted-subapp-server-behavior": {
+      "kind": "semantic",
+      "title": "Whether the API removes a sub-application that is omitted from an Inspection update without a deletion entry",
+      "status": "resolved",
+      "detail": "Unverified legacy statement: Go SDK Inspection callers who remove sub-applications without setting DeletedInspectApps will leave orphaned sub-application records server-side, with no fallback. Remove one Inspection sub-application with and without a deletion entry in a scratch tenant and list the segment afterwards.",
+      "blocks": "telling whether Go Inspection updates leave orphans",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "resolution": "The API keeps it: the Go SDK v3.8.49 changelog states that an inspection app omitted from the PUT without a deletedInspectApps entry was left in place by the API rather than deleted. From v3.8.49 the Go SDK sends the deletion entry (zpa.api.app-segments-wire:go-deleted-subapps).",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "so an inspection app omitted from the `PUT` was left in place by the API rather than deleted"
           ]
         }
       ]

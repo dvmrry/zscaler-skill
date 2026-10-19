@@ -390,18 +390,29 @@
       ]
     },
     "sandbox-update-index-after-logged-error": {
-      "statement": "Sandbox rule update logs a failed list of existing rules, removes the default rule from whatever came back, sorts, and reads the last element with no length check. An empty result (a failed list) panics with an index out of range instead of returning an error.",
+      "statement": "Before v4.8.11, sandbox rule update logged a failed list of existing rules, removed the default rule from whatever came back, sorted, and read the last element with no length check, so an empty result (a failed list) panicked with an index out of range instead of returning an error. v4.8.11 returns the list error before the filter and the index (#610); the index itself still has no length check.",
       "tier": "A",
+      "conditions": "Changed upstream in v4.8.11 (checked 2026-10-18): previously \"Sandbox rule update logs a failed list of existing rules, removes the default rule from whatever came back, sorts, and reads the last element with no length check. An empty result (a failed list) panics with an index out of range instead of returning an error.\"",
       "evidence": [
         {
           "source": "tf-zia",
           "path": "zia/resource_zia_sandbox_rules.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.8"
           ],
           "quotes": [
             "log.Printf(\"[ERROR] error getting all sandbox rules: %v\", err)",
+            "existingRules = filterOutDefaultRule(existingRules)",
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
+          ],
+          "after": "existingRules, err := sandbox_rules.GetAll(ctx, service)"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_rules.go",
+          "quotes": [
+            "return diag.FromErr(fmt.Errorf(\"error getting all sandbox rules: %w\", err))",
             "existingRules = filterOutDefaultRule(existingRules)",
             "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
           ],
@@ -416,7 +427,7 @@
       ]
     },
     "update-index-panic-sites": {
-      "statement": "The same log-then-index-last-element update code is in eight more rule resources besides URL Filtering and the sandbox rules above: cloud app control, file type control, firewall filtering, firewall DNS, firewall IPS, forwarding control, SSL inspection and traffic capture. Endpoint DLP update has a `len(existingRules) > 0` guard and does not share it.",
+      "statement": "Before v4.8.11 the same log-then-index-last-element update code was in eight more rule resources besides URL Filtering and the sandbox rules above: cloud app control, file type control, firewall filtering, firewall DNS, firewall IPS, forwarding control, SSL inspection and traffic capture. v4.8.11 makes all of them return the list error before the index (#610). Endpoint DLP update has a `len(existingRules) > 0` guard and does not share the index panic; at the pin its list error is still only logged.",
       "tier": "B",
       "derived_from": [
         "zia.terraform.rule-order:list-error-then-panic",
@@ -428,13 +439,30 @@
           "path": "zia/resource_zia_firewall_dns_rules.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.8"
           ],
           "quotes": [
             "log.Printf(\"[ERROR] error getting all firewall dns rules: %v\", err)",
             "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
           ],
           "after": "func resourceFirewallDNSRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_dns_rules.go",
+          "quotes": [
+            "return diag.FromErr(fmt.Errorf(\"error getting all firewall dns rules: %w\", err))",
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
+          ],
+          "after": "func resourceFirewallDNSRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_endpoint_dlp_rules.go",
+          "quotes": [
+            "log.Printf(\"[ERROR] error getting all endpoint dlp rules: %v\", err)"
+          ],
+          "after": "existingRules, err := endpoint_dlp_rules.GetAll(ctx, service)"
         },
         {
           "source": "tf-zia",
@@ -449,7 +477,7 @@
           "after": "existingRules, err := endpoint_dlp_rules.GetAll(ctx, service)"
         }
       ],
-      "conditions": "Found by `grep -n 'existingRules\\[len(existingRules)-1\\]' zia/resource_zia_*.go` at tf-zia v4.8.3 and HEAD: eleven matches (ten unguarded plus endpoint DLP, whose index sits inside the length guard). For the ten unguarded ones I confirmed the preceding GetAll error branch only calls log.Printf. At HEAD cloud app control's index sits at a different line but is unchanged in shape.",
+      "conditions": "Found by `grep -n 'existingRules\\[len(existingRules)-1\\]' zia/resource_zia_*.go` at tf-zia v4.8.3 and HEAD: eleven matches (ten unguarded plus endpoint DLP, whose index sits inside the length guard). For the ten unguarded ones I confirmed the preceding GetAll error branch only calls log.Printf. At HEAD cloud app control's index sits at a different line but is unchanged in shape. At v4.8.13 `grep -n -A2 'existingRules, err := '` over the ten files shows every GetAll error branch returning `diag.FromErr`, all from commit e7aacee (first tag v4.8.11). Changed upstream in v4.8.11 (checked 2026-10-18): previously \"The same log-then-index-last-element update code is in eight more rule resources besides URL Filtering and the sandbox rules above: cloud app control, file type control, firewall filtering, firewall DNS, firewall IPS, forwarding control, SSL inspection and traffic capture. Endpoint DLP update has a `len(existingRules) > 0` guard and does not share it.\"",
       "upstream": [
         {
           "status": "unfiled",

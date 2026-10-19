@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "id": "zpa.logs.app-connector-metrics",
+  "title": "What the ZPA App Connector Metrics log reports and what it leaves open",
+  "aliases": [
+    "zpn_ast_comprehensive_stats record",
+    "app connector metrics log",
+    "AliveTargetCount TargetCount",
+    "AppConnectionsActive",
+    "AvailablePorts file descriptors",
+    "connector overloaded cpu",
+    "connector metrics interval"
+  ],
+  "binds": [
+    "zpa/app-connector-metrics-log#CPUUtilization",
+    "zpa/app-connector-metrics-log#SystemMemoryUtilization",
+    "zpa/app-connector-metrics-log#ProcessMemoryUtilization",
+    "zpa/app-connector-metrics-log#AppConnectionsCreated",
+    "zpa/app-connector-metrics-log#AppConnectionsCleared",
+    "zpa/app-connector-metrics-log#AppConnectionsActive",
+    "zpa/app-connector-metrics-log#TransmittedBytesToPublicSE",
+    "zpa/app-connector-metrics-log#ReceivedBytesFromPublicSE",
+    "zpa/app-connector-metrics-log#TransmittedBytesToPrivateSE",
+    "zpa/app-connector-metrics-log#ReceivedBytesFromPrivateSE",
+    "zpa/app-connector-metrics-log#AvailablePorts",
+    "zpa/app-connector-metrics-log#ProcessMaximumFileDescriptors",
+    "zpa/app-connector-metrics-log#SystemMaximumFileDescriptors",
+    "zpa/app-connector-metrics-log#AvailableDiskBytes",
+    "zpa/app-connector-metrics-log#ServiceCount",
+    "zpa/app-connector-status-log#ServiceCount",
+    "zpa/app-connector-metrics-log#LogTimestamp"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.log-receivers.log-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.health"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.control-session-status"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.service-edge-metrics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.selection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The App Connector Metrics log is per-connector resource and connection telemetry. Its descriptions give the counts but not the intervals or the failure thresholds."
+    },
+    {
+      "label": "Recurrence.",
+      "text": "{{five-minute-stamp}} Whether the interval is 5 minutes, configurable, and whether counters are deltas is open {{gap:interval-and-delta}}."
+    },
+    {
+      "label": "CPU and memory.",
+      "text": "{{cpu-peak-window}}"
+    },
+    {
+      "label": "Connections and throughput.",
+      "text": "{{app-connection-counts}} {{throughput-bytes}} What disconnected M-Tunnels imply is open {{gap:disconnected-mtunnel-reading}}. The target and M-Tunnel counts are in [[zpa.app-connectors.health]]."
+    },
+    {
+      "label": "Headroom.",
+      "text": "{{headroom-fields}} What happens as these run out is open {{gap:exhaustion-effects}}, as is reading load {{gap:overload-reading}}."
+    },
+    {
+      "label": "Services and joins.",
+      "text": "{{service-count-configured}} Whether the Connector value joins across logs is open {{gap:connector-join-value}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a CPU reading was taken as a peak over 5 minutes, not as an average.",
+      "uses": [
+        "cpu-peak-window"
+      ]
+    },
+    {
+      "do": "Whether a rate was computed from the byte or connection counters only after confirming they are per-interval.",
+      "uses": [
+        "interval-and-delta"
+      ]
+    },
+    {
+      "do": "Whether the target counts show unreachable targets, using the health subject's definitions.",
+      "uses": [
+        "zpa.app-connectors.health"
+      ]
+    }
+  ],
+  "claims": {
+    "cpu-peak-window": {
+      "statement": "App Connector Metrics CPUUtilization is the maximum CPU usage in the past 5 minutes, so it reports a peak rather than an average; SystemMemoryUtilization is the memory use of the entire VM and ProcessMemoryUtilization that of the App Connector process.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-app-connector-metrics-log-fields.json",
+          "quotes": [
+            "| CPUUtilization | The maximum CPU usage in the past 5 minutes",
+            "| ProcessMemoryUtilization | The memory utilization of the App Connector process"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-metrics-log#CPUUtilization",
+        "zpa/app-connector-metrics-log#SystemMemoryUtilization",
+        "zpa/app-connector-metrics-log#ProcessMemoryUtilization"
+      ]
+    },
+    "app-connection-counts": {
+      "statement": "AppConnectionsCreated, AppConnectionsCleared and AppConnectionsActive are described as the numbers of created, cleared and active application Microtunnel connections, with no interval or since-start qualifier; the example shows 300 created, 300 cleared and 0 active.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-app-connector-metrics-log-fields.json",
+          "quotes": [
+            "| AppConnectionsCreated | The number of created application Microtunnel (M-Tunnel) connections",
+            "\"AppConnectionsCreated\":\"300\",\"AppConnectionsCleared\":\"300\",\"AppConnectionsActive\":\"0\""
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-metrics-log#AppConnectionsCreated",
+        "zpa/app-connector-metrics-log#AppConnectionsCleared",
+        "zpa/app-connector-metrics-log#AppConnectionsActive"
+      ]
+    },
+    "throughput-bytes": {
+      "statement": "The four throughput fields are described as the number of bytes transmitted to, or received from, the Public or Private Service Edge, with no interval stated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-app-connector-metrics-log-fields.json",
+          "quotes": [
+            "| TransmittedBytesToPublicSE | The number of bytes transmitted by the App Connector to the Public Service Edge",
+            "| ReceivedBytesFromPrivateSE | The number of bytes received by the App Connector from the Private Service Edge"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-metrics-log#TransmittedBytesToPublicSE",
+        "zpa/app-connector-metrics-log#ReceivedBytesFromPublicSE",
+        "zpa/app-connector-metrics-log#TransmittedBytesToPrivateSE",
+        "zpa/app-connector-metrics-log#ReceivedBytesFromPrivateSE"
+      ]
+    },
+    "headroom-fields": {
+      "statement": "AvailablePorts is the number of usable ports; the file descriptor fields give the total and used counts for the App Connector system and for the App Connector process separately; AvailableDiskBytes is the number of free bytes available for an App Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-app-connector-metrics-log-fields.json",
+          "quotes": [
+            "| AvailablePorts | The number of usable ports",
+            "| ProcessMaximumFileDescriptors | The number of total App Connector process file descriptors",
+            "| AvailableDiskBytes | The number of free bytes available for an App Connector"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-metrics-log#AvailablePorts",
+        "zpa/app-connector-metrics-log#ProcessMaximumFileDescriptors",
+        "zpa/app-connector-metrics-log#SystemMaximumFileDescriptors",
+        "zpa/app-connector-metrics-log#AvailableDiskBytes"
+      ]
+    },
+    "service-count-configured": {
+      "statement": "In the Metrics log ServiceCount is the number of services configured for access via the App Connector, whereas in the Status log it is the number of services being monitored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-app-connector-metrics-log-fields.json",
+          "quotes": [
+            "| ServiceCount | The number of services configured for access via this App Connector"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "app-connector-status-log-fields.json",
+          "quotes": [
+            "being monitored by the App Connector"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-metrics-log#ServiceCount",
+        "zpa/app-connector-status-log#ServiceCount"
+      ]
+    },
+    "five-minute-stamp": {
+      "statement": "The App Connector Metrics example is stamped at 10:40:00, a whole 5-minute mark, and the CPU field covers the past 5 minutes; no capture states the emission interval.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-app-connector-metrics-log-fields.json",
+          "quotes": [
+            "\"LogTimestamp\": \"Thu Oct 7 10:40:00 2021\""
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-metrics-log#LogTimestamp"
+      ]
+    }
+  },
+  "gaps": {
+    "interval-and-delta": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Emission interval of App Connector Metrics and whether the counters are deltas",
+      "blocks": "computing rates from the byte and connection counters",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: Metrics logs are emitted about every 5 minutes for each active App Connector (one record per connector per interval), the four throughput fields are per-interval deltas rather than cumulative totals so a rate is the value divided by the interval, and AppConnectionsCreated and AppConnectionsCleared are cumulative since the last record. The legacy doc itself marks the interval as inferred from the ZDX metric interval and the delta reading as an inference from the 300/300/0 example. The captures give the 5-minute window only for CPUUtilization (cpu-peak-window), and no capture says whether the interval is configurable per receiver."
+    },
+    "disconnected-mtunnel-reading": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What non-zero DisconnectedConnections counts imply",
+      "blocks": "deciding whether a connector's disconnected M-Tunnels explain user access failures",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "detail": "Unverified legacy statement: non-zero DisconnectedConnectionsToPublicSE or DisconnectedConnectionsToPrivateSE indicates M-Tunnel instability, and when a connector loses all its active Service Edge connections users whose sessions were pinned to it lose access. The counts themselves are held in zpa.app-connectors.health (metrics-mtunnel-counts)."
+    },
+    "exhaustion-effects": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "What happens as ports, file descriptors or disk run out",
+      "blocks": "judging when a connector is near failure",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: AvailablePorts approaching 0 or ProcessUsedFileDescriptors approaching ProcessMaximumFileDescriptors are emergency signals, port exhaustion and file descriptor pressure are common failure modes of overloaded connectors that cause new outbound connections to fail or refuse, and low AvailableDiskBytes may affect log writing and process stability. The captures define the fields (headroom-fields) and do not describe failure behavior or thresholds."
+    },
+    "overload-reading": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Reading CPU, connection count and target counts as overload or load imbalance",
+      "blocks": "deciding that a connector is overloaded or that targets are unreachable from its network position",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: high CPUUtilization together with high AppConnectionsActive indicates an overloaded connector; AppConnectionsActive far above peers indicates load concentration, and a healthy connector group shows roughly even counts while high variance suggests sticky behavior or asymmetric group membership; AliveTargetCount below TargetCount means targets are unreachable from the connector's network position (the count definitions are held in zpa.app-connectors.health, alive-below-target); sustained CPU above 80 or a peak above 90 is a health concern."
+    },
+    "connector-join-value": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether the Connector value is the same name across the Metrics, Status and User Activity logs",
+      "blocks": "joining connector records across the three logs",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "detail": "Unverified legacy statement: the Connector field in Metrics is the same value as in User Activity, the connector's display name as configured in the ZPA admin portal. All three captures describe the field as the App Connector name (connector-name-three-logs in zpa.logs.user-activity); none says the values are identical or that they are the portal display name."
+    }
+  }
+}

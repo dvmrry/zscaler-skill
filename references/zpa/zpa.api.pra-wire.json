@@ -1,0 +1,765 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.pra-wire",
+  "title": "What the SDKs send and receive for ZPA Privileged Remote Access objects",
+  "aliases": [
+    "credential pool waap-pra-config",
+    "pra console bulk",
+    "pra approval workingHours cron",
+    "credential move targetMicrotenantId",
+    "pra portal getcName",
+    "connectionSecurity NLA",
+    "credential password returned on GET"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.tooling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.credentials"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.approvals"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.components"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject records what the SDKs send and receive for Privileged Remote Access objects that is not a plain field list: base paths, keys, defaults and response handling. The product behavior is in [[zpa.pra.components]], [[zpa.pra.credentials]] and [[zpa.pra.approvals]], and the Python tooling in [[zpa.pra.tooling]]."
+    },
+    {
+      "heading": "Credential pools"
+    },
+    {
+      "text": "{{credential-pool-base-path}} {{credential-pool-wire-shape}} {{credential-pool-create-lookup}}"
+    },
+    {
+      "text": "Whether the undocumented credential-pool endpoints are a supported API surface is open {{gap:credential-pool-not-in-contract}}."
+    },
+    {
+      "heading": "Consoles and portals"
+    },
+    {
+      "text": "{{console-bulk-body}}"
+    },
+    {
+      "text": "{{portal-no-omitempty}} The CNAME key differs between tools {{divergence:portal-cname-key}}."
+    },
+    {
+      "text": "The connectionSecurity values a PRA sub-application accepts are in [[zpa.api.app-segments-wire:connection-security-values]]."
+    },
+    {
+      "heading": "Approvals"
+    },
+    {
+      "text": "{{working-hours-fields}} {{approval-times}} {{approval-status-values}}"
+    },
+    {
+      "text": "{{approval-nil-working-hours}} {{approval-delete-expired}}"
+    },
+    {
+      "heading": "Credentials"
+    },
+    {
+      "text": "{{credential-type-values}} {{credential-move}}"
+    },
+    {
+      "text": "Whether a credential read returns its secrets is open {{gap:credential-secrets-on-read}}."
+    },
+    {
+      "heading": "Updates"
+    },
+    {
+      "text": "{{update-returns-204}}"
+    },
+    {
+      "text": "Whether the POST body carries the ID is open {{gap:credential-pool-post-id}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a credential pool call used the waap-pra-config base path rather than mgmtconfig before reading a 404 as a missing pool.",
+      "uses": [
+        "credential-pool-base-path"
+      ]
+    },
+    {
+      "do": "Whether a bulk console request was a top-level array and whether the SDK dropped fields outside the five it copies.",
+      "uses": [
+        "console-bulk-body"
+      ]
+    },
+    {
+      "do": "Whether an approval's times were epoch values and inside the one-hour and 365-day client bounds.",
+      "uses": [
+        "approval-times",
+        "working-hours-fields"
+      ]
+    },
+    {
+      "do": "Whether a credential move to the Default microtenant passed the string 0 rather than the integer.",
+      "uses": [
+        "credential-move"
+      ]
+    },
+    {
+      "do": "Whether the caller read back an updated object after a PUT instead of trusting the id-only return.",
+      "uses": [
+        "update-returns-204"
+      ]
+    }
+  ],
+  "claims": {
+    "credential-pool-base-path": {
+      "statement": "Credential pools use the base path /zpa/waap-pra-config/v1/admin/customers/ in both SDKs, while the privileged approval, console, credential and portal resources use /zpa/mgmtconfig/v1/admin/customers/. The OpenAPI document has no credential-pool path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/pracredentialpool/pracredentialpool.go",
+          "quotes": [
+            "mgmtConfig = \"/zpa/waap-pra-config/v1/admin/customers/\"",
+            "credentialEndpoint = \"/credential-pool\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/pracredential/credential_controller.go",
+          "quotes": [
+            "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_credential_pool.py",
+          "quotes": [
+            "self._zpa_base_endpoint = f\"/zpa/waap-pra-config/v1/admin/customers/{customer_id}\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_credential.py",
+          "quotes": [
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
+          ]
+        }
+      ],
+      "conditions": "The absence of a credential-pool path in the OpenAPI document was checked by listing its paths for 'credential'; only /credential, /credential/{id} and /credential/{id}/move exist, and the Postman collection has no credential-pool request either. Corrected the list of paths, which had left out /credential/{id}."
+    },
+    "credential-pool-wire-shape": {
+      "statement": "A credential pool's members travel under the key `credentials`, not `praCredentials`: the Go field is tagged `credentials` without omitempty, and the Python SDK rewrites credential_ids to a list of id objects under `credentials`. The pool's credentialMappingCount is a string tagged omitempty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/pracredentialpool/pracredentialpool.go",
+          "quotes": [
+            "PRACredentials []common.CommonIDName `json:\"credentials\"`",
+            "CredentialMappingCount string `json:\"credentialMappingCount,omitempty\"`"
+          ],
+          "after": "type CredentialPool struct {"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_credential_pool.py",
+          "quotes": [
+            "body[\"credentials\"] = [{\"id\": credential_id} for credential_id in body.pop(\"credential_ids\")]"
+          ],
+          "after": "def add_credential_pool(self, **kwargs)"
+        }
+      ]
+    },
+    "credential-pool-create-lookup": {
+      "statement": "The Go SDK's credential pool Create sends the POST with no response target, then lists all pools and returns the first whose name matches case-insensitively; if none matches it returns an error although the pool was created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/pracredentialpool/pracredentialpool.go",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+credentialEndpoint, common.Filter{MicroTenantID: service.MicroTenantID()}, credential, nil)",
+            "// Do a follow-up GetAll to find the created resource by name",
+            "credential pool created, but could not locate ID for name: %s"
+          ],
+          "after": "func Create(ctx context.Context, service *zscaler.Service, credential *CredentialPool)"
+        }
+      ],
+      "conditions": "That the POST response omits the id is inferred from the SDK ignoring the response; it was not shown from a response sample."
+    },
+    "console-bulk-body": {
+      "statement": "The bulk console create takes and returns a top-level array of consoles. The Python SDK's add_bulk_console accepts snake_case input (pra_application_id, pra_portal_ids), builds each entry itself with only name, enabled, praApplication, praPortals and description (enabled defaulting to True and description to an empty string), merges the extra keyword arguments into every entry, and sets the body after request creation. Because the request is created with no body and the list is attached afterwards, the executor's camel-case conversion never runs on it, so merged keyword arguments such as microtenant_id are sent in every entry in snake case as given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1praConsole~1bulk/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1praConsole~1bulk/post/responses/201/content/*~1*/schema",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/praconsole/praconsole.go",
+          "quotes": [
+            "func CreatePraBulk(ctx context.Context, service *zscaler.Service, praConsoles []PRAConsole) ([]PRAConsole, *http.Response, error) {"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_console.py",
+          "quotes": [
+            "\"enabled\": console_data.get(\"enabled\", True),",
+            "\"praApplication\": {\"id\": console_data.get(\"pra_application_id\")},",
+            "\"description\": console_data.get(\"description\", \"\"),",
+            "entry.update(kwargs)",
+            "body=None,",
+            "request[\"json\"] = body"
+          ],
+          "after": "def add_bulk_console(self, consoles: list, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "json_payload = self._prepare_body(endpoint, body)",
+            "request[\"json\"] = json_payload"
+          ]
+        }
+      ],
+      "conditions": "Extended per verifier: the snake-case consequence follows from create_request converting only the body it is given (here None) in _prepare_body, where ZPA bodies are camel-cased as in [[zpa.sdk-python.microtenant-scoping:body-camel]]. Whether the server ignores or rejects the snake-case keys is not shown."
+    },
+    "working-hours-fields": {
+      "statement": "A privileged approval's workingHours carries both a human-readable startTime and endTime (the Terraform provider validates them as HH:MM) and cron-expression startTimeCron and endTimeCron, plus days and timeZone. The Go SDK's comments define the cron form as seven fields: seconds, minutes, hours, day of month, month, day of week and year.",
+      "conditions": "The HH:MM format is now attributed to the Terraform provider's client-side validation; neither the Go SDK nor the contract states a format for startTime and endTime.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_pra_approval.go",
+          "quotes": [
+            "// validate24HourTimeFormat validates that a string is in \"HH:MM\" 24-hour time format."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/praapproval/praapproval.go",
+          "quotes": [
+            "StartTime string `json:\"startTime,omitempty\"`",
+            "EndTime string `json:\"endTime,omitempty\"`",
+            "StartTimeCron string `json:\"startTimeCron,omitempty\"`",
+            "EndTimeCron string `json:\"endTimeCron,omitempty\"`",
+            "TimeZone string `json:\"timeZone,omitempty\"`",
+            "Days []string `json:\"days,omitempty\"`"
+          ],
+          "after": "type WorkingHours struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/praapproval/praapproval.go",
+          "quotes": [
+            "The standard cron expression format is [Seconds][Minutes][Hours][Day of the Month][Month][Day of the Week][Year]."
+          ],
+          "after": "//The cron expression provided to configure the privileged approval start time working hours."
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1approval~1{id}/get/responses/200/content/*~1*/schema/properties/workingHours/properties/startTimeCron",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "approval-times": {
+      "statement": "A privileged approval's top-level startTime and endTime are integer epoch values in the specification and strings in the Go struct; the Python SDK converts RFC 1123 style time strings to epoch, rejects a start more than one hour in the past and an end more than 365 days after the start, and uses the working-hours time zone or UTC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1approval~1{id}/get/responses/200/content/*~1*/schema/properties/startTime",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/praapproval/praapproval.go",
+          "quotes": [
+            "StartTime string `json:\"startTime,omitempty\"`",
+            "EndTime string `json:\"endTime,omitempty\"`"
+          ],
+          "after": "// The start date that the user has access to the privileged approval."
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "raise ValueError(\"Start time cannot be more than 1 hour in the past.\")",
+            "if end_time > (start_time + datetime.timedelta(days=365)):"
+          ],
+          "after": "def validate_and_convert_times(start_time_str, end_time_str, time_zone_str):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_approval.py",
+          "quotes": [
+            "time_zone = working_hours.get(\"time_zone\") or \"UTC\""
+          ],
+          "after": "def add_approval(self, **kwargs)"
+        }
+      ],
+      "conditions": "The two Python bounds are client-side checks; whether the API enforces the same limits is not shown. The same helper validates enrollment-certificate times."
+    },
+    "approval-nil-working-hours": {
+      "statement": "In the Go SDK a privileged approval's workingHours pointer and applications slice are tagged without omitempty, so a nil workingHours, and an applications slice that was never set, are sent as null; only an empty non-nil applications slice is sent as an empty array.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/praapproval/praapproval.go",
+          "quotes": [
+            "WorkingHours *WorkingHours `json:\"workingHours\"`",
+            "Applications []Applications `json:\"applications\"`"
+          ],
+          "after": "type PrivilegedApproval struct {"
+        }
+      ],
+      "conditions": "Corrected: Go's encoding/json writes a nil slice as null, not an empty array, so an unset applications slice is sent as null. What the API does with a null workingHours on update was not established. The Python SDK sends workingHours only when supplied: [[zpa.pra.tooling]]."
+    },
+    "approval-status-values": {
+      "statement": "A privileged approval's status is one of INVALID, ACTIVE, FUTURE or EXPIRED in the specification.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1approval~1{id}/get/responses/200/content/*~1*/schema/properties/status",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "INVALID",
+              "ACTIVE",
+              "FUTURE",
+              "EXPIRED"
+            ]
+          }
+        }
+      ]
+    },
+    "approval-delete-expired": {
+      "statement": "DELETE /approval/expired takes an optional microtenantId query parameter and is documented with a 200 response whose body is an object, unlike the other PRA deletes and updates that return 204. The Go SDK's DeleteExpired passes the service's microtenant as that filter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1approval~1expired/delete/responses/200",
+          "expect": {
+            "description": "OK"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1approval~1expired/delete/parameters/[name=microtenantId]",
+          "expect": {
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/praapproval/praapproval.go",
+          "quotes": [
+            "path := fmt.Sprintf(\"%s%s%s/expired\", mgmtConfig, service.Client.GetCustomerID(), privilegedApprovalEndpoint)",
+            "common.Filter{MicroTenantID: service.MicroTenantID()}"
+          ],
+          "after": "func DeleteExpired(ctx context.Context, service *zscaler.Service) (*http.Response, error) {"
+        }
+      ]
+    },
+    "credential-move": {
+      "statement": "POST /credential/{id}/move has no request body and returns 204; the destination is the targetMicrotenantId query parameter, where 0 means the Default microtenant. The Python SDK raises an error when target_microtenant_id is falsy, so the integer 0 is rejected and only the string \"0\" passes; the Go SDK appends the parameter only when the string is non-empty. The contract also takes an optional source microtenantId query parameter. The Python SDK forwards microtenant_id as microtenantId; Go's CredentialMove has no per-call source parameter and ignores the service's microtenant, so the source microtenantId reaches the request only from the ZPA_MICROTENANT_ID environment variable or the client's configured microtenant.",
+      "conditions": "Added the source microtenantId parameter (a legacy divergence the earlier statement lost); the Go part follows the OneAPI client's NewRequestDo, which injects microtenantId from the body, then the environment variable, then the client config, and CredentialMove passes no options and no body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1credential~1{id}~1move/post/parameters/[name=targetMicrotenantId]",
+          "expect": {
+            "in": "query",
+            "description": "The unique identifier of the microtenant of ZPA tenant. For Default microtenant 0 should be passed."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1credential~1{id}~1move/post/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_credential.py",
+          "quotes": [
+            "if not target_microtenant_id:",
+            "raise ValueError(\"target_microtenant_id must be provided in query_params.\")"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/pracredential/credential_controller.go",
+          "quotes": [
+            "if targetMicrotenantId != \"\" {",
+            "relativeURL += \"?targetMicrotenantId=\" + targetMicrotenantId"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_credential.py",
+          "quotes": [
+            "Moves privileged remote access credentials between parent tenant and microtenants.",
+            "For Default microtenant, 0 should be passed.",
+            "raise ValueError(\"target_microtenant_id must be provided in query_params.\")",
+            "/credential/{credential_id}/move"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1credential~1{id}~1move/post/parameters/[name=microtenantId]",
+          "expect": {
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_credential.py",
+          "quotes": [
+            "query_params[\"microtenantId\"] = query_params.pop(\"microtenant_id\")"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/pracredential/credential_controller.go",
+          "quotes": [
+            "func CredentialMove(ctx context.Context, service *zscaler.Service, credentialID string, targetMicrotenantId string) (*http.Response, error) {",
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", relativeURL, nil, nil, nil)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "quotes": [
+            "q = common.InjectMicrotentantID(body, q, client.oauth2Credentials.Zscaler.Client.MicrotenantID)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/common/zpa.go",
+          "quotes": [
+            "return os.Getenv(\"ZPA_MICROTENANT_ID\")",
+            "microTenantID := getMicrotenantIDFromBody(body)",
+            "microTenantID = getMicrotenantIDFromEnvVar()",
+            "microTenantID = microtenantIDFromConfig"
+          ]
+        }
+      ]
+    },
+    "credential-type-values": {
+      "statement": "The specification's credentialType values are USERNAME_PASSWORD, SSH_KEY and PASSWORD. The Python SDK validates exactly those on create, requires the fields each type needs, and accepts an SSH private key only if it contains an OpenSSH, RSA or EC PEM header.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1credential~1{id}/get/responses/200/content/*~1*/schema/properties/credentialType",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "USERNAME_PASSWORD",
+              "SSH_KEY",
+              "PASSWORD"
+            ]
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_credential.py",
+          "quotes": [
+            "if credential_type == \"USERNAME_PASSWORD\":",
+            "elif credential_type == \"SSH_KEY\":",
+            "raise ValueError(f\"Unsupported credential_type: {credential_type}\")"
+          ],
+          "after": "def add_credential(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "r\"-----BEGIN OPENSSH PRIVATE KEY-----\",",
+            "r\"-----BEGIN RSA PRIVATE KEY-----\",",
+            "r\"-----BEGIN EC PRIVATE KEY-----\","
+          ],
+          "after": "def is_valid_ssh_key(private_key: str) -> bool:"
+        }
+      ],
+      "conditions": "The Go struct's comment names the protocol types SSH, RDP and VNC for this field; that is documentation text, not a value the Go code checks."
+    },
+    "portal-no-omitempty": {
+      "statement": "The Go SDK's PRA portal sends enabled, userNotification, userNotificationEnabled, extDomain, extDomainName, extDomainTranslation and extLabel without omitempty, so false and empty-string values are always on the wire.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/praportal/praportal.go",
+          "quotes": [
+            "Enabled bool `json:\"enabled\"`",
+            "UserNotification string `json:\"userNotification\"`",
+            "UserNotificationEnabled bool `json:\"userNotificationEnabled\"`",
+            "ExtDomain string `json:\"extDomain\"`",
+            "ExtLabel string `json:\"extLabel\"`"
+          ],
+          "after": "type PRAPortal struct {"
+        }
+      ]
+    },
+    "update-returns-204": {
+      "statement": "PUT on a privileged approval, console, credential and portal returns 204 No Content in the specification. When the response has no body (the documented 204), the Python SDK's update for approvals, consoles, credentials, portals and credential pools returns an object holding only the id, so the response cannot be used to read back updated fields.",
+      "conditions": "Narrowed to the no-body case the Python code tests for, and widened from approvals, consoles and credentials to portals and credential pools, which use the same pattern; credential pools are not in the contract, so their 204 is not documented.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1approval~1{id}/put/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1praConsole~1{id}/put/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1credential~1{id}/put/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1praPortal~1{id}/put/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_approval.py",
+          "quotes": [
+            "if response is None or not response.get_body():",
+            "return (PrivilegedRemoteAccessApproval({\"id\": approval_id}), response, None)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_console.py",
+          "quotes": [
+            "if response is None or not response.get_body():",
+            "return (PrivilegedRemoteAccessConsole({\"id\": console_id}), response, None)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_credential.py",
+          "quotes": [
+            "if response is None or not response.get_body():",
+            "return (PrivilegedRemoteAccessCredential({\"id\": credential_id}), response, None)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_portal.py",
+          "quotes": [
+            "if response is None or not response.get_body():",
+            "return (PrivilegedRemoteAccessPortal({\"id\": portal_id}), response, None)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_credential_pool.py",
+          "quotes": [
+            "if response is None or not response.get_body():",
+            "return (PRACredentialPoolController({\"id\": pool_id}), response, None)"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "portal-cname-key": {
+      "summary": "The wire key for a PRA portal's computed CNAME: the specification and the Python model use `getcName`, while the Go struct also has a writable `cName` field.",
+      "positions": [
+        {
+          "says": "The specification defines the CNAME on a portal as getcName.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1praPortal~1{id}/get/responses/200/content/*~1*/schema/properties/getcName",
+            "expect": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "says": "The Go struct carries both a `cName` field and a `getcName` field.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/privilegedremoteaccess/praportal/praportal.go",
+            "quotes": [
+              "CName string `json:\"cName,omitempty\"`",
+              "GetcName string `json:\"getcName,omitempty\"`"
+            ],
+            "after": "type PRAPortal struct {"
+          }
+        },
+        {
+          "says": "The Python model maps only getcName, to get_cname.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/models/pra_portal.py",
+            "quotes": [
+              "self.get_cname = config[\"getcName\"] if \"getcName\" in config else None"
+            ]
+          }
+        }
+      ],
+      "impact": "A portal's CNAME target is read from getcName; a value set through the Go cName field has no counterpart in the specification, so do not rely on it."
+    }
+  },
+  "gaps": {
+    "credential-secrets-on-read": {
+      "kind": "semantic",
+      "title": "Whether the API returns password, privateKey and passphrase when a privileged credential is read",
+      "status": "open",
+      "former_ids": [
+        "zpa-23"
+      ],
+      "detail": "Unverified legacy statement: the Python response model maps no secret fields, while the specification's GET response schema defines password, privateKey and passphrase. Whether a real response includes them is not shown. Ledger item zpa-23 in references/_meta/clarifications.md.",
+      "blocks": "telling whether reading a credential exposes its secrets to the caller or to logs",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1credential~1{id}/get/responses/200/content/*~1*/schema/properties/privateKey",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/pra_credential.py",
+          "quotes": [
+            "self.last_credential_reset_time = (",
+            "self.microtenant_name = config[\"microtenantName\"] if \"microtenantName\" in config else None"
+          ],
+          "after": "if config:"
+        }
+      ]
+    },
+    "credential-pool-post-id": {
+      "kind": "semantic",
+      "title": "Whether a credential pool POST returns the new pool's ID",
+      "status": "open",
+      "detail": "Unverified legacy statement: the Go SDK assumes the POST response carries no ID and lists all pools to find the new one by name, while the Python SDK decodes the POST body directly and returns it, so either the API returns the ID on that path or the Python result has no ID. Create a pool in a scratch tenant and record the POST response body.",
+      "blocks": "needing the ID of a pool right after creating it",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "credential-pool-not-in-contract": {
+      "kind": "semantic",
+      "title": "Whether the undocumented waap-pra-config credential-pool endpoints are a supported API surface",
+      "status": "open",
+      "detail": "The credential-pool endpoints are not in the published contract: both SDKs call /zpa/waap-pra-config/v1/admin/customers/{customerId}/credential-pool, while the OpenAPI document has no credential-pool path and the OneAPI Postman collection (release 09_29_2026) has no credential-pool request ([[zpa.api.pra-wire:credential-pool-base-path]]). The OpenAPI document does reference a credentialPool {id, name} object (NameIdDto) in policy rule bodies (v1 and v2 policySet rule) and in the v2 LSS config's policyRule. The product feature exists (the help article describes credential pools). Open: whether Zscaler supports the waap-pra-config surface for automation and keeps it stable. Ask Zscaler support.",
+      "blocks": "telling whether a credential-pool field or call can be relied on and checked against a published contract",
+      "resolves_with": [
+        "support-ticket"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-privileged-credential-pools.json",
+          "quotes": [
+            "Privileged credential pools can be used to streamline access to privileged consoles by mapping authentication details using a privileged credentials policy."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/credentialPool",
+          "expect": {
+            "title": "NameIdDto"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/x-zscaler-docusaurus-extras/jsonRequestBodyExample/credentialPool",
+          "expect": {
+            "id": 0,
+            "name": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/credentialPool",
+          "expect": {
+            "title": "NameIdDto"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1lssConfig~1{lssId}/put/requestBody/content/application~1json/schema/properties/policyRule/properties/credentialPool",
+          "expect": {
+            "title": "NameIdDto"
+          }
+        }
+      ]
+    }
+  }
+}

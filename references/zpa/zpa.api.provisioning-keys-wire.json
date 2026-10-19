@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.provisioning-keys-wire",
+  "title": "Provisioning key API: association types and update responses",
+  "aliases": [
+    "provisioning key association type enum",
+    "NP_ASSISTANT_GRP",
+    "zcomponent provisioning key url",
+    "provisioning key update wire keys",
+    "add_provisioning_key snake_case"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.provisioning-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.provisioning-key-tooling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Provisioning key behavior that sits between the API and its clients. What a key is and how enrollment uses it is in [[zpa.app-connectors.provisioning-keys]]; the model-field differences between the SDKs are in [[zpa.app-connectors.provisioning-key-tooling]]."
+    },
+    {
+      "heading": "Association types"
+    },
+    {
+      "text": "{{api-association-type-description-and-enum}} {{go-association-type-emitted}} The SDK's fixed three-type list, the swallowed errors in GetAll and the missing list-all endpoint are in [[zpa.sdk-go.service-defects]]. {{get-by-name-all-first-match}}"
+    },
+    {
+      "heading": "Writes"
+    },
+    {
+      "text": "Setting `enabled` to false is dropped by the Go request tag: [[shared.sdk-go.zero-value-writes]]. {{update-returns-no-body}} The usage fields differ in type and name between the contract and Go {{divergence:usage-count-type}}."
+    },
+    {
+      "heading": "Python SDK"
+    },
+    {
+      "text": "The Python wrappers' body, key-casing and path quirks are [[zpa.sdk-python.provisioning-keys:python-add-key-leaks-snake-case]], [[zpa.sdk-python.provisioning-keys:python-update-key-needs-wire-keys]] and [[zpa.sdk-python.provisioning-keys:zcomponent-route]]."
+    },
+    {
+      "heading": "Open"
+    },
+    {
+      "text": "{{zcomponent-id-is-group}} The Python by-component lookup describes its argument differently {{divergence:zcomponent-id-group-or-component}}. Which ID that route expects is open {{gap:zcomponent-id-meaning}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which association type a key was created under, since lookups probe a fixed order and the first hit wins.",
+      "uses": [
+        "get-by-name-all-first-match"
+      ]
+    },
+    {
+      "do": "Whether a Python call to the by-component lookup failed on the path before blaming the server.",
+      "uses": [
+        "zpa.sdk-python.provisioning-keys:zcomponent-route"
+      ]
+    },
+    {
+      "do": "Whether a Python update that changes the component passed it as zcomponent_id, since component_id is sent as componentId.",
+      "uses": [
+        "zpa.sdk-python.provisioning-keys:python-update-key-needs-wire-keys"
+      ]
+    },
+    {
+      "do": "Which association type values the API documents, noting that the description and the enum disagree.",
+      "uses": [
+        "api-association-type-description-and-enum"
+      ]
+    }
+  ],
+  "claims": {
+    "zcomponent-id-is-group": {
+      "statement": "The ZPA provider documents zcomponent_id on the provisioning key resource as the ID of the existing App Connector or Service Edge Group and on the data source as the ID of the associated App Connector or Service Edge Group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_provisioning_key.md",
+          "quotes": [
+            "`zcomponent_id` - (String) ID of the existing App Connector or Service Edge Group."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/data-sources/zpa_provisioning_key.md",
+          "quotes": [
+            "`zcomponent_id` - (String) ID of the associated App Connector or Service Edge Group"
+          ]
+        }
+      ],
+      "conditions": "Added from the verifier's finding to replace the unverified legacy statement in gap zcomponent-id-meaning."
+    },
+    "api-association-type-description-and-enum": {
+      "statement": "The OpenAPI associationType parameter documents the supported values as CONNECTOR_GRP, NP_ASSISTANT_GRP and SERVICE_EDGE_GRP in its description, while its enum lists ASSISTANT_GRP, NP_ASSISTANT_GRP, BROKER_GRP, SITE_CONTROLLER_GRP and EXPORTER_GRP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1associationType~1{associationType}~1provisioningKey/get/parameters/[name=associationType]",
+          "expect": {
+            "description": "Specifies the Provisioning Key type for App Connectors or ZPA Private Service Edges. The supported values are CONNECTOR_GRP, NP_ASSISTANT_GRP and SERVICE_EDGE_GRP."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1associationType~1{associationType}~1provisioningKey/get/parameters/[name=associationType]/schema",
+          "expect": {
+            "enum": [
+              "ASSISTANT_GRP",
+              "NP_ASSISTANT_GRP",
+              "BROKER_GRP",
+              "SITE_CONTROLLER_GRP",
+              "EXPORTER_GRP"
+            ]
+          }
+        }
+      ]
+    },
+    "go-association-type-emitted": {
+      "statement": "The Go ProvisioningKey struct tags associationType without omitempty, so it is sent in create and update bodies even though the type is also a URL path segment, and Get, GetByName and the list helpers write the type back into the returned struct.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "quotes": [
+            "AssociationType       string   `json:\"associationType\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "quotes": [
+            "v.AssociationType = associationType"
+          ],
+          "after": "func Get(ctx context.Context, service *zscaler.Service, associationType, provisioningKeyID string)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "quotes": [
+            "list[i].AssociationType = associationType"
+          ],
+          "after": "func GetAllByAssociationType(ctx context.Context"
+        }
+      ],
+      "conditions": "The OpenAPI path takes the type as the associationType path parameter; whether the server echoes associationType in a response was not checked against recorded responses."
+    },
+    "get-by-name-all-first-match": {
+      "statement": "GetByNameAllAssociations tries CONNECTOR_GRP, SERVICE_EDGE_GRP and NP_ASSISTANT_GRP in that order and stops at the first lookup that returns no error, so a name held by keys of two association types resolves to the earlier type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "quotes": [
+            "\"CONNECTOR_GRP\",",
+            "\"SERVICE_EDGE_GRP\",",
+            "\"NP_ASSISTANT_GRP\","
+          ],
+          "after": "var ProvisioningKeyAssociationTypes []string"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "quotes": [
+            "p, resp, err = GetByName(ctx, service, associationType, name)",
+            "assoc_type = associationType"
+          ],
+          "after": "func GetByNameAllAssociations("
+        }
+      ]
+    },
+    "update-returns-no-body": {
+      "statement": "The OpenAPI document lists only a 204 response for a provisioning key PUT; the Go Update decodes nothing, and the Python update_provisioning_key returns a stub holding only the key ID when the body is empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1associationType~1{associationType}~1provisioningKey~1{provisioningKeyId}/put",
+          "expect": {
+            "operationId": "Updates the Provisioning Key details for the specified ID."
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "quotes": [
+            "\"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, provisioningKey, nil)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "return (ProvisioningKey({\"id\": key_id}), response, None)"
+          ],
+          "after": "def update_provisioning_key(self, key_id"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zcomponent-id-meaning": {
+      "kind": "semantic",
+      "title": "Which ID the list-by-component provisioning key route expects",
+      "status": "open",
+      "detail": "The ZPA provider documents zcomponentId on a key as the App Connector or Service Edge Group ID, but the Python by-component lookup describes its argument as an App Connector or Service Edge ID, and the OpenAPI document has no by-component route; which ID that route expects is not shown.",
+      "blocks": "telling which ID to pass when listing keys by component",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ]
+    }
+  },
+  "divergences": {
+    "zcomponent-id-group-or-component": {
+      "summary": "The ZPA provider and the Python by-component lookup describe the component ID differently.",
+      "positions": [
+        {
+          "says": "The ZPA provider documents zcomponent_id as the ID of the App Connector or Service Edge Group.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/resources/zpa_provisioning_key.md",
+            "quotes": [
+              "`zcomponent_id` - (String) ID of the existing App Connector or Service Edge Group."
+            ]
+          }
+        },
+        {
+          "says": "The Python get_provisioning_key_by_zcomponent docstring calls its argument the ID of the App Connector or Service Edge.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/provisioning.py",
+            "quotes": [
+              "zcomponent_id (str): The unique id of the App Connector or Service Edge."
+            ],
+            "after": "def get_provisioning_key_by_zcomponent("
+          }
+        }
+      ],
+      "impact": "A caller of the by-component lookup cannot tell from the sources whether to pass a group ID or an individual connector or service edge ID."
+    },
+    "usage-count-type": {
+      "summary": "The type and name of a provisioning key's usage fields: the OpenAPI document types usageCount and its cap maxUsageCount as integers, while the Go SDK types usageCount and a cap named maxUsage as strings.",
+      "positions": [
+        {
+          "says": "The contract's provisioning key GET response types usageCount as an integer.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1associationType~1{associationType}~1provisioningKey~1{provisioningKeyId}/get/responses/200/content/application~1json/schema/properties/usageCount",
+            "expect": {
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "says": "The same contract schema (titled Nonce) names the usage cap maxUsageCount and types it as an integer; it has no maxUsage.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1associationType~1{associationType}~1provisioningKey~1{provisioningKeyId}/get/responses/200/content/application~1json/schema/properties/maxUsageCount",
+            "expect": {
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "says": "The Go ProvisioningKey types usageCount and maxUsage as strings.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+            "quotes": [
+              "UsageCount string `json:\"usageCount,omitempty\"`",
+              "MaxUsage string `json:\"maxUsage,omitempty\"`"
+            ]
+          }
+        }
+      ],
+      "impact": "The contract's provisioning key object (cloudName, id, maxUsageCount, name, nonceAssociationType, nonceValue, scopeId, usageCount) is a different shape from the SDK object, so it does not settle what the API sends for maxUsage. A Go decode of a bare integer usageCount into the string field fails; the live response is not captured. The SDK and MCP types of maxUsage are in [[zpa.app-connectors.provisioning-key-tooling:max-usage-types]]."
+    }
+  }
+}

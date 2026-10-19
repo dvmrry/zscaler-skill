@@ -1,0 +1,593 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.lss-wire",
+  "title": "What the SDKs and provider send for a ZPA log receiver (LSS)",
+  "aliases": [
+    "lss config omitempty",
+    "lss entryValues",
+    "lss update returns nothing",
+    "log receiver policy rule IDP",
+    "lssPort string integer",
+    "zpn_client_type_browser_isolation lss",
+    "SIEM_POLICY policySetId lookup"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.log-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject records what the SDKs and the Terraform provider put on the wire for a Log Streaming Service receiver that is not visible in the field list: dropped zero values, key spellings, response handling and where the tools disagree. The receiver's own behavior is in [[zpa.log-receivers.configuration]], its log types in [[zpa.log-receivers.log-types]] and its formats in [[zpa.log-receivers.formats]]."
+    },
+    {
+      "heading": "Config and write behavior"
+    },
+    {
+      "text": "{{config-omitempty-and-keys}} {{config-key-always-present}} Zero-value dropping in general is in [[shared.sdk-go.zero-value-writes]]."
+    },
+    {
+      "text": "{{update-returns-no-body}} {{python-add-update-source-log-type}} {{python-defaults}}"
+    },
+    {
+      "text": "The specification types the port as an integer, while the API article, the SDKs and the provider use a string {{divergence:lss-port-type}}. {{python-connector-groups-id-only}}"
+    },
+    {
+      "heading": "Policy rule resource"
+    },
+    {
+      "text": "{{python-siem-lookup-v1}} {{action-log-only}} {{policy-negated-always-sent}}"
+    },
+    {
+      "text": "{{entry-values-rules}} {{python-condition-templates}} The IDP shape differs between the two tools {{divergence:idp-operand-shape}}."
+    },
+    {
+      "heading": "Client types"
+    },
+    {
+      "text": "{{client-types-slogger-omitempty}} The Python SDK reads the client type list from the API rather than a built-in table [[zpa.sdk-python.lss-helpers:client-types-call]]."
+    },
+    {
+      "text": "{{browser-isolation-client-type}} Whether the API accepts it as a receiver policy operand is open {{gap:browser-isolation-accepted}}."
+    },
+    {
+      "text": "Whether the server keeps condition order is open {{gap:policy-condition-order}}, and so is which actions it accepts on the policy rule {{gap:policy-action-accepted}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a receiver update that clears a flag (enabled or use_tls false) actually sent the key, before blaming the API for a flag that did not change.",
+      "uses": [
+        "config-omitempty-and-keys"
+      ]
+    },
+    {
+      "do": "Whether a failed IDP-conditioned receiver came from a tool sending values where the other expects entryValues.",
+      "uses": [
+        "entry-values-rules",
+        "python-condition-templates",
+        "idp-operand-shape"
+      ]
+    },
+    {
+      "do": "Whether the caller expected an updated receiver back from a PUT, which returns no body.",
+      "uses": [
+        "update-returns-no-body"
+      ]
+    },
+    {
+      "do": "Whether a client type filter on a receiver has evidence that the API accepts it, for browser isolation in particular.",
+      "uses": [
+        "browser-isolation-client-type",
+        "browser-isolation-accepted"
+      ]
+    }
+  ],
+  "claims": {
+    "config-omitempty-and-keys": {
+      "statement": "The Go SDK's receiver config struct tags `enabled` and `useTls` as omitempty, so a false value is not sent, and names the tenant key `microtenantId` with a lowercase t even though the Go field is `MicroTenantID`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "quotes": [
+            "Enabled bool `json:\"enabled,omitempty\"`",
+            "UseTLS bool `json:\"useTls,omitempty\"`",
+            "MicroTenantID string `json:\"microtenantId,omitempty\"`"
+          ],
+          "after": "type LSSConfig struct {"
+        }
+      ],
+      "conditions": "The general omitempty mechanism is in shared.sdk-go.zero-value-writes. Whether the provider reaches this with a false value was not traced here."
+    },
+    "policy-negated-always-sent": {
+      "statement": "On the receiver's policy condition structs, `negated` is tagged without omitempty in both the legacy `Conditions` struct and `PolicyRuleResourceConditions`, so false is always sent; the other condition fields are omitempty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "quotes": [
+            "Negated bool `json:\"negated\"`"
+          ],
+          "after": "type Conditions struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "quotes": [
+            "Negated bool `json:\"negated\"`"
+          ],
+          "after": "type PolicyRuleResourceConditions struct {"
+        }
+      ]
+    },
+    "config-key-always-present": {
+      "statement": "The Go receiver request tags `config` without omitempty, so the key is always in the body even when the pointer is nil, while connectorGroups, policyRule and policyRuleResource are omitempty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "quotes": [
+            "LSSConfig *LSSConfig `json:\"config\"`",
+            "ConnectorGroups []ConnectorGroups `json:\"connectorGroups,omitempty\"`",
+            "PolicyRuleResource *PolicyRuleResource `json:\"policyRuleResource,omitempty\"`"
+          ],
+          "after": "type LSSResource struct {"
+        }
+      ]
+    },
+    "update-returns-no-body": {
+      "statement": "The Go SDK's receiver Update sends the PUT with no response target and returns only the HTTP response, while Create decodes the created receiver; the Python SDK's update returns an object holding only the id when the body is empty. The specification documents the PUT response as 204.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, nil, lssConfig, nil)"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, lssID string, lssConfig *LSSResource) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+lssConfigEndpoint, nil, lssConfig, &v)"
+          ],
+          "after": "func Create(ctx context.Context, service *zscaler.Service, lssConfig *LSSResource) (*LSSResource, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "return (LSSResourceModel({\"id\": lss_config_id}), response, None)"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1lssConfig~1{lssId}/put/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        }
+      ]
+    },
+    "action-log-only": {
+      "statement": "The Terraform schema for a receiver's policy rule accepts only `LOG` as the action, and the Go SDK's integration test creates its policy rule resource with action `LOG`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_lss_config_controller.go",
+          "quotes": [
+            "This is for providing the rule action.",
+            "ValidateFunc: validation.StringInSlice([]string{ \"LOG\", }, false),"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller_test.go",
+          "quotes": [
+            "Action: \"LOG\","
+          ]
+        }
+      ]
+    },
+    "entry-values-rules": {
+      "statement": "The Go operand struct names the lhs/rhs list `entryValues`. The Terraform receiver validator requires `entry_values` with both lhs and rhs for operands of type SCIM_GROUP, SCIM, SAML and IDP, and rejects `entry_values` on every other object type, CLIENT_TYPE included.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "quotes": [
+            "OperandsResourceLHSRHSValue *[]OperandsResourceLHSRHSValue `json:\"entryValues,omitempty\"`"
+          ],
+          "after": "type PolicyRuleResourceOperands struct {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/validator.go",
+          "quotes": [
+            "objectType == \"SCIM_GROUP\" || objectType == \"SCIM\" || objectType == \"SAML\" || objectType == \"IDP\"",
+            "entry_values must be provided for object_type %s",
+            "entry_values should not be provided for object_type %s",
+            "both lhs and rhs must be provided in entry_values"
+          ],
+          "after": "func validateLSSConfigControllerFilters("
+        }
+      ],
+      "conditions": "The validator is the Terraform provider's check; it does not show what the API itself accepts."
+    },
+    "python-condition-templates": {
+      "statement": "The Python SDK builds `entryValues` of lhs/rhs pairs only for the policy rule types saml, scim and scim_group; every other type, idp included, is sent as a plain `values` list, and client_type names are translated to wire codes through the client-types lookup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "if condition[0] in [\"saml\", \"scim\", \"scim_group\"]:",
+            "\"entryValues\": []"
+          ],
+          "after": "def _create_policy(self, conditions: list) -> list:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "# Template for all other object types",
+            "\"values\": condition[1],"
+          ],
+          "after": "def _create_policy(self, conditions: list) -> list:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "\"values\": [self.get_client_types()[item] for item in condition[1]],"
+          ],
+          "after": "def _create_policy(self, conditions: list) -> list:"
+        }
+      ]
+    },
+    "client-types-slogger-omitempty": {
+      "statement": "Among the six fields of the Go LSSClientTypes response struct, only `zpn_client_type_slogger` is tagged omitempty; the other five (exporter, machine tunnel, IP anchoring, edge connector, zapp) are tagged without it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_client_types.go",
+          "quotes": [
+            "ZPNClientTypeSlogger string `json:\"zpn_client_type_slogger,omitempty\"`",
+            "ZPNClientTypeZAPP string `json:\"zpn_client_type_zapp\"`"
+          ],
+          "after": "type LSSClientTypes struct {"
+        }
+      ]
+    },
+    "python-siem-lookup-v1": {
+      "statement": "To fill a receiver's policyRuleResource.policySetId the Python SDK resolves the SIEM_POLICY set with a GET on the v1 path /policySet/policyType/SIEM_POLICY, while the receiver itself is written under the v2 base path. The Go SDK's integration test resolves the same policy type before creating a receiver.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "{self._zpa_base_endpoint_v1}",
+            "/policySet/policyType/SIEM_POLICY"
+          ],
+          "after": "def _get_siem_policy_set_id(self):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "self._zpa_lss_base_endpoint_v2 = f\"/zpa/mgmtconfig/v2/admin/customers/{customer_id}\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller_test.go",
+          "quotes": [
+            "policyType := \"SIEM_POLICY\"",
+            "policysetcontroller.GetByPolicyType(context.Background(), service, policyType)"
+          ]
+        }
+      ]
+    },
+    "python-add-update-source-log-type": {
+      "statement": "The Python SDK's add_lss_config indexes its source-log-type map directly, so an unknown value raises KeyError, while update_lss_config checks the value first and returns an error result instead of raising.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "# Map the source log type to ZPA internal log codes",
+            "source_log_type = self.source_log_map[source_log_type]"
+          ],
+          "after": "def add_lss_config("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "if source_log_type not in self.source_log_map:",
+            "return (None, None, f\"Invalid source_log_type: {source_log_type!r}\")"
+          ],
+          "after": "def update_lss_config("
+        }
+      ]
+    },
+    "python-defaults": {
+      "statement": "The Python SDK's add_lss_config defaults enabled to True, use_tls to False and source_log_format to csv, and its response model reads a missing enabled as True and a missing useTls as False.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "enabled: bool = True,",
+            "source_log_format: str = \"csv\",",
+            "use_tls: bool = False,"
+          ],
+          "after": "def add_lss_config("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/lss.py",
+          "quotes": [
+            "self.enabled = config[\"enabled\"] if \"enabled\" in config else True",
+            "self.use_tls = config[\"useTls\"] if \"useTls\" in config else False"
+          ]
+        }
+      ]
+    },
+    "python-connector-groups-id-only": {
+      "statement": "The Python SDK writes a receiver's connector groups as id-only objects; add_lss_config sends an empty connectorGroups list when no group ids are given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "\"connectorGroups\": [{\"id\": group_id} for group_id in app_connector_group_ids] if app_connector_group_ids else [],"
+          ]
+        }
+      ]
+    },
+    "browser-isolation-client-type": {
+      "statement": "zpn_client_type_browser_isolation is a listed receiver client type: the LSS API article's client types example maps it to Cloud Browser, and the Terraform provider's supportedClientTypes map, which validates CLIENT_TYPE values on receiver policy operands, includes it. The Go SDK's receiver integration test carries it only inside a commented-out block, which tests nothing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "\"zpn_client_type_browser_isolation\":\"Cloud Browser\""
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/validator.go",
+          "quotes": [
+            "\"zpn_client_type_browser_isolation\": {},"
+          ],
+          "after": "var supportedClientTypes = map[string]struct{}{"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller_test.go",
+          "quotes": [
+            "[]string{\"zpn_client_type_browser_isolation\"},"
+          ]
+        }
+      ],
+      "conditions": "Was a divergence between the provider validator and the Go test; the commented-out test line asserts nothing, so the sources do not disagree. That the test line is commented out was read from the file. Whether the API accepts the value as an operand stays open in the gap browser-isolation-accepted.",
+      "gaps": [
+        "browser-isolation-accepted"
+      ]
+    }
+  },
+  "divergences": {
+    "lss-port-type": {
+      "summary": "The wire type of a receiver's lssPort: the specification types it as an integer, while the LSS API article, the Go SDK, the Python SDK and the Terraform provider use a string.",
+      "positions": [
+        {
+          "says": "The specification's receiver config defines lssPort as an int32 integer.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1lssConfig~1{lssId}/put/requestBody/content/application~1json/schema/properties/config/properties/lssPort",
+            "expect": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        },
+        {
+          "says": "The Go SDK declares LSSPort as a string with omitempty.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+            "quotes": [
+              "LSSPort string `json:\"lssPort,omitempty\"`"
+            ],
+            "after": "type LSSConfig struct {"
+          }
+        },
+        {
+          "says": "The Python add_lss_config types lss_port as a string.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/lss.py",
+            "quotes": [
+              "lss_port: str,"
+            ],
+            "after": "def add_lss_config("
+          }
+        },
+        {
+          "says": "The Terraform provider fills LSSPort from its lss_port argument as a string.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_lss_config_controller.go",
+            "quotes": [
+              "LSSPort:       config[\"lss_port\"].(string),"
+            ]
+          }
+        },
+        {
+          "says": "The LSS API article gives config.lssPort the value type String, and its create example sends \"lssPort\":\"8081\".",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "quotes": [
+              "| config.lssPort | The port of the LSS configuration | Yes | String |",
+              "\"lssPort\":\"8081\""
+            ]
+          }
+        }
+      ],
+      "impact": "The specification is the odd one out: a caller building a raw request from it sends a number, where the API article's own example and every tool send a quoted string. Nothing here shows whether the API also accepts a number. See [[zpa.log-receivers.configuration]]."
+    },
+    "idp-operand-shape": {
+      "summary": "How an IDP condition on a receiver's policy is shaped: the Terraform validator requires entryValues, while the Python SDK sends a plain values list.",
+      "positions": [
+        {
+          "says": "The Terraform receiver validator requires entry_values for IDP operands and rejects entry_values on object types outside SCIM_GROUP, SCIM, SAML and IDP.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/validator.go",
+            "quotes": [
+              "objectType == \"SCIM_GROUP\" || objectType == \"SCIM\" || objectType == \"SAML\" || objectType == \"IDP\"",
+              "entry_values must be provided for object_type %s"
+            ],
+            "after": "func validateLSSConfigControllerFilters("
+          }
+        },
+        {
+          "says": "The Python SDK builds entryValues only for saml, scim and scim_group and sends idp as objectType plus a values list.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/lss.py",
+            "quotes": [
+              "# Template for all other object types",
+              "\"values\": condition[1],"
+            ],
+            "after": "def _create_policy(self, conditions: list) -> list:"
+          }
+        },
+        {
+          "says": "The LSS API article lists the supported policyRuleResource.objectType values as APP, APP_GROUP, CLIENT_TYPE, SAML, SCIM and SCIM_GROUP, with no IDP.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "quotes": [
+              "| policyRuleResource.objectType | The object type of the rule as part of the log receiver configuration.",
+              "SCIM_GROUP: Denotes the SCIM groups for the SAML and SCIM Attributes streaming policy criteria for the log receiver."
+            ]
+          }
+        }
+      ],
+      "impact": "The same IDP condition is shaped two ways depending on the tool, and the API article's list of supported object types does not include IDP at all. Which shape, if any, the API accepts for IDP is not settled here, so a receiver with an IDP condition created by one tool and read or planned by the other can differ."
+    }
+  },
+  "gaps": {
+    "browser-isolation-accepted": {
+      "kind": "semantic",
+      "title": "Whether the API accepts zpn_client_type_browser_isolation as a CLIENT_TYPE operand on a receiver's policy",
+      "status": "open",
+      "former_ids": [
+        "zpa-26"
+      ],
+      "detail": "Unverified legacy statement: the value is a defined client type in the Go SDK and passes the Terraform validator, but the Go integration test for receivers has it commented out. The LSS API article's client types example lists it as Cloud Browser, which shows the value exists, not that a receiver policy accepts it as an operand. Ledger item zpa-26 in references/_meta/clarifications.md.",
+      "blocks": "telling whether a receiver filtered on Cloud Browser sessions can be created",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "\"zpn_client_type_browser_isolation\":\"Cloud Browser\""
+          ]
+        }
+      ]
+    },
+    "policy-condition-order": {
+      "kind": "semantic",
+      "title": "Whether LSS policy conditions and operands keep their order across a round trip",
+      "status": "open",
+      "detail": "Unverified legacy statement (operator field observation from production Terraform use): the receiver's policy conditions are returned in a different order than written, so positional order of conditions or operands cannot be relied on. The Go model holds them as slices and the Terraform validator accepts AND and OR operators; no source shows the server reordering. Write a receiver with two conditions in a fixed order, read it back, and compare.",
+      "blocks": "telling whether a receiver policy plan can show spurious order drift",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "policy-action-accepted": {
+      "kind": "semantic",
+      "title": "Which actions the API accepts on a receiver's policy rule",
+      "status": "open",
+      "detail": "The contract's receiver PUT types policyRuleResource.action with the generic 23-value policy action enum (ALLOW through CHECK_PRIVILEGED_PORTAL_CAPABILITIES, INTERCEPT included), while the Terraform provider allows only LOG (claim action-log-only). Unverified legacy statement: a Postman example's INTERCEPT action on a receiver policy will be rejected. The current Postman collection has no receiver request with INTERCEPT. Write a receiver with a non-LOG action and record the status.",
+      "blocks": "telling whether a receiver written outside Terraform with another action is valid",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1lssConfig~1{lssId}/put/requestBody/content/application~1json/schema/properties/policyRuleResource/properties/action",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "ALLOW",
+              "DENY",
+              "LOG",
+              "RE_AUTH",
+              "NEVER",
+              "BYPASS",
+              "INTERCEPT",
+              "NO_DOWNLOAD",
+              "BYPASS_RE_AUTH",
+              "INTERCEPT_ACCESSIBLE",
+              "ISOLATE",
+              "BYPASS_ISOLATE",
+              "INSPECT",
+              "BYPASS_INSPECT",
+              "REQUIRE_APPROVAL",
+              "INJECT_CREDENTIALS",
+              "CHECK_CAPABILITIES",
+              "MONITOR",
+              "DO_NOT_MONITOR",
+              "REDIRECT_DEFAULT",
+              "REDIRECT_PREFERRED",
+              "REDIRECT_ALWAYS",
+              "CHECK_PRIVILEGED_PORTAL_CAPABILITIES"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

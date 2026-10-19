@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "id": "zpa.sdk-python.return-shapes",
+  "title": "What Python SDK ZPA calls return: model objects, snake_case dictionaries, bare values and raised errors",
+  "aliases": [
+    "as_dict snake_case",
+    "zpa result is not a dict",
+    "get_policy ValueError",
+    "returns None on error python zpa",
+    "ZscalerObject item access",
+    "unsupported policy type python"
+  ],
+  "binds": [],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.response-shape"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.client-errors-and-accessors"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.lss-helpers"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.error-handling"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are claims about the shape of what a ZPA call hands back. The three-element tuple and the error slot are in [[zia.sdk-python.response-shape]]."
+    },
+    {
+      "label": "Results are model objects.",
+      "text": "{{result-models-subclass}} {{result-model-objects}} {{as-dict-snake-case}}"
+    },
+    {
+      "label": "Where errors are raised instead of returned.",
+      "text": "[[zpa.api.app-segments-wire:application-type-validation]] The other raises (unknown policy type, provisioning key type, App Protection rule) are in [[zpa.sdk-python.error-handling]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the code treats a result as a dictionary, because it is a model object that offers item access and get but is not a dict.",
+      "uses": [
+        "result-model-objects"
+      ]
+    },
+    {
+      "do": "Whether the keys read from as_dict are snake_case, which is what the SDK emits, and not the API's camelCase.",
+      "uses": [
+        "as-dict-snake-case"
+      ]
+    },
+    {
+      "do": "Whether the caller wraps calls that can raise ValueError (empty application type, among others) as well as testing the error slot.",
+      "uses": [
+        "zpa.api.app-segments-wire:application-type-validation"
+      ]
+    }
+  ],
+  "claims": {
+    "result-models-subclass": {
+      "statement": "The Python ZPA result models, for example ApplicationSegments, subclass the SDK's ZscalerObject base class, which defines `__getitem__` and `get` by attribute name, so a result is not a plain dictionary.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "quotes": [
+            "class ApplicationSegments(ZscalerObject):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_object.py",
+          "quotes": [
+            "def get(self, key: str, default: Optional[Any] = None) -> Any:",
+            "Base object for all Zscaler datatypes."
+          ]
+        }
+      ]
+    },
+    "result-model-objects": {
+      "statement": "A ZPA call returns model objects, not plain dictionaries; callers can use item access and get on them but dictionary methods are not guaranteed, and as_dict is the way to a dictionary.",
+      "tier": "B",
+      "derived_from": [
+        "result-models-subclass"
+      ],
+      "conditions": "Holds for the models that subclass ZscalerObject; calls that return a bare dict, such as the LSS helpers, are the exception (zpa.sdk-python.lss-helpers)."
+    },
+    "as-dict-snake-case": {
+      "statement": "A model's as_dict returns snake_case keys and omits attributes whose value is None, while its request_format method is the camelCase form the API expects.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_object.py",
+          "quotes": [
+            "if val is None:",
+            "# Otherwise it's a simple type (string, int, etc.) else: result[to_snake_case(key)] = val",
+            "The keys are in camelCase as expected by the API."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

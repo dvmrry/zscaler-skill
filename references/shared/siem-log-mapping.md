@@ -155,7 +155,7 @@ ZPA Log Streaming Service (LSS) feeds carry session and connector telemetry from
 ### ZPA User Activity (LSS)
 
 - **Carries**: Per-session traffic events — application accessed, connector used, policy matched, session status, internal reason codes for failures
-- **Schema**: [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md)
+- **Schema**: [`zpa.logs.user-activity`](kb:zpa.logs.user-activity)
 - **Catalog placeholder**: `$INDEX_ZPA`; generic `zpa-user-activity`
 - **Common SIEM landing spots**:
 
@@ -170,7 +170,7 @@ ZPA Log Streaming Service (LSS) feeds carry session and connector telemetry from
 ### ZPA User Status (LSS)
 
 - **Carries**: Session enrollment / disconnection events — user posture, ZCC platform/version, hostname, session ID, posture profile hits/misses
-- **Schema**: [`../zpa/logs/user-status-log-schema.md`](../zpa/logs/user-status-log-schema.md)
+- **Schema**: [`zpa.logs.user-status`](kb:zpa.logs.user-status)
 - **Catalog placeholder**: `$INDEX_ZPA_STATUS`; generic `zpa-user-status`
 - **Common SIEM landing spots**:
 
@@ -182,7 +182,7 @@ ZPA Log Streaming Service (LSS) feeds carry session and connector telemetry from
 ### ZPA App Connector Status (LSS)
 
 - **Carries**: Connector enrollment / health-state events — connector ID, group, version, status changes
-- **Schema**: [`../zpa/logs/app-connector-status.md`](../zpa/logs/app-connector-status.md)
+- **Schema**: [`zpa.logs.control-session-status`](kb:zpa.logs.control-session-status)
 - **Catalog placeholder**: `$INDEX_ZPA_CONNECTOR_STATUS`; generic `zpa-app-connector-status`
 - **Common SIEM landing spots**:
 
@@ -194,7 +194,7 @@ ZPA Log Streaming Service (LSS) feeds carry session and connector telemetry from
 ### ZPA App Connector Metrics (LSS)
 
 - **Carries**: Connector throughput / CPU / memory / port-pool metrics, per measurement interval
-- **Schema**: [`../zpa/logs/app-connector-metrics.md`](../zpa/logs/app-connector-metrics.md)
+- **Schema**: [`zpa.logs.app-connector-metrics`](kb:zpa.logs.app-connector-metrics)
 - **Catalog placeholder**: `$INDEX_ZPA_METRICS`; generic `zpa-app-connector-metrics`
 - **Common SIEM landing spots**:
 
@@ -206,7 +206,7 @@ ZPA Log Streaming Service (LSS) feeds carry session and connector telemetry from
 ### ZPA Browser Access (LSS)
 
 - **Carries**: Browser Access (BA) session events — clientless ZTNA access via browser, BA-specific session attributes
-- **Schema**: [`../zpa/logs/browser-access-log-schema.md`](../zpa/logs/browser-access-log-schema.md)
+- **Schema**: [`zpa.logs.browser-access`](kb:zpa.logs.browser-access)
 - **Catalog placeholder**: `$INDEX_ZPA_BROWSER`; generic `zpa-browser-access`
 - **Common SIEM landing spots**:
 
@@ -218,7 +218,7 @@ ZPA Log Streaming Service (LSS) feeds carry session and connector telemetry from
 ### ZPA Microsegmentation Flow (LSS)
 
 - **Carries**: East-west microsegmentation flow events for ZPA-protected workloads
-- **Schema**: [`../zpa/logs/microsegmentation-flow-log-schema.md`](../zpa/logs/microsegmentation-flow-log-schema.md)
+- **Schema**: [`zpa.logs.microsegmentation-flow`](kb:zpa.logs.microsegmentation-flow)
 - **Catalog placeholder**: `$INDEX_ZPA_MICROSEG`; generic `zpa-microsegmentation`
 - **Common SIEM landing spots**: tenant-configured; not part of common preset feeds
 
@@ -238,8 +238,8 @@ ZPA Log Streaming Service (LSS) feeds carry session and connector telemetry from
 
 - **Carries**: Private Service Edge enrollment, health, and throughput telemetry
 - **Schema**:
-  - Status: [`../zpa/logs/private-service-edge-status.md`](../zpa/logs/private-service-edge-status.md)
-  - Metrics: [`../zpa/logs/private-service-edge-metrics.md`](../zpa/logs/private-service-edge-metrics.md)
+  - Status: [`zpa.logs.control-session-status`](kb:zpa.logs.control-session-status)
+  - Metrics: [`zpa.logs.service-edge-metrics`](kb:zpa.logs.service-edge-metrics)
 - **Catalog placeholder**: `$INDEX_ZPA_PSE_STATUS` / `$INDEX_ZPA_PSE_METRICS`
 - **Common SIEM landing spots**: tenant-configured; not commonly preset
 
@@ -247,8 +247,8 @@ ZPA Log Streaming Service (LSS) feeds carry session and connector telemetry from
 
 - **Carries**: Private Cloud Controller (PCC) enrollment, health, and throughput telemetry (for ZPA private deployments)
 - **Schema**:
-  - Status: [`../zpa/logs/private-cloud-controller-status.md`](../zpa/logs/private-cloud-controller-status.md)
-  - Metrics: [`../zpa/logs/private-cloud-controller-metrics.md`](../zpa/logs/private-cloud-controller-metrics.md)
+  - Status: [`zpa.logs.control-session-status`](kb:zpa.logs.control-session-status)
+  - Metrics: [`zpa.logs.service-edge-metrics`](kb:zpa.logs.service-edge-metrics)
 - **Catalog placeholder**: `$INDEX_ZPA_PCC_STATUS` / `$INDEX_ZPA_PCC_METRICS`
 - **Common SIEM landing spots**: tenant-configured; not commonly preset
 
@@ -298,6 +298,6 @@ These are tracked as next deliverables after this catalog is validated.
 - [`agents/investigator/prompt.md`](../../agents/investigator/prompt.md) — `/z-investigator` slash command playbook
 - [`agents/investigator/methodology.md`](../../agents/investigator/methodology.md) — discovery journal, claim status
 - ZIA log schemas — [`../zia/types/`](../zia/types/)
-- ZPA log schemas — [`../zpa/logs/`](../zpa/logs/)
+- ZPA log schemas — [`zpa.log-receivers.log-types`](kb:zpa.log-receivers.log-types)
 - ZCC log schema — [`../zcc/logs/zcc-log-schema.md`](../zcc/logs/zcc-log-schema.md)
 - ZDX API — [`../zdx/api.md`](../zdx/api.md)

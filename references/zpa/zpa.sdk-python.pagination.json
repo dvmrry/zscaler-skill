@@ -1,0 +1,468 @@
+{
+  "schema_version": 1,
+  "id": "zpa.sdk-python.pagination",
+  "title": "Paging through ZPA lists with the Python SDK",
+  "aliases": [
+    "zpa python sdk pagination",
+    "page_size 500 zpa",
+    "resp.next StopIteration zpa",
+    "emergency access page_id",
+    "tag namespace list all pages",
+    "list returns only first page zpa",
+    "has_next totalPages",
+    "search name+EQ python",
+    "search quoted string zpa python",
+    "zpa next page starts at 2",
+    "plain search is exact name match"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.microtenant-scoping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.provisioning-key-tooling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.emergency-access.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.pagination"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A ZPA list call in the Python SDK returns one page, and a few modules page differently from the rest. The contract is in [[zpa.api.pagination]], the Go equivalents are [[shared.sdk-go.list-pagination]], and the ZIA behavior is [[zia.sdk-python.pagination]]."
+    },
+    {
+      "label": "Walking pages.",
+      "text": "[[zia.sdk-python.pagination:first-page-only]] [[zia.sdk-python.pagination:has-next-next]] {{next-uses-page}} {{next-stopiteration}} {{zpa-next-counter}} [[zia.sdk-python.response-shape:search-current-page]]"
+    },
+    {
+      "label": "Page size.",
+      "text": "{{page-size-clamp}} {{no-size-sent}} {{pagesize-lowercase}} {{arg-name-not-wire-name}} {{docstring-default-20}} {{admin-page-ceiling}} The SDK's default numbers disagree: {{divergence:default-page-size}}"
+    },
+    {
+      "label": "Search strings.",
+      "text": "{{search-name-wrap}} {{search-quotes-stripped}} The contract's search format is [[zpa.api.pagination:search-format]], and the Go helper does something similar: [[zpa.sdk-go.service-defects]]."
+    },
+    {
+      "label": "Emergency access.",
+      "text": "The page key the SDK documents for the emergency-access user list is [[zpa.emergency-access.api-surface:only-page-id-service]]. {{emergency-next-page}}"
+    },
+    {
+      "label": "POST-search lists.",
+      "text": "{{post-search-helper}} {{post-search-callers}} {{c2c-plain-list}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the caller loops on has_next and next, since a single list call is one page.",
+      "uses": [
+        "zia.sdk-python.pagination:first-page-only",
+        "next-uses-page",
+        "next-stopiteration"
+      ]
+    },
+    {
+      "do": "Whether a page_size above the documented ceiling was requested, since the SDK sends a ZPA page size as given without clamping it.",
+      "uses": [
+        "page-size-clamp",
+        "admin-page-ceiling"
+      ]
+    },
+    {
+      "do": "Whether the emergency-access list was paged with page_id and then continued with next.",
+      "uses": [
+        "zpa.emergency-access.api-surface:only-page-id-service",
+        "emergency-next-page"
+      ]
+    },
+    {
+      "do": "Whether a tag namespace, group or key list passed filters that the POST-search wrapper ignores.",
+      "uses": [
+        "post-search-callers"
+      ]
+    },
+    {
+      "do": "Whether a name search was an exact-name filter, because a plain string is rewritten to name+EQ+value.",
+      "uses": [
+        "search-name-wrap"
+      ]
+    },
+    {
+      "do": "Whether a follow-on page call started from the page the caller asked for, because the counter always starts at 1.",
+      "uses": [
+        "zpa-next-counter"
+      ]
+    }
+  ],
+  "claims": {
+    "page-size-clamp": {
+      "statement": "The response wrapper's table gives ZPA a page-size ceiling of 500 and the wrapper clamps a caller-supplied size into its internal limit, but for ZPA that limit is never sent: the first request carries the caller's raw `pagesize`, and the ZPA `next()` branch reuses the same parameters with only `page` changed. The limit is read only in the ZIA paging branches.",
+      "tier": "A",
+      "conditions": "Corrected because the clamped value is computed but not applied for ZPA; previously \"The ZPA response wrapper holds ZPA to a page-size ceiling of 500, and a caller-supplied size is forced between the service minimum and maximum before it is used.\" That the limit is read nowhere else rests on reading oneapi_response.py.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "\"zpa\": {\"default\": 100, \"max\": 500},"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "validated_size = min(max(int(page_size), min_page_size), max_page_size)",
+            "self._limit = self.validate_page_size(raw_page_size, service_type)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "if self._limit and \"pageSize\" not in self._params:",
+            "self._params[\"pageSize\"] = self._limit"
+          ],
+          "after": "[DEBUG] Taking ZIA pagination branch."
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "self._params[\"page\"] = self._page",
+            "\"params\": self._params,"
+          ],
+          "after": "[DEBUG] Taking ZPA/other pagination branch."
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "psize_value = params.pop(\"page_size\")",
+            "converted[\"pagesize\"] = psize_value"
+          ]
+        }
+      ]
+    },
+    "admin-page-ceiling": {
+      "statement": "The administrator list docstring says the maximum page size is 200, and the SDK enforces no ceiling for that call: `list_administrators` passes the caller's query parameters to the executor, which sends the page size as given.",
+      "tier": "A",
+      "conditions": "Replaces the divergence admin-page-ceiling, whose second position (that the wrapper clamps every ZPA size at 500) was wrong: the clamp is not applied for ZPA (page-size-clamp). That nothing else limits the size rests on reading the wrapper and the executor.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/administrator_controller.py",
+          "quotes": [
+            "The max page size is 200.",
+            "request, error = self._request_executor.create_request(http_method, api_url, params=query_params)"
+          ],
+          "after": "def list_administrators("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "psize_value = params.pop(\"page_size\")",
+            "converted[\"pagesize\"] = psize_value"
+          ]
+        }
+      ]
+    },
+    "no-size-sent": {
+      "statement": "When the caller gives no page size the wrapper keeps none and leaves the API default in force; the table default of 100 is not applied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "logger.debug(\"No page size provided - letting API use its default\")"
+          ]
+        }
+      ]
+    },
+    "pagesize-lowercase": {
+      "statement": "For ZPA requests the executor sends the page size as the lowercase query key `pagesize`, except on the emergencyAccess/users endpoint, where it is renamed `pageSize`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "converted[\"pagesize\"] = psize_value",
+            "# For all other ZPA endpoints, keep `pagesize` in lowercase"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "converted[\"pageSize\"] = converted.pop(\"pagesize\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "if \"/emergencyAccess/users\" in endpoint:",
+            "# For all other ZPA endpoints, keep `pagesize` in lowercase",
+            "converted[\"pagesize\"] = psize_value",
+            "converted[\"pageSize\"] = converted.pop(\"pagesize\")"
+          ]
+        }
+      ]
+    },
+    "docstring-default-20": {
+      "statement": "The ZPA list-method docstrings state a default page size of 20 and a maximum of 500.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/scim_groups.py",
+          "quotes": [
+            "If not provided, the default page size is 20. The max page size is 500."
+          ],
+          "after": "def list_scim_groups(self, idp_id: str"
+        }
+      ]
+    },
+    "next-uses-page": {
+      "statement": "For a ZPA response, `next()` increments the wrapper's page counter and sends it as the `page` parameter, and `has_next()` is true while that counter is below the `totalPages` read from the body (default 1).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "self._params[\"page\"] = self._page"
+          ],
+          "after": "[DEBUG] Taking ZPA/other pagination branch."
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "has_next = self._page < self._total_pages"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "self._total_pages = int(self._body.get(\"totalPages\", 1))"
+          ],
+          "after": "if self._service_type == \"zpa\":"
+        }
+      ]
+    },
+    "next-stopiteration": {
+      "statement": "`next()` raises `StopIteration(\"No more pages available.\")` when `has_next()` is false, and otherwise returns the tuple (results, response, error).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "raise StopIteration(\"No more pages available.\")",
+            "return results, self, None"
+          ]
+        }
+      ]
+    },
+    "post-search-helper": {
+      "statement": "The module-level helper `_post_search_all_pages` in `tag_namespace.py` posts a `pageBy` body with a fixed page size of 100, appends every page, and stops when the page number reaches the `totalPages` of the body (default 1).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/tag_namespace.py",
+          "quotes": [
+            "page_size = 100",
+            "\"pageSize\": page_size,",
+            "total_pages = 1",
+            "if page >= total_pages:"
+          ],
+          "after": "def _post_search_all_pages("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/tag_namespace.py",
+          "quotes": [
+            "page_size = 100",
+            "body[\"pageBy\"] = {",
+            "if page >= total_pages:"
+          ],
+          "after": "def _post_search_all_pages("
+        }
+      ]
+    },
+    "post-search-callers": {
+      "statement": "`list_tag_groups` builds a fixed name-ascending search body and passes only the microtenant ID as a request parameter, and the helper is the only paging path for it; other query parameters in the call are not read.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/tag_group.py",
+          "quotes": [
+            "search_body = {\"sortBy\": {\"sortName\": \"name\", \"sortOrder\": \"ASC\"}}",
+            "req_params = {\"microtenantId\": microtenant_id} if microtenant_id else {}"
+          ],
+          "after": "def list_tag_groups("
+        }
+      ]
+    },
+    "c2c-plain-list": {
+      "statement": "The C2C IP range `list_ip_ranges` takes no arguments and issues a plain GET to `/ipRanges`; a POST search to `/ipRanges/search` is a separate method whose body the caller builds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/c2c_ip_ranges.py",
+          "quotes": [
+            "def list_ip_ranges(self) -> APIResult[List[IpRanges]]:",
+            "def get_ip_range_search(self, **kwargs)"
+          ]
+        }
+      ]
+    },
+    "emergency-next-page": {
+      "statement": "Following an emergency-access list with `next()` advances the `page` parameter, not `pageId`.",
+      "tier": "B",
+      "derived_from": [
+        "zpa.emergency-access.api-surface:only-page-id-service",
+        "next-uses-page",
+        "pagesize-lowercase"
+      ],
+      "conditions": "Follows from the first request carrying page_id (sent as pageId) and the ZPA next() branch writing only `page`. Whether the service honors `page` on that endpoint is not shown."
+    },
+    "arg-name-not-wire-name": {
+      "statement": "A Python `page_size` argument, including the `page_size` that the MCP list tools forward to the SDK, therefore reaches a ZPA list endpoint as the `pagesize` query parameter that the contract names; the two spellings are an argument-versus-wire difference, not a disagreement about the wire.",
+      "tier": "B",
+      "derived_from": [
+        "zpa.api.pagination:page-defaults",
+        "pagesize-lowercase",
+        "zpa.api.pagination:mcp-passthrough",
+        "zpa.api.pagination:mcp-list-tools-same-inputs"
+      ],
+      "conditions": "Applies to ZPA URLs other than /emergencyAccess/users, whose wire key is pageSize (held in zpa.emergency-access.api-surface), and for MCP only to the policy-rule list helper and the list tools those two claims name. The MCP clause now rests on the MCP pass-through claims; previously \"A Python or MCP `page_size` argument therefore reaches a ZPA list endpoint as the `pagesize` query parameter that the contract names; the two spellings are an argument-versus-wire difference, not a disagreement about the wire.\""
+    },
+    "search-name-wrap": {
+      "statement": "The executor strips surrounding whitespace from a ZPA `search` string and checks it, ignoring case, for a filter operator: +EQ+, +NE+, +GT+, +LT+, +GE+, +LE+, +CONTAINS+, +STARTSWITH+, +ENDSWITH+, or the URL-encoded %2BEQ%2B, %2BNE%2B, %2BGT%2B, %2BLT%2B, %2BGE%2B and %2BLE%2B. A string with none is rewritten to `name+EQ+<value>`; a string with one is sent as stripped.",
+      "tier": "A",
+      "conditions": "Corrected to add the whitespace strip, the case-insensitive match and the URL-encoded operators; previously \"A ZPA `search` string that contains none of the filter operators (+EQ+, +NE+, +GT+, +LT+, +GE+, +LE+, +CONTAINS+, +STARTSWITH+, +ENDSWITH+) is rewritten by the executor to `name+EQ+<value>`; a string that already contains one is sent unchanged.\"",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "search_value = params[\"search\"].strip()",
+            "params[\"search\"] = f\"name+EQ+{search_value}\"",
+            "\"+CONTAINS+\",",
+            "\"+STARTSWITH+\",",
+            "\"%2BEQ%2B\",",
+            "\"%2BLE%2B\",",
+            "has_filter_operator = any(op in search_value.upper() for op in filter_operators)",
+            "# Already in filter format - use as-is"
+          ]
+        }
+      ]
+    },
+    "search-quotes-stripped": {
+      "statement": "Before that check, a ZPA search value wrapped in double quotes has the quotes removed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "if search_value.startswith('\"') and search_value.endswith('\"'):",
+            "search_value = search_value[1:-1]"
+          ]
+        }
+      ]
+    },
+    "zpa-next-counter": {
+      "statement": "The response object's page counter starts at 1 and, for ZPA, the next-page fetch increments it and sets the `page` parameter to the new value; only ZIA (from `pageNumber`) and ZCC (from `page`) initialize the counter from a caller-supplied value, so a ZPA list that began at a later `page` continues from page 2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "self._page = 1 self._items_fetched = 0"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "logger.debug(\"[DEBUG] Taking ZPA/other pagination branch.\") self._page += 1 self._params[\"page\"] = self._page"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "if self._service_type == \"zcc\" and \"page\" in self._params:",
+            "self._page = int(self._params[\"page\"])"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "if \"pageNumber\" in self._params:",
+            "self._page = int(self._params[\"pageNumber\"])"
+          ]
+        }
+      ],
+      "conditions": "The 'continues from page 2' consequence is read from the code; it was not run against a tenant. Corrected because ZIA initializes from pageNumber, not page; previously \"...only ZIA and ZCC initialize the counter from a caller-supplied page parameter, so a ZPA list that began at a later `page` continues from page 2.\""
+    }
+  },
+  "divergences": {
+    "default-page-size": {
+      "summary": "The SDK's own sources give two default page sizes for ZPA lists.",
+      "positions": [
+        {
+          "says": "The wrapper table gives ZPA a default of 100.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/oneapi_response.py",
+            "quotes": [
+              "\"zpa\": {\"default\": 100, \"max\": 500},"
+            ]
+          }
+        },
+        {
+          "says": "The list docstrings give a default of 20.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/scim_groups.py",
+            "quotes": [
+              "If not provided, the default page size is 20. The max page size is 500."
+            ],
+            "after": "def list_scim_groups(self, idp_id: str"
+          }
+        }
+      ],
+      "impact": "The wrapper sends no size when none is given, so the table default of 100 is never applied and the service default is in force, which the API contract gives as 20 [[zpa.api.pagination:page-defaults]]; the docstrings' 20 matches it."
+    }
+  }
+}

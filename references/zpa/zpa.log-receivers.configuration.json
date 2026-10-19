@@ -52,6 +52,9 @@
     {
       "label": "Streaming policy.",
       "text": "{{policy-rule-resource}}"
+    },
+    {
+      "text": "A receiver resource allows at most one config block and at most one policy rule block {{tf-single-config-and-rule-blocks}}."
     }
   ],
   "checks": [
@@ -164,6 +167,21 @@
           "quotes": [
             "| config.lssPort | The port of the LSS configuration | Yes | String |"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "lss_port: str,"
+          ],
+          "after": "def add_lss_config("
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_lss_config_controller.go",
+          "quotes": [
+            "LSSPort:       config[\"lss_port\"].(string),"
+          ]
         }
       ]
     },
@@ -254,6 +272,28 @@
             "policyRuleResource.objectType | The object type of the rule as part of the log receiver configuration.",
             "APP: Denotes the Applications streaming policy criteria for the log receiver."
           ]
+        }
+      ]
+    },
+    "tf-single-config-and-rule-blocks": {
+      "statement": "In the Terraform receiver resource the config block and the policy_rule_resource block each allow at most one item.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_lss_config_controller.go",
+          "quotes": [
+            "MaxItems: 1,"
+          ],
+          "after": "\"policy_rule_resource\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_lss_config_controller.go",
+          "quotes": [
+            "MaxItems: 1,"
+          ],
+          "after": "\"config\": {"
         }
       ]
     }

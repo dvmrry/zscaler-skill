@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "id": "zpa.sdk-python.error-handling",
+  "title": "Where ZPA Python SDK wrappers raise and where they return errors",
+  "aliases": [
+    "python sdk exceptions zpa",
+    "ValueError unexpected key type",
+    "incorrect policy type provided",
+    "error returned as string",
+    "third tuple element error"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.retries-and-rate-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.response-shape"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.provisioning-keys"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZPA wrappers return (result, response, error) and mostly put failures in the third slot, but a few validation failures are raised and a few errors are plain strings. The ZIA equivalent is [[zia.sdk-python.response-shape]]."
+    },
+    {
+      "label": "Returned.",
+      "text": "{{tuple-shape}} {{http-errors-returned}} {{model-error-in-slot}} {{string-errors}}"
+    },
+    {
+      "label": "Raised.",
+      "text": "[[zpa.sdk-python.provisioning-keys:key-type-raises]] {{raise-policy-type}} {{raise-rule-typeerror}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the failing call is one that raises, so it needs a try block, or one that returns the error in the third tuple slot.",
+      "uses": [
+        "zpa.sdk-python.provisioning-keys:key-type-raises",
+        "raise-policy-type",
+        "raise-rule-typeerror",
+        "tuple-shape"
+      ]
+    },
+    {
+      "do": "Whether an error value is an exception or a string before it is formatted or re-raised.",
+      "uses": [
+        "string-errors",
+        "model-error-in-slot",
+        "http-errors-returned"
+      ]
+    }
+  ],
+  "claims": {
+    "tuple-shape": {
+      "statement": "ZPA list wrappers document their return as a tuple of the result, the response and the error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/emergency_access.py",
+          "quotes": [
+            "A tuple containing (list of Emergency Access instances, Response, error)"
+          ]
+        }
+      ]
+    },
+    "http-errors-returned": {
+      "statement": "The executor's `execute` catches exceptions from firing the request and from the response error check, and returns them as the error element instead of raising.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "logger.error(f\"Exception during HTTP request: {ex}\")",
+            "logger.error(f\"Exception while checking response for errors: {ex}\")"
+          ],
+          "after": "def execute("
+        }
+      ]
+    },
+    "model-error-in-slot": {
+      "statement": "`list_provisioning_keys` builds its models inside a try block and returns an exception from model construction in the error slot.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "result.append(ProvisioningKey(self.form_response_body(item)))",
+            "except Exception as error:",
+            "return (None, response, error)"
+          ],
+          "after": "def list_provisioning_keys("
+        }
+      ]
+    },
+    "string-errors": {
+      "statement": "`delete_rule` in the policy controller returns a formatted string, not an exception, in the error slot when it cannot look up the policy set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "return (None, None, f\"Error retrieving policy for {policy_type}: {err}\")"
+          ],
+          "after": "def delete_rule(self, policy_type: str"
+        }
+      ]
+    },
+    "raise-policy-type": {
+      "statement": "`get_policy` raises `ValueError` for a policy type missing from `POLICY_MAP`, and its docstring documents the raise.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "raise ValueError(f\"Incorrect policy type provided: {policy_type}\")",
+            "ValueError: If the policy_type is invalid."
+          ],
+          "after": "def get_policy(self, policy_type: str"
+        }
+      ]
+    },
+    "raise-rule-typeerror": {
+      "statement": "The App Protection rule builder `_create_rule` raises `TypeError` when the rule is not a dictionary.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_protection.py",
+          "quotes": [
+            "raise TypeError(f\"Expected rule to be a dictionary, got {type(rule).__name__}: {rule}\")"
+          ],
+          "after": "def _create_rule(rule: dict)"
+        }
+      ]
+    }
+  }
+}

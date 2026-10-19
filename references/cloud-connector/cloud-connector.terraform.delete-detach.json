@@ -534,9 +534,9 @@
       ]
     },
     "ztc-helper-matches-zia-except-rule-type": {
-      "statement": "The ZTC helper has the same control flow as the ZIA helper: list all rules once, filter the target ID out of one field, sleep five seconds, re-read and discard, then PUT the stale copy only when the re-read succeeded. The differences are the rule type (forwarding rules here, firewall filtering rules there) and the number of callers (four here, nine there). ZTC's helper carries no RESOURCE_IN_USE comment.",
+      "statement": "Up to tf-zia v4.8.12 the ZTC helper had the same control flow as the ZIA helper: list all rules once, filter the target ID out of one field, sleep five seconds, re-read and discard, then PUT the stale copy only when the re-read succeeded. The differences were the rule type (forwarding rules here, firewall filtering rules there) and the number of callers (four here, nine there). From tf-zia v4.8.13 the ZIA helper also returns no error, skipping the sweep, when listing the rules fails with a 403 such as NOT_SUBSCRIBED, while the ZTC helper at the pin still returns the list error (#613). ZTC's helper carries no RESOURCE_IN_USE comment.",
       "tier": "B",
-      "conditions": "Line-by-line comparison of the helper bodies at tf-zia v4.8.3 and tf-ztc v0.2.0; the two differ only in the package names, the model type, and `GetAll(ctx, service)` versus `GetAll(ctx, service, nil)`. The ZIA caller count is from its own subject, not re-run here.",
+      "conditions": "Line-by-line comparison of the helper bodies at tf-zia v4.8.3 and tf-ztc v0.2.0; the two differ only in the package names, the model type, and `GetAll(ctx, service)` versus `GetAll(ctx, service, nil)`. The ZIA caller count is from its own subject, not re-run here. Changed upstream in v4.8.13 (checked 2026-10-18): previously \"The ZTC helper has the same control flow as the ZIA helper: list all rules once, filter the target ID out of one field, sleep five seconds, re-read and discard, then PUT the stale copy only when the re-read succeeded. The differences are the rule type (forwarding rules here, firewall filtering rules there) and the number of callers (four here, nine there). ZTC's helper carries no RESOURCE_IN_USE comment.\"",
       "evidence": [
         {
           "source": "tf-ztc",
@@ -552,17 +552,46 @@
           "after": "func DetachRuleIDNameExtensions("
         },
         {
+          "source": "tf-ztc",
+          "path": "ztc/utils.go",
+          "quotes": [
+            "rules, err := forwarding_rules.GetAll(ctx, service)",
+            "log.Printf(\"[error] Error while getting filtering rule\")"
+          ],
+          "after": "func DetachRuleIDNameExtensions("
+        },
+        {
           "source": "tf-zia",
           "path": "zia/utils.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.8"
           ],
           "quotes": [
             "time.Sleep(time.Second * 5)",
             "_, err = filteringrules.Update(ctx, service, rule.ID, &rule)"
           ],
           "after": "func DetachRuleIDNameExtensions("
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "quotes": [
+            "if skipUnavailableDetachRead(\"firewall filtering rules\", err) {",
+            "return nil",
+            "time.Sleep(time.Second * 5)",
+            "_, err = filteringrules.Update(ctx, service, rule.ID, &rule)"
+          ],
+          "after": "func DetachRuleIDNameExtensions("
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "quotes": [
+            "forbidden := strings.Contains(msg, \"NOT_SUBSCRIBED\")",
+            "if respErr.Response != nil && respErr.Response.StatusCode == http.StatusForbidden {"
+          ],
+          "after": "func skipUnavailableDetachRead(ruleType string, err error) bool {"
         }
       ]
     },

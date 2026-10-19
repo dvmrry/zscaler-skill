@@ -43,6 +43,10 @@
       "text": "Several ZPA resources do not do what their schema promises: an argument is dropped on the way out, a response field is dropped on the way back, or one logical write is split into several requests with no way back. Application segment resources have their own version of this problem in [[zpa.terraform.app-segment-lifecycle]]."
     },
     {
+      "label": "Where refreshed state comes from.",
+      "text": "{{refresh-from-list-index}} Whether the list responses carry every field a by-ID read did is open {{gap:list-vs-get-field-parity}}."
+    },
+    {
       "label": "Success-shaped results.",
       "text": "{{cloud-config-read-error-is-success}} {{cloud-config-destroy-is-noop}} {{schedule-delete-is-noop}} The SDK's refusal to update a disabled schedule is in [[zpa.sdk-go.service-defects:assistant-schedule-update-rejects-disabled]]. {{schedule-create-discards-server-id}} {{schedule-read-never-sets-id}} {{assistant-schedules-share-one-shape}}"
     },
@@ -831,6 +835,29 @@
         "pra-console-read-never-clears-application"
       ],
       "conditions": "Assumes the plan compares the configuration with the refreshed state and that the configuration still holds the removed value; that plan behavior is Terraform core, not shown by these sources."
+    },
+    "refresh-from-list-index": {
+      "statement": "From v4.4.13 (#694), refresh of application segments, application servers, segment groups, server groups, App Connector groups and the v1/v2 access, timeout and forwarding policy rules reads each object from one paginated list fetched per run, per resource type and microtenant, instead of one GET per object. The provider reads an object by ID only when the list call fails or the object is not in the list; create and update still read the object back individually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "now refresh from their paginated list endpoint (500 objects per page), fetched once per run and per microtenant, instead of making one API request per resource"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/utils.go",
+          "after": "func readFromListIndex[T any]",
+          "quotes": [
+            "log.Printf(\"[WARN] Listing failed, falling back to reading %s by ID: %v\", id, err)",
+            "log.Printf(\"[DEBUG] %s not in the listed items, falling back to reading it by ID\", id)"
+          ]
+        }
+      ],
+      "conditions": "Before v4.4.13 every refresh read each object by ID. Claims here about what Read writes to state describe the object the API returns; from v4.4.13 that is usually the list response."
     }
   },
   "gaps": {
@@ -853,6 +880,17 @@
         "lab-test"
       ],
       "detail": "Unverified statement: The approval validator runs at apply, so a backwards window is reported by the API, if at all, not by the provider. The provider validator is read in pra-approval-end-not-checked-against-start; the OpenAPI approval operations give startTime and endTime as plain integers with no stated ordering rule. What would resolve it: create an approval with an end before its start in a scratch tenant and record the response."
+    },
+    "list-vs-get-field-parity": {
+      "kind": "semantic",
+      "title": "Whether list responses carry every field the by-ID GET returns for the nine list-refreshed resource types",
+      "status": "open",
+      "detail": "From v4.4.13 refresh state for these types comes from the list endpoint (refresh-from-list-index). If a list response omits or summarizes a field the by-ID response carries, refreshed state can differ from what a by-ID read would have written, which would show as a plan difference after upgrading. No source here compares the two response shapes per type.",
+      "blocks": "saying that refresh fidelity is unchanged by the v4.4.13 upgrade",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ]
     }
   }
 }

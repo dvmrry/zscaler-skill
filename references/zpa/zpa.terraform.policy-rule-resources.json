@@ -1,0 +1,662 @@
+{
+  "schema_version": 1,
+  "id": "zpa.terraform.policy-rule-resources",
+  "title": "ZPA Terraform policy rule resources: v1 and v2 conditions, operand types and provider changes",
+  "aliases": [
+    "duplicate.operand.found",
+    "operator.or.not.supported.policy.rule",
+    "zpa_policy_access_rule_v2 operator",
+    "EDGE_CONNECTOR_GROUP BRANCH_CONNECTOR_GROUP terraform",
+    "device_posture_failure_notification_enabled",
+    "zpa_policy_capabilities_rule join_session"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.policy-rule-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.conditions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The provider exposes a v1 and a v2 resource for most policy rule types; the pages below record what the docs and code say about them, and each resource's arguments, operand object types and other enums are generated from the provider code (`node scripts/kb.mjs surface <resource name>`). Field-level write behavior is in [[zpa.terraform.policy-rule-writes]] and ordering in [[zpa.terraform.rule-order]]."
+    },
+    {
+      "label": "v1 and v2.",
+      "text": "{{v2-recommended-over-1000}} {{policy-set-id-optional-3-2}} The removal schedule for v1 is open {{gap:v1-removal-schedule}}."
+    },
+    {
+      "label": "Condition structure in v2.",
+      "text": "{{v2-rule-level-operator-and-only}} {{v2-block-operator-and-operand-or}} {{v2-duplicate-object-type}} The console cannot always render a mixed OR block: [[zpa.saml-attributes.policy-criteria]]."
+    },
+    {
+      "label": "Operands.",
+      "text": "{{operand-microtenant-unsupported-types}} {{edge-vs-branch-connector-group-validators}} {{rule-type-object-types}}"
+    },
+    {
+      "label": "Rule types.",
+      "text": "{{timeout-v1-seconds-v2-strings}} {{inspection-profile-required-for-inspect}} {{redirection-client-types}} {{credential-rule-console-first}} {{capabilities-conditions-limited}}"
+    },
+    {
+      "label": "Provider changes by version.",
+      "text": "{{device-posture-notification-4-4-9}} {{capabilities-join-control-session}} The changelog names the wrong block {{divergence:capabilities-block-name}}. {{portal-rule-upload-capabilities-4-4-7}}"
+    },
+    {
+      "label": "Ordering resource and doc layout.",
+      "text": "{{reorder-policy-types-deception}} {{access-rule-variant-docs-are-examples}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the rule is v1 or v2, and whether a v2 rule keeps one object_type per conditions block.",
+      "uses": [
+        "v2-duplicate-object-type",
+        "v2-rule-level-operator-and-only"
+      ]
+    },
+    {
+      "do": "Whether any operand uses SAML, SCIM, SCIM_GROUP, IDP, POSTURE or TRUSTED_NETWORK with microtenant_id set.",
+      "uses": [
+        "operand-microtenant-unsupported-types"
+      ]
+    },
+    {
+      "do": "The provider version, which decides whether the device posture notification, session and portal upload capabilities exist.",
+      "uses": [
+        "device-posture-notification-4-4-9",
+        "capabilities-join-control-session",
+        "portal-rule-upload-capabilities-4-4-7"
+      ]
+    }
+  ],
+  "claims": {
+    "v2-recommended-over-1000": {
+      "statement": "The access, timeout, forwarding, inspection and isolation v2 policy rule docs, and the browser protection rule doc, describe the resource as recommended, not required, when a rule needs more than 1000 resource criteria.",
+      "tier": "A",
+      "conditions": "Reworded after verification: named the forwarding and inspection v2 docs instead of \"forwarding-style\", and said the browser protection doc, which has no v2 name, carries the same sentence.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_forwarding_rule_v2.md",
+          "quotes": [
+            "This resource is recommended if your configuration requires the association of more than 1000 resource criteria per rule."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_inspection_rule_v2.md",
+          "quotes": [
+            "This resource is recommended if your configuration requires the association of more than 1000 resource criteria per rule."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_v2.md",
+          "quotes": [
+            "This resource is recommended if your configuration requires the association of more than 1000 resource criteria per rule."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_timeout_rule_v2.md",
+          "quotes": [
+            "This resource is recommended if your configuration requires the association of more than 1000 resource criteria per rule."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_isolation_rule_v2.md",
+          "quotes": [
+            "This resource is recommended if your configuration requires the association of more than 1000 resource criteria per rule."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_browser_protection_rule.md",
+          "quotes": [
+            "This resource is recommended if your configuration requires the association of more than 1000 resource criteria per rule."
+          ]
+        }
+      ]
+    },
+    "v2-rule-level-operator-and-only": {
+      "statement": "On a v2 rule the top-level operator joins the separate conditions blocks and supports only AND; OR is rejected by the API with operator.or.not.supported.policy.rule, and omitting the argument lets ZPA set AND.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_v2.md",
+          "quotes": [
+            "**Only `AND` is supported at this level**;",
+            "sending `OR` returns the API error `operator.or.not.supported.policy.rule`",
+            "if you omit it, ZPA sets it to `AND` automatically"
+          ]
+        }
+      ]
+    },
+    "v2-block-operator-and-operand-or": {
+      "statement": "Each conditions block has its own AND or OR operator for the operands inside it, and multiple entry_values or values inside one operand are always ORed regardless of the block operator.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_v2.md",
+          "quotes": [
+            "the `operator` inside each `conditions` block.** This joins the",
+            "Entries within a single operand are **always OR'd** together"
+          ]
+        }
+      ]
+    },
+    "v2-duplicate-object-type": {
+      "statement": "The API rejects the same object_type appearing in more than one operands block inside a single conditions block with duplicate.operand.found; aggregate the values under one operand, or use separate conditions blocks for independent groups of the same type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_v2.md",
+          "quotes": [
+            "API rejects it with `duplicate.operand.found`. Aggregate all `entry_values`/`values`"
+          ]
+        }
+      ]
+    },
+    "operand-microtenant-unsupported-types": {
+      "statement": "The v1 access rule doc says microtenant_id is not supported inside operands when object_type is SAML, SCIM, SCIM_GROUP, IDP, POSTURE or TRUSTED_NETWORK, because ZPA assumes the parent tenant's object.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule.md",
+          "quotes": [
+            "is not supported within the `operands` block when the `object_type` is set to `SAML`, `SCIM`, `SCIM_GROUP`, `IDP`, `POSTURE`, `TRUSTED_NETWORK`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_scim_group.md",
+          "quotes": [
+            "The attribute ``microtenant_id`` is NOT supported within the `operands` block when the `object_type` is set to `SCIM_GROUP`. IDP Information is controller at the parent tenant level."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_posture_profile.md",
+          "quotes": [
+            "ZPA automatically assumes the posture profile ID that belongs to the parent tenant."
+          ]
+        }
+      ]
+    },
+    "policy-set-id-optional-3-2": {
+      "statement": "The access rule docs say policy_set_id is optional since provider v3.2.0, is determined from the policy type, and is kept for backwards compatibility. In the schema it is optional and computed only on the v1 resources (access, forwarding, timeout, redirection, inspection and isolation rules); on every v2 rule and on the capabilities, credential, portal and browser protection rules it is computed only and cannot be set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule.md",
+          "quotes": [
+            "As of v3.2.0 the ``policy_set_id`` attribute is now optional, and will be automatically determined based on the policy type being configured.",
+            "The attribute is being kept for backwards compatibility"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "\"policy_set_id\": { Type: schema.TypeString, Optional: true, Computed: true, },"
+          ],
+          "after": "func CommonPolicySchema() map[string]*schema.Schema {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "quotes": [
+            "CommonPolicySchema(), map[string]*schema.Schema{"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_forwarding_rule.go",
+          "quotes": [
+            "CommonPolicySchema(),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule.go",
+          "quotes": [
+            "CommonPolicySchema(),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_redirection_rule.go",
+          "quotes": [
+            "CommonPolicySchema(),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_inspection_rule.go",
+          "quotes": [
+            "\"policy_set_id\": { Type: schema.TypeString, Computed: true, Optional: true, },"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_isolation_rule.go",
+          "quotes": [
+            "\"policy_set_id\": { Type: schema.TypeString, Computed: true, Optional: true, },"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "quotes": [
+            "\"policy_set_id\": { Type: schema.TypeString, Computed: true, },"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_forwarding_rule_v2.go",
+          "quotes": [
+            "\"policy_set_id\": { Type: schema.TypeString, Computed: true, },"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule_v2.go",
+          "quotes": [
+            "\"policy_set_id\": { Type: schema.TypeString, Computed: true, },"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_inspection_rule_v2.go",
+          "quotes": [
+            "\"policy_set_id\": { Type: schema.TypeString, Computed: true, },"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_isolation_rule_v2.go",
+          "quotes": [
+            "\"policy_set_id\": { Type: schema.TypeString, Computed: true, },"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_capabilities_access_rule.go",
+          "quotes": [
+            "\"policy_set_id\": { Type: schema.TypeString, Computed: true, },"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_credential_access_rule.go",
+          "quotes": [
+            "\"policy_set_id\": { Type: schema.TypeString, Computed: true, },"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_portal_access_rule.go",
+          "quotes": [
+            "\"policy_set_id\": { Type: schema.TypeString, Computed: true, },"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_browser_protection_rule_v2.go",
+          "quotes": [
+            "\"policy_set_id\": { Type: schema.TypeString, Computed: true, },"
+          ]
+        }
+      ],
+      "conditions": "Statement changed from \"optional on the policy rule resources\": the schema makes policy_set_id Optional+Computed only on the v1 resources and Computed-only on the v2, capabilities, credential, portal and browser protection rules, so it is now scoped and the docs statement is attributed to the docs."
+    },
+    "timeout-v1-seconds-v2-strings": {
+      "statement": "The v1 timeout rule takes reauth_timeout and reauth_idle_timeout in seconds, where -1 means Never for reauth_timeout and Default for the idle timeout, and the v2 rule takes strings with a unit such as Days, with Never allowed and a minimum interval of 10 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_timeout_rule.md",
+          "quotes": [
+            "Provides the timeout value in seconds. -1 value denotes Never.",
+            "Provides the timeout value in seconds. -1 value denotes Default."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_timeout_rule_v2.md",
+          "quotes": [
+            "Timeout interval must be at least 10 minutes. Using the string `Never` means that the session never expires."
+          ],
+          "after": "- `reauth_timeout` (String)"
+        }
+      ]
+    },
+    "device-posture-notification-4-4-9": {
+      "statement": "Provider v4.4.9 added the optional boolean device_posture_failure_notification_enabled to zpa_policy_access_rule and zpa_policy_access_rule_v2; the shared schema declares it and the v1 resource reads and writes it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added support to attribute `devicePosture_failure_notification_enabled` on resources `zpa_policy_access_rule_v2` and `zpa_policy_access_rule`."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "Description: \"This is for enabling device posture failure notification.\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "quotes": [
+            "DevicePostureFailureNotificationEnabled: d.Get(\"device_posture_failure_notification_enabled\").(bool),"
+          ]
+        }
+      ]
+    },
+    "capabilities-join-control-session": {
+      "statement": "The capabilities rule's privileged_capabilities block has join_session and control_session booleans (added in v4.4.8); when true each appends JOIN_SESSION or CONTROL_SESSION to the capability list sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_capabilities_access_rule.go",
+          "quotes": [
+            "capabilities = append(capabilities, \"JOIN_SESSION\")",
+            "capabilities = append(capabilities, \"CONTROL_SESSION\")"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "options `JOIN_SESSION`, and `CONTROL_SESSION` to resource `zpa_policy_capabilities_rule`"
+          ]
+        }
+      ]
+    },
+    "capabilities-conditions-limited": {
+      "statement": "The capabilities rule documents conditions for APP, APP_GROUP, SAML, SCIM and SCIM_GROUP only, with a separate conditions block per object type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_capabilities_rule.md",
+          "quotes": [
+            "Separate condition blocks for each object type is required.",
+            "Supported values: `APP` for application segments and `APP_GROUP` for segment groups"
+          ]
+        }
+      ]
+    },
+    "credential-rule-console-first": {
+      "statement": "A credential rule needs a first conditions block with object_type CONSOLE referencing PRA console IDs; the other documented conditions are SAML, SCIM_GROUP and SCIM.",
+      "tier": "A",
+      "conditions": "Extended after verification: the doc also lists SCIM, which the statement omitted.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_credential_rule.md",
+          "quotes": [
+            "The first condition block specifying the `object_type` / `CONSOLE` is mandatory.",
+            "This block refers to the `zpa_pra_console_controller` resource.",
+            "Supported values: `SAML`",
+            "Supported values: `SCIM_GROUP`",
+            "Supported values: `SCIM`"
+          ]
+        }
+      ]
+    },
+    "portal-rule-upload-capabilities-4-4-7": {
+      "statement": "Provider v4.4.7 added UPLOAD_INSPECTED_SANDBOX and UPLOAD_INSPECTED_SCAN to the portal access rule; its privileged_portal_capabilities block carries access_uninspected_file_sandbox, upload_inspected_sandbox and upload_inspected_scan booleans.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added new `privileged_portal_capabilities` options `UPLOAD_INSPECTED_SANDBOX`, and `UPLOAD_INSPECTED_SCAN` to resource `zpa_policy_portal_access_rule`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_portal_access_rule.go",
+          "quotes": [
+            "\"access_uninspected_file_sandbox\": {",
+            "\"upload_inspected_sandbox\": {",
+            "\"upload_inspected_scan\": {"
+          ]
+        }
+      ]
+    },
+    "rule-type-object-types": {
+      "statement": "The rule-type docs list these operand object types: portal access rules PRIVILEGE_PORTAL, SCIM_GROUP, SCIM, SAML and COUNTRY_CODE; browser protection rules APP, APP_GROUP, USER_PORTAL, CLIENT_TYPE, SCIM_GROUP, SCIM and SAML; redirection rules CLIENT_TYPE and COUNTRY_CODE; and the v2 isolation rule APP, APP_GROUP, CLIENT_TYPE, EDGE_CONNECTOR_GROUP, MACHINE_GRP, PLATFORM, POSTURE, TRUSTED_NETWORK, SCIM_GROUP, SCIM, SAML, CHROME_ENTERPRISE and CHROME_POSTURE_PROFILE.",
+      "tier": "A",
+      "conditions": "Corrected after verification: the v2 isolation doc lists 13 object types, not only the two Chrome types, and the browser protection doc also lists SAML, SCIM and SCIM_GROUP; the word \"narrow\" was dropped.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_portal_access_rule.md",
+          "quotes": [
+            "The object type of the operand. Supported values: `PRIVILEGE_PORTAL`.",
+            "Supported values: `SCIM_GROUP`",
+            "Supported values: `SCIM`",
+            "Supported values: `SAML`",
+            "Supported values: `COUNTRY_CODE`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_browser_protection_rule.md",
+          "quotes": [
+            "Supported values: `APP`, `APP_GROUP`",
+            "The object type of the operand. Supported values: `USER_PORTAL`",
+            "Supported values: `CLIENT_TYPE`",
+            "Supported values: `SCIM_GROUP`",
+            "Supported values: `SCIM`",
+            "Supported values: `SAML`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_redirection_rule.md",
+          "quotes": [
+            "Supported values: `CLIENT_TYPE`, `COUNTRY_CODE`."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_isolation_rule_v2.md",
+          "quotes": [
+            "Supported values: `APP`, `APP_GROUP`, `CLIENT_TYPE`, `EDGE_CONNECTOR_GROUP`, `MACHINE_GRP`",
+            "Supported values: `PLATFORM`",
+            "Supported values: `POSTURE`",
+            "Supported values: `TRUSTED_NETWORK`",
+            "Supported values: `SCIM_GROUP`",
+            "Supported values: `SCIM`",
+            "Supported values: `SAML`",
+            "Supported values: `CHROME_ENTERPRISE`",
+            "Supported values: `CHROME_POSTURE_PROFILE`"
+          ]
+        }
+      ]
+    },
+    "redirection-client-types": {
+      "statement": "The redirection rule doc lists exactly five CLIENT_TYPE values: zpn_client_type_machine_tunnel, zpn_client_type_edge_connector, zpn_client_type_zapp, zpn_client_type_zapp_partner and zpn_client_type_branch_connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_redirection_rule.md",
+          "quotes": [
+            "The below options are the only ones supported in a timeout policy rule.",
+            "``zpn_client_type_machine_tunnel``",
+            "``zpn_client_type_branch_connector``"
+          ],
+          "after": "`CLIENT_TYPE` (String)"
+        }
+      ]
+    },
+    "inspection-profile-required-for-inspect": {
+      "statement": "A policy inspection rule needs zpn_inspection_profile_id when its action is INSPECT; inspection rule actions are INSPECT or BYPASS_INSPECT, and isolation rule actions are ISOLATE or BYPASS_ISOLATE.",
+      "tier": "A",
+      "conditions": "Narrowed after verification: dropped the clause that an isolation rule needs zpn_isolation_profile_id for ISOLATE, which neither the isolation doc nor the code states.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_inspection_rule.md",
+          "quotes": [
+            "An inspection profile is required if the `action` is set to `INSPECT`",
+            "The supported actions for a policy inspection rule are: `BYPASS_INSPECT`, or `INSPECT`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_isolation_rule.md",
+          "quotes": [
+            "The supported actions for a policy isolation rule are: ``BYPASS_ISOLATE``, or ``ISOLATE``"
+          ]
+        }
+      ]
+    },
+    "edge-vs-branch-connector-group-validators": {
+      "statement": "The primary operand validator resolves EDGE_CONNECTOR_GROUP IDs against the cloud connector group getter and has no BRANCH_CONNECTOR_GROUP case; BRANCH_CONNECTOR_GROUP is a distinct object type checked only for a nonempty value in the resource-level validator and mapped in the v1-to-v2 operand aggregation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "_, _, err := cloud_connector_group.Get(ctx, zClient.Service, id)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "a Branch Connector Group ID must be provided when object_type = BRANCH_CONNECTOR_GROUP"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "case \"APP\", \"APP_GROUP\", \"CONSOLE\", \"CHROME_POSTURE_PROFILE\", \"MACHINE_GRP\", \"LOCATION\", \"BRANCH_CONNECTOR_GROUP\", \"EDGE_CONNECTOR_GROUP\", \"CLIENT_TYPE\", \"USER_PORTAL\", \"PRIVILEGE_PORTAL\":"
+          ]
+        }
+      ]
+    },
+    "reorder-policy-types-deception": {
+      "statement": "The reorder resource doc lists policy_type values that name some policies two ways (ACCESS_POLICY or GLOBAL_POLICY, TIMEOUT_POLICY or REAUTH_POLICY, BYPASS_POLICY or CLIENT_FORWARDING_POLICY) plus INSPECTION_POLICY, ISOLATION_POLICY, CREDENTIAL_POLICY, CAPABILITIES_POLICY and CLIENTLESS_SESSION_PROTECTION_POLICY; the resource's validator accepts all of these and also REDIRECTION_POLICY, which the doc omits. The doc says a Zscaler Deception access rule cannot be reordered and that a regular rule's order must be greater than a Deception rule's.",
+      "tier": "A",
+      "conditions": "Corrected after verification: the statement said the resource accepts the doc's list but cited only the doc; the validator is now cited and also accepts REDIRECTION_POLICY.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "quotes": [
+            "\"GLOBAL_POLICY\",",
+            "\"REDIRECTION_POLICY\",",
+            "\"REAUTH_POLICY\",",
+            "\"CLIENTLESS_SESSION_PROTECTION_POLICY\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_reorder.md",
+          "quotes": [
+            "``BYPASS_POLICY or CLIENT_FORWARDING_POLICY``",
+            "``CLIENTLESS_SESSION_PROTECTION_POLICY``"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_reorder.md",
+          "quotes": [
+            "Updating the rule order of an access policy configured using `Zscaler Deception` is not supported.",
+            "the rule order of the regular access policy must be greater than the rule order for an access policy configured using Deception."
+          ]
+        }
+      ]
+    },
+    "access-rule-variant-docs-are-examples": {
+      "statement": "The access rule variant doc pages (application segment, browser access, posture profile, risk factor, SAML, SCIM attribute, SCIM group, trusted networks) are usage examples that configure the same zpa_policy_access_rule resource; the provider registers no resources of those names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_saml.md",
+          "quotes": [
+            "resource \"zpa_policy_access_rule\" \"this\" {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_posture_profile.md",
+          "quotes": [
+            "resource \"zpa_policy_access_rule\" \"this\" {"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "v1-removal-schedule": {
+      "kind": "semantic",
+      "title": "Whether the v1 policy rule resources have a removal date",
+      "status": "open",
+      "blocks": "planning a migration from v1 to v2 policy resources",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ],
+      "detail": "Unverified legacy statement: the legacy reference says the v1 resource zpa_policy_access_rule has no removal schedule in the docs reviewed and no end-of-life date was confirmed, while rule_order is deprecated. The provider docs read at the pin state no removal date for the v1 resources."
+    }
+  },
+  "divergences": {
+    "capabilities-block-name": {
+      "summary": "The v4.4.8 changelog names the wrong block for the new session capabilities.",
+      "positions": [
+        {
+          "says": "The changelog says the options were added to privileged_portal_capabilities on zpa_policy_capabilities_rule.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "CHANGELOG.md",
+            "quotes": [
+              "options `JOIN_SESSION`, and `CONTROL_SESSION` to resource `zpa_policy_capabilities_rule`"
+            ]
+          }
+        },
+        {
+          "says": "The capabilities rule schema declares the block as privileged_capabilities; privileged_portal_capabilities belongs to the portal access rule.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_policy_capabilities_access_rule.go",
+            "quotes": [
+              "\"privileged_capabilities\": {"
+            ]
+          }
+        }
+      ],
+      "impact": "Configuration for the new session options goes in privileged_capabilities; following the changelog wording would put it in a block the capabilities rule does not have."
+    }
+  }
+}

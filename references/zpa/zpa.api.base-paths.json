@@ -1,0 +1,460 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.base-paths",
+  "title": "ZPA API base paths: hosts, the /zpa prefix, v1 and v2 versions, userconfig and cbiconfig",
+  "aliases": [
+    "config.private.zscaler.com",
+    "mgmtconfig v1 v2",
+    "/zpa prefix legacy",
+    "customerId in every path",
+    "api.zsapi.net/zpa",
+    "userconfig scimgroup base",
+    "cbiconfig base",
+    "mgmtConfigV2",
+    "ZPA legacy host"
+  ],
+  "binds": [
+    "zpa/microtenants"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.api.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.legacy-endpoints"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.policy-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.b2b-federation.api-routes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.api"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Every ZPA route carries the tenant's customer ID in its path, and the same route is written with a /zpa prefix on OneAPI and without it on the legacy hosts. The endpoint and method listing itself is generated, not restated here."
+    },
+    {
+      "label": "One path shape, three families.",
+      "text": "{{customer-id-in-path}} {{oneapi-prefix}}"
+    },
+    {
+      "label": "Legacy hosts.",
+      "text": "{{legacy-hosts}} {{go-service-constants}} {{go-strips-prefix}} {{python-strips-prefix}}"
+    },
+    {
+      "label": "Versions are not only v1.",
+      "text": "{{v2-packages}} {{v2-openapi}} {{v2-segment-under-v1}}"
+    },
+    {
+      "label": "Other bases.",
+      "text": "{{userconfig-cbi}} The federation routes use a different customer base, held in [[zpa.b2b-federation.api-routes:federation-base-path]], and the receiver routes are in [[zpa.log-receivers.api:endpoints]]."
+    },
+    {
+      "label": "Open.",
+      "text": "Whether a legacy cloud host serves a route that still carries the /zpa prefix is not shown by any source {{gap:legacy-host-accepts-zpa-prefix}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which base a failing call used: the OneAPI /zpa prefix on api.zsapi.net, or a legacy cloud host without the prefix.",
+      "uses": [
+        "oneapi-prefix",
+        "legacy-hosts",
+        "go-strips-prefix"
+      ]
+    },
+    {
+      "do": "Whether the resource is one of the packages on the v2 base, since an assumption that only LSS uses v2 is wrong.",
+      "uses": [
+        "v2-packages",
+        "v2-openapi"
+      ]
+    },
+    {
+      "do": "Whether a path with a v2 segment sits under the v1 base rather than the v2 base.",
+      "uses": [
+        "v2-segment-under-v1"
+      ]
+    }
+  ],
+  "claims": {
+    "customer-id-in-path": {
+      "statement": "Operations on the mgmtconfig v1 and v2, userconfig and cbiconfig path families all take the customer ID as a required path parameter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/get/parameters/[name=customerId]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1posture/get/parameters/[name=customerId]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/parameters/[name=customerId]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1regions/get/parameters/[name=customerId]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        }
+      ]
+    },
+    "oneapi-prefix": {
+      "statement": "The ZPA OpenAPI document gives paths without a prefix (for example /mgmtconfig/v1/admin/customers/{customerId}/application) under the server https://api.zsapi.net/zpa, so the OneAPI route is /zpa/mgmtconfig/....",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/servers/[description=ZPA Endpoints]",
+          "expect": {
+            "url": "https://api.zsapi.net/zpa"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/get/parameters/[name=customerId]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        }
+      ]
+    },
+    "legacy-hosts": {
+      "statement": "The Python SDK's legacy host table maps cloud names to config hosts: PRODUCTION to config.private.zscaler.com, ZPATWO to config.zpatwo.net, BETA to config.zpabeta.net, GOV to config.zpagov.net, GOVUS to config.zpagov.us and PREVIEW to config.zpapreview.net.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/constants.py",
+          "quotes": [
+            "\"PRODUCTION\": \"https://config.private.zscaler.com\",",
+            "\"ZPATWO\": \"https://config.zpatwo.net\",",
+            "\"BETA\": \"https://config.zpabeta.net\",",
+            "\"PREVIEW\": \"https://config.zpapreview.net\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/constants.py",
+          "quotes": [
+            "\"PRODUCTION\": \"https://config.private.zscaler.com\",",
+            "\"GOV\": \"https://config.zpagov.net\",",
+            "\"GOVUS\": \"https://config.zpagov.us\","
+          ]
+        }
+      ]
+    },
+    "go-service-constants": {
+      "statement": "Go SDK service packages build ZPA paths from constants that begin /zpa/mgmtconfig/v1/admin/customers/ (and /zpa/userconfig, /zpa/cbiconfig), so the SDK's paths carry the OneAPI /zpa prefix; the legacy client strips it before sending.",
+      "conditions": "Changed from 'whichever client is used', which contradicted go-strips-prefix; the legacy request path's prefix removal was added as evidence.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "quotes": [
+            "return client.oauth2Credentials.LegacyClient.ZpaClient.NewRequestDo(method, removeOneApiEndpointPrefix(endpoint), options, body, v)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/step_up_auth/step_up_auth.go",
+          "quotes": [
+            "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimgroup/zpa_scim_group.go",
+          "quotes": [
+            "userConfig        = \"/zpa/userconfig/v1/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbiregions/cbiregions.go",
+          "quotes": [
+            "cbiConfig          = \"/zpa/cbiconfig/cbi/api/customers/\""
+          ]
+        }
+      ]
+    },
+    "go-strips-prefix": {
+      "statement": "When the Go SDK is in legacy mode its ZPA request path removes the /zpa prefix from the endpoint before sending to the legacy ZPA client.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "quotes": [
+            "return client.oauth2Credentials.LegacyClient.ZpaClient.NewRequestDo(method, removeOneApiEndpointPrefix(endpoint), options, body, v)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/utils.go",
+          "quotes": [
+            "if strings.HasPrefix(endpoint, \"/zpa\") {",
+            "return strings.TrimPrefix(endpoint, \"/zpa\")"
+          ]
+        }
+      ]
+    },
+    "python-strips-prefix": {
+      "statement": "The Python SDK's service modules build ZPA paths with a /zpa/mgmtconfig/v1/admin/customers/{customer_id} base, and its executor removes /zpa from the URL when the legacy client is in use.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/oauth2_user_code.py",
+          "quotes": [
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "\"admin\", \"/zia\", \"/zpa\", \"/zcc\","
+          ],
+          "after": "def remove_oneapi_endpoint_prefix(self, endpoint: str) -> str:"
+        }
+      ]
+    },
+    "v2-packages": {
+      "statement": "The Go SDK reaches the mgmtconfig v2 base, not only for log receivers, for posture profiles, identity providers, SAML attributes, trusted networks, enrollment certificates, Browser Access certificates, segment group update, user portal link bulk update and v2 policy rule create and update.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/postureprofile/zpa_posture_profile.go",
+          "quotes": [
+            "\"/zpa/mgmtconfig/v2/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/idpcontroller/zpa_idp_controller.go",
+          "quotes": [
+            "\"/zpa/mgmtconfig/v2/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/samlattribute/zpa_saml_attribute.go",
+          "quotes": [
+            "\"/zpa/mgmtconfig/v2/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/trustednetwork/zpa_trusted_network.go",
+          "quotes": [
+            "\"/zpa/mgmtconfig/v2/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go",
+          "quotes": [
+            "\"/zpa/mgmtconfig/v2/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/bacertificate/zpa_ba_certificate.go",
+          "quotes": [
+            "\"/zpa/mgmtconfig/v2/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "quotes": [
+            "\"/zpa/mgmtconfig/v2/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/userportal/portal_link/portal_link.go",
+          "quotes": [
+            "\"/zpa/mgmtconfig/v2/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "\"/zpa/mgmtconfig/v2/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "quotes": [
+            "\"/zpa/mgmtconfig/v2/admin/customers/\""
+          ]
+        }
+      ]
+    },
+    "v2-openapi": {
+      "statement": "The ZPA OpenAPI document has mgmtconfig v2 operations for IdP, posture, SAML attribute, certificate and enrollment-certificate reads, a segment group update, v2 policy rule create and update, and the lssConfig family.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1idp/get/parameters/[name=customerId]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1posture/get/parameters/[name=customerId]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1samlAttribute/get/parameters/[name=customerId]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/put/parameters/[name=customerId]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/parameters/[name=customerId]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1lssConfig/get/parameters/[name=customerId]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        }
+      ]
+    },
+    "v2-segment-under-v1": {
+      "statement": "Some Go SDK routes carry v2 as a path segment appended to the v1 base rather than using the v2 base: the Source IP Anchoring IP ranges (/v2/ipRanges), customer domains (/v2/associationtype) and SSO login options (/v2/ssoLoginOptions).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/c2c_ip_ranges/c2c_ip_ranges.go",
+          "quotes": [
+            "ipRangesEndpoint = \"/v2/ipRanges\"",
+            "mgmtConfig       = \"/zpa/mgmtconfig/v1/admin/customers/\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/customer_domain_controller/customer_domain_controller.go",
+          "quotes": [
+            "customerDomainControllerEndpoint = \"/v2/associationtype\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/admin_sso_controller/admin_sso_controller.go",
+          "quotes": [
+            "ssoLoginEndpoint = \"/v2/ssoLoginOptions\""
+          ]
+        }
+      ]
+    },
+    "userconfig-cbi": {
+      "statement": "SCIM group routes sit under /userconfig/v1/customers/{customerId} and Cloud Browser Isolation routes under /cbiconfig/cbi/api/customers/{customerId}, each a base of its own beside /mgmtconfig.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/parameters/[name=customerId]",
+          "expect": {
+            "in": "path"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1profiles/get/parameters/[name=customerId]",
+          "expect": {
+            "in": "path"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "legacy-host-accepts-zpa-prefix": {
+      "kind": "semantic",
+      "title": "Whether a legacy ZPA cloud host accepts the /zpa prefix",
+      "status": "open",
+      "former_ids": [
+        "zpa-38"
+      ],
+      "detail": "Unverified legacy statement: whether the live legacy host expects the /zpa prefix that Go service constants carry. Both SDKs strip the prefix in legacy mode, so the hosts are only known to be called without it; nothing shows what a host does with a prefixed path.",
+      "blocks": "building raw legacy requests from OneAPI paths",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

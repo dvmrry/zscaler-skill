@@ -7,6 +7,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from automate_pages import blocks_of, parse_mdx  # noqa: E402
 from help_capture import text_of  # noqa: E402
+from postman_capture import LINK  # noqa: E402
 
 # The shape Docusaurus emits for a doc page: metadata, then the MDX content function.
 CHUNK = (
@@ -39,3 +40,8 @@ def test_compiled_mdx_is_read_as_data_into_capture_blocks():
     assert {"code": "curl -X POST \\\n  https://x"} in blocks
     assert blocks[-1] == {"heading": "Next — steps", "level": 2}
     assert "| Heavy | 4 |" in text_of(blocks)
+
+
+def test_the_postman_page_link_is_read_from_the_compiled_page():
+    chunk = '(0,r.jsx)(o.a,{href:"/downloads/OneAPI_postman_collection_09_29_2026.json",children:"OneAPI Postman collection"})'
+    assert LINK.findall(chunk) == ["/downloads/OneAPI_postman_collection_09_29_2026.json"]

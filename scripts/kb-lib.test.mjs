@@ -6,7 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { anchorEvidence, buildGraph, captureText, idKind, loadPublic, parseProse, validateGraph } from "./kb-lib.mjs";
+import { anchorEvidence, buildGraph, captureText, idKind, loadPublic, materialDate, parseProse, validateGraph } from "./kb-lib.mjs";
 import { loadOverlay, renderSubject, resolve, validateOverlay } from "./kb-resolve.mjs";
 import { loadSchemas, validate } from "./kb-schema.mjs";
 import { snakeToCamel } from "./kb-types.mjs";
@@ -240,6 +240,30 @@ test("every file under vendor/zscaler-help is a tool capture or listed as static
   assert.ok(errs.some((m) => /retired for nowhere\.json, which does not exist/.test(m)));
 });
 
+test("a citation's date is the material's own, never the day the file was captured", () => {
+  const root = tmpRepo({
+    "references/_meta/sources.json": { schema_version: 1, sources: { "zscaler-help": { kind: "capture", root: "vendor/zscaler-help", rank: 5, title: "Help" } } },
+    "vendor/zscaler-help/a.json": {
+      schema_version: 1, kind: "help-article", title: "A", captured_at: "2026-10-18", blocks: [{ text: "x" }],
+      source: { url: "https://help.zscaler.com/zia/a", node: "1", revision: "2", updated: "2025-03-01", updated_basis: "pdf-last-modified" },
+    },
+    "vendor/zscaler-help/coll.json": "{}",
+    "vendor/zscaler-help/plain.txt": "text",
+    "references/_meta/capture-manifest.json": {
+      schema_version: 1,
+      files: {
+        "vendor/zscaler-help/coll.json": { captured_from: "https://x/c_09_29_2026.json", captured_at: "2026-10-18", sha256: "0".repeat(64), updated: "2026-09-29", updated_basis: "release-filename" },
+        "vendor/zscaler-help/plain.txt": { captured_from: null, captured_at: "2026-10-18", sha256: "0".repeat(64) },
+      },
+    },
+  });
+  const g = graphOf(root);
+  assert.deepEqual(materialDate(g, { source: "zscaler-help", path: "a.json" }), { as_of: "2025-03-01", basis: "pdf-last-modified" });
+  assert.deepEqual(materialDate(g, { source: "zscaler-help", path: "coll.json" }), { as_of: "2026-09-29", basis: "release-filename" });
+  // Only a capture date is known: the material is undated, not "as of the capture".
+  assert.equal(materialDate(g, { source: "zscaler-help", path: "plain.txt" }), null);
+});
+
 test("references must resolve to the right kind of node", () => {
   const root = tmpRepo({
     "vendor/fake/doc.txt": "evaluation stops at the first match.",
@@ -268,6 +292,24 @@ test("only an observed (Tier B) claim can settle a divergence by observation", (
     }),
   });
   assert.ok(messages(root).some((m) => /needs an observed \(Tier B\) claim/.test(m)));
+});
+
+test("a divergence fixed upstream must pin its outdated position to a release", () => {
+  const ev = { source: "fake-help", path: "doc.txt", quotes: ["stops at the first match"] };
+  const root = tmpRepo({
+    "vendor/fake/doc.txt": "evaluation stops at the first match.",
+    "references/zia/zia.example.json": subject({
+      divergences: {
+        d: {
+          summary: "Two sources disagree.", impact: "Wrong answers.",
+          positions: [{ evidence: ev, says: "A" }, { evidence: ev, says: "B" }],
+          resolution: { by: "first-match", rule: "fixed-upstream" },
+        },
+      },
+    }),
+  });
+  // Every position still describes the current pin, so nothing says which release was outdated.
+  assert.ok(messages(root).some((m) => /fixed-upstream needs the outdated position pinned/.test(m)));
 });
 
 test("a derived claim names real claims, and Tier A needs its own evidence", () => {

@@ -42,7 +42,7 @@
     },
     {
       "label": "Arguments.",
-      "text": "{{tf-required-args}} {{zpa-terraform-grace}} Wrapper modules: [[zpa.private-service-edges.reference-modules]]."
+      "text": "{{tf-required-args}} {{zpa-terraform-grace}} Only the first trusted_networks block is sent {{divergence:trusted-networks-max-items}}. Wrapper modules: [[zpa.private-service-edges.reference-modules]]."
     },
     {
       "label": "Membership.",
@@ -58,6 +58,12 @@
     },
     {
       "text": "Provider defects: [[zpa.terraform.resource-fidelity]], [[zpa.terraform.data-source-fidelity]], and first-block-only association reads in [[zpa.terraform.app-segment-lifecycle:association-block-first-only-places]]. Enrollment fields: [[zpa.private-service-edges.enrollment]]."
+    },
+    {
+      "text": "Service edge membership drift is hidden unless service_edges is configured {{service-edges-diff-suppressed-when-unset}}."
+    },
+    {
+      "text": "A grace distance differing past one decimal produces no diff {{grace-distance-value-one-decimal}}."
     }
   ],
   "checks": [
@@ -91,7 +97,7 @@
   ],
   "claims": {
     "tf-required-args": {
-      "statement": "In the resource schema, name, latitude, longitude and location are required, city_country is optional and country_code is optional and computed, although the provider docs list city_country and country_code under Required. enabled defaults to true, is_public to false, and trusted_networks takes at most one block.",
+      "statement": "In the resource schema, name, latitude, longitude and location are required, city_country is optional and country_code is optional and computed, although the provider docs list city_country and country_code under Required. enabled defaults to true and is_public to false.",
       "tier": "A",
       "evidence": [
         {
@@ -144,11 +150,25 @@
         },
         {
           "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Default:     true,"
+          ],
+          "after": "\"enabled\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Default:     false,"
+          ],
+          "after": "\"is_public\": {"
+        },
+        {
+          "source": "tf-zpa",
           "path": "docs/resources/zpa_service_edge_group.md",
           "quotes": [
-            "`country_code` - (String) Provide a 2 letter",
-            "Default value: `true` Supported values: `true`, `false`",
-            "`trusted_networks` - (Block Set) Trusted networks for this Service Edge Group. List of trusted network objects Maximum 1 block allowed."
+            "`country_code` - (String) Provide a 2 letter"
           ]
         }
       ],
@@ -156,7 +176,7 @@
         "zpa/service-edge-groups#name",
         "zpa/service-edge-groups#countryCode"
       ],
-      "conditions": "Statement changed from the legacy \"requires name, latitude, longitude, location, city_country and country_code\": the schema marks city_country Optional and country_code Optional+Computed, contradicting the docs' Required list."
+      "conditions": "Statement changed from the legacy \"requires name, latitude, longitude, location, city_country and country_code\": the schema marks city_country Optional and country_code Optional+Computed, contradicting the docs' Required list. Dropped \"trusted_networks takes at most one block\": the schema's MaxItems is commented out, so that is now the trusted-networks-max-items divergence; the defaults are now cited from the schema."
     },
     "zpa-terraform-grace": {
       "statement": "grace_distance_value and grace_distance_value_unit are RequiredWith grace_distance_enabled in the schema, so the three are configured together.",
@@ -265,6 +285,34 @@
         }
       ],
       "conditions": "Absence: listing docs/resources at the pin shows zpa_service_edge_group and zpa_service_edge_assistant_schedule but no resource for a single Service Edge instance."
+    },
+    "service-edges-diff-suppressed-when-unset": {
+      "statement": "The Terraform Service Edge group resource declares service_edges optional and computed with a warning that membership is managed externally, and suppresses any diff on it unless the field is set in configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Computed: true, // This is key",
+            "// If the field isn't set in config (regardless of static or dynamic block)"
+          ],
+          "after": "\"service_edges\": {"
+        }
+      ]
+    },
+    "grace-distance-value-one-decimal": {
+      "statement": "The Terraform Service Edge group resource treats grace_distance_value as unchanged when old and new values are equal after formatting to one decimal place.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "return fmt.Sprintf(\"%.1f\", oldVal) == fmt.Sprintf(\"%.1f\", newVal)"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -277,6 +325,47 @@
       "resolves_with": [
         "lab-test"
       ]
+    }
+  },
+  "divergences": {
+    "trusted-networks-max-items": {
+      "summary": "The docs allow one trusted_networks block, but the schema sets no limit and the provider reads only the first block.",
+      "positions": [
+        {
+          "says": "The resource docs say trusted_networks allows at most one block.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/resources/zpa_service_edge_group.md",
+            "quotes": [
+              "`trusted_networks` - (Block Set) Trusted networks for this Service Edge Group. List of trusted network objects Maximum 1 block allowed."
+            ]
+          }
+        },
+        {
+          "says": "The schema declares trusted_networks as an optional list with its MaxItems line commented out, so several blocks pass validation.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_service_edge_group.go",
+            "quotes": [
+              "Optional: true,",
+              "// MaxItems:    1,"
+            ],
+            "after": "\"trusted_networks\": {"
+          }
+        },
+        {
+          "says": "The expander sends only the IDs in the first trusted_networks block.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_service_edge_group.go",
+            "quotes": [
+              "block, ok := blocks[0].(map[string]interface{})"
+            ],
+            "after": "func expandTrustedNetworks(d *schema.ResourceData) []trustednetwork.TrustedNetwork {"
+          }
+        }
+      ],
+      "impact": "A configuration with several trusted_networks blocks plans without error, but only the first block's IDs reach the API; put every trusted network ID in one block."
     }
   }
 }

@@ -233,5 +233,5 @@ The SDKs handle the OAuth 2.0 flow internally — callers don't have to implemen
 - ZIdentity overview — [`./overview.md`](./overview.md)
 - ZIdentity API surface (`client.zid.*` in SDK) — [`./api.md`](./api.md)
 - ZIA API authentication section (where legacy vs OneAPI paths are compared) — [`zia.api`](kb:zia.api)
-- ZPA API authentication — [`../zpa/api.md`](../zpa/api.md)
+- ZPA API authentication — [`zpa.api`](kb:zpa.api)
 - Step-Up Authentication (the other major ZIdentity feature) — [`./step-up-authentication.md`](./step-up-authentication.md)

@@ -54,7 +54,7 @@
     },
     {
       "label": "Enrollment certificate and user codes.",
-      "text": "{{provider-resolves-cert}} {{ansible-resolves-cert}} The Python SDK documents this behavior but does not do it {{divergence:python-cert-docstring-vs-code}}, and the effect of omitting the certificate on a direct create is open {{gap:sdk-create-without-cert}}. {{provider-verifies-user-codes}} The same verification step for other group types is in [[zpa.terraform.resource-fidelity]]."
+      "text": "[[zpa.terraform.group-enrollment:resolver-lookup-by-name]] {{ansible-resolves-cert}} The Python SDK documented this behavior without doing it up to v1.11.1 {{divergence:python-cert-docstring-vs-code}} and does the lookup from v1.11.2 {{python-cert-auto-lookup}}; what the API does with a create that omits the certificate is still open {{gap:create-missing-cert-error}}. {{provider-verifies-user-codes}} The same verification step for other group types is in [[zpa.terraform.resource-fidelity]]."
     },
     {
       "label": "Tooling fields.",
@@ -62,6 +62,39 @@
     },
     {
       "text": "Provider lookup and delete behavior for groups is in [[zpa.terraform.data-source-selection]] and [[zpa.terraform.delete-paths]]. Update scheduling is in [[zpa.app-connectors.upgrades]]; the enrollment methods are in [[zpa.app-connectors.enrollment]]."
+    },
+    {
+      "text": "The group flags praEnabled, wafDisabled and lssAppConnectorGroup default to false in the Python model (lssAppConnectorGroup is None when no response is given) and are described by the API reference {{group-flag-defaults}}."
+    },
+    {
+      "text": "The three TCP Quick ACK flags must be set to the same value {{tcp-quick-ack-same-value}}."
+    },
+    {
+      "text": "A group can carry a Network Protection assistant group with LAN subnets and DNS NS records {{np-assistant-group-model}}."
+    },
+    {
+      "text": "Coordinates differing beyond the sixth decimal produce no Terraform diff {{tf-coordinates-six-decimals}}."
+    },
+    {
+      "text": "The contract and the Python docstring agree on the DNS query values: {{dns-query-type-contract-values}}"
+    },
+    {
+      "text": "The group coordinates are strings with a range check: {{latitude-longitude-string}}"
+    },
+    {
+      "text": "A direct Go update with no certificate ID sends no certificate key: {{go-update-no-cert-lookup}}"
+    },
+    {
+      "text": "The Go test creates groups with an explicit Connector certificate: {{go-test-sends-connector-cert}}"
+    },
+    {
+      "text": "The MCP tool resolves the certificate before it calls the SDK: {{mcp-create-resolves-cert}}"
+    },
+    {
+      "text": "Whether the API rejects a create without the certificate, and under which name, is open {{gap:create-missing-cert-error}}."
+    },
+    {
+      "text": "The three TCP quick acknowledgement flags must be equal, and the Terraform resource enforces that itself before calling the API [[zpa.terraform.resource-constraints:quick-ack-flags-checked-by-provider]]."
     }
   ],
   "checks": [
@@ -83,7 +116,7 @@
     {
       "do": "Whether enrollment_cert_id came from the caller or from the provider or Ansible lookup, before reading a plan diff on it.",
       "uses": [
-        "provider-resolves-cert",
+        "zpa.terraform.group-enrollment:resolver-lookup-by-name",
         "ansible-resolves-cert",
         "python-cert-docstring-vs-code"
       ]
@@ -254,38 +287,6 @@
         "zpa/app-connector-groups#zscalerManaged"
       ]
     },
-    "provider-resolves-cert": {
-      "statement": "The Terraform provider fills enrollment_cert_id by looking up the enrollment certificate named Connector on both create and update, unless a nonempty value is already set; the update path does so because the API requires enrollmentCertId on update.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "tf-zpa",
-          "path": "zpa/utils.go",
-          "quotes": [
-            "if v, ok := d.GetOk(\"enrollment_cert_id\"); ok && v.(string) != \"\" {",
-            "cert, _, err := enrollmentcert.GetByName(ctx, service, certName)"
-          ]
-        },
-        {
-          "source": "tf-zpa",
-          "path": "zpa/resource_zpa_app_connector_group.go",
-          "quotes": [
-            "if err := resolveEnrollmentCertID(ctx, d, service, \"Connector\"); err != nil {"
-          ],
-          "after": "func resourceAppConnectorGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
-        },
-        {
-          "source": "tf-zpa",
-          "path": "zpa/resource_zpa_app_connector_group.go",
-          "quotes": [
-            "The API requires enrollmentCertId on update as well, so this must run on every"
-          ]
-        }
-      ],
-      "binds": [
-        "zpa/app-connector-groups#enrollmentCertId"
-      ]
-    },
     "provider-verifies-user-codes": {
       "statement": "The provider verifies user_codes after create when any are set and after update only when user_codes changed; a verification failure returns an error even though the group was already written.",
       "tier": "A",
@@ -454,6 +455,264 @@
         }
       ],
       "conditions": "The AWS absence rests on the group module's main.tf containing no ignore_changes; a text search of the AWS repository found ignore_changes only in the ASG module and two example main.tf files, not in the group module."
+    },
+    "group-flag-defaults": {
+      "statement": "In the Python SDK model, an App Connector group built from a response that omits praEnabled, wafDisabled, lssAppConnectorGroup or the three tcpQuickAck flags reads each as False, while a group built with no response at all reads lssAppConnectorGroup as None; the OpenAPI document describes wafDisabled as AppProtection being disabled for the group and lssAppConnectorGroup as the group being configured to stream logs to a log receiver.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connector_groups.py",
+          "quotes": [
+            "self.pra_enabled = config[\"praEnabled\"] if \"praEnabled\" in config else False",
+            "self.waf_disabled = config[\"wafDisabled\"] if \"wafDisabled\" in config else False",
+            "self.lss_app_connector_group = config[\"lssAppConnectorGroup\"] if \"lssAppConnectorGroup\" in config else False",
+            "self.lss_app_connector_group = None"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1appConnectorGroup~1{appConnectorGroupId}/put/requestBody/content/application~1json/schema/properties/wafDisabled",
+          "expect": {
+            "description": "Whether or not AppProtection is disabled for the App Connector group."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1appConnectorGroup~1{appConnectorGroupId}/put/requestBody/content/application~1json/schema/properties/lssAppConnectorGroup",
+          "expect": {
+            "description": "Whether or not the App Connector group is configured to stream logs to a log receiver."
+          }
+        }
+      ]
+    },
+    "tcp-quick-ack-same-value": {
+      "statement": "The API reference says the tcpQuickAckApp, tcpQuickAckAssistant and tcpQuickAckReadAssistant fields must all share the same value, and the Terraform documentation repeats it for the three arguments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1appConnectorGroup~1{appConnectorGroupId}/put/requestBody/content/application~1json/schema/properties/tcpQuickAckApp",
+          "expect": {
+            "description": "Whether TCP Quick Acknowledgement is enabled or disabled for the application. The <code>tcpQuickAckApp</code>, <code>tcpQuickAckAssistant</code>, and <code>tcpQuickAckReadAssistant</code> fields must share all the same values."
+          }
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_app_connector_group.md",
+          "quotes": [
+            "The tcpQuickAckApp, tcpQuickAckAssistant, and tcpQuickAckReadAssistant fields must all share the same value."
+          ],
+          "after": "`tcp_quick_ack_app` - (Boolean)"
+        }
+      ]
+    },
+    "np-assistant-group-model": {
+      "statement": "The Python App Connector group model carries an npAssistantGroup object carrying its own mtu, redundantModeEnabled, externalRouters and lanSubnets, each LAN subnet holding an npDnsNsRecord.",
+      "conditions": "Restated: mtu, redundant mode and external routers belong to the NPAssistantGroup class, not to the group itself.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connector_groups.py",
+          "quotes": [
+            "self.np_assistant_group = NPAssistantGroup(config[\"npAssistantGroup\"])",
+            "self.mtu = config[\"mtu\"] if \"mtu\" in config else None",
+            "self.external_routers = ZscalerCollection.form_list(",
+            "self.lan_subnets = ZscalerCollection.form_list(config[\"lanSubnets\"] if \"lanSubnets\" in config else [], LanSubnet)",
+            "self.np_dns_ns_record = NPDnsNsRecord(config[\"npDnsNsRecord\"] if \"npDnsNsRecord\" in config else None)",
+            "self.redundant_mode_enabled = config[\"redundantModeEnabled\"] if \"redundantModeEnabled\" in config else None"
+          ]
+        }
+      ]
+    },
+    "tf-coordinates-six-decimals": {
+      "statement": "The Terraform provider suppresses a plan difference on a connector group's latitude or longitude when the old and new values are equal after rounding to six decimal places.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/utils.go",
+          "quotes": [
+            "return math.Round(o*1000000)/1000000 == math.Round(n*1000000)/1000000"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "DiffSuppressFunc: DiffSuppressFuncCoordinate,"
+          ],
+          "after": "\"latitude\": {"
+        }
+      ]
+    },
+    "dns-query-type-contract-values": {
+      "statement": "The OpenAPI document gives `dnsQueryType` on an App Connector Group the values IPV4_IPV6, IPV4 and IPV6, and the Python create docstring lists the same three.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1appConnectorGroup~1{appConnectorGroupId}/get/responses/200/content/*~1*/schema/properties/dnsQueryType",
+          "expect": {
+            "enum": [
+              "IPV4_IPV6",
+              "IPV4",
+              "IPV6"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "quotes": [
+            "``IPV4_IPV6``, ``IPV4`` and ``IPV6``"
+          ],
+          "after": "def add_connector_group(self, **kwargs) -> APIResult[AppConnectorGroup]:"
+        }
+      ]
+    },
+    "latitude-longitude-string": {
+      "statement": "An App Connector Group's `latitude` is a string in the OpenAPI document, the Go struct and the Terraform schema. The provider's ValidateLatitude checks the parsed value is in -90..90; a value that does not parse is treated as 0 and accepted. The connector-level latitude in the same response is a read-only double.",
+      "conditions": "Statement narrowed from 'validates it as a number' to the range check: ValidateLatitude discards the ParseFloat error, so a non-numeric string parses as 0 and passes. The validator quote and its body in zpa/utils.go were added as evidence. Restated to say outright that an unparseable value is accepted as 0, and the error text was added as a quote.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1appConnectorGroup~1{appConnectorGroupId}/get/responses/200/content/*~1*/schema/properties/latitude",
+          "expect": {
+            "type": "string",
+            "description": "The latitude of the App Connector group."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1appConnectorGroup~1{appConnectorGroupId}/get/responses/200/content/*~1*/schema/properties/connectors/items/properties/latitude",
+          "expect": {
+            "format": "double",
+            "type": "number"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
+          "quotes": [
+            "Latitude string `json:\"latitude,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "Description:      \"Latitude of the App Connector Group. Integer or decimal. With values in the range of -90 to 90\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "Type:             schema.TypeString,",
+            "ValidateFunc:     ValidateLatitude,"
+          ],
+          "after": "\"latitude\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/utils.go",
+          "quotes": [
+            "v, _ := strconv.ParseFloat(val.(string), 64)",
+            "if v < -90 || v > 90 {",
+            "latitude must be between -90 and 90"
+          ],
+          "after": "func ValidateLatitude(val interface{}, _ string) (warns []string, errs []error) {"
+        }
+      ]
+    },
+    "go-update-no-cert-lookup": {
+      "statement": "The Go SDK Update for App Connector, Service Edge and Private Cloud groups sends the group object the caller supplies and looks up no enrollment certificate, and `enrollmentCertId` is tagged `omitempty` on the group, so an empty value is left out of the body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
+          "quotes": [
+            "EnrollmentCertID string `json:\"enrollmentCertId,omitempty\"`",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, appConnectorGroup, nil)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go",
+          "quotes": [
+            "EnrollmentCertID string `json:\"enrollmentCertId,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/private_cloud_group/private_cloud_group.go",
+          "quotes": [
+            "EnrollmentCertID string `json:\"enrollmentCertId,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "go-test-sends-connector-cert": {
+      "statement": "The Go App Connector Group integration test looks up the enrollment certificate named Connector and sends its ID in the create request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group_test.go",
+          "quotes": [
+            "enrollmentcert.GetByName(context.Background(), service, \"Connector\")",
+            "EnrollmentCertID:         enrollmentCertList.ID,"
+          ]
+        }
+      ]
+    },
+    "mcp-create-resolves-cert": {
+      "statement": "The MCP App Connector Group create tool resolves the tenant's standard Connector enrollment certificate when none is supplied and passes the resolved ID to the Python SDK.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/app_connector_groups.py",
+          "quotes": [
+            "Auto-resolves the",
+            "tenant's standard 'Connector' enrollment certificate when none is supplied.",
+            "\"enrollment_cert_id\": resolved_cert_id,"
+          ]
+        }
+      ]
+    },
+    "python-cert-auto-lookup": {
+      "statement": "From Python SDK v1.11.2, `add_connector_group` and `update_connector_group` fill in a missing `enrollment_cert_id` by looking up the `Connector` enrollment certificate (the service edge group functions look up `Service Edge`); an ID the caller passes is used as given (#596). v1.11.1 had first corrected the docstring to say the SDK does no lookup (#595).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "now populate the required `enrollment_cert_id` when it is not provided, by looking up the `Connector` or `Service Edge` enrollment certificate respectively. An explicitly passed `enrollment_cert_id` is used as-is.",
+            "the SDK does not look up the certificate automatically"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "quotes": [
+            "cert, _, error = self._enrollment_certificates.get_enrolment_by_name(\"Connector\")"
+          ],
+          "after": "def add_connector_group"
+        }
+      ]
     }
   },
   "divergences": {
@@ -464,6 +723,9 @@
           "evidence": {
             "source": "sdk-python",
             "path": "zscaler/zpa/app_connector_groups.py",
+            "at": [
+              "v1.10.0"
+            ],
             "quotes": [
               "If not set, the provider will automatically look up the \"Connector\" enrollment certificate by name and populate this attribute for you."
             ],
@@ -475,6 +737,9 @@
           "evidence": {
             "source": "sdk-python",
             "path": "zscaler/zpa/app_connector_groups.py",
+            "at": [
+              "v1.10.0"
+            ],
             "quotes": [
               "body = kwargs"
             ]
@@ -482,7 +747,12 @@
           "says": "add_connector_group sends the caller's keyword arguments as the request body, with no certificate lookup."
         }
       ],
-      "impact": "The auto-resolution is Terraform-provider and Ansible behavior; a direct Python SDK create should pass enrollment_cert_id explicitly."
+      "impact": "Up to v1.11.1 the auto-resolution was Terraform-provider and Ansible behavior only, so a direct Python SDK create had to pass enrollment_cert_id explicitly.",
+      "resolution": {
+        "by": "python-cert-auto-lookup",
+        "rule": "fixed-upstream",
+        "note": "Both positions describe v1.10.0; v1.11.2 does the lookup the docstring described."
+      }
     }
   },
   "gaps": {
@@ -494,15 +764,6 @@
       "resolves_with": [
         "lab-test",
         "operator-experience"
-      ]
-    },
-    "sdk-create-without-cert": {
-      "kind": "semantic",
-      "title": "Whether a direct SDK group create succeeds without an enrollment certificate ID",
-      "status": "open",
-      "detail": "The Python docstring and the code disagree (python-cert-docstring-vs-code); the provider's update comment says the API requires enrollmentCertId on update, but no source shows what a create without it returns.",
-      "resolves_with": [
-        "lab-test"
       ]
     },
     "group-connector-blocks-drift": {
@@ -522,6 +783,32 @@
       "detail": "Unverified legacy statement: \"Group editing from application-serving context became available on July 16, 2026: App Connector groups can be edited from the 'Where are my apps being served from?' view to resolve unknown hosting or location details.\" The captured July release summary holds only an introduction.",
       "resolves_with": [
         "source-read"
+      ]
+    },
+    "create-missing-cert-error": {
+      "kind": "semantic",
+      "title": "What the API returns when a group create has no enrollment certificate ID, and under which name",
+      "status": "open",
+      "detail": "The update path is covered: the ZPA provider's 4.4.10 changelog says resolving the certificate on update prevents a missing.mandatory.params API error when the attribute is empty in state, and its update code comments that the API requires enrollmentCertId on update. Open is the create path and the field name. Unverified legacy statement: an authenticated Go SDK integration run on a production tenant is reported to have had its App Connector Group POST rejected with 400 missing.mandatory.params because the API's signingCertId was empty, while the legacy Help field table lists no certificate field and the Go client serializes the field as enrollmentCertId. The only record is the repository's authored note vendor/zscaler-help/zpa-create-operation-drift-capture.md, which static-captures.json classes as a note that cannot be cited as evidence. On the SDK side, up to Python SDK v1.10.0 the docstring and the code disagreed (python-cert-docstring-vs-code); from v1.11.2 the SDK fills in the certificate itself and its changelog calls `enrollment_cert_id` required (python-cert-auto-lookup), so an SDK create no longer omits it. Create a group without a certificate in a scratch tenant and record the status, the message and the field it names.",
+      "blocks": "treating enrollmentCertId as required for every group create",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "preventing a `missing.mandatory.params` API error when the attribute is empty in the state"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "// The API requires enrollmentCertId on update as well"
+          ]
+        }
       ]
     }
   }

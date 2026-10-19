@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "id": "zpa.logs.service-edge-metrics",
+  "title": "Private Service Edge and Private Cloud Controller Metrics logs",
+  "aliases": [
+    "private service edge metrics log",
+    "private cloud controller metrics log",
+    "LogTimeStamp capital S",
+    "PrivateSE field",
+    "zpn_pbroker_comprehensive_stats record",
+    "pse resource metrics"
+  ],
+  "binds": [
+    "zpa/private-service-edge-metrics-log#CPUUtilization",
+    "zpa/private-cloud-controller-metrics-log#CPUUtilization",
+    "zpa/private-service-edge-metrics-log#PrivateSE",
+    "zpa/private-service-edge-status-log#ServiceEdge",
+    "zpa/private-cloud-controller-metrics-log#PrivateCloudController",
+    "zpa/private-cloud-controller-metrics-log#LogTimestamp",
+    "zpa/private-service-edge-metrics-log#LogTimeStamp",
+    "zpa/private-service-edge-metrics-log#SystemMemoryUtilization",
+    "zpa/private-service-edge-metrics-log#ProcessMemoryUtilization",
+    "zpa/private-service-edge-metrics-log#MicroTenantID",
+    "zpa/private-cloud-controller-metrics-log#AvailableDiskBytes"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.log-receivers.log-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.app-connector-metrics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.control-session-status"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.private-cloud-controller"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Private Service Edge and Private Cloud Controller Metrics logs are node resource telemetry parallel to the App Connector Metrics log. The Private Service Edge sample has several defects."
+    },
+    {
+      "label": "Window and cadence.",
+      "text": "{{cpu-peak-window}} {{five-minute-stamp}} The emission interval is open {{gap:interval-and-delta}}."
+    },
+    {
+      "label": "Field names.",
+      "text": "The Private Service Edge timestamp field is spelled differently in its table than in its example and default template {{divergence:log-timestamp-case}}. {{entity-name-fields}}"
+    },
+    {
+      "label": "Sample defects.",
+      "text": "{{pse-sample-malformed}} {{microtenant-id-sample}}"
+    },
+    {
+      "label": "Alerting.",
+      "text": "Resource-pressure thresholds are not sourced {{gap:resource-thresholds}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Private Service Edge custom template uses LogTimestamp, as the example and the default template do, rather than the table spelling LogTimeStamp.",
+      "uses": [
+        "log-timestamp-case"
+      ]
+    },
+    {
+      "do": "Whether joins between Private Service Edge status and metrics records use ServiceEdge on one side and PrivateSE on the other.",
+      "uses": [
+        "entity-name-fields"
+      ]
+    }
+  ],
+  "claims": {
+    "cpu-peak-window": {
+      "statement": "In Private Service Edge and Private Cloud Controller Metrics logs CPUUtilization is the maximum CPU usage in the past 5 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "private-service-edge-metrics-log-fields.json",
+          "quotes": [
+            "| CPUUtilization | The maximum CPU usage in the past 5 minutes"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "private-cloud-controller-metrics-log-fields.json",
+          "quotes": [
+            "| CPUUtilization | The maximum CPU usage in the past 5 minutes"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/private-service-edge-metrics-log#CPUUtilization",
+        "zpa/private-cloud-controller-metrics-log#CPUUtilization"
+      ]
+    },
+    "entity-name-fields": {
+      "statement": "The Private Service Edge name is PrivateSE in the Metrics log and ServiceEdge in the Status log, while the Private Cloud Controller name is PrivateCloudController in both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "private-service-edge-metrics-log-fields.json",
+          "quotes": [
+            "| PrivateSE | The name of the Private Service Edge for Private Access"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "private-service-edge-status-log-fields.json",
+          "quotes": [
+            "| ServiceEdge | The Service Edge name"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "private-cloud-controller-metrics-log-fields.json",
+          "quotes": [
+            "| PrivateCloudController | The Private Cloud Controller name"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/private-service-edge-metrics-log#PrivateSE",
+        "zpa/private-service-edge-status-log#ServiceEdge",
+        "zpa/private-cloud-controller-metrics-log#PrivateCloudController"
+      ]
+    },
+    "five-minute-stamp": {
+      "statement": "The Private Cloud Controller Metrics example is stamped 17:25:00 and the Private Service Edge example 11:40:00, both whole 5-minute marks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "private-cloud-controller-metrics-log-fields.json",
+          "quotes": [
+            "\"LogTimestamp\":\"Wed Aug 21 17:25:00 2024\""
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "private-service-edge-metrics-log-fields.json",
+          "quotes": [
+            "\"Fri May 6 11:40:00 2022,\""
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/private-cloud-controller-metrics-log#LogTimestamp",
+        "zpa/private-service-edge-metrics-log#LogTimeStamp"
+      ]
+    },
+    "pse-sample-malformed": {
+      "statement": "The Private Service Edge Metrics example is not valid JSON: the LogTimestamp value is missing its closing quote and SystemMemoryUtilization and ProcessMemoryUtilization hold unsubstituted %j{...} placeholders.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "private-service-edge-metrics-log-fields.json",
+          "quotes": [
+            "\"SystemMemoryUtilization\":%j{SystemMemoryUtilization},\"ProcessMemoryUtilization\":%j{ProcessMemoryUtilization}"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/private-service-edge-metrics-log#SystemMemoryUtilization",
+        "zpa/private-service-edge-metrics-log#ProcessMemoryUtilization"
+      ]
+    },
+    "microtenant-id-sample": {
+      "statement": "The Private Service Edge Metrics example ends with MicroTenantID, while the Private Cloud Controller Metrics example ends at AvailableDiskBytes with no MicroTenantID, and the JSON form of the default Service Edge Metric template also ends at AvailableDiskBytes.",
+      "tier": "A",
+      "conditions": "Added that the default Service Edge Metric template carries no MicroTenantID, so a default-format Private Service Edge Metrics record lacks the field the example shows.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "after": "\"zpn_pbroker_comprehensive_stats\":{",
+          "quotes": [
+            "\\\"AvailableDiskBytes\\\":%j{AvailableDiskBytes}}"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "private-service-edge-metrics-log-fields.json",
+          "quotes": [
+            "\"AvailableDiskBytes\":\"261886394368\", \"MicroTenantID\": \"145257480799129312\"}"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "private-cloud-controller-metrics-log-fields.json",
+          "quotes": [
+            "\"AvailableDiskBytes\":\"200186118144\"}"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/private-service-edge-metrics-log#MicroTenantID",
+        "zpa/private-cloud-controller-metrics-log#AvailableDiskBytes"
+      ]
+    }
+  },
+  "gaps": {
+    "interval-and-delta": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Emission interval of Private Service Edge and Private Cloud Controller Metrics",
+      "blocks": "treating these as periodic samples at a known cadence",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: Metrics logs are emitted about every 5 minutes for each active Private Service Edge or Private Cloud Controller, and are infrastructure telemetry with no user identity. The captures give the 5-minute window only for CPUUtilization (cpu-peak-window); no capture states the emission interval. The same open question for App Connectors is in zpa.logs.app-connector-metrics."
+    },
+    "resource-thresholds": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Thresholds for Private Service Edge and Private Cloud Controller resource pressure",
+      "blocks": "alerting on port, file descriptor or disk pressure for these nodes",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: alert when process file descriptor use exceeds 75% of the maximum, port use exceeds 70% of used plus available ports, or free disk falls below 10 GB, and use the CPU and memory trend for capacity planning. These are operator thresholds from the legacy doc; the captures define the fields only."
+    }
+  },
+  "divergences": {
+    "log-timestamp-case": {
+      "summary": "The Private Service Edge Metrics timestamp field name in the table versus the example and the default template",
+      "positions": [
+        {
+          "says": "The field table names the timestamp field LogTimeStamp, with a capital S.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "private-service-edge-metrics-log-fields.json",
+            "quotes": [
+              "| LogTimeStamp | The timestamp when the log was generated"
+            ]
+          }
+        },
+        {
+          "says": "The example record names it LogTimestamp.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "private-service-edge-metrics-log-fields.json",
+            "quotes": [
+              "\"LogTimestamp\":\"Fri May 6 11:40:00 2022,\"PrivateSE\""
+            ]
+          }
+        },
+        {
+          "says": "The default Service Edge Metric template writes LogTimestamp ([[zpa/private-service-edge-metrics-log]]).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "quotes": [
+              "%s{LogTimestamp:time} Service Edge Metric zpa-lss: ,%s{PrivateSE},%s{CPUUtilization}"
+            ]
+          }
+        }
+      ],
+      "impact": "Field names are case sensitive. The table spells it LogTimeStamp; the example and the default template write LogTimestamp. A custom template built from the table spelling may not emit the field; use LogTimestamp and check a real record."
+    }
+  }
+}

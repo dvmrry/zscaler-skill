@@ -1,0 +1,344 @@
+{
+  "schema_version": 1,
+  "id": "zpa.sdk-python.provisioning-keys",
+  "title": "How the Python SDK builds provisioning key calls",
+  "aliases": [
+    "provisioning key python sdk",
+    "key_type connector service_edge",
+    "CONNECTOR_GRP SERVICE_EDGE_GRP",
+    "get_provisioning_key_by_zcomponent",
+    "zcomponent route",
+    "provisioning key argument order",
+    "assistant_group site_controller_group",
+    "update provisioning key microtenant header"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.provisioning-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-tunnels.provisioning-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.error-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.microtenant-scoping"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Python provisioning key wrappers take a friendly key type and rebuild it into an association type in the URL. The Go list handling is in [[zpa.sdk-go.service-defects]], the API's association types are in [[zpa.api.provisioning-keys-wire]], and the product side is [[zpa.app-connectors.provisioning-keys]]."
+    },
+    {
+      "label": "Key types.",
+      "text": "{{key-types}} {{oauth-key-types}} {{key-type-raises}}"
+    },
+    {
+      "label": "Argument order.",
+      "text": "{{argument-order}}"
+    },
+    {
+      "label": "Requests.",
+      "text": "{{python-create-body}} {{python-add-key-leaks-snake-case}} {{python-update-key-needs-wire-keys}} {{update-params-in-headers}} {{update-query-microtenant}} Whether the service honors the header or the body field is open {{gap:update-header-microtenant}}. What an update returns is [[zpa.api.provisioning-keys-wire:update-returns-no-body]]."
+    },
+    {
+      "label": "By component.",
+      "text": "{{zcomponent-route}} They differ from Go: {{divergence:zcomponent-route-slash}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether key_id and key_type were passed in the right order, since get, update and delete take key_id first while list and add take key_type first.",
+      "uses": [
+        "argument-order",
+        "key-type-raises"
+      ]
+    },
+    {
+      "do": "Whether the key type is one of the two this module maps, or one of the four the OAuth user-code module maps.",
+      "uses": [
+        "key-types",
+        "oauth-key-types"
+      ]
+    },
+    {
+      "do": "Whether a provisioning key update inside a microtenant actually carried the microtenant ID as a query parameter.",
+      "uses": [
+        "update-params-in-headers",
+        "update-query-microtenant",
+        "update-header-microtenant"
+      ]
+    },
+    {
+      "do": "Whether a by-component lookup returned 404 because of the missing path slash.",
+      "uses": [
+        "zcomponent-route",
+        "zcomponent-route-slash"
+      ]
+    },
+    {
+      "do": "Whether a Python update that changes the component passed it as zcomponent_id or zcomponentId, since component_id is sent as componentId.",
+      "uses": [
+        "python-update-key-needs-wire-keys"
+      ]
+    }
+  ],
+  "claims": {
+    "key-types": {
+      "statement": "`simplify_key_type` maps `connector` to `CONNECTOR_GRP` and `service_edge` to `SERVICE_EDGE_GRP`, and every provisioning key URL is built from that value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "return \"CONNECTOR_GRP\"",
+            "return \"SERVICE_EDGE_GRP\""
+          ]
+        }
+      ]
+    },
+    "oauth-key-types": {
+      "statement": "The OAuth user-code module has its own `simplify_key_type` that also maps `assistant_group` to `NP_ASSISTANT_GRP` and `site_controller_group` to `SITE_CONTROLLER_GRP`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/oauth2_user_code.py",
+          "quotes": [
+            "return \"NP_ASSISTANT_GRP\"",
+            "return \"SITE_CONTROLLER_GRP\""
+          ]
+        }
+      ]
+    },
+    "key-type-raises": {
+      "statement": "A key type outside the mapped values raises `ValueError`, and `add_provisioning_key` and `update_provisioning_key` also raise `ValueError` when `key_type` is empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "raise ValueError(\"Unexpected key type.\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "raise ValueError(\"key_type must be provided.\")"
+          ],
+          "after": "def add_provisioning_key("
+        }
+      ]
+    },
+    "argument-order": {
+      "statement": "`list_provisioning_keys` and `add_provisioning_key` take `key_type` first; `get_provisioning_key`, `update_provisioning_key` and `delete_provisioning_key` take `key_id` first and `key_type` second.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "def list_provisioning_keys(self, key_type: str,",
+            "def get_provisioning_key(self, key_id: str, key_type: str,",
+            "def add_provisioning_key(self, key_type: str,",
+            "def update_provisioning_key(self, key_id: str, key_type: str,",
+            "def delete_provisioning_key(self, key_id: str, key_type: str,"
+          ]
+        }
+      ]
+    },
+    "update-params-in-headers": {
+      "statement": "`update_provisioning_key` calls `create_request(http_method, api_url, body, params, {})`, and `create_request` takes `headers` before `params`, so the microtenant dictionary is passed as headers and the params are empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "request, error = self._request_executor.create_request(http_method, api_url, body, params, {})"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "body: dict = None, headers: dict = None, params: dict = None,"
+          ],
+          "after": "def create_request("
+        }
+      ]
+    },
+    "zcomponent-route": {
+      "statement": "`get_provisioning_key_by_zcomponent` builds `/associationType/{simplify_key_type(key_type)}zcomponent/{zcomponent_id}/provisioningKey`, with no slash between the association type and `zcomponent`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "/associationType/{simplify_key_type(key_type)}zcomponent/{zcomponent_id}/provisioningKey"
+          ]
+        }
+      ]
+    },
+    "python-create-body": {
+      "statement": "add_provisioning_key sends a body of name, maxUsage, enrollmentCertId and zcomponentId, taking the last two from the enrollment_cert_id and component_id arguments, and treats enrollment_cert_id as a plain optional argument for both key types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "{\"name\": name, \"maxUsage\": max_usage, \"enrollmentCertId\": enrollment_cert_id, \"zcomponentId\": component_id}",
+            "enrollment_cert_id = body.get(\"enrollment_cert_id\")"
+          ],
+          "after": "def add_provisioning_key(self, key_type: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "{\"name\": name, \"maxUsage\": max_usage, \"enrollmentCertId\": enrollment_cert_id, \"zcomponentId\": component_id}"
+          ]
+        }
+      ]
+    },
+    "python-add-key-leaks-snake-case": {
+      "statement": "The Python add_provisioning_key reads component_id and enrollment_cert_id with body.get rather than pop, so those snake_case keys stay in the body next to the camelCase keys it adds. The executor then camel-cases the body: enrollment_cert_id becomes the same enrollmentCertId key with the same value, and component_id becomes an extra componentId member next to zcomponentId.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "enrollment_cert_id = body.get(\"enrollment_cert_id\")",
+            "component_id = body.get(\"component_id\")",
+            "{\"name\": name, \"maxUsage\": max_usage, \"enrollmentCertId\": enrollment_cert_id, \"zcomponentId\": component_id}"
+          ],
+          "after": "def add_provisioning_key(self, key_type"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "body = convert_keys_to_camel_case(body)"
+          ],
+          "after": "# Preserve existing logic for other services"
+        }
+      ],
+      "conditions": "Whether the server ignores the extra componentId member is not shown. Corrected because the snake_case keys do not reach the wire as such; previously \"The Python add_provisioning_key reads component_id and enrollment_cert_id with body.get rather than pop, so those snake_case keys stay in the body next to the camelCase keys that are added.\""
+    },
+    "python-update-key-needs-wire-keys": {
+      "statement": "The Python update_provisioning_key sends its keyword arguments as the body without remapping any key, and the executor camel-cases them: max_usage and enrollment_cert_id arrive as maxUsage and enrollmentCertId, but component_id arrives as componentId, not the zcomponentId that add_provisioning_key sends and the update docstring says it is mapped to.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "component_id (str, optional): The component ID to associate (mapped to zcomponentId).",
+            "body = kwargs",
+            "request, error = self._request_executor.create_request(http_method, api_url, body, params, {})"
+          ],
+          "after": "def update_provisioning_key(self, key_id"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "body = convert_keys_to_camel_case(body)"
+          ],
+          "after": "# Preserve existing logic for other services"
+        }
+      ],
+      "conditions": "That no code in the function maps component_id rests on reading it. Corrected because the executor camel-cases the body (zpa.sdk-python.microtenant-scoping:body-camel), so only component_id is affected; previously \"The Python update_provisioning_key sends its keyword arguments as the body with no key remapping, so a caller must supply the wire-cased keys, unlike add_provisioning_key, which accepts snake_case arguments.\""
+    },
+    "update-query-microtenant": {
+      "statement": "On a provisioning key update the `microtenantId` query parameter is the client's configured microtenant, or absent, never the call's `microtenant_id`: the params passed are empty, and `create_request` builds the query parameters before it camel-cases the body, so the executor's lookup finds no `microtenantId` key in the body and falls back to the configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "params = self._prepare_params(service_type, endpoint, params, body)",
+            "json_payload = self._prepare_body(endpoint, body)"
+          ],
+          "after": "def create_request("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "if body and isinstance(body, dict) and \"microtenantId\" in body and body[\"microtenantId\"]:",
+            "return self.microtenant_id"
+          ],
+          "after": "def _get_microtenant_id(self, body, params):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "microtenant_id = body.get(\"microtenant_id\")",
+            "request, error = self._request_executor.create_request(http_method, api_url, body, params, {})"
+          ],
+          "after": "def update_provisioning_key(self, key_id"
+        }
+      ],
+      "conditions": "Read from the code for a caller who passes the snake_case microtenant_id keyword; not run against a tenant."
+    }
+  },
+  "gaps": {
+    "update-header-microtenant": {
+      "kind": "semantic",
+      "title": "Whether a microtenant ID sent as a header and in the body is honored on provisioning key update",
+      "status": "open",
+      "detail": "update_provisioning_key passes the microtenant dictionary as request headers, and the microtenant ID also stays in the JSON body as microtenantId; the microtenantId query parameter carries only the client's configured microtenant (claim update-query-microtenant). Whether the service applies the header or the body field is not shown by the SDK or the OpenAPI document.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "trusting that a Python provisioning key update inside a microtenant reaches that microtenant"
+    }
+  },
+  "divergences": {
+    "zcomponent-route-slash": {
+      "summary": "The Python and Go by-component provisioning key routes differ by a slash.",
+      "positions": [
+        {
+          "says": "Python joins the association type and `zcomponent` with no slash.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/provisioning.py",
+            "quotes": [
+              "/associationType/{simplify_key_type(key_type)}zcomponent/{zcomponent_id}/provisioningKey"
+            ]
+          }
+        },
+        {
+          "says": "Go separates them with a slash.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+            "quotes": [
+              "\"/associationType/%s/zcomponent/%s/provisioningKey\""
+            ]
+          }
+        }
+      ],
+      "impact": "The Python by-component method requests a path that the Go package does not use; which one the service accepts is not shown."
+    }
+  }
+}

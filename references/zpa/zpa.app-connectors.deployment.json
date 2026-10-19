@@ -565,7 +565,7 @@
       "conditions": "Statement narrowed from the first draft, which said EBS encryption applied to all instances; ebs_encrypted exists only in terraform-zsac-asg-aws (a search of the standalone acvm module's .tf files for ebs and encrypt found no match)."
     },
     "module-azure-hardening": {
-      "statement": "Azure module: the VMSS OS disk is Premium_LRS with ReadWrite caching, and the default marketplace image is publisher zscaler, offer zscaler-private-access, SKU zpa-con-azure, pinned to version 2025.11.12 rather than latest.",
+      "statement": "Azure module: the VMSS OS disk is Premium_LRS with ReadWrite caching, and the default marketplace image is publisher zscaler, offer zscaler-private-access, SKU zpa-con-azure, pinned to a version rather than latest: 2025.11.12 up to v1.3.1, and 2026.07.07 from v2.0.0 (#31).",
       "tier": "A",
       "evidence": [
         {
@@ -603,26 +603,58 @@
         {
           "source": "tfmod-azure-zpa-app-connector",
           "path": "modules/terraform-zsac-acvm-azure/variables.tf",
+          "at": [
+            "v1.3.1"
+          ],
           "quotes": [
             "default = \"2025.11.12\""
           ],
           "after": "variable \"acvm_image_version\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-azure/variables.tf",
+          "quotes": [
+            "default = \"2026.07.07\""
+          ],
+          "after": "variable \"acvm_image_version\" {"
         }
-      ]
+      ],
+      "conditions": "Changed upstream in v2.0.0 (checked 2026-10-18): previously \"Azure module: the VMSS OS disk is Premium_LRS with ReadWrite caching, and the default marketplace image is publisher zscaler, offer zscaler-private-access, SKU zpa-con-azure, pinned to version 2025.11.12 rather than latest.\""
     },
     "asg-no-instance-refresh": {
-      "statement": "At the pinned AWS module (v2.0.1) the App Connector Auto Scaling Group references a launch template and no file in the module repository contains an instance_refresh block.",
+      "statement": "Up to AWS module v2.0.1 the App Connector Auto Scaling Group referenced the launch template at var.launch_template_version and no file in the module repository contained an instance_refresh block. v2.1.0 adds an opt-in rolling instance refresh (#52): instance_refresh_enabled defaults to false, and when true the group uses the launch template's latest version number and declares a Rolling instance_refresh block.",
       "tier": "B",
       "evidence": [
         {
           "source": "tfmod-aws-zpa-app-connector",
           "path": "modules/terraform-zsac-asg-aws/main.tf",
+          "at": [
+            "v2.0.1"
+          ],
           "quotes": [
             "version = var.launch_template_version"
           ]
+        },
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zsac-asg-aws/main.tf",
+          "quotes": [
+            "version = var.instance_refresh_enabled ? aws_launch_template.ac_launch_template[0].latest_version : var.launch_template_version",
+            "for_each = var.instance_refresh_enabled ? [1] : []",
+            "strategy = \"Rolling\""
+          ]
+        },
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zsac-asg-aws/variables.tf",
+          "after": "variable \"instance_refresh_enabled\" {",
+          "quotes": [
+            "default = false"
+          ]
         }
       ],
-      "conditions": "Absence rests on a recursive text search of vendor/terraform-aws-zpa-app-connector-modules for instance_refresh that found no match."
+      "conditions": "The v2.0.1 absence rests on a recursive text search of vendor/terraform-aws-zpa-app-connector-modules for instance_refresh that found no match. Changed upstream in v2.1.0 (checked 2026-10-18): previously \"At the pinned AWS module (v2.0.1) the App Connector Auto Scaling Group references a launch template and no file in the module repository contains an instance_refresh block.\""
     },
     "sizing-baseline": {
       "statement": "Zscaler's recommended App Connector specification is 4 GB RAM, 2 CPU cores (Xeon E5 class) on physical machines without hyperthreading or 4 cores on VMs with hyperthreading, 64 GB thin-provisioned disk and at least 1 NIC; AWS and GCP require at least 4 cores, and Azure VMs older than V3 need 2 cores while V3 and later need 4.",
@@ -846,11 +878,20 @@
     "aws-asg-instance-refresh": {
       "kind": "semantic",
       "title": "Upstream issue on ASG launch-template changes",
-      "status": "open",
-      "detail": "Unverified legacy statement: \"Upstream issue #52 reports that changing user data / the launch template and running terraform apply updates configuration without automatically replacing the existing ASG instances. The issue proposes a rolling instance_refresh, but that proposal is not present at this pin. For v2.0.1 deployments, do not assume a successful apply has put changed user data onto already-running App Connectors.\" The module confirms the absence of instance_refresh (asg-no-instance-refresh), but the issue is not a registered source and the module does not show what an apply does to running instances.",
+      "status": "partial",
+      "detail": "Unverified legacy statement: \"Upstream issue #52 reports that changing user data / the launch template and running terraform apply updates configuration without automatically replacing the existing ASG instances. The issue proposes a rolling instance_refresh, but that proposal is not present at this pin. For v2.0.1 deployments, do not assume a successful apply has put changed user data onto already-running App Connectors.\" The module confirms the absence of instance_refresh (asg-no-instance-refresh), but the issue is not a registered source and the module does not show what an apply does to running instances. AWS modules v2.1.0 add the rolling instance refresh the issue proposed, opt-in and off by default (asg-no-instance-refresh). What an apply does to running instances without it is still not shown by the module.",
       "resolves_with": [
         "lab-test",
         "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "add opt-in rolling instance refresh to the ASG module"
+          ]
+        }
       ]
     },
     "remote-network-settings-july": {

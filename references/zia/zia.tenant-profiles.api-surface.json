@@ -194,19 +194,29 @@
       ]
     },
     "tf-tokens-unvalidated": {
-      "statement": "The Terraform resource does not validate `app_type`, `item_type_primary`, `item_type_secondary` or `item_value`; each is a free string whose description points to the API reference.",
+      "statement": "The Terraform resource does not validate `app_type`, `item_type_primary`, `item_type_secondary` or `item_value`: the first three are free strings and `item_value` is a set of free strings, and each description points to the API reference.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zia",
           "path": "zia/resource_zia_tenant_restriction_profile.go",
           "quotes": [
-            "Tenant profile primary item type.",
-            "Tenant profile secondary item type.",
-            "Restricted tenant profile application type."
+            "\"app_type\": { Type: schema.TypeString, Optional: true, Description: `Restricted tenant profile application type. See the Tenancy Restriction Profile API for the list of available application types: https://help.zscaler.com/zia/cloud-app-control-policy#/tenancyRestrictionProfile-get`, },",
+            "\"item_type_primary\": { Type: schema.TypeString, Optional: true, Description: `Tenant profile primary item type. See the Tenancy Restriction Profile API for the list of available items: https://help.zscaler.com/zia/cloud-app-control-policy#/tenancyRestrictionProfile-get`, },",
+            "\"item_type_secondary\": { Type: schema.TypeString, Optional: true, Description: `Tenant profile secondary item type. See the Tenancy Restriction Profile API for the list of available items: https://help.zscaler.com/zia/cloud-app-control-policy#/tenancyRestrictionProfile-get`, },"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_tenant_restriction_profile.go",
+          "after": "\"item_value\": {",
+          "quotes": [
+            "Type: schema.TypeSet, Optional: true, Elem: &schema.Schema{Type: schema.TypeString}, Description: `Tenant profile item value for YouTube category. See the Tenancy Restriction Profile API",
+            "tenancyRestrictionProfile-get`, }, }, } }"
           ]
         }
-      ]
+      ],
+      "conditions": "Statement changed from \"each is a free string\": item_value is a TypeSet of strings. The quotes now show each full schema block, none with a ValidateFunc."
     },
     "app-item-count": {
       "statement": "A separate call returns how many items of an item type are already in use for an application, with an optional `excludeProfile` profile ID to leave out. The Go SDK sends the optional ID; the Python method does not accept it, although its docstring lists `exclude_profile`.",

@@ -93,6 +93,9 @@
     },
     {
       "text": "{{weighted-lb-update-returns-nil-object}}"
+    },
+    {
+      "text": "The OpenAPI associationType enum lists SITE_CONTROLLER_GRP and EXPORTER_GRP but not the CONNECTOR_GRP and SERVICE_EDGE_GRP values clients send, so it does not settle the open question {{openapi-association-enum-includes-unprobed-types}} {{gap:provisioning-key-association-types}}."
     }
   ],
   "checks": [
@@ -644,7 +647,7 @@
           ]
         }
       ],
-      "conditions": "Reached at v4.4.10 by the policy rule importers by name. `BulkReorder` has the same defect and is covered in [[zpa.terraform.rule-order]]. The v2 line is at 320 in v3.8.42 and 316 at HEAD.",
+      "conditions": "Reached at v4.4.10 by the policy rule importers by name. `BulkReorder` has the same defect and is covered in [[zpa.terraform.rule-order]]. The v2 line is at 320 in v3.8.42, 316 in v3.8.48 and 313 in v3.8.55.",
       "upstream": [
         {
           "status": "unfiled",
@@ -856,6 +859,54 @@
             "\"id\": segmentGroupApplication.ID,"
           ]
         }
+      ]
+    },
+    "openapi-association-enum-includes-unprobed-types": {
+      "statement": "The OpenAPI associationType enum is ASSISTANT_GRP, NP_ASSISTANT_GRP, BROKER_GRP, SITE_CONTROLLER_GRP, EXPORTER_GRP. It includes the two types the SDK's fixed list never probes, and it omits CONNECTOR_GRP and SERVICE_EDGE_GRP, which the SDK probes and the provider accepts. The parameter description names CONNECTOR_GRP, NP_ASSISTANT_GRP and SERVICE_EDGE_GRP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1associationType~1{associationType}~1provisioningKey/get/parameters/[name=associationType]",
+          "expect": {
+            "description": "Specifies the Provisioning Key type for App Connectors or ZPA Private Service Edges. The supported values are CONNECTOR_GRP, NP_ASSISTANT_GRP and SERVICE_EDGE_GRP."
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "quotes": [
+            "\"CONNECTOR_GRP\",",
+            "\"SERVICE_EDGE_GRP\","
+          ],
+          "after": "var ProvisioningKeyAssociationTypes []string = []string{"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_provisioning_key.go",
+          "quotes": [
+            "\"CONNECTOR_GRP\", \"SERVICE_EDGE_GRP\", \"SITE_CONTROLLER_GRP\", \"EXPORTER_GRP\", \"NP_ASSISTANT_GRP\","
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1associationType~1{associationType}~1provisioningKey/get/parameters/[name=associationType]/schema",
+          "expect": {
+            "enum": [
+              "ASSISTANT_GRP",
+              "NP_ASSISTANT_GRP",
+              "BROKER_GRP",
+              "SITE_CONTROLLER_GRP",
+              "EXPORTER_GRP"
+            ]
+          }
+        }
+      ],
+      "conditions": "Statement changed: it no longer says the document accepts SITE_CONTROLLER_GRP and EXPORTER_GRP as path values, because read the same way the enum would reject CONNECTOR_GRP and SERVICE_EDGE_GRP, which clients use; the enum therefore does not settle which types the API accepts. See zpa.api.provisioning-keys-wire. Whether keys are stored under the two unprobed types remains the open gap provisioning-key-association-types.",
+      "gaps": [
+        "provisioning-key-association-types"
       ]
     }
   },

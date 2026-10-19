@@ -226,7 +226,7 @@ Always include the **file path + line number** for verifiable matches. `❓` row
 | url | string | 1.4M / 1.4M (100%) | mail.google.com, www.example.com, … | ✅ `%s{url}` at `kb:zia/web-log#url` | direct |
 | urlfilterrulelabel | string | 920k / 1.4M (66%) | URL_Filtering_1, URL_Filtering_2 | ✅ `%s{urlfilterrulelabel}` at `kb:zia/web-log#urlfilterrulelabel` | Block-only field, 34% empty is expected |
 | dest_host | string | 1.4M / 1.4M (100%) | mail.google.com, … | ⚠️ `%s{host}` at `kb:zia/web-log#host` | TA CIM alias for `host` |
-| user | string | 1.4M / 1.4M (100%) | <redacted-user>, … | 🔗 `%s{login}` (web) at `kb:zia/web-log#login` OR `Username` (ZPA) at `references/zpa/logs/access-log-schema.md` | TA-aliased; multi-source via CIM |
+| user | string | 1.4M / 1.4M (100%) | <redacted-user>, … | 🔗 `%s{login}` (web) at `kb:zia/web-log#login` OR `Username` (ZPA) at `kb:zpa/user-activity-log#Username` | TA-aliased; multi-source via CIM |
 | clt_sport | int | 0 / 1.4M (0%) | <empty> | ✅ `%d{clt_sport}` at `kb:zia/web-log#clt_sport` | requires Zscaler Support enablement |
 | local_enrichment | string | 1.4M / 1.4M (100%) | <redacted> | ❌ — | local enrichment, not in canonical |
 | custom_severity | enum:closed? | 1.4M / 1.4M (100%) | LOW, MEDIUM, HIGH | ❓ — | unverified; possible local mapping of `threatseverity` |
@@ -347,4 +347,4 @@ Redact. The tenant schema is for confirming "what's queryable in this environmen
 - [`splunk-queries.md`](../references/shared/splunk-queries.md) — Splunk SPL pattern catalog; includes Zscaler TA CIM mapping table
 - [`investigator/prompt.md`](./investigator/prompt.md) — `/z-investigator` slash command playbook
 - ZIA log schemas (canonical) — [`../references/zia/types/`](../references/zia/types/)
-- ZPA log schemas (canonical) — [`../references/zpa/logs/`](../references/zpa/logs/)
+- ZPA log types (canonical) — [`zpa.log-receivers.log-types`](kb:zpa.log-receivers.log-types); fields per type with `node scripts/kb.mjs resolve zpa/<type>-log`

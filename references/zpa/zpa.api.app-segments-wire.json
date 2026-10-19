@@ -1,0 +1,815 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.app-segments-wire",
+  "title": "Application segment wire behavior: what each SDK sends, drops and matches across the four segment kinds",
+  "aliases": [
+    "browser access pra inspection segment update",
+    "commonAppsDto empty object",
+    "deletedInspectApps",
+    "deleted_pra_apps",
+    "app_types injected",
+    "segmentGroupId omitempty",
+    "deleteAppByType",
+    "application/provision",
+    "bulkUpdateMultiMatch",
+    "getAppsByType applicationType invalid",
+    "connectionSecurity NLA",
+    "GetApplicationSummary 400"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.sdk-behavior"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.app-segment-lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.share-and-move"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.api-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Core, Browser Access, Inspection and PRA segments share one endpoint, and the SDK models differ in what they send, drop and match on update. Field listings are in the generated surface layer; this subject holds only the behavior. {{variants-share-endpoint}}"
+    },
+    {
+      "heading": "Model tags that change the wire"
+    },
+    {
+      "text": "{{subapp-read-write-fields}} {{common-apps-dto-always-emitted}}"
+    },
+    {
+      "text": "{{segment-group-id-tags}} {{inspection-protection-flags-tags}} {{zpn-er-id-by-variant}} {{subapp-config-tags}}"
+    },
+    {
+      "text": "The `bypassOnReauth` tag differences are in [[zpa.app-segments.sdk-behavior]], the always-serialized parent flags in [[zpa.terraform.app-segment-lifecycle]], and the Go rule that a value struct tagged `omitempty` is still sent in [[shared.sdk-go.zero-value-writes]]."
+    },
+    {
+      "text": "{{share-to-microtenants-tag}} Whether the API treats that as removal is open {{gap:put-share-removal}}. Move and share bodies are in [[zpa.microtenants.share-and-move]]. {{move-share-return-204}}"
+    },
+    {
+      "heading": "Updating sub-applications"
+    },
+    {
+      "text": "{{go-deleted-subapps}} {{python-update-matches-by-domain}} {{python-inspection-update-ids}}"
+    },
+    {
+      "text": "{{python-update-clears-ports-all-variants}} {{python-app-types-injection}}"
+    },
+    {
+      "heading": "Lookup, delete and other endpoints"
+    },
+    {
+      "text": "{{application-type-validation}} {{delete-by-type-request}} What the delete removes is open {{gap:delete-by-type-scope}}."
+    },
+    {
+      "text": "{{connection-security-values}} The `icmpAccessType` values are in [[zpa.app-segments.settings]]."
+    },
+    {
+      "text": "{{divergence:bulk-multimatch-id-type}}"
+    },
+    {
+      "text": "{{application-summary-comment}} {{provision-python-only}} The weighted load balancer update that returns a nil object is in [[zpa.sdk-go.service-defects]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an update from the Go SDK or Python SDK to a PRA, Inspection or Browser Access segment will drop or clear sub-applications, ports or flags, before blaming the API.",
+      "uses": [
+        "go-deleted-subapps",
+        "python-update-matches-by-domain",
+        "python-update-clears-ports-all-variants",
+        "subapp-config-tags"
+      ]
+    },
+    {
+      "do": "Whether the sub-application names or domains in the update match the existing ones, since Go matches by name and Python by domain.",
+      "uses": [
+        "python-update-matches-by-domain",
+        "python-inspection-update-ids"
+      ]
+    },
+    {
+      "do": "Whether a call using an application type fails client-side in Go because the type is outside the three accepted values.",
+      "uses": [
+        "application-type-validation"
+      ]
+    },
+    {
+      "do": "Whether the failing request sends `commonAppsDto: {}` or a null `zpnErId` that the variant's model always emits.",
+      "uses": [
+        "common-apps-dto-always-emitted",
+        "zpn-er-id-by-variant"
+      ]
+    }
+  ],
+  "claims": {
+    "variants-share-endpoint": {
+      "statement": "The Go core, Browser Access, Inspection and PRA application segment packages all use the same `/application` endpoint under the customer path, and the API's create body takes the sub-application lists (`inspectionApps`, `praApps`, `clientlessApps`) and `commonAppsDto` in one schema whose `appsConfig` entries carry an `appTypes` list of BROWSER_ACCESS, SIPA, INSPECT or SECURE_REMOTE_ACCESS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "appSegmentEndpoint = \"/application\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go",
+          "quotes": [
+            "browserAccessEndpoint   = \"/application\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "quotes": [
+            "appSegmentInspectionEndpoint = \"/application\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "quotes": [
+            "appSegmentPraEndpoint   = \"/application\""
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/commonAppsDto/properties/appsConfig/items/properties/appTypes",
+          "expect": {
+            "items": {
+              "enum": [
+                "BROWSER_ACCESS",
+                "SIPA",
+                "INSPECT",
+                "SECURE_REMOTE_ACCESS"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          }
+        }
+      ],
+      "conditions": "The specification shows one POST /application body schema and does not state how the server picks the segment kind; that the kind follows the presence of the sub-application arrays is the legacy reading and is not stated by any source."
+    },
+    "subapp-read-write-fields": {
+      "statement": "The Go Inspection and PRA segment models read their sub-applications from `inspectionApps` and `praApps` respectively, and write them through `commonAppsDto.appsConfig`; the API create body defines `appsConfig` entries as CommonAppConfigDto.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "quotes": [
+            "InspectionAppDto []InspectionAppDto `json:\"inspectionApps,omitempty\"`",
+            "AppsConfig []AppsConfig `json:\"appsConfig,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "quotes": [
+            "PRAApps []PRAApps `json:\"praApps\"`",
+            "AppsConfig []AppsConfig `json:\"appsConfig,omitempty\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/commonAppsDto/properties/appsConfig/items",
+          "expect": {
+            "title": "CommonAppConfigDto"
+          }
+        }
+      ]
+    },
+    "common-apps-dto-always-emitted": {
+      "statement": "Both the Go Inspection and PRA segment models hold `CommonAppsDto` by value, the Inspection tag with `omitempty` and the PRA tag without it, so every create or update from either carries a `commonAppsDto` object, `{}` when no sub-applications are set. The Inspection tag does not make the object optional.",
+      "tier": "B",
+      "derived_from": [
+        "shared.sdk-go.zero-value-writes:value-struct-omitempty-emits-empty-object"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "quotes": [
+            "CommonAppsDto CommonAppsDto `json:\"commonAppsDto,omitempty\"`"
+          ],
+          "after": "type AppSegmentInspection struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "quotes": [
+            "CommonAppsDto CommonAppsDto `json:\"commonAppsDto\"`"
+          ],
+          "after": "type AppSegmentPRA struct {"
+        }
+      ],
+      "conditions": "Applies the Go encoding/json rule recorded in the derived claim to these two fields. The Inspection Update also assigns an empty CommonAppsDto when there are no appsConfig entries (from v3.8.49, only when there are also no inspection apps to delete), which sends the same empty object."
+    },
+    "segment-group-id-tags": {
+      "statement": "The Go PRA and core segment models send `segmentGroupId` without `omitempty` (an empty string goes on the wire), while the Inspection and Browser Access models tag it `omitempty`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "quotes": [
+            "SegmentGroupID string `json:\"segmentGroupId\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "SegmentGroupID string `json:\"segmentGroupId\"`"
+          ],
+          "after": "type ApplicationSegmentResource struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "quotes": [
+            "SegmentGroupID string `json:\"segmentGroupId,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go",
+          "quotes": [
+            "SegmentGroupID string `json:\"segmentGroupId,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "inspection-protection-flags-tags": {
+      "statement": "The Go Inspection model tags `adpEnabled` and `autoAppProtectEnabled` with `omitempty`, so an explicit false is not sent, while the core application segment model sends both without `omitempty`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "quotes": [
+            "AdpEnabled bool `json:\"adpEnabled,omitempty\"`",
+            "AutoAppProtectEnabled bool `json:\"autoAppProtectEnabled,omitempty\"`"
+          ],
+          "after": "type AppSegmentInspection struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "AutoAppProtectEnabled bool `json:\"autoAppProtectEnabled\"`",
+            "ADPEnabled bool `json:\"adpEnabled\"`"
+          ]
+        }
+      ]
+    },
+    "zpn-er-id-by-variant": {
+      "statement": "The Go PRA, Browser Access and core segment models carry `zpnErId` as a pointer without `omitempty`, so an unset value is sent as JSON null, and the Inspection model has no `zpnErId` field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "quotes": [
+            "ZPNERID *common.ZPNERID `json:\"zpnErId\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go",
+          "quotes": [
+            "ZPNERID *common.ZPNERID `json:\"zpnErId\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "ZPNERID *common.ZPNERID `json:\"zpnErId\"`"
+          ]
+        }
+      ],
+      "conditions": "The absence of a zpnErId field in the Inspection model rests on reading the struct at the pin; the quotes above show the three variants that have it."
+    },
+    "subapp-config-tags": {
+      "statement": "In the Go sub-application config, the Inspection entry sends `inspectAppId` and `enabled` without `omitempty` and tags `appId` `omitempty`, while the PRA entry sends `appId` and `praAppId` without `omitempty` and tags `enabled` `omitempty`, so an explicit false `enabled` on a PRA sub-application is not sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "quotes": [
+            "AppID string `json:\"appId,omitempty\"`",
+            "InspectAppID string `json:\"inspectAppId\"`",
+            "Enabled bool `json:\"enabled\"`"
+          ],
+          "after": "type AppsConfig struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "quotes": [
+            "AppID string `json:\"appId\"`",
+            "PRAAppID string `json:\"praAppId\"`",
+            "Enabled bool `json:\"enabled,omitempty\"`"
+          ],
+          "after": "type AppsConfig struct {"
+        }
+      ]
+    },
+    "go-deleted-subapps": {
+      "statement": "The Go PRA `Update` computes `DeletedPraApps` from the existing PRA sub-applications whose IDs are not among the remaining `appsConfig` entries, and sends them. Before v3.8.49 the Go Inspection `Update` never set `DeletedInspectApps`, so a caller had to supply it to remove an Inspection sub-application; from v3.8.49 (#464) it computes `DeletedInspectApps` the same way, from the existing inspection apps whose IDs are not among the remaining `appsConfig` entries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "quotes": [
+            "if _, found := remainingPraAppIDs[existing.ID]; !found {",
+            "appSegmentPra.CommonAppsDto.DeletedPraApps = deleted"
+          ],
+          "after": "// Step 2: Map existing PRA apps by name"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "at": ["v3.8.48"],
+          "quotes": [
+            "DeletedInspectApps []string     `json:\"deletedInspectApps,omitempty\"",
+            "// Check if `commonAppsDto` actually has entries, set to nil if empty"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "after": "func Update(ctx context.Context, service *zscaler.Service, id string, appSegmentInspection *AppSegmentInspection)",
+          "quotes": [
+            "if _, found := remainingInspectAppIDs[existing.ID]; !found {",
+            "appSegmentInspection.CommonAppsDto.DeletedInspectApps = deleted"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`applicationsegmentinspection.Update` never populated `commonAppsDto.deletedInspectApps`, so an inspection app omitted from the `PUT` was left in place by the API rather than deleted"
+          ]
+        }
+      ],
+      "conditions": "Absence of any assignment to DeletedInspectApps outside the struct definition before v3.8.49 rests on `git grep -n DeletedInspectApps v3.8.48 -- zscaler/zpa` in the Go SDK, which matched only the struct field and test code. Changed upstream in v3.8.49 (checked 2026-10-18): previously \"The Go PRA `Update` computes `DeletedPraApps` from the existing PRA sub-applications whose IDs are not among the remaining `appsConfig` entries, and sends them; the Go Inspection `Update` never sets `DeletedInspectApps`, so a caller must supply it to remove an Inspection sub-application.\""
+    },
+    "python-update-matches-by-domain": {
+      "statement": "The Python PRA, Inspection and Browser Access v2 segment updates fetch the existing sub-applications by type (SECURE_REMOTE_ACCESS, INSPECT, BROWSER_ACCESS), match each `apps_config` entry to them by domain, set the matched ID (or an empty string when the domain is new), and set `deleted_pra_apps`, `deleted_inspect_apps` or `deleted_ba_apps` to the existing sub-applications whose domain is no longer listed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_pra.py",
+          "quotes": [
+            "application_type=\"SECURE_REMOTE_ACCESS\",",
+            "existing_apps = {s.domain: s for s in segments_list if s.app_id == segment_id}",
+            "common_apps_dto[\"deleted_pra_apps\"] = deleted_ids"
+          ],
+          "after": "def update_segment_pra(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_inspection.py",
+          "quotes": [
+            "existing_apps = {s.domain: s for s in segments_list if s.app_id == segment_id}",
+            "common_apps_dto[\"deleted_inspect_apps\"] = deleted_ids"
+          ],
+          "after": "def update_segment_inspection(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba_v2.py",
+          "quotes": [
+            "existing_apps = {s.domain: s for s in segments_list if s.app_id == segment_id}",
+            "app[\"ba_app_id\"] = \"\"  # fallback to empty",
+            "common_apps_dto[\"deleted_ba_apps\"] = deleted_ids"
+          ],
+          "after": "def update_segment_ba(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba_v2.py",
+          "quotes": [
+            "app[\"app_id\"] = segment_id",
+            "common_apps_dto[\"deleted_ba_apps\"] = deleted_ids"
+          ],
+          "after": "def update_segment_ba("
+        }
+      ],
+      "conditions": "The Go SDK matches Inspection and PRA sub-applications by name instead (zpa.terraform.app-segment-lifecycle:nested-apps-matched-by-name) and Browser Access by list position (zpa.terraform.app-segment-lifecycle:browser-child-id-positional-fallback). A sub-application whose domain changes is treated as new by the Python path."
+    },
+    "python-inspection-update-ids": {
+      "statement": "The Python Inspection update sets `inspect_app_id` to the segment ID and then overwrites it with the matched existing sub-application ID or an empty string; it never assigns `app_id` on the `apps_config` entries, unlike the PRA and Browser Access v2 updates, which set `app_id` to the segment ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_inspection.py",
+          "quotes": [
+            "# Assign inspect_app_id and inspect_app_id",
+            "app[\"inspect_app_id\"] = segment_id",
+            "app[\"inspect_app_id\"] = \"\"  # fallback to empty"
+          ],
+          "after": "def update_segment_inspection(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_pra.py",
+          "quotes": [
+            "app[\"app_id\"] = segment_id"
+          ],
+          "after": "def update_segment_pra(self, segment_id: str, **kwargs)"
+        }
+      ],
+      "conditions": "That app_id is never assigned in the Inspection update rests on reading the update function at the pin (the string app[\"app_id\"] does not occur in app_segments_inspection.py). Whether the API needs appId on the entries when updating Inspection sub-applications is not established."
+    },
+    "python-update-clears-ports-all-variants": {
+      "statement": "The Python PRA, Inspection, Browser Access and Browser Access v2 segment updates set each of `tcpPortRanges`, `tcpPortRange`, `udpPortRanges` and `udpPortRange` to an empty list when it is not passed, so omitting ports in an update clears them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_pra.py",
+          "quotes": [
+            "body[\"tcpPortRanges\"] = []",
+            "body[\"tcpPortRange\"] = []",
+            "body[\"udpPortRanges\"] = []  # Explicitly clear if not provided",
+            "body[\"udpPortRange\"] = []  # Explicitly clear if not provided"
+          ],
+          "after": "def update_segment_pra(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_inspection.py",
+          "quotes": [
+            "body[\"tcpPortRanges\"] = []",
+            "body[\"tcpPortRange\"] = []",
+            "body[\"udpPortRanges\"] = []  # Explicitly clear if not provided",
+            "body[\"udpPortRange\"] = []  # Explicitly clear if not provided"
+          ],
+          "after": "def update_segment_inspection(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba.py",
+          "quotes": [
+            "body[\"tcpPortRanges\"] = []",
+            "body[\"tcpPortRange\"] = []",
+            "body[\"udpPortRanges\"] = []  # Explicitly clear if not provided",
+            "body[\"udpPortRange\"] = []  # Explicitly clear if not provided"
+          ],
+          "after": "def update_segment_ba(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba_v2.py",
+          "quotes": [
+            "body[\"tcpPortRanges\"] = []",
+            "body[\"tcpPortRange\"] = []",
+            "body[\"udpPortRanges\"] = []  # Explicitly clear if not provided",
+            "body[\"udpPortRange\"] = []  # Explicitly clear if not provided"
+          ],
+          "after": "def update_segment_ba(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba_v2.py",
+          "quotes": [
+            "body[\"udpPortRange\"] = []  # Explicitly clear if not provided"
+          ],
+          "after": "def update_segment_ba("
+        }
+      ],
+      "conditions": "The base update_segment is recorded in zpa.app-segments.sdk-behavior:python-update-clears-port-forms. The Go variant updates tag the port lists omitempty, so an empty list is dropped there rather than sent. Restated to list all four port keys, since tcpPortRange is cleared in every variant too."
+    },
+    "python-app-types-injection": {
+      "statement": "When an `apps_config` entry has no `app_types`, the Python PRA, Inspection and Browser Access v2 create and update functions set it to SECURE_REMOTE_ACCESS, INSPECT or BROWSER_ACCESS respectively before sending.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_pra.py",
+          "quotes": [
+            "app_config[\"app_types\"] = [\"SECURE_REMOTE_ACCESS\"]"
+          ],
+          "after": "def add_segment_pra(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_pra.py",
+          "quotes": [
+            "app_config[\"app_types\"] = [\"SECURE_REMOTE_ACCESS\"]"
+          ],
+          "after": "def update_segment_pra(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_inspection.py",
+          "quotes": [
+            "app_config[\"app_types\"] = [\"INSPECT\"]"
+          ],
+          "after": "def add_segment_inspection(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_inspection.py",
+          "quotes": [
+            "app_config[\"app_types\"] = [\"INSPECT\"]"
+          ],
+          "after": "def update_segment_inspection(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba_v2.py",
+          "quotes": [
+            "app_config[\"app_types\"] = [\"BROWSER_ACCESS\"]"
+          ],
+          "after": "def add_segment_ba(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba_v2.py",
+          "quotes": [
+            "app_config[\"app_types\"] = [\"BROWSER_ACCESS\"]"
+          ],
+          "after": "def update_segment_ba(self, segment_id: str, **kwargs)"
+        }
+      ],
+      "conditions": "The original app_segments_ba.py module contains no app_types handling (git grep app_types at the pin finds no match in it). Neither code path emits a warning when it injects the value."
+    },
+    "share-to-microtenants-tag": {
+      "statement": "The Go core application segment model tags `shareToMicrotenants` without `omitempty`, so a create or update from that struct always carries the member (null for a nil slice, `[]` for an empty one).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "ShareToMicrotenants []string `json:\"shareToMicrotenants\"`"
+          ]
+        }
+      ],
+      "conditions": "What the API does with a null or empty shareToMicrotenants on a segment PUT is open (gap put-share-removal); the dedicated share endpoint is recorded in zpa.microtenants.share-and-move."
+    },
+    "move-share-return-204": {
+      "statement": "The API documents No Content (204) as the success response of both the application segment move and share calls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application~1{applicationId}~1move/post/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application~1{applicationId}~1share/put/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        }
+      ]
+    },
+    "application-summary-comment": {
+      "statement": "The Go `GetApplicationSummary` carries the source comment 'Need to review as the API is returning 400 error' and reads `/application/summary` through the standard paged helper.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "// Need to review as the API is returning 400 error",
+            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + appSegmentEndpoint + \"/summary\""
+          ]
+        }
+      ],
+      "conditions": "This records the SDK author's comment, not an observed API response; the OpenAPI document does not define /application/summary."
+    },
+    "provision-python-only": {
+      "statement": "The Python SDK has an `add_segment_provision` that posts to `/application/provision`; no path with `/provision` appears among the Go ZPA service packages for application segments, and the OpenAPI document has no such path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "def add_segment_provision(self, **kwargs) -> APIResult[dict]:",
+            "/application/provision"
+          ]
+        }
+      ],
+      "conditions": "The Go and OpenAPI absences rest on `git grep -n /provision HEAD -- zscaler/zpa` in the Go SDK, which matched only provisioning-key URLs, and on a search of the OpenAPI paths. Absence in the Go SDK is not evidence that the endpoint does not exist."
+    },
+    "delete-by-type-request": {
+      "statement": "Deleting a sub-application by type is `DELETE /application/{id}/deleteAppByType` with the application type as a query parameter; the Go function sends only the type and the Microtenant filter, while Go's other segment deletes pass `ForceDelete: true`, and the Python function sends `applicationType` and an optional `microtenantId`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbytype/applicationsegmentbytype.go",
+          "quotes": [
+            "query.Set(\"applicationType\", applicationType)",
+            "/deleteAppByType\", mgmtConfig"
+          ],
+          "after": "func DeleteByApplicationType("
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "quotes": [
+            "common.DeleteApplicationQueryParams{ForceDelete: true, MicroTenantID: service.MicroTenantID()}"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segment_by_type.py",
+          "quotes": [
+            "params = {\"applicationType\": application_type}",
+            "/application/{segment_id}/deleteAppByType"
+          ]
+        }
+      ],
+      "conditions": "Whether the endpoint accepts forceDelete, and what it removes, is open (gap delete-by-type-scope)."
+    },
+    "application-type-validation": {
+      "statement": "The Go `GetByApplicationType` and `DeleteByApplicationType` reject any application type other than BROWSER_ACCESS, INSPECT or SECURE_REMOTE_ACCESS before sending a request, while the Python `get_segments_by_type` only requires a non-empty type and `delete_segments_by_type` does not check it; the API documents `applicationType` as a required string without an enum.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbytype/applicationsegmentbytype.go",
+          "quotes": [
+            "if !validApplicationTypes[applicationType] {",
+            "\"SECURE_REMOTE_ACCESS\": true,"
+          ],
+          "after": "func GetByApplicationType("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segment_by_type.py",
+          "quotes": [
+            "raise ValueError(\"The 'application_type' parameter must be provided.\")"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application~1getAppsByType/get/parameters/[name=applicationType]",
+          "expect": {
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segment_by_type.py",
+          "quotes": [
+            "if not application_type:",
+            "raise ValueError(\"The 'application_type' parameter must be provided.\")",
+            "Must be one of \"BROWSER_ACCESS\", \"INSPECT\", \"SECURE_REMOTE_ACCESS\"."
+          ],
+          "after": "def get_segments_by_type("
+        }
+      ],
+      "conditions": "Corrects the legacy statement that both SDKs validate the set client-side: the Python docstrings list the three values but no code compares them."
+    },
+    "connection-security-values": {
+      "statement": "The API's `connectionSecurity` on a PRA sub-application takes ANY, NLA, NLA_EXT, TLS, VM_CONNECT or RDP, and the Python docstring lists the same six; the Go PRA sub-application field is a plain string with no value list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/praApps/items/properties/connectionSecurity",
+          "expect": {
+            "enum": [
+              "ANY",
+              "NLA",
+              "NLA_EXT",
+              "TLS",
+              "VM_CONNECT",
+              "RDP"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_pra.py",
+          "quotes": [
+            "Values: `ANY`, `NLA`, `NLA_EXT`, `TLS`, `VM_CONNECT`, `RDP`."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "quotes": [
+            "ConnectionSecurity string `json:\"connectionSecurity,omitempty\"`"
+          ],
+          "after": "type AppsConfig struct {"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/praApps/items/properties/connectionSecurity",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "ANY",
+              "NLA",
+              "NLA_EXT",
+              "TLS",
+              "VM_CONNECT",
+              "RDP"
+            ]
+          }
+        }
+      ],
+      "conditions": "Settles the legacy open question that NLA was unconfirmed (ledger zpa-24): the API specification lists it. Corrects the legacy statement that the Go struct agrees with a five-value list. A schema enum is not a live acceptance test."
+    }
+  },
+  "divergences": {
+    "bulk-multimatch-id-type": {
+      "summary": "The Go bulk Multimatch update types the application IDs as integers, while the Python SDK documents and exemplifies string IDs and passes the body through unchanged.",
+      "positions": [
+        {
+          "says": "The Go payload serializes `applicationIds` as JSON numbers.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+            "quotes": [
+              "ApplicationIDs []int  `json:\"applicationIds\"`"
+            ]
+          }
+        },
+        {
+          "says": "The Python docstring takes a list of string IDs and sends the keyword arguments as the body.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/application_segment.py",
+            "quotes": [
+              "application_ids (list of str): List of application segment IDs to update.",
+              "body = kwargs"
+            ],
+            "after": "def bulk_update_multimatch(self, **kwargs)"
+          }
+        }
+      ],
+      "impact": "The two SDKs send different JSON types to the same PUT /application/bulkUpdateMultiMatch. The OpenAPI document does not define the endpoint, so no source says which form the API accepts; a call that fails with one SDK may need the other form."
+    }
+  },
+  "gaps": {
+    "put-share-removal": {
+      "kind": "semantic",
+      "title": "Whether a segment PUT carrying a null or empty shareToMicrotenants removes existing shares",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "telling whether the always-sent shareToMicrotenants member in the Go core model can unshare a segment on an unrelated update",
+      "detail": "Unverified legacy statement: an empty slice serializes and can trigger removal of existing shares on an inadvertent PUT. No source states the server behavior. In a scratch tenant, share a segment, PUT the segment with shareToMicrotenants omitted, null and [], and read the sharing state after each."
+    },
+    "delete-by-type-scope": {
+      "kind": "semantic",
+      "title": "What DELETE deleteAppByType removes and whether it accepts forceDelete",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "telling whether deleting a typed sub-application leaves the parent segment and whether a force flag has any effect",
+      "detail": "Unverified legacy statement: this endpoint does not accept forceDelete and deletes only the typed child record, not the parent application segment. The SDK code only shows the applicationType query parameter; the OpenAPI document does not define the path."
+    }
+  }
+}

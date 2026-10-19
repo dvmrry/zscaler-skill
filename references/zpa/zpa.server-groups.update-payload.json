@@ -174,9 +174,26 @@
             "self.dynamic_discovery = config[\"dynamicDiscovery\"] if \"dynamicDiscovery\" in config else True",
             "\"dynamicDiscovery\": True if self.dynamic_discovery else False,"
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup~1{groupId}/get/responses/200/content/*~1*/schema/properties/dynamicDiscovery",
+          "expect": {
+            "description": "Defaults to false.",
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup~1{groupId}/get/responses/200/content/*~1*/schema",
+          "expect": {
+            "required": ["configSpace", "name"]
+          }
         }
       ],
-      "conditions": "Applies only when the API response lacks the field. Whether it ever does is unknown; the OpenAPI document describes the request field only.",
+      "conditions": "Applies only when the API response lacks the field. Whether it ever does is unknown. The contract's GET response lists dynamicDiscovery (\"Defaults to false.\") but does not require it (required: configSpace, name), and that documented default is the opposite of the Python model's; the defaults across sources are the divergence zpa.server-groups.discovery-mode:dynamic-discovery-default.",
       "binds": [
         "zpa/server-groups#dynamicDiscovery"
       ]

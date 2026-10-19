@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.machine-groups-wire",
+  "title": "Machine group list scoping and vpnConnectedUsers wire details",
+  "aliases": [
+    "machine group microtenantId 0",
+    "vpnConnectedUsers",
+    "NPClient UserName",
+    "default microtenant query parameter"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-groups.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.api-scoping"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Machine group and VPN-connected-user API details beyond the read-only surface already described in [[zpa.machine-groups.api-surface]]. The machine-group model gaps, the signingCert versus enrollmentCert divergence and the summary endpoint are in that subject."
+    },
+    {
+      "text": "{{microtenant-default-zero}}"
+    },
+    {
+      "heading": "VPN connected users"
+    },
+    {
+      "text": "{{np-client-no-microtenant-filter}} {{np-client-wire-shape}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Python machine group list for the Default microtenant (0) was overridden by the client's configured microtenantId.",
+      "uses": [
+        "microtenant-default-zero"
+      ]
+    },
+    {
+      "do": "Whether a vpnConnectedUsers read was expected to be microtenant-scoped, which the Go SDK does not do.",
+      "uses": [
+        "np-client-no-microtenant-filter"
+      ]
+    }
+  ],
+  "claims": {
+    "microtenant-default-zero": {
+      "statement": "The OpenAPI machine group list says microtenantId is 0 for the Default microtenant and null for Customer data microtenant. The Python list_machine_groups maps microtenant_id only when it is truthy, but the executor camel-cases ZPA query keys, so a caller's `microtenant_id` reaches the wire as `microtenantId` whether or not the module maps it. A falsy value is replaced by the client's configured microtenantId when one is set. The Go pagination struct omits microtenantId only when its pointer is nil.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1machineGroup/get/parameters/[name=microtenantId]",
+          "expect": {
+            "description": "The unique identifier of the microtenant of ZPA tenant. For Default microtenant 0 should be passed and for Customer data microtenant should be null."
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/machine_groups.py",
+          "quotes": [
+            "microtenant_id = query_params.get(\"microtenant_id\", None)",
+            "if microtenant_id:",
+            "query_params[\"microtenantId\"] = microtenant_id"
+          ],
+          "after": "def list_machine_groups(self, query_params"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "converted = convert_keys_to_camel_case(params)",
+            "microtenant_id = self._get_microtenant_id(body, params)",
+            "params[\"microtenantId\"] = microtenant_id"
+          ],
+          "after": "# For all other ZPA endpoints, keep `pagesize` in lowercase"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "self.microtenant_id = self._config[\"client\"].get(\"microtenantId\")",
+            "if params and \"microtenantId\" in params and params[\"microtenantId\"]:",
+            "return self.microtenant_id"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "MicroTenantID   *string `url:\"microtenantId,omitempty\"`"
+          ],
+          "after": "type Pagination struct"
+        }
+      ],
+      "conditions": "Whether the server treats a missing microtenantId as the default or as the customer-data microtenant is stated only by the OpenAPI description. The Python half was restated because the executor camel-cases and back-fills microtenantId, so an integer 0 is not dropped as the earlier statement said."
+    },
+    "np-client-no-microtenant-filter": {
+      "statement": "The Go np_client service passes an empty common.Filter to both GetAll and GetByName for vpnConnectedUsers, so the service's microtenant ID is never added. The Python NPNClientControllerAPI list_vpn_connected_users forwards query_params without the microtenant_id mapping that list_machine_groups performs, but Python scopes it anyway, because the executor camel-cases microtenant_id and falls back to the client's configured microtenantId.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/np_client/np_client.go",
+          "quotes": [
+            "filter := common.Filter{}"
+          ],
+          "after": "func GetAll(ctx context.Context, service *zscaler.Service)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/np_client/np_client.go",
+          "quotes": [
+            "filter := common.Filter{}"
+          ],
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, userName string)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/npn_client_controller.py",
+          "quotes": [
+            "query_params = query_params or {}"
+          ],
+          "after": "def list_vpn_connected_users(self, query_params"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "converted = convert_keys_to_camel_case(params)",
+            "microtenant_id = self._get_microtenant_id(body, params)",
+            "params[\"microtenantId\"] = microtenant_id"
+          ],
+          "after": "# For all other ZPA endpoints, keep `pagesize` in lowercase"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "self.microtenant_id = self._config[\"client\"].get(\"microtenantId\")",
+            "return self.microtenant_id"
+          ]
+        }
+      ],
+      "conditions": "The Python half was changed from 'also unscoped' to the contrast, because the executor camel-cases and back-fills microtenantId for every ZPA request."
+    },
+    "np-client-wire-shape": {
+      "statement": "The Go NPClient struct types id, modifiedBy, modifiedTime, creationTime, deviceState and vpnServiceEdgeId as int, unlike the string IDs of other ZPA structs, and tags the user name key `UserName` with a capital U and N.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/np_client/np_client.go",
+          "quotes": [
+            "Id                 int    `json:\"id,omitempty\"`",
+            "VpnServiceEdgeId   int    `json:\"vpnServiceEdgeId,omitempty\"`",
+            "UserName           string `json:\"UserName,omitempty\"`"
+          ]
+        }
+      ]
+    }
+  }
+}

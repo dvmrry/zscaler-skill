@@ -1,0 +1,732 @@
+{
+  "schema_version": 1,
+  "id": "zpa.api.server-groups-wire",
+  "title": "Server group and application server wire details: write responses, always-sent keys, nested fields and the extranet object",
+  "aliases": [
+    "server group PUT returns 204",
+    "update_server drops fields",
+    "server group weight passive missing",
+    "extranetDTO python",
+    "configSpace SIEM server group",
+    "servergroup package unused structs"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.server-groups.update-payload"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.server-groups.discovery-mode"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.server-groups.multiple-on-segment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are the wire details of the server group and application server calls that the SDKs and the API document disagree on or hide. The group's purpose and its connector and discovery rules are in [[zpa.server-groups.update-payload]] and [[zpa.server-groups.discovery-mode]]."
+    },
+    {
+      "heading": "Writes"
+    },
+    {
+      "label": "Update returns nothing.",
+      "text": "{{put-returns-no-content}}"
+    },
+    {
+      "label": "Keys always sent.",
+      "text": "{{server-group-always-sent-fields}} {{application-server-always-sent-fields}} Zero-value handling for the other flags is in [[shared.sdk-go.zero-value-writes]]."
+    },
+    {
+      "label": "Python update paths.",
+      "text": "{{python-update-server-sends-only-kwargs}} {{python-app-server-model-no-microtenant}}"
+    },
+    {
+      "heading": "Fields and shapes"
+    },
+    {
+      "text": "{{config-space-values}} What the API does when configSpace is left out is open {{gap:config-space-default}}."
+    },
+    {
+      "text": "{{nested-server-group-passive-weight}}"
+    },
+    {
+      "text": "{{server-group-package-unused-copies}}"
+    },
+    {
+      "text": "The contract's inconsistentConfigDetails object on a server group is described in [[zpa.server-groups:inconsistent-config-details-contract]]; neither SDK model carries it {{divergence:inconsistent-config-details-sdk-models}}."
+    },
+    {
+      "heading": "Extranet object"
+    },
+    {
+      "text": "{{extranet-dto-go-fields}} {{extranet-dto-python-fields}} The three shapes disagree {{divergence:extranet-dto-shape}}. {{extranet-dto-python-location-group-not-sent}}"
+    },
+    {
+      "text": "Both SDKs call the server summary path: {{server-summary-sdk-calls}}"
+    },
+    {
+      "text": "The contract does not list the server summary path: {{server-summary-not-in-contract}}"
+    },
+    {
+      "text": "Which fields a write needs on the extranet object is open {{gap:extranet-dto-write-shape}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a write response was expected to carry the updated object; the PUT returns 204, so read the group or server back.",
+      "uses": [
+        "put-returns-no-content"
+      ]
+    },
+    {
+      "do": "Whether a Go write could carry a false, empty string or empty list the caller did not intend, given the always-sent keys.",
+      "uses": [
+        "server-group-always-sent-fields",
+        "application-server-always-sent-fields"
+      ]
+    },
+    {
+      "do": "Whether a Python update that touches a server supplied every field to keep, since update_server does not read first.",
+      "uses": [
+        "python-update-server-sends-only-kwargs"
+      ]
+    },
+    {
+      "do": "Whether a missing passive or weight on a decoded server group came from the SDK type rather than the tenant.",
+      "uses": [
+        "nested-server-group-passive-weight"
+      ]
+    },
+    {
+      "do": "Whether extranet data written through Python lost its location groups or its ZPA extranet id.",
+      "uses": [
+        "extranet-dto-python-location-group-not-sent",
+        "extranet-dto-shape"
+      ]
+    }
+  ],
+  "claims": {
+    "put-returns-no-content": {
+      "statement": "The API answers a PUT on a server group and on an application server with 204 No Content. The Go server group update passes no response target and returns only the HTTP response, and the Python update_server returns a stub holding only the id, so the updated state must be read back with a GET.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup~1{groupId}/put/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1server~1{serverId}/put/responses/204",
+          "expect": {
+            "description": "No Content"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, serverGroup, nil)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/servers.py",
+          "quotes": [
+            "return (AppServers({\"id\": server_id}), response, None)"
+          ]
+        }
+      ]
+    },
+    "server-group-always-sent-fields": {
+      "statement": "The Go ServerGroup request type tags ipAnchored and the three lists appConnectorGroups, servers and applications without omitempty, so those keys are on every create and update, while readOnly and zscalerManaged are tagged omitempty and are left out when false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
+          "quotes": [
+            "IpAnchored bool `json:\"ipAnchored\"`",
+            "AppConnectorGroups []appconnectorgroup.AppConnectorGroup `json:\"appConnectorGroups\"`",
+            "Servers []appservercontroller.ApplicationServer `json:\"servers\"`",
+            "Applications []Applications `json:\"applications\"`",
+            "ReadOnly bool `json:\"readOnly,omitempty\"`",
+            "ZscalerManaged bool `json:\"zscalerManaged,omitempty\"`"
+          ],
+          "after": "type ServerGroup struct {"
+        }
+      ],
+      "conditions": "The wire shape only. What the API does with a PUT that carries an empty or missing list is not established here; see gap servers-omitted-update-effect in zpa.server-groups.update-payload. The enabled, dynamicDiscovery and extranetEnabled tags are covered in shared.sdk-go.zero-value-writes."
+    },
+    "application-server-always-sent-fields": {
+      "statement": "The canonical Go application server type (the one a server group's servers list uses) tags address, appServerGroupIds, creationTime, description, modifiedBy and modifiedTime without omitempty, so an empty address or description string is sent on a write.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appservercontroller/zpa_app_server_controller.go",
+          "quotes": [
+            "Address string `json:\"address\"`",
+            "AppServerGroupIds []string `json:\"appServerGroupIds\"`",
+            "CreationTime string `json:\"creationTime\"`",
+            "Description string `json:\"description\"`",
+            "ModifiedBy string `json:\"modifiedBy\"`",
+            "ModifiedTime string `json:\"modifiedTime\"`"
+          ],
+          "after": "type ApplicationServer struct {"
+        }
+      ]
+    },
+    "server-group-package-unused-copies": {
+      "statement": "The Go servergroup package defines its own ApplicationServer (address tagged omitempty), AppConnectorGroups (latitude and longitude as strings) and Connectors (latitude and longitude as float64) types, but the ServerGroup type does not use them: its servers list is the appservercontroller type and its connector groups are the appconnectorgroup type. Only a ZIA test file and the examples README refer to the servergroup AppConnectorGroups copy, and both assign it to ServerGroup.AppConnectorGroups, which no longer has that type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
+          "quotes": [
+            "Address string `json:\"address,omitempty\"`"
+          ],
+          "after": "type ApplicationServer struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
+          "quotes": [
+            "Latitude string `json:\"latitude,omitempty\"`"
+          ],
+          "after": "type AppConnectorGroups struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
+          "quotes": [
+            "Latitude float64 `json:\"latitude,omitempty\"`"
+          ],
+          "after": "type Connectors struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
+          "quotes": [
+            "Servers []appservercontroller.ApplicationServer `json:\"servers\"`",
+            "AppConnectorGroups []appconnectorgroup.AppConnectorGroup `json:\"appConnectorGroups\"`"
+          ],
+          "after": "type ServerGroup struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/forwarding_control_policy/zpa_gateways/zpa_gateways_test.go",
+          "quotes": [
+            "AppConnectorGroups: []servergroup.AppConnectorGroups{"
+          ],
+          "after": "serverGroup, _, err := servergroup.Create(context.Background(), service, &servergroup.ServerGroup{"
+        },
+        {
+          "source": "sdk-go",
+          "path": "examples/zpa/zpa_server_groups/README.md",
+          "quotes": [
+            "AppConnectorGroups: []servergroup.AppConnectorGroups{"
+          ],
+          "after": "app := servergroup.ServerGroup{"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup~1{groupId}/get/responses/200/content/*~1*/schema/properties/appConnectorGroups/items/properties/latitude",
+          "expect": {
+            "description": "The latitude of the App Connector group.",
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup~1{groupId}/get/responses/200/content/*~1*/schema/properties/appConnectorGroups/items/properties/connectors/items/properties/latitude",
+          "expect": {
+            "description": "The latitude of the App Connector. This field is read only and is ignored in PUT and POST requests.",
+            "format": "double",
+            "type": "number"
+          }
+        }
+      ],
+      "conditions": "The unused copies matter only to code that imports them directly. The API document gives the group latitude as a string and the connector latitude as a double, which matches the two copies. Use of the copies was searched with git grep over the Go SDK at the pin. The last sentence now names the examples README as well and says both references assign the copy to a field of a different type, per verification v3."
+    },
+    "python-app-server-model-no-microtenant": {
+      "statement": "The API document and the Go ApplicationServer type carry microtenantId on an application server, but the Python AppServers model has no microtenant member, so a server read through Python does not show its microtenant. Both SDKs scope application server writes with the microtenantId query parameter: Go from the service's microtenant, Python from the caller's microtenant_id.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1server/post/requestBody/content/application~1json/schema/properties/microtenantId",
+          "expect": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appservercontroller/zpa_app_server_controller.go",
+          "quotes": [
+            "MicroTenantID string `json:\"microtenantId,omitempty\"`",
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+appServerControllerEndpoint, common.Filter{MicroTenantID: service.MicroTenantID()}, server, &v)"
+          ],
+          "after": "type ApplicationServer struct {"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/servers.py",
+          "quotes": [
+            "params = {\"microtenantId\": microtenant_id} if microtenant_id else {}"
+          ],
+          "after": "def add_server(self, **kwargs) -> APIResult[dict]:"
+        }
+      ],
+      "conditions": "Added from verification v3 to hold the legacy ApplicationServer.MicroTenantID heading. The absence was read with `grep -i microtenant` over zscaler/zpa/models/application_servers.py at HEAD (no hits). The legacy advice to use the canonical Go struct for scoped writes is not carried over, since both SDKs scope writes by query parameter."
+    },
+    "python-update-server-sends-only-kwargs": {
+      "statement": "Python update_server builds its PUT body from the caller's keyword arguments alone, without first reading the server, so any field the caller leaves out is not sent. This differs from update_group, which reads the group first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/servers.py",
+          "quotes": [
+            "body = {}",
+            "body.update(kwargs)"
+          ],
+          "after": "def update_server(self, server_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/server_groups.py",
+          "quotes": [
+            "existing_group, _, err = self.get_group(group_id)"
+          ]
+        }
+      ],
+      "conditions": "Whether the API treats an omitted field in a PUT as unchanged or as cleared is not established here."
+    },
+    "config-space-values": {
+      "statement": "The API document gives configSpace on a server group and on an application server the values DEFAULT and SIEM. The Go ServerGroup type sends it only when non-empty, the Python AppServers model reads a missing configSpace as DEFAULT, and the Python ServerGroup model reads it as None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup/post/requestBody/content/application~1json/schema/properties/configSpace",
+          "expect": {
+            "enum": [
+              "DEFAULT",
+              "SIEM"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1server/post/requestBody/content/application~1json/schema/properties/configSpace",
+          "expect": {
+            "enum": [
+              "DEFAULT",
+              "SIEM"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
+          "quotes": [
+            "ConfigSpace string `json:\"configSpace,omitempty\"`"
+          ],
+          "after": "type ServerGroup struct {"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_servers.py",
+          "quotes": [
+            "self.config_space = config[\"configSpace\"] if \"configSpace\" in config else \"DEFAULT\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/server_group.py",
+          "quotes": [
+            "self.config_space = config[\"configSpace\"] if \"configSpace\" in config else None"
+          ]
+        }
+      ]
+    },
+    "nested-server-group-passive-weight": {
+      "statement": "In a server group's GET response each entry of appConnectorGroups[].serverGroups carries passive and weight. The Go appconnectorgroup AppServerGroup type has neither member, so both are dropped when a Go caller decodes that response, and the Python ServerGroup model reads and writes weight but has no passive member.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup~1{groupId}/get/responses/200/content/*~1*/schema/properties/appConnectorGroups/items/properties/serverGroups/items/properties/passive",
+          "expect": {
+            "description": "Indicates if the server groups are in an active state and can load balance (false), or if the server groups stay passive (true).",
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup~1{groupId}/get/responses/200/content/*~1*/schema/properties/appConnectorGroups/items/properties/serverGroups/items/properties/weight",
+          "expect": {
+            "description": "The weight of the load balancing configuration. Weights with a lower value indicate that a lesser number of requests are served by the App Connectors linked to the server group. Weights with a higher value than other server groups indicate that the App Connectors linked to the server group serve a greater number of requests. Server groups with weights set to 0 do not route requests.",
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
+          "quotes": [
+            "DynamicDiscovery bool `json:\"dynamicDiscovery,omitempty\"`",
+            "Name string `json:\"name,omitempty\"` } type NPAssistantGroup struct {"
+          ],
+          "after": "type AppServerGroup struct {"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/server_group.py",
+          "quotes": [
+            "self.weight = config[\"weight\"] if \"weight\" in config else None",
+            "\"weight\": self.weight,"
+          ]
+        }
+      ],
+      "conditions": "Absence in the Go type and the Python model is read from the full struct and model source at the pin (git grep -i passive over the servergroup Go package and the Python server_group model finds nothing). The server group weight set through an application segment is a separate mapping, see zpa.server-groups.multiple-on-segment."
+    },
+    "extranet-dto-go-fields": {
+      "statement": "The Go ExtranetDTO has locationDTO, locationGroupDTO, ziaErName and zpnErId, all tagged omitempty, and no id, ziaErId or timestamp members.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "LocationDTO []LocationDTO `json:\"locationDTO,omitempty\"`",
+            "LocationGroupDTO []LocationGroupDTO `json:\"locationGroupDTO,omitempty\"`",
+            "ZiaErName string `json:\"ziaErName,omitempty\"`",
+            "ZpnErID string `json:\"zpnErId,omitempty\"`"
+          ],
+          "after": "type ExtranetDTO struct {"
+        }
+      ]
+    },
+    "extranet-dto-python-fields": {
+      "statement": "The Python ExtranetDTO model reads id, modifiedTime, creationTime, modifiedBy, ziaErName, ziaErId, locationDTO and locationGroupDTO, and has no zpnErId.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/common.py",
+          "quotes": [
+            "self.zia_er_id = config[\"ziaErId\"] if \"ziaErId\" in config else None",
+            "config[\"locationGroupDTO\"] if \"locationGroupDTO\" in config else [], LocationGroupDTO"
+          ],
+          "after": "class ExtranetDTO(ZscalerObject):"
+        }
+      ],
+      "conditions": "No zpnErId appears in the ExtranetDTO class; the separate ZPNERID model elsewhere in the file is not part of it."
+    },
+    "extranet-dto-python-location-group-not-sent": {
+      "statement": "The Python ExtranetDTO request_format emits locationDTO but no locationGroupDTO, so a location group read from a response is not written back, and an ExtranetDTO built without a config does not set a location_group_dto attribute at all.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/common.py",
+          "quotes": [
+            "\"locationDTO\": self.location_dto, } parent_req_format.update(current_obj_format)",
+            "self.zia_er_id = None self.location_dto = [] def request_format(self) -> Dict[str, Any]:"
+          ],
+          "after": "class ExtranetDTO(ZscalerObject):"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup/post/requestBody/content/application~1json/schema/properties/extranetDTO/properties/locationGroupDTO",
+          "expect": {
+            "description": "The extranet location groups configured in ZIA.",
+            "items": {
+              "properties": {
+                "id": {
+                  "description": "The unique identifier of the extranet location group.",
+                  "format": "int64",
+                  "type": "integer"
+                },
+                "name": {
+                  "description": "The name of the extranet location group.",
+                  "type": "string"
+                },
+                "ziaLocations": {
+                  "description": "The extranet locations that can reach the application via an IPSec tunnel.",
+                  "items": {
+                    "properties": {
+                      "id": {
+                        "description": "The list of unique identifiers for the entity type.",
+                        "format": "int64",
+                        "type": "integer"
+                      },
+                      "name": {
+                        "description": "The list of names for the entity type.",
+                        "type": "string"
+                      }
+                    },
+                    "title": "NameIdDto"
+                  },
+                  "type": "array"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "title": "LocationGroupDTO"
+            },
+            "type": "array"
+          }
+        }
+      ],
+      "conditions": "The API document lists locationGroupDTO as a request property of the extranetDTO object, which is why the omission matters."
+    },
+    "server-summary-sdk-calls": {
+      "statement": "Both SDKs read a server summary with GET `/server/summary`: the Go `GetServerSummary` and the Python `list_servers_summary`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appservercontroller/zpa_app_server_controller.go",
+          "quotes": [
+            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + appServerControllerEndpoint + \"/summary\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/servers.py",
+          "quotes": [
+            "/server/summary"
+          ]
+        }
+      ]
+    },
+    "server-summary-not-in-contract": {
+      "statement": "The OpenAPI document lists GET and POST on the server collection and GET, PUT and DELETE by ID, and no `/server/summary` path.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1server/get",
+          "expect": {
+            "operationId": "Gets all configured Servers for the specified customer."
+          }
+        }
+      ],
+      "conditions": "Absence claim: the server path item lists only get and post, and no path ending in server/summary exists in the document."
+    }
+  },
+  "divergences": {
+    "inconsistent-config-details-sdk-models": {
+      "summary": "The OpenAPI server group schemas define inconsistentConfigDetails, but the Go ServerGroup struct and the Python ServerGroup model do not carry it.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup/post/requestBody/content/application~1json/schema/properties/inconsistentConfigDetails/properties/serverGroup",
+            "expect": {
+              "type": "array"
+            }
+          },
+          "says": "The create request and read response schemas define inconsistentConfigDetails."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
+            "quotes": [
+              "ExtranetDTO common.ExtranetDTO `json:\"extranetDTO,omitempty\"` } type Applications struct {"
+            ]
+          },
+          "says": "The Go ServerGroup struct ends at extranetDTO and has no inconsistentConfigDetails member, so the field is dropped on read and never sent; `git grep -i inconsistent` over zscaler/zpa/services/servergroup at HEAD finds nothing."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/models/server_group.py",
+            "quotes": [
+              "class ServerGroup(ZscalerObject):"
+            ]
+          },
+          "says": "The Python ServerGroup model reads each field by an explicit key and none of them is inconsistentConfigDetails: `git grep -i inconsistent` over zscaler/zpa/models/server_group.py at HEAD finds nothing (the Python models carry it only in application_segment.py, policy_group.py and policy_rule.py)."
+        }
+      ],
+      "impact": "A client that depends on the SDK models cannot read the drift report the API returns for a server group, and cannot send it; read it with a raw API call. The absence in both SDKs was read by searching for the field name at HEAD; the quoted lines mark where each model is defined."
+    },
+    "extranet-dto-shape": {
+      "summary": "The extranet object on a server group is shaped differently by the API document, the Go SDK and the Python SDK",
+      "positions": [
+        {
+          "says": "The API document's extranetDTO has id, creationTime, modifiedBy, modifiedTime, locationDTO, locationGroupDTO, ziaErName and zpnErId.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup/post/requestBody/content/application~1json/schema/properties/extranetDTO/properties/zpnErId",
+            "expect": {
+              "description": "The unique identifier of the extranet resource that is configured in ZIA. To learn more, see <a href=\"https://help.zscaler.com/zia/about-extranet\" target= _blank>About Extranet</a>.",
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "says": "The Go SDK carries zpnErId and ziaErName with the two location lists and has no id, timestamps or ziaErId.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/common/common.go",
+            "quotes": [
+              "ZpnErID string `json:\"zpnErId,omitempty\"`"
+            ],
+            "after": "type ExtranetDTO struct {"
+          }
+        },
+        {
+          "says": "The Python SDK carries ziaErId, id and timestamps and has no zpnErId.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/models/common.py",
+            "quotes": [
+              "self.zia_er_id = config[\"ziaErId\"] if \"ziaErId\" in config else None"
+            ],
+            "after": "class ExtranetDTO(ZscalerObject):"
+          }
+        }
+      ],
+      "impact": "A Python client cannot set or read the ZPA extranet resource id through extranetDTO, and a Go client drops id and timestamps from a response. Neither SDK round-trips the whole object the API document describes."
+    }
+  },
+  "gaps": {
+    "config-space-default": {
+      "kind": "semantic",
+      "title": "Whether the API defaults a missing configSpace on a server group or application server to DEFAULT",
+      "status": "open",
+      "detail": "Unverified legacy statement: when configSpace is absent the API defaults to DEFAULT. The Go types omit an empty configSpace and the Python AppServers model assumes DEFAULT, but no source states the server-side default. The contract lists configSpace as required on server group create and update (`required: [\"configSpace\",\"name\"]`) but not on the application server (`required: [\"enabled\",\"name\"]`). The Terraform provider's server group and application server resources both default config_space to DEFAULT client-side, so a provider write always sends it.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "required": ["configSpace", "name"]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup~1{groupId}/put/requestBody/content/application~1json/schema",
+          "expect": {
+            "required": ["configSpace", "name"]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1server/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "required": ["enabled", "name"]
+          }
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "quotes": [
+            "Default: \"DEFAULT\","
+          ],
+          "after": "\"config_space\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_server_controller.go",
+          "quotes": [
+            "Default: \"DEFAULT\","
+          ],
+          "after": "\"config_space\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "quotes": [
+            "ConfigSpace: d.Get(\"config_space\").(string),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_server_controller.go",
+          "quotes": [
+            "ConfigSpace: d.Get(\"config_space\").(string),"
+          ]
+        }
+      ],
+      "blocks": "telling whether leaving configSpace out of a create is safe",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "extranet-dto-write-shape": {
+      "kind": "semantic",
+      "title": "What a write-ready extranet object on a server group contains",
+      "status": "open",
+      "detail": "The contract's server group extranetDTO request schema requires locationDTO, locationGroupDTO and zpnErId (int64) and has no ziaErId; ziaErId is a member of the separate ZpnExtranetResource object (Go ZPNERID). Go sends zpnErId as a string; Python sends ziaErId and neither zpnErId nor locationGroupDTO. Open: whether the API accepts each SDK's body. Read a server group with extranet enabled and write it back through each SDK, then compare the stored object.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup/post/requestBody/content/application~1json/schema/properties/extranetDTO",
+          "expect": {
+            "required": ["locationDTO", "locationGroupDTO", "zpnErId"],
+            "title": "ExtranetDTO"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1appConnectorGroup~1{appConnectorGroupId}/get/responses/200/content/*~1*/schema/properties/serverGroups/items/properties/zpnErId",
+          "expect": {
+            "required": ["ziaCloud", "ziaErId", "ziaErName", "ziaOrgId"],
+            "title": "ZpnExtranetResource"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "ZIAErID string `json:\"ziaErId,omitempty\"`"
+          ],
+          "after": "type ZPNERID struct {"
+        }
+      ],
+      "blocks": "writing extranet settings on a server group through either SDK",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}
